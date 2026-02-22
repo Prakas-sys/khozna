@@ -1,0 +1,1390 @@
+﻿[+1384 ms] Artifact Instance of 'MaterialFonts' is not required, skipping update.
+[   +5 ms] Artifact Instance of 'GradleWrapper' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[  +13 ms] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterSdk' is not required, skipping update.
+[   +1 ms] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[   +1 ms] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[   +1 ms] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[   +3 ms] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[   +1 ms] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[   +1 ms] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[   +1 ms] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FontSubsetArtifacts' is not required, skipping update.
+[   +3 ms] Artifact Instance of 'PubDependencies' is not required, skipping update.
+[   +3 ms] executing: [D:\flutter/] git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[ +476 ms] Exit code 0 from: git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[        ] 2026-02-12 17:12:32 -0800
+[ +213 ms] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[   +3 ms] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[  +59 ms] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[ +967 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe devices -l
+[ +449 ms] List of devices attached
+           0A53811128211366       device product:RMX3830 model:RMX3830 device:RE58BC transport_id:2
+[  +17 ms] C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe -s 0A53811128211366 shell getprop
+[ +313 ms] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[  +12 ms] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[   +1 ms] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[ +636 ms] Skipping pub get: version match.
+[ +432 ms] Found plugin path_provider at D:\Caches\pub-cache\hosted\pub.dev\path_provider-2.1.5\
+[  +29 ms] Found plugin path_provider_windows at D:\Caches\pub-cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[  +53 ms] Found plugin path_provider_linux at D:\Caches\pub-cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[  +39 ms] Found plugin path_provider_foundation at D:\Caches\pub-cache\hosted\pub.dev\path_provider_foundation-2.6.0\
+[ +124 ms] Found plugin path_provider_android at D:\Caches\pub-cache\hosted\pub.dev\path_provider_android-2.2.22\
+[ +671 ms] Found plugin path_provider at D:\Caches\pub-cache\hosted\pub.dev\path_provider-2.1.5\
+[  +14 ms] Found plugin path_provider_windows at D:\Caches\pub-cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[  +66 ms] Found plugin path_provider_linux at D:\Caches\pub-cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[  +44 ms] Found plugin path_provider_foundation at D:\Caches\pub-cache\hosted\pub.dev\path_provider_foundation-2.6.0\
+[ +180 ms] Found plugin path_provider_android at D:\Caches\pub-cache\hosted\pub.dev\path_provider_android-2.2.22\
+[ +110 ms] Skipping generating web_plugin_registrant.dart because it is up-to-date.
+[ +274 ms] Found plugin path_provider at D:\Caches\pub-cache\hosted\pub.dev\path_provider-2.1.5\
+[   +5 ms] Found plugin path_provider_windows at D:\Caches\pub-cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[  +32 ms] Found plugin path_provider_linux at D:\Caches\pub-cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[   +9 ms] Found plugin path_provider_foundation at D:\Caches\pub-cache\hosted\pub.dev\path_provider_foundation-2.6.0\
+[  +52 ms] Found plugin path_provider_android at D:\Caches\pub-cache\hosted\pub.dev\path_provider_android-2.2.22\
+[  +87 ms] Generating D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\app\src\main\java\io\flutter\plugins\GeneratedPluginRegistrant.java
+[  +26 ms] Skipping generating GeneratedPluginRegistrant.java because it is up-to-date.
+[  +15 ms] ro.hardware = ums9230_hulk
+[   +1 ms] ro.build.characteristics = default
+[ +454 ms] Initializing file store
+[  +71 ms] Skipping target: gen_localizations
+[  +12 ms] gen_dart_plugin_registrant: Starting due to {InvalidatedReasonKind.inputChanged: The following inputs have updated contents: D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\.dart_tool\package_config.json,D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\.dart_tool\flutter_build\dart_plugin_registrant.dart}
+[ +664 ms] Found plugin path_provider at D:\Caches\pub-cache\hosted\pub.dev\path_provider-2.1.5\
+[   +9 ms] Found plugin path_provider_windows at D:\Caches\pub-cache\hosted\pub.dev\path_provider_windows-2.3.0\
+[ +171 ms] Found plugin path_provider_linux at D:\Caches\pub-cache\hosted\pub.dev\path_provider_linux-2.2.1\
+[  +38 ms] Found plugin path_provider_foundation at D:\Caches\pub-cache\hosted\pub.dev\path_provider_foundation-2.6.0\
+[ +185 ms] Found plugin path_provider_android at D:\Caches\pub-cache\hosted\pub.dev\path_provider_android-2.2.22\
+[ +260 ms] Skipping generating dart_plugin_registrant.dart because it is up-to-date.
+[   +2 ms] gen_dart_plugin_registrant: Complete
+[  +22 ms] Skipping target: _composite
+[  +47 ms] complete
+[  +30 ms] Launching lib\main.dart on RMX3830 in debug mode...
+[  +45 ms] D:\flutter\bin\cache\dart-sdk\bin\dartaotruntime.exe D:\flutter\bin\cache\dart-sdk\bin\snapshots\frontend_server_aot.dart.snapshot --sdk-root D:\flutter\bin\cache\artifacts\engine\common\flutter_patched_sdk/ --incremental --target=flutter --experimental-emit-debug-metadata -DFLUTTER_VERSION=3.41.1 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=582a0e7c55 -DFLUTTER_ENGINE_REVISION=3452d735bd -DFLUTTER_DART_VERSION=3.11.0 --output-dill C:\Users\praka\AppData\Local\Temp\flutter_tools.8a54add1\flutter_tool.35fb0003\app.dill --packages D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\.dart_tool\package_config.json -Ddart.vm.profile=false -Ddart.vm.product=false --enable-asserts --track-widget-creation --filesystem-scheme org-dartlang-root --initialize-from-dill build\fa875cea96ff9eb23bebfb51f104f901.cache.dill.track.dill --source file:///D:/MY%20DASHBOARD/STARTUP/Khozna/KHOZNA.COM/.dart_tool/flutter_build/dart_plugin_registrant.dart --source package:flutter/src/dart_plugin_registrant.dart -Dflutter.dart_plugin_registrant=file:///D:/MY%20DASHBOARD/STARTUP/Khozna/KHOZNA.COM/.dart_tool/flutter_build/dart_plugin_registrant.dart --verbosity=error --enable-experiment=alternative-invalidation-strategy
+[ +105 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe -s 0A53811128211366 shell -x logcat -v time -t 1
+[+2258 ms] <- compile package:khozna/main.dart
+[ +454 ms] --------- beginning of system
+           02-21 11:57:16.313 I/Telecom ( 1052): TelecomServiceImpl$1: isInEmergencyCall: false: TSI.iIEC@o7Q
+[  +83 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe version
+[ +691 ms] Android Debug Bridge version 1.0.41
+           Version 36.0.2-14143358
+           Installed as C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe
+           Running on Windows 10.0.26200
+[  +14 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe start-server
+[ +879 ms] Building APK
+[ +104 ms] executing: D:\Download\all app\all apps\store of app\android studio\jbr\bin\java -version
+[+1172 ms] Exit code 0 from: D:\Download\all app\all apps\store of app\android studio\jbr\bin\java -version
+[   +1 ms] openjdk version "21.0.4" 2024-07-16
+           OpenJDK Runtime Environment (build 21.0.4+-12508038-b607.1)
+           OpenJDK 64-Bit Server VM (build 21.0.4+-12508038-b607.1, mixed mode)
+[   +7 ms] executing: D:\Download\all app\all apps\store of app\android studio\jbr\bin\java -version
+[ +869 ms] Exit code 0 from: D:\Download\all app\all apps\store of app\android studio\jbr\bin\java -version
+[        ] openjdk version "21.0.4" 2024-07-16
+           OpenJDK Runtime Environment (build 21.0.4+-12508038-b607.1)
+           OpenJDK 64-Bit Server VM (build 21.0.4+-12508038-b607.1, mixed mode)
+[  +14 ms] executing: D:\Download\all app\all apps\store of app\android studio\jbr\bin\java -version
+[+1795 ms] Exit code 0 from: D:\Download\all app\all apps\store of app\android studio\jbr\bin\java -version
+[        ] openjdk version "21.0.4" 2024-07-16
+           OpenJDK Runtime Environment (build 21.0.4+-12508038-b607.1)
+           OpenJDK 64-Bit Server VM (build 21.0.4+-12508038-b607.1, mixed mode)
+[  +28 ms] Top-level Gradle build file not found, skipping migration of task "clean".
+[   +7 ms] executing: D:\Download\all app\all apps\store of app\android studio\jbr\bin\java --version
+[ +795 ms] Exit code 0 from: D:\Download\all app\all apps\store of app\android studio\jbr\bin\java --version
+[        ] openjdk 21.0.4 2024-07-16
+           OpenJDK Runtime Environment (build 21.0.4+-12508038-b607.1)
+           OpenJDK 64-Bit Server VM (build 21.0.4+-12508038-b607.1, mixed mode)
+[   +6 ms] Version of Java is different than impacted version, no migration attempted.
+[  +64 ms] CMake project not found, skipping support Android 15 16k page size migration.
+[  +37 ms] Using gradle from D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\gradlew.bat.
+[  +78 ms] LocalFile: 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\build.gradle.kts' doesn't provide an AGP version. Checking settings.
+[  +10 ms] LocalFile: 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\settings.gradle.kts' provides AGP version: 8.11.1
+[ +175 ms] Running Gradle task 'assembleDebug'...
+[  +14 ms] executing: [D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android/] D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\gradlew.bat --full-stacktrace --info -Pverbose=true -Ptarget-platform=android-arm64 -Ptarget=D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\lib\main.dart -Pbase-application-name=android.app.Application -Pdart-defines=RkxVVFRFUl9WRVJTSU9OPTMuNDEuMQ==,RkxVVFRFUl9DSEFOTkVMPXN0YWJsZQ==,RkxVVFRFUl9HSVRfVVJMPWh0dHBzOi8vZ2l0aHViLmNvbS9mbHV0dGVyL2ZsdXR0ZXIuZ2l0,RkxVVFRFUl9GUkFNRVdPUktfUkVWSVNJT049NTgyYTBlN2M1NQ==,RkxVVFRFUl9FTkdJTkVfUkVWSVNJT049MzQ1MmQ3MzViZA==,RkxVVFRFUl9EQVJUX1ZFUlNJT049My4xMS4w -Pdart-obfuscation=false -Ptrack-widget-creation=true -Ptree-shake-icons=false -Pfilesystem-scheme=org-dartlang-root assembleDebug
+[+8721 ms] Initialized native services in: D:\Caches\.gradle\native
+[   +3 ms] Initialized jansi services in: D:\Caches\.gradle\native
+[+3255 ms] The client will now receive all logging from the daemon (pid: 9112). The daemon log file: D:\Caches\.gradle\daemon\8.14\daemon-9112.out.log
+[ +112 ms] Starting 2nd build in daemon [uptime: 7 mins 1.129 secs, performance: 100%, GC rate: 0.00/s, heap usage: 0% of 8 GiB, non-heap usage: 3% of 4 GiB]
+[ +588 ms] Using 8 worker leases.
+[ +901 ms] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\fileHashes\fileHashes.bin
+[ +199 ms] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\buildOutputCleanup\outputFiles.bin
+[ +197 ms] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\fileHashes\resourceHashesCache.bin
+[ +415 ms] Now considering [D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android, D:\flutter\packages\flutter_tools\gradle] as hierarchies to watch
+[ +196 ms] Watching the file system is configured to be enabled if available
+[+1100 ms] File system watching is active
+[ +410 ms] Starting Build
+[ +580 ms] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\checksums\md5-checksums.bin
+[        ] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\checksums\sha1-checksums.bin
+[   +1 ms] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\checksums\sha256-checksums.bin
+[   +3 ms] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\checksums\sha512-checksums.bin
+[+1222 ms] Now considering [D:\flutter\packages\flutter_tools\gradle, D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android] as hierarchies to watch
+[+2795 ms] > Configure project :gradle
+[   +2 ms] Evaluating project ':gradle' using build file 'D:\flutter\packages\flutter_tools\gradle\build.gradle.kts'.
+[        ] Resolved plugin [id: 'org.gradle.java-gradle-plugin']
+[   +1 ms] Resolved plugin [id: 'org.gradle.groovy']
+[ +669 ms] Resolved plugin [id: 'org.gradle.kotlin.kotlin-dsl', version: '5.2.0']
+[ +108 ms] Resolved plugin [id: 'org.jetbrains.kotlin.jvm', version: '1.9.20']
+[+1391 ms] Invalidating in-memory cache of D:\Caches\.gradle\caches\journal-1\file-access.bin
+[+6645 ms] Invalidating in-memory cache of D:\Caches\.gradle\caches\8.14\fileHashes\fileHashes.bin
+[  +12 ms] Invalidating in-memory cache of D:\Caches\.gradle\caches\8.14\fileHashes\resourceHashesCache.bin
+[ +746 ms] Using Kotlin Gradle Plugin gradle85 variant
+[ +814 ms] kotlin scripting plugin: created the scripting discovery configuration: kotlinScriptDef
+[   +1 ms] kotlin scripting plugin: created the scripting discovery configuration: testKotlinScriptDef
+[+1113 ms] file or directory 'D:\flutter\packages\flutter_tools\gradle\src\main\java', not found
+[ +974 ms] Resolved plugin [id: 'dev.flutter.flutter-plugin-loader', version: '1.0.0']
+[ +201 ms] Resolved plugin [id: 'com.android.application', version: '8.11.1', apply: false]
+[   +1 ms] Resolved plugin [id: 'org.jetbrains.kotlin.android', version: '2.2.20', apply: false]
+[ +800 ms] Resolve mutations for :gradle:checkKotlinGradlePluginConfigurationErrors (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :gradle:checkKotlinGradlePluginConfigurationErrors (Thread[#189,included builds,5,main]) started.
+[ +416 ms] > Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+[        ] Skipping task ':gradle:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+[   +1 ms] Resolve mutations for :gradle:compileKotlin (Thread[#189,included builds,5,main]) started.
+[        ] :gradle:compileKotlin (Thread[#192,Execution worker Thread 3,5,main]) started.
+[+1584 ms] > Task :gradle:compileKotlin UP-TO-DATE
+[        ] Caching disabled for task ':gradle:compileKotlin' because:
+[        ]   Build cache is disabled
+[   +1 ms] Skipping task ':gradle:compileKotlin' as it is up-to-date.
+[   +6 ms] Resolve mutations for :gradle:compileJava (Thread[#196,Execution worker Thread 7,5,main]) started.
+[        ] :gradle:compileJava (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +1 ms] > Task :gradle:compileJava NO-SOURCE
+[        ] Skipping task ':gradle:compileJava' as it has no source files and no previous output files.
+[        ] Resolve mutations for :gradle:compileGroovy (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +1 ms] :gradle:compileGroovy (Thread[#196,Execution worker Thread 7,5,main]) started.
+[ +383 ms] > Task :gradle:compileGroovy NO-SOURCE
+[        ] Skipping task ':gradle:compileGroovy' as it has no source files and no previous output files.
+[  +89 ms] Resolve mutations for :gradle:pluginDescriptors (Thread[#196,Execution worker Thread 7,5,main]) started.
+[  +10 ms] :gradle:pluginDescriptors (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +5 ms] > Task :gradle:pluginDescriptors UP-TO-DATE
+[   +2 ms] Caching disabled for task ':gradle:pluginDescriptors' because:
+[   +7 ms]   Build cache is disabled
+[   +2 ms]   Not worth caching
+[   +2 ms] Skipping task ':gradle:pluginDescriptors' as it is up-to-date.
+[   +1 ms] Resolve mutations for :gradle:processResources (Thread[#196,Execution worker Thread 7,5,main]) started.
+[  +97 ms] :gradle:processResources (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +1 ms] > Task :gradle:processResources UP-TO-DATE
+[   +1 ms] Caching disabled for task ':gradle:processResources' because:
+[   +6 ms]   Build cache is disabled
+[   +6 ms]   Not worth caching
+[        ] Skipping task ':gradle:processResources' as it is up-to-date.
+[  +11 ms] Resolve mutations for :gradle:classes (Thread[#196,Execution worker Thread 7,5,main]) started.
+[        ] :gradle:classes (Thread[#196,Execution worker Thread 7,5,main]) started.
+[  +36 ms] > Task :gradle:classes UP-TO-DATE
+[        ] Skipping task ':gradle:classes' as it has no actions.
+[   +1 ms] Resolve mutations for :gradle:jar (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +1 ms] :gradle:jar (Thread[#196,Execution worker Thread 7,5,main]) started.
+[  +21 ms] > Task :gradle:jar UP-TO-DATE
+[   +1 ms] Caching disabled for task ':gradle:jar' because:
+[   +1 ms]   Build cache is disabled
+[        ]   Not worth caching
+[        ] Skipping task ':gradle:jar' as it is up-to-date.
+[+2799 ms] Settings evaluated using settings file 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\settings.gradle.kts'.
+[        ] Projects loaded. Root project using build file 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\build.gradle.kts'.
+[   +1 ms] Included projects: [root project 'android', project ':app', project ':path_provider_android']
+[+1969 ms] > Configure project :
+[   +1 ms] Evaluating root project 'android' using build file 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\build.gradle.kts'.
+[+2611 ms] > Configure project :app
+[   +6 ms] Evaluating project ':app' using build file 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\app\build.gradle.kts'.
+[   +3 ms] Resolved plugin [id: 'com.android.application']
+[   +1 ms] Resolved plugin [id: 'kotlin-android']
+[   +2 ms] Resolved plugin [id: 'dev.flutter.flutter-gradle-plugin']
+[   +3 ms] Using default execution profile
+[        ] Build 2a7340e4-e133-460a-927d-c4eeb6124977 is started
+[        ] Using Kotlin Gradle Plugin gradle813 variant
+[   +1 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[        ] C/C++: android.ndkPath from module build.gradle is not set
+[   +4 ms] C/C++: ndk.dir in local.properties is not set
+[        ] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[        ] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[   +1 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +4 ms] C/C++: android.ndkPath from module build.gradle is not set
+[   +1 ms] C/C++: ndk.dir in local.properties is not set
+[  +26 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +1 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[   +5 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +8 ms] C/C++: android.ndkPath from module build.gradle is not set
+[  +10 ms] C/C++: ndk.dir in local.properties is not set
+[   +1 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +9 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[  +15 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +5 ms] C/C++: android.ndkPath from module build.gradle is not set
+[        ] C/C++: ndk.dir in local.properties is not set
+[   +5 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +1 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[  +40 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +1 ms] C/C++: android.ndkPath from module build.gradle is not set
+[  +48 ms] C/C++: ndk.dir in local.properties is not set
+[  +46 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[ +103 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[  +31 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[        ] C/C++: android.ndkPath from module build.gradle is not set
+[  +18 ms] C/C++: ndk.dir in local.properties is not set
+[  +12 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[  +32 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[  +32 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +4 ms] C/C++: android.ndkPath from module build.gradle is not set
+[ +250 ms] C/C++: ndk.dir in local.properties is not set
+[ +188 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[  +29 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[  +19 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +7 ms] C/C++: android.ndkPath from module build.gradle is not set
+[   +4 ms] C/C++: ndk.dir in local.properties is not set
+[   +1 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +3 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[  +25 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +1 ms] C/C++: android.ndkPath from module build.gradle is not set
+[        ] C/C++: ndk.dir in local.properties is not set
+[   +1 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +1 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[  +46 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +1 ms] C/C++: android.ndkPath from module build.gradle is not set
+[  +16 ms] C/C++: ndk.dir in local.properties is not set
+[   +3 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +9 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[   +2 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[  +58 ms] C/C++: android.ndkPath from module build.gradle is not set
+[        ] C/C++: ndk.dir in local.properties is not set
+[  +17 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[  +37 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[   +1 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +2 ms] C/C++: android.ndkPath from module build.gradle is not set
+[   +3 ms] C/C++: ndk.dir in local.properties is not set
+[   +2 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[        ] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[   +1 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +1 ms] C/C++: android.ndkPath from module build.gradle is not set
+[   +5 ms] C/C++: ndk.dir in local.properties is not set
+[   +2 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +1 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[   +3 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[  +13 ms] C/C++: android.ndkPath from module build.gradle is not set
+[   +1 ms] C/C++: ndk.dir in local.properties is not set
+[   +1 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[        ] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[   +6 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +3 ms] C/C++: android.ndkPath from module build.gradle is not set
+[   +2 ms] C/C++: ndk.dir in local.properties is not set
+[   +1 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +5 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[  +47 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +9 ms] C/C++: android.ndkPath from module build.gradle is not set
+[  +72 ms] C/C++: ndk.dir in local.properties is not set
+[   +3 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +2 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[   +1 ms] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[   +1 ms] C/C++: android.ndkPath from module build.gradle is not set
+[   +1 ms] C/C++: ndk.dir in local.properties is not set
+[        ] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[        ] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[        ] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[        ] C/C++: android.ndkPath from module build.gradle is not set
+[        ] C/C++: ndk.dir in local.properties is not set
+[   +2 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +1 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[        ] C/C++: android.ndkVersion from module build.gradle is [28.2.13676358]
+[ +151 ms] C/C++: android.ndkPath from module build.gradle is not set
+[   +1 ms] C/C++: ndk.dir in local.properties is not set
+[   +4 ms] C/C++: Not considering ANDROID_NDK_HOME because support was removed after deprecation period.
+[   +1 ms] C/C++: sdkFolder is C:\Users\praka\AppData\Local\Android\Sdk
+[ +299 ms] > Configure project :path_provider_android
+[   +1 ms] Evaluating project ':path_provider_android' using build file 'D:\Caches\pub-cache\hosted\pub.dev\path_provider_android-2.2.22\android\build.gradle'.
+[   +2 ms] Using default execution profile
+[   +1 ms] All projects evaluated.
+[  +95 ms] Task name matched 'assembleDebug'
+[        ] Selected primary task 'assembleDebug' from project :
+[ +402 ms] SDK initialized in 172 ms
+[   +1 ms] [=========                              ] 25%                                   
+[   +2 ms] [=========                              ] 25% Fetch remote repository...        
+[   +1 ms] [=======================================] 100% Fetch remote repository...       
+[  +80 ms] Adding -Xuse-inline-scopes-numbers Kotlin compiler flag for task :app:compileDebugKotlin
+[ +918 ms] Tasks to be executed: [task ':app:DebugMinSdkCheck', task ':app:preBuild', task ':app:preDebugBuild', task ':app:mergeDebugNativeDebugMetadata', task ':app:checkKotlinGradlePluginConfigurationErrors', task ':app:compileFlutterBuildDebug', task ':app:packJniLibsflutterBuildDebug', task ':path_provider_android:preBuild', task ':path_provider_android:preDebugBuild', task ':path_provider_android:writeDebugAarMetadata', task ':app:checkDebugAarMetadata', task ':app:cleanMergeDebugAssets', task ':app:mergeDebugShaders', task ':app:compileDebugShaders', task ':app:generateDebugAssets', task ':path_provider_android:mergeDebugShaders', task ':path_provider_android:compileDebugShaders', task ':path_provider_android:generateDebugAssets', task ':path_provider_android:mergeDebugAssets', task ':app:mergeDebugAssets', task ':app:copyFlutterAssetsDebug', task ':app:generateDebugResValues', task ':path_provider_android:generateDebugResValues', task ':path_provider_android:generateDebugResources', task ':path_provider_android:packageDebugResources', task ':app:mapDebugSourceSetPaths', task ':app:generateDebugResources', task ':app:mergeDebugResources', task ':app:packageDebugResources', task ':app:parseDebugLocalResources', task ':app:createDebugCompatibleScreenManifests', task ':app:extractDeepLinksDebug', task ':path_provider_android:extractDeepLinksDebug', task ':path_provider_android:processDebugManifest', task ':app:processDebugMainManifest', task ':app:outputDebugAppLinkSettings', task ':app:processDebugManifest', task ':app:processDebugManifestForPackage', task ':path_provider_android:compileDebugLibraryResources', task ':path_provider_android:parseDebugLocalResources', task ':path_provider_android:generateDebugRFile', task ':app:processDebugResources', task ':path_provider_android:javaPreCompileDebug', task ':path_provider_android:compileDebugJavaWithJavac', task ':path_provider_android:bundleLibCompileToJarDebug', task ':app:compileDebugKotlin', task ':app:javaPreCompileDebug', task ':app:compileDebugJavaWithJavac', task ':app:compressDebugAssets', task ':path_provider_android:bundleLibRuntimeToJarDebug', task ':app:desugarDebugFileDependencies', task ':app:dexBuilderDebug', task ':app:mergeDebugGlobalSynthetics', task ':app:processDebugJavaRes', task ':path_provider_android:processDebugJavaRes', task ':app:mergeDebugJavaResource', task ':app:checkDebugDuplicateClasses', task ':app:mergeExtDexDebug', task ':path_provider_android:bundleLibRuntimeToDirDebug', task ':app:mergeLibDexDebug', task ':app:mergeProjectDexDebug', task ':app:configureCMakeDebug[arm64-v8a]', task ':app:buildCMakeDebug[arm64-v8a]', task ':app:configureCMakeDebug[armeabi-v7a]', task ':app:buildCMakeDebug[armeabi-v7a]', task ':app:configureCMakeDebug[x86_64]', task ':app:buildCMakeDebug[x86_64]', task ':app:mergeDebugJniLibFolders', task ':path_provider_android:mergeDebugJniLibFolders', task ':path_provider_android:mergeDebugNativeLibs', task ':path_provider_android:copyDebugJniLibsProjectOnly', task ':app:mergeDebugNativeLibs', task ':app:stripDebugDebugSymbols', task ':app:validateSigningDebug', task ':app:writeDebugAppMetadata', task ':app:writeDebugSigningConfigVersions', task ':app:packageDebug', task ':app:createDebugApkListingFileRedirect', task ':app:assembleDebug', task ':path_provider_android:stripDebugDebugSymbols', task ':path_provider_android:copyDebugJniLibsProjectAndLocalJars', task ':path_provider_android:extractDebugAnnotations', task ':path_provider_android:extractDeepLinksForAarDebug', task ':path_provider_android:mergeDebugGeneratedProguardFiles', task ':path_provider_android:mergeDebugConsumerProguardFiles', task ':path_provider_android:prepareDebugArtProfile', task ':path_provider_android:prepareLintJarForPublish', task ':path_provider_android:mergeDebugJavaResource', task ':path_provider_android:syncDebugLibJars', task ':path_provider_android:bundleDebugAar', task ':path_provider_android:assembleDebug']
+[   +7 ms] Tasks that were excluded: []
+[  +83 ms] work action Parameters of IdentityTransform (Thread[#189,included builds,5,main]) started.
+[   +1 ms] work action Parameters of DexingNoClasspathTransform (Thread[#189,included builds,5,main]) started.
+[        ] work action Parameters of DexingOutputSplitTransform (Thread[#189,included builds,5,main]) started.
+[        ] work action Parameters of ClassesDirToClassesTransform (Thread[#189,included builds,5,main]) started.
+[        ] work action Parameters of DexingOutputSplitTransform (Thread[#189,included builds,5,main]) started.
+[        ] Resolve mutations for :app:DebugMinSdkCheck (Thread[#189,included builds,5,main]) started.
+[        ] :app:DebugMinSdkCheck (Thread[#189,included builds,5,main]) started.
+[  +94 ms] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\executionHistory\executionHistory.bin
+[   +1 ms] > Task :app:DebugMinSdkCheck
+[        ] Caching disabled for task ':app:DebugMinSdkCheck' because:
+[        ]   Build cache is disabled
+[        ] Task ':app:DebugMinSdkCheck' is not up-to-date because:
+[   +1 ms]   Task has not declared any outputs despite executing actions.
+[   +5 ms] Resolve mutations for :app:preBuild (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :app:preBuild (Thread[#189,included builds,5,main]) started.
+[   +2 ms] > Task :app:preBuild UP-TO-DATE
+[   +1 ms] Skipping task ':app:preBuild' as it has no actions.
+[   +1 ms] Resolve mutations for :app:preDebugBuild (Thread[#189,included builds,5,main]) started.
+[        ] :app:preDebugBuild (Thread[#189,included builds,5,main]) started.
+[   +1 ms] > Task :app:preDebugBuild UP-TO-DATE
+[        ] Skipping task ':app:preDebugBuild' as it has no actions.
+[        ] Resolve mutations for :app:mergeDebugNativeDebugMetadata (Thread[#193,Execution worker Thread 4,5,main]) started.
+[   +1 ms] :app:mergeDebugNativeDebugMetadata (Thread[#193,Execution worker Thread 4,5,main]) started.
+[ +179 ms] > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+[   +1 ms] Skipping task ':app:mergeDebugNativeDebugMetadata' as it has no source files and no previous output files.
+[   +1 ms] Resolve mutations for :app:checkKotlinGradlePluginConfigurationErrors (Thread[#193,Execution worker Thread 4,5,main]) started.
+[   +1 ms] :app:checkKotlinGradlePluginConfigurationErrors (Thread[#189,included builds,5,main]) started.
+[        ] > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+[   +1 ms] Skipping task ':app:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+[   +1 ms] Resolve mutations for :app:compileFlutterBuildDebug (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :app:compileFlutterBuildDebug (Thread[#189,included builds,5,main]) started.
+[+3130 ms] > Task :app:compileFlutterBuildDebug
+[   +1 ms] Caching disabled for task ':app:compileFlutterBuildDebug' because:
+[   +3 ms]   Build cache is disabled
+[        ]   Caching has not been enabled for the task
+[        ] Skipping task ':app:compileFlutterBuildDebug' as it is up-to-date.
+[  +68 ms] > Task :app:compileFlutterBuildDebug UP-TO-DATE
+[   +3 ms] Resolve mutations for :app:packJniLibsflutterBuildDebug (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :app:packJniLibsflutterBuildDebug (Thread[#189,included builds,5,main]) started.
+[        ] > Task :app:packJniLibsflutterBuildDebug UP-TO-DATE
+[   +1 ms] Caching disabled for task ':app:packJniLibsflutterBuildDebug' because:
+[        ]   Build cache is disabled
+[   +1 ms]   Not worth caching
+[        ] Skipping task ':app:packJniLibsflutterBuildDebug' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:preBuild (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :path_provider_android:preBuild (Thread[#189,included builds,5,main]) started.
+[   +4 ms] > Task :path_provider_android:preBuild UP-TO-DATE
+[        ] Skipping task ':path_provider_android:preBuild' as it has no actions.
+[   +3 ms] Resolve mutations for :path_provider_android:preDebugBuild (Thread[#189,included builds,5,main]) started.
+[        ] :path_provider_android:preDebugBuild (Thread[#189,included builds,5,main]) started.
+[  +20 ms] > Task :path_provider_android:preDebugBuild UP-TO-DATE
+[   +1 ms] Skipping task ':path_provider_android:preDebugBuild' as it has no actions.
+[   +1 ms] Resolve mutations for :path_provider_android:writeDebugAarMetadata (Thread[#189,included builds,5,main]) started.
+[  +31 ms] :path_provider_android:writeDebugAarMetadata (Thread[#189,included builds,5,main]) started.
+[   +2 ms] > Task :path_provider_android:writeDebugAarMetadata UP-TO-DATE
+[   +1 ms] Caching disabled for task ':path_provider_android:writeDebugAarMetadata' because:
+[   +8 ms]   Build cache is disabled
+[   +1 ms]   Caching has been disabled for the task
+[        ] Skipping task ':path_provider_android:writeDebugAarMetadata' as it is up-to-date.
+[   +1 ms] work action resolve aar-metadata.properties (project :path_provider_android) (Thread[#189,included builds,5,main]) started.
+[        ] Resolve mutations for :app:checkDebugAarMetadata (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :app:checkDebugAarMetadata (Thread[#189,included builds,5,main]) started.
+[ +687 ms] > Task :app:checkDebugAarMetadata UP-TO-DATE
+[   +3 ms] Caching disabled for task ':app:checkDebugAarMetadata' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':app:checkDebugAarMetadata' as it is up-to-date.
+[        ] Resolve mutations for :app:cleanMergeDebugAssets (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :app:cleanMergeDebugAssets (Thread[#189,included builds,5,main]) started.
+[+1205 ms] > Task :app:cleanMergeDebugAssets
+[   +8 ms] Caching disabled for task ':app:cleanMergeDebugAssets' because:
+[   +1 ms]   Build cache is disabled
+[        ] Task ':app:cleanMergeDebugAssets' is not up-to-date because:
+[   +1 ms]   Task has not declared any outputs despite executing actions.
+[        ] Resolve mutations for :app:mergeDebugShaders (Thread[#189,included builds,5,main]) started.
+[        ] :app:mergeDebugShaders (Thread[#189,included builds,5,main]) started.
+[        ] > Task :app:mergeDebugShaders UP-TO-DATE
+[        ] Caching disabled for task ':app:mergeDebugShaders' because:
+[        ]   Build cache is disabled
+[   +9 ms]   Simple merging task
+[   +1 ms] Skipping task ':app:mergeDebugShaders' as it is up-to-date.
+[        ] Resolve mutations for :app:compileDebugShaders (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :app:compileDebugShaders (Thread[#189,included builds,5,main]) started.
+[  +58 ms] > Task :app:compileDebugShaders NO-SOURCE
+[   +3 ms] Skipping task ':app:compileDebugShaders' as it has no source files and no previous output files.
+[   +3 ms] Resolve mutations for :app:generateDebugAssets (Thread[#193,Execution worker Thread 4,5,main]) started.
+[        ] :app:generateDebugAssets (Thread[#193,Execution worker Thread 4,5,main]) started.
+[        ] > Task :app:generateDebugAssets UP-TO-DATE
+[   +1 ms] Skipping task ':app:generateDebugAssets' as it has no actions.
+[        ] Resolve mutations for :path_provider_android:mergeDebugShaders (Thread[#193,Execution worker Thread 4,5,main]) started.
+[        ] :path_provider_android:mergeDebugShaders (Thread[#193,Execution worker Thread 4,5,main]) started.
+[        ] > Task :path_provider_android:mergeDebugShaders UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:mergeDebugShaders' because:
+[        ]   Build cache is disabled
+[        ]   Simple merging task
+[        ] Skipping task ':path_provider_android:mergeDebugShaders' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:compileDebugShaders (Thread[#191,Execution worker Thread 2,5,main]) started.
+[   +1 ms] :path_provider_android:compileDebugShaders (Thread[#191,Execution worker Thread 2,5,main]) started.
+[   +1 ms] > Task :path_provider_android:compileDebugShaders NO-SOURCE
+[   +2 ms] Skipping task ':path_provider_android:compileDebugShaders' as it has no source files and no previous output files.
+[        ] Resolve mutations for :path_provider_android:generateDebugAssets (Thread[#191,Execution worker Thread 2,5,main]) started.
+[        ] :path_provider_android:generateDebugAssets (Thread[#191,Execution worker Thread 2,5,main]) started.
+[        ] > Task :path_provider_android:generateDebugAssets UP-TO-DATE
+[        ] Skipping task ':path_provider_android:generateDebugAssets' as it has no actions.
+[        ] Resolve mutations for :path_provider_android:mergeDebugAssets (Thread[#191,Execution worker Thread 2,5,main]) started.
+[        ] :path_provider_android:mergeDebugAssets (Thread[#191,Execution worker Thread 2,5,main]) started.
+[   +3 ms] > Task :path_provider_android:mergeDebugAssets UP-TO-DATE
+[   +2 ms] Caching disabled for task ':path_provider_android:mergeDebugAssets' because:
+[   +1 ms]   Build cache is disabled
+[   +1 ms]   Simple merging task
+[   +2 ms] Skipping task ':path_provider_android:mergeDebugAssets' as it is up-to-date.
+[        ] work action resolve mergeDebugAssets (project :path_provider_android) (Thread[#191,Execution worker Thread 2,5,main]) started.
+[        ] Resolve mutations for :app:mergeDebugAssets (Thread[#191,Execution worker Thread 2,5,main]) started.
+[        ] :app:mergeDebugAssets (Thread[#191,Execution worker Thread 2,5,main]) started.
+[  +75 ms] > Task :app:mergeDebugAssets
+[        ] Caching disabled for task ':app:mergeDebugAssets' because:
+[        ]   Build cache is disabled
+[   +4 ms]   Simple merging task
+[   +1 ms] Task ':app:mergeDebugAssets' is not up-to-date because:
+[   +1 ms]   Output property 'outputDir' file D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\intermediates\assets\debug\mergeDebugAssets has been removed.
+[        ] The input changes require a full rebuild for incremental task ':app:mergeDebugAssets'.
+[        ] Resolve mutations for :app:copyFlutterAssetsDebug (Thread[#191,Execution worker Thread 2,5,main]) started.
+[        ] :app:copyFlutterAssetsDebug (Thread[#189,included builds,5,main]) started.
+[+1975 ms] > Task :app:copyFlutterAssetsDebug
+[   +1 ms] Caching disabled for task ':app:copyFlutterAssetsDebug' because:
+[        ]   Build cache is disabled
+[        ]   Not worth caching
+[        ] Task ':app:copyFlutterAssetsDebug' is not up-to-date because:
+[        ]   Output property 'destinationDir' file D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\intermediates\assets\debug\mergeDebugAssets\flutter_assets has been removed.
+[   +2 ms]   Output property 'destinationDir' file D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\intermediates\assets\debug\mergeDebugAssets\flutter_assets\AssetManifest.bin has been removed.
+[   +2 ms]   Output property 'destinationDir' file D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\intermediates\assets\debug\mergeDebugAssets\flutter_assets\FontManifest.json has been removed.
+[   +6 ms]   and more...
+[+5100 ms] Resolve mutations for :app:generateDebugResValues (Thread[#189,included builds,5,main]) started.
+[        ] :app:generateDebugResValues (Thread[#189,included builds,5,main]) started.
+[  +83 ms] > Task :app:generateDebugResValues UP-TO-DATE
+[        ] Caching disabled for task ':app:generateDebugResValues' because:
+[        ]   Build cache is disabled
+[   +2 ms] Skipping task ':app:generateDebugResValues' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:generateDebugResValues (Thread[#189,included builds,5,main]) started.
+[        ] :path_provider_android:generateDebugResValues (Thread[#189,included builds,5,main]) started.
+[        ] > Task :path_provider_android:generateDebugResValues UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:generateDebugResValues' because:
+[        ]   Build cache is disabled
+[   +4 ms] Skipping task ':path_provider_android:generateDebugResValues' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:generateDebugResources (Thread[#189,included builds,5,main]) started.
+[        ] :path_provider_android:generateDebugResources (Thread[#189,included builds,5,main]) started.
+[        ] > Task :path_provider_android:generateDebugResources UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:generateDebugResources' because:
+[        ]   Build cache is disabled
+[   +2 ms] Skipping task ':path_provider_android:generateDebugResources' as it is up-to-date.
+[   +1 ms] Resolve mutations for :path_provider_android:packageDebugResources (Thread[#189,included builds,5,main]) started.
+[   +4 ms] :path_provider_android:packageDebugResources (Thread[#189,included builds,5,main]) started.
+[  +84 ms] > Task :path_provider_android:packageDebugResources UP-TO-DATE
+[   +6 ms] Caching disabled for task ':path_provider_android:packageDebugResources' because:
+[   +1 ms]   Build cache is disabled
+[        ] Skipping task ':path_provider_android:packageDebugResources' as it is up-to-date.
+[   +1 ms] work action resolve packageDebugResources (project :path_provider_android) (Thread[#189,included builds,5,main]) started.
+[        ] Resolve mutations for :app:mapDebugSourceSetPaths (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :app:mapDebugSourceSetPaths (Thread[#189,included builds,5,main]) started.
+[  +94 ms] > Task :app:mapDebugSourceSetPaths UP-TO-DATE
+[        ] Caching disabled for task ':app:mapDebugSourceSetPaths' because:
+[        ]   Build cache is disabled
+[   +1 ms]   Caching has been disabled for the task
+[   +2 ms] Skipping task ':app:mapDebugSourceSetPaths' as it is up-to-date.
+[        ] Resolve mutations for :app:generateDebugResources (Thread[#189,included builds,5,main]) started.
+[        ] :app:generateDebugResources (Thread[#189,included builds,5,main]) started.
+[        ] > Task :app:generateDebugResources UP-TO-DATE
+[        ] Caching disabled for task ':app:generateDebugResources' because:
+[        ]   Build cache is disabled
+[   +1 ms] Skipping task ':app:generateDebugResources' as it is up-to-date.
+[   +1 ms] Resolve mutations for :app:mergeDebugResources (Thread[#189,included builds,5,main]) started.
+[  +80 ms] :app:mergeDebugResources (Thread[#189,included builds,5,main]) started.
+[ +498 ms] > Task :app:mergeDebugResources UP-TO-DATE
+[        ] Caching disabled for task ':app:mergeDebugResources' because:
+[  +10 ms]   Build cache is disabled
+[   +1 ms] Skipping task ':app:mergeDebugResources' as it is up-to-date.
+[   +1 ms] Resolve mutations for :app:packageDebugResources (Thread[#189,included builds,5,main]) started.
+[        ] :app:packageDebugResources (Thread[#189,included builds,5,main]) started.
+[  +90 ms] > Task :app:packageDebugResources UP-TO-DATE
+[  +13 ms] Caching disabled for task ':app:packageDebugResources' because:
+[   +1 ms]   Build cache is disabled
+[        ] Skipping task ':app:packageDebugResources' as it is up-to-date.
+[   +6 ms] Resolve mutations for :app:parseDebugLocalResources (Thread[#189,included builds,5,main]) started.
+[        ] :app:parseDebugLocalResources (Thread[#189,included builds,5,main]) started.
+[        ] > Task :app:parseDebugLocalResources UP-TO-DATE
+[        ] Caching disabled for task ':app:parseDebugLocalResources' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':app:parseDebugLocalResources' as it is up-to-date.
+[        ] Resolve mutations for :app:createDebugCompatibleScreenManifests (Thread[#189,included builds,5,main]) started.
+[        ] :app:createDebugCompatibleScreenManifests (Thread[#189,included builds,5,main]) started.
+[        ] > Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+[        ] Caching disabled for task ':app:createDebugCompatibleScreenManifests' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':app:createDebugCompatibleScreenManifests' as it is up-to-date.
+[        ] Resolve mutations for :app:extractDeepLinksDebug (Thread[#189,included builds,5,main]) started.
+[        ] :app:extractDeepLinksDebug (Thread[#189,included builds,5,main]) started.
+[        ] > Task :app:extractDeepLinksDebug UP-TO-DATE
+[        ] Caching disabled for task ':app:extractDeepLinksDebug' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':app:extractDeepLinksDebug' as it is up-to-date.
+[   +1 ms] Resolve mutations for :path_provider_android:extractDeepLinksDebug (Thread[#189,included builds,5,main]) started.
+[        ] :path_provider_android:extractDeepLinksDebug (Thread[#189,included builds,5,main]) started.
+[        ] > Task :path_provider_android:extractDeepLinksDebug UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:extractDeepLinksDebug' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':path_provider_android:extractDeepLinksDebug' as it is up-to-date.
+[        ] work action resolve navigation.json (project :path_provider_android) (Thread[#189,included builds,5,main]) started.
+[        ] Resolve mutations for :path_provider_android:processDebugManifest (Thread[#189,included builds,5,main]) started.
+[        ] :path_provider_android:processDebugManifest (Thread[#189,included builds,5,main]) started.
+[  +59 ms] > Task :path_provider_android:processDebugManifest UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:processDebugManifest' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':path_provider_android:processDebugManifest' as it is up-to-date.
+[        ] work action resolve AndroidManifest.xml (project :path_provider_android) (Thread[#189,included builds,5,main]) started.
+[        ] Resolve mutations for :app:processDebugMainManifest (Thread[#190,Execution worker,5,main]) started.
+[        ] :app:processDebugMainManifest (Thread[#190,Execution worker,5,main]) started.
+[ +184 ms] > Task :app:processDebugMainManifest UP-TO-DATE
+[        ] Caching disabled for task ':app:processDebugMainManifest' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':app:processDebugMainManifest' as it is up-to-date.
+[        ] Resolve mutations for :app:outputDebugAppLinkSettings (Thread[#190,Execution worker,5,main]) started.
+[   +6 ms] :app:outputDebugAppLinkSettings (Thread[#190,Execution worker,5,main]) started.
+[        ] > Task :app:outputDebugAppLinkSettings UP-TO-DATE
+[        ] Caching disabled for task ':app:outputDebugAppLinkSettings' because:
+[        ]   Build cache is disabled
+[        ]   Caching has not been enabled for the task
+[        ] Skipping task ':app:outputDebugAppLinkSettings' as it is up-to-date.
+[        ] Resolve mutations for :app:processDebugManifest (Thread[#189,included builds,5,main]) started.
+[        ] :app:processDebugManifest (Thread[#189,included builds,5,main]) started.
+[        ] > Task :app:processDebugManifest UP-TO-DATE
+[        ] Caching disabled for task ':app:processDebugManifest' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':app:processDebugManifest' as it is up-to-date.
+[        ] Resolve mutations for :app:processDebugManifestForPackage (Thread[#189,included builds,5,main]) started.
+[        ] :app:processDebugManifestForPackage (Thread[#189,included builds,5,main]) started.
+[        ] > Task :app:processDebugManifestForPackage UP-TO-DATE
+[        ] Custom actions are attached to task ':app:processDebugManifestForPackage'.
+[        ] Caching disabled for task ':app:processDebugManifestForPackage' because:
+[   +5 ms]   Build cache is disabled
+[   +2 ms] Skipping task ':app:processDebugManifestForPackage' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:compileDebugLibraryResources (Thread[#189,included builds,5,main]) started.
+[        ] :path_provider_android:compileDebugLibraryResources (Thread[#189,included builds,5,main]) started.
+[  +91 ms] > Task :path_provider_android:compileDebugLibraryResources UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:compileDebugLibraryResources' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':path_provider_android:compileDebugLibraryResources' as it is up-to-date.
+[        ] work action resolve out (project :path_provider_android) (Thread[#189,included builds,5,main]) started.
+[        ] Resolve mutations for :path_provider_android:parseDebugLocalResources (Thread[#189,included builds,5,main]) started.
+[        ] :path_provider_android:parseDebugLocalResources (Thread[#189,included builds,5,main]) started.
+[        ] > Task :path_provider_android:parseDebugLocalResources UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:parseDebugLocalResources' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':path_provider_android:parseDebugLocalResources' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:generateDebugRFile (Thread[#189,included builds,5,main]) started.
+[  +92 ms] :path_provider_android:generateDebugRFile (Thread[#189,included builds,5,main]) started.
+[   +2 ms] > Task :path_provider_android:generateDebugRFile UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:generateDebugRFile' because:
+[   +2 ms]   Build cache is disabled
+[   +1 ms] Skipping task ':path_provider_android:generateDebugRFile' as it is up-to-date.
+[        ] work action resolve package-aware-r.txt (project :path_provider_android) (Thread[#189,included builds,5,main]) started.
+[        ] Resolve mutations for :app:processDebugResources (Thread[#189,included builds,5,main]) started.
+[        ] :app:processDebugResources (Thread[#189,included builds,5,main]) started.
+[ +901 ms] > Task :app:processDebugResources UP-TO-DATE
+[        ] Caching disabled for task ':app:processDebugResources' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':app:processDebugResources' as it is up-to-date.
+[  +10 ms] Resolve mutations for :path_provider_android:javaPreCompileDebug (Thread[#189,included builds,5,main]) started.
+[        ] :path_provider_android:javaPreCompileDebug (Thread[#189,included builds,5,main]) started.
+[        ] > Task :path_provider_android:javaPreCompileDebug UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:javaPreCompileDebug' because:
+[        ]   Build cache is disabled
+[   +1 ms] Skipping task ':path_provider_android:javaPreCompileDebug' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:compileDebugJavaWithJavac (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :path_provider_android:compileDebugJavaWithJavac (Thread[#196,Execution worker Thread 7,5,main]) started.
+[ +675 ms] > Task :path_provider_android:compileDebugJavaWithJavac UP-TO-DATE
+[   +1 ms] Custom actions are attached to task ':path_provider_android:compileDebugJavaWithJavac'.
+[   +1 ms] Caching disabled for task ':path_provider_android:compileDebugJavaWithJavac' because:
+[   +2 ms]   Build cache is disabled
+[        ] Skipping task ':path_provider_android:compileDebugJavaWithJavac' as it is up-to-date.
+[   +1 ms] No compile result for :path_provider_android:compileDebugJavaWithJavac
+[        ] No compile result for :path_provider_android:compileDebugJavaWithJavac
+[   +1 ms] Resolve mutations for :path_provider_android:bundleLibCompileToJarDebug (Thread[#196,Execution worker Thread 7,5,main]) started.
+[        ] :path_provider_android:bundleLibCompileToJarDebug (Thread[#196,Execution worker Thread 7,5,main]) started.
+[        ] > Task :path_provider_android:bundleLibCompileToJarDebug UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:bundleLibCompileToJarDebug' because:
+[        ]   Build cache is disabled
+[   +1 ms]   Simple merging task
+[   +3 ms] Skipping task ':path_provider_android:bundleLibCompileToJarDebug' as it is up-to-date.
+[   +1 ms] work action resolve classes.jar (project :path_provider_android) (Thread[#190,Execution worker,5,main]) started.
+[        ] Resolve mutations for :app:compileDebugKotlin (Thread[#190,Execution worker,5,main]) started.
+[        ] :app:compileDebugKotlin (Thread[#190,Execution worker,5,main]) started.
+[ +471 ms] > Task :app:compileDebugKotlin UP-TO-DATE
+[        ] Adding -Xuse-inline-scopes-numbers Kotlin compiler flag for task :app:compileDebugAndroidTestKotlin
+[        ] Caching disabled for task ':app:compileDebugKotlin' because:
+[        ]   Build cache is disabled
+[   +1 ms] Skipping task ':app:compileDebugKotlin' as it is up-to-date.
+[        ] Resolve mutations for :app:javaPreCompileDebug (Thread[#190,Execution worker,5,main]) started.
+[        ] :app:javaPreCompileDebug (Thread[#190,Execution worker,5,main]) started.
+[   +1 ms] > Task :app:javaPreCompileDebug UP-TO-DATE
+[        ] Caching disabled for task ':app:javaPreCompileDebug' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':app:javaPreCompileDebug' as it is up-to-date.
+[        ] Resolve mutations for :app:compileDebugJavaWithJavac (Thread[#190,Execution worker,5,main]) started.
+[   +1 ms] :app:compileDebugJavaWithJavac (Thread[#190,Execution worker,5,main]) started.
+[ +100 ms] > Task :app:compileDebugJavaWithJavac UP-TO-DATE
+[        ] Custom actions are attached to task ':app:compileDebugJavaWithJavac'.
+[        ] Caching disabled for task ':app:compileDebugJavaWithJavac' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':app:compileDebugJavaWithJavac' as it is up-to-date.
+[        ] No compile result for :app:compileDebugJavaWithJavac
+[        ] No compile result for :app:compileDebugJavaWithJavac
+[        ] Resolve mutations for :app:compressDebugAssets (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +1 ms] :app:compressDebugAssets (Thread[#192,Execution worker Thread 3,5,main]) started.
+[ +201 ms] > Task :app:compressDebugAssets UP-TO-DATE
+[        ] Caching disabled for task ':app:compressDebugAssets' because:
+[   +1 ms]   Build cache is disabled
+[        ] Skipping task ':app:compressDebugAssets' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:bundleLibRuntimeToJarDebug (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +1 ms] :path_provider_android:bundleLibRuntimeToJarDebug (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +1 ms] > Task :path_provider_android:bundleLibRuntimeToJarDebug UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:bundleLibRuntimeToJarDebug' because:
+[        ]   Build cache is disabled
+[   +1 ms]   Simple merging task
+[   +1 ms] Skipping task ':path_provider_android:bundleLibRuntimeToJarDebug' as it is up-to-date.
+[        ] work action resolve classes.jar (project :path_provider_android) (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +1 ms] IdentityTransform (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +1 ms] Resolve mutations for :app:desugarDebugFileDependencies (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +1 ms] :app:desugarDebugFileDependencies (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +1 ms] DexingNoClasspathTransform (Thread[#192,Execution worker Thread 3,5,main]) started.
+[        ] > Transform classes.jar (project :path_provider_android) with DexingNoClasspathTransform
+[        ] Caching disabled for DexingNoClasspathTransform: D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\path_provider_android\intermediates\runtime_library_classes_jar\debug\bundleLibRuntimeToJarDebug\classes.jar because:
+[        ]   Build cache is disabled
+[   +1 ms] Skipping DexingNoClasspathTransform: D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\path_provider_android\intermediates\runtime_library_classes_jar\debug\bundleLibRuntimeToJarDebug\classes.jar as it is up-to-date.
+[   +1 ms] DexingOutputSplitTransform (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +1 ms] > Task :app:desugarDebugFileDependencies UP-TO-DATE
+[   +1 ms] Caching disabled for task ':app:desugarDebugFileDependencies' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':app:desugarDebugFileDependencies' as it is up-to-date.
+[   +1 ms] Resolve mutations for :app:dexBuilderDebug (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +1 ms] :app:dexBuilderDebug (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +1 ms] > Task :app:dexBuilderDebug UP-TO-DATE
+[   +1 ms] Caching disabled for task ':app:dexBuilderDebug' because:
+[   +1 ms]   Build cache is disabled
+[        ] Skipping task ':app:dexBuilderDebug' as it is up-to-date.
+[        ] Resolve mutations for :app:mergeDebugGlobalSynthetics (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +1 ms] :app:mergeDebugGlobalSynthetics (Thread[#192,Execution worker Thread 3,5,main]) started.
+[  +42 ms] > Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+[   +1 ms] Caching disabled for task ':app:mergeDebugGlobalSynthetics' because:
+[   +1 ms]   Build cache is disabled
+[        ] Skipping task ':app:mergeDebugGlobalSynthetics' as it is up-to-date.
+[   +2 ms] Resolve mutations for :app:processDebugJavaRes (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +2 ms] :app:processDebugJavaRes (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +1 ms] > Task :app:processDebugJavaRes UP-TO-DATE
+[        ] file or directory 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\app\src\main\resources', not found
+[        ] file or directory 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\app\src\debug\resources', not found
+[   +3 ms] file or directory 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\app\src\main\resources', not found
+[        ] file or directory 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\app\src\debug\resources', not found
+[   +1 ms] Caching disabled for task ':app:processDebugJavaRes' because:
+[   +3 ms]   Build cache is disabled
+[   +1 ms]   Caching has been disabled for the task
+[        ] Skipping task ':app:processDebugJavaRes' as it is up-to-date.
+[   +1 ms] Resolve mutations for :path_provider_android:processDebugJavaRes (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +3 ms] :path_provider_android:processDebugJavaRes (Thread[#192,Execution worker Thread 3,5,main]) started.
+[   +4 ms] > Task :path_provider_android:processDebugJavaRes NO-SOURCE
+[   +1 ms] file or directory 'D:\Caches\pub-cache\hosted\pub.dev\path_provider_android-2.2.22\android\src\main\resources', not found
+[   +1 ms] file or directory 'D:\Caches\pub-cache\hosted\pub.dev\path_provider_android-2.2.22\android\src\debug\resources', not found
+[   +1 ms] Skipping task ':path_provider_android:processDebugJavaRes' as it has no source files and no previous output files.
+[        ] work action resolve out (project :path_provider_android) (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +1 ms] Resolve mutations for :app:mergeDebugJavaResource (Thread[#196,Execution worker Thread 7,5,main]) started.
+[        ] :app:mergeDebugJavaResource (Thread[#196,Execution worker Thread 7,5,main]) started.
+[  +79 ms] > Task :app:mergeDebugJavaResource UP-TO-DATE
+[   +2 ms] Caching disabled for task ':app:mergeDebugJavaResource' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':app:mergeDebugJavaResource' as it is up-to-date.
+[   +1 ms] Resolve mutations for :app:checkDebugDuplicateClasses (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +1 ms] :app:checkDebugDuplicateClasses (Thread[#196,Execution worker Thread 7,5,main]) started.
+[  +86 ms] > Task :app:checkDebugDuplicateClasses UP-TO-DATE
+[   +7 ms] Caching disabled for task ':app:checkDebugDuplicateClasses' because:
+[   +1 ms]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':app:checkDebugDuplicateClasses' as it is up-to-date.
+[        ] Resolve mutations for :app:mergeExtDexDebug (Thread[#196,Execution worker Thread 7,5,main]) started.
+[        ] :app:mergeExtDexDebug (Thread[#196,Execution worker Thread 7,5,main]) started.
+[        ] > Task :app:mergeExtDexDebug UP-TO-DATE
+[        ] Caching disabled for task ':app:mergeExtDexDebug' because:
+[        ]   Build cache is disabled
+[   +5 ms] Skipping task ':app:mergeExtDexDebug' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:bundleLibRuntimeToDirDebug (Thread[#196,Execution worker Thread 7,5,main]) started.
+[        ] :path_provider_android:bundleLibRuntimeToDirDebug (Thread[#196,Execution worker Thread 7,5,main]) started.
+[  +83 ms] > Task :path_provider_android:bundleLibRuntimeToDirDebug UP-TO-DATE
+[   +1 ms] Caching disabled for task ':path_provider_android:bundleLibRuntimeToDirDebug' because:
+[        ]   Build cache is disabled
+[        ]   Simple merging task
+[        ] Skipping task ':path_provider_android:bundleLibRuntimeToDirDebug' as it is up-to-date.
+[        ] work action resolve bundleLibRuntimeToDirDebug (project :path_provider_android) (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +1 ms] ClassesDirToClassesTransform (Thread[#196,Execution worker Thread 7,5,main]) started.
+[   +1 ms] DexingNoClasspathTransform (Thread[#195,Execution worker Thread 6,5,main]) started.
+[   +1 ms] Resolve mutations for :app:mergeProjectDexDebug (Thread[#189,included builds,5,main]) started.
+[        ] :app:mergeProjectDexDebug (Thread[#189,included builds,5,main]) started.
+[        ] > Transform bundleLibRuntimeToDirDebug (project :path_provider_android) with DexingNoClasspathTransform
+[   +2 ms] Caching disabled for DexingNoClasspathTransform: D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\path_provider_android\intermediates\runtime_library_classes_dir\debug\bundleLibRuntimeToDirDebug because:
+[   +1 ms]   Build cache is disabled
+[        ] Skipping DexingNoClasspathTransform: D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\path_provider_android\intermediates\runtime_library_classes_dir\debug\bundleLibRuntimeToDirDebug as it is up-to-date.
+[        ] DexingOutputSplitTransform (Thread[#195,Execution worker Thread 6,5,main]) started.
+[        ] > Task :app:mergeProjectDexDebug UP-TO-DATE
+[        ] Caching disabled for task ':app:mergeProjectDexDebug' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':app:mergeProjectDexDebug' as it is up-to-date.
+[        ] Resolve mutations for :app:mergeLibDexDebug (Thread[#189,included builds,5,main]) started.
+[  +25 ms] :app:mergeLibDexDebug (Thread[#189,included builds,5,main]) started.
+[  +50 ms] > Task :app:mergeLibDexDebug UP-TO-DATE
+[        ] Caching disabled for task ':app:mergeLibDexDebug' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':app:mergeLibDexDebug' as it is up-to-date.
+[   +1 ms] Resolve mutations for :app:configureCMakeDebug[arm64-v8a] (Thread[#189,included builds,5,main]) started.
+[        ] :app:configureCMakeDebug[arm64-v8a] (Thread[#189,included builds,5,main]) started.
+[ +799 ms] > Task :app:configureCMakeDebug[arm64-v8a]
+[   +1 ms] Caching disabled for task ':app:configureCMakeDebug[arm64-v8a]' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[   +1 ms] Task ':app:configureCMakeDebug[arm64-v8a]' is not up-to-date because:
+[   +1 ms]   Task.upToDateWhen is false.
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|arm64-v8a : Start JSON generation. Platform version: 24 min SDK version: arm64-v8a
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|arm64-v8a : JSON 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\.cxx\debug\206l4342\arm64-v8a\android_gradle_build.json' was up-to-date
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|arm64-v8a : JSON generation completed without problems
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|arm64-v8a : Writing build model to D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\intermediates\cxx\debug\206l4342\logs\arm64-v8a\build_model.json
+[        ] Resolve mutations for :app:buildCMakeDebug[arm64-v8a] (Thread[#189,included builds,5,main]) started.
+[        ] :app:buildCMakeDebug[arm64-v8a] (Thread[#189,included builds,5,main]) started.
+[  +95 ms] > Task :app:buildCMakeDebug[arm64-v8a]
+[   +1 ms] Caching disabled for task ':app:buildCMakeDebug[arm64-v8a]' because:
+[   +1 ms]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Task ':app:buildCMakeDebug[arm64-v8a]' is not up-to-date because:
+[   +1 ms]   Task.upToDateWhen is false.
+[        ] C/C++: starting build
+[        ] C/C++: reading expected JSONs
+[        ] C/C++: done reading expected JSONs
+[        ] C/C++: executing build commands for targets that produce .so files or executables
+[   +2 ms] C/C++: evaluate miniconfig
+[   +1 ms] C/C++: no libraries
+[        ] Resolve mutations for :app:configureCMakeDebug[armeabi-v7a] (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :app:configureCMakeDebug[armeabi-v7a] (Thread[#190,Execution worker,5,main]) started.
+[ +880 ms] > Task :app:configureCMakeDebug[armeabi-v7a]
+[   +1 ms] Caching disabled for task ':app:configureCMakeDebug[armeabi-v7a]' because:
+[   +1 ms]   Build cache is disabled
+[   +2 ms]   Caching has been disabled for the task
+[   +1 ms] Task ':app:configureCMakeDebug[armeabi-v7a]' is not up-to-date because:
+[        ]   Task.upToDateWhen is false.
+[   +1 ms] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|armeabi-v7a : Start JSON generation. Platform version: 24 min SDK version: armeabi-v7a
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|armeabi-v7a : JSON 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\.cxx\debug\206l4342\armeabi-v7a\android_gradle_build.json' was up-to-date
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|armeabi-v7a : JSON generation completed without problems
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|armeabi-v7a : Writing build model to D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\intermediates\cxx\debug\206l4342\logs\armeabi-v7a\build_model.json
+[  +95 ms] Resolve mutations for :app:buildCMakeDebug[armeabi-v7a] (Thread[#190,Execution worker,5,main]) started.
+[   +1 ms] :app:buildCMakeDebug[armeabi-v7a] (Thread[#190,Execution worker,5,main]) started.
+[        ] > Task :app:buildCMakeDebug[armeabi-v7a]
+[        ] Caching disabled for task ':app:buildCMakeDebug[armeabi-v7a]' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Task ':app:buildCMakeDebug[armeabi-v7a]' is not up-to-date because:
+[   +7 ms]   Task.upToDateWhen is false.
+[        ] C/C++: starting build
+[        ] C/C++: reading expected JSONs
+[        ] C/C++: done reading expected JSONs
+[   +1 ms] C/C++: executing build commands for targets that produce .so files or executables
+[        ] C/C++: evaluate miniconfig
+[        ] C/C++: no libraries
+[        ] Resolve mutations for :app:configureCMakeDebug[x86_64] (Thread[#190,Execution worker,5,main]) started.
+[        ] :app:configureCMakeDebug[x86_64] (Thread[#190,Execution worker,5,main]) started.
+[ +769 ms] > Task :app:configureCMakeDebug[x86_64]
+[        ] Caching disabled for task ':app:configureCMakeDebug[x86_64]' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[  +12 ms] Task ':app:configureCMakeDebug[x86_64]' is not up-to-date because:
+[        ]   Task.upToDateWhen is false.
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|x86_64 : Start JSON generation. Platform version: 24 min SDK version: x86_64
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|x86_64 : JSON 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\.cxx\debug\206l4342\x86_64\android_gradle_build.json' was up-to-date
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|x86_64 : JSON generation completed without problems
+[        ] C/C++: D:\flutter\packages\flutter_tools\gradle\src\main\scripts\CMakeLists.txt debug|x86_64 : Writing build model to D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\intermediates\cxx\debug\206l4342\logs\x86_64\build_model.json
+[  +88 ms] Resolve mutations for :app:buildCMakeDebug[x86_64] (Thread[#190,Execution worker,5,main]) started.
+[   +2 ms] :app:buildCMakeDebug[x86_64] (Thread[#190,Execution worker,5,main]) started.
+[ +219 ms] > Task :app:buildCMakeDebug[x86_64]
+[        ] Caching disabled for task ':app:buildCMakeDebug[x86_64]' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Task ':app:buildCMakeDebug[x86_64]' is not up-to-date because:
+[        ]   Task.upToDateWhen is false.
+[        ] C/C++: starting build
+[   +1 ms] C/C++: reading expected JSONs
+[   +1 ms] C/C++: done reading expected JSONs
+[   +4 ms] C/C++: executing build commands for targets that produce .so files or executables
+[   +1 ms] C/C++: evaluate miniconfig
+[   +1 ms] C/C++: no libraries
+[  +86 ms] Resolve mutations for :app:mergeDebugJniLibFolders (Thread[#190,Execution worker,5,main]) started.
+[   +2 ms] :app:mergeDebugJniLibFolders (Thread[#190,Execution worker,5,main]) started.
+[        ] > Task :app:mergeDebugJniLibFolders UP-TO-DATE
+[        ] Caching disabled for task ':app:mergeDebugJniLibFolders' because:
+[        ]   Build cache is disabled
+[        ]   Simple merging task
+[        ] Skipping task ':app:mergeDebugJniLibFolders' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:mergeDebugJniLibFolders (Thread[#190,Execution worker,5,main]) started.
+[        ] :path_provider_android:mergeDebugJniLibFolders (Thread[#190,Execution worker,5,main]) started.
+[  +94 ms] > Task :path_provider_android:mergeDebugJniLibFolders UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:mergeDebugJniLibFolders' because:
+[        ]   Build cache is disabled
+[        ]   Simple merging task
+[   +1 ms] Skipping task ':path_provider_android:mergeDebugJniLibFolders' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:mergeDebugNativeLibs (Thread[#190,Execution worker,5,main]) started.
+[   +1 ms] :path_provider_android:mergeDebugNativeLibs (Thread[#190,Execution worker,5,main]) started.
+[   +2 ms] > Task :path_provider_android:mergeDebugNativeLibs NO-SOURCE
+[  +11 ms] Skipping task ':path_provider_android:mergeDebugNativeLibs' as it has no source files and no previous output files.
+[   +1 ms] Resolve mutations for :path_provider_android:copyDebugJniLibsProjectOnly (Thread[#190,Execution worker,5,main]) started.
+[  +14 ms] :path_provider_android:copyDebugJniLibsProjectOnly (Thread[#190,Execution worker,5,main]) started.
+[  +50 ms] > Task :path_provider_android:copyDebugJniLibsProjectOnly UP-TO-DATE
+[   +1 ms] Caching disabled for task ':path_provider_android:copyDebugJniLibsProjectOnly' because:
+[        ]   Build cache is disabled
+[   +3 ms]   Caching has been disabled for the task
+[   +1 ms] Skipping task ':path_provider_android:copyDebugJniLibsProjectOnly' as it is up-to-date.
+[ +190 ms] work action resolve jni (project :path_provider_android) (Thread[#189,included builds,5,main]) started.
+[        ] Resolve mutations for :app:mergeDebugNativeLibs (Thread[#189,included builds,5,main]) started.
+[   +1 ms] :app:mergeDebugNativeLibs (Thread[#190,Execution worker,5,main]) started.
+[+6901 ms] > Task :app:mergeDebugNativeLibs
+[   +1 ms] Caching disabled for task ':app:mergeDebugNativeLibs' because:
+[   +1 ms]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[   +2 ms] Task ':app:mergeDebugNativeLibs' is not up-to-date because:
+[   +1 ms]   Task has failed previously.
+[+2104 ms] Resolve mutations for :app:validateSigningDebug (Thread[#196,Execution worker Thread 7,5,main]) started.
+[        ] :app:validateSigningDebug (Thread[#196,Execution worker Thread 7,5,main]) started.
+[ +188 ms] > Task :app:validateSigningDebug UP-TO-DATE
+[        ] Caching disabled for task ':app:validateSigningDebug' because:
+[        ]   Build cache is disabled
+[   +1 ms]   Caching has been disabled for the task
+[   +7 ms] Skipping task ':app:validateSigningDebug' as it is up-to-date.
+[        ] Resolve mutations for :app:writeDebugAppMetadata (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] :app:writeDebugAppMetadata (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] > Task :app:writeDebugAppMetadata UP-TO-DATE
+[        ] Caching disabled for task ':app:writeDebugAppMetadata' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':app:writeDebugAppMetadata' as it is up-to-date.
+[        ] Resolve mutations for :app:writeDebugSigningConfigVersions (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] :app:writeDebugSigningConfigVersions (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] > Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+[        ] Caching disabled for task ':app:writeDebugSigningConfigVersions' because:
+[   +4 ms]   Build cache is disabled
+[   +2 ms]   Caching has been disabled for the task
+[  +27 ms] Skipping task ':app:writeDebugSigningConfigVersions' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:stripDebugDebugSymbols (Thread[#194,Execution worker Thread 5,5,main]) started.
+[   +2 ms] :path_provider_android:stripDebugDebugSymbols (Thread[#194,Execution worker Thread 5,5,main]) started.
+[   +2 ms] > Task :path_provider_android:stripDebugDebugSymbols NO-SOURCE
+[   +3 ms] Skipping task ':path_provider_android:stripDebugDebugSymbols' as it has no source files and no previous output files.
+[   +2 ms] Resolve mutations for :path_provider_android:copyDebugJniLibsProjectAndLocalJars (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] :path_provider_android:copyDebugJniLibsProjectAndLocalJars (Thread[#194,Execution worker Thread 5,5,main]) started.
+[  +46 ms] > Task :path_provider_android:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+[   +5 ms] Caching disabled for task ':path_provider_android:copyDebugJniLibsProjectAndLocalJars' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[   +1 ms] Skipping task ':path_provider_android:copyDebugJniLibsProjectAndLocalJars' as it is up-to-date.
+[   +1 ms] Resolve mutations for :path_provider_android:extractDebugAnnotations (Thread[#194,Execution worker Thread 5,5,main]) started.
+[   +1 ms] :path_provider_android:extractDebugAnnotations (Thread[#194,Execution worker Thread 5,5,main]) started.
+[+2781 ms] > Task :path_provider_android:extractDebugAnnotations UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:extractDebugAnnotations' because:
+[   +1 ms]   Build cache is disabled
+[        ] Skipping task ':path_provider_android:extractDebugAnnotations' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:extractDeepLinksForAarDebug (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] :path_provider_android:extractDeepLinksForAarDebug (Thread[#194,Execution worker Thread 5,5,main]) started.
+[  +84 ms] > Task :path_provider_android:extractDeepLinksForAarDebug UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:extractDeepLinksForAarDebug' because:
+[   +2 ms]   Build cache is disabled
+[   +1 ms] Skipping task ':path_provider_android:extractDeepLinksForAarDebug' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:mergeDebugGeneratedProguardFiles (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] :path_provider_android:mergeDebugGeneratedProguardFiles (Thread[#194,Execution worker Thread 5,5,main]) started.
+[ +100 ms] > Task :path_provider_android:mergeDebugGeneratedProguardFiles UP-TO-DATE
+[   +1 ms] Caching disabled for task ':path_provider_android:mergeDebugGeneratedProguardFiles' because:
+[   +2 ms]   Build cache is disabled
+[   +1 ms]   Simple merging task
+[        ] Skipping task ':path_provider_android:mergeDebugGeneratedProguardFiles' as it is up-to-date.
+[   +1 ms] Resolve mutations for :path_provider_android:mergeDebugConsumerProguardFiles (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] :path_provider_android:mergeDebugConsumerProguardFiles (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] > Task :path_provider_android:mergeDebugConsumerProguardFiles UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:mergeDebugConsumerProguardFiles' because:
+[        ]   Build cache is disabled
+[        ]   Simple merging task
+[        ] Skipping task ':path_provider_android:mergeDebugConsumerProguardFiles' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:prepareDebugArtProfile (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] :path_provider_android:prepareDebugArtProfile (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] > Task :path_provider_android:prepareDebugArtProfile UP-TO-DATE
+[   +1 ms] Caching disabled for task ':path_provider_android:prepareDebugArtProfile' because:
+[   +1 ms]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':path_provider_android:prepareDebugArtProfile' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:prepareLintJarForPublish (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] :path_provider_android:prepareLintJarForPublish (Thread[#194,Execution worker Thread 5,5,main]) started.
+[   +1 ms] > Task :path_provider_android:prepareLintJarForPublish UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:prepareLintJarForPublish' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':path_provider_android:prepareLintJarForPublish' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:mergeDebugJavaResource (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] :path_provider_android:mergeDebugJavaResource (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] > Task :path_provider_android:mergeDebugJavaResource UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:mergeDebugJavaResource' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':path_provider_android:mergeDebugJavaResource' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:syncDebugLibJars (Thread[#194,Execution worker Thread 5,5,main]) started.
+[        ] :path_provider_android:syncDebugLibJars (Thread[#193,Execution worker Thread 4,5,main]) started.
+[  +66 ms] > Task :path_provider_android:syncDebugLibJars UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:syncDebugLibJars' because:
+[        ]   Build cache is disabled
+[        ] Skipping task ':path_provider_android:syncDebugLibJars' as it is up-to-date.
+[        ] Resolve mutations for :path_provider_android:bundleDebugAar (Thread[#193,Execution worker Thread 4,5,main]) started.
+[        ] :path_provider_android:bundleDebugAar (Thread[#193,Execution worker Thread 4,5,main]) started.
+[ +202 ms] > Task :path_provider_android:bundleDebugAar UP-TO-DATE
+[        ] Caching disabled for task ':path_provider_android:bundleDebugAar' because:
+[   +2 ms]   Build cache is disabled
+[   +1 ms]   Caching has been disabled for the task
+[   +1 ms] Skipping task ':path_provider_android:bundleDebugAar' as it is up-to-date.
+[   +1 ms] Resolve mutations for :path_provider_android:assembleDebug (Thread[#193,Execution worker Thread 4,5,main]) started.
+[   +1 ms] :path_provider_android:assembleDebug (Thread[#193,Execution worker Thread 4,5,main]) started.
+[        ] > Task :path_provider_android:assembleDebug UP-TO-DATE
+[        ] Skipping task ':path_provider_android:assembleDebug' as it has no actions.
+[+5387 ms] > Task :app:mergeDebugNativeLibs
+[        ] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\fileHashes\fileHashes.bin
+[        ] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\fileHashes\resourceHashesCache.bin
+[+3304 ms] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\fileHashes\fileHashes.bin
+[        ] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\fileHashes\resourceHashesCache.bin
+[+2794 ms] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\8.14\executionHistory\executionHistory.bin
+[  +90 ms] Invalidating in-memory cache of D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android\.gradle\buildOutputCleanup\outputFiles.bin
+[ +111 ms] Resolve mutations for :app:stripDebugDebugSymbols (Thread[#190,Execution worker,5,main]) started.
+[        ] :app:stripDebugDebugSymbols (Thread[#190,Execution worker,5,main]) started.
+[  +96 ms] > Task :app:stripDebugDebugSymbols UP-TO-DATE
+[   +1 ms] Caching disabled for task ':app:stripDebugDebugSymbols' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':app:stripDebugDebugSymbols' as it is up-to-date.
+[        ] Resolve mutations for :app:packageDebug (Thread[#190,Execution worker,5,main]) started.
+[ +122 ms] :app:packageDebug (Thread[#190,Execution worker,5,main]) started.
+[+2777 ms] > Task :app:packageDebug UP-TO-DATE
+[        ] Custom actions are attached to task ':app:packageDebug'.
+[   +1 ms] Caching disabled for task ':app:packageDebug' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':app:packageDebug' as it is up-to-date.
+[        ] Resolve mutations for :app:createDebugApkListingFileRedirect (Thread[#190,Execution worker,5,main]) started.
+[        ] :app:createDebugApkListingFileRedirect (Thread[#190,Execution worker,5,main]) started.
+[   +1 ms] > Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+[        ] Caching disabled for task ':app:createDebugApkListingFileRedirect' because:
+[        ]   Build cache is disabled
+[        ]   Caching has been disabled for the task
+[        ] Skipping task ':app:createDebugApkListingFileRedirect' as it is up-to-date.
+[   +1 ms] Resolve mutations for :app:assembleDebug (Thread[#190,Execution worker,5,main]) started.
+[        ] :app:assembleDebug (Thread[#190,Execution worker,5,main]) started.
+[+1085 ms] > Task :app:assembleDebug
+[        ] Caching disabled for task ':app:assembleDebug' because:
+[        ]   Build cache is disabled
+[        ] Task ':app:assembleDebug' is not up-to-date because:
+[        ]   Task has not declared any outputs despite executing actions.
+[ +496 ms] Build 2a7340e4-e133-460a-927d-c4eeb6124977 is closed
+[ +107 ms] BUILD SUCCESSFUL in 1m 35s
+[        ] 81 actionable tasks: 12 executed, 69 up-to-date
+[ +290 ms] Watched directory hierarchies: [D:\flutter\packages\flutter_tools\gradle, D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\android]
+[+5425 ms] Running Gradle task 'assembleDebug'... (completed in 102.5s)
+[+1048 ms] Calculate SHA1: LocalDirectory: 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\outputs\flutter-apk'/app-debug.apk
+[+2721 ms] ΓêÜ Built build\app\outputs\flutter-apk\app-debug.apk
+[ +141 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\build-tools\35.0.0\aapt dump xmltree D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\outputs\flutter-apk\app-debug.apk AndroidManifest.xml
+[+1996 ms] Exit code 0 from: C:\Users\praka\AppData\Local\Android\Sdk\build-tools\35.0.0\aapt dump xmltree D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\outputs\flutter-apk\app-debug.apk AndroidManifest.xml
+[        ] N: android=http://schemas.android.com/apk/res/android
+             E: manifest (line=2)
+               A: android:versionCode(0x0101021b)=(type 0x10)0x1
+               A: android:versionName(0x0101021c)="1.0.0" (Raw: "1.0.0")
+               A: android:compileSdkVersion(0x01010572)=(type 0x10)0x24
+               A: android:compileSdkVersionCodename(0x01010573)="16" (Raw: "16")
+               A: package="com.khozna.khozna" (Raw: "com.khozna.khozna")
+               A: platformBuildVersionCode=(type 0x10)0x24
+               A: platformBuildVersionName=(type 0x10)0x10
+               E: uses-sdk (line=7)
+                 A: android:minSdkVersion(0x0101020c)=(type 0x10)0x18
+                 A: android:targetSdkVersion(0x01010270)=(type 0x10)0x24
+               E: uses-permission (line=15)
+                 A: android:name(0x01010003)="android.permission.INTERNET" (Raw: "android.permission.INTERNET")
+               E: queries (line=23)
+                 E: intent (line=24)
+                   E: action (line=25)
+                     A: android:name(0x01010003)="android.intent.action.PROCESS_TEXT" (Raw: "android.intent.action.PROCESS_TEXT")
+                   E: data (line=27)
+                     A: android:mimeType(0x01010026)="text/plain" (Raw: "text/plain")
+               E: permission (line=31)
+                 A: android:name(0x01010003)="com.khozna.khozna.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" (Raw: "com.khozna.khozna.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION")
+                 A: android:protectionLevel(0x01010009)=(type 0x11)0x2
+               E: uses-permission (line=35)
+                 A: android:name(0x01010003)="com.khozna.khozna.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" (Raw: "com.khozna.khozna.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION")
+               E: application (line=37)
+                 A: android:label(0x01010001)="khozna" (Raw: "khozna")
+                 A: android:icon(0x01010002)=@0x7f0a0000
+                 A: android:name(0x01010003)="android.app.Application" (Raw: "android.app.Application")
+                 A: android:debuggable(0x0101000f)=(type 0x12)0xffffffff
+                 A: android:extractNativeLibs(0x010104ea)=(type 0x12)0x0
+                 A: android:appComponentFactory(0x0101057a)="androidx.core.app.CoreComponentFactory" (Raw: "androidx.core.app.CoreComponentFactory")
+                 E: activity (line=44)
+                   A: android:theme(0x01010000)=@0x7f0c0000
+                   A: android:name(0x01010003)="com.khozna.khozna.MainActivity" (Raw: "com.khozna.khozna.MainActivity")
+                   A: android:exported(0x01010010)=(type 0x12)0xffffffff
+                   A: android:taskAffinity(0x01010012)="" (Raw: "")
+                   A: android:launchMode(0x0101001d)=(type 0x10)0x1
+                   A: android:configChanges(0x0101001f)=(type 0x11)0x40003fb4
+                   A: android:windowSoftInputMode(0x0101022b)=(type 0x11)0x10
+                   A: android:hardwareAccelerated(0x010102d3)=(type 0x12)0xffffffff
+                   E: meta-data (line=60)
+                     A: android:name(0x01010003)="io.flutter.embedding.android.NormalTheme" (Raw: "io.flutter.embedding.android.NormalTheme")
+                     A: android:resource(0x01010025)=@0x7f0c0001
+                   E: intent-filter (line=64)
+                     E: action (line=65)
+                       A: android:name(0x01010003)="android.intent.action.MAIN" (Raw: "android.intent.action.MAIN")
+                     E: category (line=67)
+                       A: android:name(0x01010003)="android.intent.category.LAUNCHER" (Raw: "android.intent.category.LAUNCHER")
+                 E: meta-data (line=74)
+                   A: android:name(0x01010003)="flutterEmbedding" (Raw: "flutterEmbedding")
+                   A: android:value(0x01010024)=(type 0x10)0x2
+                 E: uses-library (line=78)
+                   A: android:name(0x01010003)="androidx.window.extensions" (Raw: "androidx.window.extensions")
+                   A: android:required(0x0101028e)=(type 0x12)0x0
+                 E: uses-library (line=81)
+                   A: android:name(0x01010003)="androidx.window.sidecar" (Raw: "androidx.window.sidecar")
+                   A: android:required(0x0101028e)=(type 0x12)0x0
+                 E: provider (line=85)
+                   A: android:name(0x01010003)="androidx.startup.InitializationProvider" (Raw: "androidx.startup.InitializationProvider")
+                   A: android:exported(0x01010010)=(type 0x12)0x0
+                   A: android:authorities(0x01010018)="com.khozna.khozna.androidx-startup" (Raw: "com.khozna.khozna.androidx-startup")
+                   E: meta-data (line=89)
+                     A: android:name(0x01010003)="androidx.lifecycle.ProcessLifecycleInitializer" (Raw: "androidx.lifecycle.ProcessLifecycleInitializer")
+                     A: android:value(0x01010024)="androidx.startup" (Raw: "androidx.startup")
+                   E: meta-data (line=92)
+                     A: android:name(0x01010003)="androidx.profileinstaller.ProfileInstallerInitializer" (Raw: "androidx.profileinstaller.ProfileInstallerInitializer")
+                     A: android:value(0x01010024)="androidx.startup" (Raw: "androidx.startup")
+                 E: receiver (line=97)
+                   A: android:name(0x01010003)="androidx.profileinstaller.ProfileInstallReceiver" (Raw: "androidx.profileinstaller.ProfileInstallReceiver")
+                   A: android:permission(0x01010006)="android.permission.DUMP" (Raw: "android.permission.DUMP")
+                   A: android:enabled(0x0101000e)=(type 0x12)0xffffffff
+                   A: android:exported(0x01010010)=(type 0x12)0xffffffff
+                   A: android:directBootAware(0x01010505)=(type 0x12)0x0
+                   E: intent-filter (line=103)
+                     E: action (line=104)
+                       A: android:name(0x01010003)="androidx.profileinstaller.action.INSTALL_PROFILE" (Raw: "androidx.profileinstaller.action.INSTALL_PROFILE")
+                   E: intent-filter (line=106)
+                     E: action (line=107)
+                       A: android:name(0x01010003)="androidx.profileinstaller.action.SKIP_FILE" (Raw: "androidx.profileinstaller.action.SKIP_FILE")
+                   E: intent-filter (line=109)
+                     E: action (line=110)
+                       A: android:name(0x01010003)="androidx.profileinstaller.action.SAVE_PROFILE" (Raw: "androidx.profileinstaller.action.SAVE_PROFILE")
+                   E: intent-filter (line=112)
+                     E: action (line=113)
+                       A: android:name(0x01010003)="androidx.profileinstaller.action.BENCHMARK_OPERATION" (Raw: "androidx.profileinstaller.action.BENCHMARK_OPERATION")
+[  +23 ms] Stopping app 'app-debug.apk' on RMX3830.
+[   +6 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe -s 0A53811128211366 shell am force-stop com.khozna.khozna
+[ +412 ms] Installing APK.
+[  +17 ms] Installing build\app\outputs\flutter-apk\app-debug.apk...
+[   +1 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe -s 0A53811128211366 install -t -r D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\build\app\outputs\flutter-apk\app-debug.apk
+[+6615 ms] Performing Streamed Install
+           Success
+[        ] Installing build\app\outputs\flutter-apk\app-debug.apk... (completed in 6.6s)
+[   +5 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe -s 0A53811128211366 shell echo -n e800edc98d3959a52589f1d416cd721ae214fad8 > /data/local/tmp/sky.com.khozna.khozna.sha1
+[ +271 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe -s 0A53811128211366 shell -x logcat -v time -t 1
+[ +326 ms] --------- beginning of main
+           02-21 11:59:19.966 D/CloudConfig_stgyHelper(11455): getSupportKitMode localSdkVersion : 1224
+[  +39 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe -s 0A53811128211366 shell am start -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -f 0x20000000 --ez enable-dart-profiling true --ez enable-checked-mode true --ez verify-entry-points true com.khozna.khozna/com.khozna.khozna.MainActivity
+[ +690 ms] Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x20000000 cmp=com.khozna.khozna/.MainActivity (has extras) }
+[   +1 ms] Waiting for VM Service port to be available...
+[+1897 ms] D/FlutterJNI(11606): Beginning load of flutter...
+[   +1 ms] D/FlutterJNI(11606): flutter (null) was loaded normally!
+[+3769 ms] I/flutter (11606): [IMPORTANT:flutter/shell/platform/android/android_context_vk_impeller.cc(62)] Using the Impeller rendering backend (Vulkan).
+[ +120 ms] VM Service URL on device: http://127.0.0.1:35719/OMnqFBokXog=/
+[   +1 ms] executing: C:\Users\praka\AppData\Local\Android\Sdk\platform-tools\adb.exe -s 0A53811128211366 forward tcp:0 tcp:35719
+[ +188 ms] 59852
+[        ] Forwarded host port 59852 to device port 35719 for VM Service
+[  +78 ms] Caching compiled dill
+[ +708 ms] Connecting to service protocol: http://127.0.0.1:59852/OMnqFBokXog=/
+[ +175 ms] D/FlutterRenderer(11606): Width is zero. 0,0
+[+1270 ms] Launching a Dart Developer Service (DDS) instance at http://127.0.0.1:0, connecting to VM service at http://127.0.0.1:59852/OMnqFBokXog=/.
+[+1316 ms] D/FlutterRenderer(11606): Width is zero. 0,0
+[  +51 ms] D/FlutterJNI(11606): Sending viewport metrics to the engine.
+[+1372 ms] Successfully connected to service protocol: http://127.0.0.1:59852/OMnqFBokXog=/
+[ +153 ms] DevFS: Creating new filesystem on the device (null)
+[  +69 ms] DevFS: Created new filesystem on the device (file:///data/user/0/com.khozna.khozna/code_cache/KHOZNA.COMRCCTUA/KHOZNA.COM/)
+[   +6 ms] Updating assets for android
+[   +5 ms] runHooks() with {TargetFile: D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\lib\main.dart, BuildMode: debug} and TargetPlatform.android_arm64
+[        ] runHooks() - will perform dart build
+[  +11 ms] Initializing file store
+[  +17 ms] dart_build: Starting due to {}
+[ +324 ms] Building native assets for android_arm64.
+[ +179 ms] input.json contents:
+           {
+             "assets": {},
+             "config": {
+               "build_asset_types": [
+                 "code_assets/code"
+               ],
+               "extensions": {
+                 "code_assets": {
+                   "android": {
+                     "target_ndk_api": 24
+                   },
+                   "c_compiler": {
+                     "ar": "C:\\Users\\praka\\AppData\\Local\\Android\\Sdk\\ndk\\28.2.13676358\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar.exe",
+                     "cc": "C:\\Users\\praka\\AppData\\Local\\Android\\Sdk\\ndk\\28.2.13676358\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe",
+                     "ld": "C:\\Users\\praka\\AppData\\Local\\Android\\Sdk\\ndk\\28.2.13676358\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\ld.lld.exe"
+                   },
+                   "link_mode_preference": "dynamic",
+                   "target_architecture": "arm64",
+                   "target_os": "android"
+                 }
+               },
+               "linking_enabled": false
+             },
+             "out_dir_shared": "D:\\MY DASHBOARD\\STARTUP\\Khozna\\KHOZNA.COM\\.dart_tool\\hooks_runner\\shared\\objective_c\\build\\",
+             "out_file": "D:\\MY DASHBOARD\\STARTUP\\Khozna\\KHOZNA.COM\\.dart_tool\\hooks_runner\\objective_c\\d7132460a6\\output.json",
+             "package_name": "objective_c",
+             "package_root": "D:\\Caches\\pub-cache\\hosted\\pub.dev\\objective_c-9.3.0\\",
+             "user_defines": {}
+           }
+[  +23 ms] output.json contents:
+           {
+             "assets_for_linking": {},
+             "status": "success",
+             "timestamp": "2026-02-21 11:43:20.000"
+           }
+[   +9 ms] Rerunning build for objective_c in D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\.dart_tool\hooks_runner\objective_c\d7132460a6\. Environment variable changed: PATH.
+[   +4 ms] input.json contents:
+           {
+             "assets": {},
+             "config": {
+               "build_asset_types": [
+                 "code_assets/code"
+               ],
+               "extensions": {
+                 "code_assets": {
+                   "android": {
+                     "target_ndk_api": 24
+                   },
+                   "c_compiler": {
+                     "ar": "C:\\Users\\praka\\AppData\\Local\\Android\\Sdk\\ndk\\28.2.13676358\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\llvm-ar.exe",
+                     "cc": "C:\\Users\\praka\\AppData\\Local\\Android\\Sdk\\ndk\\28.2.13676358\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang.exe",
+                     "ld": "C:\\Users\\praka\\AppData\\Local\\Android\\Sdk\\ndk\\28.2.13676358\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\ld.lld.exe"
+                   },
+                   "link_mode_preference": "dynamic",
+                   "target_architecture": "arm64",
+                   "target_os": "android"
+                 }
+               },
+               "linking_enabled": false
+             },
+             "out_dir_shared": "D:\\MY DASHBOARD\\STARTUP\\Khozna\\KHOZNA.COM\\.dart_tool\\hooks_runner\\shared\\objective_c\\build\\",
+             "out_file": "D:\\MY DASHBOARD\\STARTUP\\Khozna\\KHOZNA.COM\\.dart_tool\\hooks_runner\\objective_c\\d7132460a6\\output.json",
+             "package_name": "objective_c",
+             "package_root": "D:\\Caches\\pub-cache\\hosted\\pub.dev\\objective_c-9.3.0\\",
+             "user_defines": {}
+           }
+[  +25 ms] Running `(cd D:\Caches\pub-cache\hosted\pub.dev\objective_c-9.3.0\; ANDROID_HOME=D:\Android PATH=C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;D:\Download\all app\all apps\Git\cmd;D:\Download\all app\all apps\;C:\Users\praka\AppData\Local\Microsoft\WindowsApps;;D:\Download\all app\all apps\Git\cmd;D:\flutter\bin;D:\Download\all app\all apps\store of app\Antigravity\bin;C:\Users\praka\AppData\Local\Programs\Ollama;C:\Users\praka\AppData\Roaming\npm;D:\Download\all app\all app\android studio\platform-tools;D:\flutter\bin\mingw64\bin;D:\_Archives\Download\all app\all app\android studio\platform-tools;D:\flutter\bin\mingit\cmd PROGRAMDATA=C:\ProgramData SYSTEMDRIVE=C: SYSTEMROOT=C:\WINDOWS TEMP=C:\Users\praka\AppData\Local\Temp TMP=C:\Users\praka\AppData\Local\Temp USERPROFILE=C:\Users\praka WINDIR=C:\WINDOWS D:\flutter\bin\cache\dart-sdk\bin\dart '--packages=D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\.dart_tool\package_config.json' 'D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\.dart_tool\hooks_runner\objective_c\d7132460a6\hook.dill' '--config=D:\MY DASHBOARD\STARTUP\Khozna\KHOZNA.COM\.dart_tool\hooks_runner\objective_c\d7132460a6\input.json' )`.
+[ +911 ms] output.json contents:
+           {
+             "assets_for_linking": {},
+             "status": "success",
+             "timestamp": "2026-02-21 11:59:33.000"
+           }
+[  +99 ms] Building native assets for android_arm64 done.
+[  +31 ms] dart_build: Complete
+[ +100 ms] Persisting file store
+[  +11 ms] Done persisting file store
+[  +48 ms] runHooks() - done
+[+2630 ms] Manifest contained wildcard assets. Inserting missing file into build graph to force rerun. for more information see #56466.
+[  +48 ms] Syncing files to device RMX3830...
+[  +12 ms] Compiling dart to kernel with 0 updated files
+[   +9 ms] Processing bundle.
+[  +14 ms] <- recompile package:khozna/main.dart 232e6757-4f2e-439c-aa4a-25191d2bcaa7
+[   +1 ms] <- 232e6757-4f2e-439c-aa4a-25191d2bcaa7
+[ +274 ms] Bundle processing done.
+[  +28 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/1 time=69324661081375 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[   +1 ms] W/m.khozna.khozna(11606): userfaultfd: MOVE ioctl seems unsupported: Connection timed out
+[  +33 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/2 time=69325546996644 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/3 time=69325655234336 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[   +6 ms] I/Choreographer(11606): Skipped 299 frames!  The application may be doing too much work on its main thread.
+[  +17 ms] D/FlutterJNI(11606): Sending viewport metrics to the engine.
+[   +3 ms] D/BufferQueueProducer(11606): [VRI[MainActivity]#0(BLAST Consumer)0](id:2d5600000000,api:1,p:11606,c:11606) dequeueBuffer: allocating a new buffer for slot 0
+[        ] D/mali_gralloc(11606): register: id=25500005076, handle=0xb400006ff51bd610, importpid=11606
+[   +1 ms] D/BufferQueueProducer(11606): [VRI[MainActivity]#0(BLAST Consumer)0](id:2d5600000000,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[   +1 ms] D/BufferQueueProducer(11606): [VRI[MainActivity]#0(BLAST Consumer)0](id:2d5600000000,api:1,p:11606,c:11606) requestBuffer: slot 0
+[ +203 ms] D/BufferQueueProducer(11606): [VRI[MainActivity]#0(BLAST Consumer)0](id:2d5600000000,api:1,p:11606,c:11606) queueBuffer: slot=0/1 time=69327467720066 dataSpace=0 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=FREEZE
+[        ] D/BufferQueueProducer(11606): [VRI[MainActivity]#0(BLAST Consumer)0](id:2d5600000000,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +36 ms] I/HWUI    (11606): Davey! duration=6751ms; Flags=1, FrameTimelineVsyncId=19027083, IntendedVsync=69320717559074, Vsync=69325685761014, InputEventId=0, HandleInputStart=69325693373952, AnimationStart=69325693376875, PerformTraversalsStart=69325693378567, DrawStart=69325713562028, FrameDeadline=69320734225741, FrameInterval=69325692914067, FrameStartTime=16616060, SyncQueued=69325714693028, SyncStart=69325715024759, IssueDrawCommandsStart=69325720149567, SwapBuffers=69327463953104, FrameCompleted=69327469425796, DequeueBufferDuration=39430500, QueueBufferDuration=815192, GpuCompleted=69327469425796, SwapBuffersCompleted=69327468800489, DisplayPresentTime=463862274689, CommandSubmissionCompleted=69327463953104, 
+[+1278 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/4 time=69328773379026 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +2 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[        ] W/WindowOnBackDispatcher(11606): OnBackInvokedCallback is not enabled for the application.
+[   +8 ms] W/WindowOnBackDispatcher(11606): Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+[  +16 ms] D/ProfileInstaller(11606): Installing profile for com.khozna.khozna
+[   +1 ms] D/FlutterJNI(11606): Sending viewport metrics to the engine.
+[  +57 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/5 time=69328863298103 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[ +484 ms] I/SurfaceControl(11606): SurfaceControl hide: sc Surface(name=Surface(name=1ad63c2 InputMethod#134)/@0x9f1fa0e - animation-leash of insets_animation#6810)/@0xe03e4cc tx=49847390437414 ,layerId= 6810 caller = android.view.InsetsSourceConsumer.applyRequestedVisibilityToControl:474 android.view.InsetsSourceConsumer.setControl:197 android.view.ImeInsetsSourceConsumer.setControl:222 android.view.InsetsController.onControlsChanged:998 android.view.ViewRootImpl.handleInsetsControlChanged:2446 android.view.ViewRootImpl.-$$Nest$mhandleInsetsControlChanged:0 android.view.ViewRootImpl$W.insetsControlChanged:12157 android.app.servertransaction.WindowStateInsetsControlChangeItem.execute:52 android.app.servertransaction.WindowStateTransactionItem.execute:59 android.app.servertransaction.TransactionExecutor.executeNonLifecycleItem:174 
+[  +50 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/6 time=69329381178872 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[ +429 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/7 time=69329810859141 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[+1360 ms] Updating files.
+[   +5 ms] Pending asset builds completed. Writing dirty entries.
+[        ] DevFS: Sync finished
+[        ] Syncing files to device RMX3830... (completed in 4.3s)
+[   +4 ms] Synced 0.0MB.
+[   +4 ms] <- accept
+[  +30 ms] Connected to _flutterView/0xb400006f35168970.
+[  +20 ms] Flutter run key commands.
+[   +6 ms] r Hot reload. 
+[        ] R Hot restart.
+[        ] h List all available interactive commands.
+[   +1 ms] d Detach (terminate "flutter run" but leave application running).
+[        ] c Clear the screen
+[   +1 ms] q Quit (terminate the application on the device).
+[   +3 ms] A Dart VM Service on RMX3830 is available at: http://127.0.0.1:61297/WkCiczdsmP8=/
+[   +8 ms] The Flutter DevTools debugger and profiler on RMX3830 is available at: http://127.0.0.1:61297/WkCiczdsmP8=/devtools/?uri=ws://127.0.0.1:61297/WkCiczdsmP8=/ws
+[+10023 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/8 time=69341314863863 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[   +6 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/9 time=69341321060710 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[   +8 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/10 time=69341331585287 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +19 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/11 time=69341352078325 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +18 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/12 time=69341369487825 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/13 time=69341384858979 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +27 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/14 time=69341412701748 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +16 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/15 time=69341430151248 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/16 time=69341446026248 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +16 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/17 time=69341463555209 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +16 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/18 time=69341479821209 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +19 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/19 time=69341497568017 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +11 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/20 time=69341513845863 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +18 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/21 time=69341530317094 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +13 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/22 time=69341546902633 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/23 time=69341563895748 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/24 time=69341579959094 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +16 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/25 time=69341596973825 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +15 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/26 time=69341613277479 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +15 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/27 time=69341629565363 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +20 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/28 time=69341647124402 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +12 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/29 time=69341663391556 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +21 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/30 time=69341682880786 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[ +664 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/31 time=69342350281824 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +27 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/32 time=69342372463709 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[   +9 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/33 time=69342381401324 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[   +7 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/34 time=69342394610517 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +18 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/35 time=69342412385632 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/36 time=69342429185170 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/37 time=69342444045286 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +26 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/38 time=69342462583516 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +2 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[   +3 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/39 time=69342475489209 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +16 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/40 time=69342491916516 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/41 time=69342508679709 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/42 time=69342525307940 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +2 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/43 time=69342542967670 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +13 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/44 time=69342558972247 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +16 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/45 time=69342576410132 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +2 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/46 time=69342592849786 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +14 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/47 time=69342609509093 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +21 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/48 time=69342625982363 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +12 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/49 time=69342644166016 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +17 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/50 time=69342660911516 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +13 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/51 time=69342676263709 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +18 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/52 time=69342693459709 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +13 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/53 time=69342709812016 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +15 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/54 time=69342726675978 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +20 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/55 time=69342744263362 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +15 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/56 time=69342761366555 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +16 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/57 time=69342777636362 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +12 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/58 time=69342794491632 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +15 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/59 time=69342811066939 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +17 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/60 time=69342828994016 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +15 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/61 time=69342844551978 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +15 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/62 time=69342860909939 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +3 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +12 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/63 time=69342877190247 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +17 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/64 time=69342893835593 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[   +1 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +16 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=4/65 time=69342912675016 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +18 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=0/66 time=69342932453901 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +11 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=1/67 time=69342942709285 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[  +15 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=2/68 time=69342958495632 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[        ] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[+88576 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) queueBuffer: slot=3/69 time=69431429631761 dataSpace=142671872 validHdrMetadataTypes=0x0 crop=[0,0,0,0] transform=0 scale=SCALE_TO_WINDOW
+[  +23 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) addAndGetFrameTimestamps
+[+1043 ms] D/VRI[MainActivity](11606): visibilityChanged oldVisibility=true newVisibility=false
+[  +70 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:1,p:11606,c:11606) disconnect: api 1
+[   +2 ms] D/mali_gralloc(11606): unregister: id=25500005071, handle=0xb400006ff518ad30, base=0x0, importpid=11606, clone_count=0
+[   +2 ms] D/mali_gralloc(11606): unregister: id=25500005072, handle=0xb400006ff518d370, base=0x0, importpid=11606, clone_count=0
+[   +1 ms] D/mali_gralloc(11606): unregister: id=25500005075, handle=0xb400006ff518ac10, base=0x0, importpid=11606, clone_count=0
+[  +12 ms] D/BufferQueueProducer(11606): [SurfaceView[com.khozna.khozna/com.khozna.khozna.MainActivity]#1(BLAST Consumer)1](id:2d5600000001,api:0,p:-1,c:11606) disconnect: api -1
+[        ] D/mali_gralloc(11606): unregister: id=25500005074, handle=0xb400006ff518b870, base=0x0, importpid=11606, clone_count=0
+[        ] D/mali_gralloc(11606): unregister: id=25500005073, handle=0xb400006ff518ca70, base=0x0, importpid=11606, clone_count=0
+[  +27 ms] D/BufferQueueProducer(11606): [VRI[MainActivity]#0(BLAST Consumer)0](id:2d5600000000,api:1,p:11606,c:11606) disconnect: api 1
+[ +766 ms] Service protocol connection closed.
+[  +42 ms] Lost connection to device.
+[ +407 ms] DevFS: Deleting filesystem on the device (file:///data/user/0/com.khozna.khozna/code_cache/KHOZNA.COMRCCTUA/KHOZNA.COM/)
+[ +160 ms] DevFS: Deleted filesystem on the device (file:///data/user/0/com.khozna.khozna/code_cache/KHOZNA.COMRCCTUA/KHOZNA.COM/)
+[ +606 ms] "flutter run" took 2,57,445ms.
+[+1800 ms] Running 3 shutdown hooks
+[  +94 ms] Shutdown hooks complete
+[ +299 ms] exiting with code 0

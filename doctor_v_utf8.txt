@@ -1,0 +1,31 @@
+﻿[ΓêÜ] Flutter (Channel stable, 3.41.1, on Microsoft Windows [Version 10.0.26200.7840], locale en-IN) [353ms]
+    ΓÇó Flutter version 3.41.1 on channel stable at D:\flutter
+    ΓÇó Upstream repository https://github.com/flutter/flutter.git
+    ΓÇó Framework revision 582a0e7c55 (8 days ago), 2026-02-12 17:12:32 -0800
+    ΓÇó Engine revision 3452d735bd
+    ΓÇó Dart version 3.11.0
+    ΓÇó DevTools version 2.54.1
+    ΓÇó Feature flags: enable-web, no-enable-linux-desktop, no-enable-macos-desktop, no-enable-windows-desktop, enable-android, no-enable-ios, cli-animations, enable-native-assets, omit-legacy-version-file, enable-lldb-debugging, enable-uiscene-migration
+
+[ΓêÜ] Windows Version (Windows 11 or higher, 25H2, 2009) [1,068ms]
+
+[X] Android toolchain - develop for Android devices [77ms]
+    ΓÇó Android SDK at C:\Users\praka\AppData\Local\Android\Sdk
+    ΓÇó Emulator version unknown
+    X cmdline-tools component is missing.
+      Try installing or updating Android Studio.
+      Alternatively, download the tools from https://developer.android.com/studio#command-line-tools-only and make sure to set the ANDROID_HOME environment variable.
+      See https://developer.android.com/studio/command-line for more details.
+
+[ΓêÜ] Chrome - develop for the web [24ms]
+    ΓÇó Chrome at C:\Program Files\Google\Chrome\Application\chrome.exe
+
+[ΓêÜ] Connected device (3 available) [470ms]
+    ΓÇó RMX3830 (mobile) ΓÇó 0A53811128211366 ΓÇó android-arm64  ΓÇó Android 15 (API 35)
+    ΓÇó Chrome (web)     ΓÇó chrome           ΓÇó web-javascript ΓÇó Google Chrome 145.0.7632.109
+    ΓÇó Edge (web)       ΓÇó edge             ΓÇó web-javascript ΓÇó Microsoft Edge 144.0.3719.82
+
+[ΓêÜ] Network resources [732ms]
+    ΓÇó All expected network resources are available.
+
+! Doctor found issues in 1 category.
