@@ -99,6 +99,6 @@ flutter_launcher_icons:
   image_path: "assets/images/original logo.png"
   adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "assets/images/original logo.png"
-  # Increased padding to make the icon smaller and fit the boundary
-  android_icon_padding: 0.9
+  # Significantly increased padding to ensure no overflow
+  android_icon_padding: 0.95
   remove_alpha_ios: true
