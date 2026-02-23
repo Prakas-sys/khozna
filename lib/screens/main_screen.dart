@@ -44,7 +44,7 @@ class _MainScreenState extends State<MainScreen> {
           color: Colors.white,
           surfaceTintColor: Colors.white,
           padding: EdgeInsets.zero,
-          height: 65,
+          height: 58, // Reduced from 65
           elevation:
               0, // Removing default elevation now that we have a crisp border
           child: Row(
@@ -78,7 +78,7 @@ class _MainScreenState extends State<MainScreen> {
                       Transform.translate(
                         offset: const Offset(
                           0,
-                          -6,
+                          -4, // Adjusted from -6 for shorter bar
                         ), // Shifting slightly up to align with adjacent SVGs
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -92,7 +92,8 @@ class _MainScreenState extends State<MainScreen> {
                           child: const Icon(
                             Icons.add,
                             color: Colors.white,
-                            size: 24,
+                            size: 22,
+                            weight: 700, // Sharper, bolder for better contrast
                           ),
                         ),
                       ),
@@ -230,97 +231,69 @@ class _MainScreenState extends State<MainScreen> {
     return Expanded(
       child: InkWell(
         onTap: () => setState(() => _currentIndex = index),
-        splashColor: Colors.transparent, // Remove ink drop circle
-        highlightColor: Colors.transparent, // Remove grey hover overlay
-        hoverColor: Colors.transparent, // Disable hover altogether
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 26,
-              height: 26,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Base icon
-                  SvgPicture.asset(
-                    iconPath,
-                    width: 26,
-                    height: 26,
-                    colorFilter: ColorFilter.mode(
-                      isSelected ? activeColor : inactiveColor,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  // If selected, add offset versions to simulate a stroke/bold effect
-                  if (isSelected) ...[
-                    Positioned(
-                      left: 0.5,
-                      top: 0,
-                      child: SvgPicture.asset(
-                        iconPath,
-                        width: 26,
-                        height: 26,
-                        colorFilter: ColorFilter.mode(
-                          activeColor,
-                          BlendMode.srcIn,
-                        ),
+            AnimatedScale(
+              scale: isSelected ? 1.06 : 1.0, // Tiny bit more scale
+              duration: const Duration(milliseconds: 200),
+              child: SizedBox(
+                width: 25, // Increased from 24
+                height: 25,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Base icon
+                    SvgPicture.asset(
+                      iconPath,
+                      width: 25,
+                      height: 25,
+                      colorFilter: ColorFilter.mode(
+                        isSelected ? activeColor : inactiveColor,
+                        BlendMode.srcIn,
                       ),
                     ),
-                    Positioned(
-                      left: -0.5,
-                      top: 0,
-                      child: SvgPicture.asset(
-                        iconPath,
-                        width: 26,
-                        height: 26,
-                        colorFilter: ColorFilter.mode(
-                          activeColor,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 0,
-                      top: 0.5,
-                      child: SvgPicture.asset(
-                        iconPath,
-                        width: 26,
-                        height: 26,
-                        colorFilter: ColorFilter.mode(
-                          activeColor,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 0,
-                      top: -0.5,
-                      child: SvgPicture.asset(
-                        iconPath,
-                        width: 26,
-                        height: 26,
-                        colorFilter: ColorFilter.mode(
-                          activeColor,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                    ),
+                    // If selected, add uniform offset versions for a clean bold effect
+                    if (isSelected) ...[
+                      _buildOffsetIcon(iconPath, 0.2, 0, activeColor),
+                      _buildOffsetIcon(iconPath, -0.2, 0, activeColor),
+                      _buildOffsetIcon(iconPath, 0, 0.2, activeColor),
+                      _buildOffsetIcon(iconPath, 0, -0.2, activeColor),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-            const SizedBox(height: 4), // TIGHTENED SPACING
+            const SizedBox(height: 1),
             Text(
               label,
               style: GoogleFonts.outfit(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 color: isSelected ? activeColor : inactiveColor,
+                letterSpacing: 0.1,
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOffsetIcon(String path, double dx, double dy, Color color) {
+    return Positioned(
+      left: dx,
+      top: dy,
+      child: SvgPicture.asset(
+        path,
+        width: 25,
+        height: 25,
+        colorFilter: ColorFilter.mode(
+          color,
+          BlendMode.srcIn,
         ),
       ),
     );

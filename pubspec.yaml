@@ -38,6 +38,9 @@ dependencies:
   font_awesome_flutter: ^10.7.0
   intl_phone_field: ^3.2.0
   flutter_svg: ^2.0.10+1
+  flutter_native_splash: ^2.4.7
+  geolocator: ^14.0.2
+  permission_handler: ^12.0.1
 
 dev_dependencies:
   flutter_test:
@@ -102,3 +105,12 @@ flutter_launcher_icons:
   # Significantly increased padding to ensure no overflow
   android_icon_padding: 0.95
   remove_alpha_ios: true
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: "assets/images/original logo.png"
+  android: true
+  ios: false
+  android_gravity: center
+  fullscreen: true
+

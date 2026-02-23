@@ -57,10 +57,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: IntrinsicHeight(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center, // Center content vertically
+                    mainAxisAlignment: MainAxisAlignment.start, // Pull content up
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 40), // More space from App Bar
                       Text('Join Us Today', 
                         textAlign: TextAlign.center,
                         style: GoogleFonts.playfairDisplay(
@@ -71,10 +71,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       Text('KHOZNA', 
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 30, // Reduced from 34
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.brandColor
+                        style: GoogleFonts.zenAntiqueSoft(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.brandColor,
+                          letterSpacing: 2.0,
                         )
                       ),
                       const SizedBox(height: 8),
@@ -144,6 +145,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                               side: BorderSide(color: Colors.grey[400]!),
                               activeColor: AppTheme.brandColor,
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -167,15 +169,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      SizedBox(
+                      Container(
                         width: double.infinity,
-                        height: 52,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFF00B4F5),
+                              AppTheme.brandColor,
+                            ],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.brandColor.withOpacity(0.35),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
                         child: ElevatedButton(
-                          onPressed: () =>
-                              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-                                  builder: (context) => const VerifyPhoneScreen()), (route) => false),
-                          child: const Text('Register', style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          onPressed: () => Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const VerifyPhoneScreen()),
+                              (route) => false),
+                          child: Text(
+                            'Register',
+                            style: GoogleFonts.outfit(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 20),

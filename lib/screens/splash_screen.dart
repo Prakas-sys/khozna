@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -63,54 +61,28 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Centered Animated Logo
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return FadeTransition(
-                  opacity: _fadeAnim,
-                  child: ScaleTransition(
-                    scale: _scaleAnim,
-                    child: Center(
-                      child: SizedBox(
-                        width: 70, 
-                        height: 70,
-                        child: Image.asset(
-                          'assets/images/original logo.png',
-                          fit: BoxFit.contain,
-                        ),
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return FadeTransition(
+                opacity: _fadeAnim,
+                child: ScaleTransition(
+                  scale: _scaleAnim,
+                  child: Center(
+                    child: SizedBox(
+                      width: 70, 
+                      height: 70,
+                      child: Image.asset(
+                        'assets/images/original logo.png',
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
-                );
-              },
-            ),
-            
-            // Bottom "KHOZNA" Text
-            Positioned(
-              bottom: 40,
-              child: AnimatedBuilder(
-                animation: _fadeAnim,
-                builder: (context, child) {
-                  return Opacity(
-                    opacity: _fadeAnim.value,
-                    child: Text(
-                      'KHOZNA',
-                      style: GoogleFonts.playfairDisplay(
-                        color: AppTheme.brandColor,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Khozna splash screen -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- The background color, typically #FFFFFF for this app -->
-    <item android:drawable="@android:color/white" />
-    
-    <!-- The app logo centered on the screen -->
-    <!-- Use the launcher icon so it matches what's on the home screen -->
     <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@mipmap/ic_launcher" />
+        <bitmap android:gravity="fill" android:src="@drawable/background"/>
+    </item>
+    <item>
+        <bitmap android:gravity="center" android:src="@drawable/splash"/>
     </item>
 </layer-list>

@@ -77,7 +77,23 @@ class FilterResultsScreen extends StatelessWidget {
 
   Widget _buildResultCard(BuildContext context, String id) {
     return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PropertyDetailsScreen(id: id, imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80', title: 'Modern Flat', location: 'Baluwatar', price: '850'))),
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PropertyDetailsScreen(
+            id: id,
+            imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+            title: 'Modern 2BHK Flat',
+            location: 'Baluwatar, Kathmandu',
+            price: 'रू 25,000',
+            bedrooms: 2,
+            bathrooms: 2,
+            area: '1,400',
+            floor: '3rd Floor',
+            description: 'बालुवाटारको मुटुमा अवस्थित यो आधुनिक २ BHK फ्ल्याट भाडामा उपलब्ध छ। सबै सुविधाहरू भएको यो फ्ल्याट उच्च स्तरीय जीवनशैली खोज्नेहरूको लागि उत्तम छ।',
+          ),
+        ),
+      ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 32),
         child: Column(

@@ -156,39 +156,70 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
 
           // MESSAGE INPUT
           SafeArea(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: Colors.grey[100]!)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF7F7F7),
-                        borderRadius: BorderRadius.circular(30),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(top: BorderSide(color: Colors.grey[100]!)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    // Attachment Button
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 4),
+                      child: IconButton(
+                        icon: const Icon(Icons.add_circle_outline, color: AppTheme.brandColor, size: 28),
+                        onPressed: () {},
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
                       ),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Type message...',
-                          hintStyle: GoogleFonts.outfit(color: Colors.grey),
-                          border: InputBorder.none,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF7F7F7),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: TextField(
+                          maxLines: 5,
+                          minLines: 1,
+                          style: GoogleFonts.outfit(fontSize: 15),
+                          decoration: InputDecoration(
+                            hintText: 'Type message...',
+                            hintStyle: GoogleFonts.outfit(color: Colors.grey[500]),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  CircleAvatar(
-                    backgroundColor: AppTheme.brandColor,
-                    radius: 24,
-                    child: const Icon(Icons.send, color: Colors.white, size: 20),
-                  ),
-                ],
+                    const SizedBox(width: 10),
+                    // Send Button
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 2),
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                        onPressed: () {},
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           )
         ],
       ),
