@@ -42,7 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionTitle('DANGER ZONE'),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.delete_outline, color: Colors.red, size: 20)),
+            leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle), child: const Icon(Icons.delete_outline, color: Colors.red, size: 20)),
             title: Text('Delete Account', style: GoogleFonts.outfit(color: Colors.red, fontWeight: FontWeight.bold)),
             subtitle: Text('This action cannot be undone.', style: GoogleFonts.outfit(fontSize: 12)),
             onTap: () {},
@@ -67,7 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       contentPadding: EdgeInsets.zero,
       title: Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
       subtitle: Text(desc, style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)),
-      trailing: Switch(value: value, onChanged: onChanged, activeColor: AppTheme.brandColor),
+      trailing: Switch(value: value, onChanged: onChanged, activeThumbColor: AppTheme.brandColor),
     );
   }
 

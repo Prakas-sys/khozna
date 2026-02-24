@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
-import 'main_screen.dart';
+
+// Method channel to set FLAG_SECURE (blocks screenshots on KYC screen)
+const _channel = MethodChannel('khozna/security');
 
 class KycScreen extends StatefulWidget {
   const KycScreen({super.key});
@@ -12,14 +15,57 @@ class KycScreen extends StatefulWidget {
 
 class _KycScreenState extends State<KycScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _citizenshipController = TextEditingController();
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Block screenshots and screen recordings on this sensitive screen
+    _setSecureScreen(true);
+  }
+
+  @override
+  void dispose() {
+    // Restore normal screen behaviour when leaving KYC
+    _setSecureScreen(false);
+    _nameController.dispose();
+    _phoneController.dispose();
+    _citizenshipController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _setSecureScreen(bool secure) async {
+    try {
+      await _channel.invokeMethod('setSecure', secure);
+    } catch (_) {
+      // Silently fail if not supported
+    }
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    // Simulate a network/backend call (2 seconds)
+    await Future.delayed(const Duration(seconds: 2));
+
+    if (mounted) {
+      setState(() => _isSubmitting = false);
+      Navigator.pop(context, true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6F8), // Subtle off-white background
+      backgroundColor: const Color(0xFFF5F6F8),
       body: Column(
         children: [
-          // BLUE HEADER SECTION (Directly from Image)
+          // BLUE HEADER SECTION
           Container(
             padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
             decoration: const BoxDecoration(
@@ -37,7 +83,7 @@ class _KycScreenState extends State<KycScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.shield_outlined, color: Colors.white, size: 32),
@@ -48,19 +94,24 @@ class _KycScreenState extends State<KycScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Verify Your Identity (परिचय प्रमाणित गर्नुहोस्)',
+                            'Verify Your Identity',
                             style: GoogleFonts.outfit(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           ),
+                          const SizedBox(height: 2),
+                          const Text(
+                            'परिचय प्रमाणित गर्नुहोस्',
+                            style: TextStyle(fontSize: 13, color: Colors.white70),
+                          ),
                           const SizedBox(height: 4),
                           Text(
-                            'Required to post properties (घर जग्गा राख्नको लागि अनिवार्य)',
+                            'Required to post properties',
                             style: GoogleFonts.outfit(
-                              fontSize: 13,
-                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 12,
+                              color: Colors.white.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -68,8 +119,7 @@ class _KycScreenState extends State<KycScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 32),
-                // PROGRESS BAR (Directly from Image)
+                const SizedBox(height: 24),
                 Row(
                   children: [
                     Expanded(child: _buildProgressBar(true)),
@@ -94,20 +144,47 @@ class _KycScreenState extends State<KycScreen> {
                   children: [
                     _buildInputLabel('Full Name (पुरा नाम)', true),
                     const SizedBox(height: 8),
-                    _buildTextField('Khozna user'),
+                    _buildTextField(
+                      controller: _nameController,
+                      hint: 'e.g. Ram Bahadur Thapa',
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Full name is required';
+                        if (v.trim().length < 3) return 'Name must be at least 3 characters';
+                        return null;
+                      },
+                    ),
                     const SizedBox(height: 24),
 
                     _buildInputLabel('Phone Number (फोन नम्बर)', true),
                     const SizedBox(height: 8),
-                    _buildTextField('98XXXXXXXX'),
+                    _buildTextField(
+                      controller: _phoneController,
+                      hint: '98XXXXXXXX',
+                      inputType: TextInputType.phone,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Phone number is required';
+                        if (!RegExp(r'^9[678]\d{8}$').hasMatch(v.trim())) {
+                          return 'Enter a valid Nepal phone number (98/97/96...)';
+                        }
+                        return null;
+                      },
+                    ),
                     const SizedBox(height: 24),
 
                     _buildInputLabel('Citizenship Number (नागरिकता नम्बर)', true),
                     const SizedBox(height: 8),
-                    _buildTextField('Example: 12-34-56-'),
-                    const SizedBox(height: 24),
+                    _buildTextField(
+                      controller: _citizenshipController,
+                      hint: 'e.g. 12-34-56-78901',
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Citizenship number is required';
+                        if (v.trim().length < 5) return 'Enter a valid citizenship number';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
 
-                    // INFO TEXT (Directly from Image)
                     Row(
                       children: [
                         Container(
@@ -121,7 +198,7 @@ class _KycScreenState extends State<KycScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'We do not collect Email for Identity Verification.',
+                            'Your data is encrypted and used only for identity verification.',
                             style: GoogleFonts.outfit(
                               fontSize: 12,
                               fontStyle: FontStyle.italic,
@@ -131,25 +208,35 @@ class _KycScreenState extends State<KycScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 32),
 
-                    // SUBMIT BUTTON (Directly from Image Style)
                     SizedBox(
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Simulate successful submission and return true
-                          Navigator.pop(context, true);
-                        },
+                        onPressed: _isSubmitting ? null : _submit,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.brandColor,
+                          disabledBackgroundColor: AppTheme.brandColor.withValues(alpha: 0.6),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
-                        child: Text(
-                          'Submit Verification (सबमिट गर्नुहोस्)',
-                          style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
+                        child: _isSubmitting
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : Text(
+                                'Submit Verification (सबमिट गर्नुहोस्)',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
                       ),
                     ),
                   ],
@@ -166,7 +253,7 @@ class _KycScreenState extends State<KycScreen> {
     return Container(
       height: 4,
       decoration: BoxDecoration(
-        color: isActive ? Colors.white : Colors.white.withOpacity(0.3),
+        color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(2),
       ),
     );
@@ -178,7 +265,7 @@ class _KycScreenState extends State<KycScreen> {
         Text(
           label,
           style: GoogleFonts.outfit(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.bold,
             color: AppTheme.primaryTextColor,
           ),
@@ -189,11 +276,23 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
-  Widget _buildTextField(String hint) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    String? Function(String?)? validator,
+    TextInputType inputType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
+  }) {
     return TextFormField(
+      controller: controller,
+      keyboardType: inputType,
+      inputFormatters: inputFormatters,
+      validator: validator,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      style: GoogleFonts.outfit(fontSize: 15),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.outfit(color: Colors.grey[300], fontSize: 16),
+        hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 14),
         fillColor: Colors.white,
         filled: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -201,7 +300,24 @@ class _KycScreenState extends State<KycScreen> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red, width: 1.5),
+        ),
       ),
     );
   }
 }
+

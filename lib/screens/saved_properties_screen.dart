@@ -8,8 +8,6 @@ class SavedPropertiesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color airbnbGrey = Color(0xFF717171);
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -147,7 +145,7 @@ class SavedPropertiesScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withOpacity(0.1),
+                    color: AppTheme.brandColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(

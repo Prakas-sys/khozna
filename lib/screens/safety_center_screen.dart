@@ -32,9 +32,9 @@ class SafetyCenterScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.05),
+                color: Colors.red.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.red.withOpacity(0.1)),
+                border: Border.all(color: Colors.red.withValues(alpha: 0.1)),
               ),
               child: Column(
                 children: [
@@ -110,7 +110,7 @@ class SafetyCenterScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.red.withOpacity(0.05), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.05), shape: BoxShape.circle),
             child: Icon(icon, color: Colors.red, size: 24),
           ),
           const SizedBox(width: 16),

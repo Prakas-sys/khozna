@@ -81,33 +81,32 @@ class _MessagesScreenState extends State<MessagesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── HEADER ──
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Stack(
-                alignment: Alignment.center,
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Positioned(
-                    left: 12,
-                    child: IconButton(
-                      icon: const Icon(Icons.menu, color: Colors.black87, size: 26),
-                      onPressed: () {},
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.black87, size: 26),
+                    onPressed: () {},
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                   Text(
-                    'Chats',
+                    'Messages',
                     style: GoogleFonts.outfit(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  Positioned(
-                    right: 4,
-                    child: IconButton(
-                      icon: const Icon(Icons.add, color: Colors.black87, size: 28),
-                      onPressed: () {},
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline, color: Colors.black87, size: 26),
+                    onPressed: () {},
+                    visualDensity: VisualDensity.compact,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                 ],
               ),
@@ -126,7 +125,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   border: Border.all(color: Colors.grey.shade200),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import 'owner_profile_screen.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
@@ -11,24 +12,31 @@ class ReelsScreen extends StatefulWidget {
 
 class _ReelsScreenState extends State<ReelsScreen> {
   final PageController _pageController = PageController();
+  
   final List<Map<String, dynamic>> mockReels = [
     {
-      'videoUrl': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      'title': 'Modern Villa Tour',
-      'description': 'आरामदायी र आधुनिक सुविधायुक्त भिल्ला। बालुवाटारको मुटुमा अवस्थित।',
-      'agentName': 'Prakash (Owner)',
-      'price': '1,200',
-      'location': 'Baluwatar, KTM',
-      'likes': '12.4K',
+      'imageUrl': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'title': 'Single room for student',
+      'description': 'सानेपाको शान्त वातावरणमा अवस्थित यो १ कोठाको फ्ल्याट विद्यार्थीको लागि उपयुक्त छ।',
+      'ownerName': 'Ram Bahadur',
+      'ownerAvatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+      'price': 'Rs 8,000',
+      'location': 'Baneshwar, Kathmandu',
+      'likes': '2.4K',
+      'isFavorite': true,
+      'totalListings': 5,
     },
     {
-      'videoUrl': 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      'title': 'Luxury Apartment',
-      'description': 'सानेपामा अवस्थित यो अपार्टमेन्टबाट सहरको सुन्दर दृश्य देखिन्छ।',
-      'agentName': 'Khozna Verified',
-      'price': '850',
+      'imageUrl': 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'title': 'Modern Apartment in Sanepa',
+      'description': 'सानेपाको मुटुमा अवस्थित आधुनिक अपार्टमेन्ट।',
+      'ownerName': 'Jenny Wilson',
+      'ownerAvatar': 'https://i.pravatar.cc/150?img=47',
+      'price': 'Rs 25,000',
       'location': 'Sanepa, Lalitpur',
-      'likes': '8.2K',
+      'likes': '1.8K',
+      'isFavorite': false,
+      'totalListings': 3,
     },
   ];
 
@@ -53,176 +61,228 @@ class _ReelsScreenState extends State<ReelsScreen> {
     );
   }
 
-  Widget _buildReelItem(Map<String, dynamic> reelData) {
+  Widget _buildReelItem(Map<String, dynamic> reel) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Background Image/Video
+        // Background Image (Property Image)
         Image.network(
-          reelData['videoUrl'],
+          reel['imageUrl'],
           fit: BoxFit.cover,
         ),
         
-        // Clean Gradient Overlay
+        // Premium Gradient Overlay
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withOpacity(0.4),
+                Colors.black.withValues(alpha: 0.2),
                 Colors.transparent,
                 Colors.transparent,
-                Colors.black.withOpacity(0.9),
+                Colors.black.withValues(alpha: 0.85),
               ],
               stops: const [0.0, 0.2, 0.6, 1.0],
             ),
           ),
         ),
 
-        // Right side interaction (Airbnb/TikTok hybrid style)
+        // Modern "Wow" Side Icons (Right Side)
         Positioned(
-          right: 16,
+          right: 12,
           bottom: 120,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              _buildActionButton(Icons.favorite, reelData['likes'], isActive: true),
-              const SizedBox(height: 24),
-              _buildActionButton(Icons.comment_outlined, '42'),
-              const SizedBox(height: 24),
-              _buildActionButton(Icons.share_outlined, 'Share'),
-              const SizedBox(height: 24),
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                  image: DecorationImage(
-                    image: NetworkImage(reelData['videoUrl']),
-                    fit: BoxFit.cover,
-                  )
+              _buildModernAction(
+                icon: reel['isFavorite'] ? Icons.favorite : Icons.favorite_border,
+                label: reel['likes'],
+                color: reel['isFavorite'] ? Colors.redAccent : Colors.white,
+              ),
+              const SizedBox(height: 18),
+              _buildModernAction(
+                icon: Icons.chat_bubble_outline_rounded,
+                label: 'Message',
+                color: Colors.white,
+              ),
+              const SizedBox(height: 18),
+              _buildModernAction(
+                icon: Icons.share_rounded,
+                label: 'Share',
+                color: Colors.white,
+              ),
+              const SizedBox(height: 22),
+              // Owner Avatar - Clickable
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => OwnerProfileScreen(
+                        name: reel['ownerName'],
+                        avatar: reel['ownerAvatar'],
+                        location: reel['location'],
+                        totalListings: reel['totalListings'],
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.8), width: 1.5),
+                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: const Offset(0, 4))],
+                  ),
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundImage: NetworkImage(reel['ownerAvatar']),
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),
 
-        // Bottom Content
+        // Content Area (Bottom)
         Positioned(
-          left: 20,
-          right: 80,
-          bottom: 40,
+          left: 16,
+          right: 16,
+          bottom: 30,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             children: [
-              // Verified Owner Tag
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: Colors.white.withOpacity(0.3)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.verified, color: Colors.blue, size: 14),
-                    const SizedBox(width: 4),
-                    Text(
-                      reelData['agentName'],
-                      style: GoogleFonts.outfit(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              // Location Tag
+              Row(
+                children: [
+                  const Icon(Icons.location_on, color: AppTheme.brandColor, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    reel['location'],
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      shadows: [const Shadow(blurRadius: 4, color: Colors.black45, offset: Offset(0, 1))],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              
+              const SizedBox(height: 10),
               Text(
-                reelData['title'],
-                style: GoogleFonts.playfairDisplay(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                reelData['description'],
+                reel['title'],
                 style: GoogleFonts.outfit(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white,
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                reel['description'],
+                style: GoogleFonts.outfit(
+                  color: Colors.white.withValues(alpha: 0.85),
                   fontSize: 14,
-                  height: 1.4,
+                  height: 1.3,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 20),
-
-              // Property Quick Info Row
+              const SizedBox(height: 22),
+              
+              // Action Buttons Row - Visual Upgrade
               Row(
                 children: [
-                  _buildReelBadge(Icons.location_on, reelData['location']),
-                  const SizedBox(width: 12),
-                  _buildReelBadge(Icons.sell, '\$${reelData['price']}/mo'),
-                ],
-              ),
-              const SizedBox(height: 24),
-              
-              // Call to Action
-              SizedBox(
-                width: 160,
-                height: 44,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandColor,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  // Price Tag - Styled as a badge
+                  Container(
+                    height: 50,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                    ),
+                    child: Center(
+                      child: Text(
+                        reel['price'],
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
                   ),
-                  child: Text('अहिले हेर्नुहोस् (View)', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-                ),
+                  const SizedBox(width: 12),
+                  // Reserve Button - Prominent Action
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [AppTheme.brandColor, Color(0xFF00D1FF)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.brandColor.withValues(alpha: 0.4),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {},
+                          borderRadius: BorderRadius.circular(15),
+                          child: Center(
+                            child: Text(
+                              'Reserve (बुक गर्नुहोस्)',
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        )
-      ],
-    );
-  }
-
-  Widget _buildActionButton(IconData icon, String label, {bool isActive = false}) {
-    return Column(
-      children: [
-        Icon(icon, color: isActive ? Colors.red : Colors.white, size: 30),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: GoogleFonts.outfit(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 
-  Widget _buildReelBadge(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: AppTheme.brandColor, size: 16),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: GoogleFonts.outfit(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12),
+  Widget _buildModernAction({required IconData icon, required String label, required Color color}) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.25),
+            shape: BoxShape.circle,
           ),
-        ],
-      ),
+          child: Icon(icon, color: color, size: 26),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          label,
+          style: GoogleFonts.outfit(
+            color: Colors.white,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            shadows: [const Shadow(blurRadius: 2, color: Colors.black, offset: Offset(0, 1))],
+          ),
+        ),
+      ],
     );
   }
 }

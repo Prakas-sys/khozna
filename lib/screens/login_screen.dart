@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
 import 'main_screen.dart';
@@ -114,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -147,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: BoxDecoration(
                           color: isSelected
                               ? Colors.white
-                              : Colors.white.withOpacity(0.4),
+                              : Colors.white.withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       );
@@ -265,45 +264,43 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 10),
 
-                    // Terms Container
+                    // Terms Container (Compact)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                        horizontal: 10,
+                        vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
+                        color: Colors.transparent, // Removed background to look cleaner
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SizedBox(
-                            height: 24,
-                            width: 24,
+                            height: 20, // Smaller checkbox area
+                            width: 20,
                             child: Checkbox(
                               value: _agreeToTerms,
                               onChanged: (v) =>
                                   setState(() => _agreeToTerms = v ?? false),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(4),
                               ),
                               side: BorderSide(
                                 color: Colors.grey[400]!,
-                                width: 1.5,
+                                width: 1.2,
                               ),
                               activeColor: AppTheme.brandColor,
                               materialTapTargetSize:
                                   MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: RichText(
                               text: TextSpan(
                                 style: GoogleFonts.outfit(
-                                  fontSize: 12,
+                                  fontSize: 11, // Smaller font
                                   color: Colors.grey[600],
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -331,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
 
                     // Login button
                     Container(
@@ -346,7 +343,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.brandColor.withOpacity(0.12),
+                            color: AppTheme.brandColor.withValues(alpha: 0.12),
                             blurRadius: 6,
                             offset: const Offset(0, 3),
                           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_notifiers.dart';
 import 'home_screen.dart';
 import 'reels_screen.dart';
 import 'messages_screen.dart';
@@ -32,95 +33,64 @@ class _MainScreenState extends State<MainScreen> {
     const Color activeColor = AppTheme.brandColor;
     const Color inactiveColor = Color(0xFF717171);
 
-    return Scaffold(
-      backgroundColor: _currentIndex == 1 ? Colors.black : Colors.white,
-      body: _pages[_currentIndex],
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(
-            top: BorderSide(color: Colors.grey.shade200, width: 1.0),
-          ),
-        ),
-        child: BottomAppBar(
-          color: Colors.white,
-          surfaceTintColor: Colors.white,
-          padding: EdgeInsets.zero,
-          height: 58, // Reduced from 65
-          elevation:
-              0, // Removing default elevation now that we have a crisp border
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(
-                0,
-                'Khozna',
-                'assets/icons/explore.svg',
-                activeColor,
-                inactiveColor,
+    return ValueListenableBuilder<int>(
+      valueListenable: messageBadgeCount,
+      builder: (context, badgeCount, _) {
+        return Scaffold(
+          backgroundColor: _currentIndex == 1 ? Colors.black : Colors.white,
+          body: _pages[_currentIndex],
+          bottomNavigationBar: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border(
+                top: BorderSide(color: Colors.grey.shade200, width: 1.0),
               ),
-              _buildNavItem(
-                1,
-                'Reels',
-                'assets/icons/reels.svg',
-                activeColor,
-                inactiveColor,
-              ),
-              // The central add button directly inside the row
-              Expanded(
-                child: InkWell(
-                  onTap: () => _showAddPropertyOptions(context),
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  hoverColor: Colors.transparent,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Transform.translate(
-                        offset: const Offset(
-                          0,
-                          -4, // Adjusted from -6 for shorter bar
-                        ), // Shifting slightly up to align with adjacent SVGs
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
+            ),
+            child: BottomAppBar(
+              color: Colors.white,
+              surfaceTintColor: Colors.white,
+              padding: EdgeInsets.zero,
+              height: 58,
+              elevation: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildNavItem(0, 'Khozna', 'assets/icons/explore.svg', activeColor, inactiveColor, 0),
+                  _buildNavItem(1, 'Reels', 'assets/icons/reels.svg', activeColor, inactiveColor, 0),
+                  // Central add button
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _showAddPropertyOptions(context),
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                      hoverColor: Colors.transparent,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Transform.translate(
+                            offset: const Offset(0, -4),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.brandColor,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Icon(Icons.add, color: Colors.white, size: 22, weight: 700),
+                            ),
                           ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.brandColor,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 22,
-                            weight: 700, // Sharper, bolder for better contrast
-                          ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  _buildNavItem(2, 'Message', 'assets/icons/message.svg', activeColor, inactiveColor, badgeCount),
+                  _buildNavItem(3, 'Profile', 'assets/icons/profile.svg', activeColor, inactiveColor, 0),
+                ],
               ),
-              _buildNavItem(
-                2,
-                'Message',
-                'assets/icons/message.svg',
-                activeColor,
-                inactiveColor,
-              ),
-              _buildNavItem(
-                3,
-                'Profile',
-                'assets/icons/profile.svg',
-                activeColor,
-                inactiveColor,
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -147,7 +117,7 @@ class _MainScreenState extends State<MainScreen> {
             const SizedBox(height: 24),
             Text(
               'प्रोपर्टी राख्नुहोस् (Post Property)',
-              style: GoogleFonts.outfit(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -161,18 +131,15 @@ class _MainScreenState extends State<MainScreen> {
               onTap: () {
                 Navigator.pop(context);
                 if (!_isKycVerified) {
-                  // Show KYC verification if not verified
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const KycScreen()),
                   ).then((value) {
-                    // Simulating verification after coming back
                     if (value == true) {
                       setState(() => _isKycVerified = true);
                     }
                   });
                 } else {
-                  // Proceed to add property if already verified
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -194,7 +161,7 @@ class _MainScreenState extends State<MainScreen> {
               'आफ्नो आवश्यकता लेख्नुहोस्',
               'Post what you are looking for',
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -214,14 +181,14 @@ class _MainScreenState extends State<MainScreen> {
       leading: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppTheme.brandColor.withOpacity(0.08),
+          color: AppTheme.brandColor.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, color: AppTheme.brandColor, size: 24),
       ),
       title: Text(
         title,
-        style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),
       subtitle: Text(
         subtitle,
@@ -241,46 +208,86 @@ class _MainScreenState extends State<MainScreen> {
     String iconPath,
     Color activeColor,
     Color inactiveColor,
+    int badgeCount,
   ) {
     final bool isSelected = _currentIndex == index;
 
     return Expanded(
       child: InkWell(
-        onTap: () => setState(() => _currentIndex = index),
+        onTap: () {
+          setState(() => _currentIndex = index);
+          if (index == 2) messageBadgeCount.value = 0;
+        },
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimatedScale(
-              scale: isSelected ? 1.06 : 1.0, // Tiny bit more scale
-              duration: const Duration(milliseconds: 200),
-              child: SizedBox(
-                width: 25, // Increased from 24
-                height: 25,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Base icon
-                    SvgPicture.asset(
-                      iconPath,
-                      width: 25,
-                      height: 25,
-                      colorFilter: ColorFilter.mode(
-                        isSelected ? activeColor : inactiveColor,
-                        BlendMode.srcIn,
+            // Outer container for icon + badge
+            SizedBox(
+              width: 36,
+              height: 30,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  // Icon (with bold-effect when selected)
+                  AnimatedScale(
+                    scale: isSelected ? 1.06 : 1.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          iconPath,
+                          width: 25,
+                          height: 25,
+                          colorFilter: ColorFilter.mode(
+                            isSelected ? activeColor : inactiveColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        if (isSelected) ...[
+                          _buildOffsetIcon(iconPath, 0.2, 0, activeColor),
+                          _buildOffsetIcon(iconPath, -0.2, 0, activeColor),
+                          _buildOffsetIcon(iconPath, 0, 0.2, activeColor),
+                          _buildOffsetIcon(iconPath, 0, -0.2, activeColor),
+                        ],
+                      ],
+                    ),
+                  ),
+                  // Premium red badge (top-right, floating outside)
+                  if (badgeCount > 0)
+                    Positioned(
+                      top: -2,
+                      right: 0,
+                      child: Container(
+                        constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF3B30),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFF3B30).withValues(alpha: 0.45),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          badgeCount > 99 ? '99+' : '$badgeCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            height: 1.1,
+                          ),
+                        ),
                       ),
                     ),
-                    // If selected, add uniform offset versions for a clean bold effect
-                    if (isSelected) ...[
-                      _buildOffsetIcon(iconPath, 0.2, 0, activeColor),
-                      _buildOffsetIcon(iconPath, -0.2, 0, activeColor),
-                      _buildOffsetIcon(iconPath, 0, 0.2, activeColor),
-                      _buildOffsetIcon(iconPath, 0, -0.2, activeColor),
-                    ],
-                  ],
-                ),
+                ],
               ),
             ),
             const SizedBox(height: 1),

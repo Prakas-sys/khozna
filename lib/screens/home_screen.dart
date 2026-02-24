@@ -55,7 +55,7 @@ class HomeScreen extends StatelessWidget {
                       'Find your next Home',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.outfit(
-                        fontSize: 32,
+                        fontSize: 30,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                         height: 1.1,
@@ -64,10 +64,10 @@ class HomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'No Middleman.',
+                      'No Middleman',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.outfit(
-                        fontSize: 32,
+                        fontSize: 30,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.brandColor,
                         height: 1.1,
@@ -91,12 +91,12 @@ class HomeScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(30),
                    boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
+                        color: Colors.black.withValues(alpha: 0.06),
                         blurRadius: 12,
                         offset: const Offset(0, -4),
                       ),
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                         blurRadius: 16,
                         offset: const Offset(0, 6),
                       ),
@@ -187,37 +187,50 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFF2F2F2)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFFEEEEEE),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image placeholder with heart overlay
+            Stack(
               children: [
-                Container(width: 180, height: 10, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(5))),
-                const SizedBox(height: 6),
-                Container(width: 100, height: 10, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(5))),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(child: Container(height: 32, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(8)))),
-                    const SizedBox(width: 8),
-                    Expanded(child: Container(height: 32, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(8)))),
-                  ],
+                SizedBox(
+                  height: 160,
+                  width: double.infinity,
+                  child: Container(
+                    color: const Color(0xFFEEEEEE),
+                  ),
+                ),
+                // Heart button on skeleton card
+                const Positioned(
+                  top: 10,
+                  right: 10,
+                  child: FavouriteButton(),
                 ),
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(width: 180, height: 10, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(5))),
+                  const SizedBox(height: 6),
+                  Container(width: 100, height: 10, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(5))),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(child: Container(height: 32, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(8)))),
+                      const SizedBox(width: 8),
+                      Expanded(child: Container(height: 32, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(8)))),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -232,7 +245,7 @@ class HomeScreen extends StatelessWidget {
             imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
             title: 'Modern Apartment in Sanepa',
             location: 'Sanepa, Lalitpur',
-            price: 'रू 25,000',
+            price: 'Rs 25,000',
             bedrooms: 2,
             bathrooms: 1,
             area: '1,200',
@@ -249,7 +262,7 @@ class HomeScreen extends StatelessWidget {
           border: Border.all(color: const Color(0xFFF2F2F2)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -299,7 +312,7 @@ class HomeScreen extends StatelessWidget {
               ),
               // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                padding: const EdgeInsets.fromLTRB(12, 1, 12, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -324,7 +337,7 @@ class HomeScreen extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '₹. 8000',
+                                text: 'Rs 8,000',
                                 style: GoogleFonts.outfit(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -332,11 +345,11 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ),
                               TextSpan(
-                                text: '/M',
+                                text: '/mo',
                                 style: GoogleFonts.outfit(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.brandColor,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
                                 ),
                               ),
                             ],
@@ -361,16 +374,31 @@ class HomeScreen extends StatelessWidget {
                         ),
                         Row(
                           children: [
-                            Icon(Icons.bed_outlined, color: AppTheme.brandColor, size: 15),
-                            const SizedBox(width: 5),
-                            Icon(Icons.directions_car_outlined, color: AppTheme.brandColor, size: 15),
-                            const SizedBox(width: 5),
-                            Icon(Icons.wifi, color: AppTheme.brandColor, size: 15),
+                            Column(
+                              children: [
+                                Icon(Icons.bed_outlined, color: AppTheme.brandColor, size: 14),
+                                Text('Bed', style: GoogleFonts.outfit(fontSize: 8, color: Colors.grey[700], fontWeight: FontWeight.w300)),
+                              ],
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              children: [
+                                Icon(Icons.directions_car_outlined, color: AppTheme.brandColor, size: 14),
+                                Text('Parking', style: GoogleFonts.outfit(fontSize: 8, color: Colors.grey[700], fontWeight: FontWeight.w300)),
+                              ],
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              children: [
+                                Icon(Icons.wifi, color: AppTheme.brandColor, size: 14),
+                                Text('Wifi', style: GoogleFonts.outfit(fontSize: 8, color: Colors.grey[700], fontWeight: FontWeight.w300)),
+                              ],
+                            ),
                           ],
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 14),
                     // Action Buttons
                     Row(
                       children: [
@@ -384,7 +412,7 @@ class HomeScreen extends StatelessWidget {
                                   imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
                                   title: 'Modern Apartment in Sanepa',
                                   location: 'Sanepa, Lalitpur',
-                                  price: 'रू 25,000',
+                                  price: 'Rs 25,000',
                                   bedrooms: 2,
                                   bathrooms: 1,
                                   area: '1,200',
@@ -448,34 +476,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildMiniAmentity(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 14, color: Colors.grey[600]),
-        const SizedBox(width: 4),
-        Text(text, style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w500)),
-      ],
-    );
-  }
-
-  Widget _buildFeature(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F7),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        text,
-        style: GoogleFonts.outfit(
-          fontSize: 11,
-          color: Colors.grey[600],
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
 }
 
 class FavouriteButton extends StatefulWidget {
@@ -496,24 +496,16 @@ class _FavouriteButtonState extends State<FavouriteButton> {
           isLiked = !isLiked;
         });
       },
-      child: Container(
-        padding: const EdgeInsets.all(7),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.95),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Icon(
-          Icons.favorite,
-          size: 16,
-          color: isLiked ? AppTheme.brandColor : Colors.black.withOpacity(0.1),
-        ),
+      child: Icon(
+        isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+        size: 28,
+        color: isLiked ? const Color(0xFFFF385C) : Colors.white,
+        shadows: [
+          Shadow(
+            color: Colors.black.withValues(alpha: 0.45),
+            blurRadius: 14,
+          ),
+        ],
       ),
     );
   }

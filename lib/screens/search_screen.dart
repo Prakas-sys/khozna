@@ -136,7 +136,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildAreaItem(String title, String count) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppTheme.brandColor.withOpacity(0.05), shape: BoxShape.circle), child: const Icon(Icons.location_on_outlined, color: AppTheme.brandColor, size: 20)),
+      leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppTheme.brandColor.withValues(alpha: 0.05), shape: BoxShape.circle), child: const Icon(Icons.location_on_outlined, color: AppTheme.brandColor, size: 20)),
       title: Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
       subtitle: Text(count, style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)),
       trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),

@@ -57,7 +57,7 @@ class FilterResultsScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFF222222), // Dark Airbnb map button
                   borderRadius: BorderRadius.circular(30),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 5))],
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 5))],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -85,7 +85,7 @@ class FilterResultsScreen extends StatelessWidget {
             imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
             title: 'Modern 2BHK Flat',
             location: 'Baluwatar, Kathmandu',
-            price: 'रू 25,000',
+            price: '₹ 25,000',
             bedrooms: 2,
             bathrooms: 2,
             area: '1,400',

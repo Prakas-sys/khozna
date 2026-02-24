@@ -64,15 +64,13 @@ class MyListingsScreen extends StatelessWidget {
   }
 
   Widget _buildListingCard(BuildContext context, Map<String, dynamic> item, Color airbnbGrey) {
-    bool isVerified = item['status'] == 'Verified';
-
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: Column(
         children: [
@@ -91,7 +89,7 @@ class MyListingsScreen extends StatelessWidget {
                     children: [
                       Text(item['title'], style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 4),
-                      Text('\$${item['price']} /month', style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.w600)),
+                      Text('Rs ${item['price']} /month', style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
                       _buildStatusBadge(item['status']),
                     ],
@@ -128,7 +126,7 @@ class MyListingsScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isVerified ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+        color: isVerified ? Colors.green.withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(

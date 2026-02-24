@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:geolocator/geolocator.dart';
 import '../theme/app_theme.dart';
 
 class AddPropertyScreen extends StatefulWidget {
@@ -13,10 +14,59 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
   final PageController _pageController = PageController();
 
+  // Location State
+  bool _isLocating = false;
+  double? _latitude;
+  double? _longitude;
+
   // Selected Data State
   String? _selectedCategory = 'Room';
   bool _isNegotiable = true;
   final List<String> _selectedAmenities = [];
+
+  Future<void> _detectLocation() async {
+    setState(() => _isLocating = true);
+
+    try {
+      // Check permission
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permission denied. Please enable it in Settings.')),
+          );
+        }
+        setState(() => _isLocating = false);
+        return;
+      }
+
+      // Get actual coordinates
+      final Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 15),
+        ),
+      );
+
+      if (mounted) {
+        setState(() {
+          _latitude = position.latitude;
+          _longitude = position.longitude;
+          _isLocating = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLocating = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not get location: $e')),
+        );
+      }
+    }
+  }
 
   void _toggleAmenity(String amenity) {
     setState(() {
@@ -124,27 +174,83 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppTheme.brandColor.withOpacity(0.05),
+            color: _latitude != null
+                ? Colors.green.withValues(alpha: 0.05)
+                : AppTheme.brandColor.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppTheme.brandColor.withOpacity(0.1)),
+            border: Border.all(
+              color: _latitude != null
+                  ? Colors.green.withValues(alpha: 0.3)
+                  : AppTheme.brandColor.withValues(alpha: 0.1),
+            ),
           ),
           child: Column(
             children: [
-              const Icon(Icons.my_location, color: AppTheme.brandColor, size: 32),
+              Icon(
+                _latitude != null ? Icons.location_on : Icons.my_location,
+                color: _latitude != null ? Colors.green : AppTheme.brandColor,
+                size: 32,
+              ),
               const SizedBox(height: 12),
-              Text(
-                'मैले अहिले भएकै ठाउँ रोज्नुहोस्',
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppTheme.brandColor),
-              ),
-              Text(
-                '(Use my current location on Map)',
-                style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
-              ),
+              if (_latitude != null) ...
+              [
+                Text(
+                  'लोकेशन सेट भयो! ✓',
+                  style: GoogleFonts.outfit(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green[700],
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Lat: ${_latitude!.toStringAsFixed(5)}, Lng: ${_longitude!.toStringAsFixed(5)}',
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '(GPS verified location)',
+                  style: GoogleFonts.outfit(
+                    fontSize: 11,
+                    color: Colors.green[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ] else ...
+              [
+                const Text(
+                  'मैले अहिले भएकै ठाउँ रोज्नुहोस्',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor),
+                ),
+                Text(
+                  '(Use my current location on Map)',
+                  style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, elevation: 0),
-                child: const Text('लोकेशन सेट गर्नुहोस्'),
+              ElevatedButton.icon(
+                onPressed: _isLocating ? null : _detectLocation,
+                icon: _isLocating
+                    ? const SizedBox(
+                        width: 16, height: 16,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    : Icon(_latitude != null ? Icons.refresh : Icons.gps_fixed, size: 18),
+                label: Text(
+                  _isLocating
+                      ? 'GPS खोज्दै छ...'
+                      : _latitude != null
+                          ? 'लोकेशन अपडेट गर्नुहोस्'
+                          : 'लोकेशन सेट गर्नुहोस्',
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _latitude != null ? Colors.green : AppTheme.brandColor,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
               )
             ],
           ),
@@ -165,7 +271,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: _isNegotiable ? AppTheme.brandColor.withOpacity(0.05) : Colors.grey[50],
+            color: _isNegotiable ? AppTheme.brandColor.withValues(alpha: 0.05) : Colors.grey[50],
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: _isNegotiable ? AppTheme.brandColor : Colors.grey[200]!),
           ),
@@ -185,7 +291,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               Switch(
                 value: _isNegotiable,
                 onChanged: (v) => setState(() => _isNegotiable = v),
-                activeColor: AppTheme.brandColor,
+                activeThumbColor: AppTheme.brandColor,
               ),
             ],
           ),
@@ -243,7 +349,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 40),
         Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: Colors.green.withOpacity(0.05), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
           child: Row(
             children: [
               const Icon(Icons.verified_outlined, color: Colors.green),
@@ -282,7 +388,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor.withOpacity(0.05) : Colors.white,
+          color: isSelected ? AppTheme.brandColor.withValues(alpha: 0.05) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey[200]!),
         ),
@@ -326,9 +432,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isBlue ? AppTheme.brandColor.withOpacity(0.05) : const Color(0xFFF9F9F9),
+        color: isBlue ? AppTheme.brandColor.withValues(alpha: 0.05) : const Color(0xFFF9F9F9),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isBlue ? AppTheme.brandColor.withOpacity(0.2) : Colors.grey[200]!),
+        border: Border.all(color: isBlue ? AppTheme.brandColor.withValues(alpha: 0.2) : Colors.grey[200]!),
       ),
       child: Column(
         children: [
@@ -363,7 +469,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -4))]),
+        decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -4))]),
         child: Row(
           children: [
             if (_currentStep > 0)

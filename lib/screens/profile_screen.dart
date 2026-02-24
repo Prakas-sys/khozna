@@ -9,12 +9,11 @@ import 'kyc_screen.dart';
 import 'settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final bool isVerified;
+  const ProfileScreen({super.key, this.isVerified = true});
 
   @override
   Widget build(BuildContext context) {
-    bool isVerified = true;
-
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
@@ -111,13 +110,13 @@ class ProfileScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: isVerified
-                      ? Colors.green.withOpacity(0.05)
-                      : Colors.orange.withOpacity(0.05),
+                      ? Colors.green.withValues(alpha: 0.05)
+                      : Colors.orange.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isVerified
-                        ? Colors.green.withOpacity(0.2)
-                        : Colors.orange.withOpacity(0.2),
+                        ? Colors.green.withValues(alpha: 0.2)
+                        : Colors.orange.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
@@ -207,6 +206,7 @@ class ProfileScreen extends StatelessWidget {
                     Icons.person_outline,
                     'Edit Profile',
                     AppTheme.brandColor,
+                    onTap: () {},
                   ),
                   _buildProfileMenuItem(
                     context,
@@ -258,12 +258,14 @@ class ProfileScreen extends StatelessWidget {
                     Icons.description_outlined,
                     'Terms of Service',
                     Colors.grey[700]!,
+                    onTap: () {},
                   ),
                   _buildProfileMenuItem(
                     context,
                     Icons.privacy_tip_outlined,
                     'Privacy Policy',
                     Colors.grey[700]!,
+                    onTap: () {},
                   ),
 
                   const SizedBox(height: 24),
@@ -273,6 +275,7 @@ class ProfileScreen extends StatelessWidget {
                     Icons.help_outline,
                     'Help Center',
                     AppTheme.brandColor,
+                    onTap: () {},
                   ),
                   _buildProfileMenuItem(
                     context,
@@ -280,6 +283,7 @@ class ProfileScreen extends StatelessWidget {
                     'Log Out',
                     Colors.red,
                     showArrow: false,
+                    onTap: () {},
                   ),
                   const SizedBox(height: 100),
                 ],
@@ -326,7 +330,7 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 20),

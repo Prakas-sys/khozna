@@ -53,7 +53,7 @@ class NotificationsScreen extends StatelessWidget {
         itemBuilder: (context, index) {
           final note = notifications[index];
           return Container(
-            color: note['isUnread'] ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
+            color: note['isUnread'] ? AppTheme.brandColor.withValues(alpha: 0.03) : Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +114,7 @@ class NotificationsScreen extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
       child: Icon(icon, color: color, size: 20),
     );
   }

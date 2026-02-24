@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import '../utils/security_utils.dart';
 import 'login_screen.dart';
+import 'location_permission_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -36,18 +39,56 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    Future.delayed(const Duration(milliseconds: 3000), () {
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 800),
-            pageBuilder: (_, __, ___) => const LoginScreen(),
-            transitionsBuilder: (_, anim, __, child) =>
-                FadeTransition(opacity: anim, child: child),
+    _navigateToNext();
+  }
+
+  Future<void> _navigateToNext() async {
+    // 1. Check for compromised device (Root/Jailbreak) - "Mr. Robot" style protection
+    bool isCompromised = await SecurityUtils.isDeviceCompromised();
+    
+    if (isCompromised && mounted) {
+      _showSecurityAlert();
+      return;
+    }
+
+    await Future.delayed(const Duration(milliseconds: 3000));
+    if (!mounted) return;
+
+    final status = await Permission.location.status;
+    final bool isLocationGranted = status.isGranted;
+
+    if (!mounted) return;
+
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 800),
+        pageBuilder: (_, _, _) => isLocationGranted 
+            ? const LoginScreen() 
+            : const LocationPermissionScreen(),
+        transitionsBuilder: (_, anim, _, child) =>
+            FadeTransition(opacity: anim, child: child),
+      ),
+    );
+  }
+
+  void _showSecurityAlert() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Security Alert'),
+        content: const Text(
+          'Khozna cannot run on this device because it appears to be rooted or jailbroken. '
+          'To protect your data, the app will now close.'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => SystemNavigator.pop(),
+            child: const Text('OK'),
           ),
-        );
-      }
-    });
+        ],
+      ),
+    );
   }
 
   @override

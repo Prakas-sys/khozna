@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Network Security Config
+  - Enforces HTTPS only (blocks plain HTTP connections)
+  - Prevents cleartext traffic to protect user data from eavesdropping
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust only system CA certificates (not user-installed CAs) -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 import '../theme/app_theme.dart';
-import 'main_screen.dart';
 import 'verify_phone_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -197,7 +195,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.brandColor.withOpacity(0.35),
+                              color: AppTheme.brandColor.withValues(alpha: 0.35),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
