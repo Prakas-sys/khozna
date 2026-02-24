@@ -41,9 +41,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _messageController = TextEditingController(
-      text: 'नमस्ते! के यो कोठा अझै उपलब्ध छ? (Is this room still available?)',
-    );
+    _messageController = TextEditingController();
 
     // Pre-load owner welcome messages
     _messages.addAll([
