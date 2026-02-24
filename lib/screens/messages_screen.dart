@@ -103,24 +103,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     ),
                   ),
                   Positioned(
-                    right: 12,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.camera_alt_outlined, color: Colors.black87, size: 22),
-                          onPressed: () {},
-                        ),
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: const BoxDecoration(
-                            color: AppTheme.brandColor,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(Icons.add, color: Colors.white, size: 20),
-                        ),
-                      ],
+                    right: 4,
+                    child: IconButton(
+                      icon: const Icon(Icons.add, color: Colors.black87, size: 28),
+                      onPressed: () {},
                     ),
                   ),
                 ],
