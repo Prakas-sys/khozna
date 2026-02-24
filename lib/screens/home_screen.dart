@@ -337,7 +337,7 @@ class HomeScreen extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: 'Rs 8,000',
+                                text: 'रू 8,000',
                                 style: GoogleFonts.outfit(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -412,7 +412,7 @@ class HomeScreen extends StatelessWidget {
                                   imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
                                   title: 'Modern Apartment in Sanepa',
                                   location: 'Sanepa, Lalitpur',
-                                  price: 'Rs 25,000',
+                                  price: 'रू 25,000',
                                   bedrooms: 2,
                                   bathrooms: 1,
                                   area: '1,200',

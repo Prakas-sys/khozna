@@ -89,7 +89,7 @@ class MyListingsScreen extends StatelessWidget {
                     children: [
                       Text(item['title'], style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 4),
-                      Text('Rs ${item['price']} /month', style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.w600)),
+                      Text('रू ${item['price']} /month', style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
                       _buildStatusBadge(item['status']),
                     ],
