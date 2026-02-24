@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -25,9 +26,30 @@ class _LoginScreenState extends State<LoginScreen> {
     'assets/images/boy illustrate  png.png',
     'assets/images/man illustrate png.png',
   ];
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoSwipe();
+  }
+
+  void _startAutoSwipe() {
+    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_pageController.hasClients) {
+        int nextScene = (_currentIllustration + 1) % _illustrations.length;
+        _pageController.animateToPage(
+          nextScene,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _timer?.cancel();
     _pageController.dispose();
     _phoneController.dispose();
     super.dispose();
@@ -151,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'Welcome Back To',
+                      'Welcome back to',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 24,
@@ -283,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: GoogleFonts.outfit(
                                   fontSize: 12,
                                   color: Colors.grey[600],
-                                  fontWeight: FontWeight.w300,
+                                  fontWeight: FontWeight.w400,
                                 ),
                                 children: const [
                                   TextSpan(text: 'I agree to the '),
@@ -400,7 +422,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           child: Text(
-                            'OR CONTINUE WITH',
+                            'Or continue with',
                             style: GoogleFonts.outfit(
                               color: Colors.grey[400],
                               fontSize: 10,
@@ -522,7 +544,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: GoogleFonts.outfit(
                               color: AppTheme.brandColor,
                               fontSize: 13,
-                              fontWeight: FontWeight.normal,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
