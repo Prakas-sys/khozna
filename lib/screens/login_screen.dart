@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
+import '../utils/security_utils.dart';
 import 'main_screen.dart';
 import 'register_screen.dart';
 import 'verify_phone_screen.dart';
@@ -30,6 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    // Activate Screen Shield (Mr. Robot Mode)
+    SecurityUtils.setSecure(true);
     _startAutoSwipe();
   }
 
@@ -48,6 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    // Deactivate Screen Shield
+    SecurityUtils.setSecure(false);
     _timer?.cancel();
     _pageController.dispose();
     _phoneController.dispose();

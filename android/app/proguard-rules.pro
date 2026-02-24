@@ -1,0 +1,34 @@
+# Flutter Wrapper
+-keep class io.flutter.app.** { *; }
+-keep class io.flutter.plugin.**  { *; }
+-keep class io.flutter.util.**  { *; }
+-keep class io.flutter.view.**  { *; }
+-keep class io.flutter.**  { *; }
+-keep class io.flutter.plugins.**  { *; }
+-keep class com.google.firebase.** { *; }
+
+# Standard Android
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+
+# Do not optimize/shrink Flutter's entry point
+-keep class com.khozna.khozna.MainActivity { *; }
+
+# Prevent R8 from removing View constructors needed by XML inflation
+-keepclassmembers class * extends android.view.View { 
+   <init>(android.content.Context, android.util.AttributeSet); 
+   <init>(android.content.Context, android.util.AttributeSet, int); 
+}
+
+# Prevent R8 from breaking Enum.values()
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# Handle Parcelable correctly
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}

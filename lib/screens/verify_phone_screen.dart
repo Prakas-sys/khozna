@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../utils/security_utils.dart';
 import 'main_screen.dart';
 
 class VerifyPhoneScreen extends StatefulWidget {
@@ -19,7 +20,16 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
   final List<FocusNode> _focusNodes = List.generate(4, (index) => FocusNode());
 
   @override
+  void initState() {
+    super.initState();
+    // Secure OTP screen from screenshots/recordings
+    SecurityUtils.setSecure(true);
+  }
+
+  @override
   void dispose() {
+    // Disable secure mode
+    SecurityUtils.setSecure(false);
     for (var controller in _controllers) {
       controller.dispose();
     }
