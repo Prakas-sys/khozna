@@ -139,11 +139,8 @@ class _KycScreenState extends State<KycScreen> {
                       height: 56,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => const MainScreen()),
-                            (route) => false,
-                          );
+                          // Simulate successful submission and return true
+                          Navigator.pop(context, true);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.brandColor,

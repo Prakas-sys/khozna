@@ -299,7 +299,7 @@ class HomeScreen extends StatelessWidget {
               ),
               // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 1),
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 2),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -370,7 +370,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     // Action Buttons
                     Row(
                       children: [
@@ -401,6 +401,7 @@ class HomeScreen extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 9),
                               elevation: 0,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
                         ),
@@ -432,6 +433,7 @@ class HomeScreen extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(vertical: 9),
                               elevation: 0,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
                         ),

@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _agreeToTerms = false;
   final PageController _pageController = PageController();
   int _currentIllustration = 0;
+  final TextEditingController _phoneController = TextEditingController();
 
   final List<String> _illustrations = [
     'assets/images/illustrate of login screen.png',
@@ -28,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void dispose() {
     _pageController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -45,7 +47,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 PageView.builder(
                   controller: _pageController,
                   itemCount: _illustrations.length,
-                  onPageChanged: (i) => setState(() => _currentIllustration = i),
+                  onPageChanged: (i) =>
+                      setState(() => _currentIllustration = i),
                   itemBuilder: (context, index) {
                     return Container(
                       color: AppTheme.brandColor,
@@ -72,7 +75,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.asset('assets/images/original logo.png', height: 36, fit: BoxFit.contain),
+                        child: Image.asset(
+                          'assets/images/original logo.png',
+                          height: 36,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                       GestureDetector(
                         onTap: () => Navigator.pushReplacement(
@@ -80,12 +87,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           MaterialPageRoute(builder: (_) => const MainScreen()),
                         ),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text('Skip', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
+                          child: Text(
+                            'Skip',
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -98,15 +115,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   right: 0,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(_illustrations.length, (i) {
-                      final active = i == _currentIllustration;
+                    children: List.generate(_illustrations.length, (index) {
+                      final bool isSelected = index == _currentIllustration;
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 250),
                         margin: const EdgeInsets.symmetric(horizontal: 4),
-                        width: active ? 22 : 7,
+                        width: isSelected ? 22 : 7,
                         height: 7,
                         decoration: BoxDecoration(
-                          color: active ? Colors.white : Colors.white.withOpacity(0.4),
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.white.withOpacity(0.4),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       );
@@ -126,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
               ),
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -158,36 +177,63 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                        border: Border.all(
+                          color: Colors.grey.shade300,
+                          width: 1.5,
+                        ),
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(30),
                         child: Row(
                           children: [
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 18),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                              ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Text('🇳🇵', style: TextStyle(fontSize: 20)),
+                                  const Text(
+                                    '🇳🇵',
+                                    style: TextStyle(fontSize: 20),
+                                  ),
                                   const SizedBox(width: 8),
-                                  Text('+977', style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
+                                  Text(
+                                    '+977',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
                                   const SizedBox(width: 10),
-                                  Container(width: 1.5, height: 22, color: Colors.grey.shade400),
+                                  Container(
+                                    width: 1.5,
+                                    height: 22,
+                                    color: Colors.grey.shade400,
+                                  ),
                                 ],
                               ),
                             ),
                             Expanded(
                               child: TextField(
+                                controller: _phoneController,
                                 keyboardType: TextInputType.phone,
                                 style: GoogleFonts.outfit(fontSize: 15),
+                                cursorColor: AppTheme.brandColor,
                                 decoration: InputDecoration(
                                   hintText: 'Mobile number',
-                                  hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14),
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontSize: 14,
+                                  ),
                                   border: InputBorder.none,
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 16,
+                                  ),
                                 ),
                               ),
                             ),
@@ -197,37 +243,71 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 10),
 
-                    // Terms
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: Checkbox(
-                            value: _agreeToTerms,
-                            onChanged: (v) => setState(() => _agreeToTerms = v ?? false),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                            side: BorderSide(color: Colors.grey[300]!, width: 1.5),
-                            activeColor: AppTheme.brandColor,
-                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
-                              children: const [
-                                TextSpan(text: 'I agree to the '),
-                                TextSpan(text: 'Terms of Service', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.w600)),
-                                TextSpan(text: ' and '),
-                                TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.w600)),
-                              ],
+                    // Terms Container
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: Checkbox(
+                              value: _agreeToTerms,
+                              onChanged: (v) =>
+                                  setState(() => _agreeToTerms = v ?? false),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              side: BorderSide(
+                                color: Colors.grey[400]!,
+                                width: 1.5,
+                              ),
+                              activeColor: AppTheme.brandColor,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                style: GoogleFonts.outfit(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w300,
+                                ),
+                                children: const [
+                                  TextSpan(text: 'I agree to the '),
+                                  TextSpan(
+                                    text: 'Terms of Service',
+                                    style: TextStyle(
+                                      color: AppTheme.brandColor,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  TextSpan(text: ' and '),
+                                  TextSpan(
+                                    text: 'Privacy Policy',
+                                    style: TextStyle(
+                                      color: AppTheme.brandColor,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 12),
 
@@ -242,20 +322,68 @@ class _LoginScreenState extends State<LoginScreen> {
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
-                        boxShadow: [BoxShadow(color: AppTheme.brandColor.withOpacity(0.12), blurRadius: 6, offset: const Offset(0, 3))],
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.brandColor.withOpacity(0.12),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           padding: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
                         ),
-                        onPressed: () => Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const VerifyPhoneScreen()),
+                        onPressed: () {
+                          if (!_agreeToTerms) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Please agree to terms to continue',
+                                  style: GoogleFonts.outfit(),
+                                ),
+                                backgroundColor: Colors.redAccent,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            return;
+                          }
+                          if (_phoneController.text.length < 10) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Please enter a valid phone number',
+                                  style: GoogleFonts.outfit(),
+                                ),
+                                backgroundColor: Colors.redAccent,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            return;
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => VerifyPhoneScreen(
+                                phoneNumber: '+977 ${_phoneController.text}',
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Login',
+                          style: GoogleFonts.outfit(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
                         ),
-                        child: Text('Login', style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.5)),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -263,12 +391,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     // OR divider
                     Row(
                       children: [
-                        Expanded(child: Divider(color: Colors.grey[200], thickness: 1.5)),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.grey[200],
+                            thickness: 1.5,
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text('OR CONTINUE WITH', style: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 10, fontWeight: FontWeight.w600, letterSpacing: 0.5)),
+                          child: Text(
+                            'OR CONTINUE WITH',
+                            style: GoogleFonts.outfit(
+                              color: Colors.grey[400],
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
                         ),
-                        Expanded(child: Divider(color: Colors.grey[200], thickness: 1.5)),
+                        Expanded(
+                          child: Divider(
+                            color: Colors.grey[200],
+                            thickness: 1.5,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 18),
@@ -285,7 +431,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                                border: Border.all(
+                                  color: Colors.grey.shade300,
+                                  width: 1.5,
+                                ),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -296,7 +445,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: 22,
                                   ),
                                   const SizedBox(width: 12),
-                                  Text('Google', style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87)),
+                                  Text(
+                                    'Google',
+                                    style: GoogleFonts.outfit(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -310,9 +466,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Container(
                               height: 52,
                               decoration: BoxDecoration(
-                                color: Colors.white, 
+                                color: Colors.white,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                                border: Border.all(
+                                  color: Colors.grey.shade300,
+                                  width: 1.5,
+                                ),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -323,7 +482,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: 22,
                                   ),
                                   const SizedBox(width: 12),
-                                  Text('Facebook', style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87)),
+                                  Text(
+                                    'Facebook',
+                                    style: GoogleFonts.outfit(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -337,9 +503,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Don't have an account? ", style: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 13)),
+                        Text(
+                          "Don't have an account? ",
+                          style: GoogleFonts.outfit(
+                            color: Colors.grey[600],
+                            fontSize: 13,
+                          ),
+                        ),
                         GestureDetector(
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const RegisterScreen(),
+                            ),
+                          ),
                           child: Text(
                             "Register Here",
                             style: GoogleFonts.outfit(
@@ -351,6 +528,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -361,4 +539,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

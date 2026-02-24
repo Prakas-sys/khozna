@@ -16,6 +16,15 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   bool _agreeToTerms = false;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 20),
                       
                       TextField(
+                        controller: _nameController,
                         style: const TextStyle(fontSize: 15),
                         decoration: InputDecoration(
                           hintText: 'Full Name',
@@ -96,6 +106,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 12),
                       
                       IntlPhoneField(
+                        onChanged: (phone) {
+                          _phoneController.text = phone.number;
+                        },
                         decoration: InputDecoration(
                           hintText: 'Enter Mobile number',
                           hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
@@ -199,11 +212,44 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          onPressed: () => Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const VerifyPhoneScreen()),
-                              (route) => false),
+                          onPressed: () {
+                            if (_nameController.text.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Please enter your full name', style: GoogleFonts.outfit()),
+                                  backgroundColor: Colors.redAccent,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                              return;
+                            }
+                            if (_phoneController.text.length < 10) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Please enter a valid phone number', style: GoogleFonts.outfit()),
+                                  backgroundColor: Colors.redAccent,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                              return;
+                            }
+                            if (!_agreeToTerms) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Please agree to terms to continue', style: GoogleFonts.outfit()),
+                                  backgroundColor: Colors.redAccent,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                              return;
+                            }
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => VerifyPhoneScreen(
+                                      phoneNumber: '+977 ${_phoneController.text}',
+                                    )));
+                          },
                           child: Text(
                             'Register',
                             style: GoogleFonts.outfit(

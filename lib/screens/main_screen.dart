@@ -5,8 +5,9 @@ import '../theme/app_theme.dart';
 import 'home_screen.dart';
 import 'reels_screen.dart';
 import 'messages_screen.dart';
-import 'profile_screen.dart';
 import 'add_property_screen.dart';
+import 'kyc_screen.dart';
+import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,6 +18,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+  bool _isKycVerified = false; // Mock KYC status
 
   final List<Widget> _pages = [
     const HomeScreen(),
@@ -158,12 +160,26 @@ class _MainScreenState extends State<MainScreen> {
               'List your Room, House or Land',
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddPropertyScreen(),
-                  ),
-                );
+                if (!_isKycVerified) {
+                  // Show KYC verification if not verified
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const KycScreen()),
+                  ).then((value) {
+                    // Simulating verification after coming back
+                    if (value == true) {
+                      setState(() => _isKycVerified = true);
+                    }
+                  });
+                } else {
+                  // Proceed to add property if already verified
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddPropertyScreen(),
+                    ),
+                  );
+                }
               },
             ),
             _buildOptionItem(
@@ -291,10 +307,7 @@ class _MainScreenState extends State<MainScreen> {
         path,
         width: 25,
         height: 25,
-        colorFilter: ColorFilter.mode(
-          color,
-          BlendMode.srcIn,
-        ),
+        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
       ),
     );
   }

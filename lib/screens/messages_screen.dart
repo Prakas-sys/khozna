@@ -83,36 +83,45 @@ class _MessagesScreenState extends State<MessagesScreen> {
           children: [
             // ── HEADER ──
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 16, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  const Icon(Icons.menu, color: Colors.black87, size: 26),
+                  Positioned(
+                    left: 12,
+                    child: IconButton(
+                      icon: const Icon(Icons.menu, color: Colors.black87, size: 26),
+                      onPressed: () {},
+                    ),
+                  ),
                   Text(
                     'Chats',
                     style: GoogleFonts.outfit(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.camera_alt_outlined, color: Colors.black87),
-                        onPressed: () {},
-                      ),
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: const BoxDecoration(
-                          color: AppTheme.brandColor,
-                          shape: BoxShape.circle,
+                  Positioned(
+                    right: 12,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.camera_alt_outlined, color: Colors.black87, size: 22),
+                          onPressed: () {},
                         ),
-                        child: const Icon(Icons.add, color: Colors.white, size: 22),
-                      ),
-                      const SizedBox(width: 4),
-                    ],
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.brandColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.add, color: Colors.white, size: 20),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -124,30 +133,41 @@ class _MessagesScreenState extends State<MessagesScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Container(
-                height: 48,
+                height: 50,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF2F4F7),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.grey.shade200),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(width: 14),
-                    Icon(Icons.search, color: Colors.grey[500], size: 20),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 16),
+                    const Icon(Icons.search, color: AppTheme.brandColor, size: 22),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: TextField(
+                        textAlignVertical: TextAlignVertical.center,
+                        style: GoogleFonts.outfit(fontSize: 14),
                         decoration: InputDecoration(
                           hintText: 'Search messages',
-                          hintStyle: GoogleFonts.outfit(color: Colors.grey[500], fontSize: 14),
+                          hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 14),
+                          isCollapsed: true,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
                           focusedBorder: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                       ),
                     ),
                     Icon(Icons.tune, color: Colors.grey[400], size: 18),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 16),
                   ],
                 ),
               ),
@@ -156,44 +176,49 @@ class _MessagesScreenState extends State<MessagesScreen> {
             const SizedBox(height: 14),
 
             // ── FILTER TABS ──
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  ..._tabs.asMap().entries.map((entry) {
-                    final i = entry.key;
-                    final label = entry.value;
-                    final selected = i == _selectedTab;
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedTab = i),
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: selected ? AppTheme.brandColor : const Color(0xFFF2F4F7),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          label,
-                          style: GoogleFonts.outfit(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: selected ? Colors.white : Colors.black87,
+            SizedBox(
+              height: 40,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    ..._tabs.asMap().entries.map((entry) {
+                      final i = entry.key;
+                      final label = entry.value;
+                      final selected = i == _selectedTab;
+                      return GestureDetector(
+                        onTap: () => setState(() => _selectedTab = i),
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 0),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: selected ? AppTheme.brandColor : const Color(0xFFF2F4F7),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            label,
+                            style: GoogleFonts.outfit(
+                              fontSize: 13,
+                              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                              color: selected ? Colors.white : Colors.grey[700],
+                            ),
                           ),
                         ),
+                      );
+                    }),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF2F4F7),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                    );
-                  }),
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF2F4F7),
-                      borderRadius: BorderRadius.circular(30),
+                      child: const Icon(Icons.add, size: 18, color: Colors.black54),
                     ),
-                    child: const Icon(Icons.add, size: 18, color: Colors.black87),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
@@ -226,18 +251,24 @@ class _MessagesScreenState extends State<MessagesScreen> {
                           // Avatar + online dot
                           Stack(
                             children: [
-                              CircleAvatar(
-                                radius: 28,
-                                backgroundColor: Colors.grey[200],
-                                backgroundImage: NetworkImage(chat['avatar']),
+                              Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.grey.shade100, width: 1),
+                                ),
+                                child: CircleAvatar(
+                                  radius: 26,
+                                  backgroundColor: Colors.grey[100],
+                                  backgroundImage: NetworkImage(chat['avatar']),
+                                ),
                               ),
                               if (chat['online'] as bool)
                                 Positioned(
-                                  right: 1,
-                                  bottom: 1,
+                                  right: 2,
+                                  bottom: 2,
                                   child: Container(
-                                    width: 13,
-                                    height: 13,
+                                    width: 12,
+                                    height: 12,
                                     decoration: BoxDecoration(
                                       color: const Color(0xFF4CAF50),
                                       shape: BoxShape.circle,
