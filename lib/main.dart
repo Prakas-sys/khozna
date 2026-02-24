@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'theme/app_theme.dart';
 import 'utils/security_utils.dart';
@@ -8,6 +9,10 @@ import 'screens/location_permission_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Pre-load fonts to prevent flickering
+  GoogleFonts.config.allowRuntimeFetching = true;
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -61,11 +66,28 @@ class KhoznaApp extends StatelessWidget {
     
     // 2. Check location permission
     final status = await Permission.location.status;
+
+    // 3. Pre-fetch the specific fonts used on the Login screen
+    // This caches them before the Login screen is even built.
+    await Future.wait([
+      _loadFont(GoogleFonts.playfairDisplay().fontFamily),
+      _loadFont(GoogleFonts.zenAntiqueSoft().fontFamily),
+      _loadFont(GoogleFonts.outfit().fontFamily),
+    ]);
+    
+    // Tiny extra delay to ensure rendering engine is ready
+    await Future.delayed(const Duration(milliseconds: 200));
     
     return {
       'isCompromised': isCompromised,
       'isLocationGranted': status.isGranted,
     };
+  }
+
+  Future<void> _loadFont(String? fontFamily) async {
+    if (fontFamily != null) {
+      await FontLoader(fontFamily).load();
+    }
   }
 
   Widget _buildSecurityAlert(BuildContext context) {
