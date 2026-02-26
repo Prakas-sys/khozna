@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
 import '../utils/supabase_service.dart';
@@ -22,6 +23,7 @@ class HomeScreen extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.white,
+        automaticallyImplyLeading: false,
         titleSpacing: 20,
         title: ClipRRect(
           borderRadius: BorderRadius.circular(8),
@@ -212,17 +214,27 @@ class HomeScreen extends StatelessWidget {
                     );
                   }
 
-                  final properties = snapshot.data ?? [];
-                  
-                  if (properties.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No live listings yet.',
-                        style: GoogleFonts.outfit(color: Colors.grey),
-                      ),
-                    );
-                  }
+                  // Hardcoded Demo Property
+                  final Map<String, dynamic> demoProperty = {
+                    'id': 'demo-property-id',
+                    'title': 'Modern Apartment in Kathmandu',
+                    'area_name': 'Baneshwor, Kathmandu',
+                    'price': '45,000',
+                    'bedrooms': 2,
+                    'bathrooms': 2,
+                    'sq_ft': '1,200',
+                    'floor': '3rd Floor',
+                    'description': 'Experience luxury living in the heart of Kathmandu. This modern apartment offers breathtaking city views, high-end finishes, and complete security.',
+                    'property_images': [
+                      {'image_url': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+                    ],
+                  };
 
+                  final List<Map<String, dynamic>> properties = [
+                    demoProperty,
+                    ...(snapshot.data ?? []),
+                  ];
+                  
                   return SizedBox(
                     height: 304,
                     child: ListView.builder(
@@ -268,56 +280,53 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildSkeletonCard(BuildContext context) {
     return Container(
-      width: 250,
+      width: 260,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: const Color(0xFFF2F2F2)),
       ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image placeholder with heart overlay
-            Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image Placeholder
+          Container(
+            height: 190,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Color(0xFFF5F5F5),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 160,
-                  width: double.infinity,
-                  child: Container(
-                    color: const Color(0xFFEEEEEE),
-                  ),
+                // Title and Price line
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(width: 120, height: 14, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
+                    Container(width: 60, height: 14, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
+                  ],
                 ),
-                // Heart button on skeleton card
-                const Positioned(
-                  top: 10,
-                  right: 10,
-                  child: FavouriteButton(),
+                const SizedBox(height: 8),
+                // Location line
+                Container(width: 100, height: 10, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
+                const SizedBox(height: 12),
+                // Button lines
+                Row(
+                  children: [
+                    Expanded(child: Container(height: 38, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(30)))),
+                    const SizedBox(width: 8),
+                    Expanded(child: Container(height: 38, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(30)))),
+                  ],
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(width: 180, height: 10, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(5))),
-                  const SizedBox(height: 6),
-                  Container(width: 100, height: 10, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(5))),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Expanded(child: Container(height: 32, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(8)))),
-                      const SizedBox(width: 8),
-                      Expanded(child: Container(height: 32, decoration: BoxDecoration(color: const Color(0xFFEEEEEE), borderRadius: BorderRadius.circular(8)))),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

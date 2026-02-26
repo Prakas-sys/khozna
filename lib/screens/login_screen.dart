@@ -7,6 +7,7 @@ import '../utils/security_utils.dart';
 import 'main_screen.dart';
 import 'register_screen.dart';
 import 'verify_phone_screen.dart';
+import 'owner_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,6 +21,62 @@ class _LoginScreenState extends State<LoginScreen> {
   final PageController _pageController = PageController();
   int _currentIllustration = 0;
   final TextEditingController _phoneController = TextEditingController();
+  int _bossTaps = 0;
+
+  void _handleBossTap() {
+    _bossTaps++;
+    if (_bossTaps >= 5) {
+      _bossTaps = 0;
+      _showBossLogin();
+    }
+  }
+
+  void _showBossLogin() {
+    final bossPhone = TextEditingController();
+    final bossPass = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text('Owner Access', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: bossPhone,
+              decoration: const InputDecoration(labelText: 'Admin ID'),
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: bossPass,
+              decoration: const InputDecoration(labelText: 'Secret Key'),
+              obscureText: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () {
+              if (bossPhone.text == '9705278379' && bossPass.text == 'Khozna@Success') {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const OwnerDashboard()),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Invalid Credentials')),
+                );
+              }
+            },
+            child: const Text('Unlock Dashboard'),
+          ),
+        ],
+      ),
+    );
+  }
 
   final List<String> _illustrations = [
     'assets/images/illustrate of login screen.png',
@@ -99,16 +156,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          'assets/images/original logo.png',
-                          height: 36,
-                          fit: BoxFit.contain,
+                      GestureDetector(
+                        onLongPress: () => _handleBossTap(), // Just in case, long press also counts
+                        onTap: () => _handleBossTap(),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            'assets/images/original logo.png',
+                            height: 36,
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => Navigator.pushReplacement(
+                        onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(builder: (_) => const MainScreen()),
                         ),

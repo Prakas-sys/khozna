@@ -44,7 +44,19 @@ class _MainScreenState extends State<MainScreen> {
     return ValueListenableBuilder<int>(
       valueListenable: messageBadgeCount,
       builder: (context, badgeCount, _) {
-        return Scaffold(
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            if (_currentIndex != 0) {
+              setState(() => _currentIndex = 0);
+            } else {
+              // If already on home tab, allow app to close or show exit confirmation
+              // For now, let's allow pop if on index 0 to avoid getting "stuck"
+              Navigator.of(context).pop();
+            }
+          },
+          child: Scaffold(
           backgroundColor: _currentIndex == 1 ? Colors.black : Colors.white,
           body: _pages[_currentIndex],
           bottomNavigationBar: Container(
@@ -73,9 +85,9 @@ class _MainScreenState extends State<MainScreen> {
                       highlightColor: Colors.transparent,
                       hoverColor: Colors.transparent,
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          const Spacer(),
                           Transform.translate(
                             offset: const Offset(0, -4),
                             child: Container(
@@ -87,6 +99,7 @@ class _MainScreenState extends State<MainScreen> {
                               child: const Icon(Icons.add, color: Colors.white, size: 22, weight: 700),
                             ),
                           ),
+                          const Spacer(),
                         ],
                       ),
                     ),
@@ -97,7 +110,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
           ),
-        );
+        ),);
       },
     );
   }
@@ -229,47 +242,47 @@ class _MainScreenState extends State<MainScreen> {
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            // Top Indicator Line
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              height: 3.2,
+              width: isSelected ? 48 : 0,
+              decoration: BoxDecoration(
+                color: isSelected ? AppTheme.brandColor : Colors.transparent,
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(3)),
+              ),
+            ),
+            const Spacer(),
             // Outer container for icon + badge
             SizedBox(
               width: 36,
-              height: 30,
+              height: 28,
               child: Stack(
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: [
-                  // Icon (with bold-effect when selected)
+                  // Icon
                   AnimatedScale(
-                    scale: isSelected ? 1.06 : 1.0,
+                    scale: isSelected ? 1.1 : 1.0,
                     duration: const Duration(milliseconds: 200),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          iconPath,
-                          width: 25,
-                          height: 25,
-                          colorFilter: ColorFilter.mode(
-                            isSelected ? activeColor : inactiveColor,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        if (isSelected) ...[
-                          _buildOffsetIcon(iconPath, 0.2, 0, activeColor),
-                          _buildOffsetIcon(iconPath, -0.2, 0, activeColor),
-                          _buildOffsetIcon(iconPath, 0, 0.2, activeColor),
-                          _buildOffsetIcon(iconPath, 0, -0.2, activeColor),
-                        ],
-                      ],
+                    child: SvgPicture.asset(
+                      iconPath,
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        isSelected ? activeColor : inactiveColor,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
-                  // Premium red badge (top-right, floating outside)
+                  // Premium red badge
                   if (badgeCount > 0)
                     Positioned(
-                      top: -2,
-                      right: 0,
+                      top: -4,
+                      right: -2,
                       child: Container(
                         constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
@@ -298,31 +311,22 @@ class _MainScreenState extends State<MainScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 1),
-            Text(
-              label,
-              style: GoogleFonts.outfit(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected ? activeColor : inactiveColor,
-                letterSpacing: 0.1,
+            // Minimal gap and slight upward pull for text
+            Transform.translate(
+              offset: const Offset(0, -1),
+              child: Text(
+                label,
+                style: GoogleFonts.outfit(
+                  fontSize: 10,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: isSelected ? activeColor : inactiveColor,
+                  letterSpacing: 0.1,
+                ),
               ),
             ),
+            const Spacer(),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildOffsetIcon(String path, double dx, double dy, Color color) {
-    return Positioned(
-      left: dx,
-      top: dy,
-      child: SvgPicture.asset(
-        path,
-        width: 25,
-        height: 25,
-        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
       ),
     );
   }

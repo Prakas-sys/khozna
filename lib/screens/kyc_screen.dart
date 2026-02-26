@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 
 // Method channel to set FLAG_SECURE (blocks screenshots on KYC screen)
@@ -19,6 +22,11 @@ class _KycScreenState extends State<KycScreen> {
   final _phoneController = TextEditingController();
   final _citizenshipController = TextEditingController();
   bool _isSubmitting = false;
+
+  File? _frontImage;
+  File? _backImage;
+  File? _selfieImage;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -45,18 +53,93 @@ class _KycScreenState extends State<KycScreen> {
     }
   }
 
+  Future<void> _pickImage(String type) async {
+    final XFile? image = await _picker.pickImage(
+      source: type == 'selfie' ? ImageSource.camera : ImageSource.gallery,
+      imageQuality: 70,
+    );
+    if (image != null) {
+      setState(() {
+        if (type == 'front') _frontImage = File(image.path);
+        if (type == 'back') _backImage = File(image.path);
+        if (type == 'selfie') _selfieImage = File(image.path);
+      });
+    }
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    
+    if (_frontImage == null || _backImage == null || _selfieImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please upload all required photos'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isSubmitting = true);
 
-    // Simulate a network/backend call (2 seconds)
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      // Logic: In real app, upload to Cloudinary then save record to Supabase
+      // Here we simulate the submission to Supabase
+      await Future.delayed(const Duration(seconds: 2));
 
-    if (mounted) {
-      setState(() => _isSubmitting = false);
-      Navigator.pop(context, true);
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        _showSuccessDialog();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle_outline, color: Colors.green, size: 80),
+            const SizedBox(height: 24),
+            Text(
+              'प्रमाणिकरणको लागि प्राप्त भयो!',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'तपाईको कागजातहरू प्राप्त भएका छन्। हामी ४८ घण्टा भित्र प्रमाणीकरण गर्नेछौं।',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.outfit(color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pop(context); // Go back to profile/main
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('ठीक छ (Okay)', style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -124,9 +207,9 @@ class _KycScreenState extends State<KycScreen> {
                   children: [
                     Expanded(child: _buildProgressBar(true)),
                     const SizedBox(width: 8),
-                    Expanded(child: _buildProgressBar(false)),
+                    Expanded(child: _buildProgressBar(true)),
                     const SizedBox(width: 8),
-                    Expanded(child: _buildProgressBar(false)),
+                    Expanded(child: _buildProgressBar(true)),
                   ],
                 ),
               ],
@@ -142,48 +225,68 @@ class _KycScreenState extends State<KycScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildInputLabel('Full Name (पुरा नाम)', true),
+                    _buildInputLabel('पुरा नाम (Full Name)', true),
                     const SizedBox(height: 8),
                     _buildTextField(
                       controller: _nameController,
-                      hint: 'e.g. Ram Bahadur Thapa',
+                      hint: 'उदा: राम बहादुर थापा',
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Full name is required';
-                        if (v.trim().length < 3) return 'Name must be at least 3 characters';
+                        if (v == null || v.trim().isEmpty) return 'पुरा नाम अनिवार्य छ';
+                        if (v.trim().length < 3) return 'नाम कम्तिमा ३ अक्षरको हुनुपर्छ';
                         return null;
                       },
                     ),
                     const SizedBox(height: 24),
 
-                    _buildInputLabel('Phone Number (फोन नम्बर)', true),
+                    _buildInputLabel('फोन नम्बर (Phone Number)', true),
                     const SizedBox(height: 8),
                     _buildTextField(
                       controller: _phoneController,
-                      hint: '98XXXXXXXX',
+                      hint: '९८XXXXXXXX',
                       inputType: TextInputType.phone,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Phone number is required';
+                        if (v == null || v.trim().isEmpty) return 'फोन नम्बर अनिवार्य छ';
                         if (!RegExp(r'^9[678]\d{8}$').hasMatch(v.trim())) {
-                          return 'Enter a valid Nepal phone number (98/97/96...)';
+                          return 'सहि नेपाली फोन नम्बर राख्नुहोस् (९८/९७/९६...)';
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 24),
 
-                    _buildInputLabel('Citizenship Number (नागरिकता नम्बर)', true),
+                    _buildInputLabel('नागरिकता नम्बर (Citizenship Number)', true),
                     const SizedBox(height: 8),
                     _buildTextField(
                       controller: _citizenshipController,
-                      hint: 'e.g. 12-34-56-78901',
+                      hint: 'उदा: १८-०१-७५-०४३२१',
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9\-]')),
+                        _CitizenshipFormatter(),
+                      ],
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Citizenship number is required';
-                        if (v.trim().length < 5) return 'Enter a valid citizenship number';
+                        if (v == null || v.trim().isEmpty) return 'नागरिकता नम्बर अनिवार्य छ';
+                        // Matches various formats like 12-34-56-78901 or 1234/5678
+                        if (v.trim().length < 5) return 'सहि नागरिकता नम्बर राख्नुहोस्';
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
+
+                    _buildInputLabel('फोटोहरू अपलोड गर्नुहोस् (Upload Photos)', true),
+                    const SizedBox(height: 12),
+                    
+                    Row(
+                      children: [
+                        Expanded(child: _buildPhotoUploadBox('front', 'अगाडिको भाग', _frontImage)),
+                        const SizedBox(width: 12),
+                        Expanded(child: _buildPhotoUploadBox('back', 'पछाडिको भाग', _backImage)),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildPhotoUploadBox('selfie', 'नागरिकता सहितको सेल्फी', _selfieImage, isFull: true),
+
+                    const SizedBox(height: 24),
 
                     Row(
                       children: [
@@ -198,7 +301,7 @@ class _KycScreenState extends State<KycScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Your data is encrypted and used only for identity verification.',
+                            'तपाईको डाटा सुरक्षित रहनेछ र परिचय प्रमाणीकरणको लागि मात्र प्रयोग गरिनेछ।',
                             style: GoogleFonts.outfit(
                               fontSize: 12,
                               fontStyle: FontStyle.italic,
@@ -230,7 +333,7 @@ class _KycScreenState extends State<KycScreen> {
                                 ),
                               )
                             : Text(
-                                'Submit Verification (सबमिट गर्नुहोस्)',
+                                'प्रमाणीकरणको लागि पठाउनुहोस् (Submit)',
                                 style: GoogleFonts.outfit(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -245,6 +348,55 @@ class _KycScreenState extends State<KycScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPhotoUploadBox(String type, String label, File? image, {bool isFull = false}) {
+    return GestureDetector(
+      onTap: () => _pickImage(type),
+      child: Container(
+        height: isFull ? 120 : 100,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: image != null ? Colors.green : Colors.grey.shade300,
+            width: image != null ? 1.5 : 1,
+          ),
+        ),
+        child: image != null
+            ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(11),
+                    child: Image.file(image, fit: BoxFit.cover),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: const Icon(Icons.check_circle, color: Colors.white, size: 28),
+                  ),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    type == 'selfie' ? Icons.face_outlined : Icons.add_a_photo_outlined,
+                    color: AppTheme.brandColor,
+                    size: 24,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    label,
+                    style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                  ),
+                ],
+              ),
       ),
     );
   }
@@ -317,6 +469,30 @@ class _KycScreenState extends State<KycScreen> {
           borderSide: const BorderSide(color: Colors.red, width: 1.5),
         ),
       ),
+    );
+  }
+}
+
+class _CitizenshipFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text.replaceAll('-', '');
+    if (text.length > 15) return oldValue;
+
+    String newText = '';
+    for (int i = 0; i < text.length; i++) {
+      if ((i == 2 || i == 4 || i == 6) && i != 0) {
+        newText += '-';
+      }
+      newText += text[i];
+    }
+
+    return TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length),
     );
   }
 }

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import 'property_details_screen.dart';
+import 'chat_screen.dart';
+import 'home_screen.dart';
 
 class FilterResultsScreen extends StatelessWidget {
   final String location;
@@ -9,19 +13,19 @@ class FilterResultsScreen extends StatelessWidget {
 
   const FilterResultsScreen({
     super.key,
-    this.location = 'Baluwatar, KTM',
-    this.priceRange = 'Up to Rs. 30,000',
+    this.location = 'Verified Listings',
+    this.priceRange = 'Top Rated Properties',
   });
 
   @override
   Widget build(BuildContext context) {
-    const Color airbnbGrey = Color(0xFF717171);
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Navigator.pop(context),
@@ -29,118 +33,223 @@ class FilterResultsScreen extends StatelessWidget {
         title: Column(
           children: [
             Text(location, style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
-            Text(priceRange, style: GoogleFonts.outfit(fontSize: 12, color: airbnbGrey)),
+            Text(priceRange, style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600])),
           ],
         ),
+        centerTitle: true,
         actions: [
-          IconButton(icon: const Icon(Icons.tune, color: AppTheme.brandColor), onPressed: () => Navigator.pop(context)),
+          IconButton(icon: const Icon(Icons.tune, color: AppTheme.brandColor, size: 22), onPressed: () {}),
+          const SizedBox(width: 8),
         ],
       ),
-      body: Stack(
-        children: [
-          ListView.builder(
-            padding: const EdgeInsets.all(24),
-            itemCount: 5,
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: Supabase.instance.client.from('properties').select('*, property_images(image_url)').order('created_at', ascending: false),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: AppTheme.brandColor));
+          }
+
+          final properties = snapshot.data ?? [];
+
+          if (properties.isEmpty) {
+            return Center(child: Text('No listings found.', style: GoogleFonts.outfit(color: Colors.grey)));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            itemCount: properties.length,
             itemBuilder: (context, index) {
-              return _buildResultCard(context, index.toString());
+              final p = properties[index];
+              final images = (p['property_images'] as List);
+              final String mainImage = images.isNotEmpty 
+                  ? images[0]['image_url'] 
+                  : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: _buildWideCard(
+                  context,
+                  p['id'],
+                  mainImage,
+                  p['title'],
+                  p['area_name'],
+                  'रू ${p['price']}',
+                  p['bedrooms'] ?? 0,
+                  p['bathrooms'] ?? 0,
+                  p['sq_ft'] ?? '0',
+                  p['floor'] ?? 'N/A',
+                  p['description'] ?? '',
+                  images.map((i) => i['image_url'].toString()).toList(),
+                ),
+              );
             },
-          ),
-          
-          // FLOATING MAP BUTTON (Airbnb Style)
-          Positioned(
-            bottom: 30,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF222222), // Dark Airbnb map button
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 5))],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Map', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.map_outlined, color: Colors.white, size: 18),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildResultCard(BuildContext context, String id) {
+  Widget _buildWideCard(
+    BuildContext context, 
+    String id, 
+    String imageUrl, 
+    String title, 
+    String location, 
+    String price, 
+    int bedrooms, 
+    int bathrooms, 
+    String area, 
+    String floor, 
+    String description,
+    List<String> images,
+  ) {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => PropertyDetailsScreen(
             id: id,
-            imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-            title: 'Modern 2BHK Flat',
-            location: 'Baluwatar, Kathmandu',
-            price: '₹ 25,000',
-            bedrooms: 2,
-            bathrooms: 2,
-            area: '1,400',
-            floor: '3rd Floor',
-            description: 'बालुवाटारको मुटुमा अवस्थित यो आधुनिक २ BHK फ्ल्याट भाडामा उपलब्ध छ। सबै सुविधाहरू भएको यो फ्ल्याट उच्च स्तरीय जीवनशैली खोज्नेहरूको लागि उत्तम छ।',
+            imageUrl: imageUrl,
+            images: images,
+            title: title,
+            location: location,
+            price: price,
+            bedrooms: bedrooms,
+            bathrooms: bathrooms,
+            area: area,
+            floor: floor,
+            description: description,
           ),
         ),
       ),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: AspectRatio(
-                    aspectRatio: 1.2,
-                    child: Image.network(
-                      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-                      fit: BoxFit.cover,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFF2F2F2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  SizedBox(
+                    height: 200,
+                    width: double.infinity,
+                    child: Image.network(imageUrl, fit: BoxFit.cover),
+                  ),
+                  Positioned(
+                    top: 12, left: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(color: const Color(0xFF2ECC71), borderRadius: BorderRadius.circular(20)),
+                      child: Text('For Rent', style: GoogleFonts.outfit(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                     ),
                   ),
-                ),
-                Positioned(top: 16, right: 16, child: Container(padding: const EdgeInsets.all(8), decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: const Icon(Icons.favorite_border, size: 20))),
-                Positioned(
-                  top: 16, left: 16,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
-                    child: Row(children: [
-                      const Icon(Icons.verified, size: 14, color: AppTheme.brandColor),
-                      const SizedBox(width: 4),
-                      Text('VERIFIED', style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
-                    ]),
+                  Positioned(
+                    top: 12, right: 12,
+                    child: FavouriteButton(propertyId: id),
                   ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold))),
+                        Text(price, style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 14),
+                        const SizedBox(width: 4),
+                        Text(location, style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600])),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PropertyDetailsScreen(
+                                  id: id,
+                                  imageUrl: imageUrl,
+                                  images: images,
+                                  title: title,
+                                  location: location,
+                                  price: price,
+                                  bedrooms: bedrooms,
+                                  bathrooms: bathrooms,
+                                  area: area,
+                                  floor: floor,
+                                  description: description,
+                                ),
+                              ),
+                            ),
+                            icon: const Icon(Icons.directions_walk, size: 17),
+                            label: Text('Visit Now', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.brandColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const ChatScreen(name: 'Jenny Wilson', avatar: 'https://i.pravatar.cc/150?img=47', online: true),
+                                ),
+                              );
+                            },
+                            icon: SvgPicture.asset('assets/icons/message.svg', width: 17, height: 17, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
+                            label: Text('Message', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.brandColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Modern 2BHK Flat', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold)),
-                Row(children: [const Icon(Icons.star, size: 14), const SizedBox(width: 4), Text('4.8', style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold))]),
-              ],
-            ),
-            Text('Baluwatar, Kathmandu', style: GoogleFonts.outfit(color: const Color(0xFF717171), fontSize: 14)),
-            const SizedBox(height: 4),
-            RichText(text: TextSpan(children: [
-              TextSpan(text: 'Rs. 25,000', style: GoogleFonts.outfit(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
-              TextSpan(text: ' / month', style: GoogleFonts.outfit(color: Colors.black, fontSize: 14)),
-            ])),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
