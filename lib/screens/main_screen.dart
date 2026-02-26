@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
+import '../utils/supabase_service.dart';
 import 'home_screen.dart';
 import 'reels_screen.dart';
 import 'messages_screen.dart';
@@ -27,6 +28,13 @@ class _MainScreenState extends State<MainScreen> {
     const MessagesScreen(),
     const ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Magic: Listen for property bookings in real-time
+    SupabaseService.listenToBookingNotifications();
+  }
 
   @override
   Widget build(BuildContext context) {

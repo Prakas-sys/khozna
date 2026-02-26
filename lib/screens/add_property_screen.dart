@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import '../theme/app_theme.dart';
+import '../utils/cloudinary_service.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
@@ -13,6 +16,13 @@ class AddPropertyScreen extends StatefulWidget {
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
   final PageController _pageController = PageController();
+  final ImagePicker _picker = ImagePicker();
+
+  // Form State
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _areaController = TextEditingController();
+  final TextEditingController _landmarkController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
 
   // Location State
   bool _isLocating = false;
@@ -23,6 +33,90 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   String? _selectedCategory = 'Room';
   bool _isNegotiable = true;
   final List<String> _selectedAmenities = [];
+  final List<File> _selectedImages = [];
+  bool _isPublishing = false;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _areaController.dispose();
+    _landmarkController.dispose();
+    _priceController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickImages() async {
+    final List<XFile> images = await _picker.pickMultiImage();
+    if (images.isNotEmpty) {
+      setState(() {
+        _selectedImages.addAll(images.map((x) => File(x.path)));
+      });
+    }
+  }
+
+  Future<void> _publishProperty() async {
+    final client = Supabase.instance.client;
+    final user = client.auth.currentUser;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please login to post a property')),
+      );
+      return;
+    }
+
+    if (_titleController.text.isEmpty || _priceController.text.isEmpty || _selectedImages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields and add at least one photo')),
+      );
+      return;
+    }
+
+    setState(() => _isPublishing = true);
+
+    try {
+      // 1. Insert Property into Supabase
+      final propertyResponse = await client.from('properties').insert({
+        'owner_id': user.id,
+        'title': _titleController.text,
+        'category': _selectedCategory,
+        'area_name': _areaController.text,
+        'landmark': _landmarkController.text,
+        'price': _priceController.text,
+        'is_negotiable': _isNegotiable,
+        'amenities': _selectedAmenities,
+        'latitude': _latitude,
+        'longitude': _longitude,
+        'status': 'available',
+      }).select().single();
+
+      final String propertyId = propertyResponse['id'];
+
+      // 2. Upload images to Cloudinary and save to property_images table
+      for (var file in _selectedImages) {
+        await CloudinaryService.uploadPropertyImage(file, propertyId);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Property published successfully! 🚀'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true); // Return true to indicate success
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Publishing failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPublishing = false);
+    }
+  }
 
   Future<void> _detectLocation() async {
     setState(() => _isLocating = true);
@@ -152,7 +246,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         _categoryCard('जग्गा (Land)', Icons.landscape_outlined, 'Land'),
         const SizedBox(height: 32),
         _buildLabel('विज्ञापनको नाम (Title)', true),
-        _buildTextField('उदा: सानेपामा राम्रो २ कोठा खाली छ'),
+        _buildTextField('उदा: सानेपामा राम्रो २ कोठा खाली छ', controller: _titleController),
       ],
     );
   }
@@ -160,14 +254,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   // --- STEP 2: LOCATION (Nepal Context) ---
   Widget _buildStep2() {
     return _stepLayout(
-      title: 'प्रोपर्टी कहाँ छ?',
+      title: 'प्रोपERTY कहाँ छ?',
       subtitle: 'Accurate location builds trust',
       content: [
         _buildLabel('नगरपालिका / टोल (Area Name)', true),
-        _buildTextField('उदा: ललितपुर, सानेपा-२'),
+        _buildTextField('उदा: ललितपुर, सानेपा-२', controller: _areaController),
         const SizedBox(height: 24),
         _buildLabel('नजिकैको चिनिने ठाउँ (Landmark)', true),
-        _buildTextField('उदा: सिभिल हस्पिटलको पछाडि'),
+        _buildTextField('उदा: सिभिल हस्पिटलको पछाडि', controller: _landmarkController),
         const SizedBox(height: 32),
         
         // MAP INTERACTION
@@ -266,7 +360,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       subtitle: 'Set a fair monthly rent',
       content: [
         _buildLabel('महिनाको जम्मा भाडा (Monthly Rent)', true),
-        _buildTextField('रुपैयाँमा (In Rs.)', prefix: 'रु. '),
+        _buildTextField('रुपैयाँमा (In Rs.)', prefix: 'रु. ', controller: _priceController),
         const SizedBox(height: 24),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -331,20 +425,60 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       title: 'फोटो र भिडियो राख्नुहोस्',
       subtitle: 'Show the real look of your property',
       content: [
+        // PHOTO UPLOAD
+        GestureDetector(
+          onTap: _pickImages,
+          child: _buildMediaUploadBox(
+            icon: Icons.add_a_photo_outlined,
+            title: 'फोटोहरू थप्नुहोस् (Add Photos)',
+            desc: 'कम्तिमा ३ वटा फोटो राख्नु राम्रो हुन्छ।',
+            isBlue: false,
+          ),
+        ),
+        
+        if (_selectedImages.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 100,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _selectedImages.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: const EdgeInsets.only(right: 12),
+                  width: 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    image: DecorationImage(
+                      image: FileImage(_selectedImages[index]),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedImages.removeAt(index)),
+                      child: Container(
+                        margin: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                        child: const Icon(Icons.close, color: Colors.white, size: 16),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+
+        const SizedBox(height: 20),
         // VIDEO UPLOAD (REEL)
         _buildMediaUploadBox(
           icon: Icons.videocam_outlined,
           title: 'भिडियो राख्नुहोस् (Upload Reel)',
           desc: 'भिडियोले ग्राहकलाई छिटो आकर्षित गर्छ।',
           isBlue: true,
-        ),
-        const SizedBox(height: 20),
-        // PHOTO UPLOAD
-        _buildMediaUploadBox(
-          icon: Icons.add_a_photo_outlined,
-          title: 'फोटोहरू थप्नुहोस् (Add Photos)',
-          desc: 'कम्तिमा ३ वटा फोटो राख्नु राम्रो हुन्छ।',
-          isBlue: false,
         ),
         const SizedBox(height: 40),
         Container(
@@ -454,8 +588,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildTextField(String hint, {String? prefix}) {
+  Widget _buildTextField(String hint, {String? prefix, TextEditingController? controller}) {
     return TextFormField(
+      controller: controller,
       decoration: InputDecoration(
         hintText: hint,
         prefixText: prefix,
@@ -475,7 +610,22 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             if (_currentStep > 0)
               Expanded(child: OutlinedButton(onPressed: () => _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut), style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), side: const BorderSide(color: AppTheme.brandColor), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text('पछाडि', style: TextStyle(color: AppTheme.brandColor)))),
             if (_currentStep > 0) const SizedBox(width: 16),
-            Expanded(flex: 2, child: ElevatedButton(onPressed: _currentStep == 4 ? () => Navigator.pop(context) : _nextStep, style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: AppTheme.brandColor, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: Text(_currentStep == 4 ? 'प्रकाशित गर्नुहोस्' : 'अर्को जानुहोस्', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)))),
+            Expanded(
+              flex: 2, 
+              child: ElevatedButton(
+                onPressed: _currentStep == 4 
+                  ? (_isPublishing ? null : _publishProperty) 
+                  : _nextStep, 
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16), 
+                  backgroundColor: AppTheme.brandColor, 
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ), 
+                child: _isPublishing 
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : Text(_currentStep == 4 ? 'प्रकाशित गर्नुहोस्' : 'अर्को जानुहोस्', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
+            ),
           ],
         ),
       ),

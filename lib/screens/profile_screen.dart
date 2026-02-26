@@ -44,28 +44,6 @@ class ProfileScreen extends StatelessWidget {
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const NotificationsScreen(),
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.notifications_none,
-                            color: Colors.black,
-                            size: 22,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF7F7F7),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey[200]!),
-                        ),
-                        child: InkWell(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
                               builder: (context) => const SettingsScreen(),
                             ),
                           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
+import '../utils/supabase_service.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final String id;
@@ -65,16 +66,34 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(icon: const Icon(Icons.share_outlined, color: Colors.black, size: 22), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.favorite_border, color: Colors.black, size: 22), onPressed: () {}),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: CustomScrollView(
         slivers: [
-          _buildSliverAppBar(context),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // VERIFIED BADGE & TITLE
-                _buildHeader(widget.title, widget.location),
+                // IMAGE CAROUSEL (CONTAINED) - MOVED TO TOP
+                _buildContainedCarousel(),
                 const SizedBox(height: 24),
+
+                // VERIFIED BADGE & TITLE - NOW BELOW IMAGE
+                _buildHeader(widget.title, widget.location),
+                const SizedBox(height: 32),
 
                 // PROPERTY STATS (Beds, Baths, Area, Floor)
                 _buildPropertyStats(),
@@ -178,24 +197,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   // --- COMPONENT BUILDERS ---
 
-  Widget _buildSliverAppBar(BuildContext context) {
-    return SliverAppBar(
-      expandedHeight: 380,
-      pinned: true,
-      backgroundColor: Colors.white,
-      elevation: 0,
-      leading: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: CircleAvatar(
-          backgroundColor: Colors.white,
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-            onPressed: () => Navigator.pop(context),
+  Widget _buildContainedCarousel() {
+    return Container(
+      height: 280,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
-        ),
+        ],
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
           children: [
             PageView.builder(
               controller: _pageController,
@@ -205,21 +223,64 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 return Image.network(displayImages[index], fit: BoxFit.cover);
               },
             ),
-            // Image Indicator
+            // Bottom gradient for better contrast
             Positioned(
-              bottom: 20,
-              right: 20,
+              bottom: 0,
+              left: 0,
+              right: 0,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.3),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Dot Indicators
+            Positioned(
+              bottom: 16,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  displayImages.length,
+                  (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    height: 6,
+                    width: _currentImageIndex == index ? 18 : 6,
+                    decoration: BoxDecoration(
+                      color: _currentImageIndex == index 
+                          ? Colors.white 
+                          : Colors.white.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Image Counter Badge
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${_currentImageIndex + 1} / ${displayImages.length}',
+                  '${_currentImageIndex + 1}/${displayImages.length}',
                   style: GoogleFonts.outfit(
                       color: Colors.white,
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.bold),
                 ),
               ),
@@ -227,11 +288,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ],
         ),
       ),
-      actions: [
-        _buildCircleAction(Icons.share_outlined, () {}),
-        _buildCircleAction(Icons.favorite_border, () {}),
-        const SizedBox(width: 10),
-      ],
     );
   }
 
@@ -288,7 +344,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(Icons.location_on_outlined, color: Colors.grey, size: 16),
+            const Icon(Icons.place_outlined, color: Colors.grey, size: 16),
             const SizedBox(width: 4),
             Text(
               location,
@@ -310,12 +366,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(Icons.bed_outlined, '${widget.bedrooms ?? 2}', 'Beds'),
+          _buildStatItem(Icons.bed_outlined, '${widget.bedrooms ?? 1}', 'Bed'),
           _buildStatItem(
-              Icons.bathtub_outlined, '${widget.bathrooms ?? 1}', 'Baths'),
+              Icons.bathtub_outlined, '${widget.bathrooms ?? 1}', 'Bath'),
           _buildStatItem(
-              Icons.square_foot_outlined, widget.area ?? '1200', 'Sq.ft'),
-          _buildStatItem(Icons.layers_outlined, widget.floor ?? '2nd', 'Floor'),
+              Icons.square_foot_outlined, widget.area ?? '450', 'Sq.ft'),
+          _buildStatItem(Icons.layers_outlined, widget.floor ?? '3rd', 'Floor'),
         ],
       ),
     );
@@ -616,48 +672,64 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: SafeArea(
         child: Row(
           children: [
-            // Cancel/Back button
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
+            // Cancel Button
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.outfit(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
                 ),
-                child: const Icon(Icons.close, color: Colors.black87, size: 20),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             // Call Now Button
             Expanded(
               flex: 1,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppTheme.brandColor,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side:
-                        const BorderSide(color: AppTheme.brandColor, width: 1.5),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.phone_rounded, size: 18),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Call Now',
-                      style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                  border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.3), width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ],
+                ),
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: AppTheme.brandColor,
+                    elevation: 0,
+                    shadowColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.phone_rounded, size: 18),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Call',
+                        style: GoogleFonts.outfit(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -682,7 +754,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ],
                 ),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    // Call Supabase Magic
+                    await SupabaseService.bookProperty(widget.id, widget.title);
+                    
                     // Increment Messages badge
                     messageBadgeCount.value += 1;
                     // Show premium notification

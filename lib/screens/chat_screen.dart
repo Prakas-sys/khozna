@@ -18,9 +18,10 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateMixin {
   late ScrollController _scrollController;
   late TextEditingController _messageController;
+  late ScrollController _bannerScrollController;
 
   final List<Map<String, dynamic>> _messages = [];
 
@@ -42,26 +43,48 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     _scrollController = ScrollController();
     _messageController = TextEditingController();
+    _bannerScrollController = ScrollController();
+
+    // Auto-scroll banner animation
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startBannerAnimation();
+    });
 
     // Pre-load owner welcome messages
     _messages.addAll([
       {
-        'text': 'नमस्ते! म ${widget.name} हुँ। खोज्नामा स्वागत छ! 🙏',
+        'text': 'नमस्ते (Namaste) 🙏',
         'isMe': false,
         'time': '10:00 AM',
       },
-      {
-        'text': 'हाम्रो कोठा हाल उपलब्ध छ। तपाईंलाई केही जानकारी चाहिन्छ भने सोध्न सक्नुहुन्छ।',
-        'isMe': false,
-        'time': '10:01 AM',
-      },
     ]);
+  }
+
+  void _startBannerAnimation() async {
+    while (mounted) {
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (_bannerScrollController.hasClients) {
+        final maxScroll = _bannerScrollController.position.maxScrollExtent;
+        if (maxScroll > 0) {
+          await _bannerScrollController.animateTo(
+            maxScroll,
+            duration: Duration(milliseconds: (maxScroll * 40).toInt()),
+            curve: Curves.linear,
+          );
+          await Future.delayed(const Duration(seconds: 1));
+          if (_bannerScrollController.hasClients) {
+            _bannerScrollController.jumpTo(0);
+          }
+        }
+      }
+    }
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     _messageController.dispose();
+    _bannerScrollController.dispose();
     super.dispose();
   }
 
@@ -163,13 +186,12 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           // SAFETY BANNER
           Container(
-            height: 40,
+            height: 36,
             width: double.infinity,
             color: const Color(0xFFFFEBEE),
             child: ListView(
-              controller: _scrollController,
+              controller: _bannerScrollController,
               scrollDirection: Axis.horizontal,
-              physics: const NeverScrollableScrollPhysics(),
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -178,14 +200,14 @@ class _ChatScreenState extends State<ChatScreen> {
                       const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 16),
                       const SizedBox(width: 8),
                       Text(
-                        'अग्रिम पैसा कहिल्यै नपठाउनुहोस्! • Never send advance payment before visiting!',
+                        'अग्रिम पैसा कहिल्यै नपठाउनुहोस्! • Never send advance payment before visiting! • कोठा हेरेर मात्र पैसा दिनुहोला! • Only pay after seeing the room!',
                         style: GoogleFonts.outfit(
                           color: Colors.red[800], 
                           fontWeight: FontWeight.w600, 
                           fontSize: 12
                         ),
                       ),
-                      const SizedBox(width: 60),
+                      const SizedBox(width: 200), // Extra space for smooth loop
                     ],
                   ),
                 ),
@@ -200,14 +222,24 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.chat_bubble_outline, size: 40, color: Colors.grey[300]),
-                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Text(
+                          '🙏',
+                          style: TextStyle(fontSize: 48),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       Text(
-                        'कुराकानी सुरु गर्नुहोस्\nStart a conversation',
-                        textAlign: TextAlign.center,
+                        'नमस्ते (Namaste)',
                         style: GoogleFonts.outfit(
-                          color: Colors.grey[400],
-                          fontSize: 13,
+                          color: AppTheme.brandColor,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -225,7 +257,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
                           color: isMe ? AppTheme.brandColor : Colors.white,
                           borderRadius: BorderRadius.only(
@@ -250,10 +282,10 @@ class _ChatScreenState extends State<ChatScreen> {
                               style: GoogleFonts.outfit(
                                 color: isMe ? Colors.white : Colors.black87,
                                 fontSize: 14,
-                                height: 1.4,
+                                height: 1.3,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             Text(
                               msg['time'],
                               style: GoogleFonts.outfit(
@@ -269,52 +301,39 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
           ),
 
-          // QUICK SUGGESTION CHIPS
+          // GREETING ABOVE INPUT (CLICKABLE)
           Container(
-            color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  const Icon(Icons.auto_awesome, color: AppTheme.brandColor, size: 14),
-                  const SizedBox(width: 6),
-                  ...[
-                    'के यो कोठा अझै खाली छ?',
-                    'कति तला छ?',
-                    'पानी र बिजुली छ?',
-                    'कब देख्न मिल्छ?',
-                    'के पार्किङ छ?',
-                  ].map((suggestion) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _messageController.text = suggestion;
-                          _messageController.selection = TextSelection.fromPosition(
-                            TextPosition(offset: suggestion.length),
-                          );
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppTheme.brandColor.withValues(alpha: 0.07),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.2)),
-                        ),
-                        child: Text(
-                          suggestion,
-                          style: GoogleFonts.outfit(
-                            fontSize: 12,
-                            color: AppTheme.brandColor,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+            color: Colors.transparent,
+            padding: const EdgeInsets.fromLTRB(12, 4, 16, 8),
+            alignment: Alignment.centerRight,
+            child: InkWell(
+              onTap: () {
+                _messageController.text = 'नमस्ते (Namaste) 🙏';
+                _sendMessage();
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppTheme.brandColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.3), width: 1),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'नमस्ते (Namaste)',
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        color: AppTheme.brandColor,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  )),
-                ],
+                    const SizedBox(width: 6),
+                    const Text('🙏', style: TextStyle(fontSize: 18)),
+                  ],
+                ),
               ),
             ),
           ),

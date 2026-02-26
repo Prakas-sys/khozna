@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
+import '../utils/app_notifiers.dart';
+import '../utils/supabase_service.dart';
 import 'property_details_screen.dart';
 import 'search_screen.dart';
 import 'filter_results_screen.dart';
 import 'chat_screen.dart';
+import 'notifications_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -19,40 +22,81 @@ class HomeScreen extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.white,
-        leadingWidth: 90,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 20),
-          child: Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/images/original logo.png',
-                height: 44,
-                fit: BoxFit.contain,
-              ),
-            ),
+        titleSpacing: 20,
+        title: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.asset(
+            'assets/images/original logo.png',
+            height: 40,
+            fit: BoxFit.contain,
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.menu, color: Colors.black, size: 28),
-            onPressed: () {},
+          ValueListenableBuilder<int>(
+            valueListenable: notificationBadgeCount,
+            builder: (context, badgeCount, _) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey.withValues(alpha: 0.05),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.notifications_none_rounded, color: Colors.black87, size: 26),
+                        onPressed: () {
+                          notificationBadgeCount.value = 0;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const NotificationsScreen()),
+                          );
+                        },
+                      ),
+                    ),
+                    if (badgeCount > 0)
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF3B30),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFF3B30).withValues(alpha: 0.3),
+                                blurRadius: 4,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
         ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 100.0),
           child: Column(
             children: [
-              const SizedBox(height: 48),
+              const SizedBox(height: 24), // Reduced from 48
               Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'Find your next Home',
+                      'Find your Next Home',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.outfit(
                         fontSize: 30,
@@ -77,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 60), // Reduced from 110
               GestureDetector(
                 onTap: () => Navigator.push(
                   context,
@@ -121,7 +165,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 40), // Closer spacing between search and listings
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -150,28 +194,71 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                height: 304,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
-                  itemCount: 11,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 16),
-                      child: index == 0
-                          ? _buildModernCard(
-                              context,
-                              '1',
-                              'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-                            )
-                          : _buildSkeletonCard(context),
+              const SizedBox(height: 20),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: Supabase.instance.client.from('properties').select('*, property_images(image_url)').order('created_at', ascending: false),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return SizedBox(
+                      height: 304,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 3,
+                        itemBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: _buildSkeletonCard(context),
+                        ),
+                      ),
                     );
-                  },
-                ),
+                  }
+
+                  final properties = snapshot.data ?? [];
+                  
+                  if (properties.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'No live listings yet.',
+                        style: GoogleFonts.outfit(color: Colors.grey),
+                      ),
+                    );
+                  }
+
+                  return SizedBox(
+                    height: 304,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
+                      itemCount: properties.length,
+                      itemBuilder: (context, index) {
+                        final p = properties[index];
+                        final images = (p['property_images'] as List);
+                        final String mainImage = images.isNotEmpty 
+                            ? images[0]['image_url'] 
+                            : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: _buildModernCard(
+                            context,
+                            p['id'],
+                            mainImage,
+                            p['title'],
+                            p['area_name'],
+                            'रू ${p['price']}',
+                            p['bedrooms'] ?? 0,
+                            p['bathrooms'] ?? 0,
+                            p['sq_ft'] ?? '0',
+                            p['floor'] ?? 'N/A',
+                            p['description'] ?? '',
+                            images.map((i) => i['image_url'].toString()).toList(),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -235,22 +322,36 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildModernCard(BuildContext context, String id, String imageUrl) {
+  Widget _buildModernCard(
+    BuildContext context, 
+    String id, 
+    String imageUrl, 
+    String title, 
+    String location, 
+    String price, 
+    int bedrooms, 
+    int bathrooms, 
+    String area, 
+    String floor, 
+    String description,
+    List<String> images,
+  ) {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const PropertyDetailsScreen(
-            id: '1',
-            imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-            title: 'Modern Apartment in Sanepa',
-            location: 'Sanepa, Lalitpur',
-            price: 'Rs 25,000',
-            bedrooms: 2,
-            bathrooms: 1,
-            area: '1,200',
-            floor: '2nd Floor',
-            description: 'सानेपाको शान्त वातावरणमा अवस्थित यो २ कोठाको फ्ल्याट विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ। उज्यालो कोठाहरू र खुल्ला पार्किङको सुविधा उपलब्ध छ। मुख्य बाटोबाट मात्र ५ मिनेटको दुरीमा। यो फ्ल्याटमा २४ सै घण्टा पानीको सुविधा छ।',
+          builder: (context) => PropertyDetailsScreen(
+            id: id,
+            imageUrl: imageUrl,
+            images: images,
+            title: title,
+            location: location,
+            price: price,
+            bedrooms: bedrooms,
+            bathrooms: bathrooms,
+            area: area,
+            floor: floor,
+            description: description,
           ),
         ),
       ),
@@ -306,7 +407,7 @@ class HomeScreen extends StatelessWidget {
                   Positioned(
                     top: 10,
                     right: 10,
-                    child: const FavouriteButton(),
+                    child: FavouriteButton(propertyId: id),
                   ),
                 ],
               ),
@@ -322,7 +423,7 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Single room for student',
+                            title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.outfit(
@@ -337,7 +438,7 @@ class HomeScreen extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: 'रू 8,000',
+                                text: price,
                                 style: GoogleFonts.outfit(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -364,10 +465,10 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.location_on_outlined, color: AppTheme.brandColor, size: 13),
+                            Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 13),
                             const SizedBox(width: 2),
                             Text(
-                              'Baneshwar, Kathmandu',
+                              location,
                               style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[600]),
                             ),
                           ],
@@ -398,7 +499,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 8),
                     // Action Buttons
                     Row(
                       children: [
@@ -407,28 +508,32 @@ class HomeScreen extends StatelessWidget {
                             onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const PropertyDetailsScreen(
-                                  id: '1',
-                                  imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-                                  title: 'Modern Apartment in Sanepa',
-                                  location: 'Sanepa, Lalitpur',
-                                  price: 'रू 25,000',
-                                  bedrooms: 2,
-                                  bathrooms: 1,
-                                  area: '1,200',
-                                  floor: '2nd Floor',
-                                  description: 'सानेपाको शान्त वातावरणमा अवस्थित यो २ कोठाको फ्ल्याट विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ।',
+                                builder: (context) => PropertyDetailsScreen(
+                                  id: id,
+                                  imageUrl: imageUrl,
+                                  images: images,
+                                  title: title,
+                                  location: location,
+                                  price: price,
+                                  bedrooms: bedrooms,
+                                  bathrooms: bathrooms,
+                                  area: area,
+                                  floor: floor,
+                                  description: description,
                                 ),
                               ),
                             ),
-                            icon: const Icon(Icons.directions_walk, size: 16),
-                            label: Text('Visit Now', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12)),
+                            icon: const Icon(Icons.directions_walk, size: 17),
+                            label: Text('Visit Now', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13.5)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.brandColor,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 9),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               elevation: 0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+                              ),
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
@@ -450,17 +555,20 @@ class HomeScreen extends StatelessWidget {
                             },
                             icon: SvgPicture.asset(
                               'assets/icons/message.svg',
-                              width: 16,
-                              height: 16,
+                              width: 17,
+                              height: 17,
                               colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                             ),
-                            label: Text('Message', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 12)),
+                            label: Text('Message', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13.5)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.brandColor,
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 9),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               elevation: 0,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+                              ),
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
@@ -479,7 +587,8 @@ class HomeScreen extends StatelessWidget {
 }
 
 class FavouriteButton extends StatefulWidget {
-  const FavouriteButton({super.key});
+  final String propertyId;
+  const FavouriteButton({super.key, required this.propertyId});
 
   @override
   State<FavouriteButton> createState() => _FavouriteButtonState();
@@ -491,19 +600,22 @@ class _FavouriteButtonState extends State<FavouriteButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         setState(() {
           isLiked = !isLiked;
         });
+        // Magic: Save to Supabase
+        await SupabaseService.toggleSaveProperty(widget.propertyId);
       },
       child: Icon(
         isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-        size: 28,
+        size: 26,
         color: isLiked ? const Color(0xFFFF385C) : Colors.white,
         shadows: [
           Shadow(
-            color: Colors.black.withValues(alpha: 0.45),
-            blurRadius: 14,
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
