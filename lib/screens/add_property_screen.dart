@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
@@ -58,7 +59,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Future<void> _publishProperty() async {
     final client = Supabase.instance.client;
-    final user = client.auth.currentUser;
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
 
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -79,7 +80,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     try {
       // 1. Insert Property into Supabase
       final propertyResponse = await client.from('properties').insert({
-        'owner_id': user.id,
+        'owner_id': user.uid,
         'title': _titleController.text,
         'category': _selectedCategory,
         'area_name': _areaController.text,

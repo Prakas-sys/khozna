@@ -24,5 +24,8 @@
   "homepage": "https://github.com/Prakas-sys/khozna#readme",
   "devDependencies": {
     "supabase": "^2.76.15"
+  },
+  "dependencies": {
+    "pg": "^8.19.0"
   }
 }

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,6 +11,7 @@ import 'messages_screen.dart';
 import 'add_property_screen.dart';
 import 'kyc_screen.dart';
 import 'profile_screen.dart';
+import 'login_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -34,6 +36,22 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     // Magic: Listen for property bookings in real-time
     SupabaseService.listenToBookingNotifications();
+  }
+
+  void _onTabTapped(int index) {
+    // Auth wall for Messages (2) and Profile (3)
+    if ((index == 2 || index == 3) && FirebaseAuth.instance.currentUser == null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+      return;
+    }
+
+    setState(() {
+      _currentIndex = index;
+    });
+    if (index == 2) messageBadgeCount.value = 0;
   }
 
   @override
@@ -80,7 +98,16 @@ class _MainScreenState extends State<MainScreen> {
                   // Central add button
                   Expanded(
                     child: InkWell(
-                      onTap: () => _showAddPropertyOptions(context),
+                      onTap: () {
+                        if (FirebaseAuth.instance.currentUser == null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const LoginScreen()),
+                          );
+                        } else {
+                          _showAddPropertyOptions(context);
+                        }
+                      },
                       splashColor: Colors.transparent,
                       highlightColor: Colors.transparent,
                       hoverColor: Colors.transparent,
@@ -235,10 +262,7 @@ class _MainScreenState extends State<MainScreen> {
 
     return Expanded(
       child: InkWell(
-        onTap: () {
-          setState(() => _currentIndex = index);
-          if (index == 2) messageBadgeCount.value = 0;
-        },
+        onTap: () => _onTabTapped(index),
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         child: Column(

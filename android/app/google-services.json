@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "543455945266",
+    "project_id": "khozna-746e2",
+    "storage_bucket": "khozna-746e2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:543455945266:android:9795706b72d42449e0122b",
+        "android_client_info": {
+          "package_name": "com.khozna.khozna"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvIPte1alqmcVclVIarq4j_970N18ub1U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

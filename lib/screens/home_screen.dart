@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,9 +11,24 @@ import 'search_screen.dart';
 import 'filter_results_screen.dart';
 import 'chat_screen.dart';
 import 'notifications_screen.dart';
+import 'login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
+  void _checkAuthAndNavigate(BuildContext context, Widget destination) {
+    if (FirebaseAuth.instance.currentUser == null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => destination),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +67,7 @@ class HomeScreen extends StatelessWidget {
                         icon: const Icon(Icons.notifications_none_rounded, color: Colors.black87, size: 26),
                         onPressed: () {
                           notificationBadgeCount.value = 0;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const NotificationsScreen()),
-                          );
+                          _checkAuthAndNavigate(context, const NotificationsScreen());
                         },
                       ),
                     ),
@@ -125,10 +138,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 60), // Reduced from 110
               GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SearchScreen()),
-                ),
+                onTap: () => _checkAuthAndNavigate(context, const SearchScreen()),
                 child: Container(
                   height: 52,
                   padding: const EdgeInsets.only(left: 16, right: 6),

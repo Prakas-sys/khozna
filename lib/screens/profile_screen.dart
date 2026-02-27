@@ -1,5 +1,8 @@
+import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import '../theme/app_theme.dart';
 import 'saved_properties_screen.dart';
 import 'notifications_screen.dart';
@@ -7,10 +10,30 @@ import 'my_listings_screen.dart';
 import 'safety_center_screen.dart';
 import 'kyc_screen.dart';
 import 'settings_screen.dart';
+import 'login_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final bool isVerified;
   const ProfileScreen({super.key, this.isVerified = true});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final User? user = FirebaseAuth.instance.currentUser;
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+      // In a real app, you would upload this to Firebase Storage/Cloudinary here
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,15 +83,41 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
 
-            const CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-              ),
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundColor: AppTheme.brandColor.withValues(alpha: 0.1),
+                  backgroundImage: _imageFile != null
+                      ? FileImage(_imageFile!)
+                      : const NetworkImage(
+                          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+                        ) as ImageProvider,
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: AppTheme.brandColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Text(
-              'John Doe',
+              user?.displayName ?? 'Khozna User',
               style: GoogleFonts.outfit(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -76,7 +125,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             Text(
-              'johndoe@example.com',
+              user?.phoneNumber ?? 'No Phone Linked',
               style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[500]),
             ),
 
@@ -87,12 +136,12 @@ class ProfileScreen extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: isVerified
+                  color: widget.isVerified
                       ? Colors.green.withValues(alpha: 0.05)
                       : Colors.orange.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isVerified
+                    color: widget.isVerified
                         ? Colors.green.withValues(alpha: 0.2)
                         : Colors.orange.withValues(alpha: 0.2),
                   ),
@@ -102,11 +151,11 @@ class ProfileScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isVerified ? Colors.green : Colors.orange,
+                        color: widget.isVerified ? Colors.green : Colors.orange,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        isVerified ? Icons.verified_user : Icons.gpp_maybe,
+                        widget.isVerified ? Icons.verified_user : Icons.gpp_maybe,
                         color: Colors.white,
                         size: 24,
                       ),
@@ -117,24 +166,24 @@ class ProfileScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isVerified
+                            widget.isVerified
                                 ? 'Verified Profile'
                                 : 'Complete Verification',
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: isVerified
+                              color: widget.isVerified
                                   ? Colors.green[800]
                                   : Colors.orange[800],
                             ),
                           ),
                           Text(
-                            isVerified
+                            widget.isVerified
                                 ? 'Your identity is fully verified.'
                                 : 'Verify your ID to build trust.',
                             style: GoogleFonts.outfit(
                               fontSize: 12,
-                              color: isVerified
+                              color: widget.isVerified
                                   ? Colors.green[700]
                                   : Colors.orange[700],
                             ),
@@ -142,7 +191,7 @@ class ProfileScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    if (!isVerified)
+                    if (!widget.isVerified)
                       ElevatedButton(
                         onPressed: () => Navigator.push(
                           context,
@@ -261,7 +310,16 @@ class ProfileScreen extends StatelessWidget {
                     'Log Out',
                     Colors.red,
                     showArrow: false,
-                    onTap: () {},
+                    onTap: () async {
+                      await FirebaseAuth.instance.signOut();
+                      if (context.mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                          (route) => false,
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(height: 100),
                 ],

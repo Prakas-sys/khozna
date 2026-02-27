@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'theme/app_theme.dart';
 import 'utils/security_utils.dart';
 import 'utils/supabase_service.dart';
 import 'screens/login_screen.dart';
+import 'screens/main_screen.dart';
 import 'screens/location_permission_screen.dart';
 
 // Local Notifications Plugin
@@ -24,18 +26,18 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  await Supabase.initialize(
+  await supabase.Supabase.initialize(
     url: 'https://qjpeablwokiuhfaopdbi.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcGVhYmx3b2tpdWhmYW9wZGJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NjkxMjgsImV4cCI6MjA4NzE0NTEyOH0.Sz3K67ClV8ZfgCdabA_cFfh_wa6X-Q-fHylYJ8utTLI',
   );
 
   // Initialize Firebase (Requires google-services.json to be added manually)
   try {
-    // await Firebase.initializeApp();
-    // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    // await _setupNotifications();
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    await _setupNotifications();
   } catch (e) {
-    debugPrint('Firebase not yet configured: $e');
+    debugPrint('Firebase initialization error: $e');
   }
 
   // Pre-load fonts to prevent flickering
@@ -88,30 +90,45 @@ class KhoznaApp extends StatelessWidget {
       title: 'Khozna',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: FutureBuilder<Map<String, dynamic>>(
-        future: _initApp(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              backgroundColor: Colors.white,
-              body: Center(
-                child: CircularProgressIndicator(color: AppTheme.brandColor),
-              ),
-            );
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, authSnapshot) {
+          if (authSnapshot.hasData && authSnapshot.data != null) {
+            // Global Sync: Ensure Firebase user exists in Supabase Profiles
+            SupabaseService.syncUserWithSupabase(authSnapshot.data!);
           }
+          
+          return FutureBuilder<Map<String, dynamic>>(
+            future: _initApp(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  backgroundColor: Colors.white,
+                  body: Center(
+                    child: CircularProgressIndicator(color: AppTheme.brandColor),
+                  ),
+                );
+              }
 
-          if (snapshot.hasData) {
-            final bool isCompromised = snapshot.data!['isCompromised'] ?? false;
-            final bool isLocationGranted = snapshot.data!['isLocationGranted'] ?? false;
+              if (snapshot.hasData) {
+                final bool isCompromised = snapshot.data!['isCompromised'] ?? false;
+                final bool isLocationGranted = snapshot.data!['isLocationGranted'] ?? false;
 
-            if (isCompromised) {
-              return _buildSecurityAlert(context);
-            }
+                if (isCompromised) {
+                  return _buildSecurityAlert(context);
+                }
 
-            return isLocationGranted ? const LoginScreen() : const LocationPermissionScreen();
-          }
+                // If logged in, go to MainScreen directly (skip login/location if already verified)
+                if (authSnapshot.hasData && authSnapshot.data != null) {
+                  return const MainScreen();
+                }
 
-          return const LoginScreen();
+                return isLocationGranted ? const LoginScreen() : const LocationPermissionScreen();
+              }
+
+              return const LoginScreen();
+            },
+          );
         },
       ),
     );

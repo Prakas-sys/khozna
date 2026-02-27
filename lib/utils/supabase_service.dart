@@ -1,12 +1,36 @@
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app_notifiers.dart';
 
 class SupabaseService {
   static final SupabaseClient _client = Supabase.instance.client;
 
+  /// Sync Firebase User to Supabase Profiles table
+  static Future<void> syncUserWithSupabase(firebase_auth.User user) async {
+    try {
+      await _client.rpc('sync_firebase_user', params: {
+        'uid': user.uid,
+        'u_phone': user.phoneNumber ?? '',
+        'u_name': user.displayName ?? 'Khozna User',
+      });
+    } catch (e) {
+      print('Sync Error: $e');
+      // If RPC is not available yet, try standard insert
+      try {
+        await _client.from('profiles').upsert({
+          'id': user.uid,
+          'phone_number': user.phoneNumber,
+          'full_name': user.displayName ?? 'Khozna User',
+        }, onConflict: 'id');
+      } catch (e2) {
+        print('Upsert Fallback Error: $e2');
+      }
+    }
+  }
+
   /// Toggle saving a property for the current user.
   static Future<void> toggleSaveProperty(String propertyId) async {
-    final user = _client.auth.currentUser;
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     try {
@@ -14,14 +38,14 @@ class SupabaseService {
       final response = await _client
           .from('saved_properties')
           .select()
-          .eq('user_id', user.id)
+          .eq('user_id', user.uid)
           .eq('property_id', propertyId)
           .maybeSingle();
 
       if (response == null) {
         // Save it
         await _client.from('saved_properties').insert({
-          'user_id': user.id,
+          'user_id': user.uid,
           'property_id': propertyId,
         });
       } else {
@@ -29,7 +53,7 @@ class SupabaseService {
         await _client
             .from('saved_properties')
             .delete()
-            .eq('user_id', user.id)
+            .eq('user_id', user.uid)
             .eq('property_id', propertyId);
       }
     } catch (e) {
@@ -38,16 +62,12 @@ class SupabaseService {
   }
 
   /// Mark a property as booked.
-  /// In a real app, this would trigger a Database Webhook or Edge Function.
   static Future<void> bookProperty(String propertyId, String title) async {
     try {
       await _client
           .from('properties')
           .update({'status': 'booked'})
           .eq('id', propertyId);
-      
-      // The "Magic": In a real setup, Supabase would now send notifications
-      // to all users who have this propertyId in 'saved_properties'.
     } catch (e) {
       print('Supabase Error: $e');
     }
@@ -138,9 +158,8 @@ class SupabaseService {
   }
 
   /// Listen for real-time booking notifications.
-  /// This simulates receiving a push notification for a saved property.
   static void listenToBookingNotifications() {
-    final user = _client.auth.currentUser;
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     _client
@@ -158,7 +177,7 @@ class SupabaseService {
               final saved = await _client
                   .from('saved_properties')
                   .select()
-                  .eq('user_id', user.id)
+                  .eq('user_id', user.uid)
                   .eq('property_id', propertyId)
                   .maybeSingle();
 
@@ -174,14 +193,14 @@ class SupabaseService {
 
   /// Save the user's FCM Push Token (Digital Mailing Address)
   static Future<void> saveDeviceToken(String token) async {
-    final user = _client.auth.currentUser;
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     try {
       // Save it to 'fcm_token' column in profiles table
       await _client.from('profiles').update({
         'fcm_token': token,
-      }).eq('id', user.id);
+      }).eq('id', user.uid);
     } catch (e) {
       print('Error saving FCM Token: $e');
     }
