@@ -389,7 +389,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: GoogleFonts.outfit(fontSize: 15),
                                 cursorColor: AppTheme.brandColor,
                                 decoration: InputDecoration(
-                                  hintText: 'Mobile number',
+                                  hintText: 'Enter mobile number',
                                   hintStyle: TextStyle(
                                     color: Colors.grey[500],
                                     fontSize: 14,
@@ -408,70 +408,81 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 14),
 
-                    // Terms Container (Compact)
-                    Container(
+                    // Terms Container (Highlightable if missed)
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
+                        horizontal: 12,
+                        vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.transparent, // Removed background to look cleaner
+                        color: !_agreeToTerms && _isLoading ? Colors.red.withValues(alpha: 0.05) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: !_agreeToTerms && _isLoading ? Colors.redAccent : Colors.transparent,
+                          width: 1,
+                        ),
                       ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 20, // Smaller checkbox area
-                            width: 20,
-                            child: Checkbox(
-                              value: _agreeToTerms,
-                              onChanged: (v) =>
-                                  setState(() => _agreeToTerms = v ?? false),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              side: BorderSide(
-                                color: Colors.grey[400]!,
-                                width: 1.2,
-                              ),
-                              activeColor: AppTheme.brandColor,
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: RichText(
-                              text: TextSpan(
-                                style: GoogleFonts.outfit(
-                                  fontSize: 11, // Smaller font
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w400,
+                      child: InkWell(
+                        onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: Checkbox(
+                                value: _agreeToTerms,
+                                onChanged: (v) =>
+                                    setState(() => _agreeToTerms = v ?? false),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
-                                children: const [
-                                  TextSpan(text: 'I agree to the '),
-                                  TextSpan(
-                                    text: 'Terms of Service',
-                                    style: TextStyle(
-                                      color: AppTheme.brandColor,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  TextSpan(text: ' and '),
-                                  TextSpan(
-                                    text: 'Privacy Policy',
-                                    style: TextStyle(
-                                      color: AppTheme.brandColor,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
+                                side: BorderSide(
+                                  color: !_agreeToTerms && _isLoading ? Colors.redAccent : Colors.grey[400]!,
+                                  width: 1.5,
+                                ),
+                                activeColor: AppTheme.brandColor,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: RichText(
+                                text: TextSpan(
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 13,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  children: [
+                                    const TextSpan(text: 'I agree to the '),
+                                    TextSpan(
+                                      text: 'Terms of Service',
+                                      style: TextStyle(
+                                        color: AppTheme.brandColor,
+                                        fontWeight: FontWeight.w700,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                    const TextSpan(text: ' and '),
+                                    TextSpan(
+                                      text: 'Privacy Policy',
+                                      style: TextStyle(
+                                        color: AppTheme.brandColor,
+                                        fontWeight: FontWeight.w700,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),

@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'theme/app_theme.dart';
 import 'utils/security_utils.dart';
 import 'utils/supabase_service.dart';
@@ -24,18 +25,25 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  
+  debugPrint('--- APP STARTING ---');
   
   await supabase.Supabase.initialize(
     url: 'https://qjpeablwokiuhfaopdbi.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcGVhYmx3b2tpdWhmYW9wZGJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NjkxMjgsImV4cCI6MjA4NzE0NTEyOH0.Sz3K67ClV8ZfgCdabA_cFfh_wa6X-Q-fHylYJ8utTLI',
   );
+  debugPrint('--- SUPABASE INITIALIZED ---');
 
-  // Initialize Firebase (Requires google-services.json to be added manually)
+  // Initialize Firebase
   try {
+    debugPrint('--- INITIALIZING FIREBASE ---');
     await Firebase.initializeApp();
+    debugPrint('--- FIREBASE INITIALIZED ---');
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await _setupNotifications();
+    debugPrint('--- NOTIFICATIONS SETUP COMPLETE ---');
   } catch (e) {
     debugPrint('Firebase initialization error: $e');
   }
@@ -49,22 +57,17 @@ void main() async {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
+  
   runApp(const KhoznaApp());
 }
 
 Future<void> _setupNotifications() async {
   final messaging = FirebaseMessaging.instance;
-  
-  // Request Notification Permissions
   await messaging.requestPermission(alert: true, badge: true, sound: true);
-
-  // Get and Save Push Token
   final token = await messaging.getToken();
   if (token != null) {
     await SupabaseService.saveDeviceToken(token);
   }
-
-  // Handle Foreground Messages
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     RemoteNotification? notification = message.notification;
     if (notification != null) {
@@ -81,87 +84,86 @@ void _showLocalNotification(String title, String body) async {
   await flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
 }
 
-class KhoznaApp extends StatelessWidget {
+class KhoznaApp extends StatefulWidget {
   const KhoznaApp({super.key});
 
   @override
+  State<KhoznaApp> createState() => _KhoznaAppState();
+}
+
+class _KhoznaAppState extends State<KhoznaApp> {
+  bool _isInitializing = true;
+  bool _isCompromised = false;
+  bool _isLocationGranted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // REMOVE SPLASH IMMEDIATELY FOR TESTING
+    FlutterNativeSplash.remove();
+    _initApp();
+  }
+
+  Future<void> _initApp() async {
+    debugPrint('--- _initApp START ---');
+    
+    // 1. Skip security check for now
+    _isCompromised = false;
+    
+    // 2. Fast Check location
+    try {
+      final status = await Permission.location.status;
+      _isLocationGranted = status.isGranted;
+    } catch (e) {
+      debugPrint('Location check error: $e');
+    }
+
+    if (mounted) {
+      setState(() {
+        _isInitializing = false;
+      });
+    }
+    debugPrint('--- _initApp END ---');
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isInitializing) {
+      return Container(color: Colors.white); // Keep splash or white while initializing
+    }
+
+    if (_isCompromised) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: _buildSecurityAlert(context),
+      );
+    }
+
     return MaterialApp(
       title: 'Khozna',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, authSnapshot) {
-          if (authSnapshot.hasData && authSnapshot.data != null) {
-            // Global Sync: Ensure Firebase user exists in Supabase Profiles
-            SupabaseService.syncUserWithSupabase(authSnapshot.data!);
+        builder: (context, snapshot) {
+          // If auth state is initializing, show nothing or splash
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.brandColor)));
           }
+
+          final User? user = snapshot.data;
           
-          return FutureBuilder<Map<String, dynamic>>(
-            future: _initApp(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  backgroundColor: Colors.white,
-                  body: Center(
-                    child: CircularProgressIndicator(color: AppTheme.brandColor),
-                  ),
-                );
-              }
-
-              if (snapshot.hasData) {
-                final bool isCompromised = snapshot.data!['isCompromised'] ?? false;
-                final bool isLocationGranted = snapshot.data!['isLocationGranted'] ?? false;
-
-                if (isCompromised) {
-                  return _buildSecurityAlert(context);
-                }
-
-                // If logged in, go to MainScreen directly (skip login/location if already verified)
-                if (authSnapshot.hasData && authSnapshot.data != null) {
-                  return const MainScreen();
-                }
-
-                return isLocationGranted ? const LoginScreen() : const LocationPermissionScreen();
-              }
-
-              return const LoginScreen();
-            },
-          );
+          if (user != null) {
+            // User is logged in
+            SupabaseService.syncUserWithSupabase(user);
+            return const MainScreen();
+          } else {
+            // User is NOT logged in
+            return _isLocationGranted ? const LoginScreen() : const LocationPermissionScreen();
+          }
         },
       ),
     );
-  }
-
-  Future<Map<String, dynamic>> _initApp() async {
-    // 1. Check for compromised device (Mr. Robot protection)
-    bool isCompromised = await SecurityUtils.isDeviceCompromised();
-    
-    // 2. Check location permission
-    final status = await Permission.location.status;
-
-    // 3. Pre-fetch the specific fonts used on the Login screen
-    // This caches them before the Login screen is even built.
-    await Future.wait([
-      _loadFont(GoogleFonts.playfairDisplay().fontFamily),
-      _loadFont(GoogleFonts.zenAntiqueSoft().fontFamily),
-      _loadFont(GoogleFonts.outfit().fontFamily),
-    ]);
-    
-    // Tiny extra delay to ensure rendering engine is ready
-    await Future.delayed(const Duration(milliseconds: 200));
-    
-    return {
-      'isCompromised': isCompromised,
-      'isLocationGranted': status.isGranted,
-    };
-  }
-
-  Future<void> _loadFont(String? fontFamily) async {
-    if (fontFamily != null) {
-      await FontLoader(fontFamily).load();
-    }
   }
 
   Widget _buildSecurityAlert(BuildContext context) {

@@ -23,34 +23,91 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+        scrolledUnderElevation: 0,
+        leadingWidth: 70,
+        leading: Container(
+          margin: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
           decoration: BoxDecoration(
-            color: const Color(0xFFF7F7F7),
-            borderRadius: BorderRadius.circular(30),
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.grey.shade200),
           ),
-          child: TextField(
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: 'Where are you looking?',
-              hintStyle: GoogleFonts.outfit(color: airbnbGrey, fontSize: 14),
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              prefixIcon: const Icon(Icons.search, size: 20, color: AppTheme.brandColor),
-            ),
+          child: IconButton(
+            icon: const Icon(Icons.close_rounded, color: Colors.black, size: 20),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
+        title: Text(
+          'Search Filters',
+          style: GoogleFonts.outfit(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Premium Search CTA in Body
+            Hero(
+              tag: 'search_bar',
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  height: 60,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: AppTheme.brandColor.withValues(alpha: 0.15),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.brandColor.withValues(alpha: 0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search_rounded, color: AppTheme.brandColor, size: 24),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          autofocus: true,
+                          style: GoogleFonts.outfit(fontSize: 16),
+                          decoration: InputDecoration(
+                            hintText: 'Where are you looking?',
+                            hintStyle: GoogleFonts.outfit(
+                              color: Colors.grey[400],
+                              fontSize: 15,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.location_on_rounded, color: AppTheme.brandColor, size: 20),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
             Text('Price Range (भाडाको सीमा)', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             Container(

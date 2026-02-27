@@ -39,8 +39,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onTabTapped(int index) {
-    // Auth wall for Messages (2) and Profile (3)
-    if ((index == 2 || index == 3) && FirebaseAuth.instance.currentUser == null) {
+    // strict Auth Wall: No guest access to any tab
+    if (FirebaseAuth.instance.currentUser == null) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),

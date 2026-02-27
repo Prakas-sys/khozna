@@ -136,48 +136,80 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 60), // Reduced from 110
-              GestureDetector(
-                onTap: () => _checkAuthAndNavigate(context, const SearchScreen()),
-                child: Container(
-                  height: 52,
-                  padding: const EdgeInsets.only(left: 16, right: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
+              const SizedBox(height: 30), // Balanced spacing
+              Hero(
+                tag: 'search_bar',
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => _checkAuthAndNavigate(context, const SearchScreen()),
                     borderRadius: BorderRadius.circular(30),
-                   boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 12,
-                        offset: const Offset(0, -4),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.search, color: AppTheme.brandColor, size: 24),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Search properties',
-                          style: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 16),
+                    child: Container(
+                      height: 56, // Slightly taller for premium feel
+                      padding: const EdgeInsets.only(left: 20, right: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: AppTheme.brandColor.withValues(alpha: 0.1),
+                          width: 1.5,
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.brandColor.withValues(alpha: 0.08),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(color: AppTheme.brandColor, shape: BoxShape.circle),
-                        child: const Icon(Icons.mic, color: Colors.white, size: 20),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.search_rounded, color: AppTheme.brandColor, size: 26),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              'Search by location or property...',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.outfit(
+                                color: Colors.grey[500],
+                                fontSize: 15,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [AppTheme.brandColor, AppTheme.brandColor.withValues(alpha: 0.8)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.brandColor.withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(Icons.mic_none_rounded, color: Colors.white, size: 20),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 40), // Closer spacing between search and listings
+              const SizedBox(height: 32), // Cleaner transition to verified listings
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -187,13 +219,11 @@ class HomeScreen extends StatelessWidget {
                   ),
                   InkWell(
                     onTap: () {
-                      Navigator.push(
+                      _checkAuthAndNavigate(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const FilterResultsScreen(
-                            location: 'Verified Listings',
-                            priceRange: 'Top Rated Properties',
-                          ),
+                        const FilterResultsScreen(
+                          location: 'Verified Listings',
+                          priceRange: 'Top Rated Properties',
                         ),
                       );
                     },
@@ -356,22 +386,20 @@ class HomeScreen extends StatelessWidget {
     List<String> images,
   ) {
     return GestureDetector(
-      onTap: () => Navigator.push(
+      onTap: () => _checkAuthAndNavigate(
         context,
-        MaterialPageRoute(
-          builder: (context) => PropertyDetailsScreen(
-            id: id,
-            imageUrl: imageUrl,
-            images: images,
-            title: title,
-            location: location,
-            price: price,
-            bedrooms: bedrooms,
-            bathrooms: bathrooms,
-            area: area,
-            floor: floor,
-            description: description,
-          ),
+        PropertyDetailsScreen(
+          id: id,
+          imageUrl: imageUrl,
+          images: images,
+          title: title,
+          location: location,
+          price: price,
+          bedrooms: bedrooms,
+          bathrooms: bathrooms,
+          area: area,
+          floor: floor,
+          description: description,
         ),
       ),
       child: Container(
@@ -524,22 +552,20 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () => Navigator.push(
+                            onPressed: () => _checkAuthAndNavigate(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => PropertyDetailsScreen(
-                                  id: id,
-                                  imageUrl: imageUrl,
-                                  images: images,
-                                  title: title,
-                                  location: location,
-                                  price: price,
-                                  bedrooms: bedrooms,
-                                  bathrooms: bathrooms,
-                                  area: area,
-                                  floor: floor,
-                                  description: description,
-                                ),
+                              PropertyDetailsScreen(
+                                id: id,
+                                imageUrl: imageUrl,
+                                images: images,
+                                title: title,
+                                location: location,
+                                price: price,
+                                bedrooms: bedrooms,
+                                bathrooms: bathrooms,
+                                area: area,
+                                floor: floor,
+                                description: description,
                               ),
                             ),
                             icon: const Icon(Icons.directions_walk, size: 17),
@@ -560,18 +586,14 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const ChatScreen(
-                                    name: 'Jenny Wilson',
-                                    avatar: 'https://i.pravatar.cc/150?img=47',
-                                    online: true,
-                                  ),
-                                ),
-                              );
-                            },
+                            onPressed: () => _checkAuthAndNavigate(
+                              context,
+                              const ChatScreen(
+                                name: 'Jenny Wilson',
+                                avatar: 'https://i.pravatar.cc/150?img=47',
+                                online: true,
+                              ),
+                            ),
                             icon: SvgPicture.asset(
                               'assets/icons/message.svg',
                               width: 17,
@@ -620,6 +642,13 @@ class _FavouriteButtonState extends State<FavouriteButton> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
+        if (FirebaseAuth.instance.currentUser == null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+          return;
+        }
         setState(() {
           isLiked = !isLiked;
         });
