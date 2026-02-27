@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
@@ -192,6 +193,58 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
+      );
+    }
+  }
+
+  Future<void> _signInWithFacebook() async {
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please agree to terms to continue', style: GoogleFonts.outfit()),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final LoginResult result = await FacebookAuth.instance.login(
+        permissions: ['public_profile', 'email'],
+      );
+
+      if (result.status == LoginStatus.success) {
+        final OAuthCredential credential = FacebookAuthProvider.credential(result.accessToken!.tokenString);
+        final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+        
+        if (userCredential.user != null) {
+          await SupabaseService.syncUserWithSupabase(userCredential.user!);
+          if (mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const MainScreen()),
+              (route) => false,
+            );
+          }
+        }
+      } else if (result.status == LoginStatus.cancelled) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Facebook login cancelled')),
+        );
+      } else {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Facebook login failed: ${result.message}')),
+        );
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred during Facebook login: $e')),
       );
     }
   }
@@ -611,7 +664,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: InkWell(
-                            onTap: () {},
+                            onTap: _isLoading ? null : _signInWithFacebook,
                             borderRadius: BorderRadius.circular(16),
                             child: Container(
                               height: 52,

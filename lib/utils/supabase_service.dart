@@ -21,6 +21,8 @@ class SupabaseService {
           'id': user.uid,
           'phone_number': user.phoneNumber,
           'full_name': user.displayName ?? 'Khozna User',
+          'email': user.email,
+          'avatar_url': user.photoURL,
         }, onConflict: 'id');
       } catch (e2) {
         print('Upsert Fallback Error: $e2');
