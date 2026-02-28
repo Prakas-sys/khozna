@@ -91,10 +91,10 @@ class HomeScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 40.0), // Reduced from 120.0 to sit "just above" nav bar
+          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 40.0), // Reduced for compact layout
           child: Column(
             children: [
-              const SizedBox(height: 32), // Increased from 16 to move everything down further
+              const SizedBox(height: 12), // Reduced to bring content to the top
               Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -125,7 +125,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 120), // Increased from 80 to move content down
+              const SizedBox(height: 60), // Reduced to move content up
               GestureDetector(
                 onTap: () => _checkAuthAndNavigate(context, const SearchScreen()),
                 child: Container(
@@ -174,7 +174,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 50), // Increased from 40
+              const SizedBox(height: 30), // Reduced to move cards up
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -209,7 +209,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 24), // Increased from 20
+              const SizedBox(height: 16), // Reduced to keep it tight
               FutureBuilder<List<Map<String, dynamic>>>(
                 future: Supabase.instance.client.from('properties').select('*, property_images(image_url)').order('created_at', ascending: false),
                 builder: (context, snapshot) {
