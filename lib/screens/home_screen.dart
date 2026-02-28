@@ -91,7 +91,7 @@ class HomeScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 30.0), // sits "just above" navigation
+          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 28.0), // tweaked to 28 to be close but "not touch"
           child: Column(
             children: [
               const SizedBox(height: 32), // moved up slightly from 48
@@ -209,7 +209,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16), // Reduced to keep it tight
+              const SizedBox(height: 18), // Increased to 18 for "just 1 number" below listings
               FutureBuilder<List<Map<String, dynamic>>>(
                 future: Supabase.instance.client.from('properties').select('*, property_images(image_url)').order('created_at', ascending: false),
                 builder: (context, snapshot) {
