@@ -357,18 +357,33 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => _processKyc(kyc['id'], kyc['user_id'], 'verified'),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                              child: const Text('Approve', style: TextStyle(color: Colors.white)),
+                            child: Container(
+                              height: 44,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                gradient: const LinearGradient(colors: [Colors.green, Color(0xFF27AE60)]),
+                                boxShadow: [BoxShadow(color: Colors.green.withValues(alpha: 0.2), blurRadius: 6, offset: const Offset(0, 3))],
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () => _processKyc(kyc['id'], kyc['user_id'], 'verified'),
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, padding: EdgeInsets.zero),
+                                child: const Text('Approve', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => _showRejectDialog(kyc['id'], kyc['user_id']),
-                              style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-                              child: const Text('Reject'),
+                            child: SizedBox(
+                              height: 44,
+                              child: OutlinedButton(
+                                onPressed: () => _showRejectDialog(kyc['id'], kyc['user_id']),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                  side: const BorderSide(color: Colors.red, width: 1.5),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                                child: const Text('Reject', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
                             ),
                           ),
                         ],

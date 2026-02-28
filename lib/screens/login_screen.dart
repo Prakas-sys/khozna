@@ -5,6 +5,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../utils/supabase_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/security_utils.dart';
 import 'main_screen.dart';
@@ -61,21 +62,43 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              if (bossPhone.text == '9705278379' && bossPass.text == 'Khozna@Success') {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const OwnerDashboard()),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invalid Credentials')),
-                );
-              }
-            },
-            child: const Text('Unlock Dashboard'),
+          Container(
+            width: double.infinity,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF00B4F5), AppTheme.brandColor],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.brandColor.withValues(alpha: 0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                if (bossPhone.text == '9705278379' && bossPass.text == 'Khozna@Success') {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const OwnerDashboard()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Invalid Credentials')),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              ),
+              child: const Text('Unlock Dashboard', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
           ),
         ],
       ),
@@ -218,7 +241,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (result.status == LoginStatus.success) {
-        final OAuthCredential credential = FacebookAuthProvider.credential(result.accessToken!.tokenString);
+        final OAuthCredential credential = FacebookAuthProvider.credential(result.accessToken!.token);
         final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
         
         if (userCredential.user != null) {
@@ -265,15 +288,14 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) {
-        setState(() => _isLoading = false);
-        return;
-      }
+      final googleSignIn = GoogleSignIn.instance;
+      final googleUser = await googleSignIn.authenticate();
+      
+      final googleAuth = googleUser.authentication;
+      final googleAuthz = await googleUser.authorizationClient.authorizeScopes(const []);
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuthz.accessToken,
         idToken: googleAuth.idToken,
       );
 
@@ -290,10 +312,12 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } catch (e) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred during Google login: $e')),
-      );
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred during Google login: $e')),
+        );
+      }
     }
   }
 

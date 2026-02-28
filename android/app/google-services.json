@@ -12,7 +12,20 @@
           "package_name": "com.khozna.khozna"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "543455945266-ag5btp1k0vlkavf1jgiadce440cvak94.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.khozna.khozna",
+            "certificate_hash": "a5d5a0317743b10a65c1058c9471e9e905b6dbd5"
+          }
+        },
+        {
+          "client_id": "543455945266-ospb11mcl3ghpkrd8cnv6phs3l0hatt6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAvIPte1alqmcVclVIarq4j_970N18ub1U"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "543455945266-ospb11mcl3ghpkrd8cnv6phs3l0hatt6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

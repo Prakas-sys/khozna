@@ -58,37 +58,24 @@ class HomeScreen extends StatelessWidget {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.withValues(alpha: 0.05),
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.notifications_none_rounded, color: Colors.black87, size: 26),
-                        onPressed: () {
-                          notificationBadgeCount.value = 0;
-                          _checkAuthAndNavigate(context, const NotificationsScreen());
-                        },
-                      ),
+                    IconButton(
+                      icon: const Icon(Icons.notifications_none_rounded, color: Colors.black87, size: 26),
+                      onPressed: () {
+                        notificationBadgeCount.value = 0;
+                        _checkAuthAndNavigate(context, const NotificationsScreen());
+                      },
                     ),
                     if (badgeCount > 0)
                       Positioned(
-                        top: 12,
+                        top: 10,
                         right: 12,
                         child: Container(
-                          width: 10,
-                          height: 10,
+                          width: 8,
+                          height: 8,
                           decoration: BoxDecoration(
                             color: const Color(0xFFFF3B30),
                             shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFFFF3B30).withValues(alpha: 0.3),
-                                blurRadius: 4,
-                                spreadRadius: 1,
-                              ),
-                            ],
+                            border: Border.all(color: Colors.white, width: 1.5),
                           ),
                         ),
                       ),
@@ -102,10 +89,10 @@ class HomeScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 100.0),
+          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 120.0),
           child: Column(
             children: [
-              const SizedBox(height: 24), // Reduced from 48
+              const SizedBox(height: 16), // Reduced from 24
               Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -113,30 +100,30 @@ class HomeScreen extends StatelessWidget {
                     Text(
                       'Find your Next Home',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
                         color: Colors.black,
-                        height: 1.1,
+                        height: 1.2,
                         letterSpacing: -0.5,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       'No Middleman',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 34,
+                        fontWeight: FontWeight.w800,
                         color: AppTheme.brandColor,
                         height: 1.1,
-                        letterSpacing: -0.5,
+                        letterSpacing: -0.6,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 110), // Restored to 110 for perfect spacing
+              const SizedBox(height: 80), // Reduced from 110 to bring content up
               GestureDetector(
                 onTap: () => _checkAuthAndNavigate(context, const SearchScreen()),
                 child: Container(
@@ -185,13 +172,17 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Verified Listings',
-                    style: GoogleFonts.outfit(fontSize: 21, fontWeight: FontWeight.bold, color: Colors.black87),
+                  Row(
+                    children: [
+                      Text(
+                        'Verified Listings',
+                        style: GoogleFonts.plusJakartaSans(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.black87, letterSpacing: -0.2),
+                      ),
+                    ],
                   ),
                   InkWell(
                     onTap: () {
@@ -631,17 +622,17 @@ class _FavouriteButtonState extends State<FavouriteButton> {
         // Magic: Save to Supabase
         await SupabaseService.toggleSaveProperty(widget.propertyId);
       },
-      child: Icon(
-        isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-        size: 26,
-        color: isLiked ? const Color(0xFFFF385C) : Colors.white,
-        shadows: [
-          Shadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+      child: Container(
+        padding: const EdgeInsets.all(7),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+          size: 22,
+          color: isLiked ? const Color(0xFFFF385C) : Colors.white,
+        ),
       ),
     );
   }

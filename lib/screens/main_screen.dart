@@ -40,13 +40,7 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onTabTapped(int index) {
     // strict Auth Wall: No guest access to any tab
-    if (FirebaseAuth.instance.currentUser == null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-      return;
-    }
+    // Removed mandatory Auth Wall for guest exploration
 
     setState(() {
       _currentIndex = index;
@@ -99,14 +93,8 @@ class _MainScreenState extends State<MainScreen> {
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        if (FirebaseAuth.instance.currentUser == null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
-                          );
-                        } else {
-                          _showAddPropertyOptions(context);
-                        }
+                        // Guest users can now see posting options
+                        _showAddPropertyOptions(context);
                       },
                       splashColor: Colors.transparent,
                       highlightColor: Colors.transparent,
