@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
 import '../utils/supabase_service.dart';
+import '../widgets/favourite_button.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final String id;
@@ -77,7 +78,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ),
         actions: [
           IconButton(icon: const Icon(Icons.share_outlined, color: Colors.black, size: 22), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.favorite_border, color: Colors.black, size: 22), onPressed: () {}),
+          FavouriteButton(
+            propertyId: widget.id,
+            size: 24,
+            color: Colors.black,
+            showShadow: false,
+          ),
           const SizedBox(width: 8),
         ],
       ),

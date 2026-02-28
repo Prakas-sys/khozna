@@ -261,27 +261,26 @@ class _KycScreenState extends State<KycScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'Verify Your Identity (पहचान',
+                      'Verify Your Identity',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 20,
+                        fontSize: 22,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                         letterSpacing: -0.5,
                       ),
                       textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(height: 2),
                     Text(
-                      'प्रमाणित गर्नुहोस्)',
+                      '(पहचान प्रमाणित गर्नुहोस्)',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white.withValues(alpha: 0.95),
+                        letterSpacing: -0.2,
                         height: 1.1,
                       ),
                       textAlign: TextAlign.center,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -413,6 +412,26 @@ class _KycScreenState extends State<KycScreen> {
             ),
           ),
         ),
+        if (_latitude == null) ...[
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Row(
+              children: [
+                const Icon(Icons.touch_app, color: Color(0xFF00B4F5), size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  'Click here to verify (यहाँ क्लिक गर्नुहोस्)',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    color: const Color(0xFF00B4F5),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
     );
   }

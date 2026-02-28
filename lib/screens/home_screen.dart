@@ -9,7 +9,8 @@ import '../utils/supabase_service.dart';
 import 'property_details_screen.dart';
 import 'search_screen.dart';
 import 'filter_results_screen.dart';
-import 'chat_screen.dart';
+import 'kyc_screen.dart';
+import '../widgets/favourite_button.dart';
 import 'notifications_screen.dart';
 import 'login_screen.dart';
 
@@ -598,46 +599,3 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class FavouriteButton extends StatefulWidget {
-  final String propertyId;
-  const FavouriteButton({super.key, required this.propertyId});
-
-  @override
-  State<FavouriteButton> createState() => _FavouriteButtonState();
-}
-
-class _FavouriteButtonState extends State<FavouriteButton> {
-  bool isLiked = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        if (FirebaseAuth.instance.currentUser == null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-          );
-          return;
-        }
-        setState(() {
-          isLiked = !isLiked;
-        });
-        // Magic: Save to Supabase
-        await SupabaseService.toggleSaveProperty(widget.propertyId);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(7),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-          size: 22,
-          color: isLiked ? const Color(0xFFFF385C) : Colors.white,
-        ),
-      ),
-    );
-  }
-}

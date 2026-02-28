@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import 'property_details_screen.dart';
+import '../widgets/favourite_button.dart';
 
 class SavedPropertiesScreen extends StatelessWidget {
   const SavedPropertiesScreen({super.key});
@@ -87,16 +88,9 @@ class SavedPropertiesScreen extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 16,
-                  right: 16,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.favorite, size: 20, color: Colors.red),
-                  ),
+                  top: 8,
+                  right: 8,
+                  child: FavouriteButton(propertyId: id),
                 ),
               ],
             ),
