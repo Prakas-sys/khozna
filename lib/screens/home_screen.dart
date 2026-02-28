@@ -174,7 +174,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 38), // Shifted down a little from 30
+              const SizedBox(height: 34), // Nudged up from 38 for final balance
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -425,7 +425,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   // Favourite button
                   Positioned(
-                    top: 10,
+                    top: 8, // Nudged up from 10
                     right: 10,
                     child: FavouriteButton(propertyId: id),
                   ),
