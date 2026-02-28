@@ -91,10 +91,10 @@ class HomeScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 40.0), // Reduced for compact layout
+          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 30.0), // sits "just above" navigation
           child: Column(
             children: [
-              const SizedBox(height: 12), // Reduced to bring content to the top
+              const SizedBox(height: 32), // moved up slightly from 48
               Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -125,7 +125,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 60), // Reduced to move content up
+              const SizedBox(height: 80), // moved up from 110 for better balance
               GestureDetector(
                 onTap: () => _checkAuthAndNavigate(context, const SearchScreen()),
                 child: Container(
