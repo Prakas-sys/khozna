@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
@@ -177,17 +178,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
                   letterSpacing: 0.2,
                 ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                reel['description'],
-                style: GoogleFonts.outfit(
-                  color: Colors.white.withValues(alpha: 0.85),
-                  fontSize: 14,
-                  height: 1.3,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
               const SizedBox(height: 22),
               
               // Action Buttons Row - Visual Upgrade
@@ -264,13 +254,19 @@ class _ReelsScreenState extends State<ReelsScreen> {
   Widget _buildModernAction({required IconData icon, required String label, required Color color}) {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.25),
-            shape: BoxShape.circle,
+        ClipOval(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+              ),
+              child: Icon(icon, color: color, size: 26),
+            ),
           ),
-          child: Icon(icon, color: color, size: 26),
         ),
         const SizedBox(height: 5),
         Text(

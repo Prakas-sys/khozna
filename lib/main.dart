@@ -50,6 +50,14 @@ void main() async {
 
   // Pre-load fonts to prevent flickering
   GoogleFonts.config.allowRuntimeFetching = true;
+  // Start pre-fetching key fonts
+  Future.wait([
+    GoogleFonts.pendingFonts([
+      GoogleFonts.outfit(),
+      GoogleFonts.playfairDisplay(),
+      GoogleFonts.zenAntiqueSoft(),
+    ]),
+  ]);
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -99,8 +107,6 @@ class _KhoznaAppState extends State<KhoznaApp> {
   @override
   void initState() {
     super.initState();
-    // REMOVE SPLASH IMMEDIATELY FOR TESTING
-    FlutterNativeSplash.remove();
     _initApp();
   }
 
@@ -143,10 +149,17 @@ class _KhoznaAppState extends State<KhoznaApp> {
       title: 'Khozna',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      builder: (context, child) {
+        // Remove splash once the first frame of the authenticated/unauthenticated screen is ready
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          FlutterNativeSplash.remove();
+        });
+        return child!;
+      },
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
-          // If auth state is initializing, show nothing or splash
+          // If auth state is initializing, show nothing or splash (it's still visible)
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.brandColor)));
           }
