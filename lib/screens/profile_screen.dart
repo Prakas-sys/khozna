@@ -87,12 +87,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundColor: AppTheme.brandColor.withValues(alpha: 0.1),
-                  backgroundImage: _imageFile != null
-                      ? FileImage(_imageFile!)
-                      : const NetworkImage(
-                          'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-                        ) as ImageProvider,
+                  backgroundColor: Colors.grey[200],
+                  child: _imageFile != null
+                      ? ClipOval(child: Image.file(_imageFile!, width: 100, height: 100, fit: BoxFit.cover))
+                      : Icon(Icons.person, size: 50, color: Colors.grey[400]),
                 ),
                 Positioned(
                   bottom: 0,
@@ -168,7 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(
                             widget.isVerified
                                 ? 'Verified Profile'
-                                : 'Complete Verification',
+                                : 'Unverified Profile',
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
@@ -180,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(
                             widget.isVerified
                                 ? 'Your identity is fully verified.'
-                                : 'Verify your ID to build trust.',
+                                : 'Verify your ID to unlock all features.',
                             style: GoogleFonts.outfit(
                               fontSize: 12,
                               color: widget.isVerified
@@ -227,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSectionLabel('ACCOUNT'),
+                   _buildSectionLabel('Account'),
                   _buildProfileMenuItem(
                     context,
                     Icons.person_outline,
@@ -265,38 +263,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
 
                   const SizedBox(height: 24),
-                  _buildSectionLabel('LEGAL & SAFETY'),
+                   _buildSectionLabel('Legal & Safety'),
                   _buildProfileMenuItem(
                     context,
-                    Icons.security_outlined,
-                    'Safety Center (सुरक्षा केन्द्र)',
-                    Colors.red,
+                    Icons.balance_outlined,
+                    'Legal Information',
+                    Colors.grey[700]!,
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SafetyCenterScreen(),
+                      // Show sub-folder/bottom sheet with legal links
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.white,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                        ),
+                        builder: (context) => Container(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Legal & Safety',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.primaryTextColor,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              _buildProfileMenuItem(
+                                context,
+                                Icons.security_outlined,
+                                'Safety Center (सुरक्षा केन्द्र)',
+                                Colors.red,
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const SafetyCenterScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                              _buildProfileMenuItem(
+                                context,
+                                Icons.description_outlined,
+                                'Terms of Service',
+                                Colors.grey[700]!,
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              _buildProfileMenuItem(
+                                context,
+                                Icons.privacy_tip_outlined,
+                                'Privacy Policy',
+                                Colors.grey[700]!,
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
                         ),
                       );
                     },
                   ),
-                  _buildProfileMenuItem(
-                    context,
-                    Icons.description_outlined,
-                    'Terms of Service',
-                    Colors.grey[700]!,
-                    onTap: () {},
-                  ),
-                  _buildProfileMenuItem(
-                    context,
-                    Icons.privacy_tip_outlined,
-                    'Privacy Policy',
-                    Colors.grey[700]!,
-                    onTap: () {},
-                  ),
 
                   const SizedBox(height: 24),
-                  _buildSectionLabel('SUPPORT'),
+                   _buildSectionLabel('Support'),
                   _buildProfileMenuItem(
                     context,
                     Icons.help_outline,
@@ -339,8 +377,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         style: GoogleFonts.outfit(
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          color: Colors.grey[500],
-          letterSpacing: 1.2,
+           color: Colors.grey[600],
+           letterSpacing: 0.5,
         ),
       ),
     );
