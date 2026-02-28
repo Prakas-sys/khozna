@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../screens/login_screen.dart';
 import '../utils/supabase_service.dart';
 
@@ -43,19 +44,14 @@ class _FavouriteButtonState extends State<FavouriteButton> {
       child: Container(
         padding: const EdgeInsets.all(8),
         color: Colors.transparent, 
-        child: Icon(
-          isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-          size: widget.size,
-          color: isLiked 
-              ? const Color(0xFFFF385C) 
-              : Colors.white,
-          shadows: [
-            Shadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 12,
-              offset: const Offset(0, 2),
-            ),
-          ],
+        child: SvgPicture.string(
+          '''
+          <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display: block; fill: ${isLiked ? '#FF385C' : 'rgba(0, 0, 0, 0.5)'}; height: ${widget.size}px; width: ${widget.size}px; stroke: #ffffff; stroke-width: 2.2; overflow: visible;">
+            <path d="M16 28c7-4.733 14-10 14-17 0-4.418-3.582-8-8-8a7.965 7.965 0 0 0-6 2.733A7.965 7.965 0 0 0 10 3c-4.418 0-8 3.582-8 8 0 7 7 12.267 14 17z"></path>
+          </svg>
+          ''',
+          width: widget.size,
+          height: widget.size,
         ),
       ),
     );
