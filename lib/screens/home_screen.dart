@@ -52,39 +52,15 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         actions: [
-          ValueListenableBuilder<int>(
-            valueListenable: notificationBadgeCount,
-            builder: (context, badgeCount, _) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.notifications_none_rounded, color: Colors.black87, size: 26),
-                      onPressed: () {
-                        notificationBadgeCount.value = 0;
-                        _checkAuthAndNavigate(context, const NotificationsScreen());
-                      },
-                    ),
-                    if (badgeCount > 0)
-                      Positioned(
-                        top: 10,
-                        right: 12,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF3B30),
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 1.5),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: const Icon(Icons.notifications_none_rounded, color: Colors.black87, size: 26),
+              onPressed: () {
+                notificationBadgeCount.value = 0;
+                _checkAuthAndNavigate(context, const NotificationsScreen());
+              },
+            ),
           ),
           const SizedBox(width: 4),
         ],
