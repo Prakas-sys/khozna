@@ -101,11 +101,11 @@ class HomeScreen extends StatelessWidget {
                       'Find your Next Home',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 28,
+                        fontSize: 24,
                         fontWeight: FontWeight.w700,
                         color: Colors.black,
                         height: 1.2,
-                        letterSpacing: -0.5,
+                        letterSpacing: -0.4,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -113,11 +113,11 @@ class HomeScreen extends StatelessWidget {
                       'No Middleman',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 34,
+                        fontSize: 28,
                         fontWeight: FontWeight.w800,
                         color: AppTheme.brandColor,
                         height: 1.1,
-                        letterSpacing: -0.6,
+                        letterSpacing: -0.4,
                       ),
                     ),
                   ],
@@ -180,7 +180,11 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Verified Listings',
-                        style: GoogleFonts.plusJakartaSans(fontSize: 19, fontWeight: FontWeight.bold, color: Colors.black87, letterSpacing: -0.2),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18, 
+                          fontWeight: FontWeight.bold, 
+                          color: Colors.black87,
+                        ),
                       ),
                     ],
                   ),
