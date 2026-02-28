@@ -9,6 +9,7 @@ import '../utils/supabase_service.dart';
 import 'property_details_screen.dart';
 import 'search_screen.dart';
 import 'filter_results_screen.dart';
+import 'chat_screen.dart';
 import 'kyc_screen.dart';
 import '../widgets/favourite_button.dart';
 import 'notifications_screen.dart';

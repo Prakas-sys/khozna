@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
+import '../widgets/favourite_button.dart';
 import 'property_details_screen.dart';
 import 'chat_screen.dart';
 import 'home_screen.dart';
