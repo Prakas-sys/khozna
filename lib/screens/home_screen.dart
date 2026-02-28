@@ -91,7 +91,7 @@ class HomeScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 60.0), // increased to 60 for clear gap "above" nav bar
+          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 35.0), // tweaked to 35 for clear "little" gap above nav bar
           child: Column(
             children: [
               const SizedBox(height: 32), // moved up slightly from 48
@@ -174,7 +174,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 30), // Reduced to move cards up
+              const SizedBox(height: 38), // Shifted down a little from 30
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
