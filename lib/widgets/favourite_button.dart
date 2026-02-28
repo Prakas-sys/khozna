@@ -44,11 +44,11 @@ class _FavouriteButtonState extends State<FavouriteButton> {
         padding: const EdgeInsets.all(8),
         color: Colors.transparent, 
         child: Icon(
-          Icons.favorite_rounded,
+          isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
           size: widget.size,
           color: isLiked 
               ? const Color(0xFFFF385C) 
-              : (widget.color ?? Colors.white),
+              : Colors.white,
           shadows: [
             Shadow(
               color: Colors.black.withValues(alpha: 0.15),
