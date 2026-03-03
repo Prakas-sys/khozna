@@ -113,7 +113,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 72), // Adjusted spacing below the new hero
+              const SizedBox(height: 120), // Increased from 72 to push everything down
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
@@ -171,7 +171,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 28), // Nudged up even more from 34
+              const SizedBox(height: 42), // Increased from 28 to add more gap
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
