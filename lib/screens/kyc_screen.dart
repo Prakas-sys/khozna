@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../theme/app_theme.dart';
+import '../utils/cloudinary_service.dart';
 
 // Method channel for security (blocks screenshots on KYC screen)
 const _channel = MethodChannel('khozna/security');
@@ -69,7 +72,66 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   Future<void> _submit() async {
-    // ... (rest of submit logic)
+    if (_latitude == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please verify your location first')),
+      );
+      return;
+    }
+
+    if (_frontImage == null || _backImage == null || _selfieImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please upload all required photos')),
+      );
+      return;
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    setState(() => _isSubmitting = true);
+    try {
+      // 1. Upload Images to Cloudinary
+      final String? frontUrl = await CloudinaryService.uploadImage(_frontImage!);
+      final String? backUrl = await CloudinaryService.uploadImage(_backImage!);
+      final String? selfieUrl = await CloudinaryService.uploadImage(_selfieImage!);
+
+      if (frontUrl == null || backUrl == null || selfieUrl == null) {
+        throw Exception('Image upload failed');
+      }
+
+      // 2. Save to Supabase
+      await supabase.Supabase.instance.client.from('kyc_verifications').insert({
+        'user_id': user.uid,
+        'full_name': _nameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'phone_number': _phoneController.text.trim(),
+        'citizenship_number': _citizenshipController.text.trim(),
+        'front_image_url': frontUrl,
+        'back_image_url': backUrl,
+        'selfie_image_url': selfieUrl,
+        'latitude': _latitude,
+        'longitude': _longitude,
+        'status': 'pending',
+      });
+
+      // 3. Update Profile Status
+      await supabase.Supabase.instance.client.from('profiles').update({
+        'kyc_status': 'pending',
+      }).eq('id', user.uid);
+
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        _showSuccessDialog();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Submission failed: $e')),
+        );
+      }
+    }
   }
 
   @override

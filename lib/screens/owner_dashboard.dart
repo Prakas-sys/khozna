@@ -348,9 +348,11 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          _buildMiniThumb('Front', kyc['document_front_url']),
+                          _buildMiniThumb('Front', kyc['front_image_url']),
                           const SizedBox(width: 8),
-                          _buildMiniThumb('Back', kyc['document_back_url']),
+                          _buildMiniThumb('Back', kyc['back_image_url']),
+                          const SizedBox(width: 8),
+                          _buildMiniThumb('Selfie', kyc['selfie_image_url']),
                         ],
                       ),
                       const SizedBox(height: 16),
