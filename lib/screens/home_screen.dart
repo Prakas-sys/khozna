@@ -91,45 +91,30 @@ class HomeScreen extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  RichText(
-                    text: TextSpan(
-                      style: GoogleFonts.outfit(
-                        fontSize: 36, // Much bigger now
-                        height: 1.1,
-                        letterSpacing: -0.5,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: 'Find your ',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        TextSpan(
-                          text: 'Next Home',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800, // Extra bold for "Next Home"
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    'Find your Next Home',
+                    style: GoogleFonts.outfit(
+                      fontSize: 32, // Adjusted to 32 to fit on one line better
+                      fontWeight: FontWeight.w800, // Same bold weight for everything
+                      color: Colors.black87,
+                      height: 1.1,
+                      letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Text(
                     'No middleman',
                     style: GoogleFonts.outfit(
-                      fontSize: 36, // Consistent with the line above
+                      fontSize: 36, 
                       fontWeight: FontWeight.w900,
                       color: AppTheme.brandColor,
                       height: 1.0,
-                      letterSpacing: -1.2,
+                      letterSpacing: -1.0,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 45), // Adjusted gap for the much larger text
+              const SizedBox(height: 40), // Adjusted gap
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
