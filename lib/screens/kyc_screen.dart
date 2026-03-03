@@ -61,7 +61,110 @@ class _KycScreenState extends State<KycScreen> {
     super.dispose();
   }
 
-  // ... (keep _setSecureScreen, _detectLocation, _pickImage)
+  Future<void> _setSecureScreen(bool secure) async {
+    try {
+      await _channel.invokeMethod('setSecure', secure);
+    } catch (_) {}
+  }
+
+  Future<void> _detectLocation() async {
+    setState(() => _isLocating = true);
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permission denied.')),
+          );
+        }
+        setState(() => _isLocating = false);
+        return;
+      }
+
+      final Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 15),
+        ),
+      );
+
+      if (mounted) {
+        setState(() {
+          _latitude = position.latitude;
+          _longitude = position.longitude;
+          _isLocating = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLocating = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
+
+  Future<void> _pickImage(String type) async {
+    final XFile? image = await _picker.pickImage(
+      source: type == 'selfie' ? ImageSource.camera : ImageSource.gallery,
+      imageQuality: 70,
+    );
+    if (image != null) {
+      setState(() {
+        if (type == 'front') _frontImage = File(image.path);
+        if (type == 'back') _backImage = File(image.path);
+        if (type == 'selfie') _selfieImage = File(image.path);
+      });
+    }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        surfaceTintColor: Colors.white,
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.check_circle_outline, color: Colors.green, size: 80),
+            const SizedBox(height: 24),
+            Text(
+              'प्रमाणिकरणको लागि प्राप्त भयो!',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'तपाईको कागजातहरू प्राप्त भएका छन्। हामी ४८ घण्टा भित्र प्रमाणीकरण गर्नेछौं।',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.plusJakartaSans(color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context, true);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('ठीक छ (Okay)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   void _nextStep() {
     if (_currentStep == 1) {

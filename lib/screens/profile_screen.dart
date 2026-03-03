@@ -25,6 +25,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
