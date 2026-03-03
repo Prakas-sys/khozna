@@ -102,7 +102,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Perfect Home',
+                    'Next Home',
                     style: GoogleFonts.outfit(
                       fontSize: 34,
                       fontWeight: FontWeight.w800,
@@ -111,9 +111,19 @@ class HomeScreen extends StatelessWidget {
                       letterSpacing: -0.5,
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'No middleman',
+                    style: GoogleFonts.outfit(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                      height: 1.1,
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 105), // Nudged up from 120
+              const SizedBox(height: 75), // Adjusted from 105 because of the extra text line
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
