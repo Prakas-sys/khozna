@@ -94,9 +94,9 @@ class HomeScreen extends StatelessWidget {
                   RichText(
                     text: TextSpan(
                       style: GoogleFonts.outfit(
-                        fontSize: 22, // Smaller, consistent size
+                        fontSize: 36, // Much bigger now
                         height: 1.1,
-                        letterSpacing: -0.2,
+                        letterSpacing: -0.5,
                       ),
                       children: [
                         TextSpan(
@@ -109,27 +109,27 @@ class HomeScreen extends StatelessWidget {
                         TextSpan(
                           text: 'Next Home',
                           style: const TextStyle(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800, // Extra bold for "Next Home"
                             color: Colors.black87,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Text(
                     'No middleman',
                     style: GoogleFonts.outfit(
-                      fontSize: 38, // Much larger and prominent
+                      fontSize: 44, // Even bigger headline
                       fontWeight: FontWeight.w900,
                       color: AppTheme.brandColor,
                       height: 1.0,
-                      letterSpacing: -1.0,
+                      letterSpacing: -1.2,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 55), // Adjusted gap for the new layout
+              const SizedBox(height: 45), // Adjusted gap for the much larger text
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
