@@ -105,16 +105,16 @@ class HomeScreen extends StatelessWidget {
                   Text(
                     'No middleman',
                     style: GoogleFonts.outfit(
-                      fontSize: 36, 
+                      fontSize: 28, // Made smaller as requested
                       fontWeight: FontWeight.w900,
                       color: AppTheme.brandColor,
                       height: 1.0,
-                      letterSpacing: -1.0,
+                      letterSpacing: -0.8,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 40), // Adjusted gap
+              const SizedBox(height: 80), // Increased to push everything down
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
@@ -172,7 +172,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 36), // Nudged up from 42
+              const SizedBox(height: 60), // Increased to push cards even lower
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
