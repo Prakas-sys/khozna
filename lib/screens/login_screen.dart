@@ -493,13 +493,14 @@ class _LoginScreenState extends State<LoginScreen> {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 100, 24, 16), // Increased top padding to 100
+                    physics: const NeverScrollableScrollPhysics(), // Disable scrolling
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 16), // Reduced top padding back to 20
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight - 116, // Adjusted for new padding
+                        minHeight: constraints.maxHeight - 36, // Adjusted for new padding
                       ),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute evenly
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Distribute evenly to fill space
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Column(
@@ -508,7 +509,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Welcome Back In',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.playfairDisplay(
-                        fontSize: 24,
+                        fontSize: 22, // Slightly smaller
                         fontWeight: FontWeight.w700,
                         color: Colors.black87,
                       ),
@@ -517,17 +518,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       'KHOZNA',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.zenAntiqueSoft(
-                        fontSize: 26,
+                        fontSize: 24, // Slightly smaller
                         fontWeight: FontWeight.w900,
                         color: AppTheme.brandColor,
                         letterSpacing: 2.0,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12), // Reduced
 
                     // Nepal-only phone field — pill shaped
                     Container(
-                      height: 54,
+                      height: 50, // Slightly shorter
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
@@ -542,28 +543,28 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
+                                horizontal: 16,
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Text(
                                     '🇳🇵',
-                                    style: TextStyle(fontSize: 20),
+                                    style: TextStyle(fontSize: 18),
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 6),
                                   Text(
                                     '+977',
                                     style: GoogleFonts.outfit(
-                                      fontSize: 15,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.black87,
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 8),
                                   Container(
                                     width: 1.5,
-                                    height: 22,
+                                    height: 20,
                                     color: Colors.grey.shade400,
                                   ),
                                 ],
@@ -573,20 +574,20 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: TextField(
                                 controller: _phoneController,
                                 keyboardType: TextInputType.phone,
-                                style: GoogleFonts.outfit(fontSize: 15),
+                                style: GoogleFonts.outfit(fontSize: 14),
                                 cursorColor: AppTheme.brandColor,
                                 decoration: InputDecoration(
                                   hintText: 'Enter mobile number',
                                   hintStyle: TextStyle(
                                     color: Colors.grey[500],
-                                    fontSize: 14,
+                                    fontSize: 13,
                                   ),
                                   border: InputBorder.none,
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                   contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 16,
+                                    horizontal: 8,
+                                    vertical: 14,
                                   ),
                                 ),
                               ),
@@ -595,22 +596,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10), // Reduced
 
-                    // Terms Container (Highlightable if missed)
+                    // Terms Container
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: !_agreeToTerms && _isLoading ? Colors.red.withOpacity(0.05) : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: !_agreeToTerms && _isLoading ? Colors.redAccent : Colors.transparent,
-                          width: 1,
-                        ),
+                        horizontal: 10,
+                        vertical: 6,
                       ),
                       child: InkWell(
                         onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
@@ -618,37 +611,30 @@ class _LoginScreenState extends State<LoginScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             SizedBox(
-                              height: 24,
-                              width: 24,
+                              height: 20,
+                              width: 20,
                               child: Checkbox(
                                 value: _agreeToTerms,
                                 onChanged: (v) =>
                                     setState(() => _agreeToTerms = v ?? false),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                side: BorderSide(
-                                  color: !_agreeToTerms && _isLoading ? Colors.redAccent : Colors.grey[400]!,
-                                  width: 1.5,
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
                                 activeColor: AppTheme.brandColor,
-                                materialTapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: RichText(
                                 text: TextSpan(
                                   style: GoogleFonts.outfit(
-                                    fontSize: 11,
+                                    fontSize: 10,
                                     color: Colors.grey[700],
-                                    fontWeight: FontWeight.w400,
                                   ),
                                   children: [
                                     const TextSpan(text: 'I agree to the '),
                                     TextSpan(
-                                      text: 'Terms of Service',
+                                      text: 'Terms',
                                       style: TextStyle(
                                         color: AppTheme.brandColor,
                                         fontWeight: FontWeight.w700,
@@ -670,89 +656,53 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12), // Reduced
 
                     // Login button
                     Container(
                       width: double.infinity,
-                      height: 58,
+                      height: 52, // Slightly shorter
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         gradient: const LinearGradient(
                           colors: [Color(0xFF00B4F5), AppTheme.brandColor],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.brandColor.withValues(alpha: 0.3),
-                            blurRadius: 15,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
                       ),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
-                          padding: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
                         onPressed: _isLoading ? null : _verifyPhone,
                         child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
+                            ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                             : Text(
                                 'Login',
                                 style: GoogleFonts.outfit(
-                                  fontSize: 17,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                  letterSpacing: 0.5,
                                 ),
                               ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 14), // Reduced
 
                     // OR divider
                     Row(
                       children: [
-                        Expanded(
-                          child: Divider(
-                            color: Colors.grey[200],
-                            thickness: 1.5,
-                          ),
-                        ),
+                        Expanded(child: Divider(color: Colors.grey[200])),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            'Or continue with',
-                            style: GoogleFonts.outfit(
-                              color: Colors.grey[400],
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text('Or continue with', style: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 9)),
                         ),
-                        Expanded(
-                          child: Divider(
-                            color: Colors.grey[200],
-                            thickness: 1.5,
-                          ),
-                        ),
+                        Expanded(child: Divider(color: Colors.grey[200])),
                       ],
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 14),
 
                     // Social buttons
                     Row(
@@ -760,71 +710,43 @@ class _LoginScreenState extends State<LoginScreen> {
                         Expanded(
                           child: InkWell(
                             onTap: _isLoading ? null : _signInWithGoogle,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              height: 52,
+                              height: 48,
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: Colors.grey.shade300,
-                                  width: 1.5,
-                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade300),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  SvgPicture.asset(
-                                    'assets/icons/google_g.svg',
-                                    height: 22,
-                                    width: 22,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    'Google',
-                                    style: GoogleFonts.outfit(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
+                                  SvgPicture.asset('assets/icons/google_g.svg', height: 18),
+                                  const SizedBox(width: 8),
+                                  Text('Google', style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 13)),
                                 ],
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: InkWell(
                             onTap: _isLoading ? null : _signInWithFacebook,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             child: Container(
-                              height: 52,
+                              height: 48,
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: Colors.grey.shade300,
-                                  width: 1.5,
-                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade300),
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  SvgPicture.asset(
-                                    'assets/icons/facebook_f.svg',
-                                    height: 22,
-                                    width: 22,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    'Facebook',
-                                    style: GoogleFonts.outfit(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
+                                  SvgPicture.asset('assets/icons/facebook_f.svg', height: 18),
+                                  const SizedBox(width: 8),
+                                  Text('Facebook', style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 13)),
                                 ],
                               ),
                             ),
@@ -832,42 +754,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
                     // Register link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          "Don't have an account? ",
-                          style: GoogleFonts.outfit(
-                            color: Colors.grey[600],
-                            fontSize: 13,
-                          ),
-                        ),
+                        Text("Don't have an account? ", style: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 12)),
                         GestureDetector(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const RegisterScreen(),
-                            ),
-                          ),
-                          child: Text(
-                            "Register Here",
-                            style: GoogleFonts.outfit(
-                              color: AppTheme.brandColor,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                          child: Text("Register Here", style: GoogleFonts.outfit(color: AppTheme.brandColor, fontSize: 12, fontWeight: FontWeight.w700)),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 12),
-                            ],
-                          ),
-                        ],
-                      ),
                     ),
                   );
                 },
