@@ -105,11 +105,11 @@ class HomeScreen extends StatelessWidget {
                   Text(
                     'No middleman',
                     style: GoogleFonts.outfit(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w900,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
                       color: AppTheme.brandColor,
-                      height: 1.0,
-                      letterSpacing: -0.8,
+                      height: 1.1,
+                      letterSpacing: -0.5,
                     ),
                   ),
                 ],
