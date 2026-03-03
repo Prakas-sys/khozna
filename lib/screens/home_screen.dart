@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
@@ -53,64 +54,76 @@ class HomeScreen extends StatelessWidget {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: IconButton(
-              icon: const Icon(Icons.notifications_none_rounded, color: Colors.black87, size: 26),
-              onPressed: () {
+            padding: const EdgeInsets.only(right: 16),
+            child: InkWell(
+              onTap: () {
                 notificationBadgeCount.value = 0;
                 _checkAuthAndNavigate(context, const NotificationsScreen());
               },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200, width: 1.5),
+                ),
+                child: const Icon(
+                  CupertinoIcons.bell,
+                  color: Colors.black87,
+                  size: 22,
+                ),
+              ),
             ),
           ),
-          const SizedBox(width: 4),
         ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 35.0), // tweaked to 35 for clear "little" gap above nav bar
+          padding: const EdgeInsets.fromLTRB(
+            24.0,
+            0,
+            24.0,
+            35.0,
+          ), // tweaked to 35 for clear "little" gap above nav bar
           child: Column(
             children: [
-              const SizedBox(height: 32), // moved up slightly from 48
-              Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Find your Next Home',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                        height: 1.2,
-                        letterSpacing: -0.4,
-                      ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Find your',
+                    style: GoogleFonts.outfit(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black87,
+                      height: 1.1,
+                      letterSpacing: -0.5,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'No Middleman',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.brandColor,
-                        height: 1.1,
-                        letterSpacing: -0.4,
-                      ),
+                  ),
+                  Text(
+                    'Perfect Home',
+                    style: GoogleFonts.outfit(
+                      fontSize: 34,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.brandColor,
+                      height: 1.1,
+                      letterSpacing: -0.5,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 80), // moved up from 110 for better balance
+              const SizedBox(height: 72), // Adjusted spacing below the new hero
               GestureDetector(
-                onTap: () => _checkAuthAndNavigate(context, const SearchScreen()),
+                onTap: () =>
+                    _checkAuthAndNavigate(context, const SearchScreen()),
                 child: Container(
                   height: 52,
                   padding: const EdgeInsets.only(left: 16, right: 6),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
-                   boxShadow: [
+                    boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.06),
                         blurRadius: 12,
@@ -125,7 +138,11 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.search, color: AppTheme.brandColor, size: 24),
+                      const Icon(
+                        Icons.search,
+                        color: AppTheme.brandColor,
+                        size: 24,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -133,7 +150,7 @@ class HomeScreen extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.outfit(
-                            color: Colors.grey[400], 
+                            color: Colors.grey[400],
                             fontSize: 16,
                           ),
                         ),
@@ -141,10 +158,14 @@ class HomeScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: const BoxDecoration(
-                          color: AppTheme.brandColor, 
+                          color: AppTheme.brandColor,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.mic, color: Colors.white, size: 20),
+                        child: const Icon(
+                          Icons.mic,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                     ],
                   ),
@@ -159,8 +180,8 @@ class HomeScreen extends StatelessWidget {
                       Text(
                         'Verified Listings',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18, 
-                          fontWeight: FontWeight.bold, 
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
                       ),
@@ -179,7 +200,10 @@ class HomeScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(color: const Color(0xFFF2F2F2), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF2F2F2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                       child: const Icon(Icons.east, size: 16),
                     ),
                   ),
@@ -187,7 +211,10 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 18), // 1 number below listings
               FutureBuilder<List<Map<String, dynamic>>>(
-                future: Supabase.instance.client.from('properties').select('*, property_images(image_url)').order('created_at', ascending: false),
+                future: Supabase.instance.client
+                    .from('properties')
+                    .select('*, property_images(image_url)')
+                    .order('created_at', ascending: false),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return SizedBox(
@@ -213,9 +240,13 @@ class HomeScreen extends StatelessWidget {
                     'bathrooms': 2,
                     'sq_ft': '1,200',
                     'floor': '3rd Floor',
-                    'description': 'Experience luxury living in the heart of Kathmandu. This modern apartment offers breathtaking city views, high-end finishes, and complete security.',
+                    'description':
+                        'Experience luxury living in the heart of Kathmandu. This modern apartment offers breathtaking city views, high-end finishes, and complete security.',
                     'property_images': [
-                      {'image_url': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+                      {
+                        'image_url':
+                            'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                      },
                     ],
                   };
 
@@ -223,7 +254,7 @@ class HomeScreen extends StatelessWidget {
                     demoProperty,
                     ...(snapshot.data ?? []),
                   ];
-                  
+
                   return SizedBox(
                     height: 304,
                     child: ListView.builder(
@@ -233,8 +264,8 @@ class HomeScreen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final p = properties[index];
                         final images = (p['property_images'] as List);
-                        final String mainImage = images.isNotEmpty 
-                            ? images[0]['image_url'] 
+                        final String mainImage = images.isNotEmpty
+                            ? images[0]['image_url']
                             : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 
                         return Padding(
@@ -251,7 +282,9 @@ class HomeScreen extends StatelessWidget {
                             p['sq_ft'] ?? '0',
                             p['floor'] ?? 'N/A',
                             p['description'] ?? '',
-                            images.map((i) => i['image_url'].toString()).toList(),
+                            images
+                                .map((i) => i['image_url'].toString())
+                                .toList(),
                           ),
                         );
                       },
@@ -296,20 +329,57 @@ class HomeScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(width: 120, height: 14, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
-                    Container(width: 60, height: 14, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
+                    Container(
+                      width: 120,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    Container(
+                      width: 60,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 // Location line
-                Container(width: 100, height: 10, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
+                Container(
+                  width: 100,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
                 const SizedBox(height: 12),
                 // Button lines
                 Row(
                   children: [
-                    Expanded(child: Container(height: 38, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(30)))),
+                    Expanded(
+                      child: Container(
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F5),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    Expanded(child: Container(height: 38, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(30)))),
+                    Expanded(
+                      child: Container(
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F5),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -321,16 +391,16 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildModernCard(
-    BuildContext context, 
-    String id, 
-    String imageUrl, 
-    String title, 
-    String location, 
-    String price, 
-    int bedrooms, 
-    int bathrooms, 
-    String area, 
-    String floor, 
+    BuildContext context,
+    String id,
+    String imageUrl,
+    String title,
+    String location,
+    String price,
+    int bedrooms,
+    int bathrooms,
+    String area,
+    String floor,
     String description,
     List<String> images,
   ) {
@@ -384,7 +454,10 @@ class HomeScreen extends StatelessWidget {
                     top: 10,
                     left: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2ECC71),
                         borderRadius: BorderRadius.circular(20),
@@ -461,11 +534,18 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 13),
+                            Icon(
+                              Icons.place_outlined,
+                              color: AppTheme.brandColor,
+                              size: 13,
+                            ),
                             const SizedBox(width: 2),
                             Text(
                               location,
-                              style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[600]),
+                              style: GoogleFonts.outfit(
+                                fontSize: 11,
+                                color: Colors.grey[600],
+                              ),
                             ),
                           ],
                         ),
@@ -473,22 +553,55 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             Column(
                               children: [
-                                Icon(Icons.bed_outlined, color: AppTheme.brandColor, size: 14),
-                                Text('Bed', style: GoogleFonts.outfit(fontSize: 8, color: Colors.grey[700], fontWeight: FontWeight.w300)),
+                                Icon(
+                                  Icons.bed_outlined,
+                                  color: AppTheme.brandColor,
+                                  size: 14,
+                                ),
+                                Text(
+                                  'Bed',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 8,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(width: 8),
                             Column(
                               children: [
-                                Icon(Icons.directions_car_outlined, color: AppTheme.brandColor, size: 14),
-                                Text('Parking', style: GoogleFonts.outfit(fontSize: 8, color: Colors.grey[700], fontWeight: FontWeight.w300)),
+                                Icon(
+                                  Icons.directions_car_outlined,
+                                  color: AppTheme.brandColor,
+                                  size: 14,
+                                ),
+                                Text(
+                                  'Parking',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 8,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
                               ],
                             ),
                             const SizedBox(width: 8),
                             Column(
                               children: [
-                                Icon(Icons.wifi, color: AppTheme.brandColor, size: 14),
-                                Text('Wifi', style: GoogleFonts.outfit(fontSize: 8, color: Colors.grey[700], fontWeight: FontWeight.w300)),
+                                Icon(
+                                  Icons.wifi,
+                                  color: AppTheme.brandColor,
+                                  size: 14,
+                                ),
+                                Text(
+                                  'Wifi',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 8,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -518,7 +631,13 @@ class HomeScreen extends StatelessWidget {
                               ),
                             ),
                             icon: const Icon(Icons.directions_walk, size: 17),
-                            label: Text('Visit Now', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                            label: Text(
+                              'Visit Now',
+                              style: GoogleFonts.outfit(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13.5,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.brandColor,
                               foregroundColor: Colors.white,
@@ -526,7 +645,10 @@ class HomeScreen extends StatelessWidget {
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+                                side: BorderSide(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  width: 1.5,
+                                ),
                               ),
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
@@ -547,9 +669,18 @@ class HomeScreen extends StatelessWidget {
                               'assets/icons/message.svg',
                               width: 17,
                               height: 17,
-                              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                              colorFilter: const ColorFilter.mode(
+                                Colors.white,
+                                BlendMode.srcIn,
+                              ),
                             ),
-                            label: Text('Message', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                            label: Text(
+                              'Message',
+                              style: GoogleFonts.outfit(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13.5,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.brandColor,
                               foregroundColor: Colors.white,
@@ -557,7 +688,10 @@ class HomeScreen extends StatelessWidget {
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+                                side: BorderSide(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  width: 1.5,
+                                ),
                               ),
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
@@ -575,4 +709,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-

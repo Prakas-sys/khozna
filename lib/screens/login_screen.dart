@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -325,8 +326,35 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.brandColor,
-      body: Column(
+      body: Stack(
         children: [
+          // Background Decorative Shapes for Glass effect
+          Positioned(
+            top: -50,
+            right: -30,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.1),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 150,
+            left: -40,
+            child: Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.08),
+              ),
+            ),
+          ),
+          Column(
+            children: [
           // ── TOP: Swipeable Illustration ──
           Expanded(
             flex: 42,
@@ -340,15 +368,40 @@ class _LoginScreenState extends State<LoginScreen> {
                   itemBuilder: (context, index) {
                     return Container(
                       color: AppTheme.brandColor,
-                      padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).padding.top + 56,
-                        left: 20,
-                        right: 20,
-                        bottom: 24,
-                      ),
-                      child: Image.asset(
-                        _illustrations[index],
-                        fit: BoxFit.contain,
+                      child: Container(
+                        margin: EdgeInsets.fromLTRB(
+                          10, // Minimal horizontal margin
+                          MediaQuery.of(context).padding.top + 50, // Move up slightly
+                          10, // Minimal horizontal margin
+                          20, // Minimal bottom margin
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(48),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(48),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                            child: Container(
+                              color: Colors.white.withOpacity(0.1),
+                              child: Image.asset(
+                                _illustrations[index],
+                                fit: BoxFit.cover, // Fill the space completely
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -402,7 +455,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 // Dot indicators
                 Positioned(
-                  bottom: 14,
+                  bottom: 4,
                   left: 0,
                   right: 0,
                   child: Row(
@@ -437,13 +490,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
               ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight - 36, // Account for top/bottom padding
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute evenly
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Column(
+                            children: [
                     Text(
-                      'Welcome Back',
+                      'Welcome Back In',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 24,
@@ -543,7 +605,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: !_agreeToTerms && _isLoading ? Colors.red.withValues(alpha: 0.05) : Colors.transparent,
+                        color: !_agreeToTerms && _isLoading ? Colors.red.withOpacity(0.05) : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: !_agreeToTerms && _isLoading ? Colors.redAccent : Colors.transparent,
@@ -579,7 +641,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: RichText(
                                 text: TextSpan(
                                   style: GoogleFonts.outfit(
-                                    fontSize: 13,
+                                    fontSize: 11,
                                     color: Colors.grey[700],
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -590,7 +652,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       style: TextStyle(
                                         color: AppTheme.brandColor,
                                         fontWeight: FontWeight.w700,
-                                        decoration: TextDecoration.underline,
                                       ),
                                     ),
                                     const TextSpan(text: ' and '),
@@ -599,7 +660,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       style: TextStyle(
                                         color: AppTheme.brandColor,
                                         fontWeight: FontWeight.w700,
-                                        decoration: TextDecoration.underline,
                                       ),
                                     ),
                                   ],
@@ -615,7 +675,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Login button
                     Container(
                       width: double.infinity,
-                      height: 52,
+                      height: 58,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
                         gradient: const LinearGradient(
@@ -625,9 +685,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.brandColor.withValues(alpha: 0.12),
-                            blurRadius: 6,
-                            offset: const Offset(0, 3),
+                            color: AppTheme.brandColor.withValues(alpha: 0.3),
+                            blurRadius: 15,
+                            offset: const Offset(0, 6),
                           ),
                         ],
                       ),
@@ -804,13 +864,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                  ],
-                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
         ],
       ),
-    );
+    ],
+  ),
+);
   }
 }

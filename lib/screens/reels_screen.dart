@@ -13,6 +13,7 @@ class ReelsScreen extends StatefulWidget {
 
 class _ReelsScreenState extends State<ReelsScreen> {
   final PageController _pageController = PageController();
+  bool isImageView = true; // Added state for Image/Video toggle
   
   final List<Map<String, dynamic>> mockReels = [
     {
@@ -51,13 +52,95 @@ class _ReelsScreenState extends State<ReelsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: PageView.builder(
-        controller: _pageController,
-        scrollDirection: Axis.vertical,
-        itemCount: mockReels.length,
-        itemBuilder: (context, index) {
-          return _buildReelItem(mockReels[index]);
-        },
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            scrollDirection: Axis.vertical,
+            itemCount: mockReels.length,
+            itemBuilder: (context, index) {
+              return _buildReelItem(mockReels[index]);
+            },
+          ),
+          // Top SafeArea Toggle
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildSegmentButton(
+                            title: 'Photo',
+                            icon: Icons.image_rounded,
+                            isSelected: isImageView,
+                            onTap: () => setState(() => isImageView = true),
+                          ),
+                          _buildSegmentButton(
+                            title: 'Video',
+                            icon: Icons.play_circle_fill,
+                            isSelected: !isImageView,
+                            onTap: () => setState(() => isImageView = false),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSegmentButton({
+    required String title,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(26),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.black87 : Colors.white70,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              title,
+              style: GoogleFonts.outfit(
+                color: isSelected ? Colors.black87 : Colors.white70,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -108,6 +191,12 @@ class _ReelsScreenState extends State<ReelsScreen> {
               ),
               const SizedBox(height: 18),
               _buildModernAction(
+                icon: Icons.chat_bubble_rounded,
+                label: 'Chat',
+                color: Colors.white,
+              ),
+              const SizedBox(height: 18),
+              _buildModernAction(
                 icon: Icons.share_rounded,
                 label: 'Share',
                 color: Colors.white,
@@ -152,23 +241,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Location Tag
-              Row(
-                children: [
-                  const Icon(Icons.location_on, color: AppTheme.brandColor, size: 16),
-                  const SizedBox(width: 4),
-                  Text(
-                    reel['location'],
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      shadows: [const Shadow(blurRadius: 4, color: Colors.black45, offset: Offset(0, 1))],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
+              // Title First
               Text(
                 reel['title'],
                 style: GoogleFonts.outfit(
@@ -177,6 +250,23 @@ class _ReelsScreenState extends State<ReelsScreen> {
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.2,
                 ),
+              ),
+              const SizedBox(height: 6),
+              // Location Tag Below Title
+              Row(
+                children: [
+                  const Icon(Icons.location_on, color: AppTheme.brandColor, size: 14),
+                  const SizedBox(width: 4),
+                  Text(
+                    reel['location'],
+                    style: GoogleFonts.outfit(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      shadows: [const Shadow(blurRadius: 4, color: Colors.black45, offset: Offset(0, 1))],
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 22),
               
