@@ -406,22 +406,46 @@ class HomeScreen extends StatelessWidget {
     List<String> images,
   ) {
     return GestureDetector(
-      onTap: () => _checkAuthAndNavigate(
-        context,
-        PropertyDetailsScreen(
-          id: id,
-          imageUrl: imageUrl,
-          images: images,
-          title: title,
-          location: location,
-          price: price,
-          bedrooms: bedrooms,
-          bathrooms: bathrooms,
-          area: area,
-          floor: floor,
-          description: description,
-        ),
-      ),
+      onTap: () async {
+        // AUTH CHECK
+        if (FirebaseAuth.instance.currentUser == null) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+          return;
+        }
+
+        // KYC CHECK - Real check from Supabase
+        final userId = FirebaseAuth.instance.currentUser!.uid;
+        final profile = await Supabase.instance.client.from('profiles').select('kyc_status').eq('id', userId).single();
+        
+        if (profile['kyc_status'] != 'verified') {
+          // If not verified, show KYC directly as requested
+          if (context.mounted) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const KycScreen()));
+          }
+        } else {
+          // If verified, show details
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PropertyDetailsScreen(
+                  id: id,
+                  imageUrl: imageUrl,
+                  images: images,
+                  title: title,
+                  location: location,
+                  price: price,
+                  bedrooms: bedrooms,
+                  bathrooms: bathrooms,
+                  area: area,
+                  floor: floor,
+                  description: description,
+                ),
+              ),
+            );
+          }
+        }
+      },
       child: Container(
         width: 260,
         decoration: BoxDecoration(

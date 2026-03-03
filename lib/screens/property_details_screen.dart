@@ -110,13 +110,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 const SizedBox(height: 32),
 
                 // THE NEPAL ESSENTIALS
-                _buildSectionTitle('आधारभूत सुविधाहरू (Essentials)'),
+                _buildSectionTitle('Essentials'),
                 const SizedBox(height: 16),
                 _buildEssentialGrid(),
                 const SizedBox(height: 32),
 
                 // DESCRIPTION
-                _buildSectionTitle('विवरण (Description)'),
+                _buildSectionTitle('Description'),
                 const SizedBox(height: 12),
                 Text(
                   widget.description ??
@@ -127,7 +127,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 const SizedBox(height: 32),
 
                 // LOCATION FOCUS SECTION
-                _buildSectionTitle('लोकेशन (Location)'),
+                _buildSectionTitle('Location'),
                 const SizedBox(height: 16),
                 _buildLocationDetails(widget.location, airbnbGrey),
                 const SizedBox(height: 16),

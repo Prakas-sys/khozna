@@ -285,11 +285,12 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, String? Function(String?)? validator, {TextInputType? keyboardType}) {
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, String? Function(String?)? validator, {TextInputType? keyboardType, List<TextInputFormatter>? inputFormatters}) {
     return TextFormField(
       controller: controller,
       validator: validator,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600),
       decoration: InputDecoration(
         labelText: label,
