@@ -84,8 +84,8 @@ class HomeScreen extends StatelessWidget {
             24.0,
             0,
             24.0,
-            20.0,
-          ), // Bottom padding reduced to bring it even closer
+            40.0,
+          ), // Increased bottom padding to ensure nothing is below nav bar
           child: Column(
             children: [
               Column(
@@ -94,8 +94,8 @@ class HomeScreen extends StatelessWidget {
                   Text(
                     'Find your Next Home',
                     style: GoogleFonts.outfit(
-                      fontSize: 32, // Adjusted to 32 to fit on one line better
-                      fontWeight: FontWeight.w800, // Same bold weight for everything
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
                       color: Colors.black87,
                       height: 1.1,
                       letterSpacing: -0.5,
@@ -105,7 +105,7 @@ class HomeScreen extends StatelessWidget {
                   Text(
                     'No middleman',
                     style: GoogleFonts.outfit(
-                      fontSize: 28, // Made smaller as requested
+                      fontSize: 28,
                       fontWeight: FontWeight.w900,
                       color: AppTheme.brandColor,
                       height: 1.0,
@@ -114,7 +114,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 220), // Dramatically increased to push everything down
+              const SizedBox(height: 100), // Balanced gap to push down but keep visible
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
@@ -172,7 +172,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 85), // Increased to push cards to the absolute bottom
+              const SizedBox(height: 45), // Reduced from 85 to bring cards back up
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
