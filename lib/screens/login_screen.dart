@@ -357,7 +357,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
           // ── TOP: Swipeable Illustration ──
           Expanded(
-            flex: 42,
+            flex: 50, // Increased from 42 to push the card down
             child: Stack(
               children: [
                 PageView.builder(
