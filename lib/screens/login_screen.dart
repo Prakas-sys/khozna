@@ -493,10 +493,10 @@ class _LoginScreenState extends State<LoginScreen> {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                    padding: const EdgeInsets.fromLTRB(24, 60, 24, 16), // Increased top padding from 20 to 60
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight - 36, // Account for top/bottom padding
+                        minHeight: constraints.maxHeight - 76, // Adjusted for new padding
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribute evenly
