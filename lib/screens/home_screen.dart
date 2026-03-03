@@ -91,39 +91,45 @@ class HomeScreen extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Find your',
-                    style: GoogleFonts.outfit(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black87,
-                      height: 1.1,
-                      letterSpacing: -0.5,
+                  RichText(
+                    text: TextSpan(
+                      style: GoogleFonts.outfit(
+                        fontSize: 34,
+                        height: 1.1,
+                        letterSpacing: -0.5,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: 'Find your ',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        TextSpan(
+                          text: 'Next Home',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    'Next Home',
-                    style: GoogleFonts.outfit(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.brandColor,
-                      height: 1.1,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 10),
                   Text(
                     'No middleman',
                     style: GoogleFonts.outfit(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black54,
+                      fontSize: 28, // Made it bigger
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.brandColor, // Added brand color
                       height: 1.1,
+                      letterSpacing: -0.2,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 75), // Adjusted from 105 because of the extra text line
+              const SizedBox(height: 65), // Adjusted spacing for the new larger text layout
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
