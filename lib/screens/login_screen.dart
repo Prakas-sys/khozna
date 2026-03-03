@@ -493,18 +493,16 @@ class _LoginScreenState extends State<LoginScreen> {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
-                    physics: const NeverScrollableScrollPhysics(), // Disable scrolling
-                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 16), // Reduced top padding back to 20
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight - 36, // Adjusted for new padding
+                        minHeight: constraints.maxHeight - 36,
                       ),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Distribute evenly to fill space
+                        mainAxisAlignment: MainAxisAlignment.center, // Kept to Center content gracefully if on tall screens
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            children: [
                     Text(
                       'Welcome Back In',
                       textAlign: TextAlign.center,
