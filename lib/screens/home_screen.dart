@@ -94,9 +94,9 @@ class HomeScreen extends StatelessWidget {
                   RichText(
                     text: TextSpan(
                       style: GoogleFonts.outfit(
-                        fontSize: 34,
+                        fontSize: 22, // Smaller, consistent size
                         height: 1.1,
-                        letterSpacing: -0.5,
+                        letterSpacing: -0.2,
                       ),
                       children: [
                         TextSpan(
@@ -109,27 +109,27 @@ class HomeScreen extends StatelessWidget {
                         TextSpan(
                           text: 'Next Home',
                           style: const TextStyle(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             color: Colors.black87,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 6),
                   Text(
                     'No middleman',
                     style: GoogleFonts.outfit(
-                      fontSize: 28, // Made it bigger
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.brandColor, // Added brand color
-                      height: 1.1,
-                      letterSpacing: -0.2,
+                      fontSize: 38, // Much larger and prominent
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.brandColor,
+                      height: 1.0,
+                      letterSpacing: -1.0,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 65), // Adjusted spacing for the new larger text layout
+              const SizedBox(height: 55), // Adjusted gap for the new layout
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
