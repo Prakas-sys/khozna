@@ -12,16 +12,32 @@ class MessagesScreen extends StatefulWidget {
 
 class _MessagesScreenState extends State<MessagesScreen> {
   int _selectedTab = 0;
-  final List<String> _tabs = ['All', 'Unread 5', 'Groups 8'];
+  final List<String> _tabs = ['All', 'Unread', 'Groups'];
 
   final List<Map<String, dynamic>> chats = [
     {
       'name': 'Ram Bahadur (Owner)',
       'avatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-      'lastMessage': "नमस्ते (Namaste) 🙏",
+      'lastMessage': "नमस्ते 🙏",
       'time': '10:00 AM',
       'unread': 1,
       'online': true,
+    },
+    {
+      'name': 'Jenny Wilson',
+      'avatar': 'https://i.pravatar.cc/150?img=47',
+      'lastMessage': "हजुर, कोठा खाली छ!",
+      'time': '09:45 AM',
+      'unread': 2,
+      'online': true,
+    },
+    {
+      'name': 'Suresh Rai',
+      'avatar': 'https://i.pravatar.cc/150?img=12',
+      'lastMessage': "भाडा कति हो?",
+      'time': 'Yesterday',
+      'unread': 0,
+      'online': false,
     },
   ];
 
@@ -170,16 +186,21 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   final chat = chats[index];
                   final hasUnread = (chat['unread'] as int) > 0;
                   return InkWell(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatScreen(
-                          name: chat['name'],
-                          avatar: chat['avatar'],
-                          online: chat['online'],
+                    onTap: () {
+                      setState(() {
+                        chats[index]['unread'] = 0;
+                      });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChatScreen(
+                            name: chat['name'],
+                            avatar: chat['avatar'],
+                            online: chat['online'],
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                     borderRadius: BorderRadius.circular(12),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
