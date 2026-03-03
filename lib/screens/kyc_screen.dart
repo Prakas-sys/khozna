@@ -270,7 +270,15 @@ class _KycScreenState extends State<KycScreen> {
         const SizedBox(height: 20),
         _buildTextField(_phoneController, 'Phone Number (फोन नम्बर)', Icons.phone_android_outlined, (v) => v!.isEmpty ? 'Required' : null, keyboardType: TextInputType.phone),
         const SizedBox(height: 20),
-        _buildTextField(_citizenshipController, 'Citizenship Number (नागरिकता नम्बर)', Icons.badge_outlined, (v) => v!.isEmpty ? 'Required' : null),
+        _buildTextField(
+          _citizenshipController,
+          'Citizenship Number (नागरिकता नम्बर)',
+          Icons.badge_outlined,
+          (v) => v!.isEmpty ? 'Required' : null,
+          inputFormatters: [
+            CitizenshipFormatter(),
+          ],
+        ),
         const SizedBox(height: 40),
         _buildStepButton('Next Step (अर्को चरण)', _nextStep),
       ],
@@ -635,6 +643,29 @@ class _KycScreenState extends State<KycScreen> {
   }
 }
 
+class CitizenshipFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text.replaceAll('-', '');
+    String formatted = '';
+
+    for (int i = 0; i < text.length; i++) {
+      if (i == 2 || i == 4 || i == 6) {
+        formatted += '-';
+      }
+      formatted += text[i];
+      if (formatted.length >= 14) break; // Limit to XX-XX-XX-XXXXX format
+    }
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
 class DashRectPainter extends CustomPainter {
   final Color color;
   final double strokeWidth;
