@@ -113,7 +113,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 120), // Increased from 72 to push everything down
+              const SizedBox(height: 105), // Nudged up from 120
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
@@ -171,7 +171,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 42), // Increased from 28 to add more gap
+              const SizedBox(height: 36), // Nudged up from 42
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
