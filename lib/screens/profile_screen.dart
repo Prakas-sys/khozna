@@ -14,7 +14,7 @@ import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isVerified;
-  const ProfileScreen({super.key, this.isVerified = true});
+  const ProfileScreen({super.key, this.isVerified = false}); // Default to false for testing
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -25,22 +25,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-      // In a real app, you would upload this to Firebase Storage/Cloudinary here
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
           children: [
+            // ... (keep the same header code)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
               child: Row(
@@ -129,6 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 16),
 
+            // VERIFICATION BADGE - UPDATED TO RED
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
@@ -136,12 +128,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 decoration: BoxDecoration(
                   color: widget.isVerified
                       ? Colors.green.withValues(alpha: 0.05)
-                      : Colors.orange.withValues(alpha: 0.05),
+                      : Colors.red.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: widget.isVerified
                         ? Colors.green.withValues(alpha: 0.2)
-                        : Colors.orange.withValues(alpha: 0.2),
+                        : Colors.red.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Row(
@@ -149,11 +141,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: widget.isVerified ? Colors.green : Colors.orange,
+                        color: widget.isVerified ? Colors.green : Colors.red,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        widget.isVerified ? Icons.verified_user : Icons.gpp_maybe,
+                        widget.isVerified ? Icons.verified_user : Icons.gpp_bad_rounded,
                         color: Colors.white,
                         size: 24,
                       ),
@@ -166,24 +158,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(
                             widget.isVerified
                                 ? 'Verified Profile'
-                                : 'Unverified Profile',
+                                : 'Not Verified (अप्रमाणित)',
                             style: GoogleFonts.outfit(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                               color: widget.isVerified
                                   ? Colors.green[800]
-                                  : Colors.orange[800],
+                                  : Colors.red[800],
                             ),
                           ),
                           Text(
                             widget.isVerified
                                 ? 'Your identity is fully verified.'
-                                : 'Verify your ID to unlock all features.',
+                                : 'ID verification is required by Khozna.',
                             style: GoogleFonts.outfit(
                               fontSize: 12,
                               color: widget.isVerified
                                   ? Colors.green[700]
-                                  : Colors.orange[700],
+                                  : Colors.red[700],
                             ),
                           ),
                         ],
@@ -198,15 +190,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
+                          elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                         child: const Text(
-                          'Verify',
+                          'Verify Now',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
