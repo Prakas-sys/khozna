@@ -53,7 +53,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
     // Pre-load owner welcome messages
     _messages.addAll([
       {
-        'text': 'नमस्ते (Namaste) 🙏',
+        'text': 'नमस्ते 🙏',
         'isMe': false,
         'time': '10:00 AM',
       },
@@ -111,7 +111,8 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
         }
       });
 
-      // Owner auto-reply after short delay
+      // Owner auto-reply after short delay - REMOVED AS REQUESTED
+      /*
       Future.delayed(const Duration(milliseconds: 1200), () {
         if (mounted) {
           setState(() {
@@ -134,6 +135,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           });
         }
       });
+      */
     }
   }
 
@@ -235,7 +237,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'नमस्ते (Namaste)',
+                        'नमस्ते',
                         style: GoogleFonts.outfit(
                           color: AppTheme.brandColor,
                           fontSize: 24,
@@ -308,7 +310,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
             alignment: Alignment.centerRight,
             child: InkWell(
               onTap: () {
-                _messageController.text = 'नमस्ते (Namaste) 🙏';
+                _messageController.text = 'नमस्ते 🙏';
                 _sendMessage();
               },
               borderRadius: BorderRadius.circular(20),
@@ -323,7 +325,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'नमस्ते (Namaste)',
+                      'नमस्ते',
                       style: GoogleFonts.outfit(
                         fontSize: 14,
                         color: AppTheme.brandColor,
