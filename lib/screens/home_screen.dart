@@ -84,8 +84,8 @@ class HomeScreen extends StatelessWidget {
             24.0,
             0,
             24.0,
-            35.0,
-          ), // tweaked to 35 for clear "little" gap above nav bar
+            20.0,
+          ), // Bottom padding reduced to bring it even closer
           child: Column(
             children: [
               Column(
@@ -114,7 +114,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 80), // Increased to push everything down
+              const SizedBox(height: 220), // Dramatically increased to push everything down
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
@@ -172,7 +172,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 60), // Increased to push cards even lower
+              const SizedBox(height: 85), // Increased to push cards to the absolute bottom
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
