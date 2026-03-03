@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import 'owner_profile_screen.dart';
+import 'chat_screen.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
@@ -46,6 +47,17 @@ class _ReelsScreenState extends State<ReelsScreen> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _showNotification(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppTheme.brandColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
@@ -181,25 +193,37 @@ class _ReelsScreenState extends State<ReelsScreen> {
               _buildModernAction(
                 icon: reel['isFavorite'] ? Icons.favorite : Icons.favorite_border,
                 label: reel['likes'],
-                color: reel['isFavorite'] ? Colors.redAccent : Colors.white,
+                color: reel['isFavorite'] ? const Color(0xFF00BFFF) : Colors.white, // Changed to Deep Sky Blue
+                onTap: () {
+                  setState(() {
+                    reel['isFavorite'] = !reel['isFavorite'];
+                  });
+                },
               ),
               const SizedBox(height: 18),
               _buildModernAction(
                 icon: Icons.chat_bubble_outline_rounded,
-                label: 'Message',
-                color: Colors.white,
-              ),
-              const SizedBox(height: 18),
-              _buildModernAction(
-                icon: Icons.chat_bubble_rounded,
                 label: 'Chat',
                 color: Colors.white,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatScreen(
+                        name: reel['ownerName'],
+                        avatar: reel['ownerAvatar'],
+                        online: true,
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 18),
               _buildModernAction(
                 icon: Icons.share_rounded,
                 label: 'Share',
                 color: Colors.white,
+                onTap: () {},
               ),
               const SizedBox(height: 22),
               // Owner Avatar - Clickable
@@ -316,7 +340,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            _showNotification(context, 'Reservation request sent to ${reel['ownerName']}!');
+                          },
                           borderRadius: BorderRadius.circular(15),
                           child: Center(
                             child: Text(
@@ -341,34 +367,37 @@ class _ReelsScreenState extends State<ReelsScreen> {
     );
   }
 
-  Widget _buildModernAction({required IconData icon, required String label, required Color color}) {
-    return Column(
-      children: [
-        ClipOval(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+  Widget _buildModernAction({required IconData icon, required String label, required Color color, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          ClipOval(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                ),
+                child: Icon(icon, color: color, size: 26),
               ),
-              child: Icon(icon, color: color, size: 26),
             ),
           ),
-        ),
-        const SizedBox(height: 5),
-        Text(
-          label,
-          style: GoogleFonts.outfit(
-            color: Colors.white,
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            shadows: [const Shadow(blurRadius: 2, color: Colors.black, offset: Offset(0, 1))],
+          const SizedBox(height: 5),
+          Text(
+            label,
+            style: GoogleFonts.outfit(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              shadows: [const Shadow(blurRadius: 2, color: Colors.black, offset: Offset(0, 1))],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
