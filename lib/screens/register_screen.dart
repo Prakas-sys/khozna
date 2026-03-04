@@ -113,228 +113,265 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double padding = 24.0;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        surfaceTintColor: Colors.white,
-        scrolledUnderElevation: 0,
-        leadingWidth: 80,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
-            onPressed: () => Navigator.pop(context),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: AppTheme.primaryTextColor, size: 20),
+          onPressed: () => Navigator.pop(context),
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 24.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'assets/images/original logo.png', 
-                height: 36, 
-                fit: BoxFit.contain
+            padding: const EdgeInsets.only(right: 20),
+            child: Image.asset('assets/images/original logo.png', height: 32),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          // Background Decorative Elements
+          Positioned(
+            top: -50,
+            right: -30,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppTheme.brandColor.withOpacity(0.05),
+              ),
+            ),
+          ),
+          
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(padding, 20, padding, 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Create Account',
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.primaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Join Khozna and find your next home.',
+                    style: GoogleFonts.outfit(
+                      fontSize: 15,
+                      color: AppTheme.secondaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  
+                  // Name Field
+                  _buildLabel('Full Name'),
+                  TextField(
+                    controller: _nameController,
+                    style: GoogleFonts.outfit(fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: 'John Doe',
+                      prefixIcon: const Icon(Icons.person_outline, size: 22),
+                      fillColor: Colors.grey.shade50,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 20),
+                  
+                  // Phone Field
+                  _buildLabel('Mobile Number'),
+                  IntlPhoneField(
+                    onChanged: (phone) {
+                      _phoneController.text = phone.number;
+                      _completePhoneNumber = phone.completeNumber;
+                    },
+                    initialCountryCode: 'NP',
+                    style: GoogleFonts.outfit(fontSize: 16),
+                    dropdownTextStyle: GoogleFonts.outfit(fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: '98XXXXXXXX',
+                      fillColor: Colors.grey.shade50,
+                      counterText: '',
+                    ),
+                    showDropdownIcon: true,
+                    flagsButtonPadding: const EdgeInsets.only(left: 12),
+                    dropdownIconPosition: IconPosition.trailing,
+                  ),
+                  
+                  const SizedBox(height: 20),
+                  
+                  // Email Field
+                  _buildLabel('Email Address (Optional)'),
+                  TextField(
+                    style: GoogleFonts.outfit(fontSize: 16),
+                    decoration: InputDecoration(
+                      hintText: 'john@example.com',
+                      prefixIcon: const Icon(Icons.mail_outline, size: 22),
+                      fillColor: Colors.grey.shade50,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Terms
+                  GestureDetector(
+                    onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.all(2),
+                          margin: const EdgeInsets.only(top: 2),
+                          decoration: BoxDecoration(
+                            color: _agreeToTerms ? AppTheme.brandColor : Colors.transparent,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: _agreeToTerms ? AppTheme.brandColor : Colors.grey.shade400,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.check,
+                            size: 14,
+                            color: _agreeToTerms ? Colors.white : Colors.transparent,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              style: GoogleFonts.outfit(
+                                fontSize: 13,
+                                color: AppTheme.secondaryTextColor,
+                                height: 1.4,
+                              ),
+                              children: [
+                                const TextSpan(text: 'I agree to the '),
+                                TextSpan(
+                                  text: 'Terms of Service',
+                                  style: TextStyle(
+                                    color: AppTheme.brandColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const TextSpan(text: ' and '),
+                                TextSpan(
+                                  text: 'Privacy Policy',
+                                  style: TextStyle(
+                                    color: AppTheme.brandColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Register Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF00B4F4), AppTheme.brandColor],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.brandColor.withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _verifyPhone,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : Text(
+                                'Create Account',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Footer
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Already have an account? ",
+                        style: GoogleFonts.outfit(
+                          color: AppTheme.secondaryTextColor,
+                          fontSize: 14,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Text(
+                          'Login',
+                          style: GoogleFonts.outfit(
+                            color: AppTheme.brandColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
         ],
       ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start, // Pull content up
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 40), // More space from App Bar
-                      Text('Join Us Today', 
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 24, // Reduced from 28
-                          fontWeight: FontWeight.bold, 
-                          color: AppTheme.primaryTextColor
-                        )
-                      ),
-                      Text('KHOZNA', 
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.zenAntiqueSoft(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.brandColor,
-                          letterSpacing: 2.0,
-                        )
-                      ),
-                      const SizedBox(height: 8),
-                      Text('Create an account to start your journey.', 
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[500])),
-                      const SizedBox(height: 20),
-                      
-                      TextField(
-                        controller: _nameController,
-                        style: const TextStyle(fontSize: 15),
-                        decoration: InputDecoration(
-                          hintText: 'Full Name',
-                          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
-                          prefixIcon: Icon(Icons.person_outline, color: Colors.grey[400]),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      
-                      IntlPhoneField(
-                        onChanged: (phone) {
-                          _phoneController.text = phone.number;
-                          _completePhoneNumber = phone.completeNumber;
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Enter Mobile number',
-                          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(50),
-                              borderSide: BorderSide(color: Colors.grey[300]!)),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(50),
-                              borderSide: BorderSide(color: Colors.grey[300]!)),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(50),
-                              borderSide: const BorderSide(color: AppTheme.brandColor)),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                        ),
-                        initialCountryCode: 'NP',
-                        showDropdownIcon: false,
-                        disableLengthCheck: true,
-                        flagsButtonPadding: const EdgeInsets.only(left: 16),
-                        dropdownIcon: const Icon(Icons.arrow_drop_down, color: Colors.transparent),
-                        pickerDialogStyle: PickerDialogStyle(),
-                      ),
-                      const SizedBox(height: 12),
-                      
-                      TextField(
-                        style: const TextStyle(fontSize: 15),
-                        decoration: InputDecoration(
-                          hintText: 'Email (Optional)',
-                          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 15),
-                          prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[400]),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: Checkbox(
-                              value: _agreeToTerms,
-                              onChanged: (value) {
-                                setState(() { _agreeToTerms = value ?? false; });
-                              },
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                              side: BorderSide(color: Colors.grey[400]!),
-                              activeColor: AppTheme.brandColor,
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 4.0),
-                              child: RichText(
-                                textAlign: TextAlign.start,
-                                text: TextSpan(
-                                  style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600]),
-                                  children: const [
-                                    TextSpan(text: 'I agree to terms of '),
-                                    TextSpan(text: 'Service', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                                    TextSpan(text: ' and '),
-                                    TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        width: double.infinity,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF00B4F5),
-                              AppTheme.brandColor,
-                            ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.brandColor.withValues(alpha: 0.35),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          onPressed: _isLoading ? null : _verifyPhone,
-                          child: _isLoading 
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                              )
-                            : Text(
-                                'Register',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                        ),
-                      ),
-                      const Spacer(),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Already have an account? ", style: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 13)),
-                          GestureDetector(
-                            child: Text("Login Here", style: GoogleFonts.outfit(color: AppTheme.brandColor, fontSize: 13, fontWeight: FontWeight.w500)),
-                            onTap: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
+    );
+  }
+
+  Widget _buildLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        label,
+        style: GoogleFonts.outfit(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.primaryTextColor,
         ),
       ),
     );
