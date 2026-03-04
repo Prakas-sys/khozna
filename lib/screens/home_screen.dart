@@ -88,33 +88,48 @@ class HomeScreen extends StatelessWidget {
           ), // Increased bottom padding to ensure nothing is below nav bar
           child: Column(
             children: [
+              const SizedBox(height: 20), // Pushing hero section down
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    'Find your Next Home',
-                    style: GoogleFonts.outfit(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black87,
-                      height: 1.1,
-                      letterSpacing: -0.5,
+                  SizedBox(
+                    width: double.infinity,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Find your Next Home',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.zenAntiqueSoft(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black87,
+                          height: 1.1,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'No middleman',
-                    style: GoogleFonts.outfit(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.brandColor,
-                      height: 1.1,
-                      letterSpacing: -0.5,
+                  SizedBox(
+                    width: double.infinity,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'No middleman',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.zenAntiqueSoft(
+                          fontSize: 30,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.brandColor,
+                          height: 1.1,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 100), // Balanced gap to push down but keep visible
+              const SizedBox(height: 80), // Adjusted from 100 to maintain search bar position
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
@@ -173,127 +188,40 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 45), // Reduced from 85 to bring cards back up
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Verified Listings',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                  InkWell(
-                    onTap: () {
-                      _checkAuthAndNavigate(
-                        context,
-                        const FilterResultsScreen(
-                          location: 'Verified Listings',
-                          priceRange: 'Top Rated Properties',
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF2F2F2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.east, size: 16),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18), // 1 number below listings
-              FutureBuilder<List<Map<String, dynamic>>>(
-                future: Supabase.instance.client
+              // 10x10 HORIZONTAL GRID SYSTEM
+              ...List.generate(10, (index) {
+                final titles = [
+                  'Verified Listings',
+                  'Recently Added',
+                  'Near You',
+                  'Popular in Kathmandu',
+                  'Budget Friendly',
+                  'High-End Apartments',
+                  'Hot Deals',
+                  'Student Housing',
+                  'Family Flats',
+                  'Premium Collections',
+                ];
+                
+                final title = titles[index];
+                final subtitle = 'Explore high-quality properties in $title';
+                
+                // Variation in queries for demo data diversity
+                final query = Supabase.instance.client
                     .from('properties')
-                    .select('*, property_images(image_url)')
-                    .order('created_at', ascending: false),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return SizedBox(
-                      height: 304,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 3,
-                        itemBuilder: (context, index) => Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: _buildSkeletonCard(context),
-                        ),
-                      ),
-                    );
-                  }
+                    .select('*, property_images(image_url)');
+                
+                final orderedQuery = index % 2 == 0 
+                    ? query.order('created_at', ascending: false)
+                    : query.order('price', ascending: true);
 
-                  // Hardcoded Demo Property
-                  final Map<String, dynamic> demoProperty = {
-                    'id': 'demo-property-id',
-                    'title': 'Modern Apartment in Kathmandu',
-                    'area_name': 'Baneshwor, Kathmandu',
-                    'price': '45,000',
-                    'bedrooms': 2,
-                    'bathrooms': 2,
-                    'sq_ft': '1,200',
-                    'floor': '3rd Floor',
-                    'description':
-                        'Experience luxury living in the heart of Kathmandu. This modern apartment offers breathtaking city views, high-end finishes, and complete security.',
-                    'property_images': [
-                      {
-                        'image_url':
-                            'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-                      },
-                    ],
-                  };
-
-                  final List<Map<String, dynamic>> properties = [
-                    demoProperty,
-                    ...(snapshot.data ?? []),
-                  ];
-
-                  return SizedBox(
-                    height: 304,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      clipBehavior: Clip.none,
-                      itemCount: properties.length,
-                      itemBuilder: (context, index) {
-                        final p = properties[index];
-                        final images = (p['property_images'] as List);
-                        final String mainImage = images.isNotEmpty
-                            ? images[0]['image_url']
-                            : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 16),
-                          child: _buildModernCard(
-                            context,
-                            p['id'],
-                            mainImage,
-                            p['title'],
-                            p['area_name'],
-                            'रू ${p['price']}',
-                            p['bedrooms'] ?? 0,
-                            p['bathrooms'] ?? 0,
-                            p['sq_ft'] ?? '0',
-                            p['floor'] ?? 'N/A',
-                            p['description'] ?? '',
-                            images
-                                .map((i) => i['image_url'].toString())
-                                .toList(),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
+                return Column(
+                  children: [
+                    _buildHorizontalSection(context, title, subtitle, orderedQuery),
+                    const SizedBox(height: 40),
+                  ],
+                );
+              }),
             ],
           ),
         ),
@@ -301,9 +229,135 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSkeletonCard(BuildContext context) {
+  Widget _buildHorizontalSection(BuildContext context, String title, String subtitle, dynamic future) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            InkWell(
+              onTap: () {
+                _checkAuthAndNavigate(
+                  context,
+                  FilterResultsScreen(
+                    location: title,
+                    priceRange: subtitle,
+                  ),
+                );
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F2F2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.east, size: 16),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        FutureBuilder<List<Map<String, dynamic>>>(
+          future: future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SizedBox(
+                height: 304,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 10,
+                  itemBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: _buildSkeletonCard(context),
+                  ),
+                ),
+              );
+            }
+
+            final List<Map<String, dynamic>> properties = List<Map<String, dynamic>>.from(snapshot.data ?? []);
+
+            // Add hardcoded demo property to the first row for testing
+            if (title == 'Verified Listings' && properties.isEmpty) {
+               properties.add({
+                'id': 'demo-property-id',
+                'title': 'Modern Apartment in Kathmandu',
+                'area_name': 'Baneshwor, Kathmandu',
+                'price': '45,000',
+                'bedrooms': 2,
+                'bathrooms': 2,
+                'sq_ft': '1,200',
+                'floor': '3rd Floor',
+                'description': 'Experience luxury living in the heart of Kathmandu.',
+                'property_images': [{'image_url': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}],
+              });
+            }
+
+            return SizedBox(
+              height: 304,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                itemCount: 10, // ALWAYS show 10 items
+                itemBuilder: (context, index) {
+                  if (index < properties.length) {
+                    final p = properties[index];
+                    final images = (p['property_images'] as List);
+                    final String mainImage = images.isNotEmpty
+                        ? images[0]['image_url']
+                        : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: _buildModernCard(
+                        context,
+                        p['id'],
+                        mainImage,
+                        p['title'],
+                        p['area_name'],
+                        'रू ${p['price']}',
+                        p['bedrooms'] ?? 0,
+                        p['bathrooms'] ?? 0,
+                        p['sq_ft'] ?? '0',
+                        p['floor'] ?? 'N/A',
+                        p['description'] ?? '',
+                        images
+                            .map((i) => i['image_url'].toString())
+                            .toList(),
+                      ),
+                    );
+                  } else {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: _buildSkeletonCard(context),
+                    );
+                  }
+                },
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+
+  Widget _buildSkeletonCard(BuildContext context, {bool isFullWidth = false}) {
     return Container(
-      width: 260,
+      width: isFullWidth ? double.infinity : 260,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),

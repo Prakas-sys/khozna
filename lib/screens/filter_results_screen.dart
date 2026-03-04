@@ -47,45 +47,106 @@ class FilterResultsScreen extends StatelessWidget {
         future: Supabase.instance.client.from('properties').select('*, property_images(image_url)').order('created_at', ascending: false),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: AppTheme.brandColor));
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              itemCount: 10,
+              itemBuilder: (context, index) => Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: _buildSkeletonCard(context),
+              ),
+            );
           }
 
           final properties = snapshot.data ?? [];
 
-          if (properties.isEmpty) {
-            return Center(child: Text('No listings found.', style: GoogleFonts.outfit(color: Colors.grey)));
-          }
-
           return ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            itemCount: properties.length,
+            itemCount: 10, // ALWAYS show 10 items
             itemBuilder: (context, index) {
-              final p = properties[index];
-              final images = (p['property_images'] as List);
-              final String mainImage = images.isNotEmpty 
-                  ? images[0]['image_url'] 
-                  : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+              if (index < properties.length) {
+                final p = properties[index];
+                final images = (p['property_images'] as List);
+                final String mainImage = images.isNotEmpty 
+                    ? images[0]['image_url'] 
+                    : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: _buildWideCard(
-                  context,
-                  p['id'],
-                  mainImage,
-                  p['title'],
-                  p['area_name'],
-                  'रू ${p['price']}',
-                  p['bedrooms'] ?? 0,
-                  p['bathrooms'] ?? 0,
-                  p['sq_ft'] ?? '0',
-                  p['floor'] ?? 'N/A',
-                  p['description'] ?? '',
-                  images.map((i) => i['image_url'].toString()).toList(),
-                ),
-              );
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: _buildWideCard(
+                    context,
+                    p['id'],
+                    mainImage,
+                    p['title'],
+                    p['area_name'],
+                    'रू ${p['price']}',
+                    p['bedrooms'] ?? 0,
+                    p['bathrooms'] ?? 0,
+                    p['sq_ft'] ?? '0',
+                    p['floor'] ?? 'N/A',
+                    p['description'] ?? '',
+                    images.map((i) => i['image_url'].toString()).toList(),
+                  ),
+                );
+              } else {
+                // Show skeletons if less than 10 real listings
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: _buildSkeletonCard(context),
+                );
+              }
             },
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSkeletonCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF2F2F2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 190,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Color(0xFFF5F5F5),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(width: 140, height: 16, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
+                    Container(width: 80, height: 16, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(width: 100, height: 10, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
+                const SizedBox(height: 24),
+                Container(
+                  width: double.infinity,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -50,14 +50,8 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
       _startBannerAnimation();
     });
 
-    // Pre-load owner welcome messages
-    _messages.addAll([
-      {
-        'text': 'नमस्ते 🙏',
-        'isMe': false,
-        'time': '10:00 AM',
-      },
-    ]);
+    // Pre-load owner welcome messages - EMPTY AS REQUESTED
+    _messages.clear();
   }
 
   void _startBannerAnimation() async {
@@ -340,68 +334,84 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
             ),
           ),
 
-          // MESSAGE INPUT
+          // FLOATING MESSAGE INPUT
           Container(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            decoration: const BoxDecoration(
+              color: Colors.transparent,
             ),
-            child: Row(
-              children: [
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {},
-                    borderRadius: BorderRadius.circular(20),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Icon(Icons.add_circle_outline, color: AppTheme.brandColor, size: 26),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F3F3),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: TextField(
-                      controller: _messageController,
-                      style: GoogleFonts.outfit(fontSize: 14),
-                      decoration: InputDecoration(
-                        hintText: 'संन्देश लेख्नुहोस्...',
-                        hintStyle: GoogleFonts.outfit(color: Colors.grey[500], fontSize: 13),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(color: Colors.grey.shade100),
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Icons.add_circle_outline, color: AppTheme.brandColor, size: 24),
+                            onPressed: () {},
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                          Expanded(
+                            child: TextField(
+                              controller: _messageController,
+                              style: GoogleFonts.outfit(fontSize: 14),
+                              decoration: InputDecoration(
+                                hintText: 'Type your message...',
+                                hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 14),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.emoji_emotions_outlined, color: Colors.grey, size: 20),
+                            onPressed: () {},
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Material(
-                  color: AppTheme.brandColor,
-                  borderRadius: BorderRadius.circular(20),
-                  elevation: 2,
-                  shadowColor: AppTheme.brandColor.withValues(alpha: 0.4),
-                  child: InkWell(
+                  const SizedBox(width: 10),
+                  GestureDetector(
                     onTap: _sendMessage,
-                    borderRadius: BorderRadius.circular(20),
-                    child: const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Icon(Icons.send_rounded, color: Colors.white, size: 18),
+                    child: Container(
+                      height: 48,
+                      width: 48,
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandColor,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.brandColor.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           )
         ],

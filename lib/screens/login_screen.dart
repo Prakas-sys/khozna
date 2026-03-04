@@ -22,7 +22,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _agreeToTerms = false;
+  bool _agreeToTerms = true;
   bool _isLoading = false;
   final PageController _pageController = PageController();
   int _currentIllustration = 0;
@@ -183,527 +183,347 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenH = MediaQuery.of(context).size.height;
-    final double statusH = MediaQuery.of(context).padding.top;
+    const primaryBlue = Color(0xFF00B4F4);
 
     return Scaffold(
-      backgroundColor: Colors.black, // Dark foundation for mesh depth
-      body: Stack(
-        children: [
-          // 1. Premium Mesh Background
-          _buildMeshBackground(),
-
-          SafeArea(
-            child: Column(
-              children: [
-                // 2. Illustration Area (37%)
-                _buildIllustrationArea(statusH),
-
-                // 3. Form Area (63%) with Glassmorphism
-                _buildFormArea(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMeshBackground() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0056D2), // Deep Corporate Blue
-            Color(0xFF002B6B), // Midnight Blue
-            Colors.black,
-          ],
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: -150,
-            right: -100,
-            child: _blurCircle(400, const Color(0xFF00B4F4).withOpacity(0.35)),
-          ),
-          Positioned(
-            bottom: 100,
-            left: -150,
-            child: _blurCircle(600, AppTheme.brandColor.withOpacity(0.25)),
-          ),
-          Positioned(
-            top: screenHeight(context) * 0.4,
-            right: -50,
-            child: _blurCircle(250, const Color(0xFF673AB7).withOpacity(0.15)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _blurCircle(double size, Color color) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: color,
-            blurRadius: 100,
-            spreadRadius: 50,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildIllustrationArea(double statusH) {
-    return Expanded(
-      flex: 37,
-      child: Stack(
-        children: [
-          PageView.builder(
-            controller: _pageController,
-            itemCount: _illustrations.length,
-            onPageChanged: (i) => setState(() => _currentIllustration = i),
-            itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.fromLTRB(28, 48, 28, 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(40),
-                  border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(40),
-                  child: Stack(
-                    fit: StackFit.expand,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Image.asset(_illustrations[index], fit: BoxFit.cover),
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.3),
-                            ],
+                      // Header Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: _handleBossTap,
+                            child: Image.asset(
+                              'assets/images/original logo.png',
+                              height: 44,
+                            ),
                           ),
+                          GestureDetector(
+                            onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: primaryBlue.withOpacity(0.05),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                color: primaryBlue,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Illustration Area
+                      SizedBox(
+                        height: constraints.maxHeight * 0.32,
+                        child: PageView.builder(
+                          controller: _pageController,
+                          itemCount: _illustrations.length,
+                          onPageChanged: (i) => setState(() => _currentIllustration = i),
+                          itemBuilder: (context, index) {
+                            return Image.asset(
+                              _illustrations[index],
+                              fit: BoxFit.contain,
+                            );
+                          },
                         ),
+                      ),
+
+                      // Branding & Texts
+                      Column(
+                        children: [
+                          Text(
+                            'Welcome Back To',
+                            style: GoogleFonts.zenAntiqueSoft(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF2D2D2D),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'KHOZNA',
+                            style: GoogleFonts.zenAntiqueSoft(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                              color: primaryBlue,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'No broker, no scams, only real place.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.zenAntiqueSoft(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Single-Shape Phone Input (Slim 54px High, 27px corner radius)
+                      Container(
+                        height: 54,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(27),
+                          border: Border.all(color: Colors.grey[500]!, width: 1.5),
+                        ),
+                        child: Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 18),
+                              child: Row(
+                                children: [
+                                  const Text('\uD83C\uDDF3\uD83C\uDDF5', style: TextStyle(fontSize: 20)),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '+977',
+                                    style: GoogleFonts.zenAntiqueSoft(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Container(
+                                    height: 24,
+                                    width: 1.5,
+                                    color: Colors.grey[300],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 12, right: 30),
+                                child: TextField(
+                                  controller: _phoneController,
+                                  keyboardType: TextInputType.phone,
+                                  style: GoogleFonts.zenAntiqueSoft(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter Mobile Number',
+                                    hintStyle: GoogleFonts.zenAntiqueSoft(
+                                      color: Colors.grey[300],
+                                      fontSize: 14,
+                                    ),
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Terms Agreement
+                      GestureDetector(
+                        onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: Colors.grey[400]!, width: 1.5),
+                                color: _agreeToTerms ? primaryBlue : Colors.white,
+                              ),
+                              child: _agreeToTerms
+                                  ? const Icon(Icons.check_rounded, size: 12, color: Colors.white)
+                                  : null,
+                            ),
+                            const SizedBox(width: 12),
+                            RichText(
+                              text: TextSpan(
+                                style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600]),
+                                children: [
+                                  const TextSpan(text: 'I agree to terms of '),
+                                  TextSpan(
+                                    text: 'Service',
+                                    style: TextStyle(
+                                      color: primaryBlue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const TextSpan(text: ' and '),
+                                  TextSpan(
+                                    text: 'Privacy Policy',
+                                    style: TextStyle(
+                                      color: primaryBlue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Primary Action Button (24px corner radius)
+                      SizedBox(
+                        width: double.infinity,
+                        height: 58,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _verifyPhone,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(32),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  'Login',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+
+                      // Divider
+                      Row(
+                        children: [
+                          Expanded(child: Divider(color: Colors.grey[300])),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              'OR',
+                              style: GoogleFonts.outfit(
+                                fontSize: 11,
+                                color: Colors.grey[500],
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                          ),
+                          Expanded(child: Divider(color: Colors.grey[300])),
+                        ],
+                      ),
+
+                      // Social Buttons (24px corner radius)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildSocialBtn(
+                              icon: 'assets/icons/google_g.svg',
+                              label: 'Google',
+                              onTap: _signInWithGoogle,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: _buildSocialBtn(
+                              icon: 'assets/icons/facebook_f.svg',
+                              label: 'Facebook',
+                              onTap: _signInWithFacebook,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Footer Link
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Don't have an account? ",
+                            style: GoogleFonts.outfit(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                            ),
+                            child: Text(
+                              'Register Here',
+                              style: GoogleFonts.outfit(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: primaryBlue,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-              );
-            },
-          ),
-          // Header Logo & Skip
-          Positioned(
-            top: 12,
-            left: 28,
-            right: 28,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: _handleBossTap,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.black12,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Image.asset('assets/images/original logo.png', height: 32),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white.withOpacity(0.12)),
-                        ),
-                        child: Text(
-                          'Skip Now',
-                          style: GoogleFonts.outfit(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Indicators
-          Positioned(
-            bottom: 28,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_illustrations.length, (index) {
-                final bool isSelected = index == _currentIllustration;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: isSelected ? 22 : 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: isSelected ? Colors.white : Colors.white.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFormArea() {
-    return Expanded(
-      flex: 63,
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.92),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(50)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 30,
-              offset: const Offset(0, -10),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(50)),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight,
-                      maxHeight: constraints.maxHeight,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(36, 12, 36, 24),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Top: Branding Section
-                          Column(
-                            children: [
-                              Container(
-                                width: 45,
-                                height: 5,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              const SizedBox(height: 18),
-                              Text(
-                                'Experience',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey[500],
-                                  letterSpacing: 1.5,
-                                ),
-                              ),
-                              Text(
-                                'KHOZNA',
-                                style: GoogleFonts.zenAntiqueSoft(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.brandColor,
-                                  letterSpacing: 8.0,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Premium Rental Market Nepal',
-                                style: GoogleFonts.playfairDisplay(
-                                  fontSize: 15,
-                                  fontStyle: FontStyle.italic,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          // Middle: The Vault Phone Input & Action
-                          Column(
-                            children: [
-                              // Glass-Inset Phone Input
-                              Container(
-                                height: 62,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: Colors.grey.withOpacity(0.15)),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                                      child: Row(
-                                        children: [
-                                          const Text('\uD83C\uDDF3\uD83C\uDDF5', style: TextStyle(fontSize: 22)),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            '+977',
-                                            style: GoogleFonts.outfit(
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.black87,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 16),
-                                          Container(width: 1, height: 26, color: Colors.grey[200]),
-                                        ],
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: TextField(
-                                        controller: _phoneController,
-                                        keyboardType: TextInputType.phone,
-                                        style: GoogleFonts.outfit(
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 0.5,
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: '9800000000',
-                                          hintStyle: GoogleFonts.outfit(
-                                            color: Colors.grey[300],
-                                            fontSize: 16,
-                                          ),
-                                          border: InputBorder.none,
-                                          contentPadding: const EdgeInsets.only(right: 16),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 18),
-                              // Terms
-                              GestureDetector(
-                                onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                                  child: Row(
-                                    children: [
-                                      AnimatedContainer(
-                                        duration: const Duration(milliseconds: 300),
-                                        width: 20,
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                          color: _agreeToTerms ? AppTheme.brandColor : Colors.white,
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(
-                                            color: _agreeToTerms ? AppTheme.brandColor : Colors.grey[300]!,
-                                            width: 1.5,
-                                          ),
-                                        ),
-                                        child: _agreeToTerms ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
-                                      ),
-                                      const SizedBox(width: 14),
-                                      Expanded(
-                                        child: RichText(
-                                          text: TextSpan(
-                                            style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
-                                            children: [
-                                              const TextSpan(text: 'I accept individual '),
-                                              TextSpan(
-                                                text: 'Privacy & Terms',
-                                                style: TextStyle(
-                                                  color: AppTheme.brandColor,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 22),
-                              // Prism Button
-                              _buildPrismButton(),
-                            ],
-                          ),
-
-                          // Bottom: Social & Registration
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(child: Divider(color: Colors.grey[100])),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    child: Text(
-                                      'OR SIGN IN WITH',
-                                      style: GoogleFonts.outfit(
-                                        color: Colors.grey[300],
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: 1.5,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(child: Divider(color: Colors.grey[100])),
-                                ],
-                              ),
-                              const SizedBox(height: 18),
-                              Row(
-                                children: [
-                                  Expanded(child: _socialBtn('assets/icons/google_g.svg', 'Google', _signInWithGoogle)),
-                                  const SizedBox(width: 18),
-                                  Expanded(child: _socialBtn('assets/icons/facebook_f.svg', 'Facebook', _signInWithFacebook, isFb: true)),
-                                ],
-                              ),
-                              const SizedBox(height: 30),
-                              GestureDetector(
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
-                                child: RichText(
-                                  text: TextSpan(
-                                    style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[500]),
-                                    children: [
-                                      const TextSpan(text: "Don't have an account? "),
-                                      TextSpan(
-                                        text: 'Join Khozna',
-                                        style: TextStyle(
-                                          color: AppTheme.brandColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPrismButton() {
-    return Container(
-      width: double.infinity,
-      height: 60,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF00B4F4), AppTheme.brandColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.brandColor.withOpacity(0.35),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: _isLoading ? null : _verifyPhone,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        ),
-        child: _isLoading
-            ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Get Started',
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
-                ],
               ),
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _socialBtn(String icon, String label, VoidCallback onTap, {bool isFb = false}) {
+  Widget _buildSocialBtn({
+    required String icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(32),
       child: Container(
-        height: 56,
+        height: 54,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.grey[100]!),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(color: Colors.grey[500]!, width: 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SvgPicture.asset(icon, height: 22),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Text(
               label,
               style: GoogleFonts.outfit(
-                color: isFb ? const Color(0xFF1877F2) : Colors.black87,
-                fontWeight: FontWeight.w600,
                 fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF2D2D2D),
               ),
             ),
           ],
@@ -711,6 +531,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-  double screenHeight(BuildContext context) => MediaQuery.of(context).size.height;
 }
