@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
-import { Shield, MapPin, Users, ArrowUpRight, Play, Heart, Target, Lightbulb, Mail, MessageCircle, Instagram, Facebook, Twitter, ChevronDown } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { motion, useScroll, useSpring } from 'framer-motion';
+import type { Easing } from 'framer-motion';
+import { Shield, ArrowUpRight, Play, Heart, Target, Lightbulb, Mail, Instagram, Facebook, Twitter, ChevronDown } from 'lucide-react';
 
 function App() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -16,11 +17,13 @@ function App() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  const cinematicEase = [0.19, 1, 0.22, 1] as unknown as Easing[];
+
   const fadeIn = {
     initial: { opacity: 0, y: 60 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true },
-    transition: { duration: 0.8, ease: [0.19, 1, 0.22, 1] }
+    transition: { duration: 0.8, ease: cinematicEase }
   };
 
   const staggerContainer = {
@@ -87,7 +90,7 @@ function App() {
             <motion.div
               initial={{ opacity: 0, x: -80 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+              transition={{ duration: 1.2, ease: cinematicEase }}
             >
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -131,7 +134,7 @@ function App() {
             <motion.div
               initial={{ opacity: 0, scale: 0.9, rotate: 5 }}
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+              transition={{ duration: 1.5, ease: cinematicEase }}
               style={{ position: 'relative' }}
             >
               <div className="glass-card" style={{ padding: '1rem', borderRadius: '40px', background: 'white', overflow: 'hidden' }}>
@@ -223,7 +226,7 @@ function App() {
              <motion.div initial={{ x: -100, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} transition={{ duration: 1 }}>
                 <div style={{ position: 'relative', width: '320px', height: '650px', background: '#020617', borderRadius: '54px', border: '12px solid #1E293B', boxShadow: '0 60px 120px rgba(0,0,0,0.2)', margin: '0 auto' }}>
                    <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', width: '100px', height: '30px', background: '#1E293B', borderRadius: '20px' }} />
-                   <div style={{ width: '100%', height: '100%', display: 'flex', flexDir: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                   <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                       <motion.img 
                         animate={{ y: [0, -10, 0] }}
                         transition={{ duration: 4, repeat: Infinity }}
