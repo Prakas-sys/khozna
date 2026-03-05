@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Shield, MapPin, Users, ArrowUpRight, Play, Heart, Target, Lightbulb, Mail, MessageCircle, Instagram, Facebook, Twitter } from 'lucide-react';
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { Shield, MapPin, Users, ArrowUpRight, Play, Heart, Target, Lightbulb, Mail, MessageCircle, Instagram, Facebook, Twitter, ChevronDown } from 'lucide-react';
 
 function App() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
-  const heroRef = useRef(null);
-
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -16,429 +16,277 @@ function App() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  const fadeIn = {
+    initial: { opacity: 0, y: 60 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.8, ease: [0.19, 1, 0.22, 1] }
+  };
+
+  const staggerContainer = {
+    whileInView: { transition: { staggerChildren: 0.1 } }
+  };
+
   return (
     <div className="app-container" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
-      {/* Custom Cursor */}
+      {/* Scroll Progress Journey Bar */}
+      <motion.div style={{ scaleX, position: 'fixed', top: 0, left: 0, right: 0, height: '4px', background: 'var(--primary)', zIndex: 2000, transformOrigin: '0%' }} />
+
+      {/* Custom 2026 Cursor */}
       <motion.div
         className="custom-cursor"
         animate={{
           x: mousePos.x - 10,
           y: mousePos.y - 10,
-          scale: isHovering ? 4 : 1,
+          scale: isHovering ? 3 : 1,
         }}
-        transition={{ type: 'spring', stiffness: 500, damping: 28, mass: 0.5 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.2 }}
       />
 
-      {/* Navigation */}
+      {/* Cinematic Navigation */}
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         className="glass-card"
         style={{
           position: 'fixed',
-          top: '2rem',
+          top: '1.5rem',
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '90%',
-          padding: '1rem 2rem',
+          width: 'min(95%, 1200px)',
+          padding: '0.8rem 2rem',
           borderRadius: '100px',
           zIndex: 1000,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)'
+          background: 'rgba(255, 255, 255, 0.95)'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem' }}>
           <div className="logo-container">
-            <img src="/logo.png" style={{ height: '32px' }} alt="Logo" />
+            <img src="/logo.png" style={{ height: '30px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.05))' }} alt="Khozna Logo" />
           </div>
-          <span style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '1px', color: 'var(--text)', fontFamily: 'var(--font-heading)' }}>KHOZNA</span>
+          <span style={{ fontWeight: 800, fontSize: '1.1rem', letterSpacing: '2px', color: 'var(--text)', fontFamily: 'var(--font-heading)' }}>KHOZNA</span>
         </div>
-        <div style={{ display: 'flex', gap: '3rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)' }}>
-          <a href="#about" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>Our Story</a>
-          <a href="#mission" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>Mission</a>
-          <a href="#vision" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>Vision</a>
-          <a href="#app" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>The App</a>
+        <div style={{ display: 'flex', gap: '2.5rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <a href="#about" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>Our Journey</a>
+          <a href="#mission" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>Philosophy</a>
+          <a href="#app" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>Experience</a>
         </div>
-        <button className="glow-btn" style={{ padding: '0.6rem 1.5rem', fontSize: '0.8rem' }} onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
-          Download App
+        <button className="glow-btn" style={{ padding: '0.8rem 2rem', fontSize: '0.7rem' }} onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
+          Join Now
         </button>
       </motion.nav>
 
-      {/* Hero Section */}
-      <section ref={heroRef} style={{ height: '100vh', perspective: '1000px', background: 'var(--bg)' }}>
-        <div className="parallax-bg" />
+      {/* Cinematic Hero Section */}
+      <section style={{ height: '110vh', background: 'var(--bg)' }}>
+        <div className="culture-overlay" />
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', alignItems: 'center', gap: '4rem' }}>
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
+              initial={{ opacity: 0, x: -80 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1, ease: "easeOut" }}
+              transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
             >
-              <motion.div
-                style={{
-                  background: 'rgba(0, 163, 225, 0.1)',
-                  display: 'inline-block',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '100px',
-                  border: '1px solid rgba(0, 163, 225, 0.2)',
-                  marginBottom: '2rem',
-                  fontSize: '0.8rem',
-                  fontWeight: 700,
-                  color: 'var(--primary)',
-                  letterSpacing: '1px'
-                }}
-              >
-                #1 DIRECT RENTAL PLATFORM IN NEPAL 🇳🇵
-              </motion.div>
-              <h1 style={{ fontSize: 'clamp(3.5rem, 8vw, 6.5rem)', marginBottom: '1.5rem' }}>
-                Rent <br />
-                <span className="text-gradient">Direct.</span>
-              </h1>
-              <p style={{ fontSize: '1.3rem', color: 'var(--text-dim)', maxWidth: '530px', marginBottom: '3.5rem', lineHeight: '1.4' }}>
-                Join the most trusted community finding rooms, flats, and houses directly from owners.
-                No commissions. No middlemen. Just perfect matches.
-              </p>
-              <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                <button className="glow-btn" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
-                  Explore Listings <ArrowUpRight size={20} style={{ marginLeft: '8px' }} />
-                </button>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', color: 'var(--text)' }} onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
-                  <div style={{
-                    width: '50px',
-                    height: '50px',
-                    borderRadius: '50%',
-                    background: 'var(--primary)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <Play size={20} fill="white" color="white" />
-                  </div>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Watch How it Works</span>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* 3D Floating Element */}
-            <motion.div
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '550px',
-              }}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.5, delay: 0.5 }}
-            >
-              <motion.div
-                animate={{
-                  y: [0, -15, 0],
-                  rotateY: [0, 3, 0],
-                  rotateX: [0, -3, 0]
-                }}
-                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                className="glass-card"
-                style={{
-                  width: '95%',
-                  height: '100%',
-                  borderRadius: '32px',
-                  background: 'white',
-                  padding: '2rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'flex-end',
-                  overflow: 'hidden',
-                  border: '8px solid white',
-                  boxShadow: '0 40px 100px rgba(0, 163, 225, 0.15)'
-                }}
-              >
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: -1 }}>
-                  <img src="/rental_hero.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Traditional Nepali Rental Room" />
-                </div>
-                <div style={{
-                  background: 'rgba(255, 255, 255, 0.95)',
-                  padding: '1.5rem',
-                  borderRadius: '20px',
-                  backdropFilter: 'blur(10px)',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
-                }}>
-                  <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem', color: 'var(--text)' }}>Modern Tradition.</h2>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-dim)' }}>Premium living spaces verified by Khozna.</p>
-                </div>
-              </motion.div>
-
-              {/* Floating Stat Bars */}
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="glass-card"
-                style={{
-                  position: 'absolute',
-                  top: '10%',
-                  right: '-2%',
-                  padding: '1.2rem 2rem',
-                  borderRadius: '20px',
-                  background: 'white',
-                  boxShadow: '0 20px 40px rgba(0, 163, 225, 0.12)',
-                  border: '1px solid rgba(0, 163, 225, 0.1)'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <Shield color="var(--primary)" size={24} />
-                  <div>
-                    <div style={{ fontSize: '0.7rem', opacity: 0.6, fontWeight: 800, letterSpacing: '1px' }}>VERIFIED</div>
-                    <div style={{ fontWeight: 800, color: 'var(--text)' }}>OWNER LISTED</div>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* About Section - Our Story */}
-      <section id="about" style={{ padding: 'var(--spacing-xl) 0', background: 'white' }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '6rem' }}>
-             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-            >
-              <img src="/man_illustrate.png" style={{ width: '100%', borderRadius: '40px' }} alt="Our Story" />
-            </motion.div>
-            <div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-              >
-                <h2 style={{ fontSize: '3.5rem', marginBottom: '2rem' }}>Our <span className="text-gradient">Story.</span></h2>
-                <p style={{ fontSize: '1.2rem', color: 'var(--text-dim)', marginBottom: '2rem', lineHeight: '1.6' }}>
-                  Khozna was born out of a simple observation: finding a home in Nepal should be a moment of joy, not a stressful ordeal of high commissions and unreliable middlemen.
-                </p>
-                <p style={{ fontSize: '1.2rem', color: 'var(--text-dim)', marginBottom: '2rem', lineHeight: '1.6' }}>
-                  We built a bridge directly between property owners and seekers. By removing the barriers, we've created a community where trust and transparency are the standard, not the exception.
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '3rem' }}>
-                   <div>
-                      <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary)' }}>100%</div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 600, opacity: 0.7 }}>Commission Free</div>
-                   </div>
-                   <div>
-                      <div style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary)' }}>Verified</div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 600, opacity: 0.7 }}>Property Listings</div>
-                   </div>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mission & Vision Section */}
-      <section style={{ padding: 'var(--spacing-xl) 0', background: 'var(--surface)' }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem' }}>
-            {/* Mission */}
-            <motion.div
-              id="mission"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              className="glass-card"
-              style={{ padding: '4rem', borderRadius: '40px', background: 'white' }}
-            >
-              <div style={{ width: '60px', height: '60px', background: 'var(--primary-glow)', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem', color: 'var(--primary)' }}>
-                <Target size={32} />
-              </div>
-              <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}>Our <span className="text-gradient">Mission.</span></h2>
-              <p style={{ fontSize: '1.1rem', color: 'var(--text-dim)', lineHeight: '1.7' }}>
-                To revolutionize the rental ecosystem in Nepal by providing a direct, transparent, and commission-free platform. We empower owners and tenants to connect with confidence and ease.
-              </p>
-            </motion.div>
-
-            {/* Vision */}
-            <motion.div
-              id="vision"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="glass-card"
-              style={{ padding: '4rem', borderRadius: '40px', background: 'white' }}
-            >
-              <div style={{ width: '60px', height: '60px', background: 'var(--primary-glow)', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem', color: 'var(--primary)' }}>
-                <Lightbulb size={32} />
-              </div>
-              <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}>Our <span className="text-gradient">Vision.</span></h2>
-              <p style={{ fontSize: '1.1rem', color: 'var(--text-dim)', lineHeight: '1.7' }}>
-                To become Nepal's #1 trusted destination for finding homes. We envision a future where every Nepali can find their perfect living space through a click, backed by a community of verified users.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section style={{ padding: 'var(--spacing-xl) 0', background: 'white' }}>
-        <div className="container">
-           <div style={{ textAlign: 'center', marginBottom: '6rem' }}>
-            <h2 style={{ fontSize: '3.5rem' }}>The Khozna <span className="text-gradient">Values.</span></h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '3rem' }}>
-            {[
-              { icon: <Shield />, title: 'Integrity', desc: 'We verify every listing to ensure what you see is what you get.' },
-              { icon: <Heart />, title: 'Community', desc: 'Built for the people of Nepal, by the people who understand the local struggle.' },
-              { icon: <Users />, title: 'Directness', desc: 'No middlemen, no hidden fees. Just direct communication between you and the owner.' }
-            ].map((value, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.1 }}
-                style={{ textAlign: 'center', padding: '2rem' }}
-              >
-                <div style={{ color: 'var(--primary)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
-                  {React.cloneElement(value.icon as React.ReactElement<{ size: number }>, { size: 40 })}
-                </div>
-                <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>{value.title}</h3>
-                <p style={{ color: 'var(--text-dim)' }}>{value.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Contact & Support Section */}
-      <section id="contact" style={{ padding: 'var(--spacing-xl) 0', background: 'var(--surface)' }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8rem', alignItems: 'center' }}>
-            <div>
-              <h2 style={{ fontSize: '3.5rem', marginBottom: '2rem' }}>Connect <br /><span className="text-gradient">With Us.</span></h2>
-              <p style={{ fontSize: '1.2rem', color: 'var(--text-dim)', marginBottom: '3rem' }}>
-                Have questions or need support? Our team is here to help you navigate your rental journey.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                    <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', boxShadow: '0 10px 20px rgba(0,0,0,0.05)' }}>
-                       <Mail size={24} />
-                    </div>
-                    <div>
-                       <div style={{ fontSize: '0.8rem', fontWeight: 800, opacity: 0.5 }}>EMAIL US</div>
-                       <div style={{ fontWeight: 700 }}>hello@khozna.com</div>
-                    </div>
-                 </div>
-                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                    <div style={{ width: '50px', height: '50px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', boxShadow: '0 10px 20px rgba(0,0,0,0.05)' }}>
-                       <MessageCircle size={24} />
-                    </div>
-                    <div>
-                       <div style={{ fontSize: '0.8rem', fontWeight: 800, opacity: 0.5 }}>SUPPORT</div>
-                       <div style={{ fontWeight: 700 }}>Live Chat via App</div>
-                    </div>
-                 </div>
-              </div>
-            </div>
-            <motion.div
-               initial={{ opacity: 0, scale: 0.9 }}
-               whileInView={{ opacity: 1, scale: 1 }}
-               style={{ background: 'white', padding: '3rem', borderRadius: '40px', boxShadow: '0 30px 60px rgba(0,163,225,0.05)' }}
-            >
-               <h3 style={{ fontSize: '1.8rem', marginBottom: '2rem' }}>Send a Message</h3>
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  <input type="text" placeholder="Your Name" style={{ width: '100%', padding: '1.2rem', borderRadius: '15px', border: '1px solid #E2E8F0', background: 'var(--surface)', fontFamily: 'inherit' }} />
-                  <input type="email" placeholder="Your Email" style={{ width: '100%', padding: '1.2rem', borderRadius: '15px', border: '1px solid #E2E8F0', background: 'var(--surface)', fontFamily: 'inherit' }} />
-                  <textarea placeholder="How can we help?" rows={4} style={{ width: '100%', padding: '1.2rem', borderRadius: '15px', border: '1px solid #E2E8F0', background: 'var(--surface)', fontFamily: 'inherit', resize: 'none' }}></textarea>
-                  <button className="glow-btn" style={{ width: '100%' }}>Send Message</button>
-               </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* App Coming Soon Section */}
-      <section id="app" style={{ padding: 'var(--spacing-xl) 0', background: 'white' }}>
-        <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '8rem' }}>
-            <div style={{ perspective: '1000px' }}>
-              <motion.div
-                whileHover={{ rotateY: 10, rotateX: -5 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
                 style={{
-                  width: '300px',
-                  height: '600px',
-                  background: '#F8FAFC',
-                  borderRadius: '44px',
-                  border: '12px solid #E2E8F0',
-                  boxShadow: '0 40px 80px rgba(0, 163, 225, 0.1)',
-                  margin: '0 auto',
-                  position: 'relative',
-                  overflow: 'hidden'
+                  background: 'var(--primary)',
+                  display: 'inline-block',
+                  padding: '0.6rem 1.4rem',
+                  borderRadius: '100px',
+                  marginBottom: '2.5rem',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  color: 'white',
+                  letterSpacing: '2px',
+                  boxShadow: '0 10px 20px var(--primary-glow)'
                 }}
               >
-                <div style={{
-                  position: 'absolute',
-                  top: '0',
-                  left: '0',
-                  width: '100%',
-                  height: '100%',
-                  background: 'linear-gradient(rgba(0,163,225,0.05), transparent)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <motion.img
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                    src="/logo.png"
-                    style={{ width: '80px' }}
-                  />
-                  <h3 style={{ marginTop: '2rem', letterSpacing: '4px', fontSize: '1.2rem', opacity: 0.6, color: 'var(--text)' }}>KHOZNA</h3>
-                </div>
+                NEPAL'S PREMIER DIRECT RENTAL ECOSYSTEM
               </motion.div>
-            </div>
-            <div>
-              <h2 style={{ fontSize: '4rem', marginBottom: '2rem' }}>Experience <br /><span className="text-gradient">The App.</span></h2>
-              <p style={{ fontSize: '1.2rem', color: 'var(--text-dim)', marginBottom: '3.5rem' }}>
-                Join the fast lane to finding your perfect home. The mobile
-                experience is coming to give you verified freedom on the go.
+              <h1 style={{ fontSize: 'clamp(4rem, 10vw, 8rem)', marginBottom: '2rem' }}>
+                Rent <br />
+                <span className="text-gradient">Purely.</span>
+              </h1>
+              <p style={{ fontSize: '1.4rem', color: 'var(--text-dim)', maxWidth: '580px', marginBottom: '4rem', lineHeight: '1.5', fontWeight: 300 }}>
+                A cinematic approach to modern living. Finding your space in Nepal is no longer a search—it's a journey.
               </p>
-              <div style={{ display: 'flex', gap: '3rem' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--primary)' }}>iOS</div>
-                  <div style={{ fontSize: '0.7rem', fontWeight: 700, opacity: 0.5, letterSpacing: '1px' }}>SOON</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--primary)' }}>Droid</div>
-                  <div style={{ fontSize: '0.7rem', fontWeight: 700, opacity: 0.5, letterSpacing: '1px' }}>SOON</div>
+              <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+                <button className="glow-btn" onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
+                  Start the Journey <ArrowUpRight size={20} style={{ marginLeft: '10px' }} />
+                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', cursor: 'pointer' }} onMouseEnter={() => setIsHovering(true)} onMouseLeave={() => setIsHovering(false)}>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'white', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
+                    <Play size={24} fill="var(--primary)" color="var(--primary)" />
+                  </div>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 700, letterSpacing: '1px' }}>SEE THE STORY</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, rotate: 5 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
+              style={{ position: 'relative' }}
+            >
+              <div className="glass-card" style={{ padding: '1rem', borderRadius: '40px', background: 'white', overflow: 'hidden' }}>
+                <motion.img 
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                  src="/rental_hero.png" 
+                  style={{ width: '100%', borderRadius: '30px', display: 'block' }} 
+                />
+              </div>
+              {/* Floating Realistic Badge */}
+              <motion.div
+                animate={{ y: [0, -20, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                style={{ position: 'absolute', bottom: '-20px', right: '-20px', background: 'white', padding: '1.5rem 2rem', borderRadius: '24px', boxShadow: '0 30px 60px rgba(0,0,0,0.1)', border: '1px solid #E2E8F0' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                   <Shield size={28} color="var(--primary)" />
+                   <div>
+                     <div style={{ fontSize: '0.7rem', fontWeight: 900, opacity: 0.4, letterSpacing: '1px' }}>VERIFIED</div>
+                     <div style={{ fontWeight: 800, fontSize: '1rem' }}>Nepal Standard</div>
+                   </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+        <motion.div 
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          style={{ position: 'absolute', bottom: '4rem', left: '50%', transform: 'translateX(-50%)', opacity: 0.3 }}
+        >
+          <ChevronDown size={32} />
+        </motion.div>
+      </section>
+
+      {/* The Journey Section - Cinematic storytelling */}
+      <section id="about" style={{ padding: 'var(--spacing-section) 0', background: 'white' }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '10rem' }}>
+            <motion.div {...fadeIn}>
+              <h2 style={{ fontSize: '5rem', marginBottom: '3rem' }}>Our <br/><span className="text-gradient">Heritage.</span></h2>
+              <p style={{ fontSize: '1.4rem', color: 'var(--text-dim)', lineHeight: '1.6', fontWeight: 300, marginBottom: '3rem' }}>
+                In a world of noise, Khozna brings silence. We believe finding a home is a sacred act—a bridge between your past and your future. 
+              </p>
+              <p style={{ fontSize: '1.4rem', color: 'var(--text-dim)', lineHeight: '1.6', fontWeight: 300 }}>
+                We removed the middlemen not just to save money, but to restore the human connection that defines Nepali hospitality.
+              </p>
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1 }}
+              style={{ position: 'relative' }}
+            >
+              <img src="/man_illustrate.png" style={{ width: '100%', borderRadius: '40px', boxShadow: 'var(--shadow-deep)' }} />
+              <div style={{ position: 'absolute', top: '20%', left: '-10%', width: '100%', height: '100%', border: '2px solid var(--primary)', borderRadius: '40px', zIndex: -1, opacity: 0.2 }} />
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer style={{ padding: '6rem 0', background: 'var(--surface)', borderTop: '1px solid rgba(0, 163, 225, 0.05)', textAlign: 'center' }}>
+      {/* Philosophical Grid - Nepal High Culture */}
+      <section id="mission" style={{ padding: 'var(--spacing-section) 0', background: 'var(--surface)' }}>
+        <div className="culture-overlay" />
         <div className="container">
-          <img src="/logo.png" style={{ height: '36px', marginBottom: '2rem' }} />
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '2rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-dim)' }}>
-            <a href="#about">About</a>
-            <a href="#mission">Mission</a>
-            <a href="#vision">Vision</a>
-            <a href="#contact">Contact</a>
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
+          <motion.div variants={staggerContainer} initial="initial" whileInView="whileInView" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4rem' }}>
+            {[
+              { icon: <Target />, title: 'Mission', text: 'To redefine Nepal’s rental landscape through absolute transparency and direct human connection.' },
+              { icon: <Lightbulb />, title: 'Vision', text: 'To be the heartbeat of every Nepali home search, powered by trust and local heritage.' },
+              { icon: <Heart />, title: 'Soul', text: 'At our core, we are about people. No commissions, no barriers, just the warmth of home.' }
+            ].map((item, i) => (
+              <motion.div key={i} variants={fadeIn} className="glass-card" style={{ padding: '5rem 3rem', borderRadius: '48px', background: 'white', textAlign: 'center' }}>
+                <div style={{ width: '80px', height: '80px', background: 'var(--surface)', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 3rem', color: 'var(--primary)' }}>
+                  {React.cloneElement(item.icon as React.ReactElement<{ size: number }>, { size: 36 })}
+                </div>
+                <h3 style={{ fontSize: '2rem', marginBottom: '1.5rem' }}>{item.title}</h3>
+                <p style={{ color: 'var(--text-dim)', fontSize: '1.1rem', fontWeight: 300, lineHeight: '1.7' }}>{item.text}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* The App Experience - Advanced UI */}
+      <section id="app" style={{ padding: 'var(--spacing-section) 0', background: 'white' }}>
+        <div className="container">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '10rem' }}>
+             <motion.div initial={{ x: -100, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} transition={{ duration: 1 }}>
+                <div style={{ position: 'relative', width: '320px', height: '650px', background: '#020617', borderRadius: '54px', border: '12px solid #1E293B', boxShadow: '0 60px 120px rgba(0,0,0,0.2)', margin: '0 auto' }}>
+                   <div style={{ position: 'absolute', top: '20px', left: '50%', transform: 'translateX(-50%)', width: '100px', height: '30px', background: '#1E293B', borderRadius: '20px' }} />
+                   <div style={{ width: '100%', height: '100%', display: 'flex', flexDir: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                      <motion.img 
+                        animate={{ y: [0, -10, 0] }}
+                        transition={{ duration: 4, repeat: Infinity }}
+                        src="/logo.png" 
+                        style={{ width: '100px', filter: 'brightness(0) invert(1)' }} 
+                      />
+                   </div>
+                </div>
+             </motion.div>
+             <motion.div {...fadeIn}>
+                <h2 style={{ fontSize: '5rem', marginBottom: '3rem' }}>Pure <br/><span className="text-gradient">Experience.</span></h2>
+                <p style={{ fontSize: '1.3rem', color: 'var(--text-dim)', fontWeight: 300, marginBottom: '4rem', lineHeight: '1.6' }}>
+                  Our mobile ecosystem is designed with the precision of a high-end timepiece. Every interaction is fluid, every verified listing is a promise kept. 
+                </p>
+                <div style={{ display: 'flex', gap: '4rem' }}>
+                   <div>
+                      <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>Coming</div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--primary)', letterSpacing: '3px' }}>IOS APP</div>
+                   </div>
+                   <div>
+                      <div style={{ fontSize: '2.5rem', fontWeight: 800 }}>Soon</div>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--primary)', letterSpacing: '3px' }}>ANDROID</div>
+                   </div>
+                </div>
+             </motion.div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginBottom: '3rem' }}>
-             <a href="#" style={{ color: 'var(--text-dim)' }}><Facebook size={20} /></a>
-             <a href="#" style={{ color: 'var(--text-dim)' }}><Instagram size={20} /></a>
-             <a href="#" style={{ color: 'var(--text-dim)' }}><Twitter size={20} /></a>
-          </div>
-          <p style={{ fontSize: '0.85rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', opacity: 0.5 }}>
-            © 2026 KHOZNA BRAND. NEPAL'S PREMIER RENTAL ECOSYSTEM.
-          </p>
+        </div>
+      </section>
+
+      {/* Final Cinematic Contact */}
+      <section id="contact" style={{ padding: 'var(--spacing-section) 0', background: 'var(--surface)' }}>
+        <div className="culture-overlay" />
+        <div className="container">
+          <motion.div className="glass-card" style={{ background: '#020617', padding: '8rem 6rem', borderRadius: '64px', color: 'white', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '6rem', alignItems: 'center' }}>
+             <div>
+                <h2 style={{ color: 'white', fontSize: '5rem', marginBottom: '2rem' }}>Let's <span style={{ color: 'var(--primary)' }}>Connect.</span></h2>
+                <p style={{ fontSize: '1.4rem', color: 'rgba(255,255,255,0.6)', fontWeight: 300, marginBottom: '5rem' }}>Join the elite community of owners and seekers in Nepal.</p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                       <div style={{ width: '70px', height: '70px', borderRadius: '24px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Mail size={32} /></div>
+                       <div style={{ fontSize: '1.4rem', fontWeight: 500 }}>hello@khozna.com</div>
+                    </div>
+                </div>
+             </div>
+             <div>
+                <button className="glow-btn" style={{ width: '100%', background: 'var(--primary)', padding: '2rem', fontSize: '1rem' }}>Message Our Team</button>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem', marginTop: '4rem' }}>
+                   <Facebook size={24} />
+                   <Instagram size={24} />
+                   <Twitter size={24} />
+                </div>
+             </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Minimalist Footer */}
+      <footer style={{ padding: '8rem 0', background: 'white', textAlign: 'center' }}>
+        <div className="container">
+           <img src="/logo.png" style={{ height: '40px', marginBottom: '3rem', opacity: 0.8 }} />
+           <p style={{ fontSize: '0.8rem', fontWeight: 900, letterSpacing: '4px', textTransform: 'uppercase', opacity: 0.3 }}>
+             © 2026 KHOZNA BRAND. NEPAL'S PREMIER RENTAL ECOSYSTEM.
+           </p>
         </div>
       </footer>
     </div>
