@@ -1,12 +1,12 @@
 {
   "framework": "vite",
-  "buildCommand": "cd Khozna && npm install && npm run build",
-  "outputDirectory": "Khozna/dist",
-  "installCommand": "cd Khozna && npm install",
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/Khozna/index.html"
+      "destination": "/index.html"
     }
   ]
 }
