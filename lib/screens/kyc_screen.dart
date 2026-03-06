@@ -41,7 +41,7 @@ class _KycScreenState extends State<KycScreen> {
   @override
   void initState() {
     super.initState();
-    _setSecureScreen(true);
+    _setSecureScreen(false); // Temporarily unlocked for screenshots!
     // Pre-fill if user is logged in
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {

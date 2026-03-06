@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(true);
+    SecurityUtils.setSecure(false); // Temporarily unlocked for screenshots!
     _startAutoSwipe();
   }
 
@@ -190,15 +190,11 @@ class _LoginScreenState extends State<LoginScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                       // Header Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -228,9 +224,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
 
-                      // Illustration Area - increased size slightly
+                      // Illustration Area - reduced height to ensure no-scroll fit
                       SizedBox(
-                        height: constraints.maxHeight * 0.35,
+                        height: constraints.maxHeight * 0.28,
                         child: PageView.builder(
                           controller: _pageController,
                           itemCount: _illustrations.length,
@@ -497,9 +493,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                ),
-              ),
-            );
+                );
           },
         ),
       ),
