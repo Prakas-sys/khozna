@@ -389,13 +389,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           // Primary Action Button
                           SizedBox(
                             width: double.infinity,
-                            height: 58,
+                            height: 56, // Adjusted to 56 for better fit
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _verifyPhone,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryBlue,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(32),
+                                  borderRadius: BorderRadius.circular(28),
                                 ),
                                 elevation: 0,
                               ),
@@ -411,81 +411,87 @@ class _LoginScreenState extends State<LoginScreen> {
                                   : Text(
                                       'Login',
                                       style: GoogleFonts.outfit(
-                                        fontSize: 19,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,
                                       ),
                                     ),
                             ),
                           ),
-                        ],
-                      ),
 
-                      // Divider
-                      Row(
-                        children: [
-                          Expanded(child: Divider(color: Colors.grey[300])),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              'OR',
-                              style: GoogleFonts.outfit(
-                                fontSize: 11,
-                                color: Colors.grey[500],
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.5,
+                          const SizedBox(height: 24), // Spacing before divider
+
+                          // Divider
+                          Row(
+                            children: [
+                              Expanded(child: Divider(color: Colors.grey[200], thickness: 1)),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(
+                                  'OR',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 11,
+                                    color: Colors.grey[400],
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 1.5,
+                                  ),
+                                ),
                               ),
-                            ),
+                              Expanded(child: Divider(color: Colors.grey[200], thickness: 1)),
+                            ],
                           ),
-                          Expanded(child: Divider(color: Colors.grey[300])),
-                        ],
-                      ),
 
-                      // Social Buttons (24px corner radius)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildSocialBtn(
-                              icon: 'assets/icons/google_g.svg',
-                              label: 'Google',
-                              onTap: _signInWithGoogle,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _buildSocialBtn(
-                              icon: 'assets/icons/facebook_f.svg',
-                              label: 'Facebook',
-                              onTap: _signInWithFacebook,
-                            ),
-                          ),
-                        ],
-                      ),
+                          const SizedBox(height: 20), // Spacing before social buttons
 
-                      // Footer Link
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Don't have an account? ",
-                            style: GoogleFonts.outfit(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                            ),
-                            child: Text(
-                              'Register Here',
-                              style: GoogleFonts.outfit(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: primaryBlue,
+                          // Social Buttons
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildSocialBtn(
+                                  icon: 'assets/icons/google_g.svg',
+                                  label: 'Google',
+                                  onTap: _signInWithGoogle,
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildSocialBtn(
+                                  icon: 'assets/icons/facebook_f.svg',
+                                  label: 'Facebook',
+                                  onTap: _signInWithFacebook,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 28), // Spacing before footer
+
+                          // Footer Link
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Don't have an account? ",
+                                style: GoogleFonts.outfit(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                                ),
+                                child: Text(
+                                  'Register Here',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: primaryBlue,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -507,13 +513,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(32),
+      borderRadius: BorderRadius.circular(28),
       child: Container(
-        height: 54,
+        height: 56, // Matched height with Login button
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(color: Colors.grey[300]!, width: 1),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.grey[200]!, width: 1.2),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

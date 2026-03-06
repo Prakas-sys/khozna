@@ -48,7 +48,7 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           child: Image.asset(
             'assets/images/original logo.png',
-            height: 40,
+            height: 48, // Increased from 40 to make it larger as requested
             fit: BoxFit.contain,
           ),
         ),
@@ -62,16 +62,16 @@ class HomeScreen extends StatelessWidget {
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: const EdgeInsets.all(6), // Reduced padding to make container smaller
+                padding: const EdgeInsets.all(4), // Even tighter padding
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10), // Slimmer corners
                   border: Border.all(color: Colors.grey.shade200, width: 1.0),
                 ),
                 child: const Icon(
                   CupertinoIcons.bell,
                   color: Colors.black87,
-                  size: 28, // Increased icon size to make it more prominent
+                  size: 28, // Prominent bell icon
                 ),
               ),
             ),
@@ -88,7 +88,7 @@ class HomeScreen extends StatelessWidget {
           ), // Increased bottom padding to ensure nothing is below nav bar
           child: Column(
             children: [
-              const SizedBox(height: 20), // Pushing hero section down
+              const SizedBox(height: 32), // Pushed hero section down as requested
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -129,7 +129,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 80), // Adjusted from 100 to maintain search bar position
+              const SizedBox(height: 68), // Adjusted down to keep hero section balanced
               GestureDetector(
                 onTap: () =>
                     _checkAuthAndNavigate(context, const SearchScreen()),
