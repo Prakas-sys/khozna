@@ -228,9 +228,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
 
-                      // Illustration Area
+                      // Illustration Area - increased size slightly
                       SizedBox(
-                        height: constraints.maxHeight * 0.32,
+                        height: constraints.maxHeight * 0.35,
                         child: PageView.builder(
                           controller: _pageController,
                           itemCount: _illustrations.length,
@@ -244,9 +244,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      // Branding & Texts
+                      // Grouping Branding, Input, and Action for tighter, better alignment
                       Column(
                         children: [
+                          // Branding & Texts
                           Text(
                             'Welcome Back To',
                             style: GoogleFonts.zenAntiqueSoft(
@@ -255,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: const Color(0xFF2D2D2D),
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 4),
                           Text(
                             'KHOZNA',
                             style: GoogleFonts.zenAntiqueSoft(
@@ -265,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               letterSpacing: 1.5,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 10),
                           Text(
                             'No broker, no scams, only real place.',
                             textAlign: TextAlign.center,
@@ -275,148 +276,149 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ],
-                      ),
+                          const SizedBox(height: 28),
 
-                      // Single-Shape Phone Input (Slim 54px High, 27px corner radius)
-                      Container(
-                        height: 54,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(27),
-                          border: Border.all(color: Colors.grey[500]!, width: 1.5),
-                        ),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 18),
-                              child: Row(
-                                children: [
-                                  const Text('\uD83C\uDDF3\uD83C\uDDF5', style: TextStyle(fontSize: 20)),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '+977',
-                                    style: GoogleFonts.zenAntiqueSoft(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Container(
-                                    height: 24,
-                                    width: 1.5,
-                                    color: Colors.grey[300],
-                                  ),
-                                ],
-                              ),
+                          // Single-Shape Phone Input
+                          Container(
+                            height: 54,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(27),
+                              border: Border.all(color: Colors.grey[300]!, width: 1.2),
                             ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 12, right: 30),
-                                child: TextField(
-                                  controller: _phoneController,
-                                  keyboardType: TextInputType.phone,
-                                  style: GoogleFonts.zenAntiqueSoft(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: 'Enter Mobile Number',
-                                    hintStyle: GoogleFonts.zenAntiqueSoft(
-                                      color: Colors.grey[300],
-                                      fontSize: 14,
-                                    ),
-                                    border: InputBorder.none,
-                                    enabledBorder: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 18),
+                                  child: Row(
+                                    children: [
+                                      const Text('\uD83C\uDDF3\uD83C\uDDF5', style: TextStyle(fontSize: 20)),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '+977',
+                                        style: GoogleFonts.zenAntiqueSoft(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Container(
+                                        height: 24,
+                                        width: 1.5,
+                                        color: Colors.grey[300],
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Terms Agreement
-                      GestureDetector(
-                        onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: Colors.grey[400]!, width: 1.5),
-                                color: _agreeToTerms ? primaryBlue : Colors.white,
-                              ),
-                              child: _agreeToTerms
-                                  ? const Icon(Icons.check_rounded, size: 12, color: Colors.white)
-                                  : null,
-                            ),
-                            const SizedBox(width: 12),
-                            RichText(
-                              text: TextSpan(
-                                style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600]),
-                                children: [
-                                  const TextSpan(text: 'I agree to terms of '),
-                                  TextSpan(
-                                    text: 'Service',
-                                    style: TextStyle(
-                                      color: primaryBlue,
-                                      fontWeight: FontWeight.bold,
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 12, right: 30),
+                                    child: TextField(
+                                      controller: _phoneController,
+                                      keyboardType: TextInputType.phone,
+                                      style: GoogleFonts.zenAntiqueSoft(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      decoration: InputDecoration(
+                                        hintText: 'Enter Mobile Number',
+                                        hintStyle: GoogleFonts.zenAntiqueSoft(
+                                          color: Colors.grey[300],
+                                          fontSize: 14,
+                                        ),
+                                        border: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                      ),
                                     ),
                                   ),
-                                  const TextSpan(text: ' and '),
-                                  TextSpan(
-                                    text: 'Privacy Policy',
-                                    style: TextStyle(
-                                      color: primaryBlue,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Primary Action Button (24px corner radius)
-                      SizedBox(
-                        width: double.infinity,
-                        height: 58,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _verifyPhone,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryBlue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(32),
-                            ),
-                            elevation: 0,
                           ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
+                          const SizedBox(height: 16),
+
+                          // Terms Agreement
+                          GestureDetector(
+                            onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(color: Colors.grey[200]!, width: 1.5),
+                                    color: _agreeToTerms ? primaryBlue : Colors.white,
                                   ),
-                                )
-                              : Text(
-                                  'Login',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 19,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                  child: _agreeToTerms
+                                      ? const Icon(Icons.check_rounded, size: 12, color: Colors.white)
+                                      : null,
+                                ),
+                                const SizedBox(width: 12),
+                                RichText(
+                                  text: TextSpan(
+                                    style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600]),
+                                    children: [
+                                      const TextSpan(text: 'I agree to terms of '),
+                                      TextSpan(
+                                        text: 'Service',
+                                        style: TextStyle(
+                                          color: primaryBlue,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const TextSpan(text: ' and '),
+                                      TextSpan(
+                                        text: 'Privacy Policy',
+                                        style: TextStyle(
+                                          color: primaryBlue,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                        ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+
+                          // Primary Action Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 58,
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _verifyPhone,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryBlue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(32),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Login',
+                                      style: GoogleFonts.outfit(
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                            ),
+                          ),
+                        ],
                       ),
 
                       // Divider
@@ -511,7 +513,7 @@ class _LoginScreenState extends State<LoginScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(32),
-          border: Border.all(color: Colors.grey[500]!, width: 1),
+          border: Border.all(color: Colors.grey[300]!, width: 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

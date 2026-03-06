@@ -66,12 +66,12 @@ class HomeScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200, width: 1.5),
+                  border: Border.all(color: Colors.grey.shade200, width: 1.0),
                 ),
                 child: const Icon(
                   CupertinoIcons.bell,
                   color: Colors.black87,
-                  size: 22,
+                  size: 24,
                 ),
               ),
             ),

@@ -265,11 +265,11 @@ class _KycScreenState extends State<KycScreen> {
         _buildSectionHeader('Basic Information (व्यक्तिगत विवरण)', false),
         const SizedBox(height: 20),
         _buildTextField(_nameController, 'Full Name (पूरा नाम)', Icons.person_outline, (v) => v!.isEmpty ? 'Required' : null),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         _buildTextField(_emailController, 'Email Address (इमेल)', Icons.email_outlined, (v) => v!.isEmpty ? 'Required' : null),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         _buildTextField(_phoneController, 'Phone Number (फोन नम्बर)', Icons.phone_android_outlined, (v) => v!.isEmpty ? 'Required' : null, keyboardType: TextInputType.phone),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         _buildTextField(
           _citizenshipController,
           'Citizenship Number (नागरिकता नम्बर)',
@@ -291,16 +291,17 @@ class _KycScreenState extends State<KycScreen> {
       validator: validator,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
-      style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w600),
+      style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w600), // Increased font size
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[600], fontSize: 13),
-        prefixIcon: Icon(icon, color: AppTheme.brandColor, size: 20),
+        labelStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w500), // Darker and larger label
+        prefixIcon: Icon(icon, color: AppTheme.brandColor, size: 22), // Slightly larger icon
         filled: true,
         fillColor: const Color(0xFFF8FAFC),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.brandColor, width: 1.5)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18), // Increased internal padding for height
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), // More rounded corners
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppTheme.brandColor, width: 1.5)),
       ),
     );
   }
@@ -387,7 +388,7 @@ class _KycScreenState extends State<KycScreen> {
                   children: [
                     Text('Verify Your Identity', style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5), textAlign: TextAlign.center),
                     const SizedBox(height: 2),
-                    Text('(पहचान प्रमाणित गर्नुहोस्)', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.95), letterSpacing: -0.2, height: 1.1), textAlign: TextAlign.center),
+                    Text('(पहिचान प्रमाणित गर्नुहोस्)', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.95), letterSpacing: -0.2, height: 1.1), textAlign: TextAlign.center),
                   ],
                 ),
               ),

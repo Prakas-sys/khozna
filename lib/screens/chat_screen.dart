@@ -251,43 +251,55 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                     return Align(
                       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
                       child: Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
                         decoration: BoxDecoration(
                           color: isMe ? AppTheme.brandColor : Colors.white,
                           borderRadius: BorderRadius.only(
-                            topLeft: const Radius.circular(16),
-                            topRight: const Radius.circular(16),
-                            bottomLeft: Radius.circular(isMe ? 16 : 0),
-                            bottomRight: Radius.circular(isMe ? 0 : 16),
+                            topLeft: const Radius.circular(20),
+                            topRight: const Radius.circular(20),
+                            bottomLeft: Radius.circular(isMe ? 20 : 4),
+                            bottomRight: Radius.circular(isMe ? 4 : 20),
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
-                              blurRadius: 5,
-                              offset: const Offset(0, 2),
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
                             ),
                           ],
                         ),
                         child: Column(
                           crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               msg['text'],
                               style: GoogleFonts.outfit(
-                                color: isMe ? Colors.white : Colors.black87,
-                                fontSize: 14,
-                                height: 1.3,
+                                color: isMe ? Colors.white : const Color(0xFF1A1A1A),
+                                fontSize: 15,
+                                height: 1.4,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              msg['time'],
-                              style: GoogleFonts.outfit(
-                                color: isMe ? Colors.white.withValues(alpha: 0.7) : Colors.grey[400],
-                                fontSize: 10,
-                              ),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  msg['time'],
+                                  style: GoogleFonts.outfit(
+                                    color: isMe ? Colors.white.withValues(alpha: 0.7) : Colors.grey[500],
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                if (isMe) ...[
+                                  const SizedBox(width: 4),
+                                  Icon(Icons.done_all_rounded, size: 12, color: Colors.white.withValues(alpha: 0.8)),
+                                ]
+                              ],
                             ),
                           ],
                         ),
@@ -300,7 +312,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           // GREETING ABOVE INPUT (CLICKABLE)
           Container(
             color: Colors.transparent,
-            padding: const EdgeInsets.fromLTRB(12, 4, 16, 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             alignment: Alignment.centerRight,
             child: InkWell(
               onTap: () {
@@ -309,11 +321,11 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               },
               borderRadius: BorderRadius.circular(20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
-                  color: AppTheme.brandColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.3), width: 1),
+                  color: AppTheme.brandColor.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.2), width: 1.2),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -326,7 +338,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 8),
                     const Text('🙏', style: TextStyle(fontSize: 18)),
                   ],
                 ),
@@ -336,78 +348,77 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
 
           // FLOATING MESSAGE INPUT
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            decoration: const BoxDecoration(
-              color: Colors.transparent,
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 15,
+                  offset: const Offset(0, -5),
+                ),
+              ],
             ),
             child: SafeArea(
               child: Row(
                 children: [
                   Expanded(
                     child: Container(
+                      height: 52,
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                        border: Border.all(color: Colors.grey.shade100),
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(26),
+                        border: Border.all(color: Colors.grey.shade200, width: 1),
                       ),
                       child: Row(
                         children: [
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                           IconButton(
-                            icon: const Icon(Icons.add_circle_outline, color: AppTheme.brandColor, size: 24),
+                            icon: const Icon(Icons.add_circle_outline, color: AppTheme.brandColor, size: 26),
                             onPressed: () {},
                             padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
                           ),
                           Expanded(
                             child: TextField(
                               controller: _messageController,
-                              style: GoogleFonts.outfit(fontSize: 14),
+                              style: GoogleFonts.outfit(fontSize: 15, color: const Color(0xFF1A1A1A)),
                               decoration: InputDecoration(
-                                hintText: 'Type your message...',
+                                hintText: 'तपाईंको सन्देश लेख्नुहोस्...',
                                 hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 14),
                                 border: InputBorder.none,
                                 isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
                               ),
                             ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.emoji_emotions_outlined, color: Colors.grey, size: 20),
+                            icon: const Icon(Icons.emoji_emotions_outlined, color: Colors.grey, size: 24),
                             onPressed: () {},
                             padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 6),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   GestureDetector(
                     onTap: _sendMessage,
                     child: Container(
-                      height: 48,
-                      width: 48,
+                      height: 52,
+                      width: 52,
                       decoration: BoxDecoration(
                         color: AppTheme.brandColor,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
                             color: AppTheme.brandColor.withValues(alpha: 0.3),
-                            blurRadius: 8,
+                            blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                      child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
                     ),
                   ),
                 ],
