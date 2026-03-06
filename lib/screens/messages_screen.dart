@@ -24,14 +24,6 @@ class _MessagesScreenState extends State<MessagesScreen> {
       'online': true,
     },
     {
-      'name': 'Jenny Wilson',
-      'avatar': 'https://i.pravatar.cc/150?img=47',
-      'lastMessage': "हजुर, कोठा खाली छ!",
-      'time': '09:45 AM',
-      'unread': 2,
-      'online': true,
-    },
-    {
       'name': 'Suresh Rai',
       'avatar': 'https://i.pravatar.cc/150?img=12',
       'lastMessage': "भाडा कति हो?",

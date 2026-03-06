@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(height: 28),
+                          const SizedBox(height: 18), // Reduced from 28 to push it up higher
 
                           // Single-Shape Phone Input
                           Container(

@@ -133,22 +133,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Slimmer vertical padding
                 decoration: BoxDecoration(
                   color: widget.isVerified
                       ? Colors.green.withValues(alpha: 0.05)
                       : Colors.red.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16), // Slightly less rounded for slim look
                   border: Border.all(
                     color: widget.isVerified
-                        ? Colors.green.withValues(alpha: 0.2)
-                        : Colors.red.withValues(alpha: 0.2),
+                        ? Colors.green.withValues(alpha: 0.15)
+                        : Colors.red.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(10), // Slimmer icon padding
                       decoration: BoxDecoration(
                         color: widget.isVerified ? Colors.green : Colors.red,
                         shape: BoxShape.circle,
@@ -156,7 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Icon(
                         widget.isVerified ? Icons.verified_user : Icons.gpp_bad_rounded,
                         color: Colors.white,
-                        size: 24,
+                        size: 20, // Slightly smaller icon
                       ),
                     ),
                     const SizedBox(width: 16),

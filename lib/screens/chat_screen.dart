@@ -346,18 +346,11 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
             ),
           ),
 
-          // FLOATING MESSAGE INPUT
+          // FLOATING MESSAGE INPUT - Simplified Single Layer
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 15,
-                  offset: const Offset(0, -5),
-                ),
-              ],
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+            decoration: const BoxDecoration(
+              color: Colors.white, // Keep background but remove the heavy shadow/double box look
             ),
             child: SafeArea(
               child: Row(

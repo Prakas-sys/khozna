@@ -62,7 +62,7 @@ class HomeScreen extends StatelessWidget {
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(6), // Reduced padding to make container smaller
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -71,7 +71,7 @@ class HomeScreen extends StatelessWidget {
                 child: const Icon(
                   CupertinoIcons.bell,
                   color: Colors.black87,
-                  size: 24,
+                  size: 28, // Increased icon size to make it more prominent
                 ),
               ),
             ),
@@ -155,9 +155,10 @@ class HomeScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       const Icon(
-                        Icons.search,
+                        CupertinoIcons.search,
                         color: AppTheme.brandColor,
-                        size: 24,
+                        size: 22,
+                        weight: 800,
                       ),
                       const SizedBox(width: 12),
                       Expanded(
