@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(height: 18), // Reduced from 28 to push it up higher
+                          const SizedBox(height: 12), // Reduced from 28 to push it up higher
 
                           // Single-Shape Phone Input
                           Container(
@@ -337,7 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12), // Reduced from 16 for tightness
 
                           // Terms Agreement
                           GestureDetector(
@@ -384,7 +384,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 14), // Reduced from 18 to bring button closer to input
 
                           // Primary Action Button
                           SizedBox(
