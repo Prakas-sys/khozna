@@ -99,8 +99,6 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double padding = 24.0;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -110,15 +108,6 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: AppTheme.primaryTextColor, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'Verification',
-          style: GoogleFonts.outfit(
-            color: AppTheme.primaryTextColor,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
-        ),
-        centerTitle: true,
       ),
       body: Stack(
         children: [
@@ -138,48 +127,51 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
           
           SafeArea(
             child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(horizontal: padding),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 40),
+                   const SizedBox(height: 20),
                   // Icon or Illustration
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.mark_email_read_outlined,
-                      color: AppTheme.brandColor,
-                      size: 40,
+                  Center(
+                    child: Container(
+                      width: 90,
+                      height: 90,
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandColor.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.mark_chat_read_outlined,
+                        color: AppTheme.brandColor,
+                        size: 40,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    'Verify Your Phone',
+                    'Verify Phone',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
+                    style: GoogleFonts.outfit(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
                       color: AppTheme.primaryTextColor,
+                      letterSpacing: -0.5,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
                         style: GoogleFonts.outfit(
                           color: AppTheme.secondaryTextColor,
-                          fontSize: 15,
+                          fontSize: 16,
                           height: 1.5,
                         ),
                         children: [
-                          const TextSpan(text: 'We have sent a 6-digit verification code to '),
+                          const TextSpan(text: 'We sent a 6-digit code to\n'),
                           TextSpan(
                             text: widget.phoneNumber,
                             style: const TextStyle(
@@ -205,73 +197,47 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                   SizedBox(
                     width: double.infinity,
                     height: 56,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF00B4F4), AppTheme.brandColor],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.brandColor.withOpacity(0.3),
-                            blurRadius: 12,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _verifyOtp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.brandColor,
+                        foregroundColor: Colors.white,
+                        elevation: 8,
+                        shadowColor: AppTheme.brandColor.withOpacity(0.3),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       ),
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _verifyOtp,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2.5,
-                                ),
-                              )
-                            : Text(
-                                'Verify & Continue',
-                                style: GoogleFonts.outfit(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 17,
-                                ),
-                              ),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                          : Text('Verify & Continue', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                     ),
                   ),
                   
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 40),
                   
                   // Resend Section
-                  Text(
-                    "Didn't receive the code?",
-                    style: GoogleFonts.outfit(
-                      color: AppTheme.secondaryTextColor,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () {
-                      // Implement resend logic
-                    },
-                    child: Text(
-                      'Resend Code',
-                      style: GoogleFonts.outfit(
-                        color: AppTheme.brandColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                  Column(
+                    children: [
+                      Text(
+                        "Didn't receive the code?",
+                        style: GoogleFonts.outfit(
+                          color: AppTheme.secondaryTextColor,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
+                      TextButton(
+                        onPressed: () {
+                          // Implement resend logic
+                        },
+                        child: Text(
+                          'Resend Code',
+                          style: GoogleFonts.outfit(
+                            color: AppTheme.brandColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 24),
                 ],
@@ -286,14 +252,21 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
   Widget _buildOtpBox(int index) {
     return Container(
       width: 48,
-      height: 56,
+      height: 60,
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(14),
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _focusNodes[index].hasFocus ? AppTheme.brandColor : Colors.grey.shade200,
+          color: _focusNodes[index].hasFocus ? AppTheme.brandColor : Colors.grey.withOpacity(0.1),
           width: 2,
         ),
+        boxShadow: _focusNodes[index].hasFocus ? [
+          BoxShadow(
+            color: AppTheme.brandColor.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ] : [],
       ),
       child: TextField(
         controller: _controllers[index],
@@ -302,13 +275,15 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
         keyboardType: TextInputType.number,
         maxLength: 1,
         style: GoogleFonts.outfit(
-          fontSize: 22,
+          fontSize: 24,
           fontWeight: FontWeight.bold,
           color: AppTheme.primaryTextColor,
         ),
         decoration: const InputDecoration(
           counterText: "",
           border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
           contentPadding: EdgeInsets.zero,
         ),
         onChanged: (value) {
@@ -322,7 +297,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
           } else if (value.isEmpty && index > 0) {
             _focusNodes[index - 1].requestFocus();
           }
-          setState(() {}); // To update border color
+          setState(() {}); // To update border color/shadow
         },
       ),
     );

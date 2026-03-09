@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(false); // Temporarily unlocked for screenshots!
+    SecurityUtils.setSecure(false);
     _startAutoSwipe();
   }
 
@@ -183,246 +183,305 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const primaryBlue = Color(0xFF00B4F4);
-
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: Column( // Removed ScrollView to ensure it fits and forces correct sizing
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distributes space evenly
+      body: Stack(
+        children: [
+          // Background accents/gradients
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppTheme.brandColor.withOpacity(0.05),
+              ),
+            ),
+          ),
+          
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // --- 1. HEADER SECTION ---
+                  const SizedBox(height: 12),
+                  // --- TOP BAR ---
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       GestureDetector(
                         onTap: _handleBossTap,
-                        child: Image.asset('assets/images/original logo.png', height: 36),
+                        child: Hero(
+                          tag: 'app_logo',
+                          child: Image.asset('assets/images/original logo.png', height: 40),
+                        ),
                       ),
-                      GestureDetector(
-                        onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: primaryBlue.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(18),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: TextButton(
+                          onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                            minimumSize: const Size(0, 36),
                           ),
-                          child: Row(
-                            children: [
-                              Text('Skip', style: GoogleFonts.outfit(color: primaryBlue, fontWeight: FontWeight.bold, fontSize: 13)),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.arrow_forward_ios_rounded, color: primaryBlue, size: 10),
-                            ],
-                          ),
+                          child: Text('Skip', style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.bold, fontSize: 13)),
                         ),
                       ),
                     ],
                   ),
 
-                  // --- 2. VISUAL SECTION (Reduced scale to fit everything) ---
+                  const SizedBox(height: 32),
+
+                  // --- 1. VISUAL CONTEXT / ILLUSTRATION ---
                   SizedBox(
-                    height: constraints.maxHeight * 0.20,
+                    height: MediaQuery.of(context).size.height * 0.22,
                     child: PageView.builder(
                       controller: _pageController,
                       itemCount: _illustrations.length,
                       onPageChanged: (i) => setState(() => _currentIllustration = i),
-                      itemBuilder: (context, index) => Image.asset(_illustrations[index], fit: BoxFit.contain),
+                      itemBuilder: (context, index) {
+                        return AnimatedOpacity(
+                          duration: const Duration(milliseconds: 500),
+                          opacity: _currentIllustration == index ? 1.0 : 0.0,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Image.asset(_illustrations[index], fit: BoxFit.contain),
+                          ),
+                        );
+                      },
                     ),
                   ),
 
-                  // --- 3. BRANDING SECTION ---
+                  const SizedBox(height: 24),
+
+                  // --- 2. BRANDING / HEADER ---
                   Column(
                     children: [
                       Text(
                         'Welcome Back To',
-                        style: GoogleFonts.zenAntiqueSoft(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF2D2D2D)),
+                        style: GoogleFonts.outfit(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.secondaryTextColor,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'KHOZNA',
-                        style: GoogleFonts.zenAntiqueSoft(fontSize: 32, fontWeight: FontWeight.w900, color: primaryBlue, letterSpacing: 1.2),
+                        style: GoogleFonts.outfit(
+                          fontSize: 40,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.brandColor,
+                          letterSpacing: 2,
+                        ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        'No broker, no scams, only real place.',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[600], fontWeight: FontWeight.w400),
+                      Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ],
                   ),
 
-                  // --- 4. ACTION SECTION (Simplified Phone Input) ---
-                  Column(
-                    children: [
-                      // CLEAN PHONE INPUT (No separate shapes or internal borders)
-                      Container(
-                        height: 56,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF8F9FA),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[200]!),
+                  const SizedBox(height: 32),
+
+                  // --- 3. INPUT CARD ---
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 40,
+                          offset: const Offset(0, 10),
                         ),
-                        child: Row(
-                          children: [
-                            const Text('\uD83C\uDDF3\uD83C\uDDF5', style: TextStyle(fontSize: 20)),
-                            const SizedBox(width: 10),
-                            Text('+977', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold)),
-                            const SizedBox(width: 12),
-                            // Simple divider without a container
-                            Container(width: 1, height: 24, color: Colors.grey[300]),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextField(
-                                controller: _phoneController,
-                                keyboardType: TextInputType.phone,
-                                style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w600),
-                                decoration: InputDecoration(
-                                  hintText: '98XXXXXXXX',
-                                  hintStyle: TextStyle(color: Colors.grey[300]),
-                                  border: InputBorder.none,
-                                  isDense: true,
+                      ],
+                      border: Border.all(color: Colors.grey.withOpacity(0.05)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Continue with Phone',
+                          style: GoogleFonts.outfit(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryTextColor,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Phone Input Field
+                        Container(
+                          height: 56,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8F9FA),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey.withOpacity(0.1)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Text('\uD83C\uDDF3\uD83C\uDDF5', style: TextStyle(fontSize: 22)),
+                              const SizedBox(width: 12),
+                              Text('+977', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
+                              const SizedBox(width: 12),
+                              Container(width: 1, height: 24, color: Colors.grey.withOpacity(0.3)),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: TextField(
+                                  controller: _phoneController,
+                                  keyboardType: TextInputType.phone,
+                                  style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black87),
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter your number',
+                                    hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 16),
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.zero,
+                                    fillColor: Colors.transparent,
+                                  ),
                                 ),
                               ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        // Get OTP Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _verifyPhone,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.brandColor,
+                              foregroundColor: Colors.white,
+                              elevation: 8,
+                              shadowColor: AppTheme.brandColor.withOpacity(0.3),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             ),
+                            child: _isLoading
+                                ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                                : Text('Send OTP', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        // OR Divider
+                        Row(
+                          children: [
+                            Expanded(child: Container(height: 1, color: Colors.grey.withOpacity(0.1))),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text('OR SOCIAL LOGIN', style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                            ),
+                            Expanded(child: Container(height: 1, color: Colors.grey.withOpacity(0.1))),
                           ],
                         ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Terms
-                      GestureDetector(
-                        onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
-                        child: Row(
+                        const SizedBox(height: 24),
+                        // Social Buttons
+                        Row(
                           children: [
-                            SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: Checkbox(
-                                value: _agreeToTerms,
-                                onChanged: (v) => setState(() => _agreeToTerms = v!),
-                                activeColor: primaryBlue,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                            Expanded(child: _buildSocialBtn('assets/icons/google_g.svg', 'Google', _signInWithGoogle)),
+                            const SizedBox(width: 16),
+                            Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _signInWithFacebook)),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        // Register Link
+                        Center(
+                          child: GestureDetector(
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(text: "Don't have an account? ", style: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 14)),
+                                  TextSpan(text: 'Register', style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.bold, fontSize: 14)),
+                                ],
                               ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // --- 4. TERMS ---
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: GestureDetector(
+                      onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              _agreeToTerms ? Icons.check_circle : Icons.circle_outlined, 
+                              size: 18, 
+                              color: _agreeToTerms ? AppTheme.brandColor : Colors.grey[400]
                             ),
                             const SizedBox(width: 8),
-                            Expanded(
-                              child: RichText(
-                                text: TextSpan(
-                                  style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
-                                  children: [
-                                    const TextSpan(text: 'I agree to the '),
-                                    TextSpan(text: 'Terms', style: TextStyle(color: primaryBlue, fontWeight: FontWeight.bold)),
-                                    const TextSpan(text: ' and '),
-                                    TextSpan(text: 'Privacy Policy', style: TextStyle(color: primaryBlue, fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                              ),
+                            Text(
+                              'I agree to the Terms & Conditions', 
+                              style: GoogleFonts.outfit(
+                                fontSize: 12, 
+                                color: Colors.grey[500],
+                                decoration: TextDecoration.underline,
+                                decorationColor: Colors.grey[300],
+                              )
                             ),
                           ],
                         ),
                       ),
-
-                      const SizedBox(height: 20),
-
-                      // Login Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 54,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _verifyPhone,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryBlue,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 0,
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                              : Text('Send OTP', style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold)),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  // --- 5. SOCIAL SECTION ---
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(child: Divider(color: Colors.grey[200])),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: Text('OR', style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.bold)),
-                          ),
-                          Expanded(child: Divider(color: Colors.grey[200])),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(child: _buildSocialBtn(icon: 'assets/icons/google_g.svg', label: 'Google', onTap: _signInWithGoogle)),
-                          const SizedBox(width: 12),
-                          Expanded(child: _buildSocialBtn(icon: 'assets/icons/facebook_f.svg', label: 'Facebook', onTap: _signInWithFacebook)),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // --- 6. FOOTER ---
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Don't have an account? ", style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600])),
-                      GestureDetector(
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
-                        child: Text('Register', style: GoogleFonts.outfit(fontSize: 13, color: primaryBlue, fontWeight: FontWeight.bold)),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-            );
-          },
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildSocialBtn({
-    required String icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(28),
-      child: Container(
-        height: 56, // Matched height with Login button
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Colors.grey[200]!, width: 1.2),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(icon, height: 22),
-            const SizedBox(width: 10),
-            Text(
-              label,
-              style: GoogleFonts.outfit(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF2D2D2D),
+  Widget _buildSocialBtn(String icon, String label, VoidCallback onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          height: 56,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.withOpacity(0.1)),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset(icon, height: 22),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.primaryTextColor),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
