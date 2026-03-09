@@ -192,211 +192,202 @@ class _LoginScreenState extends State<LoginScreen> {
           builder: (context, constraints) {
             return Padding(
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  children: [
-                    // --- 1. HEADER SECTION (Identity & Action) ---
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: _handleBossTap,
-                          child: Image.asset('assets/images/original logo.png', height: 40),
-                        ),
-                        GestureDetector(
-                          onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: primaryBlue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              children: [
-                                Text('Skip', style: GoogleFonts.outfit(color: primaryBlue, fontWeight: FontWeight.bold, fontSize: 13)),
-                                const SizedBox(width: 4),
-                                const Icon(Icons.arrow_forward_ios_rounded, color: primaryBlue, size: 12),
-                              ],
-                            ),
+              child: Column( // Removed ScrollView to ensure it fits and forces correct sizing
+                mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distributes space evenly
+                children: [
+                  // --- 1. HEADER SECTION ---
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: _handleBossTap,
+                        child: Image.asset('assets/images/original logo.png', height: 36),
+                      ),
+                      GestureDetector(
+                        onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: primaryBlue.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Row(
+                            children: [
+                              Text('Skip', style: GoogleFonts.outfit(color: primaryBlue, fontWeight: FontWeight.bold, fontSize: 13)),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.arrow_forward_ios_rounded, color: primaryBlue, size: 10),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // --- 2. VISUAL CONTEXT SECTION ---
-                    SizedBox(
-                      height: constraints.maxHeight * 0.24,
-                      child: PageView.builder(
-                        controller: _pageController,
-                        itemCount: _illustrations.length,
-                        onPageChanged: (i) => setState(() => _currentIllustration = i),
-                        itemBuilder: (context, index) => Image.asset(_illustrations[index], fit: BoxFit.contain),
                       ),
-                    ),
+                    ],
+                  ),
 
-                    const SizedBox(height: 32),
-
-                    // --- 3. CORE IDENTITY SECTION ---
-                    Text(
-                      'Welcome Back To',
-                      style: GoogleFonts.zenAntiqueSoft(fontSize: 26, fontWeight: FontWeight.w700, color: const Color(0xFF2D2D2D)),
+                  // --- 2. VISUAL SECTION (Reduced scale to fit everything) ---
+                  SizedBox(
+                    height: constraints.maxHeight * 0.20,
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: _illustrations.length,
+                      onPageChanged: (i) => setState(() => _currentIllustration = i),
+                      itemBuilder: (context, index) => Image.asset(_illustrations[index], fit: BoxFit.contain),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'KHOZNA',
-                      style: GoogleFonts.zenAntiqueSoft(fontSize: 34, fontWeight: FontWeight.w900, color: primaryBlue, letterSpacing: 1.5),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'No broker, no scams, only real place.',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[600], fontWeight: FontWeight.w400),
-                    ),
+                  ),
 
-                    const SizedBox(height: 32),
-
-                    // --- 4. ACTION SECTION (Input & Buttons) ---
-                    // Phone Input Field
-                    Container(
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8F9FA),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey[200]!, width: 1.5),
+                  // --- 3. BRANDING SECTION ---
+                  Column(
+                    children: [
+                      Text(
+                        'Welcome Back To',
+                        style: GoogleFonts.zenAntiqueSoft(fontSize: 24, fontWeight: FontWeight.w700, color: const Color(0xFF2D2D2D)),
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: BoxDecoration(
-                              border: Border(right: BorderSide(color: Colors.grey[200]!, width: 1.5)),
-                            ),
-                            child: Row(
-                              children: [
-                                const Text('\uD83C\uDDF3\uD83C\uDDF5', style: TextStyle(fontSize: 22)),
-                                const SizedBox(width: 8),
-                                Text('+977', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            child: TextField(
-                              controller: _phoneController,
-                              keyboardType: TextInputType.phone,
-                              style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.w600, letterSpacing: 1.2),
-                              decoration: InputDecoration(
-                                hintText: '98XXXXXXXX',
-                                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 16),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                                border: InputBorder.none,
+                      const SizedBox(height: 4),
+                      Text(
+                        'KHOZNA',
+                        style: GoogleFonts.zenAntiqueSoft(fontSize: 32, fontWeight: FontWeight.w900, color: primaryBlue, letterSpacing: 1.2),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'No broker, no scams, only real place.',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[600], fontWeight: FontWeight.w400),
+                      ),
+                    ],
+                  ),
+
+                  // --- 4. ACTION SECTION (Simplified Phone Input) ---
+                  Column(
+                    children: [
+                      // CLEAN PHONE INPUT (No separate shapes or internal borders)
+                      Container(
+                        height: 56,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8F9FA),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[200]!),
+                        ),
+                        child: Row(
+                          children: [
+                            const Text('\uD83C\uDDF3\uD83C\uDDF5', style: TextStyle(fontSize: 20)),
+                            const SizedBox(width: 10),
+                            Text('+977', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold)),
+                            const SizedBox(width: 12),
+                            // Simple divider without a container
+                            Container(width: 1, height: 24, color: Colors.grey[300]),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextField(
+                                controller: _phoneController,
+                                keyboardType: TextInputType.phone,
+                                style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w600),
+                                decoration: InputDecoration(
+                                  hintText: '98XXXXXXXX',
+                                  hintStyle: TextStyle(color: Colors.grey[300]),
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
-                    // Terms Link
-                    GestureDetector(
-                      onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
-                      child: Row(
-                        children: [
-                          Transform.scale(
-                            scale: 0.9,
-                            child: Checkbox(
-                              value: _agreeToTerms,
-                              onChanged: (v) => setState(() => _agreeToTerms = v!),
-                              activeColor: primaryBlue,
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: RichText(
-                              text: TextSpan(
-                                style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600]),
-                                children: [
-                                  const TextSpan(text: 'I agree to the '),
-                                  TextSpan(text: 'Terms', style: TextStyle(color: primaryBlue, fontWeight: FontWeight.bold)),
-                                  const TextSpan(text: ' and '),
-                                  TextSpan(text: 'Privacy Policy', style: TextStyle(color: primaryBlue, fontWeight: FontWeight.bold)),
-                                ],
+                      // Terms
+                      GestureDetector(
+                        onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: Checkbox(
+                                value: _agreeToTerms,
+                                onChanged: (v) => setState(() => _agreeToTerms = v!),
+                                activeColor: primaryBlue,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
                               ),
                             ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: RichText(
+                                text: TextSpan(
+                                  style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
+                                  children: [
+                                    const TextSpan(text: 'I agree to the '),
+                                    TextSpan(text: 'Terms', style: TextStyle(color: primaryBlue, fontWeight: FontWeight.bold)),
+                                    const TextSpan(text: ' and '),
+                                    TextSpan(text: 'Privacy Policy', style: TextStyle(color: primaryBlue, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Login Button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 54,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _verifyPhone,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryBlue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
                           ),
+                          child: _isLoading
+                              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              : Text('Send OTP', style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // --- 5. SOCIAL SECTION ---
+                  Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(child: Divider(color: Colors.grey[200])),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text('OR', style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.bold)),
+                          ),
+                          Expanded(child: Divider(color: Colors.grey[200])),
                         ],
                       ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Login Button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _verifyPhone,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryBlue,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                          elevation: 0,
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                            : Text('Send OTP', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(child: _buildSocialBtn(icon: 'assets/icons/google_g.svg', label: 'Google', onTap: _signInWithGoogle)),
+                          const SizedBox(width: 12),
+                          Expanded(child: _buildSocialBtn(icon: 'assets/icons/facebook_f.svg', label: 'Facebook', onTap: _signInWithFacebook)),
+                        ],
                       ),
-                    ),
+                    ],
+                  ),
 
-                    const SizedBox(height: 32),
-
-                    // OR Divider
-                    Row(
-                      children: [
-                        Expanded(child: Divider(color: Colors.grey[200], thickness: 1.5)),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text('OR CONTINUE WITH', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[400], fontWeight: FontWeight.bold, letterSpacing: 1)),
-                        ),
-                        Expanded(child: Divider(color: Colors.grey[200], thickness: 1.5)),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Social Buttons
-                    Row(
-                      children: [
-                        Expanded(child: _buildSocialBtn(icon: 'assets/icons/google_g.svg', label: 'Google', onTap: _signInWithGoogle)),
-                        const SizedBox(width: 16),
-                        Expanded(child: _buildSocialBtn(icon: 'assets/icons/facebook_f.svg', label: 'Facebook', onTap: _signInWithFacebook)),
-                      ],
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    // --- 5. FOOTER SECTION ---
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text("Don't have an account? ", style: GoogleFonts.outfit(color: Colors.grey[600])),
-                        GestureDetector(
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
-                          child: Text('Register Now', style: GoogleFonts.outfit(color: primaryBlue, fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),    ),
-                );
+                  // --- 6. FOOTER ---
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Don't have an account? ", style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600])),
+                      GestureDetector(
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                        child: Text('Register', style: GoogleFonts.outfit(fontSize: 13, color: primaryBlue, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
           },
         ),
       ),
