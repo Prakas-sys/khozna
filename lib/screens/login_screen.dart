@@ -154,66 +154,63 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false, // Prevents keyboard from pushing things up too much
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            return SingleChildScrollView(
+            return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              physics: const BouncingScrollPhysics(),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
-                child: IntrinsicHeight(
-                  child: Column(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
                     children: [
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       // --- TOP BAR ---
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           GestureDetector(
                             onTap: _handleBossTap,
-                            child: Image.asset('assets/images/original logo.png', height: 42),
+                            child: Image.asset('assets/images/original logo.png', height: 40),
                           ),
                           IconButton(
                             onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                            icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 30),
+                            icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 28),
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
 
-                      // --- ILLUSTRATION (Big) ---
+                      // --- ILLUSTRATION ---
                       SizedBox(
-                        height: constraints.maxHeight * 0.28,
+                        height: constraints.maxHeight * 0.25, // Adjusted to fit screen
                         child: Image.asset('assets/images/illustrate of login screen.png', fit: BoxFit.contain),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // --- HEADINGS ---
                       Text(
                         'Welcome Back To',
                         style: GoogleFonts.zenAntiqueSoft(
-                          fontSize: 28,
+                          fontSize: 26,
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF2D2D2D),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         'KHOZNA',
                         style: GoogleFonts.zenAntiqueSoft(
-                          fontSize: 32,
+                          fontSize: 30,
                           fontWeight: FontWeight.w900,
                           color: AppTheme.brandColor,
-                          letterSpacing: 2.0,
+                          letterSpacing: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         'Login to continue Finding for your next Home.',
                         textAlign: TextAlign.center,
@@ -224,11 +221,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16), // Tightened spacing
 
                       // --- PHONE INPUT ---
                       Container(
-                        height: 60,
+                        height: 56,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -259,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
 
                       // --- TERMS CHECKBOX ---
                       Padding(
@@ -297,12 +294,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // --- LOGIN BUTTON ---
                       SizedBox(
                         width: double.infinity,
-                        height: 58,
+                        height: 54,
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _verifyPhone,
                           style: ElevatedButton.styleFrom(
@@ -317,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // --- OR DIVIDER ---
                       Row(
@@ -331,7 +328,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // --- SOCIAL BUTTONS ---
                       Row(
@@ -341,31 +338,28 @@ class _LoginScreenState extends State<LoginScreen> {
                           Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _signInWithFacebook)),
                         ],
                       ),
-
-                      const Spacer(),
-
-                      // --- FOOTER (Back at the bottom) ---
-                      Column(
-                        children: [
-                          const SizedBox(height: 16),
-                          GestureDetector(
-                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
-                            child: RichText(
-                              text: TextSpan(
-                                style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[500]),
-                                children: [
-                                  const TextSpan(text: "Don't have an account? "),
-                                  TextSpan(text: 'Register Here', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                        ],
-                      ),
                     ],
                   ),
-                ),
+
+                  // --- FOOTER (Always at bottom) ---
+                  Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                        child: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[500]),
+                            children: [
+                              const TextSpan(text: "Don't have an account? "),
+                              TextSpan(text: 'Register Here', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16), // Adjusted to fit
+                    ],
+                  ),
+                ],
               ),
             );
           },
@@ -378,7 +372,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 56,
+        height: 52,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(40),
@@ -387,9 +381,9 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(icon, height: 22),
-            const SizedBox(width: 10),
-            Text(label, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
+            SvgPicture.asset(icon, height: 20),
+            const SizedBox(width: 8),
+            Text(label, style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
           ],
         ),
       ),
