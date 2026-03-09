@@ -330,7 +330,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
 
-                      const SizedBox(height: 20), // Reduced gap below social and above register
+                      const SizedBox(height: 40), // Increased gap below social for better breathing room
 
                       // --- FOOTER (Pushed UP) ---
                       GestureDetector(
