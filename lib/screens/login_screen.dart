@@ -154,205 +154,197 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true, // Fix for keyboard issues
+      resizeToAvoidBottomInset: false, // Absolutely critical: Fixed layout keeps content in place
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            return SingleChildScrollView(
+            final screenHeight = constraints.maxHeight;
+            
+            return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              physics: const ClampingScrollPhysics(), // Feels like a fixed app if content fits
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
-                child: IntrinsicHeight(
-                  child: Column(
+              child: Column(
+                children: [
+                   // TOP BAR (Logo + Skip)
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const SizedBox(height: 12),
-                      // --- TOP LOGO BAR ---
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: _handleBossTap,
-                            child: Image.asset('assets/images/original logo.png', height: 42),
-                          ),
-                          IconButton(
-                            onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                            icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 30),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
-                        ],
+                      GestureDetector(
+                        onTap: _handleBossTap,
+                        child: Image.asset('assets/images/original logo.png', height: 42),
                       ),
-
-                      const SizedBox(height: 12),
-
-                      // --- ILLUSTRATION (Big and Central) ---
-                      SizedBox(
-                        height: constraints.maxHeight * 0.40, // 40% height for maximum impact
-                        child: Image.asset('assets/images/illustrate of login screen.png', fit: BoxFit.contain),
+                      IconButton(
+                        onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
+                        icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 30),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
                       ),
+                    ],
+                  ),
+                  
+                  const Spacer(), // Distribute space
 
-                      const SizedBox(height: 10), // Tightened gap below illustration
+                  // MASSIVE ILLUSTRATION (40% of screen)
+                  SizedBox(
+                    height: screenHeight * 0.40,
+                    child: Image.asset('assets/images/illustrate of login screen.png', fit: BoxFit.contain),
+                  ),
 
-                      // --- HEADINGS ---
-                      Text(
-                        'Welcome Back To',
-                        style: GoogleFonts.zenAntiqueSoft(
-                          fontSize: 30, // Large and premium
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF2D2D2D),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'KHOZNA',
-                        style: GoogleFonts.zenAntiqueSoft(
-                          fontSize: 34,
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.brandColor,
-                          letterSpacing: 2.0,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Login to continue Finding for your next Home.',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(
-                          fontSize: 14,
-                          color: Colors.grey[500],
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
+                  const Spacer(), // Distribute space
 
-                      const SizedBox(height: 24), // Space before form starts
+                  // HEADERS (Tight spacing, big text)
+                  Text(
+                    'Welcome Back To',
+                    style: GoogleFonts.zenAntiqueSoft(
+                      fontSize: 28, // Large as requested
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF2D2D2D),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'KHOZNA',
+                    style: GoogleFonts.zenAntiqueSoft(
+                      fontSize: 32, // Large as requested
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.brandColor,
+                      letterSpacing: 2.0,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Login to continue Finding for your next Home.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  
+                  const Spacer(), // Distribute space
 
-                      // --- PHONE INPUT ---
-                      Container(
-                        height: 58,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(40),
-                          border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
-                        ),
-                        child: Row(
-                          children: [
-                            const Text('🇳🇵', style: TextStyle(fontSize: 24)),
-                            const SizedBox(width: 8),
-                            Text('+977', style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black)),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextField(
-                                controller: _phoneController,
-                                keyboardType: TextInputType.phone,
-                                style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w500),
-                                decoration: InputDecoration(
-                                  hintText: 'Enter Mobile number',
-                                  hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 16),
-                                  border: InputBorder.none,
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                              ),
+                  // PHONE SECTION
+                  Container(
+                    height: 58,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(40),
+                      border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
+                    ),
+                    child: Row(
+                      children: [
+                        const Text('🇳🇵', style: TextStyle(fontSize: 24)),
+                        const SizedBox(width: 8),
+                        Text('+977', style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black)),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w500),
+                            decoration: InputDecoration(
+                              hintText: 'Enter Mobile number',
+                              hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 16),
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
                             ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // --- TERMS ---
-                      Padding(
-                        padding: const EdgeInsets.only(left: 4),
-                        child: Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
-                              child: Container(
-                                width: 22,
-                                height: 22,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1.5),
-                                  color: _agreeToTerms ? AppTheme.brandColor : Colors.white,
-                                ),
-                                child: _agreeToTerms ? const Icon(Icons.check, size: 16, color: Colors.white) : null,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: RichText(
-                                text: TextSpan(
-                                  style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600]),
-                                  children: [
-                                    const TextSpan(text: 'I agree to terms of '),
-                                    TextSpan(text: 'Service', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                                    const TextSpan(text: ' and '),
-                                    TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 18),
-
-                      // --- LOGIN BUTTON ---
-                      SizedBox(
-                        width: double.infinity,
-                        height: 58,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _verifyPhone,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.brandColor,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
                           ),
-                          child: _isLoading
-                              ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                              : Text('Login', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 10),
 
-                      const SizedBox(height: 20),
-
-                      // --- SOCIAL BUTTONS ---
-                      Row(
-                        children: [
-                          Expanded(child: _buildSocialBtn('assets/icons/google_g.svg', 'Google', _signInWithGoogle)),
-                          const SizedBox(width: 16),
-                          Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _signInWithFacebook)),
-                        ],
-                      ),
-
-                      const SizedBox(height: 45), // Breathing space between social and footer
-
-                      const Spacer(), // Force footer to the bottom
-
-                      // --- FOOTER ---
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        child: GestureDetector(
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                  // TERMS
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
+                          child: Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1.5),
+                              color: _agreeToTerms ? AppTheme.brandColor : Colors.white,
+                            ),
+                            child: _agreeToTerms ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
                           child: RichText(
                             text: TextSpan(
-                              style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[500]),
+                              style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
                               children: [
-                                const TextSpan(text: "Don't have an account? "),
-                                TextSpan(text: 'Register Here', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                                const TextSpan(text: 'I agree to terms of '),
+                                TextSpan(text: 'Service', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                                const TextSpan(text: ' and '),
+                                TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 16),
+
+                  // BUTTONS
+                  SizedBox(
+                    width: double.infinity,
+                    height: 58,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _verifyPhone,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.brandColor,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
                       ),
+                      child: _isLoading
+                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : Text('Login', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // SOCIAL
+                  Row(
+                    children: [
+                      Expanded(child: _buildSocialBtn('assets/icons/google_g.svg', 'Google', _signInWithGoogle)),
+                      const SizedBox(width: 16),
+                      Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _signInWithFacebook)),
                     ],
                   ),
-                ),
+                  
+                  const Spacer(),
+
+                  // FOOTER (Absolute Bottom)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                      child: RichText(
+                        text: TextSpan(
+                          style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[500]),
+                          children: [
+                            const TextSpan(text: "Don't have an account? "),
+                            TextSpan(text: 'Register Here', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           },
@@ -374,9 +366,9 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(icon, height: 22),
-            const SizedBox(width: 10),
-            Text(label, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
+            SvgPicture.asset(icon, height: 20),
+            const SizedBox(width: 8),
+            Text(label, style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
           ],
         ),
       ),
