@@ -154,53 +154,53 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false, // Ensures UI stays fixed when keyboard opens
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            return SingleChildScrollView(
+            final screenHeight = constraints.maxHeight;
+            
+            return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              physics: const ClampingScrollPhysics(),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
-                child: IntrinsicHeight(
-                  child: Column(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // --- TOP SECTION (Contents) ---
+                  Column(
                     children: [
-                      const SizedBox(height: 12),
-                      // --- TOP BAR ---
+                      const SizedBox(height: 10),
+                      // Top Bar
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           GestureDetector(
                             onTap: _handleBossTap,
-                            child: Image.asset('assets/images/original logo.png', height: 44),
+                            child: Image.asset('assets/images/original logo.png', height: 40),
                           ),
                           IconButton(
                             onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                            icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 32),
+                            icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 30),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 12),
-
-                      // --- ILLUSTRATION ---
+                      
+                      const SizedBox(height: 10),
+                      
+                      // Illustration (Proportional height)
                       SizedBox(
-                        height: constraints.maxHeight * 0.42,
+                        height: screenHeight * 0.35, 
                         child: Image.asset('assets/images/illustrate of login screen.png', fit: BoxFit.contain),
                       ),
-
-                      const SizedBox(height: 4), // Tightened gap below illustration
-
-                      // --- HEADINGS ---
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Heading Text
                       Text(
                         'Welcome Back To',
                         style: GoogleFonts.zenAntiqueSoft(
-                          fontSize: 28,
+                          fontSize: 26,
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF2D2D2D),
                         ),
@@ -215,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           letterSpacing: 2.0,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         'Login to continue Finding for your next Home.',
                         textAlign: TextAlign.center,
@@ -225,10 +225,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-
-                      const SizedBox(height: 20),
-
-                      // --- PHONE INPUT ---
+                      
+                      const SizedBox(height: 18),
+                      
+                      // Phone Input (Clean Shape)
                       Container(
                         height: 58,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -239,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Text('🇳🇵', style: TextStyle(fontSize: 24)),
+                            const Text('🇳🇵', style: TextStyle(fontSize: 22)),
                             const SizedBox(width: 8),
                             Text('+977', style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black)),
                             const SizedBox(width: 12),
@@ -260,10 +260,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                       ),
-
+                      
                       const SizedBox(height: 12),
-
-                      // --- TERMS ---
+                      
+                      // Terms
                       Padding(
                         padding: const EdgeInsets.only(left: 4),
                         child: Row(
@@ -298,10 +298,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ],
                         ),
                       ),
-
+                      
                       const SizedBox(height: 18),
-
-                      // --- LOGIN BUTTON ---
+                      
+                      // Login Button
                       SizedBox(
                         width: double.infinity,
                         height: 58,
@@ -318,10 +318,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               : Text('Login', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
                         ),
                       ),
-
+                      
                       const SizedBox(height: 16),
-
-                      // --- SOCIAL BUTTONS ---
+                      
+                      // Social Buttons
                       Row(
                         children: [
                           Expanded(child: _buildSocialBtn('assets/icons/google_g.svg', 'Google', _signInWithGoogle)),
@@ -329,10 +329,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _signInWithFacebook)),
                         ],
                       ),
+                    ],
+                  ),
 
-                      const SizedBox(height: 40), // Increased gap below social for better breathing room
-
-                      // --- FOOTER (Pushed UP) ---
+                  // --- BOTTOM SECTION (Footer) ---
+                  Column(
+                    children: [
                       GestureDetector(
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
                         child: RichText(
@@ -345,12 +347,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      
-                      const Spacer(), // Keeps the rest of the padding if screen is large
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 20),
                     ],
                   ),
-                ),
+                ],
               ),
             );
           },
