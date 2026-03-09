@@ -154,13 +154,13 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true, // Crucial for removing keyboard warnings
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              physics: const ClampingScrollPhysics(), // Makes it feel non-scrollalbe if it fits
+              physics: const ClampingScrollPhysics(),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   minHeight: constraints.maxHeight,
@@ -188,19 +188,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 12),
 
-                      // --- ILLUSTRATION (EVEN BIGGER) ---
+                      // --- ILLUSTRATION ---
                       SizedBox(
-                        height: constraints.maxHeight * 0.42, // Increased to fulfill "make it big"
+                        height: constraints.maxHeight * 0.42,
                         child: Image.asset('assets/images/illustrate of login screen.png', fit: BoxFit.contain),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 4), // Tightened gap below illustration
 
-                      // --- HEADINGS (Bigger "Welcome Back") ---
+                      // --- HEADINGS ---
                       Text(
                         'Welcome Back To',
                         style: GoogleFonts.zenAntiqueSoft(
-                          fontSize: 28, // Made big as requested
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF2D2D2D),
                         ),
@@ -319,7 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // --- SOCIAL BUTTONS ---
                       Row(
@@ -330,24 +330,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
 
-                      const Spacer(), // Pushes footer to bottom
+                      const SizedBox(height: 20), // Reduced gap below social and above register
 
-                      // --- FOOTER ---
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        child: GestureDetector(
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
-                          child: RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[500]),
-                              children: [
-                                const TextSpan(text: "Don't have an account? "),
-                                TextSpan(text: 'Register Here', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
+                      // --- FOOTER (Pushed UP) ---
+                      GestureDetector(
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                        child: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[500]),
+                            children: [
+                              const TextSpan(text: "Don't have an account? "),
+                              TextSpan(text: 'Register Here', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                            ],
                           ),
                         ),
                       ),
+                      
+                      const Spacer(), // Keeps the rest of the padding if screen is large
+                      const SizedBox(height: 12),
                     ],
                   ),
                 ),
