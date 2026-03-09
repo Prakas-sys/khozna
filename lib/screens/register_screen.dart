@@ -394,17 +394,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
-  Widget _buildLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Text(
-        label,
-        style: GoogleFonts.outfit(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: AppTheme.primaryTextColor,
-        ),
-      ),
-    );
   }
 }
