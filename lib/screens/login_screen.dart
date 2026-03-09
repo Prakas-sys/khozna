@@ -154,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: false, // Prevents keyboard from pushing things up too much
+      resizeToAvoidBottomInset: false, // Prevents keyboard from messing up the fixed layout
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -177,40 +177,43 @@ class _LoginScreenState extends State<LoginScreen> {
                           IconButton(
                             onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
                             icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 28),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
 
-                      // --- ILLUSTRATION ---
+                      // --- ILLUSTRATION (Big and Static) ---
+                      // We use a fixed height percentage to ensure it fills the space beautifully
                       SizedBox(
-                        height: constraints.maxHeight * 0.25, // Adjusted to fit screen
+                        height: constraints.maxHeight * 0.32, 
                         child: Image.asset('assets/images/illustrate of login screen.png', fit: BoxFit.contain),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       // --- HEADINGS ---
                       Text(
                         'Welcome Back To',
                         style: GoogleFonts.zenAntiqueSoft(
-                          fontSize: 26,
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: const Color(0xFF2D2D2D),
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         'KHOZNA',
                         style: GoogleFonts.zenAntiqueSoft(
-                          fontSize: 30,
+                          fontSize: 32,
                           fontWeight: FontWeight.w900,
                           color: AppTheme.brandColor,
-                          letterSpacing: 1.5,
+                          letterSpacing: 2.0,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       Text(
                         'Login to continue Finding for your next Home.',
                         textAlign: TextAlign.center,
@@ -221,16 +224,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 16), // Tightened spacing
+                      const SizedBox(height: 24),
 
-                      // --- PHONE INPUT ---
+                      // --- PHONE INPUT (Clean Whole Shape) ---
                       Container(
-                        height: 56,
+                        height: 58,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(40),
-                          border: Border.all(color: Colors.grey.withOpacity(0.25), width: 1),
+                          // Using a very subtle border for that "One Whole Shape" look
+                          border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
                         ),
                         child: Row(
                           children: [
@@ -256,9 +260,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
 
-                      // --- TERMS CHECKBOX ---
+                      // --- TERMS ---
                       Padding(
                         padding: const EdgeInsets.only(left: 4),
                         child: Row(
@@ -294,12 +298,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 18),
 
                       // --- LOGIN BUTTON ---
                       SizedBox(
                         width: double.infinity,
-                        height: 54,
+                        height: 58,
                         child: ElevatedButton(
                           onPressed: _isLoading ? null : _verifyPhone,
                           style: ElevatedButton.styleFrom(
@@ -314,21 +318,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
-
-                      // --- OR DIVIDER ---
-                      Row(
-                        children: [
-                          Expanded(child: Divider(color: Colors.grey.withOpacity(0.2))),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text('OR', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[400], fontWeight: FontWeight.bold)),
-                          ),
-                          Expanded(child: Divider(color: Colors.grey.withOpacity(0.2))),
-                        ],
-                      ),
-
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
                       // --- SOCIAL BUTTONS ---
                       Row(
@@ -341,7 +331,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
 
-                  // --- FOOTER (Always at bottom) ---
+                  // --- FOOTER (LOCKED AT BOTTOM) ---
                   Column(
                     children: [
                       GestureDetector(
@@ -356,7 +346,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16), // Adjusted to fit
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ],
@@ -372,18 +362,18 @@ class _LoginScreenState extends State<LoginScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 52,
+        height: 56,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(40),
-          border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
+          border: Border.all(color: Colors.grey.withOpacity(0.15), width: 1),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(icon, height: 20),
-            const SizedBox(width: 8),
-            Text(label, style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
+            SvgPicture.asset(icon, height: 22),
+            const SizedBox(width: 10),
+            Text(label, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
           ],
         ),
       ),
