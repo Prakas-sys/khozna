@@ -189,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
         
                           // --- ILLUSTRATION ---
                           SizedBox(
-                            height: constraints.maxHeight * 0.30, 
+                            height: constraints.maxHeight * 0.38, 
                             child: Image.asset(
                               'assets/images/boy illustrate  png.png',
                               fit: BoxFit.contain,
