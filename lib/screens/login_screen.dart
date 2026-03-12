@@ -169,18 +169,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Column(
                         children: [
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           // --- TOP BAR ---
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               GestureDetector(
                                 onTap: _handleBossTap,
-                                child: Image.asset('assets/images/original logo.png', height: 42),
+                                child: Image.asset('assets/images/original logo.png', height: 38),
                               ),
                               IconButton(
                                 onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                                icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 30),
+                                icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 28),
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
                               ),
@@ -189,14 +189,14 @@ class _LoginScreenState extends State<LoginScreen> {
         
                           // --- ILLUSTRATION ---
                           SizedBox(
-                            height: constraints.maxHeight * 0.40, 
+                            height: constraints.maxHeight * 0.35, 
                             child: Image.asset(
                               'assets/images/boy illustrate  png.png',
                               fit: BoxFit.contain,
                             ),
                           ),
         
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 8),
         
                           // --- WELCOME TEXT ---
                           Column(
@@ -205,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               Text(
                                 'Welcome Back To',
                                 style: GoogleFonts.zenAntiqueSoft(
-                                  fontSize: 26,
+                                  fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                   color: const Color(0xFF2D2D2D),
                                 ),
@@ -213,10 +213,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               Text(
                                 'KHOZNA',
                                 style: GoogleFonts.zenAntiqueSoft(
-                                  fontSize: 30,
+                                  fontSize: 28,
                                   fontWeight: FontWeight.w900,
                                   color: AppTheme.brandColor,
-                                  letterSpacing: 2.0,
+                                  letterSpacing: 1.5,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -224,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 'Login to continue finding your next home.',
                                 textAlign: TextAlign.center,
                                 style: GoogleFonts.outfit(
-                                  fontSize: 14,
+                                  fontSize: 13,
                                   color: Colors.grey[500],
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -236,13 +236,13 @@ class _LoginScreenState extends State<LoginScreen> {
     
                       // --- INPUT ACTIONS ---
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             // Phone Input
                             Container(
-                              height: 58,
+                              height: 54,
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               decoration: BoxDecoration(
                                 color: Colors.white, 
@@ -322,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
         
                             // Login Button
                             SizedBox(
-                              width: double.infinity, height: 58,
+                              width: double.infinity, height: 52,
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _verifyPhone,
                                 style: ElevatedButton.styleFrom(
@@ -333,11 +333,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 child: _isLoading
                                     ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                    : Text('Login', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    : Text('Login', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold)),
                               ),
                             ),
                             
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 8),
         
                             // OR Divider
                             Row(
@@ -345,18 +345,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  child: Text('OR', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey[400])),
+                                  child: Text('OR', style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey[400])),
                                 ),
                                 Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
                               ],
                             ),
         
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 8),
                             
                             Row(
                               children: [
                                 Expanded(child: _buildSocialBtn('assets/icons/google_g.svg', 'Google', _signInWithGoogle)),
-                                const SizedBox(width: 16),
+                                const SizedBox(width: 12),
                                 Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _signInWithFacebook)),
                               ],
                             ),
@@ -395,7 +395,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 56, // Bigger height
+        height: 52, // Slimmer height
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(50),
@@ -411,9 +411,9 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(icon, height: 22), // Bigger icon
-            const SizedBox(width: 10),
-            Text(label, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)), // Bigger text
+            SvgPicture.asset(icon, height: 20), // Slimmer icon
+            const SizedBox(width: 8),
+            Text(label, style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87)), 
           ],
         ),
       ),
