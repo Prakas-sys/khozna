@@ -132,23 +132,15 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                    const SizedBox(height: 20),
-                  // Icon or Illustration
-                  Center(
-                    child: Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        color: AppTheme.brandColor.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.mark_chat_read_outlined,
-                        color: AppTheme.brandColor,
-                        size: 40,
-                      ),
+                  // Illustration
+                  SizedBox(
+                    height: 180,
+                    child: Image.asset(
+                      'assets/images/man illustrate png.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   Text(
                     'Verify Phone',
                     textAlign: TextAlign.center,

@@ -189,22 +189,14 @@ class _LoginScreenState extends State<LoginScreen> {
         
                           // --- ILLUSTRATION ---
                           SizedBox(
-                            height: constraints.maxHeight * 0.32, // Increased from 0.22
-                            child: Center(
-                              child: OverflowBox(
-                                maxWidth: constraints.maxWidth,
-                                child: Transform.scale(
-                                  scale: 1.2, // Increased from 1.05
-                                  child: Image.asset(
-                                    'assets/images/illustrate of login screen.png',
-                                    fit: BoxFit.fitWidth,
-                                  ),
-                                ),
-                              ),
+                            height: constraints.maxHeight * 0.35, 
+                            child: Image.asset(
+                              'assets/images/boy illustrate  png.png',
+                              fit: BoxFit.contain,
                             ),
                           ),
         
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 20),
         
                           // --- WELCOME TEXT ---
                           Column(
