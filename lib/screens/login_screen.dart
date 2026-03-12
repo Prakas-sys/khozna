@@ -189,14 +189,14 @@ class _LoginScreenState extends State<LoginScreen> {
         
                           // --- ILLUSTRATION ---
                           SizedBox(
-                            height: constraints.maxHeight * 0.35, 
+                            height: constraints.maxHeight * 0.40, 
                             child: Image.asset(
                               'assets/images/boy illustrate  png.png',
                               fit: BoxFit.contain,
                             ),
                           ),
         
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
         
                           // --- WELCOME TEXT ---
                           Column(
@@ -236,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
     
                       // --- INPUT ACTIONS ---
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -337,7 +337,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
         
                             // OR Divider
                             Row(
@@ -351,7 +351,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
         
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 10),
                             
                             Row(
                               children: [
@@ -366,7 +366,7 @@ class _LoginScreenState extends State<LoginScreen> {
     
                       // --- FOOTER ---
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
+                        padding: const EdgeInsets.only(bottom: 12),
                         child: GestureDetector(
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
                           child: RichText(
