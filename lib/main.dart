@@ -56,6 +56,7 @@ void main() async {
       GoogleFonts.outfit(),
       GoogleFonts.playfairDisplay(),
       GoogleFonts.zenAntiqueSoft(),
+      GoogleFonts.montserrat(),
     ]),
   ]);
 
