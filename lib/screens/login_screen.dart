@@ -169,30 +169,39 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                        Column(
                         children: [
-                          const SizedBox(height: 12),
-                          // --- TOP BAR ---
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              GestureDetector(
-                                onTap: _handleBossTap,
-                                child: Image.asset('assets/images/original logo.png', height: 42),
-                              ),
-                              IconButton(
-                                onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                                icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 30),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              ),
-                            ],
-                          ),
-        
-                          // --- ILLUSTRATION ---
-                          SizedBox(
-                            height: constraints.maxHeight * 0.38, 
-                            child: Image.asset(
-                              'assets/images/boy illustrate  png.png',
-                              fit: BoxFit.contain,
+                          Container(
+                            height: constraints.maxHeight * 0.42,
+                            child: Stack(
+                              children: [
+                                // --- ILLUSTRATION ---
+                                Positioned.fill(
+                                  child: Image.asset(
+                                    'assets/images/boy illustrate  png.png',
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                // --- TOP BAR ---
+                                Positioned(
+                                  top: 12,
+                                  left: 0,
+                                  right: 0,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: _handleBossTap,
+                                        child: Image.asset('assets/images/original logo.png', height: 42),
+                                      ),
+                                      IconButton(
+                                        onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
+                                        icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 30),
+                                        padding: EdgeInsets.zero,
+                                        constraints: const BoxConstraints(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
         
