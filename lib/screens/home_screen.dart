@@ -535,18 +535,18 @@ class HomeScreen extends StatelessWidget {
                     left: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
+                        horizontal: 6,
+                        vertical: 4.5,
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2ECC71),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        'For Rent',
+                        'FOR RENT',
                         style: GoogleFonts.outfit(
                           color: Colors.white,
-                          fontSize: 11,
+                          fontSize: 11.5,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

@@ -25,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _agreeToTerms = true;
   bool _isLoading = false;
   final TextEditingController _phoneController = TextEditingController();
+  final FocusNode _phoneFocusNode = FocusNode();
   int _bossTaps = 0;
 
   @override
@@ -36,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void dispose() {
     SecurityUtils.setSecure(false);
+    _phoneFocusNode.dispose();
     _phoneController.dispose();
     super.dispose();
   }
@@ -89,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     final phone = _phoneController.text.trim();
     if (phone.length < 10) {
+      _phoneFocusNode.requestFocus();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter a valid phone number', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
       return;
     }
@@ -166,9 +169,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                       Column(
+                      Column(
                         children: [
-                          // --- TOP BAR ---
+                          Column(
+                            children: [
+                              // --- TOP BAR ---
                           Padding(
                             padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
                             child: Row(
@@ -178,11 +183,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   onTap: _handleBossTap,
                                   child: Image.asset('assets/images/original logo.png', height: 42),
                                 ),
-                                IconButton(
+                                TextButton.icon(
                                   onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                                  icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 30),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
+                                  label: Text('Skip', style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.w600, fontSize: 16)),
+                                  icon: Icon(Icons.arrow_forward_ios, color: AppTheme.brandColor, size: 14),
+                                  iconAlignment: IconAlignment.end,
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: AppTheme.brandColor.withOpacity(0.08),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  ),
                                 ),
                               ],
                             ),
@@ -241,7 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-    
+                      const SizedBox(height: 12), // Added gap below Text to Input
                       // --- INPUT ACTIONS ---
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
@@ -271,11 +283,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Expanded(
                                     child: TextField(
                                       controller: _phoneController,
+                                      focusNode: _phoneFocusNode,
                                       keyboardType: TextInputType.phone,
                                       style: GoogleFonts.montserrat(fontSize: 15, fontWeight: FontWeight.w500),
                                       decoration: InputDecoration(
-                                        hintText: 'Enter Mobile number',
-                                        hintStyle: GoogleFonts.montserrat(color: Colors.grey[400], fontSize: 15, fontWeight: FontWeight.w400),
+                                        hintText: 'Enter mobile number',
+                                        hintStyle: GoogleFonts.montserrat(color: Colors.grey[400], fontSize: 14, fontWeight: FontWeight.w400),
                                         filled: false,
                                         border: InputBorder.none,
                                         enabledBorder: InputBorder.none,
@@ -347,15 +360,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               const SizedBox(height: 2),
         
                             // OR Divider
-                            Row(
-                              children: [
-                                Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  child: Text('OR', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey[400])),
-                                ),
-                                Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Row(
+                                children: [
+                                  Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: Text('OR', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey[400])),
+                                  ),
+                                  Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
+                                ],
+                              ),
                             ),
         
                               const SizedBox(height: 2),
@@ -369,6 +385,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ],
                         ),
+                      ),
+                        ],
                       ),
     
                       // --- FOOTER ---
@@ -411,8 +429,8 @@ class _LoginScreenState extends State<LoginScreen> {
               color: Colors.white.withOpacity(0.6), // Semi-transparent for glass effect
               borderRadius: BorderRadius.circular(50),
               border: Border.all(
-                color: Colors.white.withOpacity(0.4), 
-                width: 1.5,
+                color: Colors.grey.withOpacity(0.4), 
+                width: 1.2,
               ),
               boxShadow: [
                 BoxShadow(

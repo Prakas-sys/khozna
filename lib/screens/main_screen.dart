@@ -278,16 +278,28 @@ class _MainScreenState extends State<MainScreen> {
                 children: [
                   // Icon
                   AnimatedScale(
-                    scale: isSelected ? 1.1 : 1.0,
+                    scale: isSelected ? 1.15 : 1.0,
                     duration: const Duration(milliseconds: 200),
-                    child: SvgPicture.asset(
-                      iconPath,
-                      width: 24,
-                      height: 24,
-                      colorFilter: ColorFilter.mode(
-                        isSelected ? activeColor : inactiveColor,
-                        BlendMode.srcIn,
-                      ),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        if (isSelected) ...[
+                          // Pseudo-stroke to make the icon bolder when active
+                          Transform.translate(offset: const Offset(0.5, 0), child: SvgPicture.asset(iconPath, width: 24, height: 24, colorFilter: ColorFilter.mode(activeColor, BlendMode.srcIn))),
+                          Transform.translate(offset: const Offset(-0.5, 0), child: SvgPicture.asset(iconPath, width: 24, height: 24, colorFilter: ColorFilter.mode(activeColor, BlendMode.srcIn))),
+                          Transform.translate(offset: const Offset(0, 0.5), child: SvgPicture.asset(iconPath, width: 24, height: 24, colorFilter: ColorFilter.mode(activeColor, BlendMode.srcIn))),
+                          Transform.translate(offset: const Offset(0, -0.5), child: SvgPicture.asset(iconPath, width: 24, height: 24, colorFilter: ColorFilter.mode(activeColor, BlendMode.srcIn))),
+                        ],
+                        SvgPicture.asset(
+                          iconPath,
+                          width: 24,
+                          height: 24,
+                          colorFilter: ColorFilter.mode(
+                            isSelected ? activeColor : inactiveColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   // Premium red badge
@@ -325,7 +337,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             // Minimal gap and slight upward pull for text
             Transform.translate(
-              offset: const Offset(0, -1),
+              offset: const Offset(0, -3.5),
               child: Text(
                 label,
                 style: GoogleFonts.outfit(
