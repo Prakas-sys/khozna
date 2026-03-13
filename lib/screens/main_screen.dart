@@ -134,70 +134,113 @@ class _MainScreenState extends State<MainScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
+      elevation: 20,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40,
-              height: 4,
+              width: 48,
+              height: 5,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor.withOpacity(0.05),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.add_home_rounded, color: AppTheme.brandColor, size: 30),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
             Text(
-              'प्रोपर्टी राख्नुहोस् (Post Property)',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              'आफ्नो सम्पत्ति राख्नुहोस्',
+              style: GoogleFonts.mukta(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+                height: 1.2,
               ),
             ),
-            const SizedBox(height: 24),
-            _buildOptionItem(
-              context,
-              Icons.home_work_outlined,
-              'कोठा वा घर थप्नुहोस्',
-              'List your Room, House or Land',
-              onTap: () {
-                Navigator.pop(context);
-                if (!_isKycVerified) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const KycScreen()),
-                  ).then((value) {
-                    if (value == true) {
-                      setState(() => _isKycVerified = true);
-                    }
-                  });
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddPropertyScreen(),
-                    ),
-                  );
-                }
-              },
+            const SizedBox(height: 8),
+            Text(
+              'Quick and easy way to list your\nRoom, Flat, House or Hostel.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.outfit(
+                fontSize: 15,
+                color: Colors.grey[600],
+                height: 1.4,
+              ),
             ),
-            _buildOptionItem(
-              context,
-              Icons.videocam_outlined,
-              'भिडियो राख्नुहोस्',
-              'Share a Video Tour',
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              height: 58,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  if (!_isKycVerified) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const KycScreen()),
+                    ).then((value) {
+                      if (value == true) {
+                        setState(() => _isKycVerified = true);
+                      }
+                    });
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AddPropertyScreen(),
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                ),
+                child: Text(
+                  'Post Now',
+                  style: GoogleFonts.outfit(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
             ),
-            _buildOptionItem(
-              context,
-              Icons.edit_note_outlined,
-              'आफ्नो आवश्यकता लेख्नुहोस्',
-              'Post what you are looking for',
-            ),
-            const SizedBox(height: 24),
           ],
         ),
       ),

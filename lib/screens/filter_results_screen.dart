@@ -38,10 +38,6 @@ class FilterResultsScreen extends StatelessWidget {
           ],
         ),
         centerTitle: true,
-        actions: [
-          IconButton(icon: const Icon(Icons.tune, color: AppTheme.brandColor, size: 22), onPressed: () {}),
-          const SizedBox(width: 8),
-        ],
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: Supabase.instance.client.from('properties').select('*, property_images(image_url)').order('created_at', ascending: false),
@@ -59,41 +55,60 @@ class FilterResultsScreen extends StatelessWidget {
 
           final properties = snapshot.data ?? [];
 
+          if (properties.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.home_work_outlined, size: 80, color: Colors.grey[200]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No listings found yet',
+                    style: GoogleFonts.outfit(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[400],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Be the first to post a property!',
+                    style: GoogleFonts.outfit(
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
           return ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            itemCount: 10, // ALWAYS show 10 items
+            itemCount: properties.length,
             itemBuilder: (context, index) {
-              if (index < properties.length) {
-                final p = properties[index];
-                final images = (p['property_images'] as List);
-                final String mainImage = images.isNotEmpty 
-                    ? images[0]['image_url'] 
-                    : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+              final p = properties[index];
+              final images = (p['property_images'] as List);
+              final String mainImage = images.isNotEmpty 
+                  ? images[0]['image_url'] 
+                  : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: _buildWideCard(
-                    context,
-                    p['id'],
-                    mainImage,
-                    p['title'],
-                    p['area_name'],
-                    'रू ${p['price']}',
-                    p['bedrooms'] ?? 0,
-                    p['bathrooms'] ?? 0,
-                    p['sq_ft'] ?? '0',
-                    p['floor'] ?? 'N/A',
-                    p['description'] ?? '',
-                    images.map((i) => i['image_url'].toString()).toList(),
-                  ),
-                );
-              } else {
-                // Show skeletons if less than 10 real listings
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: _buildSkeletonCard(context),
-                );
-              }
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: _buildWideCard(
+                  context,
+                  p['id'],
+                  mainImage,
+                  p['title'],
+                  p['area_name'],
+                  'रू ${p['price']}',
+                  p['bedrooms'] ?? 0,
+                  p['bathrooms'] ?? 0,
+                  p['sq_ft'] ?? '0',
+                  p['floor'] ?? 'N/A',
+                  p['description'] ?? '',
+                  images.map((i) => i['image_url'].toString()).toList(),
+                ),
+              );
             },
           );
         },

@@ -181,19 +181,28 @@ class _LoginScreenState extends State<LoginScreen> {
                               children: [
                                 GestureDetector(
                                   onTap: _handleBossTap,
-                                  child: Image.asset('assets/images/original logo.png', height: 42),
+                                  child: Image.asset('assets/images/original logo.png', height: 48),
                                 ),
-                                TextButton.icon(
-                                  onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                                  label: Text('Skip', style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.w600, fontSize: 16)),
-                                  icon: Icon(Icons.arrow_forward_ios, color: AppTheme.brandColor, size: 14),
-                                  iconAlignment: IconAlignment.end,
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: AppTheme.brandColor.withOpacity(0.08),
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                InkWell(
+                                  onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Skip',
+                                          style: GoogleFonts.outfit(
+                                            color: AppTheme.brandColor,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 2),
+                                        Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 22),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],

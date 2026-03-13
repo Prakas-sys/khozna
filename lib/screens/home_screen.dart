@@ -13,6 +13,7 @@ import 'filter_results_screen.dart';
 import 'chat_screen.dart';
 import 'kyc_screen.dart';
 import '../widgets/favourite_button.dart';
+import '../widgets/voice_search_overlay.dart';
 import 'notifications_screen.dart';
 import 'login_screen.dart';
 
@@ -172,16 +173,37 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          color: AppTheme.brandColor,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.mic,
-                          color: Colors.white,
-                          size: 20,
+                      InkWell(
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            builder: (context) => VoiceSearchOverlay(
+                              onResult: (text) {
+                                Navigator.pop(context); // Close overlay
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SearchScreen(),
+                                    settings: RouteSettings(arguments: text),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.brandColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.mic,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ],

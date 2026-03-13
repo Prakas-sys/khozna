@@ -13,6 +13,29 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   double _priceValue = 5000;
   final List<String> _recentSearches = ['Baluwatar', '2BHK Sanepa', 'Flat under 20k', 'Baneshwor Room'];
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+    
+    // Auto-fill from voice search if arguments are present
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final Object? args = ModalRoute.of(context)?.settings.arguments;
+      if (args is String && args.isNotEmpty) {
+        setState(() {
+          _searchController.text = args;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,37 +75,38 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Premium Search CTA in Body
+            // Premium Search Bar
             Hero(
               tag: 'search_bar',
               child: Material(
                 color: Colors.transparent,
                 child: Container(
-                  height: 60,
+                  height: 56,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppTheme.brandColor.withValues(alpha: 0.15),
+                      color: Colors.grey.shade200,
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.brandColor.withValues(alpha: 0.08),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.search_rounded, color: AppTheme.brandColor, size: 24),
+                      const Icon(Icons.search_rounded, color: AppTheme.brandColor, size: 22),
                       const SizedBox(width: 12),
                       Expanded(
                         child: TextField(
-                          autofocus: true,
-                          style: GoogleFonts.outfit(fontSize: 16),
+                          controller: _searchController,
+                          autofocus: _searchController.text.isEmpty,
+                          style: GoogleFonts.outfit(fontSize: 16, color: Colors.black),
                           decoration: InputDecoration(
                             hintText: 'Where are you looking?',
                             hintStyle: GoogleFonts.outfit(
@@ -90,25 +114,48 @@ class _SearchScreenState extends State<SearchScreen> {
                               fontSize: 15,
                             ),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 0),
                           ),
+                          onChanged: (val) => setState(() {}),
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppTheme.brandColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
+                      if (_searchController.text.isNotEmpty)
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+                          onPressed: () {
+                            setState(() {
+                              _searchController.clear();
+                            });
+                          },
                         ),
-                        child: const Icon(Icons.location_on_rounded, color: AppTheme.brandColor, size: 20),
-                      ),
                     ],
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 32),
-            Text('Price Range (भाडाको सीमा)', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Price Range ',
+                    style: GoogleFonts.outfit(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '(भाडाको सीमा)',
+                    style: GoogleFonts.mukta(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(20),
@@ -144,8 +191,41 @@ class _SearchScreenState extends State<SearchScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('भर्खरै खोजिएका (Recently Searched)', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold)),
-                TextButton(onPressed: () {}, child: Text('Clear', style: GoogleFonts.outfit(color: airbnbGrey))),
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Recently Searched ',
+                          style: GoogleFonts.outfit(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '(भर्खरै खोजिएका)',
+                          style: GoogleFonts.mukta(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _recentSearches.clear();
+                    });
+                  },
+                  child: Text(
+                    'Clear',
+                    style: GoogleFonts.outfit(color: airbnbGrey),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -154,7 +234,28 @@ class _SearchScreenState extends State<SearchScreen> {
               children: _recentSearches.map((search) => _buildRecentTag(search)).toList(),
             ),
             const SizedBox(height: 40),
-            Text('लोकप्रिय ठाउँहरू (Popular Areas)', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold)),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Popular Areas ',
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  TextSpan(
+                    text: '(लोकप्रिय ठाउँहरू)',
+                    style: GoogleFonts.mukta(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             _buildAreaItem('Baluwatar, Kathmandu', '450+ Listings'),
             _buildAreaItem('Sanepa, Lalitpur', '320+ Listings'),

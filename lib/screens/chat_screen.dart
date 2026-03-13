@@ -214,33 +214,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           // CHAT MESSAGES
           Expanded(
             child: _messages.isEmpty 
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppTheme.brandColor.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Text(
-                          '🙏',
-                          style: TextStyle(fontSize: 48),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'नमस्ते',
-                        style: GoogleFonts.outfit(
-                          color: AppTheme.brandColor,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
+              ? const SizedBox.shrink() // Removed bulky UI as requested
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: _messages.length,
@@ -321,11 +295,11 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               },
               borderRadius: BorderRadius.circular(20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.brandColor.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.2), width: 1.2),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.grey.shade200, width: 1),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -333,13 +307,13 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                     Text(
                       'नमस्ते',
                       style: GoogleFonts.outfit(
-                        fontSize: 14,
-                        color: AppTheme.brandColor,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    const Text('🙏', style: TextStyle(fontSize: 18)),
+                    const SizedBox(width: 4),
+                    const Text('🙏', style: TextStyle(fontSize: 14)),
                   ],
                 ),
               ),
@@ -347,74 +321,98 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           ),
 
           // FLOATING MESSAGE INPUT - Simplified Single Layer
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            decoration: const BoxDecoration(
-              color: Colors.white, // Keep background but remove the heavy shadow/double box look
-            ),
+          // PERFECT CLEAN FLOATING INPUT
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
             child: SafeArea(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(26),
-                        border: Border.all(color: Colors.grey.shade200, width: 1),
-                      ),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 6),
-                          IconButton(
-                            icon: const Icon(Icons.add_circle_outline, color: AppTheme.brandColor, size: 26),
-                            onPressed: () {},
-                            padding: EdgeInsets.zero,
-                          ),
-                          Expanded(
-                            child: TextField(
-                              controller: _messageController,
-                              style: GoogleFonts.outfit(fontSize: 15, color: const Color(0xFF1A1A1A)),
-                              decoration: InputDecoration(
-                                hintText: 'तपाईंको सन्देश लेख्नुहोस्...',
-                                hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 14),
-                                border: InputBorder.none,
-                                isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 50),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9), // Slightly deeper slate for better float contrast
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 2),
+                              child: IconButton(
+                                icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.blueGrey, size: 24),
+                                onPressed: () {},
                               ),
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.emoji_emotions_outlined, color: Colors.grey, size: 24),
-                            onPressed: () {},
-                            padding: EdgeInsets.zero,
-                          ),
-                          const SizedBox(width: 6),
-                        ],
+                            Expanded(
+                              child: TextField(
+                                controller: _messageController,
+                                maxLines: 5,
+                                minLines: 1,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 15,
+                                  color: const Color(0xFF1E293B),
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: 'Type message...',
+                                  hintStyle: GoogleFonts.outfit(
+                                    color: const Color(0xFF94A3B8), 
+                                    fontSize: 15
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: _sendMessage,
-                    child: Container(
-                      height: 52,
-                      width: 52,
-                      decoration: BoxDecoration(
-                        color: AppTheme.brandColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.brandColor.withValues(alpha: 0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: _sendMessage,
+                      child: Container(
+                        height: 50,
+                        width: 50,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppTheme.brandColor, AppTheme.brandColor.withValues(alpha: 0.8)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                        ],
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.brandColor.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
                       ),
-                      child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           )

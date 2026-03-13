@@ -1,8 +1,9 @@
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import 'saved_properties_screen.dart';
 import 'notifications_screen.dart';
@@ -21,9 +22,36 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final User? user = FirebaseAuth.instance.currentUser;
+  final firebase_auth.User? user = firebase_auth.FirebaseAuth.instance.currentUser;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
+  bool _isOwner = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkOwnerStatus();
+  }
+
+  Future<void> _checkOwnerStatus() async {
+    if (user != null) {
+      try {
+        final response = await Supabase.instance.client
+            .from('properties')
+            .select('id')
+            .eq('owner_id', user!.uid)
+            .limit(1);
+        
+        if (mounted && response != null && (response as List).isNotEmpty) {
+          setState(() {
+            _isOwner = true;
+          });
+        }
+      } catch (e) {
+        debugPrint('Error checking owner status: $e');
+      }
+    }
+  }
 
   Future<void> _pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -48,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Text(
                     'Profile',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.outfit(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.primaryTextColor,
@@ -115,16 +143,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              user?.displayName ?? 'Khozna User',
+              user?.displayName ?? 'Guest',
               style: GoogleFonts.outfit(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.primaryTextColor,
               ),
             ),
-            Text(
-              user?.phoneNumber ?? 'No Phone Linked',
-              style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[500]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: _isOwner 
+                        ? AppTheme.brandColor.withValues(alpha: 0.1) 
+                        : Colors.grey.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    _isOwner ? 'Owner' : 'Guest',
+                    style: GoogleFonts.outfit(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: _isOwner ? AppTheme.brandColor : Colors.grey[700],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  user?.phoneNumber ?? 'No Phone Linked',
+                  style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[500]),
+                ),
+              ],
             ),
 
             const SizedBox(height: 16),
@@ -133,12 +184,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Slimmer vertical padding
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // More compact padding
                 decoration: BoxDecoration(
                   color: widget.isVerified
                       ? Colors.green.withValues(alpha: 0.05)
                       : Colors.red.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(16), // Slightly less rounded for slim look
+                  borderRadius: BorderRadius.circular(24), // Smoother rounded corners
                   border: Border.all(
                     color: widget.isVerified
                         ? Colors.green.withValues(alpha: 0.15)
@@ -148,7 +199,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10), // Slimmer icon padding
+                      padding: const EdgeInsets.all(6), // Compact icon padding
                       decoration: BoxDecoration(
                         color: widget.isVerified ? Colors.green : Colors.red,
                         shape: BoxShape.circle,
@@ -156,32 +207,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Icon(
                         widget.isVerified ? Icons.verified_user : Icons.gpp_bad_rounded,
                         color: Colors.white,
-                        size: 20, // Slightly smaller icon
+                        size: 18, // Smaller icon
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            widget.isVerified
-                                ? 'Verified Profile'
-                                : 'Not Verified (अप्रमाणित)',
-                            style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: widget.isVerified
-                                  ? Colors.green[800]
-                                  : Colors.red[800],
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: widget.isVerified ? 'Verified Profile ' : 'Not Verified ',
+                                  style: GoogleFonts.outfit(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: widget.isVerified ? Colors.green[800] : Colors.red[800],
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: widget.isVerified ? '(प्रमाणित)' : '(अप्रमाणित)',
+                                  style: GoogleFonts.mukta(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: widget.isVerified ? Colors.green[800] : Colors.red[800],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           Text(
                             widget.isVerified
                                 ? 'Your identity is fully verified.'
-                                : 'ID verification is required by Khozna.',
+                                : 'ID verification is required.',
                             style: GoogleFonts.outfit(
-                              fontSize: 12,
+                              fontSize: 11, // Smaller subtitle
                               color: widget.isVerified
                                   ? Colors.green[700]
                                   : Colors.red[700],
@@ -191,27 +252,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     if (!widget.isVerified)
-                      ElevatedButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const KycScreen(),
+                      SizedBox(
+                        height: 32,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const KycScreen(),
+                            ),
                           ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
-                        ),
-                        child: const Text(
-                          'Verify Now',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
+                          child: const Text(
+                            'Verify Now',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
@@ -230,14 +294,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                    _buildSectionLabel('Account'),
                   _buildProfileMenuItem(
                     context,
-                    Icons.person_outline,
+                    Icons.person_pin_outlined,
                     'Edit Profile',
                     AppTheme.brandColor,
                     onTap: () {},
                   ),
                   _buildProfileMenuItem(
                     context,
-                    Icons.favorite_border,
+                    Icons.bookmark_outline_rounded,
                     'Saved Properties',
                     AppTheme.brandColor,
                     onTap: () {
@@ -251,7 +315,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   _buildProfileMenuItem(
                     context,
-                    Icons.home_work_outlined,
+                    Icons.holiday_village_outlined,
                     'My Listings',
                     AppTheme.brandColor,
                     onTap: () {
@@ -351,7 +415,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Colors.red,
                     showArrow: false,
                     onTap: () async {
-                      await FirebaseAuth.instance.signOut();
+                      await firebase_auth.FirebaseAuth.instance.signOut();
                       if (context.mounted) {
                         Navigator.pushAndRemoveUntil(
                           context,
