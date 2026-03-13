@@ -1,0 +1,32 @@
+[???] Flutter (Channel stable, 3.41.1, on Microsoft Windows [Version 10.0.26200.8037], locale en-IN) [308ms]
+    ??? Flutter version 3.41.1 on channel stable at D:\flutter
+    ??? Upstream repository https://github.com/flutter/flutter.git
+    ??? Framework revision 582a0e7c55 (4 weeks ago), 2026-02-12 17:12:32 -0800
+    ??? Engine revision 3452d735bd
+    ??? Dart version 3.11.0
+    ??? DevTools version 2.54.1
+    ??? Feature flags: enable-web, no-enable-linux-desktop, no-enable-macos-desktop, no-enable-windows-desktop, enable-android, no-enable-ios, cli-animations, enable-native-assets, omit-legacy-version-file, enable-lldb-debugging, enable-uiscene-migration
+
+[???] Windows Version (Windows 11 or higher, 25H2, 2009) [2.4s]
+
+[!] Android toolchain - develop for Android devices (Android SDK version 36.1.0) [2.5s]
+    ??? Android SDK at D:\Download\all app\all apps\store of app
+    ??? Emulator version 36.4.9.0 (build_id 14788078) (CL:N/A)
+    ??? Platform android-36, build-tools 36.1.0
+    ??? ANDROID_HOME = D:\Android
+    X Android SDK location currently contains spaces, which is not supported by the Android SDK as it causes problems with NDK tools. Try moving it from D:\Download\all app\all apps\store of app to a path without spaces.
+    ??? Try re-installing or updating your Android SDK,
+      visit https://flutter.dev/to/windows-android-setup for detailed instructions.
+
+[???] Chrome - develop for the web [12ms]
+    ??? Chrome at C:\Program Files\Google\Chrome\Application\chrome.exe
+
+[???] Connected device (3 available) [916ms]
+    ??? RMX3830 (mobile) ??? 0A53811128211366 ??? android-arm64  ??? Android 15 (API 35)
+    ??? Chrome (web)     ??? chrome           ??? web-javascript ??? Google Chrome 146.0.7680.75
+    ??? Edge (web)       ??? edge             ??? web-javascript ??? Microsoft Edge 145.0.3800.97
+
+[???] Network resources [1,046ms]
+    ??? All expected network resources are available.
+
+! Doctor found issues in 1 category.

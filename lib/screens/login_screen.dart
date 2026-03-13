@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
@@ -167,41 +168,36 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                        Column(
                         children: [
-                          Container(
-                            width: double.infinity,
-                            height: constraints.maxHeight * 0.45,
-                            child: Stack(
+                          // --- TOP BAR ---
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                // --- ILLUSTRATION ---
-                                Positioned.fill(
-                                  child: Image.asset(
-                                    'assets/images/boy illustrate  png.png',
-                                    fit: BoxFit.cover, // Ensures it fills the container and touches edges
-                                    alignment: Alignment.bottomLeft, // Aligned to left edge
-                                  ),
+                                GestureDetector(
+                                  onTap: _handleBossTap,
+                                  child: Image.asset('assets/images/original logo.png', height: 42),
                                 ),
-                                // --- TOP BAR ---
-                                Positioned(
-                                  top: 12,
-                                  left: 24,
-                                  right: 24,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: _handleBossTap,
-                                        child: Image.asset('assets/images/original logo.png', height: 42),
-                                      ),
-                                      IconButton(
-                                        onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                                        icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 30),
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                      ),
-                                    ],
-                                  ),
+                                IconButton(
+                                  onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
+                                  icon: Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 30),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
                                 ),
                               ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 10), // Reduced gap below logo
+
+                          // --- ILLUSTRATION CONTAINER ---
+                          Container(
+                            width: double.infinity,
+                            height: constraints.maxHeight * 0.35,
+                            child: Image.asset(
+                              'assets/images/boy illustrate  png.png',
+                              fit: BoxFit.cover, // Ensures it fills the container and touches edges
+                              alignment: Alignment.bottomLeft, // Aligned to left edge
                             ),
                           ),
         
@@ -214,8 +210,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  'Welcome Back In',
-                                  style: GoogleFonts.playfairDisplay( // Using Playfair for that serif look in the screenshot
+                                  'Welcome Back To',
+                                  style: GoogleFonts.zenAntiqueSoft(
                                     fontSize: 28,
                                     fontWeight: FontWeight.bold,
                                     color: const Color(0xFF1D1D1D),
@@ -223,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 Text(
                                   'KHOZNA',
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.zenAntiqueSoft(
                                     fontSize: 34,
                                     fontWeight: FontWeight.w900,
                                     color: AppTheme.brandColor,
@@ -293,7 +289,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 12),
         
                             // Terms agreement
                             Padding(
@@ -329,7 +325,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                               ),
                             ),
-                                                     const SizedBox(height: 2),
+                            const SizedBox(height: 12),
         
                             // Login Button
                             SizedBox(
@@ -348,7 +344,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 2),
         
                             // OR Divider
                             Row(
@@ -362,7 +358,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
         
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 2),
                             
                             Row(
                               children: [
@@ -394,8 +390,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-              ),
-            );
+              )
+            ;
           },
         ),
       ),
@@ -405,27 +401,43 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildSocialBtn(String icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 52, // Slightly smaller to fit screen
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(50),
-          border: Border.all(color: Colors.grey.withOpacity(0.25), width: 1.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(50),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            height: 56, // Increased height for a bigger look
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.6), // Semi-transparent for glass effect
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.4), 
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(icon, height: 22), 
-            const SizedBox(width: 10),
-            Text(label, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)), 
-          ],
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(icon, height: 24), 
+                const SizedBox(width: 12),
+                Text(
+                  label, 
+                  style: GoogleFonts.outfit(
+                    fontSize: 16, 
+                    fontWeight: FontWeight.w600, 
+                    color: Colors.black87
+                  )
+                ), 
+              ],
+            ),
+          ),
         ),
       ),
     );

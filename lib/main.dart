@@ -102,7 +102,6 @@ class KhoznaApp extends StatefulWidget {
 
 class _KhoznaAppState extends State<KhoznaApp> {
   bool _isInitializing = true;
-  bool _isCompromised = false;
   bool _isLocationGranted = false;
 
   @override
@@ -113,9 +112,6 @@ class _KhoznaAppState extends State<KhoznaApp> {
 
   Future<void> _initApp() async {
     debugPrint('--- _initApp START ---');
-    
-    // 1. Skip security check for now
-    _isCompromised = false;
     
     // 2. Fast Check location
     try {
@@ -137,13 +133,6 @@ class _KhoznaAppState extends State<KhoznaApp> {
   Widget build(BuildContext context) {
     if (_isInitializing) {
       return Container(color: Colors.white); // Keep splash or white while initializing
-    }
-
-    if (_isCompromised) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: _buildSecurityAlert(context),
-      );
     }
 
     return MaterialApp(
@@ -180,37 +169,4 @@ class _KhoznaAppState extends State<KhoznaApp> {
     );
   }
 
-  Widget _buildSecurityAlert(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.security_rounded, size: 80, color: Colors.redAccent),
-              const SizedBox(height: 24),
-              const Text(
-                'Security Alert',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Khozna cannot run on this device because it appears to be rooted or jailbroken. '
-                'To protect your data, the app will now close.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () => SystemNavigator.pop(),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                child: const Text('Close App', style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
