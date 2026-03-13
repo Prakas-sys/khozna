@@ -156,7 +156,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             width: 20, height: 20,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: _agreeToTerms ? AppTheme.brandColor : Colors.grey.withOpacity(0.4), width: 1.2),
+                              border: Border.all(color: _agreeToTerms ? AppTheme.brandColor : Colors.grey.withOpacity(0.6), width: 1.2),
                               color: _agreeToTerms ? AppTheme.brandColor : Colors.white,
                             ),
                             child: _agreeToTerms ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
@@ -267,11 +267,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1.2),
+        border: Border.all(color: Colors.grey.withOpacity(0.6), width: 1.2),
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.grey[400], size: 22),
+          Icon(icon, color: Colors.grey[600], size: 22),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
@@ -281,7 +281,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w600),
               decoration: InputDecoration(
                 hintText: hintText,
-                hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 14, fontWeight: FontWeight.w400),
+                hintStyle: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.w400),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,

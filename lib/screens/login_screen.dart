@@ -266,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               decoration: BoxDecoration(
                                 color: Colors.white, 
                                 borderRadius: BorderRadius.circular(40),
-                                border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1.2),
+                                border: Border.all(color: Colors.grey.withOpacity(0.6), width: 1.2),
                               ),
                               child: Row(
                                 children: [
@@ -277,7 +277,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)
                                   ),
                                   const SizedBox(width: 12),
-                                  Container(width: 1.2, height: 24, color: Colors.grey.withOpacity(0.35)),
+                                  Container(width: 1.2, height: 24, color: Colors.grey.withOpacity(0.5)),
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: TextField(
@@ -287,7 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       style: GoogleFonts.montserrat(fontSize: 15, fontWeight: FontWeight.w500),
                                       decoration: InputDecoration(
                                         hintText: 'Enter mobile number',
-                                        hintStyle: GoogleFonts.montserrat(color: Colors.grey[400], fontSize: 14, fontWeight: FontWeight.w400),
+                                        hintStyle: GoogleFonts.montserrat(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.w400),
                                         filled: false,
                                         border: InputBorder.none,
                                         enabledBorder: InputBorder.none,
@@ -314,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       width: 20, height: 20,
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1.2),
+                                        border: Border.all(color: Colors.grey.withOpacity(0.6), width: 1.2),
                                         color: _agreeToTerms ? AppTheme.brandColor : Colors.white,
                                       ),
                                       child: _agreeToTerms ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
