@@ -1,0 +1,31 @@
+[???] Flutter (Channel stable, 3.41.1, on Microsoft Windows [Version 10.0.26200.8037], locale en-IN) [361ms]
+    ??? Flutter version 3.41.1 on channel stable at D:\flutter
+    ??? Upstream repository https://github.com/flutter/flutter.git
+    ??? Framework revision 582a0e7c55 (4 weeks ago), 2026-02-12 17:12:32 -0800
+    ??? Engine revision 3452d735bd
+    ??? Dart version 3.11.0
+    ??? DevTools version 2.54.1
+    ??? Feature flags: enable-web, no-enable-linux-desktop, no-enable-macos-desktop, no-enable-windows-desktop, enable-android, no-enable-ios, cli-animations, enable-native-assets, omit-legacy-version-file, enable-lldb-debugging, enable-uiscene-migration
+
+[???] Windows Version (Windows 11 or higher, 25H2, 2009) [2.4s]
+
+[X] Android toolchain - develop for Android devices [570ms]
+    ??? Android SDK at D:\Download\all app\all apps\store of app
+    ??? Emulator version 36.4.9.0 (build_id 14788078) (CL:N/A)
+    X cmdline-tools component is missing.
+      Try installing or updating Android Studio.
+      Alternatively, download the tools from https://developer.android.com/studio#command-line-tools-only and make sure to set the ANDROID_HOME environment variable.
+      See https://developer.android.com/studio/command-line for more details.
+
+[???] Chrome - develop for the web [13ms]
+    ??? Chrome at C:\Program Files\Google\Chrome\Application\chrome.exe
+
+[???] Connected device (3 available) [609ms]
+    ??? RMX3830 (mobile) ??? 0A53811128211366 ??? android-arm64  ??? Android 15 (API 35)
+    ??? Chrome (web)     ??? chrome           ??? web-javascript ??? Google Chrome 146.0.7680.75
+    ??? Edge (web)       ??? edge             ??? web-javascript ??? Microsoft Edge 145.0.3800.97
+
+[???] Network resources [571ms]
+    ??? All expected network resources are available.
+
+! Doctor found issues in 1 category.

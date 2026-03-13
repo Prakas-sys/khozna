@@ -162,29 +162,29 @@ class _LoginScreenState extends State<LoginScreen> {
               physics: const ClampingScrollPhysics(), // More solid feel
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space out top, middle, bottom
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                        Column(
                         children: [
                           Container(
-                            height: constraints.maxHeight * 0.42,
+                            width: double.infinity,
+                            height: constraints.maxHeight * 0.45,
                             child: Stack(
                               children: [
                                 // --- ILLUSTRATION ---
                                 Positioned.fill(
                                   child: Image.asset(
                                     'assets/images/boy illustrate  png.png',
-                                    fit: BoxFit.contain,
+                                    fit: BoxFit.cover, // Ensures it fills the container and touches edges
+                                    alignment: Alignment.bottomLeft, // Aligned to left edge
                                   ),
                                 ),
                                 // --- TOP BAR ---
                                 Positioned(
                                   top: 12,
-                                  left: 0,
-                                  right: 0,
+                                  left: 24,
+                                  right: 24,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
@@ -205,47 +205,50 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
         
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 2),
         
                           // --- WELCOME TEXT ---
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'Welcome Back To',
-                                style: GoogleFonts.zenAntiqueSoft(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF2D2D2D),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Welcome Back In',
+                                  style: GoogleFonts.playfairDisplay( // Using Playfair for that serif look in the screenshot
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF1D1D1D),
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                'KHOZNA',
-                                style: GoogleFonts.zenAntiqueSoft(
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.brandColor,
-                                  letterSpacing: 2.0,
+                                Text(
+                                  'KHOZNA',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 34,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppTheme.brandColor,
+                                    letterSpacing: 2.5,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'Login to continue finding your next home.',
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.outfit(
-                                  fontSize: 14,
-                                  color: Colors.grey[500],
-                                  fontWeight: FontWeight.w400,
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Login to continue Finding for your next Home.',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 14,
+                                    color: Colors.grey[500],
+                                    fontWeight: FontWeight.w400,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
     
                       // --- INPUT ACTIONS ---
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -290,7 +293,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 4),
         
                             // Terms agreement
                             Padding(
@@ -326,11 +329,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                               ),
                             ),
-                                                     const SizedBox(height: 10),
+                                                     const SizedBox(height: 2),
         
                             // Login Button
                             SizedBox(
-                              width: double.infinity, height: 58,
+                              width: double.infinity, height: 54,
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _verifyPhone,
                                 style: ElevatedButton.styleFrom(
@@ -345,7 +348,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             
-                            const SizedBox(height: 12),
+                              const SizedBox(height: 4),
         
                             // OR Divider
                             Row(
@@ -359,7 +362,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
         
-                            const SizedBox(height: 12),
+                              const SizedBox(height: 4),
                             
                             Row(
                               children: [
@@ -373,8 +376,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
     
                       // --- FOOTER ---
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
+                       Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
                         child: GestureDetector(
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
                           child: RichText(
@@ -403,7 +406,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 56, // Large premium height
+        height: 52, // Slightly smaller to fit screen
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(50),
