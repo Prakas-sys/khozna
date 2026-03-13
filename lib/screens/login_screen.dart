@@ -185,24 +185,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 InkWell(
                                   onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Skip',
-                                          style: GoogleFonts.outfit(
-                                            color: AppTheme.brandColor,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 2),
-                                        Icon(Icons.chevron_right, color: AppTheme.brandColor, size: 22),
-                                      ],
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.brandColor.withOpacity(0.08),
+                                      shape: BoxShape.circle,
                                     ),
+                                    child: Icon(Icons.arrow_forward_rounded, color: AppTheme.brandColor, size: 24),
                                   ),
                                 ),
                               ],
@@ -241,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Text(
                                   'KHOZNA',
                                   style: GoogleFonts.zenAntiqueSoft(
-                                    fontSize: 34,
+                                    fontSize: 32,
                                     fontWeight: FontWeight.w900,
                                     color: AppTheme.brandColor,
                                     letterSpacing: 2.5,
