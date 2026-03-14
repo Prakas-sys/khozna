@@ -137,7 +137,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     _buildPremiumInput(
                       controller: _confirmPasswordController,
                       hintText: 'Confirm Password',
-                      icon: Icons.lock_clock_outline_rounded,
+                      icon: Icons.lock_outline_rounded,
                       obscureText: _obscureConfirmPassword,
                       suffixIcon: IconButton(
                         icon: Icon(_obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.grey[400], size: 20),

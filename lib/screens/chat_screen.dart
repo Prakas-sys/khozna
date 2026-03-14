@@ -327,91 +327,85 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Container(
-                        constraints: const BoxConstraints(minHeight: 50),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9), // Slightly deeper slate for better float contrast
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 2),
-                              child: IconButton(
-                                icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.blueGrey, size: 24),
-                                onPressed: () {},
-                              ),
-                            ),
-                            Expanded(
-                              child: TextField(
-                                controller: _messageController,
-                                maxLines: 5,
-                                minLines: 1,
-                                style: GoogleFonts.outfit(
-                                  fontSize: 15,
-                                  color: const Color(0xFF1E293B),
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: 'Type message...',
-                                  hintStyle: GoogleFonts.outfit(
-                                    color: const Color(0xFF94A3B8), 
-                                    fontSize: 15
-                                  ),
-                                  border: InputBorder.none,
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                          ],
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 54),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9), // Deeper slate for contrast
+                    borderRadius: BorderRadius.circular(28), // The "big one" full radius
+                    border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(6, 0, 0, 4),
+                        child: IconButton(
+                          icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.blueGrey, size: 26),
+                          onPressed: () {},
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    GestureDetector(
-                      onTap: _sendMessage,
-                      child: Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [AppTheme.brandColor, AppTheme.brandColor.withValues(alpha: 0.8)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                      Expanded(
+                        child: TextField(
+                          controller: _messageController,
+                          maxLines: 5,
+                          minLines: 1,
+                          style: GoogleFonts.outfit(
+                            fontSize: 15,
+                            color: const Color(0xFF1E293B),
+                            fontWeight: FontWeight.w400,
                           ),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.brandColor.withValues(alpha: 0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
+                          decoration: InputDecoration(
+                            hintText: 'Type message...',
+                            hintStyle: GoogleFonts.outfit(
+                              color: const Color(0xFF94A3B8), 
+                              fontSize: 15
                             ),
-                          ],
-                        ),
-                        child: const Center(
-                          child: Icon(
-                            Icons.send_rounded,
-                            color: Colors.white,
-                            size: 22,
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 6, 6, 6),
+                        child: GestureDetector(
+                          onTap: _sendMessage,
+                          child: Container(
+                            height: 42,
+                            width: 42,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [AppTheme.brandColor, AppTheme.brandColor.withValues(alpha: 0.8)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.brandColor.withValues(alpha: 0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: const Center(
+                              child: Icon(
+                                Icons.send_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
