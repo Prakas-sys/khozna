@@ -28,15 +28,40 @@ class _LoginScreenState extends State<LoginScreen> {
   final FocusNode _phoneFocusNode = FocusNode();
   int _bossTaps = 0;
 
+  // --- CAROUSEL ---
+  final PageController _illustrationPageController = PageController();
+  int _currentIllustrationPage = 0;
+  Timer? _carouselTimer;
+  final List<String> _illustrations = [
+    'assets/images/boy illustrate  png.png',
+    'assets/images/girl illustrate.png',
+    'assets/images/man illustrate png.png',
+  ];
+
   @override
   void initState() {
     super.initState();
     SecurityUtils.setSecure(false);
+    _startCarouselTimer();
+  }
+
+  void _startCarouselTimer() {
+    _carouselTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (!mounted) return;
+      final nextPage = (_currentIllustrationPage + 1) % _illustrations.length;
+      _illustrationPageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
+      );
+    });
   }
 
   @override
   void dispose() {
     SecurityUtils.setSecure(false);
+    _carouselTimer?.cancel();
+    _illustrationPageController.dispose();
     _phoneFocusNode.dispose();
     _phoneController.dispose();
     super.dispose();
@@ -195,20 +220,49 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 65),
+                    const SizedBox(height: 35),
 
-                    // --- ILLUSTRATION CONTAINER ---
-                    Container(
+                    // --- ILLUSTRATION CAROUSEL ---
+                    SizedBox(
                       width: double.infinity,
                       height: constraints.maxHeight * 0.28,
-                      child: Image.asset(
-                        'assets/images/boy illustrate  png.png',
-                        fit: BoxFit.cover,
-                        alignment: const Alignment(-0.8, 1.0),
+                      child: PageView.builder(
+                        controller: _illustrationPageController,
+                        onPageChanged: (index) {
+                          setState(() => _currentIllustrationPage = index);
+                        },
+                        itemCount: _illustrations.length,
+                        itemBuilder: (context, index) {
+                          return Image.asset(
+                            _illustrations[index],
+                            fit: BoxFit.cover,
+                            alignment: const Alignment(1.0, 1.0),
+                          );
+                        },
                       ),
                     ),
 
-                    const SizedBox(height: 12),
+                    // Dot Indicators (below image)
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        _illustrations.length,
+                        (index) => AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
+                          width: _currentIllustrationPage == index ? 18 : 7,
+                          height: 7,
+                          decoration: BoxDecoration(
+                            color: _currentIllustrationPage == index
+                                ? AppTheme.brandColor
+                                : Colors.grey.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
                     // --- WELCOME TEXT ---
                     Padding(
@@ -233,6 +287,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               letterSpacing: 1.2,
                             ),
                           ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Discover Rooms, Apartments and Houses Easily',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[600],
+                              height: 1.2,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -248,11 +313,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           Container(
                             height: 58,
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(40),
-                              border: Border.all(color: Colors.grey.withOpacity(0.6), width: 1.2),
-                            ),
+                             decoration: BoxDecoration(
+                               color: Colors.white,
+                               borderRadius: BorderRadius.circular(40),
+                               border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1.2),
+                               boxShadow: [
+                                 BoxShadow(
+                                   color: Colors.black.withOpacity(0.04),
+                                   blurRadius: 12,
+                                   offset: const Offset(0, 4),
+                                 ),
+                               ],
+                             ),
                             child: Row(
                               children: [
                                 const Text('🇳🇵', style: TextStyle(fontSize: 22)),
@@ -272,7 +344,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     style: GoogleFonts.montserrat(fontSize: 15, fontWeight: FontWeight.w500),
                                     decoration: InputDecoration(
                                       hintText: 'Enter mobile number',
-                                      hintStyle: GoogleFonts.outfit(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w400),
+                                      hintStyle: GoogleFonts.poppins(color: Colors.grey[700], fontSize: 13, fontWeight: FontWeight.w400),
                                       filled: false,
                                       border: InputBorder.none,
                                       enabledBorder: InputBorder.none,
@@ -307,17 +379,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                  child: RichText(
-                                    text: TextSpan(
-                                      style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[700]),
-                                      children: [
-                                        const TextSpan(text: 'I agree to terms of '),
-                                        TextSpan(text: 'Service', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                                        const TextSpan(text: ' and '),
-                                        TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                                      ],
-                                    ),
-                                  ),
+                                   child: RichText(
+                                     text: TextSpan(
+                                       style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
+                                       children: [
+                                         const TextSpan(text: 'I agree to terms of '),
+                                         TextSpan(text: 'Service', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                                         const TextSpan(text: ' and '),
+                                         TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                                       ],
+                                     ),
+                                   ),
                                 ),
                               ],
                             ),
@@ -336,15 +408,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
                               ),
                               child: _isLoading
-                                  ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                  : Text('Login', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+                                   ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                   : Text(
+                                       'Login', 
+                                       style: GoogleFonts.outfit(
+                                         fontSize: 18, 
+                                         fontWeight: FontWeight.bold,
+                                         letterSpacing: 0.5,
+                                       ),
+                                     ),
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 12),
 
                     // --- FOOTER ---
                     Column(
@@ -364,7 +443,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Row(
@@ -375,7 +454,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 10),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 0),
                           child: InkWell(
