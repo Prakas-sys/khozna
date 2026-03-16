@@ -40,6 +40,7 @@ class PropertyDetailsScreen extends StatefulWidget {
 class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   int _currentImageIndex = 0;
   final PageController _pageController = PageController();
+  bool _isReserved = false;
 
   late final List<String> displayImages;
 
@@ -678,22 +679,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: SafeArea(
         child: Row(
           children: [
-            // Cancel Button
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-              ),
-              child: Text(
-                'Cancel',
-                style: GoogleFonts.outfit(
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
             // Call Now Button
             Expanded(
               flex: 1,
@@ -740,20 +725,22 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            // Reserve Button
+            // Dynamic Action Button (Reserve -> Cancel)
             Expanded(
               flex: 2,
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  gradient: const LinearGradient(
-                    colors: [AppTheme.brandColor, Color(0xFF00B4F5)],
+                  gradient: LinearGradient(
+                    colors: _isReserved 
+                        ? [Colors.grey[700]!, Colors.grey[800]!] 
+                        : [AppTheme.brandColor, const Color(0xFF00B4F5)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.brandColor.withValues(alpha: 0.3),
+                      color: (_isReserved ? Colors.grey : AppTheme.brandColor).withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -761,69 +748,84 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
                 child: ElevatedButton(
                   onPressed: () async {
-                    // Call Supabase Magic
-                    await SupabaseService.bookProperty(widget.id, widget.title);
-                    
-                    // Increment Messages badge
-                    messageBadgeCount.value += 1;
-                    // Show premium notification
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        behavior: SnackBarBehavior.floating,
-                        margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
-                        duration: const Duration(seconds: 3),
-                        content: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1C1C1E),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withValues(alpha: 0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
-                              ),
-                              const SizedBox(width: 12),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'बुकिङ अनुरोध पठाइयो! ✅',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  Text(
-                                    'मेसेज सेक्सनमा हेर्नुहोस् 💬',
-                                    style: GoogleFonts.outfit(
-                                      color: Colors.white60,
-                                      fontSize: 12,
-                                    ),
+                    if (!_isReserved) {
+                      // Call Supabase Magic
+                      await SupabaseService.bookProperty(widget.id, widget.title);
+                      
+                      // Increment Messages badge
+                      messageBadgeCount.value += 1;
+                      
+                      setState(() => _isReserved = true);
+
+                      // Show premium notification
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            behavior: SnackBarBehavior.floating,
+                            margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                            backgroundColor: Colors.transparent,
+                            elevation: 0,
+                            duration: const Duration(seconds: 3),
+                            content: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1C1C1E),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
                                   ),
                                 ],
                               ),
-                            ],
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withValues(alpha: 0.2),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'बुकिङ अनुरोध पठाइयो! ✅',
+                                        style: GoogleFonts.outfit(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      Text(
+                                        'मेसेज सेक्सनमा हेर्नुहोस् 💬',
+                                        style: GoogleFonts.outfit(
+                                          color: Colors.white60,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    );
+                        );
+                      }
+                    } else {
+                      // Handle Cancelation logic here if needed
+                      setState(() => _isReserved = false);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Booking request cancelled.')),
+                        );
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
@@ -835,7 +837,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     ),
                   ),
                   child: Text(
-                    'Reserve (बुक गर्नुहोस्)',
+                    _isReserved ? 'Cancel (रद्द गर्नुहोस्)' : 'Reserve (बुक गर्नुहोस्)',
                     style: GoogleFonts.outfit(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
