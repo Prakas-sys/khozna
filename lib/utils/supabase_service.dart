@@ -159,35 +159,25 @@ class SupabaseService {
     }
   }
 
-  /// Listen for real-time booking notifications.
-  static void listenToBookingNotifications() {
+  /// Listen for all real-time notifications for the current user.
+  static void listenToUserNotifications() {
     final user = firebase_auth.FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     _client
-        .channel('public:properties')
+        .channel('public:notifications')
         .onPostgresChanges(
-          event: PostgresChangeEvent.update,
+          event: PostgresChangeEvent.insert,
           schema: 'public',
-          table: 'properties',
-          callback: (payload) async {
-            final String propertyId = payload.newRecord['id'];
-            final String status = payload.newRecord['status'];
-
-            if (status == 'booked') {
-              // Check if the current user has saved this property
-              final saved = await _client
-                  .from('saved_properties')
-                  .select()
-                  .eq('user_id', user.uid)
-                  .eq('property_id', propertyId)
-                  .maybeSingle();
-
-              if (saved != null) {
-                // Trigger local notification/badge
-                notificationBadgeCount.value += 1;
-              }
-            }
+          table: 'notifications',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: user.uid,
+          ),
+          callback: (payload) {
+            // New notification for this user!
+            notificationBadgeCount.value += 1;
           },
         )
         .subscribe();

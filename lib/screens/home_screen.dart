@@ -56,25 +56,67 @@ class HomeScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: InkWell(
-              onTap: () {
-                notificationBadgeCount.value = 0;
-                _checkAuthAndNavigate(context, const NotificationsScreen());
+            child: ValueListenableBuilder<int>(
+              valueListenable: notificationBadgeCount,
+              builder: (context, count, _) {
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        notificationBadgeCount.value = 0;
+                        _checkAuthAndNavigate(context, const NotificationsScreen());
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey.shade200, width: 1.0),
+                        ),
+                        child: const Icon(
+                          CupertinoIcons.bell,
+                          color: Colors.black87,
+                          size: 28,
+                        ),
+                      ),
+                    ),
+                    if (count > 0)
+                      Positioned(
+                        top: -2,
+                        right: -2,
+                        child: Container(
+                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF0000), // Pure Instagram Red
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.white, width: 1.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                blurRadius: 3,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              count > 99 ? '99+' : '$count',
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 8, // Slightly smaller for the top bar
+                                fontWeight: FontWeight.w900,
+                                height: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
               },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(4), // Even tighter padding
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10), // Slimmer corners
-                  border: Border.all(color: Colors.grey.shade200, width: 1.0),
-                ),
-                child: const Icon(
-                  CupertinoIcons.bell,
-                  color: Colors.black87,
-                  size: 28, // Prominent bell icon
-                ),
-              ),
             ),
           ),
         ],

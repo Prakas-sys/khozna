@@ -752,8 +752,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       // Call Supabase Magic
                       await SupabaseService.bookProperty(widget.id, widget.title);
                       
-                      // Increment Messages badge
-                      messageBadgeCount.value += 1;
+                      // Increment Notifications badge
+                      notificationBadgeCount.value += 1;
                       
                       setState(() => _isReserved = true);
 
@@ -803,7 +803,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                         ),
                                       ),
                                       Text(
-                                        'मेसेज सेक्सनमा हेर्नुहोस् 💬',
+                                        'नोटिफिकेसन सेक्सनमा हेर्नुहोस् 🔔',
                                         style: GoogleFonts.outfit(
                                           color: Colors.white60,
                                           fontSize: 12,

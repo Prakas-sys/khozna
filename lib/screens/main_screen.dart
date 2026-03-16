@@ -34,8 +34,8 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    // Magic: Listen for property bookings in real-time
-    SupabaseService.listenToBookingNotifications();
+    // Magic: Listen for all user notifications in real-time
+    SupabaseService.listenToUserNotifications();
   }
 
   void _onTabTapped(int index) {
@@ -354,23 +354,26 @@ class _MainScreenState extends State<MainScreen> {
                         constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF3B30),
+                          color: const Color(0xFFFF0000), // Pure vibrant red
                           borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white, width: 1.5), // Pure white border for contrast
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFFF3B30).withValues(alpha: 0.45),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
+                              color: Colors.black.withValues(alpha: 0.15),
+                              blurRadius: 3,
+                              offset: const Offset(0, 1),
                             ),
                           ],
                         ),
-                        child: Text(
-                          badgeCount > 99 ? '99+' : '$badgeCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                            fontWeight: FontWeight.w800,
-                            height: 1.1,
+                        child: Center(
+                          child: Text(
+                            badgeCount > 99 ? '99+' : '$badgeCount',
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              height: 1.0,
+                            ),
                           ),
                         ),
                       ),
