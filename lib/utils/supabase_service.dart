@@ -63,15 +63,28 @@ class SupabaseService {
     }
   }
 
-  /// Mark a property as booked.
-  static Future<void> bookProperty(String propertyId, String title) async {
+  /// Mark a property as booked and notify the owner.
+  static Future<void> bookProperty(String propertyId, String title, String ownerId) async {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     try {
+      // 1. Update property status
       await _client
           .from('properties')
           .update({'status': 'booked'})
           .eq('id', propertyId);
+
+      // 2. Notify the owner
+      await _client.from('notifications').insert({
+        'user_id': ownerId, // The owner gets the notification
+        'sender_id': user.uid, // The person who booked it
+        'title': 'New Booking Request! 🏠',
+        'message': '${user.displayName ?? 'A user'} wants to rent your property: "$title".',
+        'type': 'booking',
+      });
     } catch (e) {
-      print('Supabase Error: $e');
+      print('Supabase Booking Error: $e');
     }
   }
 
@@ -213,5 +226,53 @@ class SupabaseService {
           },
         )
         .subscribe();
+  }
+
+  /// Fetch all notifications for the current user with sender profile info
+  static Future<List<Map<String, dynamic>>> getUserNotifications() async {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user == null) return [];
+
+    try {
+      // Fetch notifications and join with the profiles table for the sender_id
+      final response = await _client
+          .from('notifications')
+          .select('*, sender:sender_id(full_name, avatar_url)')
+          .eq('user_id', user.uid)
+          .order('created_at', ascending: false);
+      
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Error fetching notifications: $e');
+      return [];
+    }
+  }
+
+  /// Fetch all saved properties for the current user
+  static Future<List<Map<String, dynamic>>> getSavedProperties() async {
+    final user = firebase_auth.FirebaseAuth.instance.currentUser;
+    if (user == null) return [];
+
+    try {
+      final response = await _client
+          .from('saved_properties')
+          .select('*, properties(*, property_images(*), profiles(full_name, avatar_url))')
+          .eq('user_id', user.uid)
+          .order('created_at', ascending: false);
+      
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('Error fetching saved properties: $e');
+      return [];
+    }
+  }
+
+  /// Delete a specific notification
+  static Future<void> deleteNotification(String id) async {
+    try {
+      await _client.from('notifications').delete().eq('id', id);
+    } catch (e) {
+      print('Error deleting notification: $e');
+    }
   }
 }

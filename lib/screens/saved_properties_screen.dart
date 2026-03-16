@@ -1,11 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
-import 'property_details_screen.dart';
-import '../widgets/favourite_button.dart';
+import '../utils/supabase_service.dart';
+import '../widgets/property_card.dart';
 
-class SavedPropertiesScreen extends StatelessWidget {
+class SavedPropertiesScreen extends StatefulWidget {
   const SavedPropertiesScreen({super.key});
+
+  @override
+  State<SavedPropertiesScreen> createState() => _SavedPropertiesScreenState();
+}
+
+class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
+  List<Map<String, dynamic>> _savedProperties = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSavedProperties();
+  }
+
+  Future<void> _fetchSavedProperties() async {
+    setState(() => _isLoading = true);
+    final data = await SupabaseService.getSavedProperties();
+    setState(() {
+      _savedProperties = data;
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,132 +51,78 @@ class SavedPropertiesScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SafeArea(
-        child: ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          itemCount: 2,
-          itemBuilder: (context, index) {
-            return _buildSavedCard(
-              context,
-              index == 0 ? '1' : '2',
-              index == 0 
-                ? 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
-                : 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-              index == 0 ? 'Modern Villa' : 'Luxury Apartment',
-              index == 0 ? 'Baluwatar, Kathmandu' : 'Sanepa, Lalitpur',
-              index == 0 ? '1,200' : '850',
-            );
-          },
-        ),
-      ),
+      body: _isLoading 
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
+          : RefreshIndicator(
+              onRefresh: _fetchSavedProperties,
+              color: AppTheme.brandColor,
+              child: _savedProperties.isEmpty 
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      itemCount: _savedProperties.length,
+                      itemBuilder: (context, index) {
+                        final savedItem = _savedProperties[index];
+                        final p = savedItem['properties'];
+                        if (p == null) return const SizedBox.shrink();
+
+                        final images = (p['property_images'] as List? ?? []);
+                        final String mainImage = images.isNotEmpty
+                            ? images[0]['image_url']
+                            : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: PropertyCard(
+                            id: p['id'],
+                            imageUrl: mainImage,
+                            title: p['title'] ?? 'Property',
+                            location: p['area_name'] ?? 'Location',
+                            price: 'रू ${p['price']}',
+                            bedrooms: p['bedrooms'] ?? 0,
+                            bathrooms: p['bathrooms'] ?? 0,
+                            area: p['sq_ft'] ?? '0',
+                            ownerId: p['owner_id'] ?? '',
+                            status: p['status'] ?? 'available',
+                            ownerName: p['profiles']?['full_name'] ?? 'Khozna Owner',
+                            ownerAvatar: p['profiles']?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=47',
+                            images: images.map((i) => i['image_url'].toString()).toList(),
+                            isFullWidth: true,
+                          ),
+                        );
+                      },
+                    ),
+            ),
     );
   }
 
-  Widget _buildSavedCard(BuildContext context, String id, String imageUrl, String title, String location, String price) {
-    const Color airbnbGrey = Color(0xFF717171);
-
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PropertyDetailsScreen(
-              id: id,
-              imageUrl: imageUrl,
-              title: title,
-              location: location,
-              price: price,
-            ),
+  Widget _buildEmptyState() {
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.7,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(color: Colors.grey[50], shape: BoxShape.circle),
+                child: Icon(Icons.bookmark_border_rounded, size: 48, color: Colors.grey[200]),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'No saved properties',
+                style: GoogleFonts.outfit(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Properties you save will appear here.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.outfit(color: Colors.grey, fontSize: 14),
+              ),
+            ],
           ),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                Hero(
-                  tag: 'saved-property-$id',
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: FavouriteButton(propertyId: id),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: GoogleFonts.outfit(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryTextColor,
-                        ),
-                      ),
-                      Text(
-                        location,
-                        style: GoogleFonts.outfit(fontSize: 14, color: airbnbGrey),
-                      ),
-                      const SizedBox(height: 8),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '\$$price',
-                              style: GoogleFonts.outfit(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryTextColor,
-                              ),
-                            ),
-                            TextSpan(
-                              text: ' per month',
-                              style: GoogleFonts.outfit(fontSize: 14, color: AppTheme.primaryTextColor),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    'Available',
-                    style: GoogleFonts.outfit(
-                      color: AppTheme.brandColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
         ),
       ),
     );

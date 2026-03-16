@@ -1,0 +1,128 @@
+flutter : Package 
+flutter_facebook_auth:macos 
+references 
+facebook_auth_desktop:macos 
+as the default plugin, but 
+the package does not exist, 
+or is not a plugin package.
+At line:1 char:1
++ flutter build apk --debug 
+> build_log.txt 2>&1; 
+Get-Content build_log ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Package  
+   flutter...plugin packag   
+ e.:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+Ask the maintainers of 
+flutter_facebook_auth to 
+either avoid referencing a 
+default implementation via 
+`platforms: macos: 
+default_package: 
+facebook_auth_desktop` or 
+create a plugin named 
+facebook_auth_desktop.
+
+Package 
+flutter_facebook_auth:macos 
+references 
+facebook_auth_desktop:macos 
+as the default plugin, but 
+the package does not exist, 
+or is not a plugin package.
+Ask the maintainers of 
+flutter_facebook_auth to 
+either avoid referencing a 
+default implementation via 
+`platforms: macos: 
+default_package: 
+facebook_auth_desktop` or 
+create a plugin named 
+facebook_auth_desktop.
+
+Running Gradle task 'assembleDebug'...                          
+Package 
+flutter_facebook_auth:macos 
+references 
+facebook_auth_desktop:macos 
+as the default plugin, but 
+the package does not exist, 
+or is not a plugin package.
+Ask the maintainers of 
+flutter_facebook_auth to 
+either avoid referencing a 
+default implementation via 
+`platforms: macos: 
+default_package: 
+facebook_auth_desktop` or 
+create a plugin named 
+facebook_auth_desktop.
+
+lib/screens/property_details_
+screen.dart:138:46: Error: 
+The getter 'airbnbGrey' 
+isn't defined for the type '_
+PropertyDetailsScreenState'.
+ - '_PropertyDetailsScreenSta
+te' is from 'package:khozna/s
+creens/property_details_scree
+n.dart' ('lib/screens/propert
+y_details_screen.dart').
+Try correcting the name to 
+the name of an existing 
+getter, or defining a getter 
+or field named 'airbnbGrey'.
+                
+_buildPriceBox(widget.price, 
+airbnbGrey),
+                             
+                ^^^^^^^^^^
+lib/screens/property_details_
+screen.dart:161:38: Error: 
+Too many positional 
+arguments: 1 allowed, but 2 
+found.
+Try removing the extra 
+positional arguments.
+                _buildLocatio
+nDetails(widget.location, 
+_airbnbGrey),
+                             
+        ^
+Target 
+kernel_snapshot_program 
+failed: Exception
+
+
+FAILURE: Build failed with 
+an exception.
+
+* What went wrong:
+Execution failed for task ':a
+pp:compileFlutterBuildDebug'.
+> Process 'command 'D:\flutte
+r\bin\flutter.bat'' finished 
+with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace 
+option to get the stack 
+trace.
+> Run with --info or --debug 
+option to get more log 
+output.
+> Run with --scan to get 
+full insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 1m
+Running Gradle task 'assembleDebug'...                             61.9s
+Gradle task assembleDebug 
+failed with exit code 1

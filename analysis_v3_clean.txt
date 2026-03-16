@@ -1,0 +1,130 @@
+flutter : Package 
+flutter_facebook_auth:macos 
+references 
+facebook_auth_desktop:macos 
+as the default plugin, but 
+the package does not exist, 
+or is not a plugin package.
+At line:1 char:1
++ flutter analyze lib 
+--no-fatal-infos > 
+analysis_v3.txt 2>&1 ; 
+Get-Con ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~
+    + CategoryInfo           
+   : NotSpecified: (Package  
+   flutter...plugin packag   
+ e.:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+Ask the maintainers of 
+flutter_facebook_auth to 
+either avoid referencing a 
+default implementation via 
+`platforms: macos: 
+default_package: 
+facebook_auth_desktop` or 
+create a plugin named 
+facebook_auth_desktop.
+
+Package 
+flutter_facebook_auth:macos 
+references 
+facebook_auth_desktop:macos 
+as the default plugin, but 
+the package does not exist, 
+or is not a plugin package.
+Ask the maintainers of 
+flutter_facebook_auth to 
+either avoid referencing a 
+default implementation via 
+`platforms: macos: 
+default_package: 
+facebook_auth_desktop` or 
+create a plugin named 
+facebook_auth_desktop.
+
+Analyzing lib...                                                
+
+warning - Unused import: 'utils/security_utils.dart' - lib\main.dart:12:8 - unused_import
+warning - The value of the field '_ownerReplies' isn't used - lib\screens\chat_screen.dart:32:22 - unused_field
+   info - The private field _replyIndex could be 'final' - lib\screens\chat_screen.dart:42:7 - prefer_final_fields
+warning - The value of the field '_replyIndex' isn't used - lib\screens\chat_screen.dart:42:7 - unused_field
+warning - The declaration '_buildQuickReply' isn't referenced - lib\screens\chat_screen.dart:279:10 - unused_element
+warning - Unused import: 'home_screen.dart' - lib\screens\filter_results_screen.dart:9:8 - unused_import
+warning - Unused import: 'package:flutter_svg/flutter_svg.dart' - lib\screens\home_screen.dart:4:8 - unused_import
+warning - Unused import: '../utils/supabase_service.dart' - lib\screens\home_screen.dart:9:8 - unused_import
+warning - Unused import: 'property_details_screen.dart' - lib\screens\home_screen.dart:10:8 - unused_import
+warning - Unused import: 'chat_screen.dart' - lib\screens\home_screen.dart:13:8 - unused_import
+warning - Unused import: 'kyc_screen.dart' - lib\screens\home_screen.dart:14:8 - unused_import
+warning - Unused import: '../widgets/favourite_button.dart' - lib\screens\home_screen.dart:15:8 - unused_import
+   info - Don't use 'BuildContext's across async gaps - lib\screens\login_screen.dart:144:28 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:213:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:259:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:278:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:319:70 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:322:56 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:337:86 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:374:77 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:437:74 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:442:74 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:500:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:503:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\login_screen.dart:508:39 - deprecated_member_use
+warning - Unused import: 'package:firebase_auth/firebase_auth.dart' - lib\screens\main_screen.dart:1:8 - unused_import
+warning - Unused import: 'login_screen.dart' - lib\screens\main_screen.dart:14:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\main_screen.dart:166:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\main_screen.dart:174:48 - deprecated_member_use
+warning - The declaration '_buildOptionItem' isn't referenced - lib\screens\main_screen.dart:250:10 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\messages_screen.dart:207:51 - deprecated_member_use
+   info - Use interpolation to compose strings and values - lib\screens\notifications_screen.dart:170:51 - prefer_interpolation_to_compose_strings
+   info - Don't use 'BuildContext's across async gaps - lib\screens\owner_dashboard.dart:453:21 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\owner_dashboard.dart:455:28 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\owner_dashboard.dart:457:21 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\owner_dashboard.dart:458:28 - use_build_context_synchronously
+warning - Unused import: 'notifications_screen.dart' - lib\screens\profile_screen.dart:9:8 - unused_import
+warning - The operand can't be 'null', so the condition is always 'true' - lib\screens\profile_screen.dart:45:33 - unnecessary_null_comparison
+  error - Undefined name 'airbnbGrey' - lib\screens\property_details_screen.dart:138:46 - undefined_identifier
+warning - The declaration '_buildCircleAction' isn't referenced - lib\screens\property_details_screen.dart:329:10 - unused_element
+warning - Unused import: 'package:firebase_auth/firebase_auth.dart' - lib\screens\register_screen.dart:1:8 - unused_import
+warning - Unused import: 'main_screen.dart' - lib\screens\register_screen.dart:5:8 - unused_import
+warning - Unused import: 'verify_phone_screen.dart' - lib\screens\register_screen.dart:6:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\register_screen.dart:72:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\register_screen.dart:159:107 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\register_screen.dart:270:47 - deprecated_member_use
+   info - Use the null-aware marker '?' rather than a null check via an 'if' - lib\screens\register_screen.dart:293:11 - use_null_aware_elements
+   info - Don't use 'BuildContext's across async gaps - lib\screens\verify_phone_screen.dart:90:28 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\verify_phone_screen.dart:123:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\verify_phone_screen.dart:198:58 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\verify_phone_screen.dart:252:82 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\verify_phone_screen.dart:257:40 - deprecated_member_use
+   info - Don't invoke 'print' in production code - lib\utils\cloudinary_service.dart:30:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\cloudinary_service.dart:34:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\cloudinary_service.dart:65:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\cloudinary_service.dart:69:7 - avoid_print
+   info - 'encryptedSharedPreferences' is deprecated and shouldn't be used. EncryptedSharedPreferences is deprecated and will be removed in v11. The Jetpack Security library is deprecated by Google. Your data will be automatically migrated to custom ciphers on first access. Remove this parameter - it will be ignored - lib\utils\security_utils.dart:11:7 - deprecated_member_use
+warning - The value of the local variable 'isRealDevice' isn't used - lib\utils\security_utils.dart:33:12 - unused_local_variable
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:17:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:28:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:62:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:87:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:119:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:133:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:160:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:170:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:210:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:246:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:265:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\supabase_service.dart:275:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\video_service.dart:32:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\video_service.dart:41:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\utils\video_service.dart:77:7 - avoid_print
+warning - The value of the field '_confidence' isn't used - lib\widgets\voice_search_overlay.dart:19:10 - unused_field
+   info - Don't invoke 'print' in production code - lib\widgets\voice_search_overlay.dart:58:25 - avoid_print
+
+75 issues found. (ran in 
+15.6s)

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
 import '../utils/supabase_service.dart';
 import '../widgets/favourite_button.dart';
+import 'chat_screen.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final String id;
@@ -17,6 +20,8 @@ class PropertyDetailsScreen extends StatefulWidget {
   final int? bathrooms;
   final String? area;
   final String? floor;
+  final String ownerId;
+  final String status;
 
   const PropertyDetailsScreen({
     super.key,
@@ -31,6 +36,8 @@ class PropertyDetailsScreen extends StatefulWidget {
     this.bathrooms,
     this.area,
     this.floor,
+    this.ownerId = '',
+    this.status = 'available',
   });
 
   @override
@@ -41,18 +48,41 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   int _currentImageIndex = 0;
   final PageController _pageController = PageController();
   bool _isReserved = false;
+  Map<String, dynamic>? _ownerData;
+
+  String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? '';
+  bool get _isMyProperty => widget.ownerId == _currentUserId;
+  static const Color _airbnbGrey = Color(0xFF717171);
 
   late final List<String> displayImages;
 
   @override
   void initState() {
     super.initState();
+    _isReserved = widget.status == 'booked';
+    _fetchOwnerData();
     displayImages = widget.images ??
         [
           widget.imageUrl,
           'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
           'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         ];
+  }
+
+  Future<void> _fetchOwnerData() async {
+    if (widget.ownerId.isEmpty) return;
+    try {
+      final data = await Supabase.instance.client
+          .from('profiles')
+          .select()
+          .eq('id', widget.ownerId)
+          .maybeSingle();
+      if (mounted) {
+        setState(() => _ownerData = data);
+      }
+    } catch (e) {
+      debugPrint('Error fetching owner data: $e');
+    }
   }
 
   @override
@@ -63,8 +93,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color airbnbGrey = Color(0xFF717171);
-
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
@@ -107,7 +135,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 const SizedBox(height: 24),
 
                 // PRICE BOX
-                _buildPriceBox(widget.price, airbnbGrey),
+                _buildPriceBox(widget.price),
                 const SizedBox(height: 32),
 
                 // THE NEPAL ESSENTIALS
@@ -123,14 +151,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   widget.description ??
                       'सानेपाको शान्त वातावरणमा अवस्थित यो २ कोठाको फ्ल्याट विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ। उज्यालो कोठाहरू र खुल्ला पार्किङको सुविधा उपलब्ध छ। मुख्य बाटोबाट मात्र ५ मिनेटको दुरीमा।',
                   style: GoogleFonts.outfit(
-                      fontSize: 15, color: airbnbGrey, height: 1.6),
+                      fontSize: 15, color: _airbnbGrey, height: 1.6),
                 ),
                 const SizedBox(height: 32),
 
                 // LOCATION FOCUS SECTION
                 _buildSectionTitle('Location'),
                 const SizedBox(height: 16),
-                _buildLocationDetails(widget.location, airbnbGrey),
+                _buildLocationDetails(widget.location),
                 const SizedBox(height: 16),
                 // Map View with rounded corners
                 ClipRRect(
@@ -401,7 +429,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildPriceBox(String price, Color airbnbGrey) {
+  Widget _buildPriceBox(String price) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -419,7 +447,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 'महिनाको भाडा (Monthly Rent)',
                 style: GoogleFonts.outfit(
                   fontSize: 11,
-                  color: airbnbGrey,
+                  color: _airbnbGrey,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -439,7 +467,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       text: ' /महिना',
                       style: GoogleFonts.outfit(
                         fontSize: 14,
-                        color: airbnbGrey,
+                        color: _airbnbGrey,
                       ),
                     ),
                   ],
@@ -565,6 +593,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildOwnerCard() {
+    final name = _ownerData?['full_name'] ?? 'Loading...';
+    final avatar = _ownerData?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=1';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -574,10 +605,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       ),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 28,
-            backgroundImage: NetworkImage(
-                'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80'),
+            backgroundImage: NetworkImage(avatar),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -585,14 +615,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ram Bahadur',
+                  name,
                   style: GoogleFonts.outfit(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.primaryTextColor),
                 ),
                 Text(
-                  'Verified Owner • 2 years',
+                  'Verified Owner • Khozna Member',
                   style:
                       GoogleFonts.outfit(fontSize: 12, color: Colors.grey[500]),
                 ),
@@ -600,9 +630,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ),
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.chat_bubble_outline,
-                color: AppTheme.brandColor, size: 22),
+            onPressed: _isMyProperty ? null : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ChatScreen(
+                    name: name,
+                    avatar: avatar,
+                    online: true,
+                  ),
+                ),
+              );
+            },
+            icon: Icon(Icons.chat_bubble_outline,
+                color: _isMyProperty ? Colors.grey : AppTheme.brandColor, size: 22),
           ),
         ],
       ),
@@ -638,7 +679,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildLocationDetails(String location, Color airbnbGrey) {
+  Widget _buildLocationDetails(String location) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -657,7 +698,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         const SizedBox(height: 6),
         Text(
           'शान्त टोल, ढल र पिच रोडको सुविधा भएको ठाउँ।',
-          style: GoogleFonts.outfit(fontSize: 13, color: airbnbGrey),
+          style: GoogleFonts.outfit(fontSize: 13, color: _airbnbGrey),
         ),
       ],
     );
@@ -732,25 +773,27 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   gradient: LinearGradient(
-                    colors: _isReserved 
-                        ? [Colors.grey[700]!, Colors.grey[800]!] 
-                        : [AppTheme.brandColor, const Color(0xFF00B4F5)],
+                    colors: _isMyProperty 
+                        ? [Colors.blue[400]!, Colors.blue[600]!]
+                        : _isReserved 
+                            ? [Colors.grey[700]!, Colors.grey[800]!] 
+                            : [AppTheme.brandColor, const Color(0xFF00B4F5)],
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (_isReserved ? Colors.grey : AppTheme.brandColor).withValues(alpha: 0.3),
+                      color: (_isMyProperty ? Colors.blue : (_isReserved ? Colors.grey : AppTheme.brandColor)).withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: ElevatedButton(
-                  onPressed: () async {
+                  onPressed: _isMyProperty ? null : () async {
                     if (!_isReserved) {
                       // Call Supabase Magic
-                      await SupabaseService.bookProperty(widget.id, widget.title);
+                      await SupabaseService.bookProperty(widget.id, widget.title, widget.ownerId);
                       
                       // Increment Notifications badge
                       notificationBadgeCount.value += 1;
@@ -837,7 +880,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     ),
                   ),
                   child: Text(
-                    _isReserved ? 'Cancel (रद्द गर्नुहोस्)' : 'Reserve (बुक गर्नुहोस्)',
+                    _isMyProperty 
+                        ? 'Your Advertisement (तपाईंको विज्ञापन)'
+                        : _isReserved 
+                            ? 'Booked (तपाईंले बुक गर्नुभयो)' 
+                            : 'Reserve (बुक गर्नुहोस्)',
                     style: GoogleFonts.outfit(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
