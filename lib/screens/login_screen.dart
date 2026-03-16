@@ -195,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 65),
 
                     // --- ILLUSTRATION CONTAINER ---
                     Container(
@@ -204,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Image.asset(
                         'assets/images/boy illustrate  png.png',
                         fit: BoxFit.cover,
-                        alignment: Alignment.bottomLeft,
+                        alignment: const Alignment(-0.8, 1.0),
                       ),
                     ),
 
@@ -227,7 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Text(
                             'KHOZNA',
                             style: GoogleFonts.zenAntiqueSoft(
-                              fontSize: 32,
+                              fontSize: 28,
                               fontWeight: FontWeight.w900,
                               color: AppTheme.brandColor,
                               letterSpacing: 1.2,
@@ -296,16 +296,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                 GestureDetector(
                                   onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
                                   child: Container(
-                                    width: 20, height: 20,
+                                    width: 18, height: 18,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(6),
                                       border: Border.all(color: Colors.grey.withOpacity(0.6), width: 1.2),
                                       color: _agreeToTerms ? AppTheme.brandColor : Colors.white,
                                     ),
-                                    child: _agreeToTerms ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
+                                    child: _agreeToTerms ? const Icon(Icons.check, size: 12, color: Colors.white) : null,
                                   ),
                                 ),
-                                const SizedBox(width: 10),
+                                const SizedBox(width: 8),
                                 Expanded(
                                   child: RichText(
                                     text: TextSpan(
@@ -322,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
 
                           // Login Button
                           SizedBox(
@@ -344,7 +344,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
 
                     // --- FOOTER ---
                     Column(
@@ -364,7 +364,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Row(
@@ -375,9 +375,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 40),
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 30),
+                          padding: const EdgeInsets.only(bottom: 0),
                           child: InkWell(
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
                             borderRadius: BorderRadius.circular(12),
@@ -386,10 +386,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: RichText(
                                 textAlign: TextAlign.center,
                                 text: TextSpan(
-                                  style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[700]),
+                                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700]),
                                   children: [
                                     const TextSpan(text: "Don't have an account? "),
-                                    TextSpan(text: 'Register Here', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                                    TextSpan(text: 'Register Here', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.w600)),
                                   ],
                                 ),
                               ),
