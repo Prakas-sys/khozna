@@ -30,6 +30,8 @@ class _KycScreenState extends State<KycScreen> {
   int _currentStep = 1; // 1: Basic Info, 2: Documents
   bool _isSubmitting = false;
   bool _isLocating = false;
+  bool _isEmailVerified = false;
+  bool _isPhoneVerified = false;
   double? _latitude;
   double? _longitude;
 
@@ -48,6 +50,20 @@ class _KycScreenState extends State<KycScreen> {
       _nameController.text = user.displayName ?? '';
       _emailController.text = user.email ?? '';
       _phoneController.text = user.phoneNumber ?? '';
+
+      // Check which provider was used to show green tick
+      for (final profile in user.providerData) {
+        if (profile.providerId == 'google.com' || profile.providerId == 'password') {
+          if (user.email != null && user.email!.isNotEmpty) {
+            _isEmailVerified = true;
+          }
+        }
+        if (profile.providerId == 'phone') {
+          if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
+            _isPhoneVerified = true;
+          }
+        }
+      }
     }
   }
 
@@ -215,12 +231,16 @@ class _KycScreenState extends State<KycScreen> {
         'selfie_image_url': selfieUrl,
         'latitude': _latitude,
         'longitude': _longitude,
+        'is_email_verified': _isEmailVerified,
+        'is_phone_verified': _isPhoneVerified,
         'status': 'pending',
       });
 
       // 3. Update Profile Status
       await supabase.Supabase.instance.client.from('profiles').update({
         'kyc_status': 'pending',
+        'email_verified': _isEmailVerified,
+        'phone_verified': _isPhoneVerified,
       }).eq('id', user.uid);
 
       if (mounted) {
@@ -266,9 +286,22 @@ class _KycScreenState extends State<KycScreen> {
         const SizedBox(height: 20),
         _buildTextField(_nameController, 'Full Name (पूरा नाम)', Icons.person_outline, (v) => v!.isEmpty ? 'Required' : null),
         const SizedBox(height: 24),
-        _buildTextField(_emailController, 'Email Address (इमेल)', Icons.email_outlined, (v) => v!.isEmpty ? 'Required' : null),
+        _buildTextField(
+          _emailController,
+          'Email Address (इमेल)',
+          Icons.email_outlined,
+          (v) => v!.isEmpty ? 'Required' : null,
+          isVerified: _isEmailVerified,
+        ),
         const SizedBox(height: 24),
-        _buildTextField(_phoneController, 'Phone Number (फोन नम्बर)', Icons.phone_android_outlined, (v) => v!.isEmpty ? 'Required' : null, keyboardType: TextInputType.phone),
+        _buildTextField(
+          _phoneController,
+          'Phone Number (फोन नम्बर)',
+          Icons.phone_android_outlined,
+          (v) => v!.isEmpty ? 'Required' : null,
+          keyboardType: TextInputType.phone,
+          isVerified: _isPhoneVerified,
+        ),
         const SizedBox(height: 24),
         _buildTextField(
           _citizenshipController,
@@ -285,17 +318,43 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, String? Function(String?)? validator, {TextInputType? keyboardType, List<TextInputFormatter>? inputFormatters}) {
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, String? Function(String?)? validator, {TextInputType? keyboardType, List<TextInputFormatter>? inputFormatters, bool isVerified = false}) {
     return TextFormField(
       controller: controller,
       validator: validator,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
-      style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w600), // Increased font size
+      readOnly: isVerified,
+      enabled: !isVerified,
+      style: GoogleFonts.plusJakartaSans(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: isVerified ? Colors.grey[600] : Colors.black,
+      ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w500), // Darker and larger label
         prefixIcon: Icon(icon, color: AppTheme.brandColor, size: 22), // Slightly larger icon
+        suffixIcon: isVerified
+            ? Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Verified',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.green,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                  ],
+                ),
+              )
+            : null,
         filled: true,
         fillColor: const Color(0xFFF8FAFC),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18), // Increased internal padding for height

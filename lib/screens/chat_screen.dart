@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 
 class ChatScreen extends StatefulWidget {
   final String name;
   final String avatar;
   final bool online;
+  final String phone;
 
   const ChatScreen({
     super.key,
     required this.name,
     required this.avatar,
     required this.online,
+    this.phone = "+977 9801234567", // Default mock phone
   });
 
   @override
@@ -52,6 +55,17 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
 
     // Pre-load owner welcome messages - EMPTY AS REQUESTED
     _messages.clear();
+    _filterOldMessages();
+  }
+
+  void _filterOldMessages() {
+    final twoDaysAgo = DateTime.now().subtract(const Duration(days: 2));
+    setState(() {
+      _messages.removeWhere((msg) {
+        final timestamp = msg['timestamp'] as DateTime?;
+        return timestamp != null && timestamp.isBefore(twoDaysAgo);
+      });
+    });
   }
 
   void _startBannerAnimation() async {
@@ -74,6 +88,134 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
     }
   }
 
+  void _showProfileSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.5,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 30),
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: NetworkImage(widget.avatar),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              widget.name,
+              style: GoogleFonts.outfit(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            Text(
+              'Property Owner',
+              style: GoogleFonts.outfit(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildActionCircle(Icons.call, 'Call', Colors.green, _startCall),
+                const SizedBox(width: 40),
+                _buildActionCircle(Icons.person, 'Profile', Colors.blue, () {}),
+                const SizedBox(width: 40),
+                _buildActionCircle(Icons.block, 'Block', Colors.red, () {}),
+              ],
+            ),
+            const SizedBox(height: 40),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50] ?? const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.phone_iphone_rounded, color: Colors.blueGrey),
+                    const SizedBox(width: 16),
+                    Text(
+                      widget.phone,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _startCall() async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: widget.phone,
+    );
+    
+    if (await canLaunchUrl(launchUri)) {
+      if (mounted) {
+        Navigator.pop(context); // Close sheet if open
+      }
+      await launchUrl(launchUri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not launch phone dialer')),
+        );
+      }
+    }
+  }
+
+  Widget _buildActionCircle(IconData icon, String label, Color color, VoidCallback onTap) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[700]),
+        ),
+      ],
+    );
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -89,7 +231,8 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
         _messages.add({
           'text': userMsg,
           'isMe': true,
-          'time': 'अहिले',
+          'time': 'Now',
+          'timestamp': DateTime.now(),
         });
         _messageController.clear();
       });
@@ -133,6 +276,34 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
     }
   }
 
+  Widget _buildQuickReply(String text) {
+    return InkWell(
+      onTap: () {
+        _messageController.text = text;
+        _sendMessage();
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade300, width: 1),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: GoogleFonts.outfit(
+              fontSize: 12,
+              color: Colors.black87,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,39 +313,45 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
         elevation: 0.5,
         leading: const BackButton(color: Colors.black),
         titleSpacing: 0,
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundImage: NetworkImage(widget.avatar),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.name,
-                  style: GoogleFonts.outfit(
-                    color: Colors.black,
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+        title: InkWell(
+          onTap: _showProfileSheet,
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundImage: NetworkImage(widget.avatar),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.name,
+                    style: GoogleFonts.outfit(
+                      color: Colors.black,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                Text(
-                  'Owner • ${widget.online ? 'Online' : 'Offline'}',
-                  style: GoogleFonts.outfit(
-                    color: widget.online ? Colors.green : Colors.grey,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                )
-              ],
-            )
-          ],
+                  Text(
+                    'Owner • ${widget.online ? 'Online' : 'Offline'}',
+                    style: GoogleFonts.outfit(
+                      color: widget.online ? Colors.green : Colors.grey,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.call_outlined, color: Colors.black, size: 22), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.more_vert, color: Colors.black, size: 22), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.call_outlined, color: Colors.black, size: 22), 
+            onPressed: _startCall,
+          ),
+          IconButton(icon: const Icon(Icons.more_vert, color: Colors.black, size: 22), onPressed: _showProfileSheet),
           const SizedBox(width: 4),
         ],
       ),
@@ -196,7 +373,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                       const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 16),
                       const SizedBox(width: 8),
                       Text(
-                        'अग्रिम पैसा कहिल्यै नपठाउनुहोस्! • Never send advance payment before visiting! • कोठा हेरेर मात्र पैसा दिनुहोला! • Only pay after seeing the room!',
+                        'अग्रिम पैसा कहिल्यै नपठाउनुहोस्! • Never send advance payment before visiting! • कोठा हेरेर मात्र पैसा दिनुहोला!',
                         style: GoogleFonts.outfit(
                           color: Colors.red[800], 
                           fontWeight: FontWeight.w600, 
@@ -210,7 +387,6 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               ],
             ),
           ),
-          
           // CHAT MESSAGES
           Expanded(
             child: _messages.isEmpty 
@@ -224,100 +400,65 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                     
                     return Align(
                       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
-                        decoration: BoxDecoration(
-                          color: isMe ? AppTheme.brandColor : Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: const Radius.circular(20),
-                            topRight: const Radius.circular(20),
-                            bottomLeft: Radius.circular(isMe ? 20 : 4),
-                            bottomRight: Radius.circular(isMe ? 4 : 20),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
+                      child: Column(
+                        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 0.5),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: isMe ? AppTheme.brandColor : Colors.white,
+                              borderRadius: BorderRadius.only(
+                                topLeft: const Radius.circular(16),
+                                topRight: const Radius.circular(16),
+                                bottomLeft: Radius.circular(isMe ? 16 : 4),
+                                bottomRight: Radius.circular(isMe ? 4 : 16),
+                              ),
+                              boxShadow: isMe ? [] : [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 2,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                              border: isMe ? null : Border.all(color: Colors.grey.shade200, width: 0.5),
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
+                            child: Text(
                               msg['text'],
                               style: GoogleFonts.outfit(
                                 color: isMe ? Colors.white : const Color(0xFF1A1A1A),
-                                fontSize: 15,
-                                height: 1.4,
+                                fontSize: 17, 
+                                height: 1.25,
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Row(
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2, right: 4, left: 4),
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                if (isMe) ...[
+                                  const Icon(Icons.done_all_rounded, size: 14, color: Colors.blue), // WhatsApp style blue/colored ticks
+                                  const SizedBox(width: 4),
+                                ],
                                 Text(
-                                  msg['time'],
+                                  "Just now", // Replaced "Now" with "Just now" or keep it extremely simple
                                   style: GoogleFonts.outfit(
-                                    color: isMe ? Colors.white.withValues(alpha: 0.7) : Colors.grey[500],
+                                    color: Colors.grey[500],
                                     fontSize: 10,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
-                                if (isMe) ...[
-                                  const SizedBox(width: 4),
-                                  Icon(Icons.done_all_rounded, size: 12, color: Colors.white.withValues(alpha: 0.8)),
-                                ]
                               ],
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 4),
+                        ],
                       ),
                     );
                   },
                 ),
-          ),
-
-          // GREETING ABOVE INPUT (CLICKABLE)
-          Container(
-            color: Colors.transparent,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            alignment: Alignment.centerRight,
-            child: InkWell(
-              onTap: () {
-                _messageController.text = 'नमस्ते 🙏';
-                _sendMessage();
-              },
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.grey.shade200, width: 1),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'नमस्ते',
-                      style: GoogleFonts.outfit(
-                        fontSize: 13,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Text('🙏', style: TextStyle(fontSize: 14)),
-                  ],
-                ),
-              ),
-            ),
           ),
 
           // FLOATING MESSAGE INPUT - Simplified Single Layer
@@ -344,13 +485,6 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(6, 0, 0, 4),
-                        child: IconButton(
-                          icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.blueGrey, size: 26),
-                          onPressed: () {},
-                        ),
-                      ),
                       Expanded(
                         child: TextField(
                           controller: _messageController,
@@ -368,7 +502,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                               fontSize: 15
                             ),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16), // Increased horizontal padding
                           ),
                         ),
                       ),

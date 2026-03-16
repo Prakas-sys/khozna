@@ -557,8 +557,8 @@ class HomeScreen extends StatelessWidget {
                     left: 10,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 4.5,
+                        horizontal: 4,
+                        vertical: 2.5,
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF2ECC71),
@@ -568,7 +568,7 @@ class HomeScreen extends StatelessWidget {
                         'FOR RENT',
                         style: GoogleFonts.outfit(
                           color: Colors.white,
-                          fontSize: 11.5,
+                          fontSize: 9.5,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -598,8 +598,8 @@ class HomeScreen extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.outfit(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w400,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
                               color: Colors.black,
                             ),
                           ),
