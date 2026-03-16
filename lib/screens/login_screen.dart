@@ -195,12 +195,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 54),
+                    const SizedBox(height: 40),
 
                     // --- ILLUSTRATION CONTAINER ---
                     Container(
                       width: double.infinity,
-                      height: constraints.maxHeight * 0.24,
+                      height: constraints.maxHeight * 0.28,
                       child: Image.asset(
                         'assets/images/boy illustrate  png.png',
                         fit: BoxFit.cover,
@@ -208,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 12),
 
                     // --- WELCOME TEXT ---
                     Padding(
@@ -219,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Text(
                             'Welcome Back To',
                             style: GoogleFonts.zenAntiqueSoft(
-                              fontSize: 28,
+                              fontSize: 26,
                               fontWeight: FontWeight.w500,
                               color: const Color(0xFF1D1D1D).withOpacity(0.8),
                             ),
@@ -227,20 +227,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           Text(
                             'KHOZNA',
                             style: GoogleFonts.zenAntiqueSoft(
-                              fontSize: 34,
+                              fontSize: 32,
                               fontWeight: FontWeight.w900,
                               color: AppTheme.brandColor,
                               letterSpacing: 1.2,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'No scam, Real place',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
-                              fontSize: 15,
-                              color: Colors.grey[700],
-                              fontWeight: FontWeight.w400,
                             ),
                           ),
                         ],
@@ -385,9 +375,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 18),
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 32),
+                          padding: const EdgeInsets.only(bottom: 30),
                           child: InkWell(
                             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
                             borderRadius: BorderRadius.circular(12),
