@@ -167,248 +167,251 @@ class _LoginScreenState extends State<LoginScreen> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    // --- TOP BAR ---
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            children: [
-                              // --- TOP BAR ---
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+                          GestureDetector(
+                            onTap: _handleBossTap,
+                            child: Image.asset('assets/images/original logo.png', height: 48),
+                          ),
+                          InkWell(
+                            onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.brandColor.withOpacity(0.08),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.arrow_forward_rounded, color: AppTheme.brandColor, size: 24),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 54),
+
+                    // --- ILLUSTRATION CONTAINER ---
+                    Container(
+                      width: double.infinity,
+                      height: constraints.maxHeight * 0.24,
+                      child: Image.asset(
+                        'assets/images/boy illustrate  png.png',
+                        fit: BoxFit.cover,
+                        alignment: Alignment.bottomLeft,
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // --- WELCOME TEXT ---
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Welcome Back To',
+                            style: GoogleFonts.zenAntiqueSoft(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF1D1D1D).withOpacity(0.8),
+                            ),
+                          ),
+                          Text(
+                            'KHOZNA',
+                            style: GoogleFonts.zenAntiqueSoft(
+                              fontSize: 34,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.brandColor,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'No scam, Real place',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.outfit(
+                              fontSize: 15,
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // --- INPUT ACTIONS ---
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Phone Input
+                          Container(
+                            height: 58,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(40),
+                              border: Border.all(color: Colors.grey.withOpacity(0.6), width: 1.2),
+                            ),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('🇳🇵', style: TextStyle(fontSize: 22)),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '+977',
+                                  style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)
+                                ),
+                                const SizedBox(width: 12),
+                                Container(width: 1.2, height: 24, color: Colors.grey.withOpacity(0.5)),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _phoneController,
+                                    focusNode: _phoneFocusNode,
+                                    keyboardType: TextInputType.phone,
+                                    style: GoogleFonts.montserrat(fontSize: 15, fontWeight: FontWeight.w500),
+                                    decoration: InputDecoration(
+                                      hintText: 'Enter mobile number',
+                                      hintStyle: GoogleFonts.outfit(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w400),
+                                      filled: false,
+                                      border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      isDense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 GestureDetector(
-                                  onTap: _handleBossTap,
-                                  child: Image.asset('assets/images/original logo.png', height: 48),
-                                ),
-                                InkWell(
-                                  onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen())),
-                                  borderRadius: BorderRadius.circular(12),
+                                  onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
                                   child: Container(
-                                    padding: const EdgeInsets.all(8),
+                                    width: 20, height: 20,
                                     decoration: BoxDecoration(
-                                      color: AppTheme.brandColor.withOpacity(0.08),
-                                      shape: BoxShape.circle,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: Colors.grey.withOpacity(0.6), width: 1.2),
+                                      color: _agreeToTerms ? AppTheme.brandColor : Colors.white,
                                     ),
-                                    child: Icon(Icons.arrow_forward_rounded, color: AppTheme.brandColor, size: 24),
+                                    child: _agreeToTerms ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: RichText(
+                                    text: TextSpan(
+                                      style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[700]),
+                                      children: [
+                                        const TextSpan(text: 'I agree to terms of '),
+                                        TextSpan(text: 'Service', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                                        const TextSpan(text: ' and '),
+                                        TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
+                          const SizedBox(height: 12),
 
-                          const SizedBox(height: 10), // Reduced gap below logo
-
-                          // --- ILLUSTRATION CONTAINER ---
-                          Container(
-                            width: double.infinity,
-                            height: constraints.maxHeight * 0.35,
-                            child: Image.asset(
-                              'assets/images/boy illustrate  png.png',
-                              fit: BoxFit.cover, // Ensures it fills the container and touches edges
-                              alignment: Alignment.bottomLeft, // Aligned to left edge
-                            ),
-                          ),
-        
-                          const SizedBox(height: 2),
-        
-                          // --- WELCOME TEXT ---
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Welcome Back To',
-                                  style: GoogleFonts.zenAntiqueSoft(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF1D1D1D),
-                                  ),
-                                ),
-                                Text(
-                                  'KHOZNA',
-                                  style: GoogleFonts.zenAntiqueSoft(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppTheme.brandColor,
-                                    letterSpacing: 2.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  'Login to continue Finding for your next Home.',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 14,
-                                    color: Colors.grey[500],
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ],
+                          // Login Button
+                          SizedBox(
+                            width: double.infinity, height: 54,
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _verifyPhone,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.brandColor,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+                              ),
+                              child: _isLoading
+                                  ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                  : Text('Login', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12), // Added gap below Text to Input
-                      // --- INPUT ACTIONS ---
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Phone Input
-                            Container(
-                              height: 58,
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
-                              decoration: BoxDecoration(
-                                color: Colors.white, 
-                                borderRadius: BorderRadius.circular(40),
-                                border: Border.all(color: Colors.grey.withOpacity(0.6), width: 1.2),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // --- FOOTER ---
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // OR Divider
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
+                          child: Row(
+                            children: [
+                              Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Text('OR', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey[600])),
                               ),
-                              child: Row(
-                                children: [
-                                  const Text('🇳🇵', style: TextStyle(fontSize: 22)),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '+977', 
-                                    style: GoogleFonts.montserrat(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black)
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Container(width: 1.2, height: 24, color: Colors.grey.withOpacity(0.5)),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _phoneController,
-                                      focusNode: _phoneFocusNode,
-                                      keyboardType: TextInputType.phone,
-                                      style: GoogleFonts.montserrat(fontSize: 15, fontWeight: FontWeight.w500),
-                                      decoration: InputDecoration(
-                                        hintText: 'Enter mobile number',
-                                        hintStyle: GoogleFonts.montserrat(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.w400),
-                                        filled: false,
-                                        border: InputBorder.none,
-                                        enabledBorder: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
-                                        isDense: true,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 12),
-        
-                            // Terms agreement
-                            Padding(
-                              padding: const EdgeInsets.only(left: 12), 
-                              child: Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => setState(() => _agreeToTerms = !_agreeToTerms),
-                                    child: Container(
-                                      width: 20, height: 20,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(6),
-                                        border: Border.all(color: Colors.grey.withOpacity(0.6), width: 1.2),
-                                        color: _agreeToTerms ? AppTheme.brandColor : Colors.white,
-                                      ),
-                                      child: _agreeToTerms ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: RichText(
-                                      text: TextSpan(
-                                        style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
-                                        children: [
-                                          const TextSpan(text: 'I agree to terms of '),
-                                          TextSpan(text: 'Service', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                                          const TextSpan(text: ' and '),
-                                          TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-        
-                            // Login Button
-                            SizedBox(
-                              width: double.infinity, height: 54,
-                              child: ElevatedButton(
-                                onPressed: _isLoading ? null : _verifyPhone,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.brandColor,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-                                ),
-                                child: _isLoading
-                                    ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                    : Text('Login', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                            
-                              const SizedBox(height: 2),
-        
-                            // OR Divider
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: Row(
-                                children: [
-                                  Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                                    child: Text('OR', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey[400])),
-                                  ),
-                                  Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
-                                ],
-                              ),
-                            ),
-        
-                              const SizedBox(height: 2),
-                            
-                            Row(
-                              children: [
-                                Expanded(child: _buildSocialBtn('assets/icons/google_g.svg', 'Google', _signInWithGoogle)),
-                                const SizedBox(width: 16),
-                                Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _signInWithFacebook)),
-                              ],
-                            ),
-                          ],
+                              Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
+                            ],
+                          ),
                         ),
-                      ),
-                        ],
-                      ),
-    
-                      // --- FOOTER ---
-                       Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-                        child: GestureDetector(
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
-                          child: RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[500]),
-                              children: [
-                                const TextSpan(text: "Don't have an account? "),
-                                TextSpan(text: 'Register Here', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
-                              ],
+                        const SizedBox(height: 12),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Row(
+                            children: [
+                              Expanded(child: _buildSocialBtn('assets/icons/google_g.svg', 'Google', _signInWithGoogle)),
+                              const SizedBox(width: 16),
+                              Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _signInWithFacebook)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: InkWell(
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                              child: RichText(
+                                textAlign: TextAlign.center,
+                                text: TextSpan(
+                                  style: GoogleFonts.outfit(fontSize: 15, color: Colors.grey[700]),
+                                  children: [
+                                    const TextSpan(text: "Don't have an account? "),
+                                    TextSpan(text: 'Register Here', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ),
-              )
-            ;
+              ),
+            );
           },
         ),
       ),
