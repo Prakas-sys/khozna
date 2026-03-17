@@ -1,9 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
-import 'main_screen.dart';
-import 'verify_phone_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -69,7 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     icon: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppTheme.brandColor.withOpacity(0.08),
+                        color: AppTheme.brandColor.withValues(alpha: 0.08),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.arrow_back_rounded, color: AppTheme.brandColor, size: 22),
@@ -156,7 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             width: 20, height: 20,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: _agreeToTerms ? AppTheme.brandColor : Colors.grey.withOpacity(0.6), width: 1.2),
+                              border: Border.all(color: _agreeToTerms ? AppTheme.brandColor : Colors.grey.withValues(alpha: 0.6), width: 1.2),
                               color: _agreeToTerms ? AppTheme.brandColor : Colors.white,
                             ),
                             child: _agreeToTerms ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
@@ -267,7 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: Colors.grey.withOpacity(0.6), width: 1.2),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.6), width: 1.2),
       ),
       child: Row(
         children: [

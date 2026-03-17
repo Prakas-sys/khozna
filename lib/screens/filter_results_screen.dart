@@ -6,7 +6,6 @@ import '../theme/app_theme.dart';
 import '../widgets/favourite_button.dart';
 import 'property_details_screen.dart';
 import 'chat_screen.dart';
-import 'home_screen.dart';
 
 class FilterResultsScreen extends StatelessWidget {
   final String location;

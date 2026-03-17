@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import 'saved_properties_screen.dart';
-import 'notifications_screen.dart';
 import 'my_listings_screen.dart';
 import 'safety_center_screen.dart';
 import 'kyc_screen.dart';

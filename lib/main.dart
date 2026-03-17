@@ -9,7 +9,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'theme/app_theme.dart';
-import 'utils/security_utils.dart';
 import 'utils/supabase_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_screen.dart';

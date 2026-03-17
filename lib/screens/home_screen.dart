@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
-import '../utils/supabase_service.dart';
 import 'property_details_screen.dart';
 import 'search_screen.dart';
 import 'filter_results_screen.dart';
@@ -16,7 +15,6 @@ import '../widgets/favourite_button.dart';
 import '../widgets/voice_search_overlay.dart';
 import 'notifications_screen.dart';
 import 'login_screen.dart';
-import '../widgets/property_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -57,62 +55,25 @@ class HomeScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: ValueListenableBuilder<int>(
-              valueListenable: notificationBadgeCount,
-              builder: (context, count, _) {
-                return Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        notificationBadgeCount.value = 0;
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NotificationsScreen()),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey.shade200, width: 1.0),
-                        ),
-                        child: const Icon(
-                          CupertinoIcons.bell,
-                          color: Colors.black87,
-                          size: 28,
-                        ),
-                      ),
-                    ),
-                    if (count > 0)
-                      Positioned(
-                        top: -2,
-                        right: -2,
-                        child: Container(
-                          constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF0000), // Pure Instagram Red
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Center(
-                            child: Text(
-                              count > 99 ? '99+' : '$count',
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontSize: 9.5, 
-                                fontWeight: FontWeight.w900,
-                                height: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                );
+            child: InkWell(
+              onTap: () {
+                notificationBadgeCount.value = 0;
+                _checkAuthAndNavigate(context, const NotificationsScreen());
               },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(4), // Even tighter padding
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10), // Slimmer corners
+                  border: Border.all(color: Colors.grey.shade200, width: 1.0),
+                ),
+                child: const Icon(
+                  CupertinoIcons.bell,
+                  color: Colors.black87,
+                  size: 28, // Prominent bell icon
+                ),
+              ),
             ),
           ),
         ],
@@ -248,22 +209,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
-              // CATEGORY CHIPS SYSTEM (BIG STARTUP UI)
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Row(
-                  children: [
-                    _buildCategoryChip('All Rentals', CupertinoIcons.house_fill, true),
-                    _buildCategoryChip('Rooms', CupertinoIcons.bed_double, false),
-                    _buildCategoryChip('Flats', Icons.apartment, false),
-                    _buildCategoryChip('Houses', CupertinoIcons.house_alt, false),
-                    _buildCategoryChip('Office Space', CupertinoIcons.briefcase, false),
-                    _buildCategoryChip('Land', CupertinoIcons.map, false),
-                  ],
-                ),
-              ),
               const SizedBox(height: 45), // Reduced from 85 to bring cards back up
               // 10x10 HORIZONTAL GRID SYSTEM
               ...List.generate(10, (index) {
@@ -286,7 +231,7 @@ class HomeScreen extends StatelessWidget {
                 // Variation in queries for demo data diversity
                 final query = Supabase.instance.client
                     .from('properties')
-                    .select('*, property_images(image_url), profiles(full_name, avatar_url)');
+                    .select('*, property_images(image_url)');
                 
                 final orderedQuery = index % 2 == 0 
                     ? query.order('created_at', ascending: false)
@@ -379,6 +324,8 @@ class HomeScreen extends StatelessWidget {
                 'sq_ft': '1,200',
                 'floor': '3rd Floor',
                 'description': 'Experience luxury living in the heart of Kathmandu.',
+                'owner_id': 'demo-owner',
+                'status': 'available',
                 'property_images': [{'image_url': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}],
               });
             }
@@ -392,31 +339,28 @@ class HomeScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   if (index < properties.length) {
                     final p = properties[index];
-                    final images = (p['property_images'] as List? ?? []);
+                    final images = (p['property_images'] as List);
                     final String mainImage = images.isNotEmpty
                         ? images[0]['image_url']
                         : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 
                     return Padding(
                       padding: const EdgeInsets.only(right: 16),
-                      child: PropertyCard(
-                        id: p['id'],
-                        imageUrl: mainImage,
-                        title: p['title'],
-                        location: p['area_name'],
-                        price: 'रू ${p['price']}',
-                        bedrooms: p['bedrooms'] ?? 0,
-                        bathrooms: p['bathrooms'] ?? 0,
-                        area: p['sq_ft'] ?? '0',
-                        floor: p['floor'] ?? 'N/A',
-                        description: p['description'] ?? '',
-                        ownerId: p['owner_id'] ?? '',
-                        status: p['status'] ?? 'available',
-                        ownerName: p['profiles']?['full_name'] ?? 'Khozna Owner',
-                        ownerAvatar: p['profiles']?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=47',
-                        images: images
-                            .map((i) => i['image_url'].toString())
-                            .toList(),
+                      child: _buildModernCard(
+                        context,
+                        p['id'],
+                        mainImage,
+                        p['title'],
+                        p['area_name'],
+                        'रू ${p['price']}',
+                        p['bedrooms'] ?? 0,
+                        p['bathrooms'] ?? 0,
+                        p['sq_ft'] ?? '0',
+                        p['floor'] ?? 'N/A',
+                        p['description'] ?? '',
+                        images.map((i) => i['image_url'].toString()).toList(),
+                        p['owner_id'] ?? '',
+                        p['status'] ?? 'available',
                       ),
                     );
                   } else {
@@ -431,47 +375,6 @@ class HomeScreen extends StatelessWidget {
           },
         ),
       ],
-    );
-  }
-
-
-  Widget _buildCategoryChip(String label, IconData icon, bool isActive) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: isActive ? AppTheme.brandColor : Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: isActive ? AppTheme.brandColor : Colors.grey[200]!,
-        ),
-        boxShadow: isActive ? [
-          BoxShadow(
-            color: AppTheme.brandColor.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          )
-        ] : null,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 16,
-            color: isActive ? Colors.white : Colors.grey[600],
-          ),
-          const SizedBox(width: 8),
-          Text(
-            label,
-            style: GoogleFonts.outfit(
-              fontSize: 14,
-              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-              color: isActive ? Colors.white : Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -566,4 +469,368 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildModernCard(
+    BuildContext context,
+    String id,
+    String imageUrl,
+    String title,
+    String location,
+    String price,
+    int bedrooms,
+    int bathrooms,
+    String area,
+    String floor,
+    String description,
+    List<String> images,
+    String ownerId,
+    String status,
+  ) {
+    return GestureDetector(
+      onTap: () async {
+        // AUTH CHECK
+        if (FirebaseAuth.instance.currentUser == null) {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+          return;
+        }
+
+        // KYC CHECK - Real check from Supabase
+        final userId = FirebaseAuth.instance.currentUser!.uid;
+        final profile = await Supabase.instance.client.from('profiles').select('kyc_status').eq('id', userId).single();
+        
+        if (profile['kyc_status'] != 'verified') {
+          // If not verified, show KYC directly as requested
+          if (context.mounted) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const KycScreen()));
+          }
+        } else {
+          // If verified, show details
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PropertyDetailsScreen(
+                  id: id,
+                  imageUrl: imageUrl,
+                  images: images,
+                  title: title,
+                  location: location,
+                  price: price,
+                  bedrooms: bedrooms,
+                  bathrooms: bathrooms,
+                  area: area,
+                  floor: floor,
+                  description: description,
+                ),
+              ),
+            );
+          }
+        }
+      },
+      child: Container(
+        width: 260,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFF2F2F2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // --- Image (unchanged height) ---
+              Stack(
+                children: [
+                  SizedBox(
+                    height: 190,
+                    width: double.infinity,
+                    child: Image.network(imageUrl, fit: BoxFit.cover),
+                  ),
+                  // Status Badges
+                  Positioned(
+                    top: 10,
+                    left: 10,
+                    child: Builder(
+                      builder: (context) {
+                        final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+                        final isMyProperty = ownerId == currentUserId;
+                        final isBooked = status == 'booked';
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: isMyProperty 
+                                ? Colors.blue 
+                                : isBooked 
+                                    ? Colors.red 
+                                    : const Color(0xFF2ECC71),
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            isMyProperty 
+                                ? 'Your Ad (तपाईंको विज्ञापन)' 
+                                : isBooked 
+                                    ? 'Booked' 
+                                    : 'For Rent',
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 11.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      }
+                    ),
+                  ),
+                  // Favourite button
+                  Positioned(
+                    top: 6,
+                    right: 10,
+                    child: FavouriteButton(propertyId: id),
+                  ),
+                ],
+              ),
+              // --- Content below image ---
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 1, 12, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title + Price
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.outfit(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: price,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.brandColor,
+                                ),
+                              ),
+                              TextSpan(
+                                text: '/mo',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    // Location + Amenity icons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.place_outlined,
+                              color: AppTheme.brandColor,
+                              size: 13,
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              location,
+                              style: GoogleFonts.outfit(
+                                fontSize: 11,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Column(
+                              children: [
+                                Icon(
+                                  Icons.bed_outlined,
+                                  color: AppTheme.brandColor,
+                                  size: 14,
+                                ),
+                                Text(
+                                  'Bed',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 8,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              children: [
+                                Icon(
+                                  Icons.directions_car_outlined,
+                                  color: AppTheme.brandColor,
+                                  size: 14,
+                                ),
+                                Text(
+                                  'Parking',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 8,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              children: [
+                                Icon(
+                                  Icons.wifi,
+                                  color: AppTheme.brandColor,
+                                  size: 14,
+                                ),
+                                Text(
+                                  'Wifi',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 8,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    // Action Buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _checkAuthAndNavigate(
+                              context,
+                              PropertyDetailsScreen(
+                                id: id,
+                                imageUrl: imageUrl,
+                                images: images,
+                                title: title,
+                                location: location,
+                                price: price,
+                                bedrooms: bedrooms,
+                                bathrooms: bathrooms,
+                                area: area,
+                                floor: floor,
+                                description: description,
+                              ),
+                            ),
+                            icon: const Icon(Icons.directions_walk, size: 17),
+                            label: Text(
+                              'Visit Now',
+                              style: GoogleFonts.outfit(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13.5,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.brandColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                side: BorderSide(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  width: 1.5,
+                                ),
+                              ),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _checkAuthAndNavigate(
+                              context,
+                              const ChatScreen(
+                                name: 'Jenny Wilson',
+                                avatar: 'https://i.pravatar.cc/150?img=47',
+                                online: true,
+                              ),
+                            ),
+                            icon: SvgPicture.asset(
+                              'assets/icons/message.svg',
+                              width: 17,
+                              height: 17,
+                              colorFilter: const ColorFilter.mode(
+                                Colors.white,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            label: Text(
+                              'Message',
+                              style: GoogleFonts.outfit(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13.5,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.brandColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                side: BorderSide(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  width: 1.5,
+                                ),
+                              ),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

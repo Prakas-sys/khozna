@@ -1,6 +1,0 @@
-﻿Analyzing KHOZNA.COM...                                         
-
-  error - Expected to find ']' - lib\main.dart:287:15 - expected_token
-  error - Expected an identifier - lib\main.dart:395:13 - missing_identifier
-  error - Expected to find ')' - lib\main.dart:395:13 - expected_token
-

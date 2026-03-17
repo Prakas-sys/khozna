@@ -1,4 +1,0 @@
-﻿Running Gradle task 'assembleDebug'...                          
-Checking the license for package NDK (Side by side) 28.2.13676358 in C:\Users\praka\AppData\Local\Android\Sdk\licenses
-Warning: License for package NDK (Side by side) 28.2.13676358 not accepted.
-Running Gradle task 'assembleDebug'...                           2,963ms
