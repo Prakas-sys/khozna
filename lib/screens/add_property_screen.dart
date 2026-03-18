@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/cloudinary_service.dart';
+import '../utils/kimi_ai_service.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
@@ -37,6 +38,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final List<String> _selectedAmenities = [];
   final List<File> _selectedImages = [];
   bool _isPublishing = false;
+  
+  // AI Service (Using a placeholder key for now)
+  final KimiAiService _aiService = KimiAiService(apiKey: 'YOUR_KIMI_API_KEY');
+  bool _isEstimatingPrice = false;
+  String? _aiPriceSuggestion;
 
   @override
   void dispose() {
@@ -78,6 +84,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     setState(() => _isPublishing = true);
 
     try {
+      // 0. AI Scam Detector Check
+      final String scamResult = await _aiService.detectScam(
+        _titleController.text, 
+        _priceController.text, 
+        _areaController.text
+      );
+      
+      if (scamResult.toLowerCase().contains("scam") || scamResult.toLowerCase().contains("warning")) {
+         // In a real app, you might block or flag this, for now we just show a warning
+         debugPrint("AI SCAM WARNING: $scamResult");
+      }
+
       // 1. Insert Property into Supabase
       final propertyResponse = await client.from('properties').insert({
         'owner_id': user.uid,
@@ -388,6 +406,75 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 value: _isNegotiable,
                 onChanged: (v) => setState(() => _isNegotiable = v),
                 activeThumbColor: AppTheme.brandColor,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 32),
+        
+        // AI PRICE ESTIMATOR BUTTON
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.purple.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.purple.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.auto_awesome, color: Colors.purple),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('AI Price Estimator', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.purple[800])),
+                        Text('Get a fair price estimate for your area', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600])),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (_aiPriceSuggestion != null) 
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    _aiPriceSuggestion!,
+                    style: GoogleFonts.outfit(fontSize: 13, color: Colors.purple[900], fontStyle: FontStyle.italic),
+                  ),
+                ),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isEstimatingPrice ? null : () async {
+                    if (_areaController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter an area first (Step 2)')));
+                      return;
+                    }
+                    setState(() => _isEstimatingPrice = true);
+                    final result = await _aiService.estimatePrice(
+                      _areaController.text, 
+                      _selectedCategory == 'Room' ? 1 : 3, // Simplification
+                      _selectedCategory ?? 'Room'
+                    );
+                    setState(() {
+                      _aiPriceSuggestion = result;
+                      _isEstimatingPrice = false;
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: _isEstimatingPrice 
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text('Ask AI for Price Suggestion'),
+                ),
               ),
             ],
           ),

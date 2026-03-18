@@ -4,15 +4,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart'; // Unused now
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'theme/app_theme.dart';
 import 'utils/supabase_service.dart';
-import 'screens/login_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/location_permission_screen.dart';
+// import 'screens/splash_screen.dart'; // Removed
 
 // Local Notifications Plugin
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -22,42 +22,12 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
-
-void main() async {
+void main() {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   
-  debugPrint('--- APP STARTING ---');
-  
-  await supabase.Supabase.initialize(
-    url: 'https://qjpeablwokiuhfaopdbi.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcGVhYmx3b2tpdWhmYW9wZGJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NjkxMjgsImV4cCI6MjA4NzE0NTEyOH0.Sz3K67ClV8ZfgCdabA_cFfh_wa6X-Q-fHylYJ8utTLI',
-  );
-  debugPrint('--- SUPABASE INITIALIZED ---');
-
-  // Initialize Firebase
-  try {
-    debugPrint('--- INITIALIZING FIREBASE ---');
-    await Firebase.initializeApp();
-    debugPrint('--- FIREBASE INITIALIZED ---');
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    await _setupNotifications();
-    debugPrint('--- NOTIFICATIONS SETUP COMPLETE ---');
-  } catch (e) {
-    debugPrint('Firebase initialization error: $e');
-  }
-
-  // Pre-load fonts to prevent flickering
+  // Pre-load fonts strategy (Non-blocking)
   GoogleFonts.config.allowRuntimeFetching = true;
-  // Start pre-fetching key fonts
-  Future.wait([
-    GoogleFonts.pendingFonts([
-      GoogleFonts.outfit(),
-      GoogleFonts.playfairDisplay(),
-      GoogleFonts.zenAntiqueSoft(),
-      GoogleFonts.montserrat(),
-    ]),
-  ]);
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -67,6 +37,43 @@ void main() async {
   );
   
   runApp(const KhoznaApp());
+}
+
+/// New central initialization hub
+Future<void> _initializeServices() async {
+  debugPrint('--- SERVICE INITIALIZATION START ---');
+  
+  // 1. Supabase (Crucial)
+  try {
+    await supabase.Supabase.initialize(
+      url: 'https://qjpeablwokiuhfaopdbi.supabase.co',
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcGVhYmx3b2tpdWhmYW9wZGJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NjkxMjgsImV4cCI6MjA4NzE0NTEyOH0.Sz3K67ClV8ZfgCdabA_cFfh_wa6X-Q-fHylYJ8utTLI',
+    );
+    debugPrint('--- SUPABASE INITIALIZED ---');
+  } catch (e) {
+    debugPrint('Supabase Error: $e');
+  }
+
+  // 2. Firebase
+  try {
+    await Firebase.initializeApp();
+    debugPrint('--- FIREBASE INITIALIZED ---');
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    await _setupNotifications();
+    debugPrint('--- NOTIFICATIONS SETUP COMPLETE ---');
+  } catch (e) {
+    debugPrint('Firebase Error: $e');
+  }
+
+  // 3. Fonts (Low priority)
+  GoogleFonts.pendingFonts([
+    GoogleFonts.outfit(),
+    GoogleFonts.playfairDisplay(),
+    GoogleFonts.zenAntiqueSoft(),
+    GoogleFonts.montserrat(),
+  ]).catchError((_) => []);
+
+  debugPrint('--- SERVICE INITIALIZATION END ---');
 }
 
 Future<void> _setupNotifications() async {
@@ -112,7 +119,10 @@ class _KhoznaAppState extends State<KhoznaApp> {
   Future<void> _initApp() async {
     debugPrint('--- _initApp START ---');
     
-    // 2. Fast Check location
+    // Start global service initialization
+    await _initializeServices();
+    
+    // Check location permission
     try {
       final status = await Permission.location.status;
       _isLocationGranted = status.isGranted;
@@ -131,7 +141,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
   @override
   Widget build(BuildContext context) {
     if (_isInitializing) {
-      return Container(color: Colors.white); // Keep splash or white while initializing
+      return Container(color: Colors.white);
     }
 
     return MaterialApp(
@@ -139,32 +149,13 @@ class _KhoznaAppState extends State<KhoznaApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       builder: (context, child) {
-        // Remove splash once the first frame of the authenticated/unauthenticated screen is ready
+        // Remove native splash when the first real frame is ready
         WidgetsBinding.instance.addPostFrameCallback((_) {
           FlutterNativeSplash.remove();
         });
         return child!;
       },
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          // If auth state is initializing, show nothing or splash (it's still visible)
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppTheme.brandColor)));
-          }
-
-          final User? user = snapshot.data;
-          
-          if (user != null) {
-            // User is logged in
-            SupabaseService.syncUserWithSupabase(user);
-            return const MainScreen();
-          } else {
-            // User is NOT logged in
-            return _isLocationGranted ? const LoginScreen() : const LocationPermissionScreen();
-          }
-        },
-      ),
+      home: _isLocationGranted ? const MainScreen() : const LocationPermissionScreen(),
     );
   }
 

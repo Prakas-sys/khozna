@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
+import '../utils/kimi_ai_service.dart';
 import 'filter_results_screen.dart';
+import 'ai_chat_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -14,6 +17,11 @@ class _SearchScreenState extends State<SearchScreen> {
   double _priceValue = 5000;
   final List<String> _recentSearches = ['Baluwatar', '2BHK Sanepa', 'Flat under 20k', 'Baneshwor Room'];
   late TextEditingController _searchController;
+  
+  // AI Search State
+  final KimiAiService _aiService = KimiAiService(apiKey: 'YOUR_KIMI_API_KEY');
+  bool _isAiSearching = false;
+  String? _aiSearchResult;
 
   @override
   void initState() {
@@ -133,6 +141,59 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            
+            // MAGIC AI SEARCH BUTTON
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _isAiSearching ? null : _runAiSearch,
+                icon: _isAiSearching 
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                  : const Icon(Icons.auto_awesome, size: 18),
+                label: Text(
+                  _isAiSearching ? 'AI Matching...' : 'Magic AI Match (Nepal Edition)',
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+            if (_aiSearchResult != null)
+              Container(
+                margin: const EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.purple.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.purple.withValues(alpha: 0.1)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.stars, color: Colors.purple, size: 18),
+                        const SizedBox(width: 8),
+                        Text('AI Suggestions', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.purple[800])),
+                        const Spacer(),
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 16, color: Colors.grey),
+                          onPressed: () => setState(() => _aiSearchResult = null),
+                        )
+                      ],
+                    ),
+                    Text(
+                      _aiSearchResult!,
+                      style: GoogleFonts.outfit(fontSize: 13, height: 1.5),
+                    ),
+                  ],
+                ),
+              ),
             const SizedBox(height: 32),
             RichText(
               text: TextSpan(
@@ -280,6 +341,14 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const AiChatScreen()));
+        },
+        backgroundColor: Colors.purple,
+        icon: const Icon(Icons.support_agent, color: Colors.white),
+        label: Text('AI Assistant', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+      ),
     );
   }
 
@@ -300,5 +369,41 @@ class _SearchScreenState extends State<SearchScreen> {
       trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
       onTap: () {},
     );
+  }
+
+  Future<void> _runAiSearch() async {
+    if (_searchController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please type what you are looking for first!')));
+      return;
+    }
+
+    setState(() {
+      _isAiSearching = true;
+      _aiSearchResult = null;
+    });
+
+    try {
+      // 1. Fetch properties for context (limiting to 10 for free tier efficiency)
+      final supabase = Supabase.instance.client;
+      final List<dynamic> propertiesData = await supabase
+          .from('properties')
+          .select('id, title, price, area_name, category')
+          .limit(10);
+      
+      final List<Map<String, dynamic>> properties = propertiesData.cast<Map<String, dynamic>>();
+
+      // 2. Call AI Service
+      final result = await _aiService.matchProperty(_searchController.text, properties);
+
+      setState(() {
+        _aiSearchResult = result;
+        _isAiSearching = false;
+      });
+    } catch (e) {
+      setState(() => _isAiSearching = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('AI Search failed: $e')));
+      }
+    }
   }
 }
