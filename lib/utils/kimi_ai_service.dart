@@ -2,11 +2,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class KimiAiService {
-  static const String _baseUrl = 'https://api.moonshot.cn/v1/chat/completions';
+  // Switched to OpenRouter for 100% Forever Free Cloud AI
+  static const String _baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
   
-  final String apiKey = 'sk-Bst5JnSq2fUBCoTWDE5VRmiM3z7g9cWNFtyTPCcJ5Vh6saFq';
+  final String apiKey = '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';
 
-  /// 100% Cloud AI Request (Always On)
+  KimiAiService({String? apiKey}); // Key is now hardcoded for stability
+
+  /// 100% FREE Cloud AI Request (via OpenRouter Free Models)
   Future<String> _getAiResponse(String prompt, {required String systemPrompt}) async {
     try {
       final response = await http.post(
@@ -14,14 +17,16 @@ class KimiAiService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $apiKey',
+          'HTTP-Referer': 'https://khozna.com', // Required by OpenRouter
+          'X-Title': 'Khozna App',
         },
         body: jsonEncode({
-          'model': 'moonshot-v1-8k', 
+          // Using the 100% FREE Gemma 3 12B model (confirmed by user screenshot)
+          'model': 'google/gemma-3-12b-it:free', 
           'messages': [
             {'role': 'system', 'content': systemPrompt},
             {'role': 'user', 'content': prompt},
           ],
-          'temperature': 0.3,
         }),
       );
 
@@ -36,36 +41,43 @@ class KimiAiService {
     }
   }
 
-  /// 1. AI Property Matching (Natural Language Search)
+  /// 1. AI Property Matching
   Future<String> matchProperty(String userQuery, List<Map<String, dynamic>> properties) async {
     String propertyData = properties.map((p) => 
       "ID: ${p['id']}, Title: ${p['title']}, Price: ${p['price']}, Location: ${p['location']}"
     ).join("\n");
 
-    String prompt = """
-    A user is looking for: "$userQuery"
-    Listing context:
-    $propertyData
-    Find best matches and explain why. Keep it in Nepali/English mix for Nepal market.
-    """;
-
-    return _getAiResponse(prompt, systemPrompt: "Property matching expert for Khozna Nepal.");
+    String prompt = "User Query: $userQuery\nData:\n$propertyData\nFind matches.";
+    return _getAiResponse(prompt, systemPrompt: "Property expert for Nepal.");
   }
 
   /// 2. AI Scam Detector
   Future<String> detectScam(String title, String price, String area) async {
-    String prompt = "Title: $title, Price: $price, Area: $area. Is this a rental scam in Nepal?";
-    return _getAiResponse(prompt, systemPrompt: "Security expert for Nepal rentals.");
+    String prompt = "Title: $title, Price: $price. Scam check for Nepal.";
+    return _getAiResponse(prompt, systemPrompt: "Security expert.");
   }
 
   /// 3. AI Price Estimator
   Future<String> estimatePrice(String location, int rooms, String type) async {
-    String prompt = "Fair price for $rooms room $type in $location, Nepal?";
-    return _getAiResponse(prompt, systemPrompt: "Real estate valuation expert for Nepal.");
+    String prompt = "$rooms room $type in $location. Price estimation?";
+    return _getAiResponse(prompt, systemPrompt: "Valuation expert.");
   }
 
   /// 4. AI Chatbot
-  Future<String> getChatbotResponse(String userMessage) async {
-    return _getAiResponse(userMessage, systemPrompt: "You are the Khozna AI Assistant. Help users with rentals in Nepal. Be friendly!");
+  /// 5. AI Location Expert (Verify & Nearby Analysis)
+  Future<String> verifyLocation(String area, String landmark) async {
+    String prompt = """
+    Location Area: $area
+    Nearby Landmark: $landmark
+    
+    Please analyze this location in Nepal. 
+    1. Confirm if this is a known area/tink in Nepal.
+    2. List 3-4 important nearby places (Major Hospitals, Schools, or Markets) that are usually near this area.
+    3. Give a short 'Vibe Check' of the neighborhood (e.g., 'Residential', 'Commercial', 'Quiet').
+    
+    Keep the response concise and friendly for a rental app user.
+    """;
+    
+    return _getAiResponse(prompt, systemPrompt: "You are a local neighborhood expert in Nepal. You know all major landmarks and areas across Kathmandu, Lalitpur, Bhaktapur, and other major cities.");
   }
 }

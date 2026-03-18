@@ -40,9 +40,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   bool _isPublishing = false;
   
   // AI Service (Using a placeholder key for now)
-  final KimiAiService _aiService = KimiAiService(apiKey: 'YOUR_KIMI_API_KEY');
+  final KimiAiService _aiService = KimiAiService(apiKey: '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');
   bool _isEstimatingPrice = false;
   String? _aiPriceSuggestion;
+  
+  // New Location Analysis State
+  bool _isAnalyzingLocation = false;
+  String? _aiLocationAnalysis;
 
   @override
   void dispose() {
@@ -282,6 +286,76 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 24),
         _buildLabel('नजिकैको चिनिने ठाउँ (Landmark)', true),
         _buildTextField('उदा: सिभिल हस्पिटलको पछाडि', controller: _landmarkController),
+        const SizedBox(height: 20),
+
+        // AI LOCATION VERIFIER BUTTON
+        if (_areaController.text.isNotEmpty || _landmarkController.text.isNotEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.blue.withValues(alpha: 0.1)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.travel_explore, color: Colors.blue),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('AI Location Expert', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.blue[800])),
+                          Text('Verify area and find nearby landmarks', style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[600])),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                if (_aiLocationAnalysis != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    _aiLocationAnalysis!,
+                    style: GoogleFonts.outfit(fontSize: 13, color: Colors.blue[900], height: 1.4),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isAnalyzingLocation ? null : () async {
+                      if (_areaController.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter an area name first')));
+                        return;
+                      }
+                      setState(() => _isAnalyzingLocation = true);
+                      final result = await _aiService.verifyLocation(
+                        _areaController.text, 
+                        _landmarkController.text
+                      );
+                      setState(() {
+                        _aiLocationAnalysis = result;
+                        _isAnalyzingLocation = false;
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[600],
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: _isAnalyzingLocation 
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Text('Analyze Location & Nearby Places'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        
         const SizedBox(height: 32),
         
         // MAP INTERACTION
