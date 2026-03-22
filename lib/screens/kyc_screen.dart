@@ -8,10 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../theme/app_theme.dart';
+import '../utils/security_utils.dart';
 import '../utils/cloudinary_service.dart';
-
-// Method channel for security (blocks screenshots on KYC screen)
-const _channel = MethodChannel('khozna/security');
 
 class KycScreen extends StatefulWidget {
   const KycScreen({super.key});
@@ -43,7 +41,7 @@ class _KycScreenState extends State<KycScreen> {
   @override
   void initState() {
     super.initState();
-    _setSecureScreen(false); // Temporarily unlocked for screenshots!
+    SecurityUtils.setSecure(true); // Enabled for KYC sensitivity
     // Pre-fill if user is logged in
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -69,7 +67,7 @@ class _KycScreenState extends State<KycScreen> {
 
   @override
   void dispose() {
-    _setSecureScreen(false);
+    SecurityUtils.setSecure(false);
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
@@ -77,11 +75,8 @@ class _KycScreenState extends State<KycScreen> {
     super.dispose();
   }
 
-  Future<void> _setSecureScreen(bool secure) async {
-    try {
-      await _channel.invokeMethod('setSecure', secure);
-    } catch (_) {}
-  }
+// Removed local redundant secure screen method
+
 
   Future<void> _detectLocation() async {
     setState(() => _isLocating = true);
@@ -137,6 +132,7 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   void _showSuccessDialog() {
+    HapticFeedback.lightImpact();
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -284,7 +280,7 @@ class _KycScreenState extends State<KycScreen> {
       children: [
         _buildSectionHeader('Basic Information (व्यक्तिगत विवरण)', false),
         const SizedBox(height: 20),
-        _buildTextField(_nameController, 'Full Name (पूरा नाम)', Icons.person_outline, (v) => v!.isEmpty ? 'Required' : null),
+        _buildTextField(_nameController, 'Full Name (पूरा नाम)', Icons.person_outline, (v) => v!.isEmpty ? 'आवश्यक (Required)' : null),
         const SizedBox(height: 24),
         _buildTextField(
           _emailController,
@@ -342,7 +338,7 @@ class _KycScreenState extends State<KycScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Verified',
+                      'Verified (प्रमाणित)',
                       style: GoogleFonts.plusJakartaSans(
                         color: Colors.green,
                         fontSize: 12,
@@ -373,32 +369,33 @@ class _KycScreenState extends State<KycScreen> {
         const SizedBox(height: 32),
         _buildSectionHeader('Citizenship Front (नागरिकताको अगाडि)', false),
         const SizedBox(height: 12),
-        _buildPhotoUploadBox('front', 'Upload Front', 'PNG, JPG (max. 5MB)', _frontImage),
+        _buildPhotoUploadBox('front', 'Upload Front (अगाडिको फोटो)', 'PNG, JPG (max. 5MB)', _frontImage),
         const SizedBox(height: 32),
         _buildSectionHeader('Citizenship Back (नागरिकताको पछाडि)', false),
         const SizedBox(height: 12),
-        _buildPhotoUploadBox('back', 'Upload Back', 'PNG, JPG (max. 5MB)', _backImage),
+        _buildPhotoUploadBox('back', 'Upload Back (पछाडिको फोटो)', 'PNG, JPG (max. 5MB)', _backImage),
         const SizedBox(height: 32),
         _buildSectionHeader('Selfie with Document (नागरिकता समातेको सेल्फी)', false),
         const SizedBox(height: 12),
-        _buildPhotoUploadBox('selfie', 'Upload Selfie', 'Hold ID clearly', _selfieImage, isSelfie: true),
+        _buildPhotoUploadBox('selfie', 'Upload Selfie (सेल्फी)', 'Hold ID clearly', _selfieImage, isSelfie: true),
         const SizedBox(height: 40),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => setState(() => _currentStep = 1),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(color: Colors.grey.shade300),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                ),
-                child: Text('Back', style: GoogleFonts.plusJakartaSans(color: Colors.grey[700], fontWeight: FontWeight.bold)),
+        _buildSubmitButton(),
+        const SizedBox(height: 16),
+        Center(
+          child: TextButton(
+            onPressed: () => setState(() => _currentStep = 1),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: Text(
+              'Back to Details (विवरण सच्याउनुहोस्)',
+              style: GoogleFonts.plusJakartaSans(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(flex: 2, child: _buildSubmitButton()),
-          ],
+          ),
         ),
         const SizedBox(height: 40),
       ],
@@ -619,7 +616,7 @@ class _KycScreenState extends State<KycScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Uploaded Successfully',
+                  'Uploaded Successfully (सफलतापूर्वक अपलोड भयो)',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     color: Colors.green,
@@ -671,8 +668,8 @@ class _KycScreenState extends State<KycScreen> {
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: AppTheme.brandColor,
-        boxShadow: [
+        color: _isSubmitting ? Colors.grey[300] : AppTheme.brandColor,
+        boxShadow: _isSubmitting ? null : [
           BoxShadow(
             color: AppTheme.brandColor.withValues(alpha: 0.25),
             blurRadius: 15,
@@ -681,10 +678,11 @@ class _KycScreenState extends State<KycScreen> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: (_isSubmitting) ? null : _submit,
+        onPressed: _isSubmitting ? null : _submit,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
+          disabledForegroundColor: Colors.grey[600],
           shadowColor: Colors.transparent,
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -696,7 +694,6 @@ class _KycScreenState extends State<KycScreen> {
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
-                letterSpacing: 0.2,
               ),
             ),
       ),

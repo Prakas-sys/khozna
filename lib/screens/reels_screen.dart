@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import 'owner_profile_screen.dart';
@@ -167,68 +168,33 @@ class _ReelsScreenState extends State<ReelsScreen> {
           fit: BoxFit.cover,
         ),
         
-        // Premium Gradient Overlay
+        // Premium Multi-Layer Gradient Overlay
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withValues(alpha: 0.2),
+                Colors.black.withValues(alpha: 0.4),
                 Colors.transparent,
                 Colors.transparent,
-                Colors.black.withValues(alpha: 0.85),
+                Colors.black.withValues(alpha: 0.9),
               ],
-              stops: const [0.0, 0.2, 0.6, 1.0],
+              stops: const [0.0, 0.25, 0.5, 1.0],
             ),
           ),
         ),
 
-        // Modern "Wow" Side Icons (Right Side)
+        // Modern Glass Side Icons (Right Side)
         Positioned(
-          right: 12,
-          bottom: 120,
+          right: 16,
+          bottom: 140,
           child: Column(
             children: [
-              _buildModernAction(
-                icon: reel['isFavorite'] ? Icons.favorite : Icons.favorite_border,
-                label: reel['likes'],
-                color: reel['isFavorite'] ? const Color(0xFF00BFFF) : Colors.white, // Changed to Deep Sky Blue
-                onTap: () {
-                  setState(() {
-                    reel['isFavorite'] = !reel['isFavorite'];
-                  });
-                },
-              ),
-              const SizedBox(height: 18),
-              _buildModernAction(
-                icon: Icons.chat_bubble_outline_rounded,
-                label: 'Chat',
-                color: Colors.white,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                        name: reel['ownerName'],
-                        avatar: reel['ownerAvatar'],
-                        online: true,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 18),
-              _buildModernAction(
-                icon: Icons.share_rounded,
-                label: 'Share',
-                color: Colors.white,
-                onTap: () {},
-              ),
-              const SizedBox(height: 22),
-              // Owner Avatar - Clickable
+              // User Avatar with "Plus" badge
               GestureDetector(
                 onTap: () {
+                   HapticFeedback.lightImpact();
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -241,124 +207,198 @@ class _ReelsScreenState extends State<ReelsScreen> {
                     ),
                   );
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.8), width: 1.5),
-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: const Offset(0, 4))],
-                  ),
-                  child: CircleAvatar(
-                    radius: 20,
-                    backgroundImage: NetworkImage(reel['ownerAvatar']),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Content Area (Bottom)
-        Positioned(
-          left: 16,
-          right: 16,
-          bottom: 30,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title First
-              Text(
-                reel['title'],
-                style: GoogleFonts.outfit(
-                  color: Colors.white,
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.2,
-                ),
-              ),
-              const SizedBox(height: 6),
-              // Location Tag Below Title
-              Row(
-                children: [
-                  const Icon(Icons.location_on, color: AppTheme.brandColor, size: 14),
-                  const SizedBox(width: 4),
-                  Text(
-                    reel['location'],
-                    style: GoogleFonts.outfit(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      shadows: [const Shadow(blurRadius: 4, color: Colors.black45, offset: Offset(0, 1))],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 22),
-              
-              // Action Buttons Row - Visual Upgrade
-              Row(
-                children: [
-                  // Price Tag - Styled as a badge
-                  Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-                    ),
-                    child: Center(
-                      child: Text(
-                        reel['price'],
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Reserve Button - Prominent Action
-                  Expanded(
-                    child: Container(
-                      height: 50,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppTheme.brandColor, Color(0xFF00D1FF)],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(15),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.brandColor.withValues(alpha: 0.4),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           )
                         ],
                       ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () {
-                            _showNotification(context, 'Reservation request sent to ${reel['ownerName']}!');
-                          },
-                          borderRadius: BorderRadius.circular(15),
-                          child: Center(
-                            child: Text(
-                              'Reserve (बुक गर्नुहोस्)',
-                              style: GoogleFonts.outfit(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
+                      child: CircleAvatar(
+                        radius: 25,
+                        backgroundImage: NetworkImage(reel['ownerAvatar']),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -8,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.brandColor,
+                            shape: BoxShape.circle,
                           ),
+                          child: const Icon(Icons.add, color: Colors.white, size: 14),
                         ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
+              _buildModernAction(
+                icon: reel['isFavorite'] ? Icons.favorite : Icons.favorite_border,
+                label: reel['likes'],
+                color: reel['isFavorite'] ? AppTheme.brandColor : Colors.white,
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  setState(() {
+                    reel['isFavorite'] = !reel['isFavorite'];
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              _buildModernAction(
+                icon: Icons.chat_bubble_outline_rounded,
+                label: '98',
+                color: Colors.white,
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatScreen(
+                        name: reel['ownerName'],
+                        avatar: reel['ownerAvatar'],
+                        online: true,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+              _buildModernAction(
+                icon: Icons.share_rounded,
+                label: 'Share',
+                color: Colors.white,
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                },
+              ),
+            ],
+          ),
+        ),
+
+        // Floating Frosted Info Card (Glassmorphism)
+        Positioned(
+          left: 16,
+          right: 80, // Leave room for side icons
+          bottom: 40,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Owner Identity
+              Row(
+                children: [
+                  Text(
+                    '@${reel['ownerName'].toString().replaceAll(' ', '').toLowerCase()}',
+                    style: GoogleFonts.outfit(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
+                  const SizedBox(width: 6),
+                  const Icon(Icons.verified, color: AppTheme.brandColor, size: 14),
                 ],
+              ),
+              const SizedBox(height: 8),
+              // Frosted Glass Content Card
+              ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          reel['title'],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 14),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                reel['location'],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white70,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              reel['price'],
+                              style: GoogleFonts.outfit(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: AppTheme.brandColor,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.brandColor.withValues(alpha: 0.3),
+                                    blurRadius: 10,
+                                  )
+                                ],
+                              ),
+                              child: Text(
+                                'VISIT',
+                                style: GoogleFonts.outfit(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 12,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -372,28 +412,25 @@ class _ReelsScreenState extends State<ReelsScreen> {
       onTap: onTap,
       child: Column(
         children: [
-          ClipOval(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-                ),
-                child: Icon(icon, color: color, size: 26),
-              ),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.4),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1),
             ),
+            child: Icon(icon, color: color, size: 28),
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 6),
           Text(
             label,
             style: GoogleFonts.outfit(
               color: Colors.white,
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w600,
-              shadows: [const Shadow(blurRadius: 2, color: Colors.black, offset: Offset(0, 1))],
+              shadows: [
+                const Shadow(blurRadius: 4, color: Colors.black, offset: Offset(0, 2))
+              ],
             ),
           ),
         ],

@@ -1,4 +1,4 @@
-import 'dart:io';
+ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -63,438 +63,310 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            // ... (keep the same header code)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Profile',
-                    style: GoogleFonts.outfit(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryTextColor,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF7F7F7),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey[200]!),
-                        ),
-                        child: InkWell(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SettingsScreen(),
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.settings_outlined,
-                            color: Colors.black,
-                            size: 22,
-                          ),
-                        ),
-                      ),
+    return Scaffold(
+      backgroundColor: Colors.grey[50], // Slightly off-white for a cleaner feel
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 220,
+            floating: false,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: Colors.white,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppTheme.brandColor,
+                      AppTheme.brandColor.withOpacity(0.8),
                     ],
                   ),
-                ],
-              ),
-            ),
-
-            Stack(
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.grey[200],
-                  child: _imageFile != null
-                      ? ClipOval(child: Image.file(_imageFile!, width: 100, height: 100, fit: BoxFit.cover))
-                      : Icon(Icons.person, size: 50, color: Colors.grey[400]),
                 ),
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: GestureDetector(
-                    onTap: _pickImage,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.brandColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              user?.displayName ?? 'Guest',
-              style: GoogleFonts.outfit(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.primaryTextColor,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: _isOwner 
-                        ? AppTheme.brandColor.withValues(alpha: 0.1) 
-                        : Colors.grey.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    _isOwner ? 'Owner' : 'Guest',
-                    style: GoogleFonts.outfit(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: _isOwner ? AppTheme.brandColor : Colors.grey[700],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  user?.phoneNumber ?? 'No Phone Linked',
-                  style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[500]),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            // VERIFICATION BADGE - UPDATED TO RED
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), // More compact padding
-                decoration: BoxDecoration(
-                  color: widget.isVerified
-                      ? Colors.green.withValues(alpha: 0.05)
-                      : Colors.red.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(24), // Smoother rounded corners
-                  border: Border.all(
-                    color: widget.isVerified
-                        ? Colors.green.withValues(alpha: 0.15)
-                        : Colors.red.withValues(alpha: 0.15),
-                  ),
-                ),
-                child: Row(
+                child: Stack(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(6), // Compact icon padding
-                      decoration: BoxDecoration(
-                        color: widget.isVerified ? Colors.green : Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        widget.isVerified ? Icons.verified_user : Icons.gpp_bad_rounded,
-                        color: Colors.white,
-                        size: 18, // Smaller icon
-                      ),
+                    // Decorative bubbles
+                    Positioned(
+                      top: -20,
+                      right: -30,
+                      child: CircleAvatar(radius: 60, backgroundColor: Colors.white12),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
+                     Positioned(
+                      bottom: 40,
+                      left: -20,
+                      child: CircleAvatar(radius: 40, backgroundColor: Colors.white10),
+                    ),
+                    SafeArea(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          RichText(
-                            text: TextSpan(
+                          Center(
+                            child: Stack(
                               children: [
-                                TextSpan(
-                                  text: widget.isVerified ? 'Verified Profile ' : 'Not Verified ',
-                                  style: GoogleFonts.outfit(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: widget.isVerified ? Colors.green[800] : Colors.red[800],
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 10),
+                                      ),
+                                    ],
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 48,
+                                    backgroundColor: Colors.grey[100],
+                                    child: _imageFile != null
+                                        ? ClipOval(child: Image.file(_imageFile!, width: 96, height: 96, fit: BoxFit.cover))
+                                        : Icon(Icons.person_rounded, size: 48, color: Colors.grey[400]),
                                   ),
                                 ),
-                                TextSpan(
-                                  text: widget.isVerified ? '(प्रमाणित)' : '(अप्रमाणित)',
-                                  style: GoogleFonts.mukta(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    color: widget.isVerified ? Colors.green[800] : Colors.red[800],
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: _pickImage,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.1),
+                                            blurRadius: 4,
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.add_a_photo_outlined,
+                                        color: AppTheme.brandColor,
+                                        size: 16,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
+                          const SizedBox(height: 12),
                           Text(
-                            widget.isVerified
-                                ? 'Your identity is fully verified.'
-                                : 'ID verification is required.',
+                            user?.displayName ?? 'Khozna Guest',
                             style: GoogleFonts.outfit(
-                              fontSize: 11, // Smaller subtitle
-                              color: widget.isVerified
-                                  ? Colors.green[700]
-                                  : Colors.red[700],
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              _isOwner ? '⚡ Property Owner' : '🏠 Active Tenant',
+                              style: GoogleFonts.outfit(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    if (!widget.isVerified)
-                      SizedBox(
-                        height: 32,
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const KycScreen(),
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text(
-                            'Verify Now',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
+              ),
+            ],
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   _buildSectionLabel('Account'),
-                  _buildProfileMenuItem(
-                    context,
-                    Icons.person_pin_outlined,
-                    'Edit Profile',
-                    AppTheme.brandColor,
-                    onTap: () {},
-                  ),
-                  _buildProfileMenuItem(
-                    context,
-                    Icons.bookmark_outline_rounded,
-                    'Saved Properties',
-                    AppTheme.brandColor,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SavedPropertiesScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildProfileMenuItem(
-                    context,
-                    Icons.holiday_village_outlined,
-                    'My Listings',
-                    AppTheme.brandColor,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MyListingsScreen(),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-                   _buildSectionLabel('Legal & Safety'),
-                  _buildProfileMenuItem(
-                    context,
-                    Icons.balance_outlined,
-                    'Legal Information',
-                    Colors.grey[700]!,
-                    onTap: () {
-                      // Show sub-folder/bottom sheet with legal links
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.white,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                        ),
-                        builder: (context) => Container(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Legal & Safety',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.primaryTextColor,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              _buildProfileMenuItem(
-                                context,
-                                Icons.security_outlined,
-                                'Safety Center (सुरक्षा केन्द्र)',
-                                Colors.red,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const SafetyCenterScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
-                              _buildProfileMenuItem(
-                                context,
-                                Icons.description_outlined,
-                                'Terms of Service',
-                                Colors.grey[700]!,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                              _buildProfileMenuItem(
-                                context,
-                                Icons.privacy_tip_outlined,
-                                'Privacy Policy',
-                                Colors.grey[700]!,
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-                   _buildSectionLabel('Support'),
-                  _buildProfileMenuItem(
-                    context,
-                    Icons.help_outline,
-                    'Help Center',
-                    AppTheme.brandColor,
-                    onTap: () {},
-                  ),
-                  _buildProfileMenuItem(
-                    context,
-                    Icons.logout,
-                    'Log Out',
-                    Colors.red,
-                    showArrow: false,
-                    onTap: () async {
-                      await firebase_auth.FirebaseAuth.instance.signOut();
-                      if (context.mounted) {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LoginScreen()),
-                          (route) => false,
-                        );
-                      }
-                    },
+                   // Verification Card
+                  _buildVerificationCard(),
+                  const SizedBox(height: 24),
+                  
+                  // Menu Items in Sections
+                  _buildMenuSection('OVERVIEW', [
+                    _buildMenuItem(Icons.person_outline, 'Edit Profile', 'Update your personal info', onTap: () {}),
+                    _buildMenuItem(Icons.bookmark_outline, 'Saved Properties', 'Properties you liked', onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedPropertiesScreen()));
+                    }),
+                    _buildMenuItem(Icons.list_alt_rounded, 'My Listings', 'Properties you posted', onTap: () {
+                       Navigator.push(context, MaterialPageRoute(builder: (_) => const MyListingsScreen()));
+                    }),
+                  ]),
+                  
+                  const SizedBox(height: 24),
+                  
+                  _buildMenuSection('LEGAL & HELP', [
+                    _buildMenuItem(Icons.privacy_tip_outlined, 'Safety Center', 'Protect your account', 
+                      color: Colors.redAccent,
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SafetyCenterScreen()))),
+                    _buildMenuItem(Icons.help_center_outlined, 'Help Center', 'FAQs & Contact Support', onTap: () {}),
+                    _buildMenuItem(Icons.description_outlined, 'Terms & Privacy', 'Our guidelines', onTap: () {}),
+                  ]),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Log Out Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      onPressed: () async {
+                        await firebase_auth.FirebaseAuth.instance.signOut();
+                        if (mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (route) => false);
+                      },
+                      icon: const Icon(Icons.logout_rounded, color: Colors.red),
+                      label: Text('Log Out From Account', style: GoogleFonts.inter(color: Colors.red, fontWeight: FontWeight.w700, letterSpacing: -0.3)),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.all(16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        backgroundColor: Colors.red.withOpacity(0.05),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 100),
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVerificationCard() {
+    return Container(
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        gradient: LinearGradient(
+          colors: widget.isVerified 
+              ? [Colors.green.shade400, Colors.green.shade600]
+              : [Colors.orange.shade400, Colors.red.shade600],
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: (widget.isVerified ? Colors.green : Colors.red).withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                widget.isVerified ? Icons.verified_rounded : Icons.gpp_maybe_rounded,
+                color: widget.isVerified ? Colors.green : Colors.red,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.isVerified ? 'Profile Verified (प्रोफाइल प्रमाणित)' : 'Incomplete KYC (केवाइसी बाँकी)',
+                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  Text(
+                    widget.isVerified 
+                        ? 'Your identity is fully confirmed.' 
+                        : 'Verify now to gain more trust (प्रमाणित गर्नुहोस्)',
+                    style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            ),
+            if (!widget.isVerified)
+              IconButton(
+                icon: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KycScreen())),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        label,
-        style: GoogleFonts.outfit(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-           color: Colors.grey[600],
-           letterSpacing: 0.5,
+  Widget _buildMenuSection(String title, List<Widget> items) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8, bottom: 12),
+          child: Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: Colors.grey[400],
+              letterSpacing: 1.2,
+            ),
+          ),
         ),
-      ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(children: items),
+        ),
+      ],
     );
   }
 
-  Widget _buildProfileMenuItem(
-    BuildContext context,
-    IconData icon,
-    String title,
-    Color color, {
-    bool showArrow = true,
-    VoidCallback? onTap,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  title,
-                  style: GoogleFonts.outfit(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.primaryTextColor,
-                  ),
-                ),
-              ),
-              if (showArrow)
-                Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.grey[300],
-                  size: 16,
-                ),
-            ],
-          ),
+  Widget _buildMenuItem(IconData icon, String title, String subtitle, {VoidCallback? onTap, Color? color}) {
+    return ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: (color ?? AppTheme.brandColor).withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
         ),
+        child: Icon(icon, color: color ?? AppTheme.brandColor, size: 20),
       ),
+      title: Text(
+        title,
+        style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: const Color(0xFF1E1E1E), letterSpacing: -0.3),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500], letterSpacing: -0.2),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
     );
   }
 }
