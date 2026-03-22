@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,10 +10,13 @@ import 'main_screen.dart';
 class VerifyPhoneScreen extends StatefulWidget {
   final String phoneNumber;
   final String verificationId;
+  final int? resendToken;
+
   const VerifyPhoneScreen({
     super.key,
     required this.phoneNumber,
     required this.verificationId,
+    this.resendToken,
   });
 
   @override
@@ -26,18 +30,47 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
   );
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
   bool _isLoading = false;
+  
+  // Timer for OTP resend
+  Timer? _timer;
+  int _timerSeconds = 60;
+  bool _canResend = false;
+  late String _currentVerificationId;
 
   @override
   void initState() {
     super.initState();
+    _currentVerificationId = widget.verificationId;
+    _startTimer();
     // Secure OTP screen from screenshots/recordings
     SecurityUtils.setSecure(true);
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    setState(() {
+      _timerSeconds = 60;
+      _canResend = false;
+    });
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_timerSeconds == 0) {
+        setState(() {
+          _timer?.cancel();
+          _canResend = true;
+        });
+      } else {
+        setState(() {
+          _timerSeconds--;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
     // Disable secure mode
     SecurityUtils.setSecure(false);
+    _timer?.cancel();
     for (var controller in _controllers) {
       controller.dispose();
     }
@@ -45,6 +78,38 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
       node.dispose();
     }
     super.dispose();
+  }
+
+  Future<void> _resendOtp() async {
+    if (!_canResend) return;
+
+    setState(() => _isLoading = true);
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: widget.phoneNumber,
+        forceResendingToken: widget.resendToken,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await FirebaseAuth.instance.signInWithCredential(credential);
+          if (mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainScreen()), (route) => false);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Verification failed: ${e.message}', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+        },
+        codeSent: (String newId, int? resendToken) {
+          setState(() {
+            _isLoading = false;
+            _currentVerificationId = newId;
+          });
+          _startTimer();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Verification code resent!', style: GoogleFonts.outfit()), backgroundColor: AppTheme.brandColor, behavior: SnackBarBehavior.floating));
+        },
+        codeAutoRetrievalTimeout: (String id) {},
+      );
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+    }
   }
 
   Future<void> _verifyOtp() async {
@@ -64,7 +129,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
 
     try {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: widget.verificationId,
+        verificationId: _currentVerificationId,
         smsCode: otp,
       );
 
@@ -210,20 +275,20 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                   Column(
                     children: [
                       Text(
-                        "Didn't receive the code?",
+                        _canResend 
+                            ? "Didn't receive the code?"
+                            : "Resend code in $_timerSeconds seconds",
                         style: GoogleFonts.outfit(
                           color: AppTheme.secondaryTextColor,
                           fontSize: 14,
                         ),
                       ),
                       TextButton(
-                        onPressed: () {
-                          // Implement resend logic
-                        },
+                        onPressed: _canResend ? _resendOtp : null,
                         child: Text(
                           'Resend Code',
                           style: GoogleFonts.outfit(
-                            color: AppTheme.brandColor,
+                            color: _canResend ? AppTheme.brandColor : Colors.grey,
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
                           ),

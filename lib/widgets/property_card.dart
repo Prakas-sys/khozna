@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import '../theme/app_theme.dart';
-import '../screens/property_details_screen.dart';
-import '../screens/login_screen.dart';
-import '../screens/kyc_screen.dart';
 import '../screens/chat_screen.dart';
+import '../screens/kyc_screen.dart';
+import '../screens/login_screen.dart';
+import '../screens/property_details_screen.dart';
+import '../theme/app_theme.dart';
 import 'favourite_button.dart';
 
 class PropertyCard extends StatelessWidget {
@@ -22,11 +23,8 @@ class PropertyCard extends StatelessWidget {
   final String floor;
   final String description;
   final List<String> images;
-  final bool isFullWidth;
   final String ownerId;
   final String status;
-  final String ownerName;
-  final String ownerAvatar;
 
   const PropertyCard({
     super.key,
@@ -41,42 +39,50 @@ class PropertyCard extends StatelessWidget {
     this.floor = 'N/A',
     this.description = '',
     this.images = const [],
-    this.isFullWidth = false,
     this.ownerId = '',
     this.status = 'available',
-    this.ownerName = 'Khozna Owner',
-    this.ownerAvatar = 'https://i.pravatar.cc/150?img=47',
   });
 
-  Future<void> _checkAuthAndNavigate(BuildContext context, Widget screen) async {
+  void _checkAuthAndNavigate(BuildContext context, Widget destination) {
     if (FirebaseAuth.instance.currentUser == null) {
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
-      return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => destination),
+      );
     }
-    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isBooked = status == 'booked';
-    final String currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-    final bool isMyProperty = ownerId == currentUserId;
-
     return GestureDetector(
       onTap: () async {
+        // HAPTIC FEEDBACK
+        HapticFeedback.lightImpact();
+
+        // AUTH CHECK
         if (FirebaseAuth.instance.currentUser == null) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+          if (context.mounted) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+          }
           return;
         }
 
+        // KYC CHECK - Real check from Supabase
         final userId = FirebaseAuth.instance.currentUser!.uid;
         final profile = await Supabase.instance.client.from('profiles').select('kyc_status').eq('id', userId).single();
         
         if (profile['kyc_status'] != 'verified') {
+          // If not verified, show KYC directly as requested
           if (context.mounted) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const KycScreen()));
           }
         } else {
+          // If verified, show details
           if (context.mounted) {
             Navigator.push(
               context,
@@ -93,8 +99,6 @@ class PropertyCard extends StatelessWidget {
                   area: area,
                   floor: floor,
                   description: description,
-                  ownerId: ownerId,
-                  status: status,
                 ),
               ),
             );
@@ -102,7 +106,7 @@ class PropertyCard extends StatelessWidget {
         }
       },
       child: Container(
-        width: isFullWidth ? double.infinity : 260,
+        width: 260,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -121,72 +125,61 @@ class PropertyCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // --- Image (unchanged height) ---
               Stack(
                 children: [
-                  ColorFiltered(
-                    colorFilter: isBooked 
-                        ? ColorFilter.mode(Colors.black.withValues(alpha: 0.2), BlendMode.darken)
-                        : const ColorFilter.mode(Colors.transparent, BlendMode.multiply),
-                    child: SizedBox(
-                      height: 190,
-                      width: double.infinity,
+                  SizedBox(
+                    height: 190,
+                    width: double.infinity,
+                    child: Hero(
+                      tag: id,
                       child: Image.network(imageUrl, fit: BoxFit.cover),
                     ),
                   ),
+                  // Status Badges
                   Positioned(
                     top: 10,
                     left: 10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: isMyProperty 
-                            ? Colors.blue 
-                            : isBooked 
-                                ? Colors.red 
-                                : const Color(0xFF2ECC71),
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
+                    child: Builder(
+                      builder: (context) {
+                        final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+                        final isMyProperty = ownerId == currentUserId;
+                        final isBooked = status == 'booked';
+
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: isMyProperty 
+                                ? Colors.blue 
+                                : isBooked 
+                                    ? Colors.red 
+                                    : const Color(0xFF2ECC71),
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 1),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Text(
-                        isMyProperty 
-                            ? 'Your Ad (तपाईंको विज्ञापन)' 
-                            : isBooked 
-                                ? 'Booked' 
-                                : 'For Rent',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 11.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                          child: Text(
+                            isMyProperty 
+                                ? 'Your Ad (तपाईंको विज्ञापन)' 
+                                : isBooked 
+                                    ? 'Booked' 
+                                    : 'For Rent',
+                            style: GoogleFonts.outfit(
+                              color: Colors.white,
+                              fontSize: 11.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      }
                     ),
                   ),
-                  if (isMyProperty)
-                    Positioned(
-                      top: 10,
-                      left: 75,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          'Your Ad',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
+                  // Favourite button
                   Positioned(
                     top: 6,
                     right: 10,
@@ -194,11 +187,13 @@ class PropertyCard extends StatelessWidget {
                   ),
                 ],
               ),
+              // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 1, 12, 12),
+                padding: const EdgeInsets.fromLTRB(12, 1, 12, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Title + Price
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -240,33 +235,88 @@ class PropertyCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 4),
+                    // Location + Amenity icons
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 13),
+                            const Icon(
+                              Icons.place_outlined,
+                              color: AppTheme.brandColor,
+                              size: 13,
+                            ),
                             const SizedBox(width: 2),
                             Text(
                               location,
-                              style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[600]),
+                              style: GoogleFonts.outfit(
+                                fontSize: 11,
+                                color: Colors.grey[600],
+                              ),
                             ),
                           ],
                         ),
                         Row(
                           children: [
-                            _buildInfoIcon(Icons.bed_outlined, 'Bed'),
+                            Column(
+                              children: [
+                                const Icon(
+                                  Icons.bed_outlined,
+                                  color: AppTheme.brandColor,
+                                  size: 14,
+                                ),
+                                Text(
+                                  'Bed',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 8,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              ],
+                            ),
                             const SizedBox(width: 8),
-                            _buildInfoIcon(Icons.directions_car_outlined, 'Parking'),
+                            Column(
+                              children: [
+                                const Icon(
+                                  Icons.directions_car_outlined,
+                                  color: AppTheme.brandColor,
+                                  size: 14,
+                                ),
+                                Text(
+                                  'Parking',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 8,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              ],
+                            ),
                             const SizedBox(width: 8),
-                            _buildInfoIcon(Icons.wifi, 'Wifi'),
+                            Column(
+                              children: [
+                                const Icon(
+                                  Icons.wifi,
+                                  color: AppTheme.brandColor,
+                                  size: 14,
+                                ),
+                                Text(
+                                  'Wifi',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 8,
+                                    color: Colors.grey[700],
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    // Action Buttons (Hidden if booked)
-                    if (!isBooked)
+                    // Action Buttons
                     Row(
                       children: [
                         Expanded(
@@ -285,8 +335,6 @@ class PropertyCard extends StatelessWidget {
                                 area: area,
                                 floor: floor,
                                 description: description,
-                                ownerId: ownerId,
-                                status: status,
                               ),
                             ),
                             icon: const Icon(Icons.directions_walk, size: 17),
@@ -316,11 +364,11 @@ class PropertyCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: isMyProperty ? null : () => _checkAuthAndNavigate(
+                            onPressed: () => _checkAuthAndNavigate(
                               context,
-                              ChatScreen(
-                                name: ownerName,
-                                avatar: ownerAvatar,
+                              const ChatScreen(
+                                name: 'Jenny Wilson',
+                                avatar: 'https://i.pravatar.cc/150?img=47',
                                 online: true,
                               ),
                             ),
@@ -328,8 +376,8 @@ class PropertyCard extends StatelessWidget {
                               'assets/icons/message.svg',
                               width: 17,
                               height: 17,
-                              colorFilter: ColorFilter.mode(
-                                isMyProperty ? Colors.grey : Colors.white,
+                              colorFilter: const ColorFilter.mode(
+                                Colors.white,
                                 BlendMode.srcIn,
                               ),
                             ),
@@ -341,8 +389,8 @@ class PropertyCard extends StatelessWidget {
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: isMyProperty ? Colors.grey[200] : AppTheme.brandColor,
-                              foregroundColor: isMyProperty ? Colors.grey : Colors.white,
+                              backgroundColor: AppTheme.brandColor,
+                              foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
@@ -357,25 +405,6 @@ class PropertyCard extends StatelessWidget {
                           ),
                         ),
                       ],
-                    )
-                    else 
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Already Booked ❌',
-                          style: GoogleFonts.outfit(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
                     ),
                   ],
                 ),
@@ -384,22 +413,6 @@ class PropertyCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildInfoIcon(IconData icon, String label) {
-    return Column(
-      children: [
-        Icon(icon, color: AppTheme.brandColor, size: 14),
-        Text(
-          label,
-          style: GoogleFonts.outfit(
-            fontSize: 8,
-            color: Colors.grey[700],
-            fontWeight: FontWeight.w300,
-          ),
-        ),
-      ],
     );
   }
 }

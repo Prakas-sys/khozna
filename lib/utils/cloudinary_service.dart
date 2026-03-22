@@ -2,14 +2,15 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CloudinaryService {
-  static const String cloudName = 'dqxqfcicx';
-  static const String apiKey = '335356127597519';
+  static final String cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
+  static final String apiKey = dotenv.env['CLOUDINARY_API_KEY'] ?? '';
   
   // For security, unsigned uploads are recommended for client-side apps.
   // You should create an "unsigned upload preset" in your Cloudinary Dashboard.
-  static const String uploadPreset = 'khozna_preset'; 
+  static final String uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? ''; 
 
   /// Uploads any image to Cloudinary and returns the URL.
   static Future<String?> uploadImage(File imageFile) async {

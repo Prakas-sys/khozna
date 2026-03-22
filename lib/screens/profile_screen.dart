@@ -229,15 +229,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: TextButton.icon(
-                      onPressed: () async {
-                        await firebase_auth.FirebaseAuth.instance.signOut();
-                        if (mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (route) => false);
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            title: Text('Log Out', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black)),
+                            content: Text('Are you sure you want to log out of Khozna?', style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14)),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                              ),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  Navigator.pop(context); // Close dialog
+                                  await firebase_auth.FirebaseAuth.instance.signOut();
+                                  if (mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (route) => false);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  elevation: 0,
+                                ),
+                                child: Text('Log Out', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                              ),
+                            ],
+                          ),
+                        );
                       },
                       icon: const Icon(Icons.logout_rounded, color: Colors.red),
                       label: Text('Log Out From Account', style: GoogleFonts.inter(color: Colors.red, fontWeight: FontWeight.w700, letterSpacing: -0.3)),
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.all(16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         backgroundColor: Colors.red.withOpacity(0.05),
                       ),
                     ),
@@ -289,14 +316,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.isVerified ? 'Profile Verified (प्रोफाइल प्रमाणित)' : 'Incomplete KYC (केवाइसी बाँकी)',
-                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
+                    widget.isVerified ? 'PROFILE VERIFIED (प्रोफाइल प्रमाणित)' : 'INCOMPLETE KYC (केवाइसी बाँकी)',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black87, letterSpacing: -0.3),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     widget.isVerified 
                         ? 'Your identity is fully confirmed.' 
                         : 'Verify now to gain more trust (प्रमाणित गर्नुहोस्)',
-                    style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
+                    style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500),
                   ),
                 ],
               ),

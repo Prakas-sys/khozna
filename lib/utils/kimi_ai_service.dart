@@ -1,13 +1,14 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class KimiAiService {
   // Switched to OpenRouter for 100% Forever Free Cloud AI
   static const String _baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
   
-  final String apiKey = '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';
+  final String apiKey = dotenv.env['AI_API_KEY'] ?? '';
 
-  KimiAiService({String? apiKey}); // Key is now hardcoded for stability
+  KimiAiService({String? apiKey}); // Key is now pulled from .env for security
 
   /// 100% FREE Cloud AI Request (via OpenRouter Free Models)
   Future<String> _getAiResponse(String prompt, {required String systemPrompt}) async {
@@ -64,7 +65,45 @@ class KimiAiService {
   }
 
   /// 4. AI Chatbot
-  /// 5. AI Location Expert (Verify & Nearby Analysis)
+  Future<String> getChatbotResponse(String message) async {
+    const String systemPrompt = """
+    You are Khozna AI, a helpful rental assistant for Nepal. 
+    You help users find rooms, flats, houses, and land in Nepal.
+    You know about major areas like Kathmandu, Lalitpur, Bhaktapur, Pokhara, etc.
+    Answer in a mix of English and Nepali (Romanized or Devanagari) to sound friendly and local.
+    Keep answers concise and helpful.
+    """;
+    return _getAiResponse(message, systemPrompt: systemPrompt);
+  }
+
+  /// 5. AI Description Generator
+  Future<String> generateDescription({
+    required String title,
+    required String category,
+    required String area,
+    required String landmark,
+    required List<String> amenities,
+  }) async {
+    final String prompt = """
+    Generate a professional and catchy property description for a rental listing in Nepal.
+    Details:
+    - Title: $title
+    - Category: $category
+    - Location: $area, near $landmark
+    - Amenities: ${amenities.join(', ')}
+    
+    The description should:
+    1. Have a catchy opening.
+    2. Highlight the key benefits of the location and amenities.
+    3. Mention that it's a great opportunity for tenants.
+    4. Be around 3-4 sentences long.
+    5. Include a mix of English and Nepali for a local feel.
+    """;
+    
+    return _getAiResponse(prompt, systemPrompt: "Marketing expert for Real Estate in Nepal.");
+  }
+
+  /// 6. AI Location Expert (Verify & Nearby Analysis)
   Future<String> verifyLocation(String area, String landmark) async {
     String prompt = """
     Location Area: $area

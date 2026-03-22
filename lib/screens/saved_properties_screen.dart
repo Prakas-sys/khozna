@@ -84,10 +84,7 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                             area: p['sq_ft'] ?? '0',
                             ownerId: p['owner_id'] ?? '',
                             status: p['status'] ?? 'available',
-                            ownerName: p['profiles']?['full_name'] ?? 'Khozna Owner',
-                            ownerAvatar: p['profiles']?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=47',
                             images: images.map((i) => i['image_url'].toString()).toList(),
-                            isFullWidth: true,
                           ),
                         );
                       },

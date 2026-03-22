@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(false);
+    SecurityUtils.setSecure(true); // Enabled as per Khozna safety standards
     _startCarouselTimer();
   }
 
@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    SecurityUtils.setSecure(false);
+    SecurityUtils.setSecure(false); // Disable when leaving screen
     _carouselTimer?.cancel();
     _illustrationPageController.dispose();
     _phoneFocusNode.dispose();
@@ -135,7 +135,11 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         codeSent: (String verificationId, int? resendToken) {
           setState(() => _isLoading = false);
-          Navigator.push(context, MaterialPageRoute(builder: (_) => VerifyPhoneScreen(phoneNumber: fullPhone, verificationId: verificationId)));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => VerifyPhoneScreen(
+            phoneNumber: fullPhone, 
+            verificationId: verificationId,
+            resendToken: resendToken,
+          )));
         },
         codeAutoRetrievalTimeout: (String verificationId) {},
       );
@@ -146,7 +150,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signInWithFacebook() async {
-    if (!_agreeToTerms) return;
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please agree to terms to continue', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      return;
+    }
     setState(() => _isLoading = true);
     try {
       final LoginResult result = await FacebookAuth.instance.login(permissions: ['public_profile', 'email']);
@@ -159,16 +166,28 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Facebook login cancelled.', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
       }
-    } catch (e) { setState(() => _isLoading = false); }
+    } catch (e) { 
+      setState(() => _isLoading = false); 
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Facebook Login Error: $e', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+    }
   }
 
   Future<void> _signInWithGoogle() async {
-    if (!_agreeToTerms) return;
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please agree to terms to continue', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      return;
+    }
     setState(() => _isLoading = true);
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) { setState(() => _isLoading = false); return; }
+      final GoogleSignInAccount? googleUser = await GoogleSignIn(
+        serverClientId: '543455945266-ospb11mcl3ghpkrd8cnv6phs3l0hatt6.apps.googleusercontent.com',
+      ).signIn();
+      if (googleUser == null) { 
+        setState(() => _isLoading = false); 
+        return; 
+      }
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
       final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
@@ -176,7 +195,10 @@ class _LoginScreenState extends State<LoginScreen> {
         await SupabaseService.syncUserWithSupabase(userCredential.user!);
         if (mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainScreen()), (route) => false);
       }
-    } catch (e) { setState(() => _isLoading = false); }
+    } catch (e) { 
+      setState(() => _isLoading = false); 
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google Login Error: $e', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+    }
   }
 
   @override
@@ -448,9 +470,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 24),
                           child: Row(
                             children: [
-                              Expanded(child: _buildSocialBtn('assets/icons/google_g.svg', 'Google', _signInWithGoogle)),
+                              Expanded(child: _buildSocialBtn('assets/icons/google_g.svg', 'Google', _isLoading ? () {} : _signInWithGoogle)),
                               const SizedBox(width: 16),
-                              Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _signInWithFacebook)),
+                              Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _isLoading ? () {} : _signInWithFacebook)),
                             ],
                           ),
                         ),

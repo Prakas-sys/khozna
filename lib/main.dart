@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
@@ -22,10 +23,19 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
-void main() {
+
+void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   
+  // Load environment variables for security (April 1 Launch Ready)
+  try {
+    await dotenv.load(fileName: ".env");
+    debugPrint("--- .ENV LOADED SUCCESSFULLY ---");
+  } catch (e) {
+    debugPrint("--- ERROR LOADING .ENV: $e ---");
+  }
+
   // Pre-load fonts strategy (Non-blocking)
   GoogleFonts.config.allowRuntimeFetching = true;
 
@@ -46,8 +56,8 @@ Future<void> _initializeServices() async {
   // 1. Supabase (Crucial)
   try {
     await supabase.Supabase.initialize(
-      url: 'https://qjpeablwokiuhfaopdbi.supabase.co',
-      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcGVhYmx3b2tpdWhmYW9wZGJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1NjkxMjgsImV4cCI6MjA4NzE0NTEyOH0.Sz3K67ClV8ZfgCdabA_cFfh_wa6X-Q-fHylYJ8utTLI',
+      url: dotenv.env['SUPABASE_URL'] ?? '',
+      anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
     );
     debugPrint('--- SUPABASE INITIALIZED ---');
   } catch (e) {

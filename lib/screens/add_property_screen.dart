@@ -26,6 +26,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final TextEditingController _areaController = TextEditingController();
   final TextEditingController _landmarkController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   // Location State
   bool _isLocating = false;
@@ -40,13 +41,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   bool _isPublishing = false;
   
   // AI Service (Using a placeholder key for now)
-  final KimiAiService _aiService = KimiAiService(apiKey: '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');
+  final KimiAiService _aiService = KimiAiService();
   bool _isEstimatingPrice = false;
   String? _aiPriceSuggestion;
   
   // New Location Analysis State
   bool _isAnalyzingLocation = false;
   String? _aiLocationAnalysis;
+  
+  // AI Description State
+  bool _isGeneratingDescription = false;
 
   @override
   void dispose() {
@@ -54,6 +58,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     _areaController.dispose();
     _landmarkController.dispose();
     _priceController.dispose();
+    _descriptionController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -110,6 +115,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         'price': _priceController.text,
         'is_negotiable': _isNegotiable,
         'amenities': _selectedAmenities,
+        'description': _descriptionController.text,
         'latitude': _latitude,
         'longitude': _longitude,
         'status': 'available',
@@ -271,6 +277,52 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 32),
         _buildLabel('विज्ञापनको नाम (Title)', true),
         _buildTextField('उदा: सानेपामा राम्रो २ कोठा खाली छ', controller: _titleController),
+        const SizedBox(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildLabel('प्रोपर्टी विवरण (Description)', false),
+            TextButton.icon(
+              onPressed: _isGeneratingDescription ? null : () async {
+                if (_titleController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter a title first')),
+                  );
+                  return;
+                }
+                setState(() => _isGeneratingDescription = true);
+                try {
+                  final description = await _aiService.generateDescription(
+                    title: _titleController.text,
+                    category: _selectedCategory ?? 'Room',
+                    area: _areaController.text.isEmpty ? "Kathmandu" : _areaController.text,
+                    landmark: _landmarkController.text.isEmpty ? "Nearby" : _landmarkController.text,
+                    amenities: _selectedAmenities,
+                  );
+                  setState(() => _descriptionController.text = description);
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('AI Generation failed: $e')),
+                  );
+                } finally {
+                  setState(() => _isGeneratingDescription = false);
+                }
+              },
+              icon: _isGeneratingDescription 
+                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.brandColor))
+                : const Icon(Icons.auto_awesome, size: 16, color: AppTheme.brandColor),
+              label: Text(
+                _isGeneratingDescription ? 'Generating...' : 'AI लेख्नुहोस्',
+                style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        _buildTextField(
+          'प्रोपर्टीको बारेमा थप जानकारी...', 
+          controller: _descriptionController,
+          maxLines: 4,
+        ),
       ],
     );
   }
@@ -751,9 +803,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildTextField(String hint, {String? prefix, TextEditingController? controller}) {
+  Widget _buildTextField(String hint, {String? prefix, TextEditingController? controller, int maxLines = 1}) {
     return TextFormField(
       controller: controller,
+      maxLines: maxLines,
       decoration: InputDecoration(
         hintText: hint,
         prefixText: prefix,

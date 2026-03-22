@@ -255,7 +255,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               onPageChanged: (index) => setState(() => _currentImageIndex = index),
               itemCount: displayImages.length,
               itemBuilder: (context, index) {
-                return Image.network(displayImages[index], fit: BoxFit.cover);
+                final image = Image.network(displayImages[index], fit: BoxFit.cover);
+                if (index == 0) {
+                  return Hero(tag: widget.id, child: image);
+                }
+                return image;
               },
             ),
             // Bottom gradient for better contrast

@@ -1,25 +1,53 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
-import 'property_details_screen.dart';
-import 'search_screen.dart';
-import 'filter_results_screen.dart';
-import 'chat_screen.dart';
-import 'kyc_screen.dart';
-import '../widgets/favourite_button.dart';
+import '../widgets/property_card.dart';
+import '../widgets/skeleton_card.dart';
 import '../widgets/voice_search_overlay.dart';
 import 'notifications_screen.dart';
 import 'login_screen.dart';
+import 'search_screen.dart';
+import 'filter_results_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // Caching futures to prevent flickering on rebuild
+  final List<Future<List<Map<String, dynamic>>>> _sectionFutures = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeFutures();
+  }
+
+  void _initializeFutures() {
+    final client = Supabase.instance.client;
+    for (int i = 0; i < 10; i++) {
+      final query = client
+          .from('properties')
+          .select('*, property_images(image_url)');
+      
+      final orderedQuery = i % 2 == 0 
+          ? query.order('created_at', ascending: false)
+          : query.order('price', ascending: true);
+          
+      _sectionFutures.add(orderedQuery.then((data) => List<Map<String, dynamic>>.from(data)));
+    }
+  }
+
   void _checkAuthAndNavigate(BuildContext context, Widget destination) {
+    HapticFeedback.lightImpact();
     if (FirebaseAuth.instance.currentUser == null) {
       Navigator.push(
         context,
@@ -48,7 +76,7 @@ class HomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           child: Image.asset(
             'assets/images/original logo.png',
-            height: 48, // Increased from 40 to make it larger as requested
+            height: 48,
             fit: BoxFit.contain,
           ),
         ),
@@ -62,16 +90,16 @@ class HomeScreen extends StatelessWidget {
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: const EdgeInsets.all(4), // Even tighter padding
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(10), // Slimmer corners
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.grey.shade200, width: 1.0),
                 ),
                 child: const Icon(
                   CupertinoIcons.bell,
                   color: Colors.black87,
-                  size: 28, // Prominent bell icon
+                  size: 28,
                 ),
               ),
             ),
@@ -80,15 +108,10 @@ class HomeScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            24.0,
-            0,
-            24.0,
-            40.0,
-          ), // Increased bottom padding to ensure nothing is below nav bar
+          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 40.0),
           child: Column(
             children: [
-              const SizedBox(height: 32), // Pushed hero section down as requested
+              const SizedBox(height: 32),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -129,10 +152,12 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 68), // Adjusted down to keep hero section balanced
+              const SizedBox(height: 68),
               GestureDetector(
-                onTap: () =>
-                    _checkAuthAndNavigate(context, const SearchScreen()),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  _checkAuthAndNavigate(context, const SearchScreen());
+                },
                 child: Container(
                   height: 52,
                   padding: const EdgeInsets.only(left: 16, right: 6),
@@ -174,13 +199,14 @@ class HomeScreen extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () {
+                          HapticFeedback.selectionClick();
                           showModalBottomSheet(
                             context: context,
                             backgroundColor: Colors.transparent,
                             isScrollControlled: true,
                             builder: (context) => VoiceSearchOverlay(
                               onResult: (text) {
-                                Navigator.pop(context); // Close overlay
+                                Navigator.pop(context);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -209,8 +235,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 45), // Reduced from 85 to bring cards back up
-              // 10x10 HORIZONTAL GRID SYSTEM
+              const SizedBox(height: 45),
               ...List.generate(10, (index) {
                 final titles = [
                   'Verified Listings',
@@ -228,18 +253,9 @@ class HomeScreen extends StatelessWidget {
                 final title = titles[index];
                 final subtitle = 'Explore high-quality properties in $title';
                 
-                // Variation in queries for demo data diversity
-                final query = Supabase.instance.client
-                    .from('properties')
-                    .select('*, property_images(image_url)');
-                
-                final orderedQuery = index % 2 == 0 
-                    ? query.order('created_at', ascending: false)
-                    : query.order('price', ascending: true);
-
                 return Column(
                   children: [
-                    _buildHorizontalSection(context, title, subtitle, orderedQuery),
+                    _buildHorizontalSection(context, title, subtitle, _sectionFutures[index]),
                     const SizedBox(height: 40),
                   ],
                 );
@@ -251,27 +267,23 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalSection(BuildContext context, String title, String subtitle, dynamic future) {
+  Widget _buildHorizontalSection(BuildContext context, String title, String subtitle, Future<List<Map<String, dynamic>>> future) {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
+            Text(
+              title,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
             ),
             InkWell(
               onTap: () {
+                HapticFeedback.lightImpact();
                 _checkAuthAndNavigate(
                   context,
                   FilterResultsScreen(
@@ -302,9 +314,9 @@ class HomeScreen extends StatelessWidget {
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: 10,
-                  itemBuilder: (context, index) => Padding(
+                  itemBuilder: (context, index) => const Padding(
                     padding: const EdgeInsets.only(right: 16),
-                    child: _buildSkeletonCard(context),
+                    child: SkeletonCard(),
                   ),
                 ),
               );
@@ -312,7 +324,7 @@ class HomeScreen extends StatelessWidget {
 
             final List<Map<String, dynamic>> properties = List<Map<String, dynamic>>.from(snapshot.data ?? []);
 
-            // Add hardcoded demo property to the first row for testing
+            // Add hardcoded demo property to the first row for testing if empty
             if (title == 'Verified Listings' && properties.isEmpty) {
                properties.add({
                 'id': 'demo-property-id',
@@ -335,7 +347,7 @@ class HomeScreen extends StatelessWidget {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
-                itemCount: 10, // ALWAYS show 10 items
+                itemCount: 10, 
                 itemBuilder: (context, index) {
                   if (index < properties.length) {
                     final p = properties[index];
@@ -346,27 +358,26 @@ class HomeScreen extends StatelessWidget {
 
                     return Padding(
                       padding: const EdgeInsets.only(right: 16),
-                      child: _buildModernCard(
-                        context,
-                        p['id'],
-                        mainImage,
-                        p['title'],
-                        p['area_name'],
-                        'रू ${p['price']}',
-                        p['bedrooms'] ?? 0,
-                        p['bathrooms'] ?? 0,
-                        p['sq_ft'] ?? '0',
-                        p['floor'] ?? 'N/A',
-                        p['description'] ?? '',
-                        images.map((i) => i['image_url'].toString()).toList(),
-                        p['owner_id'] ?? '',
-                        p['status'] ?? 'available',
+                      child: PropertyCard(
+                        id: p['id'],
+                        imageUrl: mainImage,
+                        title: p['title'],
+                        location: p['area_name'],
+                        price: 'रू ${p['price']}',
+                        bedrooms: p['bedrooms'] ?? 0,
+                        bathrooms: p['bathrooms'] ?? 0,
+                        area: p['sq_ft'] ?? '0',
+                        floor: p['floor'] ?? 'N/A',
+                        description: p['description'] ?? '',
+                        images: images.map((i) => i['image_url'].toString()).toList(),
+                        ownerId: p['owner_id'] ?? '',
+                        status: p['status'] ?? 'available',
                       ),
                     );
                   } else {
-                    return Padding(
+                    return const Padding(
                       padding: const EdgeInsets.only(right: 16),
-                      child: _buildSkeletonCard(context),
+                      child: SkeletonCard(),
                     );
                   }
                 },
@@ -375,462 +386,6 @@ class HomeScreen extends StatelessWidget {
           },
         ),
       ],
-    );
-  }
-
-
-  Widget _buildSkeletonCard(BuildContext context, {bool isFullWidth = false}) {
-    return Container(
-      width: isFullWidth ? double.infinity : 260,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFF2F2F2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image Placeholder
-          Container(
-            height: 190,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF5F5F5),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title and Price line
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      width: 120,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5F5F5),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                    Container(
-                      width: 60,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5F5F5),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                // Location line
-                Container(
-                  width: 100,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Button lines
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF5F5F5),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF5F5F5),
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildModernCard(
-    BuildContext context,
-    String id,
-    String imageUrl,
-    String title,
-    String location,
-    String price,
-    int bedrooms,
-    int bathrooms,
-    String area,
-    String floor,
-    String description,
-    List<String> images,
-    String ownerId,
-    String status,
-  ) {
-    return GestureDetector(
-      onTap: () async {
-        // AUTH CHECK
-        if (FirebaseAuth.instance.currentUser == null) {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
-          return;
-        }
-
-        // KYC CHECK - Real check from Supabase
-        final userId = FirebaseAuth.instance.currentUser!.uid;
-        final profile = await Supabase.instance.client.from('profiles').select('kyc_status').eq('id', userId).single();
-        
-        if (profile['kyc_status'] != 'verified') {
-          // If not verified, show KYC directly as requested
-          if (context.mounted) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const KycScreen()));
-          }
-        } else {
-          // If verified, show details
-          if (context.mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PropertyDetailsScreen(
-                  id: id,
-                  imageUrl: imageUrl,
-                  images: images,
-                  title: title,
-                  location: location,
-                  price: price,
-                  bedrooms: bedrooms,
-                  bathrooms: bathrooms,
-                  area: area,
-                  floor: floor,
-                  description: description,
-                ),
-              ),
-            );
-          }
-        }
-      },
-      child: Container(
-        width: 260,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFF2F2F2)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // --- Image (unchanged height) ---
-              Stack(
-                children: [
-                  SizedBox(
-                    height: 190,
-                    width: double.infinity,
-                    child: Image.network(imageUrl, fit: BoxFit.cover),
-                  ),
-                  // Status Badges
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    child: Builder(
-                      builder: (context) {
-                        final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-                        final isMyProperty = ownerId == currentUserId;
-                        final isBooked = status == 'booked';
-
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: isMyProperty 
-                                ? Colors.blue 
-                                : isBooked 
-                                    ? Colors.red 
-                                    : const Color(0xFF2ECC71),
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            isMyProperty 
-                                ? 'Your Ad (तपाईंको विज्ञापन)' 
-                                : isBooked 
-                                    ? 'Booked' 
-                                    : 'For Rent',
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 11.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        );
-                      }
-                    ),
-                  ),
-                  // Favourite button
-                  Positioned(
-                    top: 6,
-                    right: 10,
-                    child: FavouriteButton(propertyId: id),
-                  ),
-                ],
-              ),
-              // --- Content below image ---
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 1, 12, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title + Price
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: price,
-                                style: GoogleFonts.outfit(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.brandColor,
-                                ),
-                              ),
-                              TextSpan(
-                                text: '/mo',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    // Location + Amenity icons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.place_outlined,
-                              color: AppTheme.brandColor,
-                              size: 13,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              location,
-                              style: GoogleFonts.outfit(
-                                fontSize: 11,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Column(
-                              children: [
-                                Icon(
-                                  Icons.bed_outlined,
-                                  color: AppTheme.brandColor,
-                                  size: 14,
-                                ),
-                                Text(
-                                  'Bed',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 8,
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 8),
-                            Column(
-                              children: [
-                                Icon(
-                                  Icons.directions_car_outlined,
-                                  color: AppTheme.brandColor,
-                                  size: 14,
-                                ),
-                                Text(
-                                  'Parking',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 8,
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 8),
-                            Column(
-                              children: [
-                                Icon(
-                                  Icons.wifi,
-                                  color: AppTheme.brandColor,
-                                  size: 14,
-                                ),
-                                Text(
-                                  'Wifi',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 8,
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    // Action Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => _checkAuthAndNavigate(
-                              context,
-                              PropertyDetailsScreen(
-                                id: id,
-                                imageUrl: imageUrl,
-                                images: images,
-                                title: title,
-                                location: location,
-                                price: price,
-                                bedrooms: bedrooms,
-                                bathrooms: bathrooms,
-                                area: area,
-                                floor: floor,
-                                description: description,
-                              ),
-                            ),
-                            icon: const Icon(Icons.directions_walk, size: 17),
-                            label: Text(
-                              'Visit Now',
-                              style: GoogleFonts.outfit(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13.5,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.brandColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                side: BorderSide(
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                  width: 1.5,
-                                ),
-                              ),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => _checkAuthAndNavigate(
-                              context,
-                              const ChatScreen(
-                                name: 'Jenny Wilson',
-                                avatar: 'https://i.pravatar.cc/150?img=47',
-                                online: true,
-                              ),
-                            ),
-                            icon: SvgPicture.asset(
-                              'assets/icons/message.svg',
-                              width: 17,
-                              height: 17,
-                              colorFilter: const ColorFilter.mode(
-                                Colors.white,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            label: Text(
-                              'Message',
-                              style: GoogleFonts.outfit(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13.5,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.brandColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                side: BorderSide(
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                  width: 1.5,
-                                ),
-                              ),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
