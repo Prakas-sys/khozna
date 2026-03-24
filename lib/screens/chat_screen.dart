@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
+import 'boost_promotion_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final String name;
@@ -390,7 +391,44 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           // CHAT MESSAGES
           Expanded(
             child: _messages.isEmpty 
-              ? const SizedBox.shrink() // Removed bulky UI as requested
+              ? Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.symmetric(horizontal: 32),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.purple.withOpacity(0.1)),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.rocket_launch, color: Colors.purple, size: 32),
+                        const SizedBox(height: 12),
+                        Text('Get more inquiries! 🚀', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Boost your listing to get more visibility and faster replies.', 
+                          textAlign: TextAlign.center, 
+                          style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600]),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => const BoostPromotionScreen()));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.purple,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
+                          ),
+                          child: Text('Boost Now', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: _messages.length,

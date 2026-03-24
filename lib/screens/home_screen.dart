@@ -39,8 +39,8 @@ class _HomeScreenState extends State<HomeScreen> {
           .select('*, property_images(image_url)');
       
       final orderedQuery = i % 2 == 0 
-          ? query.order('created_at', ascending: false)
-          : query.order('price', ascending: true);
+          ? query.order('is_boosted', ascending: false).order('created_at', ascending: false)
+          : query.order('is_boosted', ascending: false).order('price', ascending: true);
           
       _sectionFutures.add(orderedQuery.then((data) => List<Map<String, dynamic>>.from(data)));
     }

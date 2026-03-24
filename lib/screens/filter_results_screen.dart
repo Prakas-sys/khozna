@@ -39,7 +39,7 @@ class FilterResultsScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: Supabase.instance.client.from('properties').select('*, property_images(image_url)').order('created_at', ascending: false),
+        future: Supabase.instance.client.from('properties').select('*, property_images(image_url)').order('is_boosted', ascending: false).order('created_at', ascending: false),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return ListView.builder(
