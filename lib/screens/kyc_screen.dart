@@ -38,6 +38,8 @@ class _KycScreenState extends State<KycScreen> {
   File? _selfieImage;
   final ImagePicker _picker = ImagePicker();
 
+  String? _authProvider;
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +56,10 @@ class _KycScreenState extends State<KycScreen> {
       final identities = user.identities ?? [];
       for (final identity in identities) {
         if (identity.provider == 'google') {
-          _isEmailVerified = true; // Google users are usually email-verified
+          _isEmailVerified = true;
+          _authProvider = 'google';
+        } else if (identity.provider == 'facebook') {
+          _authProvider = 'facebook';
         }
       }
       if (user.phone != null && user.phone!.isNotEmpty) {
@@ -286,6 +291,9 @@ class _KycScreenState extends State<KycScreen> {
           Icons.email_outlined,
           (v) => v!.isEmpty ? 'Required' : null,
           isVerified: _isEmailVerified,
+          providerLogo: _authProvider == 'google' 
+              ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png'
+              : null,
         ),
         const SizedBox(height: 24),
         _buildTextField(
@@ -312,7 +320,16 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, String? Function(String?)? validator, {TextInputType? keyboardType, List<TextInputFormatter>? inputFormatters, bool isVerified = false}) {
+  Widget _buildTextField(
+    TextEditingController controller, 
+    String label, 
+    IconData icon, 
+    String? Function(String?)? validator, {
+    TextInputType? keyboardType, 
+    List<TextInputFormatter>? inputFormatters, 
+    bool isVerified = false,
+    String? providerLogo,
+  }) {
     return TextFormField(
       controller: controller,
       validator: validator,
@@ -327,8 +344,13 @@ class _KycScreenState extends State<KycScreen> {
       ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w500), // Darker and larger label
-        prefixIcon: Icon(icon, color: AppTheme.brandColor, size: 22), // Slightly larger icon
+        labelStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w500),
+        prefixIcon: providerLogo != null 
+          ? Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Image.network(providerLogo, width: 20, height: 20),
+            )
+          : Icon(icon, color: AppTheme.brandColor, size: 22),
         suffixIcon: isVerified
             ? Padding(
                 padding: const EdgeInsets.only(right: 12.0),
@@ -336,23 +358,23 @@ class _KycScreenState extends State<KycScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Verified (प्रमाणित)',
+                      'Auto-filled (स्वत: भरियो)',
                       style: GoogleFonts.plusJakartaSans(
-                        color: Colors.green,
-                        fontSize: 12,
+                        color: Colors.blue,
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(width: 4),
-                    const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                    const Icon(Icons.verified_user_rounded, color: Colors.blue, size: 18),
                   ],
                 ),
               )
             : null,
         filled: true,
         fillColor: const Color(0xFFF8FAFC),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18), // Increased internal padding for height
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), // More rounded corners
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppTheme.brandColor, width: 1.5)),
       ),
