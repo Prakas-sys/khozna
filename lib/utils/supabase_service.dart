@@ -115,6 +115,19 @@ class SupabaseService {
     }
   }
 
+  /// Handles Google Sign-In using Supabase.
+  static Future<void> signInWithGoogle() async {
+    try {
+      await _client.auth.signInWithOAuth(
+        Provider.google,
+        redirectTo: 'io.supabase.flutterquickstart://login-callback/',
+      );
+    } catch (e) {
+      print('Supabase Google Sign-In Error: $e');
+      rethrow;
+    }
+  }
+
   /// Fetch all pending KYC verifications
   static Future<List<Map<String, dynamic>>> getPendingKycs() async {
     try {
@@ -162,6 +175,30 @@ class SupabaseService {
       return await _client.from('properties').select('*, profiles(full_name)').order('created_at', ascending: false);
     } catch (e) {
       print('Error fetching properties for admin: $e');
+      return [];
+    }
+  }
+
+  /// Fetch all users for management
+  static Future<List<Map<String, dynamic>>> getAllUsers() async {
+    try {
+      return await _client.from('profiles').select().order('created_at', ascending: false);
+    } catch (e) {
+      print('Error fetching users: $e');
+      return [];
+    }
+  }
+
+  /// Search users by name or phone
+  static Future<List<Map<String, dynamic>>> searchUsers(String query) async {
+    try {
+      return await _client
+          .from('profiles')
+          .select()
+          .or('full_name.ilike.%$query%,phone_number.ilike.%$query%')
+          .order('created_at', ascending: false);
+    } catch (e) {
+      print('Error searching users: $e');
       return [];
     }
   }

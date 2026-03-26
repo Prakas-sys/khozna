@@ -163,10 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     setState(() => _isLoading = true);
     try {
-      await supabase.Supabase.instance.client.auth.signInWithOAuth(
-        supabase.OAuthProvider.facebook,
-        redirectTo: 'com.khozna.khozna://login-callback/',
-      );
+      await SupabaseService.signInWithFacebook();
     } catch (e) { 
       setState(() => _isLoading = false); 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Facebook Login Error: $e', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/supabase_service.dart';
+import 'user_management_screen.dart';
 
 class OwnerDashboard extends StatefulWidget {
   const OwnerDashboard({super.key});
@@ -137,6 +138,10 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                     'Search or block users',
                     Icons.manage_accounts_outlined,
                     Colors.blue,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const UserManagementScreen()),
+                    ),
                   ),
                   const SizedBox(height: 40),
                   

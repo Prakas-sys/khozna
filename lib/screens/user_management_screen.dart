@@ -1,0 +1,124 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_theme.dart';
+import '../utils/supabase_service.dart';
+
+class UserManagementScreen extends StatefulWidget {
+  const UserManagementScreen({super.key});
+
+  @override
+  State<UserManagementScreen> createState() => _UserManagementScreenState();
+}
+
+class _UserManagementScreenState extends State<UserManagementScreen> {
+  late Future<List<Map<String, dynamic>>> _usersFuture;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  void _refresh() {
+    setState(() {
+      _usersFuture = SupabaseService.getAllUsers();
+    });
+  }
+
+  void _search(String query) {
+    setState(() {
+      _usersFuture = query.isEmpty 
+          ? SupabaseService.getAllUsers() 
+          : SupabaseService.searchUsers(query);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text('User Management', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _search,
+              decoration: InputDecoration(
+                hintText: 'Search by name or phone...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _usersFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final users = snapshot.data ?? [];
+          if (users.isEmpty) {
+            return Center(child: Text('No users found.', style: GoogleFonts.outfit(color: Colors.grey)));
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: users.length,
+            separatorBuilder: (context, index) => const Divider(height: 24),
+            itemBuilder: (context, index) {
+              final user = users[index];
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: CircleAvatar(
+                  radius: 24,
+                  backgroundColor: AppTheme.brandColor.withOpacity(0.1),
+                  backgroundImage: user['avatar_url'] != null ? NetworkImage(user['avatar_url']) : null,
+                  child: user['avatar_url'] == null 
+                      ? Text(user['full_name'][0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor)) 
+                      : null,
+                ),
+                title: Text(user['full_name'] ?? 'Unknown User', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(user['phone_number'] ?? 'No Phone', style: GoogleFonts.outfit(fontSize: 12)),
+                    Text(user['email'] ?? 'No Email', style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey)),
+                  ],
+                ),
+                trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(user['kyc_status']).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    user['kyc_status']?.toUpperCase() ?? 'NONE',
+                    style: TextStyle(color: _getStatusColor(user['kyc_status']), fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Color _getStatusColor(String? status) {
+    switch (status) {
+      case 'verified': return Colors.green;
+      case 'pending': return Colors.orange;
+      case 'rejected': return Colors.red;
+      default: return Colors.grey;
+    }
+  }
+}
