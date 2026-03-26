@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/cloudinary_service.dart';
-import '../utils/kimi_ai_service.dart';
+import '../utils/khozna_ai_service.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
@@ -40,8 +40,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final List<File> _selectedImages = [];
   bool _isPublishing = false;
   
-  // AI Service (Using a placeholder key for now)
-  final KimiAiService _aiService = KimiAiService();
+  // AI Service (Using Khozna AI)
+  final KhoznaAiService _aiService = KhoznaAiService();
   bool _isEstimatingPrice = false;
   String? _aiPriceSuggestion;
   

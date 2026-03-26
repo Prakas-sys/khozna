@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
-import '../utils/kimi_ai_service.dart';
+import '../utils/khozna_ai_service.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
@@ -20,7 +20,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     }
   ];
   
-  final KimiAiService _aiService = KimiAiService();
+  final KhoznaAiService _aiService = KhoznaAiService();
   bool _isTyping = false;
 
   void _sendMessage() async {

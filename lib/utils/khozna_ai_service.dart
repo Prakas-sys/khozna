@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-class KimiAiService {
+class KhoznaAiService {
   // Switched to OpenRouter for 100% Forever Free Cloud AI
   static const String _baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
   
   final String apiKey;
 
-  KimiAiService({String? apiKey}) : apiKey = apiKey ?? dotenv.env['AI_API_KEY'] ?? '';
+  KhoznaAiService({String? apiKey}) : apiKey = apiKey ?? dotenv.env['AI_API_KEY'] ?? '';
 
   /// 100% FREE Cloud AI Request (via OpenRouter Free Models)
   Future<String> _getAiResponse(String prompt, {required String systemPrompt}) async {

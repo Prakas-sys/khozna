@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
-import '../utils/kimi_ai_service.dart';
+import '../utils/khozna_ai_service.dart';
 import 'filter_results_screen.dart';
 import 'ai_chat_screen.dart';
 
@@ -19,7 +19,7 @@ class _SearchScreenState extends State<SearchScreen> {
   late TextEditingController _searchController;
   
   // AI Search State
-  final KimiAiService _aiService = KimiAiService();
+  final KhoznaAiService _aiService = KhoznaAiService();
   bool _isAiSearching = false;
   String? _aiSearchResult;
 
