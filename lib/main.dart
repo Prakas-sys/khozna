@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_auth/firebase_auth.dart'; // Unused now
+// firebase_auth import removed
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -165,7 +165,11 @@ class _KhoznaAppState extends State<KhoznaApp> {
         });
         return child!;
       },
-      home: _isLocationGranted ? const MainScreen() : const LocationPermissionScreen(),
+      home: _isInitializing 
+          ? Container(color: Colors.white)
+          : (supabase.Supabase.instance.client.auth.currentSession != null 
+              ? (_isLocationGranted ? const MainScreen() : const LocationPermissionScreen())
+              : const LoginScreen()),
     );
   }
 

@@ -1,5 +1,5 @@
  import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,7 +21,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final firebase_auth.User? user = firebase_auth.FirebaseAuth.instance.currentUser;
+  final User? user = Supabase.instance.client.auth.currentUser;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
   bool _isOwner = false;
@@ -38,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final response = await Supabase.instance.client
             .from('properties')
             .select('id')
-            .eq('owner_id', user!.uid)
+            .eq('owner_id', user!.id)
             .limit(1);
         
         if (mounted && response != null && (response as List).isNotEmpty) {
@@ -156,7 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            user?.displayName ?? 'Khozna Guest',
+                            user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? 'Khozna Guest',
                             style: GoogleFonts.outfit(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -245,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ElevatedButton(
                                 onPressed: () async {
                                   Navigator.pop(context); // Close dialog
-                                  await firebase_auth.FirebaseAuth.instance.signOut();
+                                  await Supabase.instance.client.auth.signOut();
                                   if (mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (route) => false);
                                 },
                                 style: ElevatedButton.styleFrom(

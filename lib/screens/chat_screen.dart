@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../theme/app_theme.dart';
+import '../utils/supabase_service.dart';
 import 'boost_promotion_screen.dart';
 
 class ChatScreen extends StatefulWidget {
+  final String? chatId;
   final String name;
   final String avatar;
   final bool online;
   final String phone;
+  final String ownerId;
 
   const ChatScreen({
     super.key,
+    this.chatId,
     required this.name,
     required this.avatar,
     required this.online,
-    this.phone = "+977 9801234567", // Default mock phone
+    this.phone = "+977 9801234567",
+    this.ownerId = '',
   });
 
   @override
@@ -27,7 +33,8 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   late TextEditingController _messageController;
   late ScrollController _bannerScrollController;
 
-  final List<Map<String, dynamic>> _messages = [];
+  String? _activeChatId;
+  final String _currentUserId = supabase.Supabase.instance.client.auth.currentUser?.id ?? '';
 
   // Owner auto-reply messages pool
   final List<String> _ownerReplies = [
@@ -45,6 +52,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
+    _activeChatId = widget.chatId;
     _scrollController = ScrollController();
     _messageController = TextEditingController();
     _bannerScrollController = ScrollController();
@@ -54,19 +62,24 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
       _startBannerAnimation();
     });
 
-    // Pre-load owner welcome messages - EMPTY AS REQUESTED
-    _messages.clear();
-    _filterOldMessages();
+    if (_activeChatId == null && widget.ownerId.isNotEmpty) {
+       _initializeChat();
+    }
+  }
+
+  Future<void> _initializeChat() async {
+    try {
+      final id = await SupabaseService.getOrCreateChat(widget.ownerId);
+      if (mounted) {
+        setState(() => _activeChatId = id);
+      }
+    } catch (e) {
+      debugPrint('Chat init error: $e');
+    }
   }
 
   void _filterOldMessages() {
-    final twoDaysAgo = DateTime.now().subtract(const Duration(days: 2));
-    setState(() {
-      _messages.removeWhere((msg) {
-        final timestamp = msg['timestamp'] as DateTime?;
-        return timestamp != null && timestamp.isBefore(twoDaysAgo);
-      });
-    });
+    // Note: Database handles this now via the 30-day retention policy SQL
   }
 
   void _startBannerAnimation() async {
@@ -225,21 +238,21 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
-  void _sendMessage() {
+  void _sendMessage() async {
     if (_messageController.text.trim().isNotEmpty) {
-      final userMsg = _messageController.text.trim();
-      setState(() {
-        _messages.add({
-          'text': userMsg,
-          'isMe': true,
-          'time': 'Now',
-          'timestamp': DateTime.now(),
-        });
-        _messageController.clear();
-      });
+      final text = _messageController.text.trim();
+      _messageController.clear();
 
+      if (_activeChatId == null && widget.ownerId.isNotEmpty) {
+        await _initializeChat();
+      }
+
+      if (_activeChatId != null) {
+        await SupabaseService.sendMessage(_activeChatId!, text);
+      }
+      
       // Scroll to bottom
-      Future.delayed(const Duration(milliseconds: 100), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         if (_scrollController.hasClients) {
           _scrollController.animateTo(
             _scrollController.position.maxScrollExtent,
@@ -248,32 +261,6 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           );
         }
       });
-
-      // Owner auto-reply after short delay - REMOVED AS REQUESTED
-      /*
-      Future.delayed(const Duration(milliseconds: 1200), () {
-        if (mounted) {
-          setState(() {
-            _messages.add({
-              'text': _ownerReplies[_replyIndex % _ownerReplies.length],
-              'isMe': false,
-              'time': 'अहिले',
-            });
-            _replyIndex++;
-          });
-          // Scroll again after owner reply
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (_scrollController.hasClients) {
-              _scrollController.animateTo(
-                _scrollController.position.maxScrollExtent,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-              );
-            }
-          });
-        }
-      });
-      */
     }
   }
 
@@ -390,110 +377,93 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           ),
           // CHAT MESSAGES
           Expanded(
-            child: _messages.isEmpty 
-              ? Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.symmetric(horizontal: 32),
-                    decoration: BoxDecoration(
-                      color: Colors.purple.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.purple.withOpacity(0.1)),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.rocket_launch, color: Colors.purple, size: 32),
-                        const SizedBox(height: 12),
-                        Text('Get more inquiries! 🚀', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Boost your listing to get more visibility and faster replies.', 
-                          textAlign: TextAlign.center, 
-                          style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600]),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => const BoostPromotionScreen()));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            elevation: 0,
-                          ),
-                          child: Text('Boost Now', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _messages.length,
-                  itemBuilder: (context, index) {
-                    final msg = _messages[index];
-                    final bool isMe = msg['isMe'];
+            child: _activeChatId == null
+              ? _buildEmptyState()
+              : StreamBuilder<List<Map<String, dynamic>>>(
+                  stream: SupabaseService.getMessagesStream(_activeChatId!),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    final messages = snapshot.data ?? [];
                     
-                    return Align(
-                      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Column(
-                        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.symmetric(vertical: 0.5),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: isMe ? AppTheme.brandColor : Colors.white,
-                              borderRadius: BorderRadius.only(
-                                topLeft: const Radius.circular(16),
-                                topRight: const Radius.circular(16),
-                                bottomLeft: Radius.circular(isMe ? 16 : 4),
-                                bottomRight: Radius.circular(isMe ? 4 : 16),
-                              ),
-                              boxShadow: isMe ? [] : [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 2,
-                                  offset: const Offset(0, 1),
+                    if (messages.isEmpty) return _buildEmptyState();
+
+                    // Scroll to bottom when new messages arrive
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (_scrollController.hasClients) {
+                        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+                      }
+                    });
+
+                    return ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(16),
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final msg = messages[index];
+                        final bool isMe = msg['sender_id'] == _currentUserId;
+                        
+                        return Align(
+                          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                          child: Column(
+                            crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 0.5),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: isMe ? AppTheme.brandColor : Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: const Radius.circular(16),
+                                    topRight: const Radius.circular(16),
+                                    bottomLeft: Radius.circular(isMe ? 16 : 4),
+                                    bottomRight: Radius.circular(isMe ? 4 : 16),
+                                  ),
+                                  boxShadow: isMe ? [] : [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.05),
+                                      blurRadius: 2,
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
+                                  border: isMe ? null : Border.all(color: Colors.grey.shade200, width: 0.5),
                                 ),
-                              ],
-                              border: isMe ? null : Border.all(color: Colors.grey.shade200, width: 0.5),
-                            ),
-                            child: Text(
-                              msg['text'],
-                              style: GoogleFonts.outfit(
-                                color: isMe ? Colors.white : const Color(0xFF1A1A1A),
-                                fontSize: 17, 
-                                height: 1.25,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2, right: 4, left: 4),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (isMe) ...[
-                                  const Icon(Icons.done_all_rounded, size: 14, color: Colors.blue), // WhatsApp style blue/colored ticks
-                                  const SizedBox(width: 4),
-                                ],
-                                Text(
-                                  "Just now", // Replaced "Now" with "Just now" or keep it extremely simple
+                                child: Text(
+                                  msg['text'] ?? '',
                                   style: GoogleFonts.outfit(
-                                    color: Colors.grey[500],
-                                    fontSize: 10,
+                                    color: isMe ? Colors.white : const Color(0xFF1A1A1A),
+                                    fontSize: 17, 
+                                    height: 1.25,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2, right: 4, left: 4),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isMe) ...[
+                                      const Icon(Icons.done_all_rounded, size: 14, color: Colors.blue),
+                                      const SizedBox(width: 4),
+                                    ],
+                                    Text(
+                                      "Just now",
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.grey[500],
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                            ],
                           ),
-                          const SizedBox(height: 4),
-                        ],
-                      ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -583,6 +553,46 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
             ),
           )
         ],
+      ),
+    );
+  }
+  Widget _buildEmptyState() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(horizontal: 32),
+        decoration: BoxDecoration(
+          color: Colors.purple.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.purple.withOpacity(0.1)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.rocket_launch, color: Colors.purple, size: 32),
+            const SizedBox(height: 12),
+            Text('Get more inquiries! 🚀', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
+            const SizedBox(height: 4),
+            Text(
+              'Boost your listing to get more visibility and faster replies.', 
+              textAlign: TextAlign.center, 
+              style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const BoostPromotionScreen()));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
+              ),
+              child: Text('Boost Now', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
       ),
     );
   }

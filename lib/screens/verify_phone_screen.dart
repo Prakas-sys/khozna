@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
@@ -9,14 +9,10 @@ import 'main_screen.dart';
 
 class VerifyPhoneScreen extends StatefulWidget {
   final String phoneNumber;
-  final String verificationId;
-  final int? resendToken;
-
   const VerifyPhoneScreen({
     super.key,
     required this.phoneNumber,
-    required this.verificationId,
-    this.resendToken,
+    required this.verificationId, // Kept for signature compatibility if needed, but not used for Supabase
   });
 
   @override
@@ -85,27 +81,13 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: widget.phoneNumber,
-        forceResendingToken: widget.resendToken,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          await FirebaseAuth.instance.signInWithCredential(credential);
-          if (mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainScreen()), (route) => false);
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          setState(() => _isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Verification failed: ${e.message}', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
-        },
-        codeSent: (String newId, int? resendToken) {
-          setState(() {
-            _isLoading = false;
-            _currentVerificationId = newId;
-          });
-          _startTimer();
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Verification code resent!', style: GoogleFonts.outfit()), backgroundColor: AppTheme.brandColor, behavior: SnackBarBehavior.floating));
-        },
-        codeAutoRetrievalTimeout: (String id) {},
+      await supabase.Supabase.instance.client.auth.signInWithOtp(
+        phone: widget.phoneNumber,
       );
+      
+      setState(() => _isLoading = false);
+      _startTimer();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Verification code resent!', style: GoogleFonts.outfit()), backgroundColor: AppTheme.brandColor, behavior: SnackBarBehavior.floating));
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
@@ -128,27 +110,26 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
     setState(() => _isLoading = true);
 
     try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: _currentVerificationId,
-        smsCode: otp,
+      final response = await supabase.Supabase.instance.client.auth.verifyOTP(
+        phone: widget.phoneNumber,
+        token: otp,
+        type: supabase.OtpType.sms,
       );
 
-      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      if (response.user != null) {
+        // Sync with Supabase (using our internal profile table)
+        await SupabaseService.syncUserWithSupabase(response.user!);
 
-      if (userCredential.user != null) {
-        // Sync with Supabase
-        await SupabaseService.syncUserWithSupabase(userCredential.user!);
-      }
-
-      if (mounted) {
-        // Take user to home screen
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const MainScreen(),
-          ),
-          (route) => false,
-        );
+        if (mounted) {
+          // Take user to home screen
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MainScreen(),
+            ),
+            (route) => false,
+          );
+        }
       }
     } catch (e) {
       setState(() => _isLoading = false);

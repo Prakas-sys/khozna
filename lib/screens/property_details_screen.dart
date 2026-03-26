@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// firebase_auth removed
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
@@ -50,7 +50,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   bool _isReserved = false;
   Map<String, dynamic>? _ownerData;
 
-  String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? '';
+  String get _currentUserId => Supabase.instance.client.auth.currentUser?.id ?? '';
   bool get _isMyProperty => widget.ownerId == _currentUserId;
   static const Color _airbnbGrey = Color(0xFF717171);
 
@@ -639,6 +639,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (_) => ChatScreen(
+                    ownerId: widget.ownerId,
                     name: name,
                     avatar: avatar,
                     online: true,

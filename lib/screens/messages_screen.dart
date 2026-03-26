@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
+import '../utils/supabase_service.dart';
 import 'chat_screen.dart';
 
 class MessagesScreen extends StatefulWidget {
@@ -14,24 +16,25 @@ class _MessagesScreenState extends State<MessagesScreen> {
   int _selectedTab = 0;
   final List<String> _tabs = ['All', 'Unread', 'Groups'];
 
-  final List<Map<String, dynamic>> chats = [
-    {
-      'name': 'Ram Bahadur (Owner)',
-      'avatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-      'lastMessage': "नमस्ते 🙏",
-      'time': '10:00 AM',
-      'unread': 1,
-      'online': true,
-    },
-    {
-      'name': 'Suresh Rai',
-      'avatar': 'https://i.pravatar.cc/150?img=12',
-      'lastMessage': "भाडा कति हो?",
-      'time': 'Yesterday',
-      'unread': 0,
-      'online': false,
-    },
-  ];
+  List<Map<String, dynamic>> _chats = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadChats();
+  }
+
+  Future<void> _loadChats() async {
+    setState(() => _isLoading = true);
+    final data = await SupabaseService.getConversations();
+    if (mounted) {
+      setState(() {
+        _chats = data;
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,30 +174,41 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
             // ── CHAT LIST ──
             Expanded(
-              child: ListView.builder(
-                itemCount: chats.length,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                itemBuilder: (context, index) {
-                  final chat = chats[index];
-                  final hasUnread = (chat['unread'] as int) > 0;
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          chats[index]['unread'] = 0;
-                        });
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ChatScreen(
-                              name: chat['name'],
-                              avatar: chat['avatar'],
-                              online: chat['online'],
-                            ),
-                          ),
-                        );
-                      },
+              child: _isLoading 
+                ? const Center(child: CircularProgressIndicator())
+                : _chats.isEmpty
+                  ? Center(child: Text('No messages yet', style: GoogleFonts.outfit(color: Colors.grey)))
+                  : RefreshIndicator(
+                      onRefresh: _loadChats,
+                      child: ListView.builder(
+                        itemCount: _chats.length,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        itemBuilder: (context, index) {
+                          final chat = _chats[index];
+                          // Find the other participant (not the current user)
+                          final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+                          final participants = List<Map<String, dynamic>>.from(chat['profiles'] ?? []);
+                          final otherUser = participants.firstWhere(
+                            (p) => p['id'] != currentUserId,
+                            orElse: () => {'full_name': 'Unknown', 'avatar_url': null},
+                          );
+                          
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: InkWell(
+                              onTap: () async {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ChatScreen(
+                                      chatId: chat['id'],
+                                      name: otherUser['full_name'] ?? 'User',
+                                      avatar: otherUser['avatar_url'] ?? 'https://i.pravatar.cc/150',
+                                      online: true, // Mock online status for now
+                                    ),
+                                  ),
+                                );
+                              },
                       borderRadius: BorderRadius.circular(16),
                       child: Container(
                         padding: const EdgeInsets.all(12),
@@ -223,10 +237,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                   child: CircleAvatar(
                                     radius: 26,
                                     backgroundColor: Colors.grey[100],
-                                    backgroundImage: NetworkImage(chat['avatar']),
+                                    backgroundImage: NetworkImage(otherUser['avatar_url'] ?? 'https://i.pravatar.cc/150'),
                                   ),
                                 ),
-                                if (chat['online'] as bool)
+                                if (true) // Mock online status
                                   Positioned(
                                     right: 2,
                                     bottom: 2,
@@ -252,7 +266,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        chat['name'],
+                                        otherUser['full_name'] ?? 'User',
                                         style: GoogleFonts.outfit(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w700,
@@ -260,11 +274,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                         ),
                                       ),
                                       Text(
-                                        chat['time'],
+                                        'Just now', // Mock time
                                         style: GoogleFonts.outfit(
                                           fontSize: 12,
-                                          color: hasUnread ? AppTheme.brandColor : Colors.grey[500],
-                                          fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
+                                          color: Colors.grey[500],
                                         ),
                                       ),
                                     ],
@@ -274,36 +287,15 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          chat['lastMessage'],
+                                          'Check your messages', // Mock last message for now
                                           style: GoogleFonts.outfit(
                                             fontSize: 13,
-                                            color: hasUnread ? Colors.black87 : Colors.grey[500],
-                                            fontWeight: hasUnread ? FontWeight.w500 : FontWeight.normal,
+                                            color: Colors.grey[500],
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
-                                      if (hasUnread)
-                                        Container(
-                                          margin: const EdgeInsets.only(left: 8),
-                                          width: 22,
-                                          height: 22,
-                                          decoration: const BoxDecoration(
-                                            color: AppTheme.brandColor,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              chat['unread'].toString(),
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
                                     ],
                                   ),
                                 ],

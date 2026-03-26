@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../screens/login_screen.dart';
 import '../utils/supabase_service.dart';
@@ -29,7 +29,7 @@ class _FavouriteButtonState extends State<FavouriteButton> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        if (FirebaseAuth.instance.currentUser == null) {
+        if (Supabase.instance.client.auth.currentUser == null) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const LoginScreen()),

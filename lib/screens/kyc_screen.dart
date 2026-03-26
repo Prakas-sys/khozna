@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
-import 'package:firebase_auth/firebase_auth.dart';
+// firebase_auth removed
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -43,24 +43,22 @@ class _KycScreenState extends State<KycScreen> {
     super.initState();
     SecurityUtils.setSecure(true); // Enabled for KYC sensitivity
     // Pre-fill if user is logged in
-    final user = FirebaseAuth.instance.currentUser;
+    final user = supabase.Supabase.instance.client.auth.currentUser;
     if (user != null) {
-      _nameController.text = user.displayName ?? '';
+      final metadata = user.userMetadata ?? {};
+      _nameController.text = metadata['full_name'] ?? metadata['name'] ?? '';
       _emailController.text = user.email ?? '';
-      _phoneController.text = user.phoneNumber ?? '';
+      _phoneController.text = user.phone ?? '';
 
-      // Check which provider was used to show green tick
-      for (final profile in user.providerData) {
-        if (profile.providerId == 'google.com' || profile.providerId == 'password') {
-          if (user.email != null && user.email!.isNotEmpty) {
-            _isEmailVerified = true;
-          }
+      // Check identities for verification markers
+      final identities = user.identities ?? [];
+      for (final identity in identities) {
+        if (identity.provider == 'google') {
+          _isEmailVerified = true; // Google users are usually email-verified
         }
-        if (profile.providerId == 'phone') {
-          if (user.phoneNumber != null && user.phoneNumber!.isNotEmpty) {
-            _isPhoneVerified = true;
-          }
-        }
+      }
+      if (user.phone != null && user.phone!.isNotEmpty) {
+        _isPhoneVerified = true;
       }
     }
   }
@@ -201,7 +199,7 @@ class _KycScreenState extends State<KycScreen> {
       return;
     }
 
-    final user = FirebaseAuth.instance.currentUser;
+    final user = supabase.Supabase.instance.client.auth.currentUser;
     if (user == null) return;
 
     setState(() => _isSubmitting = true);
@@ -217,7 +215,7 @@ class _KycScreenState extends State<KycScreen> {
 
       // 2. Save to Supabase
       await supabase.Supabase.instance.client.from('kyc_verifications').insert({
-        'user_id': user.uid,
+        'user_id': user.id,
         'full_name': _nameController.text.trim(),
         'email': _emailController.text.trim(),
         'phone_number': _phoneController.text.trim(),
@@ -237,7 +235,7 @@ class _KycScreenState extends State<KycScreen> {
         'kyc_status': 'pending',
         'email_verified': _isEmailVerified,
         'phone_verified': _isPhoneVerified,
-      }).eq('id', user.uid);
+      }).eq('id', user.id);
 
       if (mounted) {
         setState(() => _isSubmitting = false);
