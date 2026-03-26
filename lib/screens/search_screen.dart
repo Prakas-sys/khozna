@@ -19,7 +19,7 @@ class _SearchScreenState extends State<SearchScreen> {
   late TextEditingController _searchController;
   
   // AI Search State
-  final KimiAiService _aiService = KimiAiService(apiKey: 'YOUR_KIMI_API_KEY');
+  final KimiAiService _aiService = KimiAiService();
   bool _isAiSearching = false;
   String? _aiSearchResult;
 

@@ -20,7 +20,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
     }
   ];
   
-  final KimiAiService _aiService = KimiAiService(apiKey: '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');
+  final KimiAiService _aiService = KimiAiService();
   bool _isTyping = false;
 
   void _sendMessage() async {

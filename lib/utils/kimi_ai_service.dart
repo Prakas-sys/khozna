@@ -6,9 +6,9 @@ class KimiAiService {
   // Switched to OpenRouter for 100% Forever Free Cloud AI
   static const String _baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
   
-  final String apiKey = dotenv.env['AI_API_KEY'] ?? '';
+  final String apiKey;
 
-  KimiAiService({String? apiKey}); // Key is now pulled from .env for security
+  KimiAiService({String? apiKey}) : apiKey = apiKey ?? dotenv.env['AI_API_KEY'] ?? '';
 
   /// 100% FREE Cloud AI Request (via OpenRouter Free Models)
   Future<String> _getAiResponse(String prompt, {required String systemPrompt}) async {
