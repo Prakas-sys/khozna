@@ -315,16 +315,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    widget.isVerified ? 'PROFILE VERIFIED (प्रोफाइल प्रमाणित)' : 'INCOMPLETE KYC (केवाइसी बाँकी)',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black87, letterSpacing: -0.3),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      widget.isVerified ? 'PROFILE VERIFIED (प्रोफाइल प्रमाणित)' : 'INCOMPLETE KYC (केवाइसी बाँकी)',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.black, letterSpacing: -0.5),
+                    ),
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    widget.isVerified 
-                        ? 'Your identity is fully confirmed.' 
-                        : 'Verify now to gain more trust (प्रमाणित गर्नुहोस्)',
-                    style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      widget.isVerified 
+                          ? 'Your identity is fully confirmed.' 
+                          : 'Verify now to gain more trust (प्रमाणित गर्नुहोस्)',
+                      style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                    ),
                   ),
                 ],
               ),
