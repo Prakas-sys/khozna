@@ -13,6 +13,7 @@ import 'theme/app_theme.dart';
 import 'utils/supabase_service.dart';
 import 'screens/main_screen.dart';
 import 'screens/location_permission_screen.dart';
+import 'screens/login_screen.dart';
 // import 'screens/splash_screen.dart'; // Removed
 
 // Local Notifications Plugin
