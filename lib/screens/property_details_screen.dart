@@ -7,7 +7,6 @@ import '../utils/app_notifiers.dart';
 import '../utils/supabase_service.dart';
 import '../widgets/favourite_button.dart';
 import 'chat_screen.dart';
-import 'boost_promotion_screen.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final String id;
@@ -795,9 +794,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ],
                 ),
                 child: ElevatedButton(
-                  onPressed: _isMyProperty ? () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => BoostPromotionScreen(propertyId: widget.id, title: widget.title, imageUrl: widget.imageUrl)));
-                  } : () async {
+                  onPressed: _isMyProperty ? null : () async {
                     if (!_isReserved) {
                       // Call Supabase Magic
                       await SupabaseService.bookProperty(widget.id, widget.title, widget.ownerId);
@@ -888,7 +885,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ),
                   child: Text(
                     _isMyProperty 
-                        ? 'Boost Listing 🚀 (प्रवर्धन गर्नुहोस्)'
+                        ? 'Your Listing (तपाईंको लिस्टिङ)'
                         : _isReserved 
                             ? 'Booked (तपाईंले बुक गर्नुभयो)' 
                             : 'Reserve (बुक गर्नुहोस्)',

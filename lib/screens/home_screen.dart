@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,7 +9,6 @@ import '../widgets/property_card.dart';
 import '../widgets/skeleton_card.dart';
 import '../widgets/voice_search_overlay.dart';
 import 'notifications_screen.dart';
-import 'login_screen.dart';
 import 'search_screen.dart';
 import 'filter_results_screen.dart';
 
@@ -39,26 +37,16 @@ class _HomeScreenState extends State<HomeScreen> {
           .select('*, property_images(image_url)');
       
       final orderedQuery = i % 2 == 0 
-          ? query.order('is_boosted', ascending: false).order('created_at', ascending: false)
-          : query.order('is_boosted', ascending: false).order('price', ascending: true);
+          ? query.order('created_at', ascending: false)
+          : query.order('price', ascending: true);
           
       _sectionFutures.add(orderedQuery.then((data) => List<Map<String, dynamic>>.from(data)));
     }
   }
 
-  void _checkAuthAndNavigate(BuildContext context, Widget destination) {
+  void _navigate(BuildContext context, Widget destination) {
     HapticFeedback.lightImpact();
-    if (FirebaseAuth.instance.currentUser == null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => destination),
-      );
-    }
+    Navigator.push(context, MaterialPageRoute(builder: (context) => destination));
   }
 
   @override
@@ -86,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: InkWell(
               onTap: () {
                 notificationBadgeCount.value = 0;
-                _checkAuthAndNavigate(context, const NotificationsScreen());
+                _navigate(context, const NotificationsScreen());
               },
               borderRadius: BorderRadius.circular(12),
               child: Container(
@@ -156,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
               GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  _checkAuthAndNavigate(context, const SearchScreen());
+                  _navigate(context, const SearchScreen());
                 },
                 child: Container(
                   height: 52,
@@ -284,7 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
             InkWell(
               onTap: () {
                 HapticFeedback.lightImpact();
-                _checkAuthAndNavigate(
+                _navigate(
                   context,
                   FilterResultsScreen(
                     location: title,

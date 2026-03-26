@@ -5,7 +5,26 @@
 -keep class io.flutter.view.**  { *; }
 -keep class io.flutter.**  { *; }
 -keep class io.flutter.plugins.**  { *; }
+# Firebase Messaging
+-keep class com.google.firebase.messaging.** { *; }
+-keep public class com.google.firebase.messaging.FirebaseMessagingService
+-dontwarn com.google.firebase.messaging.**
+-dontwarn com.google.firebase.**
+
+# Firebase Common
 -keep class com.google.firebase.** { *; }
+
+# Google Play Services
+-keep class com.google.android.gms.** { *; }
+
+# Flutter Plugins that use reflection or background services
+-keep class io.flutter.plugins.** { *; }
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
+-keep class com.sidlatau.safe_device.** { *; }
+
+# Kotlin Coroutines (R8 sometimes strips these)
+-keep class kotlinx.coroutines.** { *; }
+-keep class kotlin.coroutines.** { *; }
 
 # Standard Android
 -keepattributes Signature

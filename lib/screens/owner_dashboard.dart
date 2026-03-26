@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/supabase_service.dart';
-import 'boost_promotion_screen.dart';
-import 'admin_payment_review_screen.dart';
 
 class OwnerDashboard extends StatefulWidget {
   const OwnerDashboard({super.key});
@@ -124,24 +122,6 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                       context,
                       MaterialPageRoute(builder: (_) => const KycReviewScreen()),
                     ).then((_) => _refreshStats()),
-                  ),
-                  _buildActionItem(
-                    'Promotion Center',
-                    'Boost listings and get more renters',
-                    Icons.rocket_launch,
-                    Colors.purple,
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const BoostPromotionScreen()));
-                    },
-                  ),
-                  _buildActionItem(
-                    'Payment Verifications',
-                    'Review & approve boost payments',
-                    Icons.payments_outlined,
-                    Colors.teal,
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminPaymentReviewScreen()));
-                    },
                   ),
                   _buildActionItem(
                     'Property Moderation',

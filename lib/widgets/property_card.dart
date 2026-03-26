@@ -1,12 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../screens/chat_screen.dart';
-import '../screens/kyc_screen.dart';
-import '../screens/login_screen.dart';
 import '../screens/property_details_screen.dart';
 import '../theme/app_theme.dart';
 import 'favourite_button.dart';
@@ -43,67 +39,29 @@ class PropertyCard extends StatelessWidget {
     this.status = 'available',
   });
 
-  void _checkAuthAndNavigate(BuildContext context, Widget destination) {
-    if (FirebaseAuth.instance.currentUser == null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => destination),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () async {
-        // HAPTIC FEEDBACK
+      onTap: () {
         HapticFeedback.lightImpact();
-
-        // AUTH CHECK
-        if (FirebaseAuth.instance.currentUser == null) {
-          if (context.mounted) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
-          }
-          return;
-        }
-
-        // KYC CHECK - Real check from Supabase
-        final userId = FirebaseAuth.instance.currentUser!.uid;
-        final profile = await Supabase.instance.client.from('profiles').select('kyc_status').eq('id', userId).single();
-        
-        if (profile['kyc_status'] != 'verified') {
-          // If not verified, show KYC directly as requested
-          if (context.mounted) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const KycScreen()));
-          }
-        } else {
-          // If verified, show details
-          if (context.mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PropertyDetailsScreen(
-                  id: id,
-                  imageUrl: imageUrl,
-                  images: images,
-                  title: title,
-                  location: location,
-                  price: price,
-                  bedrooms: bedrooms,
-                  bathrooms: bathrooms,
-                  area: area,
-                  floor: floor,
-                  description: description,
-                ),
-              ),
-            );
-          }
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PropertyDetailsScreen(
+              id: id,
+              imageUrl: imageUrl,
+              images: images,
+              title: title,
+              location: location,
+              price: price,
+              bedrooms: bedrooms,
+              bathrooms: bathrooms,
+              area: area,
+              floor: floor,
+              description: description,
+            ),
+          ),
+        );
       },
       child: Container(
         width: 260,
@@ -142,41 +100,19 @@ class PropertyCard extends StatelessWidget {
                     left: 10,
                     child: Builder(
                       builder: (context) {
-                        final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-                        final isMyProperty = ownerId == currentUserId;
                         final isBooked = status == 'booked';
-
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
-                            color: isMyProperty 
-                                ? Colors.blue 
-                                : isBooked 
-                                    ? Colors.red 
-                                    : const Color(0xFF2ECC71),
+                            color: isBooked ? Colors.red : const Color(0xFF2ECC71),
                             borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 1),
-                              ),
-                            ],
                           ),
                           child: Text(
-                            isMyProperty 
-                                ? 'Your Ad (तपाईंको विज्ञापन)' 
-                                : isBooked 
-                                    ? 'Booked' 
-                                    : 'For Rent',
-                            style: GoogleFonts.outfit(
-                              color: Colors.white,
-                              fontSize: 11.0,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            isBooked ? 'Booked' : 'For Rent',
+                            style: GoogleFonts.outfit(color: Colors.white, fontSize: 11.0, fontWeight: FontWeight.bold),
                           ),
                         );
-                      }
+                      },
                     ),
                   ),
                   // Favourite button
@@ -321,30 +257,26 @@ class PropertyCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () => _checkAuthAndNavigate(
+                            onPressed: () => Navigator.push(
                               context,
-                              PropertyDetailsScreen(
-                                id: id,
-                                imageUrl: imageUrl,
-                                images: images,
-                                title: title,
-                                location: location,
-                                price: price,
-                                bedrooms: bedrooms,
-                                bathrooms: bathrooms,
-                                area: area,
-                                floor: floor,
-                                description: description,
+                              MaterialPageRoute(
+                                builder: (_) => PropertyDetailsScreen(
+                                  id: id,
+                                  imageUrl: imageUrl,
+                                  images: images,
+                                  title: title,
+                                  location: location,
+                                  price: price,
+                                  bedrooms: bedrooms,
+                                  bathrooms: bathrooms,
+                                  area: area,
+                                  floor: floor,
+                                  description: description,
+                                ),
                               ),
                             ),
                             icon: const Icon(Icons.directions_walk, size: 17),
-                            label: Text(
-                              'Visit Now',
-                              style: GoogleFonts.outfit(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13.5,
-                              ),
-                            ),
+                            label: Text('Visit Now', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13.5)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.brandColor,
                               foregroundColor: Colors.white,
@@ -352,10 +284,7 @@ class PropertyCard extends StatelessWidget {
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
-                                side: BorderSide(
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                  width: 1.5,
-                                ),
+                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
                               ),
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
@@ -364,12 +293,14 @@ class PropertyCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () => _checkAuthAndNavigate(
+                            onPressed: () => Navigator.push(
                               context,
-                              const ChatScreen(
-                                name: 'Jenny Wilson',
-                                avatar: 'https://i.pravatar.cc/150?img=47',
-                                online: true,
+                              MaterialPageRoute(
+                                builder: (_) => const ChatScreen(
+                                  name: 'Jenny Wilson',
+                                  avatar: 'https://i.pravatar.cc/150?img=47',
+                                  online: true,
+                                ),
                               ),
                             ),
                             icon: SvgPicture.asset(
