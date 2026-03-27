@@ -120,10 +120,23 @@ class SupabaseService {
     try {
       await _client.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: 'io.supabase.flutterquickstart://login-callback/',
+        redirectTo: 'com.khozna.khozna://login-callback/',
       );
     } catch (e) {
       print('Supabase Google Sign-In Error: $e');
+      rethrow;
+    }
+  }
+
+  /// Handles Facebook Sign-In using Supabase.
+  static Future<void> signInWithFacebook() async {
+    try {
+      await _client.auth.signInWithOAuth(
+        OAuthProvider.facebook,
+        redirectTo: 'com.khozna.khozna://login-callback/',
+      );
+    } catch (e) {
+      print('Supabase Facebook Sign-In Error: $e');
       rethrow;
     }
   }

@@ -15,6 +15,7 @@ This file tracks the technical status.
 - [x] Haptic Feedback: Added touch feedback to all cards and bottom navigation tabs.
 - [x] Reels UI Overhaul: Applied 60-30-10 rule and Glassmorphism to the Reels screen.
 - [x] Code Refactor: Moved `PropertyCard` into `lib/widgets/`.
+- [x] Build Repair: Fixed `signInWithFacebook` missing method and `messages_screen.dart` syntax errors.
 
 ## 3. Atomic GSD Steps Complete
 - [x] Initialized GSD Structure.
@@ -27,3 +28,4 @@ This file tracks the technical status.
 - (2025-03-24) **Mission: Home Smoothing.** Extracted widgets and fixed flickering.
 - (2025-03-24) **Mission: Security Scrub.** Moved Cloudinary, Supabase, and AI keys to `.env`.
 - (2025-03-24) **Mission: Premium Polish.** Added Hero animations and Tab selection haptics. Overhauled Reels UI with Glassmorphism.
+- (2026-03-27) **Mission: Build Repair.** Restored `messages_screen.dart` structure and implemented `signInWithFacebook`.

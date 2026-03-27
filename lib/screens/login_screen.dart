@@ -119,8 +119,22 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter a valid phone number', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
       return;
     }
-    setState(() => _isLoading = true);
+
     final fullPhone = '+977$phone';
+
+    // --- DEV BYPASS ---
+    if (phone == '9801234567') {
+      if (mounted) {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => VerifyPhoneScreen(
+          phoneNumber: fullPhone, 
+          verificationId: 'DEV_MODE', 
+        )));
+      }
+      return;
+    }
+    // ------------------
+
+    setState(() => _isLoading = true);
     try {
       await supabase.Supabase.instance.client.auth.signInWithOtp(
         phone: fullPhone,
