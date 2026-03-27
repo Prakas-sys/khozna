@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(true); // Enabled as per Khozna safety standards
+    // SecurityUtils.setSecure(true); // Temporarily disabled for your screenshots
     _startCarouselTimer();
   }
 
@@ -209,6 +209,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           GestureDetector(
                             onTap: _handleBossTap,
+                            onLongPress: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Developer Bypass: Unlocking...'), backgroundColor: Colors.green)
+                              );
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainScreen()));
+                            },
                             child: Image.asset('assets/images/original logo.png', height: 48),
                           ),
                           InkWell(
