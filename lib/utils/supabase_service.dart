@@ -41,7 +41,7 @@ class SupabaseService {
       if (response == null) {
         // Save it
         await _client.from('saved_properties').insert({
-          'user_id': user.uid,
+          'user_id': user.id,
           'property_id': propertyId,
         });
       } else {
@@ -119,7 +119,7 @@ class SupabaseService {
   static Future<void> signInWithGoogle() async {
     try {
       await _client.auth.signInWithOAuth(
-        Provider.google,
+        OAuthProvider.google,
         redirectTo: 'io.supabase.flutterquickstart://login-callback/',
       );
     } catch (e) {

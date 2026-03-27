@@ -1,0 +1,4557 @@
+﻿Running Gradle task 'assembleDebug'...                          
+D:\flutter\bin\flutter.bat : lib/sc
+reens/messages_screen.dart:176:21: 
+Error: Can't find ')' to match '('.
+At line:1 char:1
++ D:\flutter\bin\flutter.bat build 
+apk --debug > build_errors.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo              : 
+NotSpecified: (lib/scr    
+eens/mes...' to match '(    
+'.:String) [], RemoteExc    eption
+    + FullyQualifiedErrorId     : 
+NativeCommandError
+ 
+            Expanded(
+                    ^
+lib/screens/chat_screen.dart:7:8: 
+Error: Error when reading 'lib/scre
+ens/boost_promotion_screen.dart': 
+The system cannot find the file 
+specified
+import 
+'boost_promotion_screen.dart';
+       ^
+lib/screens/login_screen.dart:14:27
+: Error: Type 'StatefulWidget' not 
+found.
+class LoginScreen extends 
+StatefulWidget {
+                          
+^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:18:3:
+ Error: Type 'State' not found.
+  State<LoginScreen> createState() 
+=> _LoginScreenState();
+  ^^^^^
+lib/screens/login_screen.dart:21:33
+: Error: Type 'State' not found.
+class _LoginScreenState extends 
+State<LoginScreen> {
+                                
+^^^^^
+lib/screens/login_screen.dart:24:9:
+ Error: Type 
+'TextEditingController' not found.
+  final TextEditingController 
+_phoneController = 
+TextEditingController();
+        ^^^^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:25:9:
+ Error: Type 'FocusNode' not found.
+  final FocusNode _phoneFocusNode 
+= FocusNode();
+        ^^^^^^^^^
+lib/screens/login_screen.dart:29:9:
+ Error: Type 'PageController' not 
+found.
+  final PageController 
+_illustrationPageController = 
+PageController();
+        ^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:174:3
+: Error: Type 'Widget' not found.
+  Widget build(BuildContext 
+context) {
+  ^^^^^^
+lib/screens/login_screen.dart:174:1
+6: Error: Type 'BuildContext' not 
+found.
+  Widget build(BuildContext 
+context) {
+               ^^^^^^^^^^^^
+lib/screens/login_screen.dart:481:3
+: Error: Type 'Widget' not found.
+  Widget _buildSocialBtn(String 
+icon, String label, VoidCallback 
+onTap) {
+  ^^^^^^
+lib/screens/verify_phone_screen.dar
+t:15:19: Error: 'verificationId' 
+isn't an instance field of this 
+class.
+    required this.verificationId, 
+// Kept for signature 
+compatibility if needed, but not 
+used for Supabase
+                  ^^^^^^^^^^^^^^
+lib/main.dart:170:11: Error: The 
+argument type 'Object' can't be 
+assigned to the parameter type 
+'Widget?'.
+ - 'Object' is from 'dart:core'.
+ - 'Widget' is from 'package:flutte
+r/src/widgets/framework.dart' ('/D:
+/flutter/packages/flutter/lib/src/w
+idgets/framework.dart').
+          ? Container(color: 
+Colors.white)
+          ^
+lib/utils/supabase_service.dart:44:
+27: Error: The getter 'uid' isn't 
+defined for the type 'User'.
+ - 'User' is from 'package:gotrue/s
+rc/types/user.dart' ('/C:/Users/pra
+ka/AppData/Local/Pub/Cache/hosted/p
+ub.dev/gotrue-2.18.0/lib/src/types/
+user.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'uid'.
+          'user_id': user.uid,
+                          ^^^
+lib/utils/supabase_service.dart:122
+:9: Error: Undefined name 
+'Provider'.
+        Provider.google,
+        ^^^^^^^^
+lib/screens/location_permission_scr
+een.dart:60:47: Error: A value of 
+type 'LoginScreen' can't be 
+returned from a function with 
+return type 'Widget'.
+ - 'LoginScreen' is from 'package:k
+hozna/screens/login_screen.dart' 
+('lib/screens/login_screen.dart').
+ - 'Widget' is from 'package:flutte
+r/src/widgets/framework.dart' ('/D:
+/flutter/packages/flutter/lib/src/w
+idgets/framework.dart').
+      MaterialPageRoute(builder: 
+(_) => const LoginScreen()),
+                                   
+           ^
+lib/screens/login_screen.dart:24:9:
+ Error: 'TextEditingController' 
+isn't a type.
+  final TextEditingController 
+_phoneController = 
+TextEditingController();
+        ^^^^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:24:50
+: Error: Method not found: 
+'TextEditingController'.
+  final TextEditingController 
+_phoneController = 
+TextEditingController();
+                                   
+              ^^^^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:25:9:
+ Error: 'FocusNode' isn't a type.
+  final FocusNode _phoneFocusNode 
+= FocusNode();
+        ^^^^^^^^^
+lib/screens/login_screen.dart:25:37
+: Error: Method not found: 
+'FocusNode'.
+  final FocusNode _phoneFocusNode 
+= FocusNode();
+                                   
+ ^^^^^^^^^
+lib/screens/login_screen.dart:29:9:
+ Error: 'PageController' isn't a 
+type.
+  final PageController 
+_illustrationPageController = 
+PageController();
+        ^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:29:54
+: Error: Method not found: 
+'PageController'.
+  final PageController 
+_illustrationPageController = 
+PageController();
+                                   
+                  ^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:40:11
+: Error: Superclass has no method 
+named 'initState'.
+    super.initState();
+          ^^^^^^^^^
+lib/screens/login_screen.dart:47:12
+: Error: The getter 'mounted' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'mounted'.
+      if (!mounted) return;
+           ^^^^^^^
+lib/screens/login_screen.dart:52:16
+: Error: The getter 'Curves' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Curves'.
+        curve: Curves.easeInOut,
+               ^^^^^^
+lib/screens/login_screen.dart:64:11
+: Error: Superclass has no method 
+named 'dispose'.
+    super.dispose();
+          ^^^^^^^
+lib/screens/login_screen.dart:86:64
+: Error: Not a constant expression.
+            TextField(controller: 
+bossPhone, decoration: const 
+InputDecoration(labelText: 'Admin 
+ID'), keyboardType: 
+TextInputType.phone),
+                                   
+                            
+^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:87:19
+: Error: Not a constant expression.
+            const SizedBox(height: 
+12),
+                  ^^^^^^^^
+lib/screens/login_screen.dart:88:63
+: Error: Not a constant expression.
+            TextField(controller: 
+bossPass, decoration: const 
+InputDecoration(labelText: 'Secret 
+Key'), obscureText: true),
+                                   
+                           
+^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:92:76
+: Error: Not a constant expression.
+          TextButton(onPressed: () 
+=> Navigator.pop(context), child: 
+const Text('Cancel')),
+                                   
+                                   
+     ^^^^
+lib/screens/login_screen.dart:99:84
+: Error: Not a constant expression.
+                ScaffoldMessenger.o
+f(context).showSnackBar(const 
+SnackBar(content: Text('Invalid 
+Credentials')));
+                                   
+                                   
+             ^^^^
+lib/screens/login_screen.dart:99:66
+: Error: Not a constant expression.
+                ScaffoldMessenger.o
+f(context).showSnackBar(const 
+SnackBar(content: Text('Invalid 
+Credentials')));
+                                   
+                              
+^^^^^^^^
+lib/screens/login_screen.dart:102:2
+6: Error: Not a constant 
+expression.
+            child: const 
+Text('Unlock'),
+                         ^^^^
+lib/screens/login_screen.dart:76:23
+: Error: The method 
+'TextEditingController' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'TextEditingController'.
+    final bossPhone = 
+TextEditingController();
+                      
+^^^^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:77:22
+: Error: The method 
+'TextEditingController' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'TextEditingController'.
+    final bossPass = 
+TextEditingController();
+                     
+^^^^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:79:16
+: Error: The getter 'context' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'context'.
+      context: context,
+               ^^^^^^^
+lib/screens/login_screen.dart:81:53
+: Error: The getter 'BorderRadius' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'BorderRadius'.
+        shape: RoundedRectangleBord
+er(borderRadius: 
+BorderRadius.circular(24)),
+                                   
+                 ^^^^^^^^^^^^
+lib/screens/login_screen.dart:81:16
+: Error: The method 
+'RoundedRectangleBorder' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'RoundedRectangleBorder'.
+        shape: RoundedRectangleBord
+er(borderRadius: 
+BorderRadius.circular(24)),
+               
+^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:82:45
+: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+        title: Text('Admin 
+Control', style: 
+GoogleFonts.outfit(fontWeight: 
+FontWeight.bold)),
+                                   
+         ^^^^^^^^^^^
+lib/screens/login_screen.dart:82:16
+: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+        title: Text('Admin 
+Control', style: 
+GoogleFonts.outfit(fontWeight: 
+FontWeight.bold)),
+               ^^^^
+lib/screens/login_screen.dart:84:25
+: Error: The getter 'MainAxisSize' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'MainAxisSize'.
+          mainAxisSize: 
+MainAxisSize.min,
+                        
+^^^^^^^^^^^^
+lib/screens/login_screen.dart:86:11
+8: Error: The getter 
+'TextInputType' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'TextInputType'.
+            TextField(controller: 
+bossPhone, decoration: const 
+InputDecoration(labelText: 'Admin 
+ID'), keyboardType: 
+TextInputType.phone),
+                                   
+                                   
+                    ^^^^^^^^^^^^^
+lib/screens/login_screen.dart:86:13
+: Error: The method 'TextField' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'TextField'.
+            TextField(controller: 
+bossPhone, decoration: const 
+InputDecoration(labelText: 'Admin 
+ID'), keyboardType: 
+TextInputType.phone),
+            ^^^^^^^^^
+lib/screens/login_screen.dart:88:13
+: Error: The method 'TextField' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'TextField'.
+            TextField(controller: 
+bossPass, decoration: const 
+InputDecoration(labelText: 'Secret 
+Key'), obscureText: true),
+            ^^^^^^^^^
+lib/screens/login_screen.dart:83:18
+: Error: The method 'Column' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Column'.
+        content: Column(
+                 ^^^^^^
+lib/screens/login_screen.dart:92:39
+: Error: The getter 'Navigator' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Navigator'.
+          TextButton(onPressed: () 
+=> Navigator.pop(context), child: 
+const Text('Cancel')),
+                                   
+   ^^^^^^^^^
+lib/screens/login_screen.dart:92:11
+: Error: The method 'TextButton' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'TextButton'.
+          TextButton(onPressed: () 
+=> Navigator.pop(context), child: 
+const Text('Cancel')),
+          ^^^^^^^^^^
+lib/screens/login_screen.dart:96:17
+: Error: The getter 'Navigator' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Navigator'.
+                
+Navigator.pop(context);
+                ^^^^^^^^^
+lib/screens/login_screen.dart:97:17
+: Error: The getter 'Navigator' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Navigator'.
+                
+Navigator.push(context, 
+MaterialPageRoute(builder: (_) => 
+const OwnerDashboard()));
+                ^^^^^^^^^
+lib/screens/login_screen.dart:97:41
+: Error: The method 
+'MaterialPageRoute' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'MaterialPageRoute'.
+                
+Navigator.push(context, 
+MaterialPageRoute(builder: (_) => 
+const OwnerDashboard()));
+                                   
+     ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:99:17
+: Error: The getter 
+'ScaffoldMessenger' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'ScaffoldMessenger'.
+                ScaffoldMessenger.o
+f(context).showSnackBar(const 
+SnackBar(content: Text('Invalid 
+Credentials')));
+                ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:93:11
+: Error: The method 
+'ElevatedButton' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'ElevatedButton'.
+          ElevatedButton(
+          ^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:80:29
+: Error: The method 'AlertDialog' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'AlertDialog'.
+      builder: (context) => 
+AlertDialog(
+                            
+^^^^^^^^^^^
+lib/screens/login_screen.dart:78:5:
+ Error: The method 'showDialog' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'showDialog'.
+    showDialog(
+    ^^^^^^^^^^
+lib/screens/login_screen.dart:111:7
+: Error: The getter 
+'ScaffoldMessenger' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'ScaffoldMessenger'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+      ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:111:2
+8: Error: The getter 'context' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'context'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                           ^^^^^^^
+lib/screens/login_screen.dart:111:1
+17: Error: The getter 
+'GoogleFonts' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^^^^^^
+lib/screens/login_screen.dart:111:6
+8: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                
+^^^^
+lib/screens/login_screen.dart:111:1
+57: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:111:1
+85: Error: The getter 
+'SnackBarBehavior' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'SnackBarBehavior'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    
+^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:111:5
+0: Error: The method 'SnackBar' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'SnackBar'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+              ^^^^^^^^
+lib/screens/login_screen.dart:117:7
+: Error: The getter 
+'ScaffoldMessenger' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'ScaffoldMessenger'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please enter a valid phone 
+number', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+      ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:117:2
+8: Error: The getter 'context' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'context'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please enter a valid phone 
+number', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                           ^^^^^^^
+lib/screens/login_screen.dart:117:1
+17: Error: The getter 
+'GoogleFonts' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please enter a valid phone 
+number', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^^^^^^
+lib/screens/login_screen.dart:117:6
+8: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please enter a valid phone 
+number', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                
+^^^^
+lib/screens/login_screen.dart:117:1
+57: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please enter a valid phone 
+number', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:117:1
+85: Error: The getter 
+'SnackBarBehavior' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'SnackBarBehavior'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please enter a valid phone 
+number', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    
+^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:117:5
+0: Error: The method 'SnackBar' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'SnackBar'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please enter a valid phone 
+number', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+              ^^^^^^^^
+lib/screens/login_screen.dart:120:5
+: Error: The method 'setState' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'setState'.
+    setState(() => _isLoading = 
+true);
+    ^^^^^^^^
+lib/screens/login_screen.dart:127:7
+: Error: The method 'setState' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'setState'.
+      setState(() => _isLoading = 
+false);
+      ^^^^^^^^
+lib/screens/login_screen.dart:128:1
+1: Error: The getter 'mounted' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'mounted'.
+      if (mounted) {
+          ^^^^^^^
+lib/screens/login_screen.dart:129:9
+: Error: The getter 'Navigator' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Navigator'.
+        Navigator.push(context, 
+MaterialPageRoute(builder: (_) => 
+VerifyPhoneScreen(
+        ^^^^^^^^^
+lib/screens/login_screen.dart:129:2
+4: Error: The getter 'context' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'context'.
+        Navigator.push(context, 
+MaterialPageRoute(builder: (_) => 
+VerifyPhoneScreen(
+                       ^^^^^^^
+lib/screens/login_screen.dart:129:3
+3: Error: The method 
+'MaterialPageRoute' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'MaterialPageRoute'.
+        Navigator.push(context, 
+MaterialPageRoute(builder: (_) => 
+VerifyPhoneScreen(
+                                
+^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:135:7
+: Error: The method 'setState' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'setState'.
+      setState(() => _isLoading = 
+false);
+      ^^^^^^^^
+lib/screens/login_screen.dart:136:7
+: Error: The getter 
+'ScaffoldMessenger' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'ScaffoldMessenger'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Error: $e', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+      ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:136:2
+8: Error: The getter 'context' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'context'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Error: $e', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                           ^^^^^^^
+lib/screens/login_screen.dart:136:9
+3: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Error: $e', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^^^^^^
+lib/screens/login_screen.dart:136:6
+8: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Error: $e', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                
+^^^^
+lib/screens/login_screen.dart:136:1
+33: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Error: $e', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:136:1
+61: Error: The getter 
+'SnackBarBehavior' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'SnackBarBehavior'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Error: $e', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    
+^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:136:5
+0: Error: The method 'SnackBar' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'SnackBar'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Error: $e', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+              ^^^^^^^^
+lib/screens/login_screen.dart:143:7
+: Error: The getter 
+'ScaffoldMessenger' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'ScaffoldMessenger'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+      ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:143:2
+8: Error: The getter 'context' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'context'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                           ^^^^^^^
+lib/screens/login_screen.dart:143:1
+17: Error: The getter 
+'GoogleFonts' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^^^^^^
+lib/screens/login_screen.dart:143:6
+8: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                
+^^^^
+lib/screens/login_screen.dart:143:1
+57: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:143:1
+85: Error: The getter 
+'SnackBarBehavior' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'SnackBarBehavior'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    
+^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:143:5
+0: Error: The method 'SnackBar' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'SnackBar'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+              ^^^^^^^^
+lib/screens/login_screen.dart:146:5
+: Error: The method 'setState' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'setState'.
+    setState(() => _isLoading = 
+true);
+    ^^^^^^^^
+lib/screens/login_screen.dart:154:7
+: Error: The method 'setState' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'setState'.
+      setState(() => _isLoading = 
+false); 
+      ^^^^^^^^
+lib/screens/login_screen.dart:155:7
+: Error: The getter 
+'ScaffoldMessenger' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'ScaffoldMessenger'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Google Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+      ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:155:2
+8: Error: The getter 'context' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'context'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Google Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                           ^^^^^^^
+lib/screens/login_screen.dart:155:1
+06: Error: The getter 
+'GoogleFonts' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Google Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^^^^^^
+lib/screens/login_screen.dart:155:6
+8: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Google Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                
+^^^^
+lib/screens/login_screen.dart:155:1
+46: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Google Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:155:1
+74: Error: The getter 
+'SnackBarBehavior' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'SnackBarBehavior'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Google Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    
+^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:155:5
+0: Error: The method 'SnackBar' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'SnackBar'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Google Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+              ^^^^^^^^
+lib/screens/login_screen.dart:166:2
+9: Error: Member not found: 'Supaba
+seService.signInWithFacebook'.
+      await SupabaseService.signInW
+ithFacebook();
+                            
+^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:161:7
+: Error: The getter 
+'ScaffoldMessenger' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'ScaffoldMessenger'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+      ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:161:2
+8: Error: The getter 'context' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'context'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                           ^^^^^^^
+lib/screens/login_screen.dart:161:1
+17: Error: The getter 
+'GoogleFonts' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^^^^^^
+lib/screens/login_screen.dart:161:6
+8: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                
+^^^^
+lib/screens/login_screen.dart:161:1
+57: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:161:1
+85: Error: The getter 
+'SnackBarBehavior' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'SnackBarBehavior'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    
+^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:161:5
+0: Error: The method 'SnackBar' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'SnackBar'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Please agree to terms to 
+continue', style: 
+GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+              ^^^^^^^^
+lib/screens/login_screen.dart:164:5
+: Error: The method 'setState' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'setState'.
+    setState(() => _isLoading = 
+true);
+    ^^^^^^^^
+lib/screens/login_screen.dart:168:7
+: Error: The method 'setState' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'setState'.
+      setState(() => _isLoading = 
+false); 
+      ^^^^^^^^
+lib/screens/login_screen.dart:169:7
+: Error: The getter 
+'ScaffoldMessenger' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'ScaffoldMessenger'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Facebook Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+      ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:169:2
+8: Error: The getter 'context' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'context'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Facebook Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                           ^^^^^^^
+lib/screens/login_screen.dart:169:1
+08: Error: The getter 
+'GoogleFonts' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Facebook Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^^^^^^
+lib/screens/login_screen.dart:169:6
+8: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Facebook Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                
+^^^^
+lib/screens/login_screen.dart:169:1
+48: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Facebook Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:169:1
+76: Error: The getter 
+'SnackBarBehavior' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'SnackBarBehavior'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Facebook Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+                                   
+                    
+^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:169:5
+0: Error: The method 'SnackBar' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'SnackBar'.
+      ScaffoldMessenger.of(context)
+.showSnackBar(SnackBar(content: 
+Text('Facebook Login Error: $e', 
+style: GoogleFonts.outfit()), 
+backgroundColor: Colors.redAccent, 
+behavior: 
+SnackBarBehavior.floating));
+                                   
+              ^^^^^^^^
+lib/screens/login_screen.dart:174:1
+6: Error: 'BuildContext' isn't a 
+type.
+  Widget build(BuildContext 
+context) {
+               ^^^^^^^^^^^^
+lib/screens/login_screen.dart:182:3
+0: Error: Not a constant 
+expression.
+              physics: const 
+ClampingScrollPhysics(), // More 
+solid feel
+                             
+^^^^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:190:3
+8: Error: Couldn't find 
+constructor 'EdgeInsets.fromLTRB'.
+                      padding: 
+const EdgeInsets.fromLTRB(24, 12, 
+24, 0),
+                                   
+  ^^^^^^^^^^
+lib/screens/login_screen.dart:196:4
+2: Error: Member not found: 
+'Image.asset'.
+                            child: 
+Image.asset('assets/images/original
+ logo.png', height: 48),
+                                   
+      ^^^^^
+lib/screens/login_screen.dart:202:4
+6: Error: Couldn't find 
+constructor 'EdgeInsets.all'.
+                              
+padding: const EdgeInsets.all(8),
+                                   
+          ^^^^^^^^^^
+lib/screens/login_screen.dart:214:2
+7: Error: Not a constant 
+expression.
+                    const 
+SizedBox(height: 35),
+                          ^^^^^^^^
+lib/screens/login_screen.dart:230:4
+6: Error: Not a constant 
+expression.
+                            
+alignment: const Alignment(1.0, 
+1.0),
+                                   
+          ^^^^^^^^^
+lib/screens/login_screen.dart:227:4
+0: Error: Member not found: 
+'Image.asset'.
+                          return 
+Image.asset(
+                                   
+    ^^^^^
+lib/screens/login_screen.dart:237:2
+7: Error: Not a constant 
+expression.
+                    const 
+SizedBox(height: 8),
+                          ^^^^^^^^
+lib/screens/login_screen.dart:244:4
+1: Error: Couldn't find 
+constructor 'EdgeInsets.symmetric'.
+                          margin: 
+const 
+EdgeInsets.symmetric(horizontal: 
+3),
+                                   
+     ^^^^^^^^^^
+lib/screens/login_screen.dart:256:2
+7: Error: Not a constant 
+expression.
+                    const 
+SizedBox(height: 16),
+                          ^^^^^^^^
+lib/screens/login_screen.dart:260:3
+8: Error: Couldn't find 
+constructor 'EdgeInsets.symmetric'.
+                      padding: 
+const 
+EdgeInsets.symmetric(horizontal: 
+24),
+                                   
+  ^^^^^^^^^^
+lib/screens/login_screen.dart:281:3
+3: Error: Not a constant 
+expression.
+                          const 
+SizedBox(height: 6),
+                                
+^^^^^^^^
+lib/screens/login_screen.dart:295:2
+7: Error: Not a constant 
+expression.
+                    const 
+SizedBox(height: 12),
+                          ^^^^^^^^
+lib/screens/login_screen.dart:298:3
+8: Error: Couldn't find 
+constructor 'EdgeInsets.symmetric'.
+                      padding: 
+const 
+EdgeInsets.symmetric(horizontal: 
+24),
+                                   
+  ^^^^^^^^^^
+lib/screens/login_screen.dart:306:4
+4: Error: Couldn't find 
+constructor 'EdgeInsets.symmetric'.
+                            
+padding: const 
+EdgeInsets.symmetric(horizontal: 
+20),
+                                   
+        ^^^^^^^^^^
+lib/screens/login_screen.dart:321:5
+9: Error: Cannot invoke a 
+non-'const' constructor where a 
+const expression is expected.
+Try using a constructor or factory 
+that is 'const'.
+                                
+const Text('≡ƒç│≡ƒç╡', style: 
+TextStyle(fontSize: 22)),
+                                   
+                       ^^^^^^^^^
+lib/screens/login_screen.dart:321:3
+9: Error: Not a constant 
+expression.
+                                
+const Text('≡ƒç│≡ƒç╡', style: 
+TextStyle(fontSize: 22)),
+                                   
+   ^^^^
+lib/screens/login_screen.dart:322:3
+9: Error: Not a constant 
+expression.
+                                
+const SizedBox(width: 8),
+                                   
+   ^^^^^^^^
+lib/screens/login_screen.dart:327:3
+9: Error: Not a constant 
+expression.
+                                
+const SizedBox(width: 12),
+                                   
+   ^^^^^^^^
+lib/screens/login_screen.dart:329:3
+9: Error: Not a constant 
+expression.
+                                
+const SizedBox(width: 12),
+                                   
+   ^^^^^^^^
+lib/screens/login_screen.dart:352:3
+3: Error: Not a constant 
+expression.
+                          const 
+SizedBox(height: 8),
+                                
+^^^^^^^^
+lib/screens/login_screen.dart:355:4
+4: Error: Couldn't find 
+constructor 'EdgeInsets.symmetric'.
+                            
+padding: const 
+EdgeInsets.symmetric(horizontal: 
+8),
+                                   
+        ^^^^^^^^^^
+lib/screens/login_screen.dart:368:7
+1: Error: Not a constant 
+expression.
+                                   
+ child: _agreeToTerms ? const 
+Icon(Icons.check, size: 12, color: 
+Colors.white) : null,
+                                   
+                                   
+^^^^^
+lib/screens/login_screen.dart:368:1
+01: Error: Not a constant 
+expression.
+                                   
+ child: _agreeToTerms ? const 
+Icon(Icons.check, size: 12, color: 
+Colors.white) : null,
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:368:6
+6: Error: Not a constant 
+expression.
+                                   
+ child: _agreeToTerms ? const 
+Icon(Icons.check, size: 12, color: 
+Colors.white) : null,
+                                   
+                              ^^^^
+lib/screens/login_screen.dart:371:3
+9: Error: Not a constant 
+expression.
+                                
+const SizedBox(width: 8),
+                                   
+   ^^^^^^^^
+lib/screens/login_screen.dart:377:4
+8: Error: Not a constant 
+expression.
+                                   
+      const TextSpan(text: 'I 
+agree to terms of '),
+                                   
+            ^^^^^^^^
+lib/screens/login_screen.dart:379:4
+8: Error: Not a constant 
+expression.
+                                   
+      const TextSpan(text: ' and 
+'),
+                                   
+            ^^^^^^^^
+lib/screens/login_screen.dart:388:3
+3: Error: Not a constant 
+expression.
+                          const 
+SizedBox(height: 8),
+                                
+^^^^^^^^
+lib/screens/login_screen.dart:402:1
+16: Error: Not a constant 
+expression.
+                                   
+? const SizedBox(height: 24, 
+width: 24, child: 
+CircularProgressIndicator(color: 
+Colors.white, strokeWidth: 2))
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:402:8
+3: Error: Not a constant 
+expression.
+                                   
+? const SizedBox(height: 24, 
+width: 24, child: 
+CircularProgressIndicator(color: 
+Colors.white, strokeWidth: 2))
+                                   
+                                   
+            
+^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:402:4
+4: Error: Not a constant 
+expression.
+                                   
+? const SizedBox(height: 24, 
+width: 24, child: 
+CircularProgressIndicator(color: 
+Colors.white, strokeWidth: 2))
+                                   
+        ^^^^^^^^
+lib/screens/login_screen.dart:417:2
+7: Error: Not a constant 
+expression.
+                    const 
+SizedBox(height: 12),
+                          ^^^^^^^^
+lib/screens/login_screen.dart:425:4
+2: Error: Couldn't find 
+constructor 'EdgeInsets.symmetric'.
+                          padding: 
+const 
+EdgeInsets.symmetric(horizontal: 
+40),
+                                   
+      ^^^^^^^^^^
+lib/screens/login_screen.dart:430:4
+8: Error: Couldn't find 
+constructor 'EdgeInsets.symmetric'.
+                                
+padding: const 
+EdgeInsets.symmetric(horizontal: 
+16),
+                                   
+            ^^^^^^^^^^
+lib/screens/login_screen.dart:437:3
+1: Error: Not a constant 
+expression.
+                        const 
+SizedBox(height: 12),
+                              
+^^^^^^^^
+lib/screens/login_screen.dart:439:4
+2: Error: Couldn't find 
+constructor 'EdgeInsets.symmetric'.
+                          padding: 
+const 
+EdgeInsets.symmetric(horizontal: 
+24),
+                                   
+      ^^^^^^^^^^
+lib/screens/login_screen.dart:443:3
+7: Error: Not a constant 
+expression.
+                              
+const SizedBox(width: 16),
+                                   
+ ^^^^^^^^
+lib/screens/login_screen.dart:448:3
+1: Error: Not a constant 
+expression.
+                        const 
+SizedBox(height: 10),
+                              
+^^^^^^^^
+lib/screens/login_screen.dart:450:4
+2: Error: Couldn't find 
+constructor 'EdgeInsets.only'.
+                          padding: 
+const EdgeInsets.only(bottom: 0),
+                                   
+      ^^^^^^^^^^
+lib/screens/login_screen.dart:455:4
+6: Error: Couldn't find 
+constructor 'EdgeInsets.symmetric'.
+                              
+padding: const 
+EdgeInsets.symmetric(vertical: 12, 
+horizontal: 16),
+                                   
+          ^^^^^^^^^^
+lib/screens/login_screen.dart:461:4
+3: Error: Not a constant 
+expression.
+                                   
+ const TextSpan(text: "Don't have 
+an account? "),
+                                   
+       ^^^^^^^^
+lib/screens/login_screen.dart:176:2
+4: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+      backgroundColor: 
+Colors.white,
+                       ^^^^^^
+lib/screens/login_screen.dart:184:3
+0: Error: The method 
+'BoxConstraints' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'BoxConstraints'.
+                constraints: 
+BoxConstraints(minHeight: 
+constraints.maxHeight),
+                             
+^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:186:3
+8: Error: The getter 
+'MainAxisAlignment' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'MainAxisAlignment'.
+                  
+mainAxisAlignment: 
+MainAxisAlignment.start,
+                                   
+  ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:192:4
+4: Error: The getter 
+'MainAxisAlignment' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'MainAxisAlignment'.
+                        
+mainAxisAlignment: 
+MainAxisAlignment.spaceBetween,
+                                   
+        ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:194:2
+7: Error: The method 
+'GestureDetector' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'GestureDetector'.
+                          
+GestureDetector(
+                          
+^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:200:4
+3: Error: The getter 
+'BorderRadius' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'BorderRadius'.
+                            
+borderRadius: 
+BorderRadius.circular(12),
+                                   
+       ^^^^^^^^^^^^
+lib/screens/login_screen.dart:205:4
+0: Error: The getter 'BoxShape' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'BoxShape'.
+                                
+shape: BoxShape.circle,
+                                   
+    ^^^^^^^^
+lib/screens/login_screen.dart:203:4
+3: Error: The method 
+'BoxDecoration' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'BoxDecoration'.
+                              
+decoration: BoxDecoration(
+                                   
+       ^^^^^^^^^^^^^
+lib/screens/login_screen.dart:207:4
+3: Error: The getter 'Icons' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Icons'.
+                              
+child: 
+Icon(Icons.arrow_forward_rounded, 
+color: AppTheme.brandColor, size: 
+24),
+                                   
+       ^^^^^
+lib/screens/login_screen.dart:207:3
+8: Error: The method 'Icon' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Icon'.
+                              
+child: 
+Icon(Icons.arrow_forward_rounded, 
+color: AppTheme.brandColor, size: 
+24),
+                                   
+  ^^^^
+lib/screens/login_screen.dart:201:3
+6: Error: The method 'Container' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'Container'.
+                            child: 
+Container(
+                                   
+^^^^^^^^^
+lib/screens/login_screen.dart:199:4
+2: Error: The getter 'Navigator' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Navigator'.
+                            onTap: 
+() => 
+Navigator.pushReplacement(context, 
+MaterialPageRoute(builder: (_) => 
+const MainScreen())),
+                                   
+      ^^^^^^^^^
+lib/screens/login_screen.dart:199:7
+7: Error: The method 
+'MaterialPageRoute' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'MaterialPageRoute'.
+                            onTap: 
+() => 
+Navigator.pushReplacement(context, 
+MaterialPageRoute(builder: (_) => 
+const MainScreen())),
+                                   
+                                   
+      ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:198:2
+7: Error: The method 'InkWell' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'InkWell'.
+                          InkWell(
+                          ^^^^^^^
+lib/screens/login_screen.dart:191:3
+0: Error: The method 'Row' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Row'.
+                      child: Row(
+                             ^^^
+lib/screens/login_screen.dart:189:2
+1: Error: The method 'Padding' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Padding'.
+                    Padding(
+                    ^^^^^^^
+lib/screens/login_screen.dart:220:3
+0: Error: The getter 'PageView' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'PageView'.
+                      child: 
+PageView.builder(
+                             
+^^^^^^^^
+lib/screens/login_screen.dart:223:2
+7: Error: The method 'setState' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'setState'.
+                          
+setState(() => 
+_currentIllustrationPage = index);
+                          ^^^^^^^^
+lib/screens/login_screen.dart:217:2
+1: Error: The method 'SizedBox' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'SizedBox'.
+                    SizedBox(
+                    ^^^^^^^^
+lib/screens/login_screen.dart:239:4
+2: Error: The getter 
+'MainAxisAlignment' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'MainAxisAlignment'.
+                      
+mainAxisAlignment: 
+MainAxisAlignment.center,
+                                   
+      ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:250:3
+5: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                : 
+Colors.grey.withOpacity(0.4),
+                                  
+^^^^^^
+lib/screens/login_screen.dart:251:4
+3: Error: The getter 
+'BorderRadius' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'BorderRadius'.
+                            
+borderRadius: 
+BorderRadius.circular(4),
+                                   
+       ^^^^^^^^^^^^
+lib/screens/login_screen.dart:247:3
+9: Error: The method 
+'BoxDecoration' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'BoxDecoration'.
+                          
+decoration: BoxDecoration(
+                                   
+   ^^^^^^^^^^^^^
+lib/screens/login_screen.dart:242:3
+6: Error: The method 
+'AnimatedContainer' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'AnimatedContainer'.
+                        (index) => 
+AnimatedContainer(
+                                   
+^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:238:2
+1: Error: The method 'Row' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Row'.
+                    Row(
+                    ^^^
+lib/screens/login_screen.dart:262:3
+9: Error: The getter 
+'MainAxisSize' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'MainAxisSize'.
+                        
+mainAxisSize: MainAxisSize.min,
+                                   
+   ^^^^^^^^^^^^
+lib/screens/login_screen.dart:266:3
+6: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                            style: 
+GoogleFonts.zenAntiqueSoft(
+                                   
+^^^^^^^^^^^
+lib/screens/login_screen.dart:264:2
+7: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+                          Text(
+                          ^^^^
+lib/screens/login_screen.dart:274:3
+6: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                            style: 
+GoogleFonts.zenAntiqueSoft(
+                                   
+^^^^^^^^^^^
+lib/screens/login_screen.dart:272:2
+7: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+                          Text(
+                          ^^^^
+lib/screens/login_screen.dart:285:3
+6: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                            style: 
+GoogleFonts.poppins(
+                                   
+^^^^^^^^^^^
+lib/screens/login_screen.dart:288:3
+8: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                              
+color: Colors.grey[600],
+                                   
+  ^^^^^^
+lib/screens/login_screen.dart:282:2
+7: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+                          Text(
+                          ^^^^
+lib/screens/login_screen.dart:261:3
+0: Error: The method 'Column' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Column'.
+                      child: 
+Column(
+                             ^^^^^^
+lib/screens/login_screen.dart:259:2
+1: Error: The method 'Padding' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Padding'.
+                    Padding(
+                    ^^^^^^^
+lib/screens/login_screen.dart:300:3
+9: Error: The getter 
+'MainAxisSize' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'MainAxisSize'.
+                        
+mainAxisSize: MainAxisSize.min,
+                                   
+   ^^^^^^^^^^^^
+lib/screens/login_screen.dart:301:4
+5: Error: The getter 
+'CrossAxisAlignment' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'CrossAxisAlignment'.
+                        
+crossAxisAlignment: 
+CrossAxisAlignment.stretch,
+                                   
+         ^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:308:3
+9: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                               
+color: Colors.white,
+                                   
+   ^^^^^^
+lib/screens/login_screen.dart:309:4
+6: Error: The getter 
+'BorderRadius' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'BorderRadius'.
+                               
+borderRadius: 
+BorderRadius.circular(40),
+                                   
+          ^^^^^^^^^^^^
+lib/screens/login_screen.dart:310:4
+0: Error: The getter 'Border' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Border'.
+                               
+border: Border.all(color: 
+Colors.grey.withOpacity(0.3), 
+width: 1.2),
+                                   
+    ^^^^^^
+lib/screens/login_screen.dart:310:5
+8: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                               
+border: Border.all(color: 
+Colors.grey.withOpacity(0.3), 
+width: 1.2),
+                                   
+                      ^^^^^^
+lib/screens/login_screen.dart:313:4
+3: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                   
+color: 
+Colors.black.withOpacity(0.04),
+                                   
+       ^^^^^^
+lib/screens/login_screen.dart:312:3
+4: Error: The method 'BoxShadow' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'BoxShadow'.
+                                 
+BoxShadow(
+                                 
+^^^^^^^^^
+lib/screens/login_screen.dart:307:4
+2: Error: The method 
+'BoxDecoration' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'BoxDecoration'.
+                             
+decoration: BoxDecoration(
+                                   
+      ^^^^^^^^^^^^^
+lib/screens/login_screen.dart:325:4
+2: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                                  
+style: 
+GoogleFonts.montserrat(fontSize: 
+16, fontWeight: FontWeight.w700, 
+color: Colors.black)
+                                   
+      ^^^^^^^^^^^
+lib/screens/login_screen.dart:325:1
+15: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                  
+style: 
+GoogleFonts.montserrat(fontSize: 
+16, fontWeight: FontWeight.w700, 
+color: Colors.black)
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:323:3
+3: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+                                
+Text(
+                                
+^^^^
+lib/screens/login_screen.dart:328:7
+4: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                
+Container(width: 1.2, height: 24, 
+color: 
+Colors.grey.withOpacity(0.5)),
+                                   
+                                   
+   ^^^^^^
+lib/screens/login_screen.dart:328:3
+3: Error: The method 'Container' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'Container'.
+                                
+Container(width: 1.2, height: 24, 
+color: 
+Colors.grey.withOpacity(0.5)),
+                                
+^^^^^^^^^
+lib/screens/login_screen.dart:334:5
+1: Error: The getter 
+'TextInputType' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'TextInputType'.
+                                   
+ keyboardType: TextInputType.phone,
+                                   
+               ^^^^^^^^^^^^^
+lib/screens/login_screen.dart:335:4
+4: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                                   
+ style: 
+GoogleFonts.montserrat(fontSize: 
+15, fontWeight: FontWeight.w500),
+                                   
+        ^^^^^^^^^^^
+lib/screens/login_screen.dart:338:5
+0: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                                   
+   hintStyle: 
+GoogleFonts.poppins(color: 
+Colors.grey[700], fontSize: 13, 
+fontWeight: FontWeight.w400),
+                                   
+              ^^^^^^^^^^^
+lib/screens/login_screen.dart:338:7
+7: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                   
+   hintStyle: 
+GoogleFonts.poppins(color: 
+Colors.grey[700], fontSize: 13, 
+fontWeight: FontWeight.w400),
+                                   
+                                   
+      ^^^^^^
+lib/screens/login_screen.dart:340:4
+7: Error: The getter 'InputBorder' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'InputBorder'.
+                                   
+   border: InputBorder.none,
+                                   
+           ^^^^^^^^^^^
+lib/screens/login_screen.dart:341:5
+4: Error: The getter 'InputBorder' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'InputBorder'.
+                                   
+   enabledBorder: InputBorder.none,
+                                   
+                  ^^^^^^^^^^^
+lib/screens/login_screen.dart:342:5
+4: Error: The getter 'InputBorder' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'InputBorder'.
+                                   
+   focusedBorder: InputBorder.none,
+                                   
+                  ^^^^^^^^^^^
+lib/screens/login_screen.dart:344:5
+5: Error: The getter 'EdgeInsets' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'EdgeInsets'.
+                                   
+   contentPadding: EdgeInsets.zero,
+                                   
+                   ^^^^^^^^^^
+lib/screens/login_screen.dart:336:4
+9: Error: The method 
+'InputDecoration' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'InputDecoration'.
+                                   
+ decoration: InputDecoration(
+                                   
+             ^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:331:4
+2: Error: The method 'TextField' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'TextField'.
+                                  
+child: TextField(
+                                   
+      ^^^^^^^^^
+lib/screens/login_screen.dart:330:3
+3: Error: The method 'Expanded' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Expanded'.
+                                
+Expanded(
+                                
+^^^^^^^^
+lib/screens/login_screen.dart:319:3
+6: Error: The method 'Row' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Row'.
+                            child: 
+Row(
+                                   
+^^^
+lib/screens/login_screen.dart:304:2
+7: Error: The method 'Container' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'Container'.
+                          
+Container(
+                          ^^^^^^^^^
+lib/screens/login_screen.dart:357:5
+0: Error: The getter 
+'MainAxisAlignment' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'MainAxisAlignment'.
+                              
+mainAxisAlignment: 
+MainAxisAlignment.center,
+                                   
+              ^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:364:5
+3: Error: The getter 
+'BorderRadius' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'BorderRadius'.
+                                   
+   borderRadius: 
+BorderRadius.circular(6),
+                                   
+                 ^^^^^^^^^^^^
+lib/screens/login_screen.dart:365:4
+7: Error: The getter 'Border' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Border'.
+                                   
+   border: Border.all(color: 
+Colors.grey.withOpacity(0.6), 
+width: 1.2),
+                                   
+           ^^^^^^
+lib/screens/login_screen.dart:365:6
+5: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                   
+   border: Border.all(color: 
+Colors.grey.withOpacity(0.6), 
+width: 1.2),
+                                   
+                             ^^^^^^
+lib/screens/login_screen.dart:366:8
+4: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                   
+   color: _agreeToTerms ? 
+AppTheme.brandColor : Colors.white,
+                                   
+                                   
+             ^^^^^^
+lib/screens/login_screen.dart:363:4
+9: Error: The method 
+'BoxDecoration' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'BoxDecoration'.
+                                   
+ decoration: BoxDecoration(
+                                   
+             ^^^^^^^^^^^^^
+lib/screens/login_screen.dart:361:4
+2: Error: The method 'Container' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'Container'.
+                                  
+child: Container(
+                                   
+      ^^^^^^^^^
+lib/screens/login_screen.dart:360:4
+8: Error: The method 'setState' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'setState'.
+                                  
+onTap: () => setState(() => 
+_agreeToTerms = !_agreeToTerms),
+                                   
+            ^^^^^^^^
+lib/screens/login_screen.dart:359:3
+3: Error: The method 
+'GestureDetector' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'GestureDetector'.
+                                
+GestureDetector(
+                                
+^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:375:4
+7: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                                   
+    style: 
+GoogleFonts.poppins(fontSize: 12, 
+color: Colors.grey[600]),
+                                   
+           ^^^^^^^^^^^
+lib/screens/login_screen.dart:375:8
+8: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                   
+    style: 
+GoogleFonts.poppins(fontSize: 12, 
+color: Colors.grey[600]),
+                                   
+                                   
+                 ^^^^^^
+lib/screens/login_screen.dart:378:4
+2: Error: The method 'TextSpan' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'TextSpan'.
+                                   
+      TextSpan(text: 'Service', 
+style: TextStyle(color: 
+AppTheme.brandColor, fontWeight: 
+FontWeight.bold)),
+                                   
+      ^^^^^^^^
+lib/screens/login_screen.dart:380:4
+2: Error: The method 'TextSpan' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'TextSpan'.
+                                   
+      TextSpan(text: 'Privacy 
+Policy', style: TextStyle(color: 
+AppTheme.brandColor, fontWeight: 
+FontWeight.bold)),
+                                   
+      ^^^^^^^^
+lib/screens/login_screen.dart:374:4
+4: Error: The method 'TextSpan' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'TextSpan'.
+                                   
+  text: TextSpan(
+                                   
+        ^^^^^^^^
+lib/screens/login_screen.dart:373:4
+3: Error: The method 'RichText' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'RichText'.
+                                   
+child: RichText(
+                                   
+       ^^^^^^^^
+lib/screens/login_screen.dart:372:3
+3: Error: The method 'Expanded' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Expanded'.
+                                
+Expanded(
+                                
+^^^^^^^^
+lib/screens/login_screen.dart:356:3
+6: Error: The method 'Row' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Row'.
+                            child: 
+Row(
+                                   
+^^^
+lib/screens/login_screen.dart:354:2
+7: Error: The method 'Padding' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Padding'.
+                          Padding(
+                          ^^^^^^^
+lib/screens/login_screen.dart:395:3
+8: Error: The getter 
+'ElevatedButton' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'ElevatedButton'.
+                              
+style: ElevatedButton.styleFrom(
+                                   
+  ^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:397:5
+0: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                
+foregroundColor: Colors.white,
+                                   
+              ^^^^^^
+lib/screens/login_screen.dart:399:7
+7: Error: The getter 
+'BorderRadius' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'BorderRadius'.
+                                
+shape: RoundedRectangleBorder(borde
+rRadius: 
+BorderRadius.circular(40)),
+                                   
+                                   
+      ^^^^^^^^^^^^
+lib/screens/login_screen.dart:399:4
+0: Error: The method 
+'RoundedRectangleBorder' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'RoundedRectangleBorder'.
+                                
+shape: RoundedRectangleBorder(borde
+rRadius: 
+BorderRadius.circular(40)),
+                                   
+    ^^^^^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:405:4
+7: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                                   
+    style: GoogleFonts.outfit(
+                                   
+           ^^^^^^^^^^^
+lib/screens/login_screen.dart:403:3
+8: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+                                   
+: Text(
+                                   
+  ^^^^
+lib/screens/login_screen.dart:393:3
+6: Error: The method 
+'ElevatedButton' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'ElevatedButton'.
+                            child: 
+ElevatedButton(
+                                   
+^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:391:2
+7: Error: The method 'SizedBox' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'SizedBox'.
+                          SizedBox(
+                          ^^^^^^^^
+lib/screens/login_screen.dart:299:3
+0: Error: The method 'Column' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Column'.
+                      child: 
+Column(
+                             ^^^^^^
+lib/screens/login_screen.dart:297:2
+1: Error: The method 'Padding' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Padding'.
+                    Padding(
+                    ^^^^^^^
+lib/screens/login_screen.dart:421:3
+7: Error: The getter 
+'MainAxisSize' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'MainAxisSize'.
+                      
+mainAxisSize: MainAxisSize.min,
+                                   
+ ^^^^^^^^^^^^
+lib/screens/login_screen.dart:428:6
+2: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                              
+Expanded(child: Divider(color: 
+Colors.grey.withOpacity(0.4))),
+                                   
+                          ^^^^^^
+lib/screens/login_screen.dart:428:4
+7: Error: The method 'Divider' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Divider'.
+                              
+Expanded(child: Divider(color: 
+Colors.grey.withOpacity(0.4))),
+                                   
+           ^^^^^^^
+lib/screens/login_screen.dart:428:3
+1: Error: The method 'Expanded' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Expanded'.
+                              
+Expanded(child: Divider(color: 
+Colors.grey.withOpacity(0.4))),
+                              
+^^^^^^^^
+lib/screens/login_screen.dart:431:5
+8: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                                
+child: Text('OR', style: 
+GoogleFonts.outfit(fontSize: 13, 
+fontWeight: FontWeight.bold, 
+color: Colors.grey[600])),
+                                   
+                      ^^^^^^^^^^^
+lib/screens/login_screen.dart:431:1
+27: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                
+child: Text('OR', style: 
+GoogleFonts.outfit(fontSize: 13, 
+fontWeight: FontWeight.bold, 
+color: Colors.grey[600])),
+                                   
+                                   
+                    ^^^^^^
+lib/screens/login_screen.dart:431:4
+0: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+                                
+child: Text('OR', style: 
+GoogleFonts.outfit(fontSize: 13, 
+fontWeight: FontWeight.bold, 
+color: Colors.grey[600])),
+                                   
+    ^^^^
+lib/screens/login_screen.dart:429:3
+1: Error: The method 'Padding' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Padding'.
+                              
+Padding(
+                              
+^^^^^^^
+lib/screens/login_screen.dart:433:6
+2: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                              
+Expanded(child: Divider(color: 
+Colors.grey.withOpacity(0.4))),
+                                   
+                          ^^^^^^
+lib/screens/login_screen.dart:433:4
+7: Error: The method 'Divider' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Divider'.
+                              
+Expanded(child: Divider(color: 
+Colors.grey.withOpacity(0.4))),
+                                   
+           ^^^^^^^
+lib/screens/login_screen.dart:433:3
+1: Error: The method 'Expanded' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Expanded'.
+                              
+Expanded(child: Divider(color: 
+Colors.grey.withOpacity(0.4))),
+                              
+^^^^^^^^
+lib/screens/login_screen.dart:426:3
+4: Error: The method 'Row' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Row'.
+                          child: 
+Row(
+                                 
+^^^
+lib/screens/login_screen.dart:424:2
+5: Error: The method 'Padding' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Padding'.
+                        Padding(
+                        ^^^^^^^
+lib/screens/login_screen.dart:442:3
+1: Error: The method 'Expanded' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Expanded'.
+                              
+Expanded(child: _buildSocialBtn('as
+sets/icons/google_g.svg', 
+'Google', _isLoading ? () {} : 
+_signInWithGoogle)),
+                              
+^^^^^^^^
+lib/screens/login_screen.dart:444:3
+1: Error: The method 'Expanded' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Expanded'.
+                              
+Expanded(child: _buildSocialBtn('as
+sets/icons/facebook_f.svg', 
+'Facebook', _isLoading ? () {} : 
+_signInWithFacebook)),
+                              
+^^^^^^^^
+lib/screens/login_screen.dart:440:3
+4: Error: The method 'Row' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Row'.
+                          child: 
+Row(
+                                 
+^^^
+lib/screens/login_screen.dart:438:2
+5: Error: The method 'Padding' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Padding'.
+                        Padding(
+                        ^^^^^^^
+lib/screens/login_screen.dart:453:4
+3: Error: The getter 
+'BorderRadius' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'BorderRadius'.
+                            
+borderRadius: 
+BorderRadius.circular(12),
+                                   
+       ^^^^^^^^^^^^
+lib/screens/login_screen.dart:459:4
+2: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                                  
+style: 
+GoogleFonts.poppins(fontSize: 14, 
+color: Colors.grey[700]),
+                                   
+      ^^^^^^^^^^^
+lib/screens/login_screen.dart:459:8
+3: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                                  
+style: 
+GoogleFonts.poppins(fontSize: 14, 
+color: Colors.grey[700]),
+                                   
+                                   
+            ^^^^^^
+lib/screens/login_screen.dart:462:3
+7: Error: The method 'TextSpan' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'TextSpan'.
+                                   
+ TextSpan(text: 'Register Here', 
+style: TextStyle(color: 
+AppTheme.brandColor, fontWeight: 
+FontWeight.w600)),
+                                   
+ ^^^^^^^^
+lib/screens/login_screen.dart:458:3
+9: Error: The method 'TextSpan' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'TextSpan'.
+                                
+text: TextSpan(
+                                   
+   ^^^^^^^^
+lib/screens/login_screen.dart:456:3
+8: Error: The method 'RichText' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'RichText'.
+                              
+child: RichText(
+                                   
+  ^^^^^^^^
+lib/screens/login_screen.dart:454:3
+6: Error: The method 'Padding' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Padding'.
+                            child: 
+Padding(
+                                   
+^^^^^^^
+lib/screens/login_screen.dart:452:4
+2: Error: The getter 'Navigator' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Navigator'.
+                            onTap: 
+() => Navigator.push(context, 
+MaterialPageRoute(builder: (_) => 
+const RegisterScreen())),
+                                   
+      ^^^^^^^^^
+lib/screens/login_screen.dart:452:6
+6: Error: The method 
+'MaterialPageRoute' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'MaterialPageRoute'.
+                            onTap: 
+() => Navigator.push(context, 
+MaterialPageRoute(builder: (_) => 
+const RegisterScreen())),
+                                   
+                              
+^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:451:3
+4: Error: The method 'InkWell' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'InkWell'.
+                          child: 
+InkWell(
+                                 
+^^^^^^^
+lib/screens/login_screen.dart:449:2
+5: Error: The method 'Padding' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Padding'.
+                        Padding(
+                        ^^^^^^^
+lib/screens/login_screen.dart:420:2
+1: Error: The method 'Column' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Column'.
+                    Column(
+                    ^^^^^^
+lib/screens/login_screen.dart:185:2
+4: Error: The method 'Column' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Column'.
+                child: Column(
+                       ^^^^^^
+lib/screens/login_screen.dart:183:2
+2: Error: The method 
+'ConstrainedBox' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'ConstrainedBox'.
+              child: 
+ConstrainedBox(
+                     ^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:181:2
+0: Error: The method 
+'SingleChildScrollView' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'SingleChildScrollView'.
+            return 
+SingleChildScrollView(
+                   
+^^^^^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:179:1
+6: Error: The method 
+'LayoutBuilder' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'LayoutBuilder'.
+        child: LayoutBuilder(
+               ^^^^^^^^^^^^^
+lib/screens/login_screen.dart:178:1
+3: Error: The method 'SafeArea' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'SafeArea'.
+      body: SafeArea(
+            ^^^^^^^^
+lib/screens/login_screen.dart:175:1
+2: Error: The method 'Scaffold' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Scaffold'.
+    return Scaffold(
+           ^^^^^^^^
+lib/screens/login_screen.dart:509:2
+3: Error: Not a constant 
+expression.
+                const 
+SizedBox(width: 12),
+                      ^^^^^^^^
+lib/screens/login_screen.dart:485:2
+3: Error: The getter 
+'BorderRadius' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'BorderRadius'.
+        borderRadius: 
+BorderRadius.circular(50),
+                      ^^^^^^^^^^^^
+lib/screens/login_screen.dart:491:2
+2: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+              color: 
+Colors.white.withOpacity(0.6), // 
+Semi-transparent for glass effect
+                     ^^^^^^
+lib/screens/login_screen.dart:492:2
+9: Error: The getter 
+'BorderRadius' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'BorderRadius'.
+              borderRadius: 
+BorderRadius.circular(50),
+                            
+^^^^^^^^^^^^
+lib/screens/login_screen.dart:493:2
+3: Error: The getter 'Border' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Border'.
+              border: Border.all(
+                      ^^^^^^
+lib/screens/login_screen.dart:494:2
+4: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                color: 
+Colors.grey.withOpacity(0.4), 
+                       ^^^^^^
+lib/screens/login_screen.dart:499:2
+6: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                  color: 
+Colors.black.withOpacity(0.03),
+                         ^^^^^^
+lib/screens/login_screen.dart:498:1
+7: Error: The method 'BoxShadow' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'BoxShadow'.
+                BoxShadow(
+                ^^^^^^^^^
+lib/screens/login_screen.dart:490:2
+5: Error: The method 
+'BoxDecoration' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'BoxDecoration'.
+            decoration: 
+BoxDecoration(
+                        
+^^^^^^^^^^^^^
+lib/screens/login_screen.dart:506:3
+4: Error: The getter 
+'MainAxisAlignment' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'MainAxisAlignment'.
+              mainAxisAlignment: 
+MainAxisAlignment.center,
+                                 
+^^^^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:512:2
+6: Error: The getter 'GoogleFonts' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'GoogleFonts'.
+                  style: 
+GoogleFonts.outfit(
+                         
+^^^^^^^^^^^
+lib/screens/login_screen.dart:515:2
+8: Error: The getter 'Colors' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'Colors'.
+                    color: 
+Colors.black87
+                           ^^^^^^
+lib/screens/login_screen.dart:510:1
+7: Error: The method 'Text' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Text'.
+                Text(
+                ^^^^
+lib/screens/login_screen.dart:505:2
+0: Error: The method 'Row' isn't 
+defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 'Row'.
+            child: Row(
+                   ^^^
+lib/screens/login_screen.dart:488:1
+8: Error: The method 'Container' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'Container'.
+          child: Container(
+                 ^^^^^^^^^
+lib/screens/login_screen.dart:486:1
+6: Error: The method 
+'BackdropFilter' isn't defined for 
+the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'BackdropFilter'.
+        child: BackdropFilter(
+               ^^^^^^^^^^^^^^
+lib/screens/login_screen.dart:484:1
+4: Error: The method 'ClipRRect' 
+isn't defined for the type 
+'_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'ClipRRect'.
+      child: ClipRRect(
+             ^^^^^^^^^
+lib/screens/login_screen.dart:482:1
+2: Error: The method 
+'GestureDetector' isn't defined 
+for the type '_LoginScreenState'.
+ - '_LoginScreenState' is from 'pac
+kage:khozna/screens/login_screen.da
+rt' 
+('lib/screens/login_screen.dart').
+Try correcting the name to the 
+name of an existing method, or 
+defining a method named 
+'GestureDetector'.
+    return GestureDetector(
+           ^^^^^^^^^^^^^^^
+lib/screens/profile_screen.dart:249
+:126: Error: A value of type 
+'LoginScreen' can't be returned 
+from a function with return type 
+'Widget'.
+ - 'LoginScreen' is from 'package:k
+hozna/screens/login_screen.dart' 
+('lib/screens/login_screen.dart').
+ - 'Widget' is from 'package:flutte
+r/src/widgets/framework.dart' ('/D:
+/flutter/packages/flutter/lib/src/w
+idgets/framework.dart').
+                                  
+if (mounted) Navigator.pushAndRemov
+eUntil(context, 
+MaterialPageRoute(builder: (_) => 
+const LoginScreen()), (route) => 
+false);
+                                   
+                                   
+                    ^
+lib/screens/verify_phone_screen.dar
+t:39:37: Error: The getter 
+'verificationId' isn't defined for 
+the type 'VerifyPhoneScreen'.
+ - 'VerifyPhoneScreen' is from 'pac
+kage:khozna/screens/verify_phone_sc
+reen.dart' ('lib/screens/verify_pho
+ne_screen.dart').
+Try correcting the name to the 
+name of an existing getter, or 
+defining a getter or field named 
+'verificationId'.
+    _currentVerificationId = 
+widget.verificationId;
+                                   
+ ^^^^^^^^^^^^^^
+lib/screens/chat_screen.dart:584:81
+: Error: Not a constant expression.
+                
+Navigator.push(context, 
+MaterialPageRoute(builder: (_) => 
+const BoostPromotionScreen()));
+                                   
+                                   
+          ^^^^^^^^^^^^^^^^^^^^
+lib/widgets/favourite_button.dart:3
+5:59: Error: A value of type 
+'LoginScreen' can't be returned 
+from a function with return type 
+'Widget'.
+ - 'LoginScreen' is from 'package:k
+hozna/screens/login_screen.dart' 
+('lib/screens/login_screen.dart').
+ - 'Widget' is from 'package:flutte
+r/src/widgets/framework.dart' ('/D:
+/flutter/packages/flutter/lib/src/w
+idgets/framework.dart').
+            
+MaterialPageRoute(builder: 
+(context) => const LoginScreen()),
+                                   
+                       ^
+Target kernel_snapshot_program 
+failed: Exception
+
+
+FAILURE: Build failed with an 
+exception.
+
+* What went wrong:
+Execution failed for task 
+':app:compileFlutterBuildDebug'.
+> Process 'command 
+'D:\flutter\bin\flutter.bat'' 
+finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to 
+get the stack trace.
+> Run with --info or --debug 
+option to get more log output.
+> Run with --scan to get full 
+insights.
+> Get more help at 
+https://help.gradle.org.
+
+BUILD FAILED in 36s
+Running Gradle task 'assembleDebug'...                             37.3s
+Gradle task assembleDebug failed 
+with exit code 1

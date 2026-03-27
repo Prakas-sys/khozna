@@ -9,6 +9,7 @@ import 'main_screen.dart';
 
 class VerifyPhoneScreen extends StatefulWidget {
   final String phoneNumber;
+  final String verificationId;
   const VerifyPhoneScreen({
     super.key,
     required this.phoneNumber,
