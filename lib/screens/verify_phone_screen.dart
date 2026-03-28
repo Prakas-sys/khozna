@@ -323,8 +323,9 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
           focusNode: _focusNodes[index],
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
+          autofillHints: const [AutofillHints.oneTimeCode],
           inputFormatters: [
-            LengthLimitingTextInputFormatter(1),
+            LengthLimitingTextInputFormatter(6), // Increased from 1 to 6 to catch autofills
             FilteringTextInputFormatter.digitsOnly,
           ],
           style: GoogleFonts.outfit(
@@ -340,7 +341,21 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
             isDense: true,
           ),
           onChanged: (value) {
-            if (value.isNotEmpty) {
+            if (value.length > 1) {
+              // Handle OTP Autocapture or Paste
+              for (int i = 0; i < value.length && (index + i) < 6; i++) {
+                _controllers[index + i].text = value[i];
+              }
+              
+              int nextIndex = index + value.length;
+              if (nextIndex < 6) {
+                _focusNodes[nextIndex].requestFocus();
+              } else {
+                _focusNodes.last.unfocus();
+                _verifyOtp();
+              }
+            } else if (value.isNotEmpty) {
+              // Handle single digit input
               if (index < 5) {
                 _focusNodes[index + 1].requestFocus();
               } else {
