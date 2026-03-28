@@ -886,14 +886,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ),
                   child: Text(
                     _isMyProperty 
-                        ? 'Your Listing (तपाईंको लिस्टिङ)'
+                        ? 'Your Listing'
                         : _isReserved 
-                            ? 'Booked (तपाईंले बुक गर्नुभयो)' 
+                            ? 'Booked ✓' 
                             : 'BOOK NOW (बुक गर्नुहोस्)',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
                   ),
                 ),
               ),

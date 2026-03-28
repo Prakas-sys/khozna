@@ -147,33 +147,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   _navigate(context, const SearchScreen());
                 },
                 child: Container(
-                  height: 52,
-                  padding: const EdgeInsets.only(left: 16, right: 6),
+                  height: 64,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                    borderRadius: BorderRadius.circular(45),
+                    border: Border.all(color: Colors.grey.shade200, width: 1.2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 20,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.search_rounded,
                         color: AppTheme.brandColor,
-                        size: 24,
+                        size: 26,
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 14),
                       Expanded(
                         child: Text(
                           'Search properties',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.inter(
                             color: Colors.grey[400],
                             fontSize: 16,
