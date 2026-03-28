@@ -19,18 +19,19 @@ serve(async (req) => {
     }
 
     // Aakash SMS API v3 endpoint
-    const url = "https://v3.aakashsms.com/api/v2/sms/send"
+    const url = "http://aakashsms.com/admin/public/sms/v3/send/"
+
+    // Clean phone number (Aakash SMS expects 10 digits, strip +977 if present)
+    const cleanPhone = phone.replace("+977", "").trim()
+
+    const formData = new FormData()
+    formData.append("auth_token", auth_token)
+    formData.append("to", cleanPhone)
+    formData.append("text", `Your Khozna OTP code is: ${otp}. Do not share this with anyone.`)
 
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        auth_token,
-        to: phone,
-        text: `Your Khozna OTP code is: ${otp}. Do not share this with anyone.`,
-      }),
+      body: formData,
     })
 
     const result = await response.json()
