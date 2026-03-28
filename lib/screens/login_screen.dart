@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('Admin Control', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        title: Text('Admin Control', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -110,13 +110,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _verifyPhone() async {
     if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please agree to terms to continue', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please agree to terms to continue', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
       return;
     }
     final phone = _phoneController.text.trim();
     if (phone.length < 10) {
       _phoneFocusNode.requestFocus();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter a valid phone number', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please enter a valid phone number', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
       return;
     }
 
@@ -149,14 +149,14 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
     }
   }
 
 
   Future<void> _signInWithGoogle() async {
     if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please agree to terms to continue', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please agree to terms to continue', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
       return;
     }
     setState(() => _isLoading = true);
@@ -168,13 +168,13 @@ class _LoginScreenState extends State<LoginScreen> {
       // Logic continues via session listener or initial session check
     } catch (e) { 
       setState(() => _isLoading = false); 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google Login Error: $e', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google Login Error: $e', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
     }
   }
 
   Future<void> _signInWithFacebook() async {
     if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please agree to terms to continue', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please agree to terms to continue', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
       return;
     }
     setState(() => _isLoading = true);
@@ -182,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await SupabaseService.signInWithFacebook();
     } catch (e) { 
       setState(() => _isLoading = false); 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Facebook Login Error: $e', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Facebook Login Error: $e', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
     }
   }
 
@@ -424,7 +424,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                    ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                                    : Text(
                                        'Login', 
-                                       style: GoogleFonts.outfit(
+                                       style: GoogleFonts.inter(
                                          fontSize: 18, 
                                          fontWeight: FontWeight.bold,
                                          letterSpacing: 0.5,
@@ -450,7 +450,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
                               Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                                child: Text('OR', style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey[600])),
+                                child: Text('OR', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.grey[600])),
                               ),
                               Expanded(child: Divider(color: Colors.grey.withOpacity(0.4))),
                             ],
@@ -531,7 +531,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(width: 12),
                 Text(
                   label, 
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     fontSize: 16, 
                     fontWeight: FontWeight.w600, 
                     color: Colors.black87

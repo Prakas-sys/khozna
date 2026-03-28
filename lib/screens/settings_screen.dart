@@ -19,7 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Settings', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('Settings', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18)),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -43,13 +43,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle), child: const Icon(Icons.delete_outline, color: Colors.red, size: 20)),
-            title: Text('Delete Account', style: GoogleFonts.outfit(color: Colors.red, fontWeight: FontWeight.bold)),
-            subtitle: Text('This action cannot be undone.', style: GoogleFonts.outfit(fontSize: 12)),
+            title: Text('Delete Account', style: GoogleFonts.inter(color: Colors.red, fontWeight: FontWeight.bold)),
+            subtitle: Text('This action cannot be undone.', style: GoogleFonts.inter(fontSize: 12)),
             onTap: () {},
           ),
           
           const SizedBox(height: 40),
-          Center(child: Text('Khozna v1.0.0', style: GoogleFonts.outfit(color: Colors.grey, fontSize: 12))),
+          Center(child: Text('Khozna v1.0.0', style: GoogleFonts.inter(color: Colors.grey, fontSize: 12))),
         ],
       ),
     );
@@ -58,15 +58,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: Text(title, style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey[500], letterSpacing: 1.2)),
+      child: Text(title, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey[500], letterSpacing: 1.2)),
     );
   }
 
   Widget _buildToggleTile(String title, String desc, bool value, Function(bool) onChanged) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
-      subtitle: Text(desc, style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)),
+      title: Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+      subtitle: Text(desc, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey)),
       trailing: Switch(value: value, onChanged: onChanged, activeThumbColor: AppTheme.brandColor),
     );
   }
@@ -74,8 +74,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildLanguageTile() {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text('Language', style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
-      subtitle: Text(_language, style: GoogleFonts.outfit(fontSize: 12, color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
+      title: Text('Language', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+      subtitle: Text(_language, style: GoogleFonts.inter(fontSize: 12, color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
       trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
       onTap: () {
         showModalBottomSheet(
@@ -100,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle), child: Icon(icon, color: Colors.black, size: 20)),
-      title: Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
+      title: Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
       trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
       onTap: () {},
     );

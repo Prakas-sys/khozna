@@ -55,8 +55,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
-          'Notifications (सूचनाहरू)',
-          style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold),
+          'Notifications',
+          style: GoogleFonts.inter(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: Colors.black,
+            letterSpacing: -0.5,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -159,7 +164,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       text: TextSpan(
-                                        style: GoogleFonts.outfit(fontSize: 14, color: Colors.black, height: 1.3),
+                                        style: GoogleFonts.inter(fontSize: 14, color: Colors.black, height: 1.3),
                                         children: [
                                           TextSpan(
                                             text: sender != null ? sender['full_name'] + ' ' : '',
@@ -194,33 +199,46 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildEmptyState() {
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.7,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(color: Colors.grey[50], shape: BoxShape.circle),
-                child: Icon(Icons.notifications_none_rounded, size: 48, color: Colors.grey[200]),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'No activity yet',
-                style: GoogleFonts.outfit(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Notifications about your listings,\nbookings, and saves will appear here.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(color: Colors.grey, fontSize: 14),
-              ),
-            ],
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor.withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.notifications_none_rounded,
+              size: 64,
+              color: AppTheme.brandColor,
+            ),
           ),
-        ),
+          const SizedBox(height: 24),
+          Text(
+            'No notifications yet',
+            style: GoogleFonts.inter(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              'Your activity, bookings, and important\nalerts will appear here when they happen.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: Colors.grey[600],
+                height: 1.5,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -236,16 +254,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           children: [
             Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 24),
-            Text('Remove notification?', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Remove notification?', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
-            Text('This will permanently delete this alert from your feed.', textAlign: TextAlign.center, style: GoogleFonts.outfit(color: Colors.grey)),
+            Text('This will permanently delete this alert from your feed.', textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.grey)),
             const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
                   child: TextButton(
                     onPressed: () => Navigator.pop(context, false),
-                    child: Text('Cancel', style: GoogleFonts.outfit(color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text('Cancel', style: GoogleFonts.inter(color: Colors.black, fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -258,7 +276,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: Text('Delete', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                    child: Text('Delete', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                   ),
                 ),
               ],

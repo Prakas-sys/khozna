@@ -146,7 +146,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
             const SizedBox(width: 6),
             Text(
               title,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.inter(
                 color: isSelected ? Colors.black87 : Colors.white70,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 fontSize: 13,
@@ -302,7 +302,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                 children: [
                   Text(
                     '@${reel['ownerName'].toString().replaceAll(' ', '').toLowerCase()}',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -335,7 +335,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           reel['title'],
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.inter(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
@@ -351,7 +351,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 reel['location'],
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.inter(
                                   color: Colors.white70,
                                   fontSize: 13,
                                 ),
@@ -365,7 +365,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           children: [
                             Text(
                               reel['price'],
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.inter(
                                 color: Colors.white,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
@@ -385,7 +385,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               ),
                               child: Text(
                                 'VISIT',
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w900,
                                   fontSize: 12,
@@ -424,7 +424,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
           const SizedBox(height: 6),
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.w600,

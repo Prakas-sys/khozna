@@ -150,7 +150,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Text(
                   widget.description ??
                       'सानेपाको शान्त वातावरणमा अवस्थित यो २ कोठाको फ्ल्याट विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ। उज्यालो कोठाहरू र खुल्ला पार्किङको सुविधा उपलब्ध छ। मुख्य बाटोबाट मात्र ५ मिनेटको दुरीमा।',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                       fontSize: 15, color: _airbnbGrey, height: 1.6),
                 ),
                 const SizedBox(height: 32),
@@ -317,7 +317,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
                 child: Text(
                   '${_currentImageIndex + 1}/${displayImages.length}',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                       color: Colors.white,
                       fontSize: 10,
                       fontWeight: FontWeight.bold),
@@ -360,7 +360,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               const SizedBox(width: 4),
               Text(
                 'VERIFIED LISTING',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.inter(
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.brandColor,
@@ -373,7 +373,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         const SizedBox(height: 12),
         Text(
           title,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.inter(
             fontSize: 26,
             fontWeight: FontWeight.bold,
             color: AppTheme.primaryTextColor,
@@ -387,7 +387,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             const SizedBox(width: 4),
             Text(
               location,
-              style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[600]),
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
             ),
           ],
         ),
@@ -423,11 +423,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         const SizedBox(height: 6),
         Text(
           value,
-          style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold),
         ),
         Text(
           label,
-          style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[500]),
+          style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
         ),
       ],
     );
@@ -449,7 +449,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             children: [
               Text(
                 'महिनाको भाडा (Monthly Rent)',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.inter(
                   fontSize: 11,
                   color: _airbnbGrey,
                   fontWeight: FontWeight.w500,
@@ -461,7 +461,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   children: [
                     TextSpan(
                       text: price,
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.inter(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.brandColor,
@@ -469,7 +469,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     ),
                     TextSpan(
                       text: ' /महिना',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         color: _airbnbGrey,
                       ),
@@ -491,7 +491,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             child: Text(
               'Negotiable',
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 color: AppTheme.brandColor,
@@ -542,10 +542,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               children: [
                 Text(title,
                     style:
-                        GoogleFonts.outfit(fontSize: 9, color: Colors.grey[600])),
+                        GoogleFonts.inter(fontSize: 9, color: Colors.grey[600])),
                 Text(
                   value,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                       fontSize: 11, fontWeight: FontWeight.bold),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -582,11 +582,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
           const SizedBox(width: 12),
           Text(title,
-              style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[700])),
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700])),
           const Spacer(),
           Text(
             distance,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.primaryTextColor),
@@ -620,7 +620,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               children: [
                 Text(
                   name,
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: AppTheme.primaryTextColor),
@@ -628,7 +628,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Text(
                   'Verified Owner • Khozna Member',
                   style:
-                      GoogleFonts.outfit(fontSize: 12, color: Colors.grey[500]),
+                      GoogleFonts.inter(fontSize: 12, color: Colors.grey[500]),
                 ),
               ],
             ),
@@ -663,10 +663,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           Icon(icon, size: 18, color: Colors.grey[600]),
           const SizedBox(width: 10),
           Text(title,
-              style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[700])),
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700])),
           const Spacer(),
           Text(value,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.inter(
                   fontSize: 13, fontWeight: FontWeight.bold)),
         ],
       ),
@@ -676,7 +676,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: GoogleFonts.inter(
         fontSize: 19,
         fontWeight: FontWeight.bold,
         color: AppTheme.primaryTextColor,
@@ -695,7 +695,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             const SizedBox(width: 6),
             Text(
               'मुख्य बाटोबाट मात्र ५ मिनेट',
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold, fontSize: 13),
             ),
           ],
@@ -703,7 +703,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         const SizedBox(height: 6),
         Text(
           'शान्त टोल, ढल र पिच रोडको सुविधा भएको ठाउँ।',
-          style: GoogleFonts.outfit(fontSize: 13, color: _airbnbGrey),
+          style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
         ),
       ],
     );
@@ -760,7 +760,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       const SizedBox(width: 6),
                       Text(
                         'Call',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -844,7 +844,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                     children: [
                                       Text(
                                         'बुकिङ अनुरोध पठाइयो! ✅',
-                                        style: GoogleFonts.outfit(
+                                        style: GoogleFonts.inter(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14,
@@ -852,7 +852,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                       ),
                                       Text(
                                         'नोटिफिकेसन सेक्सनमा हेर्नुहोस् 🔔',
-                                        style: GoogleFonts.outfit(
+                                        style: GoogleFonts.inter(
                                           color: Colors.white60,
                                           fontSize: 12,
                                         ),
@@ -889,8 +889,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ? 'Your Listing (तपाईंको लिस्टिङ)'
                         : _isReserved 
                             ? 'Booked (तपाईंले बुक गर्नुभयो)' 
-                            : 'Reserve (बुक गर्नुहोस्)',
-                    style: GoogleFonts.outfit(
+                            : 'BOOK NOW (बुक गर्नुहोस्)',
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
                     ),

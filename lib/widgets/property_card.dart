@@ -102,14 +102,14 @@ class PropertyCard extends StatelessWidget {
                       builder: (context) {
                         final isBooked = status == 'booked';
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: isBooked ? Colors.red : const Color(0xFF2ECC71),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: Text(
                             isBooked ? 'Booked' : 'For Rent',
-                            style: GoogleFonts.outfit(color: Colors.white, fontSize: 11.0, fontWeight: FontWeight.bold),
+                            style: GoogleFonts.inter(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
                           ),
                         );
                       },
@@ -138,7 +138,7 @@ class PropertyCard extends StatelessWidget {
                             title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
@@ -151,7 +151,7 @@ class PropertyCard extends StatelessWidget {
                             children: [
                               TextSpan(
                                 text: price,
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: AppTheme.brandColor,
@@ -159,7 +159,7 @@ class PropertyCard extends StatelessWidget {
                               ),
                               TextSpan(
                                 text: '/mo',
-                                style: GoogleFonts.outfit(
+                                style: GoogleFonts.inter(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black87,
@@ -185,7 +185,7 @@ class PropertyCard extends StatelessWidget {
                             const SizedBox(width: 2),
                             Text(
                               location,
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.inter(
                                 fontSize: 11,
                                 color: Colors.grey[600],
                               ),
@@ -203,7 +203,7 @@ class PropertyCard extends StatelessWidget {
                                 ),
                                 Text(
                                   'Bed',
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.inter(
                                     fontSize: 8,
                                     color: Colors.grey[700],
                                     fontWeight: FontWeight.w300,
@@ -221,7 +221,7 @@ class PropertyCard extends StatelessWidget {
                                 ),
                                 Text(
                                   'Parking',
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.inter(
                                     fontSize: 8,
                                     color: Colors.grey[700],
                                     fontWeight: FontWeight.w300,
@@ -239,7 +239,7 @@ class PropertyCard extends StatelessWidget {
                                 ),
                                 Text(
                                   'Wifi',
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.inter(
                                     fontSize: 8,
                                     color: Colors.grey[700],
                                     fontWeight: FontWeight.w300,
@@ -276,7 +276,7 @@ class PropertyCard extends StatelessWidget {
                               ),
                             ),
                             icon: const Icon(Icons.directions_walk, size: 17),
-                            label: Text('Visit Now', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                            label: Text('Visit Now', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13.5)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.brandColor,
                               foregroundColor: Colors.white,
@@ -314,7 +314,7 @@ class PropertyCard extends StatelessWidget {
                             ),
                             label: Text(
                               'Message',
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13.5,
                               ),

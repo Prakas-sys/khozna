@@ -3,7 +3,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import 'saved_properties_screen.dart';
 import 'my_listings_screen.dart';
@@ -11,6 +10,7 @@ import 'safety_center_screen.dart';
 import 'kyc_screen.dart';
 import 'settings_screen.dart';
 import 'login_screen.dart';
+import '../utils/cloudinary_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isVerified;
@@ -25,11 +25,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
   bool _isOwner = false;
+  String? _avatarUrl;
+  bool _isUploading = false;
 
   @override
   void initState() {
     super.initState();
     _checkOwnerStatus();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    if (user != null) {
+      try {
+        final profile = await Supabase.instance.client.from('profiles').select('avatar_url').eq('id', user!.id).maybeSingle();
+        if (mounted && profile != null && profile['avatar_url'] != null) {
+          setState(() => _avatarUrl = profile['avatar_url']);
+        }
+      } catch (e) {
+        debugPrint('Error loading profile: $e');
+      }
+    }
   }
 
   Future<void> _checkOwnerStatus() async {
@@ -57,7 +73,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
+        _isUploading = true;
       });
+      try {
+        final imageUrl = await CloudinaryService.uploadImage(_imageFile!);
+        if (imageUrl != null && user != null) {
+          await Supabase.instance.client.from('profiles').update({'avatar_url': imageUrl}).eq('id', user!.id);
+          if (mounted) {
+            setState(() => _avatarUrl = imageUrl);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile photo updated!')));
+          }
+        }
+      } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update photo: $e')));
+      } finally {
+        if (mounted) setState(() => _isUploading = false);
+      }
     }
   }
 
@@ -91,12 +122,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Positioned(
                       top: -20,
                       right: -30,
-                      child: CircleAvatar(radius: 60, backgroundColor: Colors.white12),
+                      child: const CircleAvatar(radius: 60, backgroundColor: Colors.white12),
                     ),
                      Positioned(
                       bottom: 40,
                       left: -20,
-                      child: CircleAvatar(radius: 40, backgroundColor: Colors.white10),
+                      child: const CircleAvatar(radius: 40, backgroundColor: Colors.white10),
                     ),
                     SafeArea(
                       child: Column(
@@ -121,9 +152,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: CircleAvatar(
                                     radius: 48,
                                     backgroundColor: Colors.grey[100],
-                                    child: _imageFile != null
-                                        ? ClipOval(child: Image.file(_imageFile!, width: 96, height: 96, fit: BoxFit.cover))
-                                        : Icon(Icons.person_rounded, size: 48, color: Colors.grey[400]),
+                                    child: _isUploading
+                                        ? const CircularProgressIndicator(color: AppTheme.brandColor)
+                                        : _imageFile != null
+                                            ? ClipOval(child: Image.file(_imageFile!, width: 96, height: 96, fit: BoxFit.cover))
+                                            : _avatarUrl != null
+                                                ? ClipOval(child: Image.network(_avatarUrl!, width: 96, height: 96, fit: BoxFit.cover))
+                                                : Icon(Icons.person_rounded, size: 48, color: Colors.grey[400]),
                                   ),
                                 ),
                                 Positioned(
@@ -144,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ],
                                       ),
                                       child: const Icon(
-                                        Icons.add_a_photo_outlined,
+                                        Icons.add,
                                         color: AppTheme.brandColor,
                                         size: 16,
                                       ),
@@ -156,29 +191,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? 'Khozna Guest',
-                            style: GoogleFonts.outfit(
+                            user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? (_isOwner ? 'Owner' : 'Guest'),
+                            style: GoogleFonts.inter(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              _isOwner ? '⚡ Property Owner' : '🏠 Active Tenant',
-                              style: GoogleFonts.outfit(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                          if (_isOwner) ...[
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '⚡ Property Owner',
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
@@ -253,6 +290,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   elevation: 0,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  minimumSize: const Size(0, 36),
                                 ),
                                 child: Text('Log Out', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
                               ),
@@ -320,7 +359,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       widget.isVerified ? 'PROFILE VERIFIED (प्रोफाइल प्रमाणित)' : 'INCOMPLETE KYC (केवाइसी बाँकी)',
-                      style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.black, letterSpacing: -0.5),
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 15.5, color: Colors.black, letterSpacing: -0.5),
                     ),
                   ),
                   const SizedBox(height: 2),

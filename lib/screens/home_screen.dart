@@ -179,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           'Search properties',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.inter(
                             color: Colors.grey[400],
                             fontSize: 16,
                           ),

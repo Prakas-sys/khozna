@@ -219,7 +219,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       appBar: AppBar(
         title: Text(
           'प्रोपर्टी राख्नुहोस् (Post Property)',
-          style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -232,7 +232,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               padding: const EdgeInsets.only(right: 20),
               child: Text(
                 'Step ${_currentStep + 1}',
-                style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppTheme.brandColor),
+                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor),
               ),
             ),
           )
@@ -313,7 +313,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 : const Icon(Icons.auto_awesome, size: 16, color: AppTheme.brandColor),
               label: Text(
                 _isGeneratingDescription ? 'Generating...' : 'AI लेख्नुहोस्',
-                style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.bold),
+                style: GoogleFonts.inter(color: AppTheme.brandColor, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -360,8 +360,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('AI Location Expert', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.blue[800])),
-                          Text('Verify area and find nearby landmarks', style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[600])),
+                          Text('AI Location Expert', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.blue[800])),
+                          Text('Verify area and find nearby landmarks', style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[600])),
                         ],
                       ),
                     ),
@@ -371,7 +371,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   const SizedBox(height: 12),
                   Text(
                     _aiLocationAnalysis!,
-                    style: GoogleFonts.outfit(fontSize: 13, color: Colors.blue[900], height: 1.4),
+                    style: GoogleFonts.inter(fontSize: 13, color: Colors.blue[900], height: 1.4),
                   ),
                 ],
                 const SizedBox(height: 16),
@@ -436,7 +436,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               [
                 Text(
                   'लोकेशन सेट भयो! ✓',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold,
                     color: Colors.green[700],
                     fontSize: 16,
@@ -445,7 +445,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Lat: ${_latitude!.toStringAsFixed(5)}, Lng: ${_longitude!.toStringAsFixed(5)}',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     fontSize: 12,
                     color: Colors.grey[600],
                   ),
@@ -453,7 +453,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 const SizedBox(height: 4),
                 Text(
                   '(GPS verified location)',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.green[600],
                     fontStyle: FontStyle.italic,
@@ -467,7 +467,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ),
                 Text(
                   '(Use my current location on Map)',
-                  style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
+                  style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
               const SizedBox(height: 16),
@@ -523,8 +523,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('भाडा मिलाउन सकिन्छ', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-                    Text('Price is Negotiable', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600])),
+                    Text('भाडा मिलाउन सकिन्छ', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                    Text('Price is Negotiable', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
                   ],
                 ),
               ),
@@ -556,8 +556,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('AI Price Estimator', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.purple[800])),
-                        Text('Get a fair price estimate for your area', style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600])),
+                        Text('AI Price Estimator', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.purple[800])),
+                        Text('Get a fair price estimate for your area', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
                       ],
                     ),
                   ),
@@ -569,7 +569,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     _aiPriceSuggestion!,
-                    style: GoogleFonts.outfit(fontSize: 13, color: Colors.purple[900], fontStyle: FontStyle.italic),
+                    style: GoogleFonts.inter(fontSize: 13, color: Colors.purple[900], fontStyle: FontStyle.italic),
                   ),
                 ),
               SizedBox(
@@ -703,7 +703,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             children: [
               const Icon(Icons.verified_outlined, color: Colors.green),
               const SizedBox(width: 12),
-              Expanded(child: Text('तपाईंको विज्ञापन प्रमाणित भएपछि प्रकाशित हुनेछ।', style: GoogleFonts.outfit(color: Colors.green[800], fontSize: 13, height: 1.4))),
+              Expanded(child: Text('तपाईंको विज्ञापन प्रमाणित भएपछि प्रकाशित हुनेछ।', style: GoogleFonts.inter(color: Colors.green[800], fontSize: 13, height: 1.4))),
             ],
           ),
         )
@@ -719,9 +719,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold)),
+          Text(title, style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(subtitle, style: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 14)),
+          Text(subtitle, style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 14)),
           const SizedBox(height: 32),
           ...content,
         ],
@@ -745,7 +745,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           children: [
             Icon(icon, color: isSelected ? AppTheme.brandColor : Colors.grey[600]),
             const SizedBox(width: 16),
-            Text(label, style: GoogleFonts.outfit(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+            Text(label, style: GoogleFonts.inter(fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
             const Spacer(),
             if (isSelected) const Icon(Icons.check_circle, color: AppTheme.brandColor, size: 20),
           ],
@@ -769,7 +769,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           children: [
             Icon(icon, color: isSelected ? Colors.white : AppTheme.brandColor, size: 28),
             const SizedBox(height: 8),
-            Text(label, textAlign: TextAlign.center, style: GoogleFonts.outfit(fontSize: 10, color: isSelected ? Colors.white : Colors.black, fontWeight: FontWeight.bold)),
+            Text(label, textAlign: TextAlign.center, style: GoogleFonts.inter(fontSize: 10, color: isSelected ? Colors.white : Colors.black, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -789,8 +789,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         children: [
           Icon(icon, color: isBlue ? AppTheme.brandColor : Colors.grey[600], size: 40),
           const SizedBox(height: 12),
-          Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-          Text(desc, style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600])),
+          Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          Text(desc, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
         ],
       ),
     );
@@ -799,7 +799,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildLabel(String label, bool isRequired) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Row(children: [Text(label, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15)), if (isRequired) const Text(' *', style: TextStyle(color: Colors.red))]),
+      child: Row(children: [Text(label, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15)), if (isRequired) const Text(' *', style: TextStyle(color: Colors.red))]),
     );
   }
 

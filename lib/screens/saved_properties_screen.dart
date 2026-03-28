@@ -37,7 +37,7 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
       appBar: AppBar(
         title: Text(
           'सुरक्षित गरिएका (Saved)',
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: AppTheme.primaryTextColor,
@@ -110,13 +110,13 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
               const SizedBox(height: 20),
               Text(
                 'No saved properties',
-                style: GoogleFonts.outfit(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+                style: GoogleFonts.inter(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Text(
                 'Properties you save will appear here.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(color: Colors.grey, fontSize: 14),
+                style: GoogleFonts.inter(color: Colors.grey, fontSize: 14),
               ),
             ],
           ),

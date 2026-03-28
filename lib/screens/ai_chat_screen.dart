@@ -77,7 +77,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
       appBar: AppBar(
         title: Text(
           'खोज्न AI सहयात्री (Khozna AI)',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
         elevation: 0,
@@ -198,7 +198,7 @@ class _ChatBubble extends StatelessWidget {
         ),
         child: Text(
           message,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.inter(
             color: isMe ? Colors.white : Colors.black87,
             fontSize: 15,
             height: 1.4,

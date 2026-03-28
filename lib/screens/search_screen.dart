@@ -70,7 +70,7 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         title: Text(
           'Search Filters',
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.inter(
             color: Colors.black,
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -114,10 +114,10 @@ class _SearchScreenState extends State<SearchScreen> {
                         child: TextField(
                           controller: _searchController,
                           autofocus: _searchController.text.isEmpty,
-                          style: GoogleFonts.outfit(fontSize: 16, color: Colors.black),
+                          style: GoogleFonts.inter(fontSize: 16, color: Colors.black),
                           decoration: InputDecoration(
                             hintText: 'Where are you looking?',
-                            hintStyle: GoogleFonts.outfit(
+                            hintStyle: GoogleFonts.inter(
                               color: Colors.grey[400],
                               fontSize: 15,
                             ),
@@ -153,7 +153,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   : const Icon(Icons.auto_awesome, size: 18),
                 label: Text(
                   _isAiSearching ? 'AI Matching...' : 'Magic AI Match (Nepal Edition)',
-                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.purple,
@@ -179,7 +179,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: [
                         const Icon(Icons.stars, color: Colors.purple, size: 18),
                         const SizedBox(width: 8),
-                        Text('AI Suggestions', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.purple[800])),
+                        Text('AI Suggestions', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.purple[800])),
                         const Spacer(),
                         IconButton(
                           icon: const Icon(Icons.close, size: 16, color: Colors.grey),
@@ -189,7 +189,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     Text(
                       _aiSearchResult!,
-                      style: GoogleFonts.outfit(fontSize: 13, height: 1.5),
+                      style: GoogleFonts.inter(fontSize: 13, height: 1.5),
                     ),
                   ],
                 ),
@@ -200,7 +200,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 children: [
                   TextSpan(
                     text: 'Price Range ',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -230,8 +230,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Min: Rs. 2,000', style: GoogleFonts.outfit(color: airbnbGrey)),
-                      Text('Max: Rs. 1,00,000+', style: GoogleFonts.outfit(color: airbnbGrey)),
+                      Text('Min: Rs. 2,000', style: GoogleFonts.inter(color: airbnbGrey)),
+                      Text('Max: Rs. 1,00,000+', style: GoogleFonts.inter(color: airbnbGrey)),
                     ],
                   ),
                   Slider(
@@ -243,7 +243,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   Text(
                     'Up to Rs. ${_priceValue.toInt()}',
-                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppTheme.brandColor, fontSize: 16),
+                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor, fontSize: 16),
                   ),
                 ],
               ),
@@ -258,7 +258,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: [
                         TextSpan(
                           text: 'Recently Searched ',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
@@ -284,7 +284,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   },
                   child: Text(
                     'Clear',
-                    style: GoogleFonts.outfit(color: airbnbGrey),
+                    style: GoogleFonts.inter(color: airbnbGrey),
                   ),
                 ),
               ],
@@ -300,7 +300,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 children: [
                   TextSpan(
                     text: 'Popular Areas ',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -337,7 +337,7 @@ class _SearchScreenState extends State<SearchScreen> {
               minimumSize: const Size(double.infinity, 56),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
-            child: Text('Apply Filters & Search', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
+            child: Text('Apply Filters & Search', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
           ),
         ),
       ),
@@ -347,7 +347,7 @@ class _SearchScreenState extends State<SearchScreen> {
         },
         backgroundColor: Colors.purple,
         icon: const Icon(Icons.support_agent, color: Colors.white),
-        label: Text('AI Assistant', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        label: Text('AI Assistant', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -356,7 +356,7 @@ class _SearchScreenState extends State<SearchScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.grey[300]!)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.history, size: 14, color: Colors.grey), const SizedBox(width: 8), Text(text, style: GoogleFonts.outfit(fontSize: 13, color: Colors.black87))]),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.history, size: 14, color: Colors.grey), const SizedBox(width: 8), Text(text, style: GoogleFonts.inter(fontSize: 13, color: Colors.black87))]),
     );
   }
 
@@ -364,8 +364,8 @@ class _SearchScreenState extends State<SearchScreen> {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: AppTheme.brandColor.withValues(alpha: 0.05), shape: BoxShape.circle), child: const Icon(Icons.location_on_outlined, color: AppTheme.brandColor, size: 20)),
-      title: Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.w600)),
-      subtitle: Text(count, style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey)),
+      title: Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+      subtitle: Text(count, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey)),
       trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
       onTap: () {},
     );

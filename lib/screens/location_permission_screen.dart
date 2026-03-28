@@ -80,7 +80,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
               Text(
                 'Enable Location',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.inter(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
@@ -91,7 +91,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
               Text(
                 'Let Khozna find properties near you for accurate listings and directions.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.inter(
                   fontSize: 15,
                   color: Colors.grey[600],
                   height: 1.5,
@@ -142,7 +142,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
                             )
                           : Text(
                               'ALLOW ACCESS',
-                              style: GoogleFonts.outfit(
+                              style: GoogleFonts.inter(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 1.2,
@@ -158,7 +158,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
                     ),
                     child: Text(
                       'NOT NOW',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,

@@ -35,13 +35,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _handleRegister() async {
     if (_nameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all fields', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating),
+        SnackBar(content: Text('Please fill all fields', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating),
       );
       return;
     }
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Passwords do not match', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating),
+        SnackBar(content: Text('Passwords do not match', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating),
       );
       return;
     }
@@ -99,8 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: const Icon(Icons.arrow_back_rounded, color: AppTheme.brandColor, size: 22),
                     ),
                   ),
-                    // Made logo larger as requested
-                  Image.asset('assets/images/original logo.png', height: 90),
+                  Image.asset('assets/images/original logo.png', height: 50),
                 ],
               ),
             ),
@@ -190,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           Expanded(
                             child: RichText(
                               text: TextSpan(
-                                style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600]),
+                                style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
                                 children: [
                                   const TextSpan(text: 'I agree to the '),
                                   TextSpan(text: 'Terms of Service', style: TextStyle(color: AppTheme.brandColor, fontWeight: FontWeight.bold)),
@@ -220,7 +219,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         child: _isLoading
                             ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                            : Text('Create Account', style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+                            : Text('Create Account', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
                     ),
 
@@ -238,7 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   Text(
                     "Already have an account? ",
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       color: Colors.grey[500],
                       fontSize: 15,
                     ),
@@ -247,7 +246,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onTap: () => Navigator.pop(context),
                     child: Text(
                       'Login Here',
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.inter(
                         color: AppTheme.brandColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 15,
@@ -288,10 +287,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               controller: controller,
               obscureText: obscureText,
               keyboardType: keyboardType,
-              style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w600),
+              style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
               decoration: InputDecoration(
                 hintText: hintText,
-                hintStyle: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.w400),
+                hintStyle: GoogleFonts.inter(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.w400),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,

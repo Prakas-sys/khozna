@@ -17,27 +17,27 @@ class AppTheme {
       ),
       useMaterial3: true,
       scaffoldBackgroundColor: backgroundColor,
-      textTheme: GoogleFonts.outfitTextTheme().copyWith(
-        displayLarge: GoogleFonts.playfairDisplay(
+      textTheme: GoogleFonts.interTextTheme().copyWith(
+        displayLarge: GoogleFonts.inter(
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: primaryTextColor,
         ),
-        displayMedium: GoogleFonts.playfairDisplay(
+        displayMedium: GoogleFonts.inter(
           fontSize: 28,
           fontWeight: FontWeight.bold,
           color: primaryTextColor,
         ),
-        titleLarge: GoogleFonts.outfit(
+        titleLarge: GoogleFonts.inter(
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: primaryTextColor,
         ),
-        bodyLarge: GoogleFonts.outfit(
+        bodyLarge: GoogleFonts.inter(
           fontSize: 16,
           color: primaryTextColor,
         ),
-        bodyMedium: GoogleFonts.outfit(
+        bodyMedium: GoogleFonts.inter(
           fontSize: 14,
           color: secondaryTextColor,
         ),
@@ -59,7 +59,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(50),
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
-          textStyle: GoogleFonts.outfit(
+          textStyle: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -68,7 +68,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 13),
+        hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 13),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),

@@ -50,7 +50,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.menu, color: Colors.black87, size: 26),
+                    icon: const Icon(Icons.add_circle_outline, color: Colors.black87, size: 26),
                     onPressed: () {},
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
@@ -58,19 +58,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   ),
                   Text(
                     'Messages',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle_outline, color: Colors.black87, size: 26),
-                    onPressed: () {},
-                    visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
+                  const SizedBox(width: 26), // Keeps 'Messages' centered
                 ],
               ),
             ),
@@ -103,10 +97,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     Expanded(
                       child: TextField(
                         textAlignVertical: TextAlignVertical.center,
-                        style: GoogleFonts.outfit(fontSize: 14),
+                        style: GoogleFonts.inter(fontSize: 14),
                         decoration: InputDecoration(
                           hintText: 'Search messages',
-                          hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 14),
+                          hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 14),
                           isCollapsed: true,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
@@ -147,7 +141,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                           ),
                           child: Text(
                             label,
-                            style: GoogleFonts.outfit(
+                            style: GoogleFonts.inter(
                               fontSize: 13,
                               fontWeight: selected ? FontWeight.bold : FontWeight.w500,
                               color: selected ? Colors.white : Colors.grey[700],
@@ -177,7 +171,32 @@ class _MessagesScreenState extends State<MessagesScreen> {
               child: _isLoading 
                 ? const Center(child: CircularProgressIndicator())
                 : _chats.isEmpty
-                  ? Center(child: Text('No messages yet', style: GoogleFonts.outfit(color: Colors.grey)))
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.chat_bubble_outline, size: 60, color: Colors.grey[300]),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No messages right now.',
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'When you receive a message,\nit will appear here.',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   : RefreshIndicator(
                       onRefresh: _loadChats,
                       child: ListView.builder(
@@ -264,7 +283,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                             children: [
                                               Text(
                                                 otherUser['full_name'] ?? 'User',
-                                                style: GoogleFonts.outfit(
+                                                style: GoogleFonts.inter(
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w700,
                                                   color: Colors.black,
@@ -272,7 +291,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                               ),
                                               Text(
                                                 'Just now', 
-                                                style: GoogleFonts.outfit(
+                                                style: GoogleFonts.inter(
                                                   fontSize: 12,
                                                   color: Colors.grey[500],
                                                 ),
@@ -282,7 +301,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                           const SizedBox(height: 4),
                                           Text(
                                             chat['last_message'] ?? 'Check your messages',
-                                            style: GoogleFonts.outfit(
+                                            style: GoogleFonts.inter(
                                               fontSize: 13,
                                               color: Colors.grey[500],
                                             ),

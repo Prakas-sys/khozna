@@ -32,8 +32,8 @@ class FilterResultsScreen extends StatelessWidget {
         ),
         title: Column(
           children: [
-            Text(location, style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
-            Text(priceRange, style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600])),
+            Text(location, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+            Text(priceRange, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
           ],
         ),
         centerTitle: true,
@@ -63,7 +63,7 @@ class FilterResultsScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     'No listings found yet',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.grey[400],
@@ -72,7 +72,7 @@ class FilterResultsScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Be the first to post a property!',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       color: Colors.grey[500],
                     ),
                   ),
@@ -228,7 +228,7 @@ class FilterResultsScreen extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2.5),
                       decoration: BoxDecoration(color: const Color(0xFF2ECC71), borderRadius: BorderRadius.circular(20)),
-                      child: Text('For Rent', style: GoogleFonts.outfit(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
+                      child: Text('For Rent', style: GoogleFonts.inter(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   Positioned(
@@ -245,8 +245,8 @@ class FilterResultsScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w600))),
-                        Text(price, style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
+                        Expanded(child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600))),
+                        Text(price, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -254,7 +254,7 @@ class FilterResultsScreen extends StatelessWidget {
                       children: [
                         const Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 14),
                         const SizedBox(width: 4),
-                        Text(location, style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600])),
+                        Text(location, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -281,7 +281,7 @@ class FilterResultsScreen extends StatelessWidget {
                               ),
                             ),
                             icon: const Icon(Icons.directions_walk, size: 17),
-                            label: Text('Visit Now', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                            label: Text('Visit Now', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13.5)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.brandColor,
                               foregroundColor: Colors.white,
@@ -306,7 +306,7 @@ class FilterResultsScreen extends StatelessWidget {
                               );
                             },
                             icon: SvgPicture.asset('assets/icons/message.svg', width: 17, height: 17, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-                            label: Text('Message', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                            label: Text('Message', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13.5)),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.brandColor,
                               foregroundColor: Colors.white,

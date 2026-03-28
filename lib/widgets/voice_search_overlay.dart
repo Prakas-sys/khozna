@@ -125,7 +125,7 @@ class _VoiceSearchOverlayState extends State<VoiceSearchOverlay> with SingleTick
           const SizedBox(height: 32),
           Text(
             _isListening ? 'Listening...' : 'Searching...',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               fontSize: 16,
               color: AppTheme.brandColor,
               fontWeight: FontWeight.w600,
@@ -135,7 +135,7 @@ class _VoiceSearchOverlayState extends State<VoiceSearchOverlay> with SingleTick
           Text(
             _text,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
@@ -144,7 +144,7 @@ class _VoiceSearchOverlayState extends State<VoiceSearchOverlay> with SingleTick
           const Spacer(),
           Text(
              'Speak clearly: "Flat in Baluwatar"',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               fontSize: 13,
               color: Colors.grey[500],
             ),

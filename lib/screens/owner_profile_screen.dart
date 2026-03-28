@@ -29,7 +29,7 @@ class OwnerProfileScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Owner Profile', style: GoogleFonts.outfit(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('Owner Profile', style: GoogleFonts.inter(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -56,14 +56,14 @@ class OwnerProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Text(name, style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(name, style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.location_on_outlined, color: Colors.grey, size: 16),
                 const SizedBox(width: 4),
-                Text(location, style: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 14)),
+                Text(location, style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 14)),
               ],
             ),
             const SizedBox(height: 32),
@@ -113,11 +113,11 @@ class OwnerProfileScreen extends StatelessWidget {
                       children: [
                         Text(
                           isVerified ? 'KYC Verified' : 'KYC Pending',
-                          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16, color: isVerified ? Colors.green[800] : Colors.orange[800]),
+                          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16, color: isVerified ? Colors.green[800] : Colors.orange[800]),
                         ),
                         Text(
                           isVerified ? 'Identity is fully verified and trusted.' : 'Owner is in the process of verification.',
-                          style: GoogleFonts.outfit(fontSize: 12, color: isVerified ? Colors.green[700] : Colors.orange[700]),
+                          style: GoogleFonts.inter(fontSize: 12, color: isVerified ? Colors.green[700] : Colors.orange[700]),
                         ),
                       ],
                     ),
@@ -141,7 +141,7 @@ class OwnerProfileScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                       elevation: 0,
                     ),
-                    child: Text('Message Owner', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                    child: Text('Message Owner', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -165,8 +165,8 @@ class OwnerProfileScreen extends StatelessWidget {
   Widget _buildStatItem(String label, String value) {
     return Column(
       children: [
-        Text(value, style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
-        Text(label, style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[500])),
+        Text(value, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(label, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500])),
       ],
     );
   }

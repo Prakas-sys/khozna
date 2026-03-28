@@ -132,7 +132,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
             const SizedBox(height: 16),
             Text(
               widget.name,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.inter(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -140,7 +140,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
             ),
             Text(
               'Property Owner',
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.inter(
                 fontSize: 14,
                 color: Colors.grey[600],
               ),
@@ -171,7 +171,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                     const SizedBox(width: 16),
                     Text(
                       widget.phone,
-                      style: GoogleFonts.outfit(
+                      style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: Colors.black87,
@@ -224,7 +224,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
         const SizedBox(height: 8),
         Text(
           label,
-          style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[700]),
+          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[700]),
         ),
       ],
     );
@@ -281,7 +281,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
         child: Center(
           child: Text(
             text,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               fontSize: 12,
               color: Colors.black87,
               fontWeight: FontWeight.w500,
@@ -315,7 +315,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                 children: [
                   Text(
                     widget.name,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       color: Colors.black,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -323,7 +323,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                   ),
                   Text(
                     'Owner • ${widget.online ? 'Online' : 'Offline'}',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       color: widget.online ? Colors.green : Colors.grey,
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -362,7 +362,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                       const SizedBox(width: 8),
                       Text(
                         'अग्रिम पैसा कहिल्यै नपठाउनुहोस्! • Never send advance payment before visiting! • कोठा हेरेर मात्र पैसा दिनुहोला!',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.inter(
                           color: Colors.red[800], 
                           fontWeight: FontWeight.w600, 
                           fontSize: 12
@@ -431,7 +431,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                                 ),
                                 child: Text(
                                   msg['text'] ?? '',
-                                  style: GoogleFonts.outfit(
+                                  style: GoogleFonts.inter(
                                     color: isMe ? Colors.white : const Color(0xFF1A1A1A),
                                     fontSize: 17, 
                                     height: 1.25,
@@ -450,7 +450,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                                     ],
                                     Text(
                                       "Just now",
-                                      style: GoogleFonts.outfit(
+                                      style: GoogleFonts.inter(
                                         color: Colors.grey[500],
                                         fontSize: 10,
                                         fontWeight: FontWeight.w400,
@@ -498,14 +498,14 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                           controller: _messageController,
                           maxLines: 5,
                           minLines: 1,
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.inter(
                             fontSize: 15,
                             color: const Color(0xFF1E293B),
                             fontWeight: FontWeight.w400,
                           ),
                           decoration: InputDecoration(
                             hintText: 'Type message...',
-                            hintStyle: GoogleFonts.outfit(
+                            hintStyle: GoogleFonts.inter(
                               color: const Color(0xFF94A3B8), 
                               fontSize: 15
                             ),
@@ -571,12 +571,12 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           children: [
             const Icon(Icons.rocket_launch, color: Colors.purple, size: 32),
             const SizedBox(height: 12),
-            Text('Get more inquiries! 🚀', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text('Get more inquiries! 🚀', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
             const SizedBox(height: 4),
             Text(
               'Boost your listing to get more visibility and faster replies.', 
               textAlign: TextAlign.center, 
-              style: GoogleFonts.outfit(fontSize: 13, color: Colors.grey[600]),
+              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600]),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -589,7 +589,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
               ),
-              child: Text('Boost Now', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+              child: Text('Boost Now', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
             ),
           ],
         ),

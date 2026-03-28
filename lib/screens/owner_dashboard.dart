@@ -39,7 +39,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
         elevation: 0,
         title: Text(
           'Owner Command Center',
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.inter(
             color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -76,7 +76,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
 
                   Text(
                     'Business Overview',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -106,7 +106,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
 
                   Text(
                     'Management Actions',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -151,7 +151,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                       icon: const Icon(Icons.exit_to_app, color: Colors.grey),
                       label: Text(
                         'Exit Owner Mode',
-                        style: GoogleFonts.outfit(color: Colors.grey, fontWeight: FontWeight.w600),
+                        style: GoogleFonts.inter(color: Colors.grey, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
@@ -193,7 +193,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
           const SizedBox(height: 8),
           Text(
             'Live Data Dashboard',
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               color: Colors.white,
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -222,7 +222,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
             children: [
               Text(
                 value,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.inter(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
@@ -230,7 +230,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
               ),
               Text(
                 title,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.inter(
                   fontSize: 11,
                   color: Colors.grey[500],
                 ),
@@ -263,11 +263,11 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
         ),
         title: Text(
           title,
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15),
         ),
         subtitle: Text(
           subtitle,
-          style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[500]),
+          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500]),
         ),
         trailing: badge != null 
           ? Container(
@@ -313,7 +313,7 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('KYC Review', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        title: Text('KYC Review', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _kycFuture,
@@ -324,7 +324,7 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
           final list = snapshot.data ?? [];
           if (list.isEmpty) {
             return Center(
-              child: Text('No pending KYCs!', style: GoogleFonts.outfit(color: Colors.grey)),
+              child: Text('No pending KYCs!', style: GoogleFonts.inter(color: Colors.grey)),
             );
           }
 
@@ -344,12 +344,12 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(kyc['full_name'], style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text(kyc['phone_number'], style: GoogleFonts.outfit(color: Colors.grey)),
+                          Text(kyc['full_name'], style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text(kyc['phone_number'], style: GoogleFonts.inter(color: Colors.grey)),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text('Citizenship: ${kyc['citizenship_number']}', style: GoogleFonts.outfit()),
+                      Text('Citizenship: ${kyc['citizenship_number']}', style: GoogleFonts.inter()),
                       const SizedBox(height: 16),
                       Row(
                         children: [

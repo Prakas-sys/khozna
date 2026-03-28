@@ -39,7 +39,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('User Management', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+        title: Text('User Management', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Padding(
@@ -67,7 +67,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           }
           final users = snapshot.data ?? [];
           if (users.isEmpty) {
-            return Center(child: Text('No users found.', style: GoogleFonts.outfit(color: Colors.grey)));
+            return Center(child: Text('No users found.', style: GoogleFonts.inter(color: Colors.grey)));
           }
 
           return ListView.separated(
@@ -86,12 +86,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       ? Text(user['full_name'][0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor)) 
                       : null,
                 ),
-                title: Text(user['full_name'] ?? 'Unknown User', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                title: Text(user['full_name'] ?? 'Unknown User', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(user['phone_number'] ?? 'No Phone', style: GoogleFonts.outfit(fontSize: 12)),
-                    Text(user['email'] ?? 'No Email', style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey)),
+                    Text(user['phone_number'] ?? 'No Phone', style: GoogleFonts.inter(fontSize: 12)),
+                    Text(user['email'] ?? 'No Email', style: GoogleFonts.inter(fontSize: 11, color: Colors.grey)),
                   ],
                 ),
                 trailing: Container(

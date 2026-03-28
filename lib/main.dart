@@ -78,7 +78,7 @@ Future<void> _initializeServices() async {
 
   // 3. Fonts (Low priority)
   GoogleFonts.pendingFonts([
-    GoogleFonts.outfit(),
+    GoogleFonts.inter(),
     GoogleFonts.playfairDisplay(),
     GoogleFonts.zenAntiqueSoft(),
     GoogleFonts.montserrat(),

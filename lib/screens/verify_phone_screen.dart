@@ -89,10 +89,10 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
       
       setState(() => _isLoading = false);
       _startTimer();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Verification code resent!', style: GoogleFonts.outfit()), backgroundColor: AppTheme.brandColor, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Verification code resent!', style: GoogleFonts.inter()), backgroundColor: AppTheme.brandColor, behavior: SnackBarBehavior.floating));
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e', style: GoogleFonts.outfit()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
     }
   }
 
@@ -101,7 +101,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
     if (otp.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please enter the full 6-digit code', style: GoogleFonts.outfit()),
+          content: Text('Please enter the full 6-digit code', style: GoogleFonts.inter()),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -137,7 +137,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Invalid OTP or verification failed', style: GoogleFonts.outfit()),
+          content: Text('Invalid OTP or verification failed', style: GoogleFonts.inter()),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -192,7 +192,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                   Text(
                     'Verify Phone',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
                       color: AppTheme.primaryTextColor,
@@ -205,7 +205,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                     child: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.inter(
                           color: AppTheme.secondaryTextColor,
                           fontSize: 16,
                           height: 1.5,
@@ -257,7 +257,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                       ),
                       child: _isLoading
                           ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                          : Text('Verify & Continue', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                          : Text('Verify & Continue', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                     ),
                   ),
                   
@@ -270,7 +270,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                         _canResend 
                             ? "Didn't receive the code?"
                             : "Resend code in $_timerSeconds seconds",
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.inter(
                           color: AppTheme.secondaryTextColor,
                           fontSize: 14,
                         ),
@@ -279,7 +279,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                         onPressed: _canResend ? _resendOtp : null,
                         child: Text(
                           'Resend Code',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.inter(
                             color: _canResend ? AppTheme.brandColor : Colors.grey,
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
@@ -328,7 +328,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
             LengthLimitingTextInputFormatter(6), // Increased from 1 to 6 to catch autofills
             FilteringTextInputFormatter.digitsOnly,
           ],
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.inter(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: AppTheme.primaryTextColor,

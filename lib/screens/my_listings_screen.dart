@@ -35,7 +35,7 @@ class MyListingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'मेरो प्रोपर्टी (My Listings)',
-          style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -58,7 +58,7 @@ class MyListingsScreen extends StatelessWidget {
         onPressed: () {},
         backgroundColor: AppTheme.brandColor,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('नयाँ थप्नुहोस् (Add New)', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white)),
+        label: Text('नयाँ थप्नुहोस् (Add New)', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white)),
       ),
     );
   }
@@ -87,9 +87,9 @@ class MyListingsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(item['title'], style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(item['title'], style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 4),
-                      Text('रू ${item['price']} /month', style: GoogleFonts.outfit(color: AppTheme.brandColor, fontWeight: FontWeight.w600)),
+                      Text('रू ${item['price']} /month', style: GoogleFonts.inter(color: AppTheme.brandColor, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 8),
                       _buildStatusBadge(item['status']),
                     ],
@@ -136,7 +136,7 @@ class MyListingsScreen extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             status,
-            style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: isVerified ? Colors.green : Colors.orange),
+            style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: isVerified ? Colors.green : Colors.orange),
           ),
         ],
       ),
@@ -148,7 +148,7 @@ class MyListingsScreen extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: Colors.grey),
         const SizedBox(width: 6),
-        Text(label, style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500)),
+        Text(label, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -160,8 +160,8 @@ class MyListingsScreen extends StatelessWidget {
         children: [
           Icon(Icons.home_work_outlined, size: 80, color: Colors.grey[300]),
           const SizedBox(height: 24),
-          Text('No Listings Yet', style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text('Start by adding your first property.', style: GoogleFonts.outfit(color: Colors.grey)),
+          Text('No Listings Yet', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text('Start by adding your first property.', style: GoogleFonts.inter(color: Colors.grey)),
         ],
       ),
     );
