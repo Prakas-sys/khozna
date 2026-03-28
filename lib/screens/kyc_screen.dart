@@ -44,26 +44,46 @@ class _KycScreenState extends State<KycScreen> {
   void initState() {
     super.initState();
     SecurityUtils.setSecure(true); // Enabled for KYC sensitivity
-    // Pre-fill if user is logged in
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
     final user = supabase.Supabase.instance.client.auth.currentUser;
     if (user != null) {
       final metadata = user.userMetadata ?? {};
-      _nameController.text = metadata['full_name'] ?? metadata['name'] ?? '';
-      _emailController.text = user.email ?? '';
-      _phoneController.text = user.phone ?? '';
-
-      // Check identities for verification markers
-      final identities = user.identities ?? [];
-      for (final identity in identities) {
-        if (identity.provider == 'google') {
-          _isEmailVerified = true;
-          _authProvider = 'google';
-        } else if (identity.provider == 'facebook') {
-          _authProvider = 'facebook';
-        }
+      if (mounted) {
+        setState(() {
+          _nameController.text = metadata['full_name'] ?? metadata['name'] ?? '';
+          _emailController.text = user.email ?? '';
+          _phoneController.text = user.phone ?? '';
+          
+          if (user.email != null) _isEmailVerified = true;
+          if (user.phone != null && user.phone!.isNotEmpty) _isPhoneVerified = true;
+        });
       }
-      if (user.phone != null && user.phone!.isNotEmpty) {
-        _isPhoneVerified = true;
+
+      try {
+        final profile = await supabase.Supabase.instance.client
+            .from('profiles')
+            .select()
+            .eq('id', user.id)
+            .single();
+        
+        if (mounted) {
+          setState(() {
+            if (profile['full_name'] != null) _nameController.text = profile['full_name'];
+            if (profile['email'] != null) {
+              _emailController.text = profile['email'];
+              _isEmailVerified = true;
+            }
+            if (profile['phone'] != null) {
+              _phoneController.text = profile['phone'];
+              _isPhoneVerified = true;
+            }
+          });
+        }
+      } catch (e) {
+        debugPrint('Profile error during KYC load: $e');
       }
     }
   }

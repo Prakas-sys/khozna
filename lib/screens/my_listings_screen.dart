@@ -1,76 +1,185 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
+import 'add_property_screen.dart';
 
-class MyListingsScreen extends StatelessWidget {
+class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
 
   @override
+  State<MyListingsScreen> createState() => _MyListingsScreenState();
+}
+
+class _MyListingsScreenState extends State<MyListingsScreen> {
+  final User? user = Supabase.instance.client.auth.currentUser;
+  List<Map<String, dynamic>> _listings = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchListings();
+  }
+
+  Future<void> _fetchListings() async {
+    if (user == null) return;
+    setState(() => _isLoading = true);
+    try {
+      final response = await Supabase.instance.client
+          .from('properties')
+          .select('*, property_images(image_url)')
+          .eq('owner_id', user!.id)
+          .order('created_at', ascending: false);
+          
+      if (mounted) {
+        setState(() {
+          _listings = List<Map<String, dynamic>>.from(response);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching listings: $e');
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _deleteListing(String id) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text('Delete Property?', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20)),
+        content: Text('This will permanently delete your property listing from Khozna. This action cannot be undone.', 
+          style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600], height: 1.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.bold)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: Text('Permanently Delete', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await Supabase.instance.client.from('properties').delete().eq('id', id);
+        _fetchListings(); // Refresh UI
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Property deleted permanently.')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to delete: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    const Color airbnbGrey = Color(0xFF717171);
-
-    final List<Map<String, dynamic>> myListings = [
-      {
-        'id': '101',
-        'title': 'Modern Villa in Baluwatar',
-        'price': '1,200',
-        'image': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        'status': 'Verified',
-        'views': '1.2K',
-        'inquiries': '12',
-      },
-      {
-        'id': '102',
-        'title': 'Cozy 2BHK Flat',
-        'price': '450',
-        'image': 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        'status': 'Pending Review',
-        'views': '145',
-        'inquiries': '2',
-      },
-    ];
-
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: AppBar(
-        title: Text(
-          'मेरो प्रोपर्टी (My Listings)',
-          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
+        title: RichText(
+          text: TextSpan(
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
+            children: [
+              const TextSpan(text: 'मेरो प्रोपर्टी '),
+              TextSpan(
+                text: '(My Listings)',
+                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.grey[500]),
+              ),
+            ],
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: myListings.isEmpty 
-        ? _buildEmptyState(context)
-        : ListView.builder(
-            padding: const EdgeInsets.all(24),
-            itemCount: myListings.length,
-            itemBuilder: (context, index) {
-              return _buildListingCard(context, myListings[index], airbnbGrey);
-            },
-          ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
+          : _listings.isEmpty
+              ? _buildEmptyState()
+              : RefreshIndicator(
+                  onRefresh: _fetchListings,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(20),
+                    itemCount: _listings.length,
+                    itemBuilder: (context, index) => _buildListingCard(_listings[index]),
+                  ),
+                ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddPropertyScreen())).then((_) => _fetchListings()),
         backgroundColor: AppTheme.brandColor,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text('नयाँ थप्नुहोस् (Add New)', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white)),
+        elevation: 6,
+        extendedPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+        icon: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+        label: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'नयाँ थप्नुहोस्',
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                height: 1.1,
+              ),
+            ),
+            Text(
+              'Add New',
+              style: GoogleFonts.inter(
+                fontSize: 9,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withOpacity(0.85),
+                height: 1.0,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildListingCard(BuildContext context, Map<String, dynamic> item, Color airbnbGrey) {
+  Widget _buildListingCard(Map<String, dynamic> item) {
+    final images = item['property_images'] as List;
+    final String imageUrl = images.isNotEmpty ? images[0]['image_url'] : 'https://via.placeholder.com/400';
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -79,19 +188,45 @@ class MyListingsScreen extends StatelessWidget {
             child: Row(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(item['image'], width: 80, height: 80, fit: BoxFit.cover),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Image.network(imageUrl, width: 90, height: 90, fit: BoxFit.cover),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(item['title'], style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(
+                        item['title'] ?? 'N/A',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
                       const SizedBox(height: 4),
-                      Text('रू ${item['price']} /month', style: GoogleFonts.inter(color: AppTheme.brandColor, fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 8),
-                      _buildStatusBadge(item['status']),
+                      Text(
+                        'रू ${item['price']} /month',
+                        style: GoogleFonts.inter(
+                          color: AppTheme.brandColor,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Public Status: Active',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.green[700],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -99,18 +234,32 @@ class MyListingsScreen extends StatelessWidget {
             ),
           ),
           const Divider(height: 1),
-          // Stats Row
+          // Actions bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildStatItem(Icons.visibility_outlined, '${item['views']} Views'),
-                _buildStatItem(Icons.chat_bubble_outline, '${item['inquiries']} Chats'),
                 Row(
                   children: [
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.edit_outlined, size: 20, color: Colors.grey)),
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent)),
+                    const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      item['area_name'] ?? 'Nepal',
+                      style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {}, // Future Edit
+                      icon: const Icon(Icons.edit_note_rounded, size: 22, color: Colors.blueGrey),
+                    ),
+                    IconButton(
+                      onPressed: () => _deleteListing(item['id'].toString()),
+                      icon: const Icon(Icons.delete_sweep_rounded, size: 22, color: Colors.redAccent),
+                    ),
                   ],
                 )
               ],
@@ -121,47 +270,30 @@ class MyListingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBadge(String status) {
-    bool isVerified = status == 'Verified';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: isVerified ? Colors.green.withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(isVerified ? Icons.verified : Icons.access_time, size: 12, color: isVerified ? Colors.green : Colors.orange),
-          const SizedBox(width: 4),
-          Text(
-            status,
-            style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: isVerified ? Colors.green : Colors.orange),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem(IconData icon, String label) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.grey),
-        const SizedBox(width: 6),
-        Text(label, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500)),
-      ],
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.home_work_outlined, size: 80, color: Colors.grey[300]),
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.home_work_rounded, size: 72, color: Colors.grey[200]),
+          ),
           const SizedBox(height: 24),
-          Text('No Listings Yet', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text('Start by adding your first property.', style: GoogleFonts.inter(color: Colors.grey)),
+          Text(
+            'No active listings',
+            style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Your property listings will appear here\nonce you publish them.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(color: Colors.grey, height: 1.5),
+          ),
         ],
       ),
     );

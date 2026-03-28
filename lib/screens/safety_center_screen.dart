@@ -12,9 +12,17 @@ class SafetyCenterScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          'सुरक्षा केन्द्र (Safety Center)',
-          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
+        title: RichText(
+          text: TextSpan(
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
+            children: [
+              const TextSpan(text: 'सुरक्षा केन्द्र '),
+              TextSpan(
+                text: '(Safety Center)',
+                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.grey[500]),
+              ),
+            ],
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -40,17 +48,25 @@ class SafetyCenterScreen extends StatelessWidget {
                 children: [
                   const Icon(Icons.gpp_maybe_outlined, color: Colors.red, size: 64),
                   const SizedBox(height: 16),
-                  Text(
-                    'ठगीबाट बच्नुहोस् (Stay Safe from Scams)',
+                  RichText(
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red[800]),
+                    text: TextSpan(
+                      style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red[800]),
+                      children: [
+                        const TextSpan(text: 'ठगीबाट बच्नुहोस्\n'),
+                        TextSpan(
+                          text: '(Stay Safe from Scams)',
+                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.red[600]),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 32),
 
-            _buildSectionTitle('मुख्य सुरक्षा नियमहरू (Core Safety Rules)'),
+            _buildSectionTitle('Safety Rules', 'मुख्य सुरक्षा नियमहरू'),
             const SizedBox(height: 16),
             _buildSafetyTip(
               Icons.no_sim_outlined,
@@ -72,7 +88,7 @@ class SafetyCenterScreen extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            _buildSectionTitle('शंका लागेमा के गर्ने? (What to do?)'),
+            _buildSectionTitle('What to do?', 'शंका लागेमा के गर्ने?'),
             const SizedBox(height: 16),
             Text(
               'यदि तपाईंलाई कुनै पनि प्रयोगकर्ता वा प्रोपर्टी शंकास्पद लाग्यो भने, प्रोफाइलमा गएर "Report" बटन थिच्नुहोस्। हाम्रो टिमले तुरुन्त समीक्षा गर्नेछ।',
@@ -98,8 +114,16 @@ class SafetyCenterScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(title, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryTextColor));
+  Widget _buildSectionTitle(String english, String nepali) {
+    return RichText(
+      text: TextSpan(
+        style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+        children: [
+          TextSpan(text: '$nepali '),
+          TextSpan(text: '($english)', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
   }
 
   Widget _buildSafetyTip(IconData icon, String nepaliTitle, String nepaliDesc, String englishDesc) {

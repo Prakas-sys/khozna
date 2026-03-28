@@ -75,33 +75,61 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showBossLogin() {
-    final bossPhone = TextEditingController();
-    final bossPass = TextEditingController();
+    final pinController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('Admin Control', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: Column(
           children: [
-            TextField(controller: bossPhone, decoration: const InputDecoration(labelText: 'Admin ID'), keyboardType: TextInputType.phone),
-            const SizedBox(height: 12),
-            TextField(controller: bossPass, decoration: const InputDecoration(labelText: 'Secret Key'), obscureText: true),
+            const Icon(Icons.admin_panel_settings_rounded, color: AppTheme.brandColor, size: 48),
+            const SizedBox(height: 16),
+            Text('Admin Access', style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 22)),
+            const SizedBox(height: 8),
+            Text('Enter 4-digit security PIN', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
           ],
         ),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 0),
+          child: TextField(
+            controller: pinController,
+            obscureText: true,
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            maxLength: 4,
+            style: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 16),
+            decoration: InputDecoration(
+              counterText: '',
+              hintText: '••••',
+              hintStyle: TextStyle(color: Colors.grey[300]),
+              border: InputBorder.none,
+            ),
+          ),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(
-            onPressed: () {
-              if (bossPhone.text == '9705278379' && bossPass.text == 'Khozna@Success') {
-                Navigator.pop(context);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const OwnerDashboard()));
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid Credentials')));
-              }
-            },
-            child: const Text('Unlock'),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: () {
+                if (pinController.text == '8888') { // Using 8888 as a default admin pin
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const OwnerDashboard()));
+                } else {
+                  HapticFeedback.heavyImpact();
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Access Denied')));
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.brandColor,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: Text('Unlock Dashboard', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white)),
+            ),
           ),
         ],
       ),

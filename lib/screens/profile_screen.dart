@@ -10,6 +10,7 @@ import 'safety_center_screen.dart';
 import 'kyc_screen.dart';
 import 'settings_screen.dart';
 import 'login_screen.dart';
+import 'edit_profile_screen.dart';
 import '../utils/cloudinary_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -241,12 +242,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   
                   // Menu Items in Sections
                   _buildMenuSection('OVERVIEW', [
-                    _buildMenuItem(Icons.person_outline, 'Edit Profile', 'Update your personal info', onTap: () {}),
-                    _buildMenuItem(Icons.bookmark_outline, 'Saved Properties', 'Properties you liked', onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedPropertiesScreen()));
-                    }),
                     _buildMenuItem(Icons.list_alt_rounded, 'My Listings', 'Properties you posted', onTap: () {
                        Navigator.push(context, MaterialPageRoute(builder: (_) => const MyListingsScreen()));
+                    }),
+                    _buildMenuItem(Icons.person_outline, 'Edit Profile', 'Update your personal info', onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+                      ).then((value) {
+                        if (value == true) _loadProfile();
+                      });
+                    }),
+                    _buildMenuItem(Icons.bookmark_outline, 'Saved Properties', 'Properties you liked', onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedPropertiesScreen()));
                     }),
                   ]),
                   
@@ -359,7 +367,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       widget.isVerified ? 'PROFILE VERIFIED (प्रोफाइल प्रमाणित)' : 'INCOMPLETE KYC (केवाइसी बाँकी)',
-                      style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 15.5, color: Colors.black, letterSpacing: -0.5),
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 17.5, color: Colors.black, letterSpacing: -0.5),
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -370,7 +378,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       widget.isVerified 
                           ? 'Your identity is fully confirmed.' 
                           : 'Verify now to gain more trust (प्रमाणित गर्नुहोस्)',
-                      style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600], fontWeight: FontWeight.w500),
                     ),
                   ),
                 ],

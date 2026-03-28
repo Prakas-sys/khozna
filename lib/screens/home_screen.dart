@@ -152,26 +152,21 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: Colors.grey.shade100, width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 12,
-                        offset: const Offset(0, -4),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
                   child: Row(
                     children: [
                       const Icon(
-                        CupertinoIcons.search,
+                        Icons.search_rounded,
                         color: AppTheme.brandColor,
-                        size: 22,
-                        weight: 800,
+                        size: 24,
                       ),
                       const SizedBox(width: 12),
                       Expanded(

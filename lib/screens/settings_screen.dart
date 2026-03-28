@@ -11,7 +11,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notifEnabled = true;
-  bool _darkMode = false;
   String _language = 'English';
 
   @override
@@ -30,12 +29,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           _buildSectionTitle('PREFERENCES'),
           _buildToggleTile('Notifications', 'Receive alerts for new messages', _notifEnabled, (v) => setState(() => _notifEnabled = v)),
-          _buildToggleTile('Dark Mode', 'Easier on the eyes', _darkMode, (v) => setState(() => _darkMode = v)),
           _buildLanguageTile(),
           
           const SizedBox(height: 32),
           _buildSectionTitle('ACCOUNT SECURITY'),
-          _buildSimpleTile(Icons.phone_android_outlined, 'Change Phone Number'),
           _buildSimpleTile(Icons.lock_outline, 'Change Password'),
           
           const SizedBox(height: 32),
