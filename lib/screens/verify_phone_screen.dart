@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/security_utils.dart';
@@ -302,10 +303,10 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
       width: 48,
       height: 60,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
+        color: Colors.grey[200],
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _focusNodes[index].hasFocus ? AppTheme.brandColor : Colors.grey.withOpacity(0.1),
+          color: _focusNodes[index].hasFocus ? AppTheme.brandColor : Colors.grey.withOpacity(0.3),
           width: 2,
         ),
         boxShadow: _focusNodes[index].hasFocus ? [
@@ -316,37 +317,42 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
           )
         ] : [],
       ),
-      child: TextField(
-        controller: _controllers[index],
-        focusNode: _focusNodes[index],
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        maxLength: 1,
-        style: GoogleFonts.outfit(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: AppTheme.primaryTextColor,
-        ),
-        decoration: const InputDecoration(
-          counterText: "",
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          contentPadding: EdgeInsets.zero,
-        ),
-        onChanged: (value) {
-          if (value.isNotEmpty) {
-            if (index < 5) {
-              _focusNodes[index + 1].requestFocus();
-            } else {
-              _focusNodes[index].unfocus();
-              _verifyOtp();
+      child: Center(
+        child: TextField(
+          controller: _controllers[index],
+          focusNode: _focusNodes[index],
+          textAlign: TextAlign.center,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(1),
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+          style: GoogleFonts.outfit(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryTextColor,
+          ),
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
+            isDense: true,
+          ),
+          onChanged: (value) {
+            if (value.isNotEmpty) {
+              if (index < 5) {
+                _focusNodes[index + 1].requestFocus();
+              } else {
+                _focusNodes[index].unfocus();
+                _verifyOtp();
+              }
+            } else if (value.isEmpty && index > 0) {
+              _focusNodes[index - 1].requestFocus();
             }
-          } else if (value.isEmpty && index > 0) {
-            _focusNodes[index - 1].requestFocus();
-          }
-          setState(() {}); // To update border color/shadow
-        },
+            setState(() {}); // To update border color/shadow
+          },
+        ),
       ),
     );
   }
