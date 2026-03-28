@@ -147,18 +147,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   _navigate(context, const SearchScreen());
                 },
                 child: Container(
-                  height: 64,
+                  height: 52,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(45),
+                    borderRadius: BorderRadius.circular(30),
                     border: Border.all(color: Colors.grey.shade200, width: 1.2),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.06),
-                        blurRadius: 20,
+                        blurRadius: 15,
                         spreadRadius: 0,
-                        offset: const Offset(0, 8),
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
