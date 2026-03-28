@@ -69,77 +69,79 @@ class _MainScreenState extends State<MainScreen> {
             }
           },
           child: Scaffold(
-          backgroundColor: _currentIndex == 1 ? Colors.black : Colors.white,
-          body: _pages[_currentIndex],
-          bottomNavigationBar: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                top: BorderSide(color: Colors.grey.shade200, width: 1.0),
+            backgroundColor: _currentIndex == 1 ? Colors.black : Colors.white,
+            body: _pages[_currentIndex],
+            bottomNavigationBar: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade200, width: 1.0),
+                ),
               ),
-            ),
-            child: BottomAppBar(
-              color: Colors.white,
-              surfaceTintColor: Colors.white,
-              padding: EdgeInsets.zero,
-              height: 58,
-              elevation: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItem(0, 'Khozna', 'assets/icons/explore.svg', activeColor, inactiveColor, 0),
-                  _buildNavItem(1, 'Reels', 'assets/icons/reels.svg', activeColor, inactiveColor, 0),
-                  // Central add button
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        if (!_isKycVerified) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const KycScreen()),
-                          ).then((value) {
-                            if (value == true) {
-                              setState(() => _isKycVerified = true);
-                            }
-                          });
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AddPropertyScreen(),
-                            ),
-                          );
-                        }
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          const Spacer(),
-                          Transform.translate(
-                            offset: const Offset(0, -4),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: AppTheme.brandColor,
-                                borderRadius: BorderRadius.circular(16),
+              child: BottomAppBar(
+                color: Colors.white,
+                surfaceTintColor: Colors.white,
+                padding: EdgeInsets.zero,
+                height: 58,
+                elevation: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildNavItem(0, 'Khozna', 'assets/icons/explore.svg', activeColor, inactiveColor, 0),
+                    _buildNavItem(1, 'Reels', 'assets/icons/reels.svg', activeColor, inactiveColor, 0),
+                    // Central add button
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          if (!_isKycVerified) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const KycScreen()),
+                            ).then((value) {
+                              if (value == true) {
+                                setState(() => _isKycVerified = true);
+                              }
+                            });
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AddPropertyScreen(),
                               ),
-                              child: const Icon(Icons.add, color: Colors.white, size: 22, weight: 700),
+                            );
+                          }
+                        },
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                        hoverColor: Colors.transparent,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const Spacer(),
+                            Transform.translate(
+                              offset: const Offset(0, -4),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: const Icon(Icons.add, color: Colors.white, size: 22, weight: 700),
+                              ),
                             ),
-                          ),
-                          const Spacer(),
-                        ],
+                            const Spacer(),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  _buildNavItem(2, 'Message', 'assets/icons/message.svg', activeColor, inactiveColor, badgeCount),
-                  _buildNavItem(3, 'Profile', 'assets/icons/profile.svg', activeColor, inactiveColor, 0),
-                ],
+                    _buildNavItem(2, 'Message', 'assets/icons/message.svg', activeColor, inactiveColor, badgeCount),
+                    _buildNavItem(3, 'Profile', 'assets/icons/profile.svg', activeColor, inactiveColor, 0),
+                  ],
+                ),
               ),
             ),
           ),
-        ),);
+        );
       },
     );
   }
