@@ -183,12 +183,37 @@ class SupabaseService {
   }
 
   /// Fetch all properties for moderation
-  static Future<List<Map<String, dynamic>>> getAllPropertiesAdmin() async {
+  static Future<List<Map<String, dynamic>>> getAllPropertiesForAdmin() async {
     try {
-      return await _client.from('properties').select('*, profiles(full_name)').order('created_at', ascending: false);
+      return await _client
+          .from('properties')
+          .select('*, property_images(*), profiles(full_name)')
+          .order('created_at', ascending: false);
     } catch (e) {
       print('Error fetching properties for admin: $e');
       return [];
+    }
+  }
+
+  /// Update property status
+  static Future<void> updatePropertyStatus(String id, String status) async {
+    try {
+      await _client.from('properties').update({'status': status}).eq('id', id);
+    } catch (e) {
+      print('Error updating property status: $e');
+      rethrow;
+    }
+  }
+
+  /// Delete property permanently
+  static Future<void> deletePropertyPermanently(String id) async {
+    try {
+      // images are linked via cascade in DB, but we delete explicitly for safety
+      await _client.from('property_images').delete().eq('property_id', id);
+      await _client.from('properties').delete().eq('id', id);
+    } catch (e) {
+      print('Error deleting property permanently: $e');
+      rethrow;
     }
   }
 

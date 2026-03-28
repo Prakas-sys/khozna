@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/supabase_service.dart';
 import 'user_management_screen.dart';
+import 'property_moderation_screen.dart';
 
 class OwnerDashboard extends StatefulWidget {
   const OwnerDashboard({super.key});
@@ -95,10 +96,36 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                       crossAxisSpacing: 16,
                       childAspectRatio: 1.4,
                       children: [
-                        _buildStatCard('Total Users', stats['totalUsers'].toString(), Icons.people_outline, Colors.blue),
-                        _buildStatCard('Pending KYC', stats['pendingKyc'].toString(), Icons.verified_user_outlined, Colors.orange),
-                        _buildStatCard('Properties', stats['totalProperties'].toString(), Icons.home_work_outlined, Colors.purple),
-                        _buildStatCard('Bookings', stats['activeBookings'].toString(), Icons.calendar_today_outlined, Colors.green),
+                        _buildStatCard(
+                          'Total Users', 
+                          stats['totalUsers'].toString(), 
+                          Icons.people_outline, 
+                          Colors.blue,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserManagementScreen())),
+                        ),
+                        _buildStatCard(
+                          'Pending KYC', 
+                          stats['pendingKyc'].toString(), 
+                          Icons.verified_user_outlined, 
+                          Colors.orange,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KycReviewScreen())).then((_) => _refreshStats()),
+                        ),
+                        _buildStatCard(
+                          'Properties', 
+                          stats['totalProperties'].toString(), 
+                          Icons.home_work_outlined, 
+                          Colors.purple,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyModerationScreen())).then((_) => _refreshStats()),
+                        ),
+                        _buildStatCard(
+                          'Bookings', 
+                          stats['activeBookings'].toString(), 
+                          Icons.calendar_today_outlined, 
+                          Colors.green,
+                          onTap: () {
+                            // Navigation to BookingManagementScreen (to be added)
+                          },
+                        ),
                       ],
                     ),
                   
@@ -129,9 +156,10 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                     'Verify or remove listings',
                     Icons.gavel_outlined,
                     Colors.redAccent,
-                    onTap: () {
-                      // We'll add this next
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const PropertyModerationScreen()),
+                    ).then((_) => _refreshStats()),
                   ),
                   _buildActionItem(
                     'User Management',
@@ -204,40 +232,56 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Icon(icon, color: color, size: 28),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+  Widget _buildStatCard(String title, String value, IconData icon, Color color, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade100),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(icon, color: color, size: 28),
+                if (onTap != null) const Icon(Icons.open_in_new, size: 14, color: Colors.grey),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
-              ),
-              Text(
-                title,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: Colors.grey[500],
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.grey[500],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
