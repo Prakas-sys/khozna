@@ -227,7 +227,16 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                   // OTP Input Row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: List.generate(6, (index) => _buildOtpBox(index)),
+                    children: List.generate(
+                      6, 
+                      (index) => Flexible(
+                        flex: 1, 
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0), 
+                          child: _buildOtpBox(index),
+                        ),
+                      ),
+                    ),
                   ),
                   
                   const SizedBox(height: 48),
