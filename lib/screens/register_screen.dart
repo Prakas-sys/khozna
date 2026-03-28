@@ -59,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         await SupabaseService.syncUserWithSupabase(response.user!);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registration successful! Please check your email for verification.')),
+            const SnackBar(content: Text('Registration successful! Welcome to Khozna.')),
           );
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainScreen()), (route) => false);
         }
@@ -99,7 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: const Icon(Icons.arrow_back_rounded, color: AppTheme.brandColor, size: 22),
                     ),
                   ),
-                  Image.asset('assets/images/original logo.png', height: 32),
+                  Image.asset('assets/images/original logo.png', height: 48),
                 ],
               ),
             ),
@@ -168,6 +168,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
                       ),
                     ),
+                    const SizedBox(height: 8),
+
+                    // Forgot Password link pushed to the right side below the password fields
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: Text(
+                          'Forgot Password?',
+                          style: GoogleFonts.outfit(
+                            color: AppTheme.brandColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
                     
                     const SizedBox(height: 24),
                     
@@ -223,22 +240,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
-                    // Forgot Password link (minimalist)
-                    Center(
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          'Forgot Password?',
-                          style: GoogleFonts.outfit(
-                            color: Colors.grey[500],
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 40),
+                    // Form ends here (Forgot Password moved above Terms)
                   ],
                 ),
               ),
