@@ -17,6 +17,10 @@
 # Google Play Services
 -keep class com.google.android.gms.** { *; }
 
+# Google Play Core
+-keep class com.google.android.play.core.** { *; }
+-dontwarn com.google.android.play.core.**
+
 # Flutter Plugins that use reflection or background services
 -keep class io.flutter.plugins.** { *; }
 -keep class com.dexterous.flutterlocalnotifications.** { *; }

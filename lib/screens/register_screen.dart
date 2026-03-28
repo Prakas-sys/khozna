@@ -99,7 +99,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: const Icon(Icons.arrow_back_rounded, color: AppTheme.brandColor, size: 22),
                     ),
                   ),
-                  Image.asset('assets/images/original logo.png', height: 48),
+                    // Made logo larger as requested
+                  Image.asset('assets/images/original logo.png', height: 90),
                 ],
               ),
             ),
@@ -166,23 +167,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       suffixIcon: IconButton(
                         icon: Icon(_obscureConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.grey[400], size: 20),
                         onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Forgot Password link pushed to the right side below the password fields
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {},
-                        child: Text(
-                          'Forgot Password?',
-                          style: GoogleFonts.outfit(
-                            color: AppTheme.brandColor,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                       ),
                     ),
                     
