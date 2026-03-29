@@ -403,7 +403,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 Text(
-                  isVerified ? 'Your identity is fully confirmed.' : 'Gain more trust with property owners',
+                  isVerified ? 'Your identity is fully confirmed.' : 'Builds trust with Owners & Guests',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey[600],
