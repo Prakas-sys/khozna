@@ -88,10 +88,51 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 20),
+            Center(
+              child: Stack(
+                children: [
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [AppTheme.brandColor.withOpacity(0.1), AppTheme.brandColor.withOpacity(0.05)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.brandColor.withOpacity(0.1),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Icon(Icons.person_rounded, size: 50, color: AppTheme.brandColor.withOpacity(0.5)),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(Icons.edit_rounded, color: Colors.white, size: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
             _buildSectionTitle('PERSONAL INFORMATION'),
             const SizedBox(height: 16),
             _buildTextField('Full Name', _fullNameController, Icons.person_outline),
@@ -144,29 +185,56 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            label.toUpperCase(),
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: Colors.grey[500],
+              letterSpacing: 1.0,
+            ),
           ),
         ),
-        const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-            color: enabled ? Colors.grey[50] : Colors.grey[100],
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 25,
+                offset: const Offset(0, 8),
+              ),
+            ],
+            border: Border.all(
+              color: enabled ? Colors.grey.shade100 : Colors.grey.shade200,
+              width: 1,
+            ),
           ),
           child: TextField(
             controller: controller,
             enabled: enabled,
-            style: GoogleFonts.inter(fontSize: 15, color: enabled ? Colors.black : Colors.grey),
+            style: GoogleFonts.inter(
+              fontSize: 15, 
+              color: enabled ? Colors.black87 : Colors.grey,
+              fontWeight: FontWeight.w600,
+            ),
             decoration: InputDecoration(
-              prefixIcon: Icon(icon, color: AppTheme.brandColor, size: 20),
+              prefixIcon: Container(
+                margin: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.brandColor.withOpacity(0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: AppTheme.brandColor, size: 18),
+              ),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              hintText: 'Enter your $label',
+              hintStyle: GoogleFonts.inter(color: Colors.grey[300], fontSize: 14),
             ),
           ),
         ),

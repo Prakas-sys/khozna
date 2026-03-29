@@ -138,51 +138,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Stack(
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.all(4),
+                                  padding: const EdgeInsets.all(3),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    gradient: LinearGradient(
+                                      colors: [Colors.white.withOpacity(0.5), Colors.white.withOpacity(0.2)],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 10),
+                                        color: Colors.black.withOpacity(0.12),
+                                        blurRadius: 30,
+                                        offset: const Offset(0, 15),
                                       ),
                                     ],
                                   ),
-                                  child: CircleAvatar(
-                                    radius: 48,
-                                    backgroundColor: Colors.grey[100],
-                                    child: _isUploading
-                                        ? const CircularProgressIndicator(color: AppTheme.brandColor)
-                                        : _imageFile != null
-                                            ? ClipOval(child: Image.file(_imageFile!, width: 96, height: 96, fit: BoxFit.cover))
-                                            : _avatarUrl != null
-                                                ? ClipOval(child: Image.network(_avatarUrl!, width: 96, height: 96, fit: BoxFit.cover))
-                                                : Icon(Icons.person_rounded, size: 48, color: Colors.grey[400]),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 54,
+                                      backgroundColor: Colors.grey[50],
+                                      child: _isUploading
+                                          ? const CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2)
+                                          : _imageFile != null
+                                              ? ClipOval(child: Image.file(_imageFile!, width: 108, height: 108, fit: BoxFit.cover))
+                                              : _avatarUrl != null
+                                                  ? ClipOval(child: Image.network(_avatarUrl!, width: 108, height: 108, fit: BoxFit.cover))
+                                                  : Container(
+                                                      width: 108,
+                                                      height: 108,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        gradient: LinearGradient(
+                                                          colors: [Colors.grey[200]!, Colors.grey[100]!],
+                                                          begin: Alignment.topLeft,
+                                                          end: Alignment.bottomRight,
+                                                        ),
+                                                      ),
+                                                      child: Icon(Icons.person_rounded, size: 54, color: Colors.grey[400]),
+                                                    ),
+                                    ),
                                   ),
                                 ),
                                 Positioned(
-                                  bottom: 0,
-                                  right: 0,
+                                  bottom: 4,
+                                  right: 4,
                                   child: GestureDetector(
                                     onTap: _pickImage,
                                     child: Container(
-                                      padding: const EdgeInsets.all(6),
+                                      padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.1),
-                                            blurRadius: 4,
+                                            color: Colors.black.withOpacity(0.15),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 4),
                                           ),
                                         ],
                                       ),
                                       child: const Icon(
-                                        Icons.add,
+                                        Icons.camera_alt_rounded,
                                         color: AppTheme.brandColor,
-                                        size: 16,
+                                        size: 18,
                                       ),
                                     ),
                                   ),
@@ -327,70 +351,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildVerificationCard() {
+    final bool isVerified = widget.isVerified;
     return Container(
-      padding: const EdgeInsets.all(2),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        gradient: LinearGradient(
-          colors: widget.isVerified 
-              ? [Colors.green.shade400, Colors.green.shade600]
-              : [Colors.orange.shade400, Colors.red.shade600],
+        boxShadow: [
+          BoxShadow(
+            color: (isVerified ? Colors.green : Colors.orange).withOpacity(0.08),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
+        ],
+        border: Border.all(
+          color: (isVerified ? Colors.green : Colors.orange).withOpacity(0.1),
+          width: 1,
         ),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(22),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: (widget.isVerified ? Colors.green : Colors.red).withOpacity(0.1),
-                shape: BoxShape.circle,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isVerified 
+                    ? [Colors.green.shade50, Colors.green.shade100]
+                    : [Colors.orange.shade50, Colors.orange.shade100],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Icon(
-                widget.isVerified ? Icons.verified_rounded : Icons.gpp_maybe_rounded,
-                color: widget.isVerified ? Colors.green : Colors.red,
-                size: 24,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isVerified ? Icons.verified_user_rounded : Icons.gpp_maybe_rounded,
+              color: isVerified ? Colors.green.shade700 : Colors.orange.shade700,
+              size: 26,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isVerified ? 'Profile Verified' : 'Complete Your KYC',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+                Text(
+                  isVerified ? 'Your identity is fully confirmed.' : 'Gain more trust with property owners',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (!isVerified)
+            InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KycScreen())),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade700,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Verify',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      widget.isVerified ? 'PROFILE VERIFIED (प्रोफाइल प्रमाणित)' : 'INCOMPLETE KYC (केवाइसी बाँकी)',
-                      style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 22, color: Colors.black, letterSpacing: -0.5),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      widget.isVerified 
-                          ? 'Your identity is fully confirmed.' 
-                          : 'Verify now to gain more trust (प्रमाणित गर्नुहोस्)',
-                      style: GoogleFonts.inter(fontSize: 15, color: Colors.grey[700], fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (!widget.isVerified)
-              IconButton(
-                icon: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KycScreen())),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -400,14 +442,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 8, bottom: 12),
+          padding: const EdgeInsets.only(left: 12, bottom: 12),
           child: Text(
             title,
             style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w800,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
               color: Colors.grey[400],
-              letterSpacing: 1.2,
+              letterSpacing: 0.8,
             ),
           ),
         ),
@@ -417,13 +459,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 20,
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 40,
                 offset: const Offset(0, 10),
               ),
             ],
           ),
-          child: Column(children: items),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Column(children: items),
+          ),
         ),
       ],
     );
@@ -432,24 +477,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildMenuItem(IconData icon, String title, String subtitle, {VoidCallback? onTap, Color? color}) {
     return ListTile(
       onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: (color ?? AppTheme.brandColor).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
+          shape: BoxShape.circle,
         ),
         child: Icon(icon, color: color ?? AppTheme.brandColor, size: 20),
       ),
       title: Text(
         title,
-        style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: const Color(0xFF1E1E1E), letterSpacing: -0.3),
+        style: GoogleFonts.inter(
+          fontSize: 15, 
+          fontWeight: FontWeight.bold, 
+          color: const Color(0xFF1E1E1E), 
+          letterSpacing: -0.3
+        ),
       ),
       subtitle: Text(
         subtitle,
-        style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500], letterSpacing: -0.2),
+        style: GoogleFonts.inter(
+          fontSize: 12, 
+          color: Colors.grey[500], 
+          fontWeight: FontWeight.w500,
+          letterSpacing: -0.1
+        ),
       ),
-      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey),
+      trailing: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.chevron_right_rounded, size: 18, color: Colors.grey),
+      ),
     );
   }
 }
