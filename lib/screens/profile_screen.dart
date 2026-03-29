@@ -395,9 +395,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isVerified ? 'Profile Verified' : 'Complete Your KYC',
+                  isVerified ? 'Profile Verified (प्रमाणित)' : 'Complete KYC (केवाइसी बाँकी)',
                   style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     fontSize: 16,
                     color: Colors.black87,
                   ),
