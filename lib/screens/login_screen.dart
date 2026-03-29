@@ -237,19 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _signInWithFacebook() async {
-    if (!_agreeToTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please agree to terms to continue', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
-      return;
-    }
-    setState(() => _isLoading = true);
-    try {
-      await SupabaseService.signInWithFacebook();
-    } catch (e) { 
-      setState(() => _isLoading = false); 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Facebook Login Error: $e', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -524,13 +512,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const SizedBox(height: 12),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24),
-                          child: Row(
-                            children: [
-                              Expanded(child: _buildSocialBtn('assets/icons/google_g.svg', 'Google', _isLoading ? () {} : _signInWithGoogle)),
-                              const SizedBox(width: 16),
-                              Expanded(child: _buildSocialBtn('assets/icons/facebook_f.svg', 'Facebook', _isLoading ? () {} : _signInWithFacebook)),
-                            ],
-                          ),
+                          child: _buildSocialBtn('assets/icons/google_g.svg', 'Continue with Google', _isLoading ? () {} : _signInWithGoogle),
                         ),
                         const SizedBox(height: 10),
                         Padding(
@@ -568,41 +550,44 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildSocialBtn(String icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(50),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            height: 56, // Increased height for a bigger look
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.6), // Semi-transparent for glass effect
-              borderRadius: BorderRadius.circular(50),
-              border: Border.all(
-                color: Colors.grey.withOpacity(0.4), 
-                width: 1.2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+      child: SizedBox(
+        width: double.infinity,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(50),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            child: Container(
+              height: 56, // Increased height for a bigger look
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.6), // Semi-transparent for glass effect
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.4), 
+                  width: 1.2,
                 ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(icon, height: 24), 
-                const SizedBox(width: 12),
-                Text(
-                  label, 
-                  style: GoogleFonts.inter(
-                    fontSize: 16, 
-                    fontWeight: FontWeight.w600, 
-                    color: Colors.black87
-                  )
-                ), 
-              ],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(icon, height: 24), 
+                  const SizedBox(width: 12),
+                  Text(
+                    label, 
+                    style: GoogleFonts.inter(
+                      fontSize: 16, 
+                      fontWeight: FontWeight.w600, 
+                      color: Colors.black87
+                    )
+                  ), 
+                ],
+              ),
             ),
           ),
         ),
