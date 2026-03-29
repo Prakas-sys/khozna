@@ -377,7 +377,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               gradient: LinearGradient(
                 colors: isVerified 
                     ? [Colors.green.shade50, Colors.green.shade100]
-                    : [Colors.orange.shade50, Colors.orange.shade100],
+                    : [Colors.red.shade50, Colors.red.shade100],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -385,7 +385,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: Icon(
               isVerified ? Icons.verified_user_rounded : Icons.gpp_maybe_rounded,
-              color: isVerified ? Colors.green.shade700 : Colors.orange.shade700,
+              color: isVerified ? Colors.green.shade700 : Colors.redAccent,
               size: 26,
             ),
           ),
@@ -419,7 +419,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade700,
+                  color: Colors.redAccent,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
