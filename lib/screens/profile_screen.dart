@@ -353,7 +353,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildVerificationCard() {
     final bool isVerified = widget.isVerified;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -372,7 +372,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: isVerified 
@@ -386,10 +386,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Icon(
               isVerified ? Icons.verified_user_rounded : Icons.gpp_maybe_rounded,
               color: isVerified ? Colors.green.shade700 : Colors.redAccent,
-              size: 26,
+              size: 20,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,14 +398,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   isVerified ? 'Profile Verified (प्रमाणित)' : 'Incomplete KYC (ग्राहक पहिचान बाँकी)',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                    fontSize: 13,
                     color: Colors.black87,
                   ),
                 ),
                 Text(
                   isVerified ? 'Your identity is fully confirmed.' : 'Gain more trust with property owners',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w500,
                   ),
