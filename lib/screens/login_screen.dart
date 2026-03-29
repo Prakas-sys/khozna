@@ -216,8 +216,15 @@ class _LoginScreenState extends State<LoginScreen> {
         idToken: idToken,
         accessToken: accessToken,
       );
-      
-      // Logic continues via session listener or app restart
+
+      // 3. Stop loading and navigate
+      if (mounted) {
+        setState(() => _isLoading = false);
+        Navigator.pushReplacement(
+          context, 
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+        );
+      }
     } catch (e) { 
       setState(() => _isLoading = false); 
       debugPrint('Google Login Error: $e');
