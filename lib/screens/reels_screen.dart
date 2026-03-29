@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import 'owner_profile_screen.dart';
 import 'chat_screen.dart';
+import 'property_details_screen.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
@@ -262,7 +263,27 @@ class _ReelsScreenState extends State<ReelsScreen> {
                             const SizedBox(width: 12),
                             // Visit Button (More Premium)
                             GestureDetector(
-                              onTap: () {},
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PropertyDetailsScreen(
+                                      id: reel['id'],
+                                      imageUrl: reel['imageUrl'],
+                                      images: [reel['imageUrl']],
+                                      title: reel['title'],
+                                      location: reel['location'],
+                                      price: reel['price'],
+                                      bedrooms: 0,
+                                      bathrooms: 0,
+                                      area: 'N/A',
+                                      floor: 'N/A',
+                                      description: 'Detailed view of ${reel['title']}',
+                                    ),
+                                  ),
+                                );
+                              },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                                 decoration: BoxDecoration(

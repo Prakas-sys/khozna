@@ -59,6 +59,8 @@ class PropertyCard extends StatelessWidget {
               area: area,
               floor: floor,
               description: description,
+              ownerId: ownerId,
+              status: status,
             ),
           ),
         );
@@ -186,7 +188,7 @@ class PropertyCard extends StatelessWidget {
                             Text(
                               location,
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 11.5,
                                 color: Colors.grey[600],
                               ),
                             ),

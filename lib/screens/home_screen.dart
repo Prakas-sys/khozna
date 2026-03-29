@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/cupertino.dart';
@@ -148,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 child: Container(
                   height: 52,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 4, 0),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -165,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.search_rounded,
+                        CupertinoIcons.search,
                         color: AppTheme.brandColor,
                         size: 26,
                       ),
@@ -209,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: const Icon(
                             Icons.mic,
                             color: Colors.white,
-                            size: 20,
+                            size: 22,
                           ),
                         ),
                       ),
@@ -310,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (title == 'Verified Listings' && properties.isEmpty) {
                properties.add({
                 'id': 'demo-property-id',
-                'title': 'Modern Apartment in Kathmandu',
+                'title': 'Demo',
                 'area_name': 'Baneshwor, Kathmandu',
                 'price': '45,000',
                 'bedrooms': 2,
@@ -352,7 +353,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         floor: p['floor'] ?? 'N/A',
                         description: p['description'] ?? '',
                         images: images.map((i) => i['image_url'].toString()).toList(),
-                        ownerId: p['owner_id'] ?? '',
                         status: p['status'] ?? 'available',
                       ),
                     );

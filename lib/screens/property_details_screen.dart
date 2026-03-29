@@ -51,7 +51,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Map<String, dynamic>? _ownerData;
 
   String get _currentUserId => Supabase.instance.client.auth.currentUser?.id ?? '';
-  bool get _isMyProperty => widget.ownerId == _currentUserId;
+  bool get _isMyProperty => (widget.ownerId == _currentUserId) && !widget.id.contains('demo');
   static const Color _airbnbGrey = Color(0xFF717171);
 
   late final List<String> displayImages;
@@ -774,28 +774,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             // Dynamic Action Button (Reserve -> Cancel)
             Expanded(
               flex: 2,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  gradient: LinearGradient(
-                    colors: _isMyProperty 
-                        ? [Colors.blue[400]!, Colors.blue[600]!]
-                        : _isReserved 
-                            ? [Colors.grey[700]!, Colors.grey[800]!] 
-                            : [AppTheme.brandColor, const Color(0xFF00B4F5)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (_isMyProperty ? Colors.blue : (_isReserved ? Colors.grey : AppTheme.brandColor)).withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: _isMyProperty ? null : () async {
+              child: ElevatedButton(
+                onPressed: () async {
                     if (!_isReserved) {
                       // Call Supabase Magic
                       await SupabaseService.bookProperty(widget.id, widget.title, widget.ownerId);
@@ -876,22 +856,26 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: _isMyProperty 
+                        ? Colors.blue[600]
+                        : _isReserved 
+                            ? Colors.grey[700] 
+                            : AppTheme.brandColor,
                     foregroundColor: Colors.white,
-                    shadowColor: Colors.transparent,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 4,
+                    shadowColor: AppTheme.brandColor.withOpacity(0.3),
                   ),
-                  child: Text(
-                    _isMyProperty 
-                        ? 'Your Listing'
-                        : _isReserved 
-                            ? 'Booked ✓' 
-                            : 'BOOK NOW (बुक गर्नुहोस्)',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
-                  ),
+                child: Text(
+                  (_isMyProperty && !widget.id.contains('demo'))
+                      ? 'Your Listing'
+                      : _isReserved 
+                          ? 'Booked ✓' 
+                          : 'BOOK NOW (बुक गर्नुहोस्)',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
                 ),
               ),
             ),
