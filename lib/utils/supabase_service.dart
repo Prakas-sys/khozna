@@ -115,7 +115,25 @@ class SupabaseService {
     }
   }
 
-  /// Handles Google Sign-In using Supabase.
+  /// Handles Google Sign-In using Supabase (Native / Token based).
+  /// This fixes the branding issue (removes "supabase" text) and the redirect issue.
+  static Future<void> signInWithGoogleNative({
+    required String idToken,
+    String? accessToken,
+  }) async {
+    try {
+      await _client.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+    } catch (e) {
+      print('Supabase Native Google Sign-In Error: $e');
+      rethrow;
+    }
+  }
+
+  /// Handles Google Sign-In using Supabase (Web/OAuth - Fallback).
   static Future<void> signInWithGoogle() async {
     try {
       await _client.auth.signInWithOAuth(

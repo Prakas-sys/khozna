@@ -190,14 +190,42 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     setState(() => _isLoading = true);
     try {
-      await supabase.Supabase.instance.client.auth.signInWithOAuth(
-        supabase.OAuthProvider.google,
-        redirectTo: 'com.khozna.khozna://login-callback/',
+      // 1. Initialize Native Google Sign-In
+      // TIP: You will need to add your Web Client ID to your .env file
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
       );
-      // Logic continues via session listener or initial session check
+      
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        setState(() => _isLoading = false);
+        return; // User cancelled
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      final accessToken = googleAuth.accessToken;
+
+      if (idToken == null) {
+        throw 'No ID Token found. Please ensure you have configured your Client IDs correctly in Google Cloud Console.';
+      }
+
+      // 2. Log in to Supabase using the Native Tokens
+      await SupabaseService.signInWithGoogleNative(
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+      
+      // Logic continues via session listener or app restart
     } catch (e) { 
       setState(() => _isLoading = false); 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Google Login Error: $e', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      debugPrint('Google Login Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Google Login Error: $e', style: GoogleFonts.inter()), 
+        backgroundColor: Colors.redAccent, 
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 5),
+      ));
     }
   }
 
