@@ -320,8 +320,16 @@ class _KycScreenState extends State<KycScreen> {
           _phoneController,
           'Phone Number (फोन नम्बर)',
           Icons.phone_android_outlined,
-          (v) => v!.isEmpty ? 'Required' : null,
+          (v) {
+            if (v == null || v.isEmpty) return 'Required';
+            if (v.length != 10) return 'Must be 10 digits';
+            return null;
+          },
           keyboardType: TextInputType.phone,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(10),
+          ],
           isVerified: _isPhoneVerified,
         ),
         const SizedBox(height: 24),
