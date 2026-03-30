@@ -197,44 +197,48 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 25,
-                offset: const Offset(0, 8),
-              ),
-            ],
-            border: Border.all(
-              color: enabled ? Colors.grey.shade100 : Colors.grey.shade200,
-              width: 1,
-            ),
+        TextFormField(
+          controller: controller,
+          enabled: enabled,
+          onChanged: (v) => setState(() {}),
+          style: GoogleFonts.inter(
+            fontSize: 15, 
+            color: enabled ? Colors.black87 : Colors.grey,
+            fontWeight: FontWeight.w600,
           ),
-          child: TextField(
-            controller: controller,
-            enabled: enabled,
-            style: GoogleFonts.inter(
-              fontSize: 15, 
-              color: enabled ? Colors.black87 : Colors.grey,
-              fontWeight: FontWeight.w600,
-            ),
-            decoration: InputDecoration(
-              prefixIcon: Container(
-                margin: const EdgeInsets.all(12),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppTheme.brandColor.withOpacity(0.08),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: AppTheme.brandColor, size: 18),
+          decoration: InputDecoration(
+            prefixIcon: Container(
+              margin: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.08),
+                shape: BoxShape.circle,
               ),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              hintText: 'Enter your $label',
-              hintStyle: GoogleFonts.inter(color: Colors.grey[300], fontSize: 14),
+              child: Icon(icon, color: AppTheme.brandColor, size: 18),
+            ),
+            filled: true,
+            fillColor: !enabled ? const Color(0xFFF1F5F9) : (controller.text.isNotEmpty ? Colors.white : const Color(0xFFF8FAFC)),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            hintText: 'Enter your $label',
+            hintStyle: GoogleFonts.inter(color: Colors.grey[300], fontSize: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20), 
+              borderSide: BorderSide(color: Colors.grey.shade200),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20), 
+              borderSide: BorderSide(
+                color: (enabled && controller.text.isNotEmpty) ? AppTheme.brandColor.withOpacity(0.4) : Colors.grey.shade200,
+                width: 1,
+              ),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20), 
+              borderSide: BorderSide(color: Colors.grey.shade100),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20), 
+              borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.8),
             ),
           ),
         ),

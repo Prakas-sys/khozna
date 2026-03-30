@@ -807,11 +807,35 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
+      onChanged: (v) => setState(() {}),
+      style: GoogleFonts.inter(
+        fontSize: 15,
+        fontWeight: FontWeight.w600,
+        color: Colors.black87,
+      ),
       decoration: InputDecoration(
         hintText: hint,
+        hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 14),
         prefixText: prefix,
-        fillColor: const Color(0xFFF9F9F9),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        prefixStyle: GoogleFonts.inter(color: AppTheme.brandColor, fontWeight: FontWeight.bold),
+        filled: true,
+        fillColor: (controller != null && controller.text.isNotEmpty) ? Colors.white : const Color(0xFFF8FAFC),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12), 
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12), 
+          borderSide: BorderSide(
+            color: (controller != null && controller.text.isNotEmpty) ? AppTheme.brandColor.withOpacity(0.4) : Colors.grey.shade200,
+            width: 1,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12), 
+          borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.8),
+        ),
       ),
     );
   }

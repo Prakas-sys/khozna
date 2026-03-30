@@ -357,6 +357,7 @@ class _KycScreenState extends State<KycScreen> {
       inputFormatters: inputFormatters,
       readOnly: isVerified,
       enabled: !isVerified,
+      onChanged: (v) => setState(() {}),
       style: GoogleFonts.plusJakartaSans(
         fontSize: 16,
         fontWeight: FontWeight.w600,
@@ -364,39 +365,61 @@ class _KycScreenState extends State<KycScreen> {
       ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w500),
+        labelStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[700], fontSize: 13, fontWeight: FontWeight.w600),
+        floatingLabelStyle: GoogleFonts.plusJakartaSans(color: AppTheme.brandColor, fontWeight: FontWeight.bold),
         prefixIcon: providerLogo != null 
           ? Padding(
               padding: const EdgeInsets.all(12.0),
               child: Image.network(providerLogo, width: 20, height: 20),
             )
-          : Icon(icon, color: AppTheme.brandColor, size: 22),
+          : Icon(icon, color: AppTheme.brandColor.withValues(alpha: 0.8), size: 22),
         suffixIcon: isVerified
-            ? Padding(
-                padding: const EdgeInsets.only(right: 12.0),
+            ? Container(
+                padding: const EdgeInsets.only(right: 16.0),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
                       'Auto-filled (स्वत: भरियो)',
                       style: GoogleFonts.plusJakartaSans(
-                        color: Colors.blue,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF00B4F5),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.verified_user_rounded, color: Colors.blue, size: 18),
+                    const SizedBox(width: 6),
+                    const Icon(Icons.verified_user_rounded, color: Color(0xFF00B4F5), size: 16),
                   ],
                 ),
               )
             : null,
         filled: true,
-        fillColor: const Color(0xFFF8FAFC),
+        fillColor: isVerified ? const Color(0xFFF1F5F9) : (controller.text.isNotEmpty ? Colors.white : const Color(0xFFF8FAFC)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppTheme.brandColor, width: 1.5)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16), 
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16), 
+          borderSide: BorderSide(
+            color: controller.text.isNotEmpty ? AppTheme.brandColor.withValues(alpha: 0.4) : Colors.grey.shade200,
+            width: 1,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16), 
+          borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.8),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16), 
+          borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16), 
+          borderSide: const BorderSide(color: Colors.red, width: 1.8),
+        ),
       ),
     );
   }
