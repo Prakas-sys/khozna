@@ -17,6 +17,14 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+    afterEvaluate {
+        project.extensions.findByType<com.android.build.gradle.LibraryExtension>()?.let { ext ->
+            if (ext.namespace == null) {
+                val groupStr = project.group.toString()
+                ext.namespace = if (groupStr.isNotEmpty()) groupStr else "com.example.${project.name}"
+            }
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {
