@@ -11,6 +11,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'theme/app_theme.dart';
 import 'utils/supabase_service.dart';
+import 'utils/app_notifiers.dart';
 import 'screens/main_screen.dart';
 import 'screens/location_permission_screen.dart';
 import 'screens/login_screen.dart';
@@ -132,6 +133,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
     
     // Start global service initialization
     await _initializeServices();
+    initializeBadgeSync();
     
     // Check location permission
     try {

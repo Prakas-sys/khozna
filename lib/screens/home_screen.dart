@@ -12,6 +12,7 @@ import '../widgets/voice_search_overlay.dart';
 import 'notifications_screen.dart';
 import 'search_screen.dart';
 import 'filter_results_screen.dart';
+import 'owner_dashboard.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,6 +24,77 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // Caching futures to prevent flickering on rebuild
   final List<Future<List<Map<String, dynamic>>>> _sectionFutures = [];
+  int _bossTaps = 0;
+
+  void _handleBossTap() {
+    _bossTaps++;
+    if (_bossTaps >= 5) {
+      _bossTaps = 0;
+      _showBossLogin();
+    }
+  }
+
+  void _showBossLogin() {
+    final pinController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: Column(
+          children: [
+            const Icon(Icons.admin_panel_settings_rounded, color: AppTheme.brandColor, size: 48),
+            const SizedBox(height: 16),
+            Text('Admin Access', style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 22)),
+            const SizedBox(height: 8),
+            Text('Enter 4-digit security PIN', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
+          ],
+        ),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 0),
+          child: TextField(
+            controller: pinController,
+            obscureText: true,
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.number,
+            maxLength: 4,
+            style: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 16),
+            decoration: InputDecoration(
+              counterText: '',
+              hintText: '••••',
+              hintStyle: TextStyle(color: Colors.grey[300]),
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: () {
+                if (pinController.text == '8888') { // Using 8888 as a default admin pin
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const OwnerDashboard()));
+                } else {
+                  HapticFeedback.heavyImpact();
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Access Denied')));
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.brandColor,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: Text('Unlock Dashboard', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -61,12 +133,15 @@ class _HomeScreenState extends State<HomeScreen> {
         surfaceTintColor: Colors.white,
         automaticallyImplyLeading: false,
         titleSpacing: 20,
-        title: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.asset(
-            'assets/images/original logo.png',
-            height: 48,
-            fit: BoxFit.contain,
+        title: GestureDetector(
+          onTap: _handleBossTap,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.asset(
+              'assets/images/original logo.png',
+              height: 48,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
         actions: [
