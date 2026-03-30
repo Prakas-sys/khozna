@@ -108,80 +108,84 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.5,
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
         ),
-        child: Column(
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 30),
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: NetworkImage(widget.avatar),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              widget.name,
-              style: GoogleFonts.inter(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            Text(
-              'Property Owner',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 30),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildActionCircle(Icons.call, 'Call', Colors.green, _startCall),
-                const SizedBox(width: 40),
-                _buildActionCircle(Icons.person, 'Profile', Colors.blue, () {}),
-                const SizedBox(width: 40),
-                _buildActionCircle(Icons.block, 'Block', Colors.red, () {}),
-              ],
-            ),
-            const SizedBox(height: 40),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Container(
-                padding: const EdgeInsets.all(16),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[50] ?? const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.phone_iphone_rounded, color: Colors.blueGrey),
-                    const SizedBox(width: 16),
-                    Text(
-                      widget.phone,
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ],
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 30),
+              CircleAvatar(
+                radius: 50,
+                backgroundImage: NetworkImage(widget.avatar),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                widget.name,
+                style: GoogleFonts.inter(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                'Property Owner',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildActionCircle(Icons.call_rounded, 'Call', Colors.green, _startCall),
+                  const SizedBox(width: 32),
+                  _buildActionCircle(Icons.person_rounded, 'Profile', Colors.blue, () {}),
+                  const SizedBox(width: 32),
+                  _buildActionCircle(Icons.report_problem_rounded, 'Report &\nBlock', Colors.red, () {}),
+                ],
+              ),
+              const SizedBox(height: 40),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50] ?? const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.phone_iphone_rounded, color: Colors.blueGrey),
+                      const SizedBox(width: 16),
+                      Text(
+                        widget.phone,
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
@@ -212,19 +216,21 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
       children: [
         InkWell(
           onTap: onTap,
+          borderRadius: BorderRadius.circular(50),
           child: Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: 26),
           ),
         ),
         const SizedBox(height: 8),
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[700]),
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[700], fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -558,41 +564,25 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   }
   Widget _buildEmptyState() {
     return Center(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.symmetric(horizontal: 32),
-        decoration: BoxDecoration(
-          color: Colors.purple.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.purple.withOpacity(0.1)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.rocket_launch, color: Colors.purple, size: 32),
-            const SizedBox(height: 12),
-            Text('Get more inquiries! 🚀', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
-            const SizedBox(height: 4),
-            Text(
-              'Boost your listing to get more visibility and faster replies.', 
-              textAlign: TextAlign.center, 
-              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600]),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.chat_bubble_outline_rounded, color: Colors.grey[300], size: 64),
+          const SizedBox(height: 16),
+          Text(
+            'No messages yet',
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.w600,
+              fontSize: 17,
+              color: Colors.grey[500],
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const BoostPromotionScreen()));
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 0,
-              ),
-              child: Text('Boost Now', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Say hello to start the conversation! 👋',
+            style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[400]),
+          ),
+        ],
       ),
     );
   }
