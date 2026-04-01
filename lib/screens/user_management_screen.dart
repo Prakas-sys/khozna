@@ -75,20 +75,24 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             itemCount: users.length,
             separatorBuilder: (context, index) => const Divider(height: 24),
             itemBuilder: (context, index) {
-              final user = users[index];
+              final Map<String, dynamic> user = users[index];
+              final String fullName = user['full_name']?.toString() ?? 'Unknown User';
+              final String kycStatus = user['kyc_status']?.toString() ?? 'none';
+              final String? avatarUrl = user['avatar_url']?.toString();
+
               return ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
                   radius: 24,
                   backgroundColor: AppTheme.brandColor.withOpacity(0.1),
-                  backgroundImage: user['avatar_url'] != null ? NetworkImage(user['avatar_url']) : null,
-                  child: (user['avatar_url'] == null)
-                      ? (user['full_name'] != null && user['full_name'].toString().isNotEmpty
-                          ? Text(user['full_name'][0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor))
+                  backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty) ? NetworkImage(avatarUrl) : null,
+                  child: (avatarUrl == null || avatarUrl.isEmpty)
+                      ? (fullName.isNotEmpty
+                          ? Text(fullName.substring(0, 1).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor))
                           : const Icon(Icons.person, color: AppTheme.brandColor))
                       : null,
                 ),
-                title: Text(user['full_name'] ?? 'Unknown User', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                title: Text(fullName, style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -102,12 +106,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(user['kyc_status']).withOpacity(0.1),
+                        color: _getStatusColor(kycStatus).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        user['kyc_status']?.toUpperCase() ?? 'NONE',
-                        style: TextStyle(color: _getStatusColor(user['kyc_status']), fontSize: 10, fontWeight: FontWeight.bold),
+                        kycStatus.toUpperCase(),
+                        style: TextStyle(color: _getStatusColor(kycStatus), fontSize: 10, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(width: 4),
