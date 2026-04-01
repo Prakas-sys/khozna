@@ -118,6 +118,11 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                           Colors.purple,
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyModerationScreen())).then((_) => _refreshStats()),
                         ),
+                        _buildStatCard(
+                          'Active Bookings', 
+                          stats['activeBookings'].toString(), 
+                          Icons.calendar_today_outlined, 
+                          Colors.green,
                           onTap: () {
                             // Navigation to BookingManagementScreen (to be added)
                           },

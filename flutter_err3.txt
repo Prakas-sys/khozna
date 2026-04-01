@@ -1,0 +1,18 @@
+
+[31mFAILURE: Build failed with an exception.[39m
+
+[31m* Where:[39m
+[31mBuild file 'D:\KHOZNA\STARTUP\Khozna\KHOZNA.COM\android\build.gradle.kts' line: 20[39m
+
+[31m* What went wrong:[39m
+[31mCannot run Project.afterEvaluate(Action) when the project is already evaluated.[39m
+
+[31m* Try:[39m
+[31m> Run with --stacktrace option to get the stack trace.[39m
+[31m> Run with --info or --debug option to get more log output.[39m
+[31m> Run with --scan to get full insights.[39m
+[31m> Get more help at https://help.gradle.org.[39m
+
+[31mBUILD FAILED in 3s[39m
+[31mGradle task assembleRelease[39m
+[31mfailed with exit code 1[39m
