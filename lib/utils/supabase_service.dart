@@ -327,16 +327,36 @@ class SupabaseService {
     }
   }
 
-  /// OWNER ONLY: Listen for new KYC submissions across the whole platform
+  /// OWNER ONLY: Listen for new KYC submissions and reports across the whole platform
   static void listenToOwnerAlerts(Function onNewEvent) {
+    final user = _client.auth.currentUser;
+    // Only proceed if the logged in user is the specific admin email
+    if (user == null || user.email != 'khoznaapp@gmail.com') return;
+
+    // Listen for new KYC submissions
     _client
-        .channel('owner-alerts')
+        .channel('owner-kycs')
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
           schema: 'public',
           table: 'kyc_verifications',
           callback: (payload) {
-            // New KYC submitted!
+            // New KYC submitted! 
+            notificationBadgeCount.value += 1;
+            onNewEvent(); // Trigger UI refresh in Dashboard
+          },
+        )
+        .subscribe();
+
+    // Listen for new User Reports
+    _client
+        .channel('owner-reports')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'user_reports',
+          callback: (payload) {
+            // New report submitted!
             notificationBadgeCount.value += 1;
             onNewEvent(); // Trigger UI refresh in Dashboard
           },

@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../utils/supabase_service.dart';
 import 'user_management_screen.dart';
 import 'property_moderation_screen.dart';
+import '../utils/security_utils.dart';
 
 class OwnerDashboard extends StatefulWidget {
   const OwnerDashboard({super.key});

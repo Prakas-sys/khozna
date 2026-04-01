@@ -43,7 +43,7 @@ class _KycScreenState extends State<KycScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(true); // Enabled for KYC sensitivity
+    SecurityUtils.setSecure(false); // Disabled to allow screenshots for testing and records
     _loadInitialData();
   }
 
@@ -90,7 +90,7 @@ class _KycScreenState extends State<KycScreen> {
 
   @override
   void dispose() {
-    SecurityUtils.setSecure(false);
+    SecurityUtils.setSecure(false); // Ensure it's unlocked when leaving
     _nameController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
