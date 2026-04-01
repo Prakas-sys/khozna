@@ -229,10 +229,16 @@ class _KycScreenState extends State<KycScreen> {
 
     setState(() => _isSubmitting = true);
     try {
-      // 1. Upload Images to Cloudinary
-      final String? frontUrl = await CloudinaryService.uploadImage(_frontImage!);
-      final String? backUrl = await CloudinaryService.uploadImage(_backImage!);
-      final String? selfieUrl = await CloudinaryService.uploadImage(_selfieImage!);
+      // 1. Upload Images to Cloudinary in Parallel (Speed Boost! 🚀)
+      final results = await Future.wait([
+        CloudinaryService.uploadImage(_frontImage!),
+        CloudinaryService.uploadImage(_backImage!),
+        CloudinaryService.uploadImage(_selfieImage!),
+      ]);
+      
+      final frontUrl = results[0];
+      final backUrl = results[1];
+      final selfieUrl = results[2];
 
       if (frontUrl == null || backUrl == null || selfieUrl == null) {
         throw Exception('Image upload failed');
