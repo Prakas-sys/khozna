@@ -98,6 +98,8 @@ Future<void> _setupNotifications() async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     RemoteNotification? notification = message.notification;
     if (notification != null) {
+      // Increment global badge count
+      notificationBadgeCount.value += 1;
       _showLocalNotification(notification.title ?? '', notification.body ?? '');
     }
   });

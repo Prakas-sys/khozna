@@ -153,18 +153,55 @@ class _HomeScreenState extends State<HomeScreen> {
                 _navigate(context, const NotificationsScreen());
               },
               borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey.shade200, width: 1.0),
-                ),
-                child: const Icon(
-                  CupertinoIcons.bell,
-                  color: Colors.black87,
-                  size: 28,
-                ),
+              child: ValueListenableBuilder<int>(
+                valueListenable: notificationBadgeCount,
+                builder: (context, badgeCount, _) {
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey.shade200, width: 1.0),
+                        ),
+                        child: const Icon(
+                          CupertinoIcons.bell,
+                          color: Colors.black87,
+                          size: 28,
+                        ),
+                      ),
+                      if (badgeCount > 0)
+                        Positioned(
+                          top: -2,
+                          right: -2,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF0000), // Vibrant Red
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 1.5),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Center(
+                              child: Text(
+                                badgeCount > 9 ? '9+' : '$badgeCount',
+                                style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                }
               ),
             ),
           ),

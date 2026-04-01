@@ -5,7 +5,7 @@ import 'package:flutter_app_badger/flutter_app_badger.dart';
 final ValueNotifier<int> messageBadgeCount = ValueNotifier<int>(0);
 
 /// Global notifier for the Notification icon badge count.
-final ValueNotifier<int> notificationBadgeCount = ValueNotifier<int>(3);
+final ValueNotifier<int> notificationBadgeCount = ValueNotifier<int>(0);
 
 void initializeBadgeSync() {
   void updateNativeBadge() {
