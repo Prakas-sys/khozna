@@ -27,6 +27,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int _bossTaps = 0;
 
   void _handleBossTap() {
+    final user = Supabase.instance.client.auth.currentUser;
+    // Only allow the boss trigger if the logged in user is the master admin
+    if (user == null || user.email != 'khoznaapp@gmail.com') {
+      _bossTaps = 0; // Reset just in case
+      return; 
+    }
+
     _bossTaps++;
     if (_bossTaps >= 5) {
       _bossTaps = 0;
