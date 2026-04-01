@@ -136,6 +136,10 @@ class _KhoznaAppState extends State<KhoznaApp> {
     // Start global service initialization
     await _initializeServices();
     initializeBadgeSync();
+
+    // Start listening for real-time alerts immediately (Success-critical for badges!)
+    SupabaseService.listenToUserNotifications();
+    SupabaseService.listenToOwnerAlerts(() {}); // Listen for Admin/Owner events silently
     
     // Check location permission
     try {
