@@ -94,16 +94,27 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     Text(user['email'] ?? 'No Email', style: GoogleFonts.inter(fontSize: 11, color: Colors.grey)),
                   ],
                 ),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(user['kyc_status']).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    user['kyc_status']?.toUpperCase() ?? 'NONE',
-                    style: TextStyle(color: _getStatusColor(user['kyc_status']), fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(user['kyc_status']).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        user['kyc_status']?.toUpperCase() ?? 'NONE',
+                        style: TextStyle(color: _getStatusColor(user['kyc_status']), fontSize: 10, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      onPressed: () => _confirmPermanentDelete(user['id'], user['full_name'] ?? 'this user'),
+                      icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 20),
+                      tooltip: 'Delete User Permanently',
+                    ),
+                  ],
                 ),
               );
             },
@@ -111,6 +122,34 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         },
       ),
     );
+  }
+
+  void _confirmPermanentDelete(String userId, String name) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete $name?'),
+        content: const Text('This will permanently remove this user and all their data (KYC, notifications, profile) from the system. This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete Permanently', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await SupabaseService.deleteUserPermanently(userId);
+        _refresh();
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User deleted successfully.')));
+      } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
   }
 
   Color _getStatusColor(String? status) {

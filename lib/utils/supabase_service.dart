@@ -97,6 +97,11 @@ class SupabaseService {
           .eq('status', 'pending')
           .count(CountOption.exact);
       
+      final reportCount = await _client
+          .from('user_reports')
+          .select()
+          .count(CountOption.exact);
+
       final bookingCount = await _client
           .from('properties')
           .select()
@@ -107,11 +112,12 @@ class SupabaseService {
         'totalUsers': userCount.count,
         'totalProperties': propertyCount.count,
         'pendingKyc': pendingKycCount.count,
+        'pendingReports': reportCount.count,
         'activeBookings': bookingCount.count,
       };
     } catch (e) {
       print('Error fetching owner stats: $e');
-      return {'totalUsers': 0, 'totalProperties': 0, 'pendingKyc': 0, 'activeBookings': 0};
+      return {'totalUsers': 0, 'totalProperties': 0, 'pendingKyc': 0, 'pendingReports': 0, 'activeBookings': 0};
     }
   }
 
@@ -231,6 +237,29 @@ class SupabaseService {
       await _client.from('properties').delete().eq('id', id);
     } catch (e) {
       print('Error deleting property permanently: $e');
+      rethrow;
+    }
+  }
+  
+  /// Delete a KYC record permanently
+  static Future<void> deleteKycPermanently(String kycId) async {
+    try {
+      await _client.from('kyc_verifications').delete().eq('id', kycId);
+    } catch (e) {
+      print('Error deleting KYC: $e');
+      rethrow;
+    }
+  }
+
+  /// Delete a user profile permanently
+  static Future<void> deleteUserPermanently(String userId) async {
+    try {
+      // cascading will hopefully handle these, but we can be explicit
+      await _client.from('kyc_verifications').delete().eq('user_id', userId);
+      await _client.from('notifications').delete().eq('user_id', userId);
+      await _client.from('profiles').delete().eq('id', userId);
+    } catch (e) {
+      print('Error deleting user: $e');
       rethrow;
     }
   }
@@ -360,6 +389,58 @@ class SupabaseService {
       await _client.from('notifications').delete().eq('id', id);
     } catch (e) {
       print('Error deleting notification: $e');
+    }
+  }
+  
+  /// Delete all notifications for current user
+  static Future<void> deleteAllNotifications() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    try {
+      await _client.from('notifications').delete().eq('user_id', user.id);
+    } catch (e) {
+      print('Error clearing notifications: $e');
+    }
+  }
+
+  // ==========================================
+  // USER REPORTING METHODS
+  // ==========================================
+  
+  /// Report a user for bad behavior
+  static Future<void> reportUser(String userId, String reporterId, String reason) async {
+    try {
+      await _client.from('user_reports').insert({
+        'reported_user_id': userId,
+        'reporter_id': reporterId,
+        'reason': reason,
+      });
+    } catch (e) {
+      print('Error reporting user: $e');
+      rethrow;
+    }
+  }
+  
+  /// Fetch all user reports for admin
+  static Future<List<Map<String, dynamic>>> getUserReports() async {
+    try {
+      return await _client
+          .from('user_reports')
+          .select('*, reported:reported_user_id(full_name, avatar_url), reporter:reporter_id(full_name)')
+          .order('created_at', ascending: false);
+    } catch (e) {
+      print('Error fetching reports: $e');
+      return [];
+    }
+  }
+  
+  /// Delete a report record
+  static Future<void> deleteReport(String reportId) async {
+    try {
+      await _client.from('user_reports').delete().eq('id', reportId);
+    } catch (e) {
+      print('Error deleting report: $e');
+      rethrow;
     }
   }
 

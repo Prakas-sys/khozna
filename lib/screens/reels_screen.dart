@@ -25,6 +25,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
       'title': 'Single room for student',
       'ownerName': 'Ram Bahadur',
       'ownerAvatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+      'ownerId': 'owner_ram_bahadur',
       'price': '8,000',
       'location': 'Baneshwar, Kathmandu',
       'likes': '2.4K',
@@ -37,6 +38,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
       'title': 'Modern Apartment in Sanepa',
       'ownerName': 'Jenny Wilson',
       'ownerAvatar': 'https://i.pravatar.cc/150?img=47',
+      'ownerId': 'owner_jenny_wilson',
       'price': '25,000',
       'location': 'Sanepa, Lalitpur',
       'likes': '1.8K',
@@ -178,6 +180,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OwnerProfileScreen(
+                        ownerId: reel['ownerId'] ?? 'unknown',
                         name: reel['ownerName'],
                         avatar: reel['ownerAvatar'],
                         location: reel['location'],

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 
 class OwnerProfileScreen extends StatelessWidget {
+  final String ownerId; // New: ownerId required for reporting
   final String name;
   final String avatar;
   final bool isVerified;
@@ -11,6 +12,7 @@ class OwnerProfileScreen extends StatelessWidget {
 
   const OwnerProfileScreen({
     super.key,
+    required this.ownerId,
     required this.name,
     required this.avatar,
     this.isVerified = true,
@@ -156,10 +158,77 @@ class OwnerProfileScreen extends StatelessWidget {
                 ),
               ],
             ),
+            
+            const SizedBox(height: 24),
+            
+            // NEW: Report Button
+            TextButton.icon(
+              onPressed: () => _showReportDialog(context),
+              icon: const Icon(Icons.flag_outlined, color: Colors.red, size: 18),
+              label: Text(
+                'Report this Owner',
+                style: GoogleFonts.inter(color: Colors.red, fontSize: 13, fontWeight: FontWeight.w500),
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  void _showReportDialog(BuildContext context) {
+    final reasonController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Report $name', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Why are you reporting this user? Your report helps us keep Khozna safe.',
+              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: reasonController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Enter reason (e.g. Scammer, Abusive)...',
+                hintStyle: GoogleFonts.inter(fontSize: 13),
+                filled: true,
+                fillColor: Colors.grey[50],
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              if (reasonController.text.trim().isEmpty) return;
+              final reporterId = Supabase.instance.client.auth.currentUser?.id ?? 'anonymous';
+              
+              try {
+                await SupabaseService.reportUser(ownerId, reporterId, reasonController.text);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Report submitted. Thank you.')));
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Submit Report', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
   }
 
   Widget _buildStatItem(String label, String value) {

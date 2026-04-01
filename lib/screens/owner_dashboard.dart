@@ -61,6 +61,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
             'totalUsers': 0,
             'totalProperties': 0,
             'pendingKyc': 0,
+            'pendingReports': 0,
             'activeBookings': 0,
           };
 
@@ -117,14 +118,16 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                           Colors.purple,
                           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyModerationScreen())).then((_) => _refreshStats()),
                         ),
-                        _buildStatCard(
-                          'Bookings', 
-                          stats['activeBookings'].toString(), 
-                          Icons.calendar_today_outlined, 
-                          Colors.green,
                           onTap: () {
                             // Navigation to BookingManagementScreen (to be added)
                           },
+                        ),
+                        _buildStatCard(
+                          'User Reports', 
+                          stats['pendingReports'].toString(), 
+                          Icons.report_problem_outlined, 
+                          Colors.red,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserReportsScreen())).then((_) => _refreshStats()),
                         ),
                       ],
                     ),
@@ -170,6 +173,17 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                       context,
                       MaterialPageRoute(builder: (_) => const UserManagementScreen()),
                     ),
+                  ),
+                  _buildActionItem(
+                    'User Reports',
+                    'Manage reported users and scams',
+                    Icons.report_problem_outlined,
+                    Colors.red,
+                    badge: stats['pendingReports']! > 0 ? stats['pendingReports'].toString() : null,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const UserReportsScreen()),
+                    ).then((_) => _refreshStats()),
                   ),
                   const SizedBox(height: 40),
                   
@@ -388,8 +402,18 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(kyc['full_name'], style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text(kyc['phone_number'], style: GoogleFonts.inter(color: Colors.grey)),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(kyc['full_name'], style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
+                              Text(kyc['phone_number'], style: GoogleFonts.inter(color: Colors.grey)),
+                            ],
+                          ),
+                          IconButton(
+                            onPressed: () => _confirmPermanentDelete(kyc['id']),
+                            icon: const Icon(Icons.delete_forever, color: Colors.red, size: 22),
+                            tooltip: 'Permanently Delete Record',
+                          ),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -505,6 +529,139 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
     } catch (e) {
       Navigator.pop(context); // close loading
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
+  void _confirmPermanentDelete(String kycId) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Permanent Delete?'),
+        content: const Text('This will totally remove this KYC record from the database. This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete Permanently', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await SupabaseService.deleteKycPermanently(kycId);
+        _refresh();
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC Record Deleted.')));
+      } catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error deleting: $e')));
+      }
+    }
+  }
+}
+
+class UserReportsScreen extends StatefulWidget {
+  const UserReportsScreen({super.key});
+
+  @override
+  State<UserReportsScreen> createState() => _UserReportsScreenState();
+}
+
+class _UserReportsScreenState extends State<UserReportsScreen> {
+  late Future<List<Map<String, dynamic>>> _reportsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  void _refresh() {
+    setState(() {
+      _reportsFuture = SupabaseService.getUserReports();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('User Reports', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+      ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _reportsFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+          final reports = snapshot.data ?? [];
+          if (reports.isEmpty) return const Center(child: Text('No reports found.'));
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: reports.length,
+            separatorBuilder: (context, index) => const Divider(height: 24),
+            itemBuilder: (context, index) {
+              final report = reports[index];
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.red.withOpacity(0.1)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 18,
+                          backgroundImage: report['reported']['avatar_url'] != null ? NetworkImage(report['reported']['avatar_url']) : null,
+                          child: report['reported']['avatar_url'] == null ? const Icon(Icons.person) : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(report['reported']['full_name'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text('Reported by: ${report['reporter']['full_name'] ?? 'System'}', style: TextStyle(color: Colors.grey[600], fontSize: 11)),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => _deleteReport(report['id']),
+                          icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: Colors.red.withOpacity(0.05), borderRadius: BorderRadius.circular(12)),
+                      child: Text(
+                        report['reason'] ?? 'No reason provided',
+                        style: GoogleFonts.inter(fontSize: 13, color: Colors.red[900]),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  void _deleteReport(String id) async {
+    try {
+      await SupabaseService.deleteReport(id);
+      _refresh();
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Report dismissed.')));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 }

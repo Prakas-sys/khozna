@@ -68,6 +68,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          if (_notifications.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_sweep_outlined, color: Colors.red, size: 24),
+              tooltip: 'Clear All',
+              onPressed: _confirmClearAll,
+            ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2))
@@ -116,6 +125,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) => OwnerProfileScreen(
+                                          ownerId: sender['id']?.toString() ?? '',
                                           name: sender['full_name'] ?? 'Khozna User',
                                           avatar: sender['avatar_url'] ?? 'https://via.placeholder.com/150',
                                           location: 'Kathmandu, Nepal',
@@ -182,10 +192,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 ),
                               ),
                               
-                              // DELETE BUTTON (SUBTLE)
+                              // DELETE BUTTON (PREMIUM - DIRECT)
                               IconButton(
                                 onPressed: () => _confirmDelete(id, index),
-                                icon: Icon(Icons.more_horiz, color: Colors.grey[300]),
+                                icon: Icon(Icons.delete_outline, color: Colors.red.withOpacity(0.3), size: 18),
                               ),
                             ],
                           ),
@@ -288,8 +298,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
 
     if (confirm == true) {
+      final String targetId = id; // keep a reference
       setState(() => _notifications.removeAt(index));
-      await SupabaseService.deleteNotification(id);
+      await SupabaseService.deleteNotification(targetId);
+    }
+  }
+
+  void _confirmClearAll() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Clear all notifications?', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        content: Text('This will permanently delete all your notifications.', style: GoogleFonts.inter()),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Clear All', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() {
+        _notifications.clear();
+      });
+      await SupabaseService.deleteAllNotifications();
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All notifications cleared')));
     }
   }
 
