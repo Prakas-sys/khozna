@@ -43,7 +43,10 @@ class _KycScreenState extends State<KycScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(false); // Disabled to allow screenshots for testing and records
+    // Use a small delay to ensure the window is ready for flag changes on Android
+    Future.delayed(const Duration(milliseconds: 500), () {
+      SecurityUtils.setSecure(false);
+    });
     _loadInitialData();
   }
 
@@ -229,11 +232,12 @@ class _KycScreenState extends State<KycScreen> {
 
     setState(() => _isSubmitting = true);
     try {
+      debugPrint('--- KYC: Starting Parallel Uploads ---');
       // 1. Upload Images to Cloudinary in Parallel (Speed Boost! 🚀)
       final results = await Future.wait([
-        CloudinaryService.uploadImage(_frontImage!),
-        CloudinaryService.uploadImage(_backImage!),
-        CloudinaryService.uploadImage(_selfieImage!),
+        CloudinaryService.uploadImage(_frontImage!).timeout(const Duration(minutes: 2)),
+        CloudinaryService.uploadImage(_backImage!).timeout(const Duration(minutes: 2)),
+        CloudinaryService.uploadImage(_selfieImage!).timeout(const Duration(minutes: 2)),
       ]);
       
       final frontUrl = results[0];
@@ -241,9 +245,11 @@ class _KycScreenState extends State<KycScreen> {
       final selfieUrl = results[2];
 
       if (frontUrl == null || backUrl == null || selfieUrl == null) {
-        throw Exception('Image upload failed');
+        debugPrint('KYC: Image upload returned null. Check network or Cloudinary.');
+        throw Exception('Image upload failed (नेटवर्क वा क्लाउडिनरी समस्या)');
       }
 
+      debugPrint('--- KYC: Images Uploaded, saving to Supabase ---');
       // 2. Save to Supabase
       await supabase.Supabase.instance.client.from('kyc_verifications').insert({
         'user_id': user.id,
@@ -268,15 +274,21 @@ class _KycScreenState extends State<KycScreen> {
         'phone_verified': _isPhoneVerified,
       }).eq('id', user.id);
 
+      debugPrint('--- KYC: Submission Successful ---');
       if (mounted) {
         setState(() => _isSubmitting = false);
         _showSuccessDialog();
       }
     } catch (e) {
+      debugPrint('KYC Submission Error: $e');
       if (mounted) {
         setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Submission failed: $e')),
+          SnackBar(
+            content: Text('Submission failed: $e'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     }

@@ -364,6 +364,10 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
   @override
   void initState() {
     super.initState();
+    // Use a small delay to ensure the window flag is properly cleared on Android
+    Future.delayed(const Duration(milliseconds: 500), () {
+      SecurityUtils.setSecure(false);
+    });
     _refresh();
   }
 
