@@ -43,10 +43,8 @@ class _KycScreenState extends State<KycScreen> {
   @override
   void initState() {
     super.initState();
-    // Use a small delay to ensure the window is ready for flag changes on Android
-    Future.delayed(const Duration(milliseconds: 500), () {
-      SecurityUtils.setSecure(false);
-    });
+    // Allow screenshots on KYC screen as requested
+    SecurityUtils.setSecure(false);
     _loadInitialData();
   }
 
