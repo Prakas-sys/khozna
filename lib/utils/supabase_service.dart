@@ -2,7 +2,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app_notifiers.dart';
 
 class SupabaseService {
-  static final SupabaseClient _client = Supabase.instance.client;
+  static final _client = Supabase.instance.client;
+  static RealtimeChannel? _notificationChannel;
+  static RealtimeChannel? _ownerKycChannel;
+  static RealtimeChannel? _ownerReportChannel;
 
   /// Sync Supabase User to Profiles table
   static Future<void> syncUserWithSupabase(User user) async {
@@ -288,13 +291,19 @@ class SupabaseService {
     }
   }
 
-  /// Listen for all real-time notifications for the current user.
-  static void listenToUserNotifications() {
+  /// NEW: Robust initializer for all real-time listeners
+  static void initRealtimeListeners({Function? onOwnerEvent}) {
     final user = _client.auth.currentUser;
     if (user == null) return;
 
-    _client
-        .channel('public:notifications')
+    // 1. Clean up existing channels to prevent duplicates
+    _notificationChannel?.unsubscribe();
+    _ownerKycChannel?.unsubscribe();
+    _ownerReportChannel?.unsubscribe();
+
+    // 2. User Notifications Channel
+    _notificationChannel = _client
+        .channel('public:notifications-${user.id}')
         .onPostgresChanges(
           event: PostgresChangeEvent.insert,
           schema: 'public',
@@ -305,12 +314,48 @@ class SupabaseService {
             value: user.id,
           ),
           callback: (payload) {
-            // New notification for this user!
             notificationBadgeCount.value += 1;
           },
-        )
-        .subscribe();
+        );
+    _notificationChannel?.subscribe();
+
+    // 3. OWNER ONLY: Admin Alert Channels
+    if (user.email == 'khoznaapp@gmail.com') {
+      debugPrint('--- [ADMIN] Initializing Owner Realtime Channels ---');
+      
+      _ownerKycChannel = _client
+          .channel('owner-kycs')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: 'public',
+            table: 'kyc_verifications',
+            callback: (payload) {
+              notificationBadgeCount.value += 1;
+              if (onOwnerEvent != null) onOwnerEvent();
+            },
+          );
+      _ownerKycChannel?.subscribe();
+
+      _ownerReportChannel = _client
+          .channel('owner-reports')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: 'public',
+            table: 'user_reports',
+            callback: (payload) {
+              notificationBadgeCount.value += 1;
+              if (onOwnerEvent != null) onOwnerEvent();
+            },
+          );
+      _ownerReportChannel?.subscribe();
+    }
   }
+
+  /// DEPRECATED: Use initRealtimeListeners
+  static void listenToUserNotifications() {}
+
+  /// DEPRECATED: Use initRealtimeListeners
+  static void listenToOwnerAlerts(Object _) {}
 
   /// Save the user's FCM Push Token (Digital Mailing Address)
   static Future<void> saveDeviceToken(String token) async {

@@ -137,9 +137,19 @@ class _KhoznaAppState extends State<KhoznaApp> {
     await _initializeServices();
     initializeBadgeSync();
 
-    // Start listening for real-time alerts immediately (Success-critical for badges!)
-    SupabaseService.listenToUserNotifications();
-    SupabaseService.listenToOwnerAlerts(() {}); // Listen for Admin/Owner events silently
+    // NEW: Listen for Auth State changes to initialize/refresh Realtime channels
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      final AuthChangeEvent event = data.event;
+      if (event == AuthChangeEvent.signedIn || event == AuthChangeEvent.initialSession || event == AuthChangeEvent.tokenRefreshed) {
+        debugPrint('--- [AUTH] Session Sync: Initializing Realtime Listeners ---');
+        SupabaseService.initRealtimeListeners();
+      }
+    });
+
+    // Initial check just in case the state change doesn't fire for existing session
+    if (Supabase.instance.client.auth.currentSession != null) {
+      SupabaseService.initRealtimeListeners();
+    }
     
     // Check location permission
     try {

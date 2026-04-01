@@ -82,8 +82,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   radius: 24,
                   backgroundColor: AppTheme.brandColor.withOpacity(0.1),
                   backgroundImage: user['avatar_url'] != null ? NetworkImage(user['avatar_url']) : null,
-                  child: user['avatar_url'] == null 
-                      ? Text(user['full_name'][0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor)) 
+                  child: (user['avatar_url'] == null)
+                      ? (user['full_name'] != null && user['full_name'].toString().isNotEmpty
+                          ? Text(user['full_name'][0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor))
+                          : const Icon(Icons.person, color: AppTheme.brandColor))
                       : null,
                 ),
                 title: Text(user['full_name'] ?? 'Unknown User', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),

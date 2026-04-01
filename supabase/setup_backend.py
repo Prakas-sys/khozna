@@ -44,6 +44,21 @@ def setup_backend():
         conn.commit()
         print("--- ✅ Table 'user_reports' created successfully! ---")
         
+        print("--- 📡 Enabling Realtime for KYC and Reports ---")
+        realtime_sql = """
+        -- Add tables to the supabase_realtime publication
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.kyc_verifications;
+        ALTER PUBLICATION supabase_realtime ADD TABLE public.user_reports;
+        
+        -- Set replica identity to full for detailed payloads
+        ALTER TABLE public.kyc_verifications REPLICA IDENTITY FULL;
+        ALTER TABLE public.user_reports REPLICA IDENTITY FULL;
+        ALTER TABLE public.notifications REPLICA IDENTITY FULL;
+        """
+        cur.execute(realtime_sql)
+        conn.commit()
+        print("--- ✅ Realtime enrollment complete! ---")
+        
         # Verify tables
         cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';")
         tables = cur.fetchall()
