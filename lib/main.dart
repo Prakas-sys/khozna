@@ -135,14 +135,16 @@ class _KhoznaAppState extends State<KhoznaApp> {
     
     // Start global service initialization
     await _initializeServices();
+    await SupabaseService.fetchSavedPropertyIds(); // Fetch Master Memory IDs
     initializeBadgeSync();
 
     // NEW: Listen for Auth State changes to initialize/refresh Realtime channels
     supabase.Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       final supabase.AuthChangeEvent event = data.event;
       if (event == supabase.AuthChangeEvent.signedIn || event == supabase.AuthChangeEvent.initialSession || event == supabase.AuthChangeEvent.tokenRefreshed) {
-        debugPrint('--- [AUTH] Session Sync: Initializing Realtime Listeners ---');
+        debugPrint('--- [AUTH] Session Sync: Initializing Realtime Listeners & Master Memory ---');
         SupabaseService.initRealtimeListeners();
+        SupabaseService.fetchSavedPropertyIds(); // <--- Refresh memory now!
       }
     });
 

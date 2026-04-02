@@ -7,7 +7,7 @@ import '../widgets/favourite_button.dart';
 import 'property_details_screen.dart';
 import 'chat_screen.dart';
 
-class FilterResultsScreen extends StatelessWidget {
+class FilterResultsScreen extends StatefulWidget {
   final String location;
   final String priceRange;
 
@@ -16,6 +16,51 @@ class FilterResultsScreen extends StatelessWidget {
     this.location = 'Verified Listings',
     this.priceRange = 'Top Rated Properties',
   });
+
+  @override
+  State<FilterResultsScreen> createState() => _FilterResultsScreenState();
+}
+
+class _FilterResultsScreenState extends State<FilterResultsScreen> {
+  late Future<List<Map<String, dynamic>>> _propertiesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _propertiesFuture = _fetchProperties();
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchProperties() async {
+    // Extract numeric price from string like "Up to Rs. 45000"
+    final priceStr = widget.priceRange.replaceAll(RegExp(r'[^0-9]'), '');
+    final priceInt = int.tryParse(priceStr);
+
+    // Generic section titles that are NOT location filters
+    const genericTitles = ['Verified Listings', 'Recently Added', 'Near You',
+      'Popular in Kathmandu', 'Budget Friendly', 'High-End Apartments',
+      'Hot Deals', 'Student Housing', 'Family Flats', 'Premium Collections',
+      'Top Rated Properties'];
+    final isLocationSearch = !genericTitles.contains(widget.location);
+
+    var query = Supabase.instance.client
+        .from('properties')
+        .select('*, property_images(image_url)');
+
+    // Filter by location if it's a real location
+    if (isLocationSearch) {
+      query = query.ilike('area_name', '%${widget.location}%') as dynamic;
+    }
+
+    // Filter by price if a valid number was found
+    if (priceInt != null && priceInt > 0) {
+      query = query.lte('price', priceInt) as dynamic;
+    }
+
+    final result = await (query as dynamic)
+        .order('is_boosted', ascending: false)
+        .order('created_at', ascending: false);
+    return List<Map<String, dynamic>>.from(result);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +77,14 @@ class FilterResultsScreen extends StatelessWidget {
         ),
         title: Column(
           children: [
-            Text(location, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
-            Text(priceRange, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
+            Text(widget.location, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+            Text(widget.priceRange, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
           ],
         ),
         centerTitle: true,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: Supabase.instance.client.from('properties').select('*, property_images(image_url)').order('is_boosted', ascending: false).order('created_at', ascending: false),
+        future: _propertiesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return ListView.builder(
@@ -301,7 +346,12 @@ class FilterResultsScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const ChatScreen(name: 'Jenny Wilson', avatar: 'https://i.pravatar.cc/150?img=47', online: true),
+                                  builder: (_) => ChatScreen(
+                                    ownerId: p['owner_id'] ?? '',
+                                    name: 'Property Owner',
+                                    avatar: 'https://i.pravatar.cc/150?img=1',
+                                    online: true,
+                                  ),
                                 ),
                               );
                             },

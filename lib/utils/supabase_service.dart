@@ -26,38 +26,71 @@ class SupabaseService {
     } catch (e) {
       print('Sync Error: $e');
     }
+  }  /// Saves the FCM push notification token to the user's profile
+  static Future<void> saveDeviceToken(String token) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    try {
+      await _client.from('profiles').update({'fcm_token': token}).eq('id', user.id);
+      debugPrint('FCM Token successfully synced to Supabase (User: ${user.id}).');
+    } catch (e) {
+      debugPrint('Error saving FCM token: $e');
+    }
   }
 
-  /// Toggle saving a property for the current user.
-  static Future<void> toggleSaveProperty(String propertyId) async {
+  /// Initial Load for Master Memory: Fetch all IDs the user has saved.
+  static Future<void> fetchSavedPropertyIds() async {
     final user = _client.auth.currentUser;
     if (user == null) return;
 
     try {
-      // Check if already saved
       final response = await _client
           .from('saved_properties')
-          .select()
-          .eq('user_id', user.id)
-          .eq('property_id', propertyId)
-          .maybeSingle();
+      .select('property_id')
+      .eq('user_id', user.id);
 
-      if (response == null) {
-        // Save it
-        await _client.from('saved_properties').insert({
-          'user_id': user.id,
-          'property_id': propertyId,
-        });
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
+      final set = data.map((e) => e['property_id'].toString()).toSet();
+      savedPropertiesStore.value = set;
+      debugPrint('--- [DATABASE] Master Memory Loaded: ${set.length} saved houses ---');
+    } catch (e) {
+      print('Error fetching saved IDs: $e');
+    }
+  }
+
+  /// Toggle saving a property AND updating Master Memory instantly!
+  static Future<void> toggleSaveProperty(String propertyId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    // 1. Instantly update the Master Memory (Optimistic UX)
+    final current = Set<String>.from(savedPropertiesStore.value);
+    final isCurrentlySaved = current.contains(propertyId);
+    
+    if (isCurrentlySaved) {
+      current.remove(propertyId);
+    } else {
+      current.add(propertyId);
+    }
+    savedPropertiesStore.value = current;
+
+    // 2. Perform the database sync in the background
+    try {
+      if (isCurrentlySaved) {
+        await _client.from('saved_properties').delete().eq('user_id', user.id).eq('property_id', propertyId);
       } else {
-        // Unsave it
-        await _client
-            .from('saved_properties')
-            .delete()
-            .eq('user_id', user.id)
-            .eq('property_id', propertyId);
+        await _client.from('saved_properties').insert({'user_id': user.id, 'property_id': propertyId});
       }
     } catch (e) {
-      print('Supabase Error: $e');
+      // 3. If it fails, revert the Memory back to original State
+      print('Database Error: $e');
+      final reverted = Set<String>.from(savedPropertiesStore.value);
+      if (isCurrentlySaved) {
+        reverted.add(propertyId);
+      } else {
+        reverted.remove(propertyId);
+      }
+      savedPropertiesStore.value = reverted;
     }
   }
 

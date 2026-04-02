@@ -3,10 +3,10 @@
 This file contains the paths for the **Khozna** development environment. If an AI assistant needs to find your tools, show them this list!
 
 ### 🛠️ Core Tool Paths
-- **Java (JDK):** `D:\store\Java kit`
+- **Java (JDK):** `D:\STORE\JAVA kit`
 - **Flutter SDK:** `D:\STORE\flutter sdk\flutter`
-- **Android Studio:** `D:\store\Android Studio\Andriod studio stuff`
-- **Android SDK:** `D:\STORE\Android Studio\Android sdk`
+- **Android Studio:** `D:\STORE\Androidstudio\Andriod studio stuff`
+- **Android SDK:** `D:\STORE\Androidstudio\Android-sdk`
 
 ### 📁 Project Organization
 - **App Code:** `lib/`

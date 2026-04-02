@@ -846,12 +846,24 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         );
                       }
                     } else {
-                      // Handle Cancelation logic here if needed
-                      setState(() => _isReserved = false);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Booking request cancelled.')),
-                        );
+                      // Cancel booking - update database too!
+                      try {
+                        await Supabase.instance.client
+                            .from('properties')
+                            .update({'status': 'available'})
+                            .eq('id', widget.id);
+                        setState(() => _isReserved = false);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Booking request cancelled.')),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Could not cancel. Please try again.')),
+                          );
+                        }
                       }
                     }
                   },
