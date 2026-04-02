@@ -13,3 +13,9 @@ Status: 🚀 In-Mission
 - [x] Added `HapticFeedback` to the **Bottom Navigation Bar**.
 
 ...
+
+## [2026-04-02] Environment & Cleanup 🏗️ (COMPLETE)
+- [x] Restored **JDK 17** and configured `JAVA_HOME`.
+- [x] Linked **Flutter SDK** and **Android Studio** on D: Drive.
+- [x] Organized root directory: Moved 30+ noise files to `debug_logs/` and `scripts/`.
+- [x] Integrated `ENVIRONMENT.md` for AI context.

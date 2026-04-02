@@ -1,7 +1,0 @@
-warning: in the working copy of 'GSD.md', LF will be replaced by CRLF the next time Git touches it
-warning: in the working copy of 'lib/screens/edit_profile_screen.dart', LF will be replaced by CRLF the next time Git touches it
- GSD.md                               |  4 +-
- lib/screens/add_property_screen.dart | 28 +++++++++++++-
- lib/screens/edit_profile_screen.dart | 72 +++++++++++++++++++-----------------
- lib/screens/kyc_screen.dart          | 49 +++++++++++++++++-------
- 4 files changed, 102 insertions(+), 51 deletions(-)

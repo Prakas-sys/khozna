@@ -3,8 +3,8 @@ Technical Roadmap & Specification-Driven Planning
 
 ## 1. Master Plan Status
 This file tracks the technical status.
-- **Mission:** 💎 Premium Input Harmonization (Status: COMPLETE ✅)
-- **Status:** Standardized "Cori Border" interactive feedback across all key screens (KYC, Profile, Add Property).
+- **Mission:** 🛠️ Environment Restoration & Project Organization (Status: COMPLETE ✅)
+- **Status:** JDK 17, Flutter SDK, and Android Studio linked on D: Drive. Project root organized and de-cluttered.
 
 ## 2. All Tasks (High-Priority)
 - [x] GSD Command Setup (Slash Workflows).
@@ -29,3 +29,4 @@ This file tracks the technical status.
 - (2025-03-24) **Mission: Security Scrub.** Moved Cloudinary, Supabase, and AI keys to `.env`.
 - (2025-03-24) **Mission: Premium Polish.** Added Hero animations and Tab selection haptics. Overhauled Reels UI with Glassmorphism.
 - (2026-03-27) **Mission: Build Repair.** Restored `messages_screen.dart` structure and implemented `signInWithFacebook`.
+- (2026-04-02) **Mission: Environment Restoration & Project Organization.** Fixed JDK/Flutter/Android config. Cleaned root directory (Moved logs to `debug_logs/` and scripts to `scripts/`).
