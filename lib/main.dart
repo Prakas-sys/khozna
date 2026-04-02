@@ -138,16 +138,16 @@ class _KhoznaAppState extends State<KhoznaApp> {
     initializeBadgeSync();
 
     // NEW: Listen for Auth State changes to initialize/refresh Realtime channels
-    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
-      final AuthChangeEvent event = data.event;
-      if (event == AuthChangeEvent.signedIn || event == AuthChangeEvent.initialSession || event == AuthChangeEvent.tokenRefreshed) {
+    supabase.Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      final supabase.AuthChangeEvent event = data.event;
+      if (event == supabase.AuthChangeEvent.signedIn || event == supabase.AuthChangeEvent.initialSession || event == supabase.AuthChangeEvent.tokenRefreshed) {
         debugPrint('--- [AUTH] Session Sync: Initializing Realtime Listeners ---');
         SupabaseService.initRealtimeListeners();
       }
     });
 
     // Initial check just in case the state change doesn't fire for existing session
-    if (Supabase.instance.client.auth.currentSession != null) {
+    if (supabase.Supabase.instance.client.auth.currentSession != null) {
       SupabaseService.initRealtimeListeners();
     }
     

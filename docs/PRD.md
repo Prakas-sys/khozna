@@ -16,8 +16,8 @@ Khozna is a premium, secure, and user-friendly property rental platform specific
 - **Branding:** Use Khozna Brand Colors (`#00A3E1`) and premium fonts (Outfit, Playfair Display).
 
 ## 4. Current Roadmap (Technical Polish)
-- [ ] Fix flickers on Home Screen (Performance).
-- [ ] Secure all API keys inside environment variables (Security).
-- [ ] Add Premium Haptics to all interactions (Smoothness).
-- [ ] Implement Hero/Smooth transitions between pages.
-- [ ] Extract UI components for easier design tweaks.
+- [x] Fix flickers on Home Screen (Performance).
+- [x] Secure all API keys inside environment variables (Security).
+- [x] Add Premium Haptics to all interactions (Smoothness).
+- [x] Implement Hero/Smooth transitions between pages.
+- [x] Extract UI components for easier design tweaks.

@@ -17,7 +17,23 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+    
+    // Fix for "Namespace not specified" in older plugins
+    fun configureNamespace() {
+        val android = project.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
+        if (android != null && android.namespace == null) {
+            android.namespace = "com.khozna.khozna.${project.name.replace("-", "_")}"
+        }
+    }
+
+    if (project.state.executed) {
+        configureNamespace()
+    } else {
+        afterEvaluate { configureNamespace() }
+    }
 }
+
+
 
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)

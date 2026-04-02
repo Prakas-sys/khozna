@@ -1,4 +1,3 @@
-import 'package:supabase/supabase.dart';
 import 'dart:io';
 
 // Ensure you have a supabase_config.dart with your URL and KEY if you want to test locally, 
