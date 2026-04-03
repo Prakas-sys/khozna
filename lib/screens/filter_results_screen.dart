@@ -151,6 +151,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   p['floor'] ?? 'N/A',
                   p['description'] ?? '',
                   images.map((i) => i['image_url'].toString()).toList(),
+                  p['owner_id'] ?? '',
                 ),
               );
             },
@@ -223,6 +224,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
     String floor, 
     String description,
     List<String> images,
+    String ownerId,
   ) {
     return GestureDetector(
       onTap: () => Navigator.push(
@@ -347,7 +349,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => ChatScreen(
-                                    ownerId: p['owner_id'] ?? '',
+                                    ownerId: ownerId,
                                     name: 'Property Owner',
                                     avatar: 'https://i.pravatar.cc/150?img=1',
                                     online: true,

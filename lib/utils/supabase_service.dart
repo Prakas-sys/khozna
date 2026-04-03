@@ -26,16 +26,6 @@ class SupabaseService {
     } catch (e) {
       print('Sync Error: $e');
     }
-  }  /// Saves the FCM push notification token to the user's profile
-  static Future<void> saveDeviceToken(String token) async {
-    final user = _client.auth.currentUser;
-    if (user == null) return;
-    try {
-      await _client.from('profiles').update({'fcm_token': token}).eq('id', user.id);
-      debugPrint('FCM Token successfully synced to Supabase (User: ${user.id}).');
-    } catch (e) {
-      debugPrint('Error saving FCM token: $e');
-    }
   }
 
   /// Initial Load for Master Memory: Fetch all IDs the user has saved.
@@ -387,9 +377,6 @@ class SupabaseService {
 
   /// DEPRECATED: Use initRealtimeListeners
   static void listenToUserNotifications() {}
-
-  /// DEPRECATED: Use initRealtimeListeners
-  static void listenToOwnerAlerts(Object _) {}
 
   /// Save the user's FCM Push Token (Digital Mailing Address)
   static Future<void> saveDeviceToken(String token) async {
