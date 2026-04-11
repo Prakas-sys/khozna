@@ -21,7 +21,7 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
 
   void _refresh() {
     setState(() {
-      _pendingKycFuture = SupabaseService.getPendingKycRequests();
+      _pendingKycFuture = SupabaseService.getPendingKycs();
     });
   }
 
@@ -136,6 +136,12 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                     style: GoogleFonts.inter(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold),
                   ),
                 ),
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: const Icon(Icons.delete_forever, color: Colors.red),
+                  tooltip: 'Delete Permanently',
+                  onPressed: () => _confirmDeletePermanently(request),
+                ),
               ],
             ),
           ),
@@ -205,7 +211,7 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          if (url != null) {
+          if (url != null && url.isNotEmpty) {
             _showFullScreenImage(url, label);
           }
         },
@@ -218,12 +224,12 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.grey.shade300),
-                image: url != null ? DecorationImage(
+                image: (url != null && url.isNotEmpty) ? DecorationImage(
                   image: NetworkImage(url),
                   fit: BoxFit.cover,
                 ) : null,
               ),
-              child: url == null ? const Icon(Icons.image_not_supported, color: Colors.grey) : null,
+              child: (url == null || url.isEmpty) ? const Icon(Icons.image_not_supported, color: Colors.grey) : null,
             ),
             const SizedBox(height: 6),
             Text(label, style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[700])),
@@ -233,34 +239,72 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
     );
   }
 
+  // BIG FULL SCREEN VIEWER FOR KYC PHOTOS
   void _showFullScreenImage(String url, String label) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(label, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: InteractiveViewer(
-                child: Image.network(url, fit: BoxFit.contain),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) => Scaffold(
+          backgroundColor: Colors.black,
+          appBar: AppBar(
+            backgroundColor: Colors.black,
+            iconTheme: const IconThemeData(color: Colors.white),
+            title: Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+          body: Center(
+            child: InteractiveViewer(
+              panEnabled: true,
+              boundaryMargin: const EdgeInsets.all(20),
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: Image.network(
+                url,
+                fit: BoxFit.contain,
+                width: double.infinity,
+                height: double.infinity,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const Center(child: CircularProgressIndicator(color: AppTheme.brandColor));
+                },
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDeletePermanently(Map<String, dynamic> request) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Permanently?'),
+        content: const Text('This will erase this KYC record completely from the database. This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await SupabaseService.deleteKycPermanently(request['id']);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC Record Deleted.'), backgroundColor: Colors.red));
+        }
+        _refresh();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        }
+      }
+    }
   }
 
   Future<void> _handleAction(Map<String, dynamic> request, {required bool isApprove}) async {
@@ -285,15 +329,54 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
     if (confirmed == true) {
       try {
         if (isApprove) {
-          await SupabaseService.approveKyc(request['id'], request['user_id']);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC Approved Successfully!'), backgroundColor: Colors.green));
+          await SupabaseService.updateKycStatus(request['id'], request['user_id'], 'verified');
+          
+          // Show realistic Check Tick UI icon!
+          if (mounted) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => Dialog(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.check_circle, color: Colors.green, size: 80),
+                        const SizedBox(height: 16),
+                        Text(
+                          'KYC Approved!',
+                          style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+            
+            // Auto dismiss the success check tick dialog after 1.5 seconds
+            Future.delayed(const Duration(milliseconds: 1500), () {
+              if (mounted) Navigator.pop(context);
+              _refresh();
+            });
+          }
         } else {
-          await SupabaseService.rejectKyc(request['id'], request['user_id']);
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC Rejected.'), backgroundColor: Colors.red));
+          await SupabaseService.updateKycStatus(request['id'], request['user_id'], 'rejected', reason: 'Documents invalid.');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC Rejected.'), backgroundColor: Colors.red));
+            _refresh();
+          }
         }
-        _refresh();
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }

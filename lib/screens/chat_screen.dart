@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import '../theme/app_theme.dart';
+import '../utils/formatters.dart';
 import '../utils/supabase_service.dart';
 import 'boost_promotion_screen.dart';
 
@@ -270,6 +272,30 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
     }
   }
 
+  Widget _buildEmojiTip(String emoji) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        final text = _messageController.text;
+        _messageController.text = text + emoji;
+        // Keep cursor at the end
+        _messageController.selection = TextSelection.fromPosition(
+          TextPosition(offset: _messageController.text.length),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        margin: const EdgeInsets.only(right: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Text(emoji, style: const TextStyle(fontSize: 18)),
+      ),
+    );
+  }
+
   Widget _buildQuickReply(String text) {
     return InkWell(
       onTap: () {
@@ -477,87 +503,114 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
 
           // FLOATING MESSAGE INPUT - Simplified Single Layer
           // PERFECT CLEAN FLOATING INPUT
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 54),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9), // Deeper slate for contrast
-                    borderRadius: BorderRadius.circular(28), // The "big one" full radius
-                    border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _messageController,
-                          maxLines: 5,
-                          minLines: 1,
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            color: const Color(0xFF1E293B),
-                            fontWeight: FontWeight.w400,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Type message...',
-                            hintStyle: GoogleFonts.inter(
-                              color: const Color(0xFF94A3B8), 
-                              fontSize: 15
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16), // Increased horizontal padding
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 6, 6, 6),
-                        child: GestureDetector(
-                          onTap: _sendMessage,
-                          child: Container(
-                            height: 42,
-                            width: 42,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [AppTheme.brandColor, AppTheme.brandColor.withValues(alpha: 0.8)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.brandColor.withValues(alpha: 0.3),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 3),
+                      // EMOJI QUICK BAR
+                      Column(
+                        children: [
+                          if (_messageController.text.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    _buildEmojiTip('🏠'),
+                                    _buildEmojiTip('🔑'),
+                                    _buildEmojiTip('💰'),
+                                    _buildEmojiTip('🛋️'),
+                                    _buildEmojiTip('🛁'),
+                                    _buildEmojiTip('🚶'),
+                                    _buildEmojiTip('📍'),
+                                    _buildEmojiTip('🤝'),
+                                    _buildEmojiTip('🙏'),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.send_rounded,
-                                color: Colors.white,
-                                size: 18,
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                            child: Container(
+                              constraints: const BoxConstraints(minHeight: 54),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(28),
+                                border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.04),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.emoji_emotions_outlined, color: Color(0xFF64748B)),
+                                    onPressed: () {
+                                      // Toggle emoji keyboard (or just focus the normal one for now)
+                                      FocusScope.of(context).requestFocus(FocusNode());
+                                    },
+                                  ),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _messageController,
+                                      maxLines: 5,
+                                      minLines: 1,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        color: const Color(0xFF1E293B),
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                      decoration: InputDecoration(
+                                        hintText: 'Type message...',
+                                        hintStyle: GoogleFonts.inter(
+                                          color: const Color(0xFF94A3B8), 
+                                          fontSize: 15
+                                        ),
+                                        border: InputBorder.none,
+                                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                                      ),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(8, 6, 6, 6),
+                                    child: GestureDetector(
+                                      onTap: _sendMessage,
+                                      child: Container(
+                                        height: 42,
+                                        width: 42,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [AppTheme.brandColor, AppTheme.brandColor.withValues(alpha: 0.8)],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: AppTheme.brandColor.withValues(alpha: 0.3),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.send_rounded,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          )
         ],
       ),
     );

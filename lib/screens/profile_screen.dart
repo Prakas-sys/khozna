@@ -28,6 +28,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isOwner = false;
   String? _avatarUrl;
   bool _isUploading = false;
+  String _kycStatus = 'not_started';
 
   @override
   void initState() {
@@ -39,9 +40,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadProfile() async {
     if (user != null) {
       try {
-        final profile = await Supabase.instance.client.from('profiles').select('avatar_url').eq('id', user!.id).maybeSingle();
-        if (mounted && profile != null && profile['avatar_url'] != null) {
-          setState(() => _avatarUrl = profile['avatar_url']);
+        final profile = await Supabase.instance.client
+            .from('profiles')
+            .select('avatar_url, kyc_status, is_owner')
+            .eq('id', user!.id)
+            .maybeSingle();
+        
+        if (mounted && profile != null) {
+          setState(() {
+            _avatarUrl = profile['avatar_url'];
+            _kycStatus = profile['kyc_status'] ?? 'not_started';
+            _isOwner = profile['is_owner'] ?? false;
+          });
         }
       } catch (e) {
         debugPrint('Error loading profile: $e');
@@ -215,29 +225,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          Text(
-                            user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? (_isOwner ? 'Owner' : 'Guest'),
-                            style: GoogleFonts.inter(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          if (_isOwner) ...[
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                '⚡ Property Owner',
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? (_isOwner ? 'Owner' : 'Guest'),
                                 style: GoogleFonts.inter(
-                                  fontSize: 11,
+                                  fontSize: 22,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
+                              ),
+                              if (_kycStatus == 'verified') ...[
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.all(2.5),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.verified_rounded, 
+                                    color: Color(0xFF1D9BF0), // Twitter/Verified Blue
+                                    size: 16,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                          if (_isOwner) ...[
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.25),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.star_rounded, color: Colors.amber, size: 14),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    'PREMIUM OWNER',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -260,9 +299,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                   // Verification Card
-                  _buildVerificationCard(),
-                  const SizedBox(height: 24),
+                   // Verification Card (Only if not verified)
+                  if (_kycStatus != 'verified') ...[
+                    _buildVerificationCard(),
+                    const SizedBox(height: 20),
+                  ],
+
+                  // Post Property Call (Airbnb Style)
+                  if (_kycStatus == 'verified') ...[
+                    _buildPostPropertyCard(),
+                    const SizedBox(height: 24),
+                  ],
                   
                   // Menu Items in Sections
                   _buildMenuSection('OVERVIEW', [
@@ -351,7 +398,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildVerificationCard() {
-    final bool isVerified = widget.isVerified;
+    final bool isVerified = _kycStatus == 'verified';
+    final bool isPending = _kycStatus == 'pending';
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
@@ -359,13 +408,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: (isVerified ? Colors.green : Colors.orange).withOpacity(0.08),
+            color: (isVerified ? Colors.green : Colors.orange).withValues(alpha: 0.08),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
         ],
         border: Border.all(
-          color: (isVerified ? Colors.green : Colors.orange).withOpacity(0.1),
+          color: (isVerified ? Colors.green : Colors.orange).withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -377,15 +426,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               gradient: LinearGradient(
                 colors: isVerified 
                     ? [Colors.green.shade50, Colors.green.shade100]
-                    : [Colors.red.shade50, Colors.red.shade100],
+                    : [Colors.orange.shade50, Colors.orange.shade100],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isVerified ? Icons.verified_user_rounded : Icons.gpp_maybe_rounded,
-              color: isVerified ? Colors.green.shade700 : Colors.redAccent,
+              isVerified ? Icons.verified_user_rounded : (isPending ? Icons.hourglass_empty_rounded : Icons.gpp_maybe_rounded),
+              color: isVerified ? Colors.green.shade700 : Colors.orange.shade700,
               size: 20,
             ),
           ),
@@ -395,15 +444,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isVerified ? 'Profile Verified (प्रमाणित)' : 'Incomplete KYC (ग्राहक पहिचान बाँकी)',
+                  isVerified ? 'Profile Verified' : (isPending ? 'Verification Pending' : 'Incomplete KYC'),
                   style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     fontSize: 13,
                     color: Colors.black87,
                   ),
                 ),
                 Text(
-                  isVerified ? 'Your identity is fully confirmed.' : 'Builds trust with Owners & Guests',
+                  isVerified ? 'Your identity is fully confirmed.' : 'Get verified to start posting properties.',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey[600],
@@ -413,49 +462,143 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-          if (!isVerified)
+          if (!isVerified && !isPending)
             InkWell(
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KycScreen())),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.redAccent,
+                  color: AppTheme.brandColor,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.redAccent.withOpacity(0.2),
+                      color: AppTheme.brandColor.withValues(alpha: 0.2),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.fingerprint_rounded, color: Colors.white, size: 18),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Verify',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Verify',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          if (isVerified)
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.green.shade200),
-              ),
-              child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPostPropertyCard() {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF1E1E1E),
+            const Color(0xFF2D2D2D),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Decorative background pattern
+          Positioned(
+            right: -20,
+            top: -20,
+            child: Icon(Icons.home_work_rounded, size: 120, color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.add_business_rounded, color: Colors.white, size: 24),
+                    ),
+                    const SizedBox(width: 14),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ready to Earn?',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Become a Khozna Owner',
+                          style: GoogleFonts.inter(
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'List your room, flat, or house and connect with verified guests in minutes.',
+                  style: GoogleFonts.inter(
+                    color: Colors.white.withValues(alpha: 0.8),
+                    fontSize: 13,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AddPropertyScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Post Your Property',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
       ),
     );

@@ -25,33 +25,39 @@ class _HomeScreenState extends State<HomeScreen> {
   // Caching futures to prevent flickering on rebuild
   final List<Future<List<Map<String, dynamic>>>> _sectionFutures = [];
   int _bossTaps = 0;
+  final String _adminEmail = 'khoznaapp@gmail.com';
+  final String _adminPin = '8888';
 
   void _handleBossTap() {
-    final user = Supabase.instance.client.auth.currentUser;
-    // Only allow the boss trigger if the logged in user is the master admin
-    if (user == null || user.email != 'khoznaapp@gmail.com') {
-      _bossTaps = 0; // Reset just in case
-      return; 
-    }
-
-    _bossTaps++;
-    if (_bossTaps >= 5) {
-      _bossTaps = 0;
-      _showBossLogin();
-    }
+    // Add a subtle secret vibration for the boss
+    HapticFeedback.lightImpact();
+    
+    setState(() {
+      _bossTaps++;
+      if (_bossTaps >= 5) {
+        _bossTaps = 0; // Reset
+        final user = Supabase.instance.client.auth.currentUser;
+        
+        // 🛡️ SECURITY SHIELD: Only "khoznaapp@gmail.com" can trigger the PIN prompt
+        if (user != null && user.email == _adminEmail) {
+          _showBossLogin();
+        } else {
+          debugPrint('Unauthorized Boss Mode attempt by: ${user?.email}');
+        }
+      }
+    });
   }
 
   void _showBossLogin() {
-    final pinController = TextEditingController();
+    final TextEditingController pinController = TextEditingController();
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Column(
           children: [
-            const Icon(Icons.admin_panel_settings_rounded, color: AppTheme.brandColor, size: 48),
             const SizedBox(height: 16),
             Text('Admin Access', style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 22)),
             const SizedBox(height: 8),
@@ -181,25 +187,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       if (badgeCount > 0)
                         Positioned(
-                          top: -2,
-                          right: -2,
+                          top: -4,
+                          right: -4,
                           child: Container(
-                            padding: const EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFF0000), // Vibrant Red
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 1.5),
+                              border: Border.all(color: Colors.white, width: 2.0),
                             ),
                             constraints: const BoxConstraints(
-                              minWidth: 16,
-                              minHeight: 16,
+                              minWidth: 22,
+                              minHeight: 22,
                             ),
                             child: Center(
                               child: Text(
                                 badgeCount > 9 ? '9+' : '$badgeCount',
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
-                                  fontSize: 8,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.w900,
                                 ),
                               ),
@@ -465,7 +471,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         imageUrl: mainImage,
                         title: p['title'],
                         location: p['area_name'],
-                        price: 'रू ${p['price']}',
+                        price: '${p['price']}',
                         bedrooms: p['bedrooms'] ?? 0,
                         bathrooms: p['bathrooms'] ?? 0,
                         area: p['sq_ft'] ?? '0',
@@ -473,6 +479,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         description: p['description'] ?? '',
                         images: images.map((i) => i['image_url'].toString()).toList(),
                         status: p['status'] ?? 'available',
+                        ownerId: p['owner_id'] ?? '',
+                        amenities: List<String>.from(p['amenities'] ?? []),
                       ),
                     );
                   } else {

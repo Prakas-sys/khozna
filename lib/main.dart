@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'theme/app_theme.dart';
 import 'utils/supabase_service.dart';
+import 'utils/security_utils.dart';
 import 'utils/app_notifiers.dart';
 import 'screens/main_screen.dart';
 import 'screens/location_permission_screen.dart';
@@ -24,18 +26,29 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
+  // 🔥 RED BADGE IN BACKGROUND - Temporarily disabled due to Android build incompatibility
+  if (message.notification != null) {
+    debugPrint("Background notification received: ${message.notification?.title}");
+  }
 }
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   
-  // Load environment variables for security (April 1 Launch Ready)
+  // Load environment variables for security
   try {
     await dotenv.load(fileName: ".env");
-    debugPrint("--- .ENV LOADED SUCCESSFULLY ---");
+    if (kDebugMode) debugPrint("--- .ENV LOADED SUCCESSFULLY ---");
   } catch (e) {
-    debugPrint("--- ERROR LOADING .ENV: $e ---");
+    if (kDebugMode) debugPrint("--- ERROR LOADING .ENV: $e ---");
+  }
+
+  // 🔐 SECURITY: Block rooted/jailbroken devices
+  final bool isCompromised = await SecurityUtils.isDeviceCompromised();
+  if (isCompromised) {
+    runApp(const _CompromisedDeviceApp());
+    return;
   }
 
   // Pre-load fonts strategy (Non-blocking)
@@ -49,6 +62,50 @@ void main() async {
   );
   
   runApp(const KhoznaApp());
+}
+
+/// Shown when device is rooted/jailbroken — blocks app from running
+class _CompromisedDeviceApp extends StatelessWidget {
+  const _CompromisedDeviceApp();
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: const Color(0xFF1A1A2E),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.security_rounded, color: Color(0xFF00A3E1), size: 80),
+                const SizedBox(height: 24),
+                Text(
+                  'Security Alert',
+                  style: GoogleFonts.outfit(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Khozna cannot run on rooted or compromised devices to protect your data.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(
+                    color: Colors.white60,
+                    fontSize: 16,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// New central initialization hub
@@ -97,9 +154,17 @@ Future<void> _setupNotifications() async {
   }
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     RemoteNotification? notification = message.notification;
+    // Check if it's a chat message based on data payload
+    final bool isChatMessage = message.data['table'] == 'messages' || message.data['type'] == 'chat';
+
     if (notification != null) {
-      // Increment global badge count
-      notificationBadgeCount.value += 1;
+      if (isChatMessage) {
+        // Update the Messages tab badge
+        messageBadgeCount.value += 1;
+      } else {
+        // Update the global notification badge
+        notificationBadgeCount.value += 1;
+      }
       _showLocalNotification(notification.title ?? '', notification.body ?? '');
     }
   });
@@ -123,6 +188,7 @@ class KhoznaApp extends StatefulWidget {
 class _KhoznaAppState extends State<KhoznaApp> {
   bool _isInitializing = true;
   bool _isLocationGranted = false;
+  supabase.Session? _session;
 
   @override
   void initState() {
@@ -137,21 +203,49 @@ class _KhoznaAppState extends State<KhoznaApp> {
     await _initializeServices();
     await SupabaseService.fetchSavedPropertyIds(); // Fetch Master Memory IDs
     initializeBadgeSync();
+    
+    // 🧹 AUTO-CLEAR RED BADGE ON OPEN - Temporarily disabled due to Android build incompatibility
+    debugPrint("Auto-clearing badges on app open");
+    notificationBadgeCount.value = 0; // Reset internal counter
 
-    // NEW: Listen for Auth State changes to initialize/refresh Realtime channels
+    // Listen for Auth State changes to update internal state and initialize services
     supabase.Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       final supabase.AuthChangeEvent event = data.event;
-      if (event == supabase.AuthChangeEvent.signedIn || event == supabase.AuthChangeEvent.initialSession || event == supabase.AuthChangeEvent.tokenRefreshed) {
-        debugPrint('--- [AUTH] Session Sync: Initializing Realtime Listeners & Master Memory ---');
+      final supabase.Session? session = data.session;
+
+      if (mounted) {
+        setState(() {
+          _session = session;
+          // When we get the initial session or a sign-in, we are no longer "initializing" the auth check
+          if (event == supabase.AuthChangeEvent.initialSession || event == supabase.AuthChangeEvent.signedIn) {
+            _isInitializing = false;
+          }
+        });
+      }
+
+      if (event == supabase.AuthChangeEvent.signedIn || 
+          event == supabase.AuthChangeEvent.initialSession || 
+          event == supabase.AuthChangeEvent.tokenRefreshed) {
+        debugPrint('--- [AUTH] Session Sync: Event=$event. Initializing Realtime Listeners ---');
         SupabaseService.initRealtimeListeners();
-        SupabaseService.fetchSavedPropertyIds(); // <--- Refresh memory now!
+        SupabaseService.fetchSavedPropertyIds();
+      }
+      
+      if (event == supabase.AuthChangeEvent.signedOut) {
+        debugPrint('--- [AUTH] User Signed Out ---');
+        if (mounted) {
+          setState(() {
+            _isInitializing = false;
+          });
+        }
       }
     });
 
-    // Initial check just in case the state change doesn't fire for existing session
-    if (supabase.Supabase.instance.client.auth.currentSession != null) {
-      SupabaseService.initRealtimeListeners();
-    }
+    // Capture current session immediately if available
+    _session = supabase.Supabase.instance.client.auth.currentSession;
+
+    // Initial check is handled by the onAuthStateChange.initialSession listener above
+    // No need to call manually here as it would double-initialize
     
     // Check location permission
     try {
@@ -188,7 +282,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
       },
       home: _isInitializing 
           ? Container(color: Colors.white)
-          : (supabase.Supabase.instance.client.auth.currentSession != null 
+          : (_session != null 
               ? (_isLocationGranted ? const MainScreen() : const LocationPermissionScreen())
               : const LoginScreen()),
     );

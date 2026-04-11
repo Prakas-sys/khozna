@@ -59,4 +59,38 @@ class SecurityUtils {
   static Future<void> deleteAllSecurely() async {
     await _storage.deleteAll();
   }
+
+  /// 4. Input Sanitization (The "Clean Gate")
+  /// Strip dangerous characters before sending to the database.
+  /// Use on ALL user-provided text inputs (titles, descriptions, messages).
+  static String sanitizeInput(String input, {int maxLength = 500}) {
+    final clean = input
+        .trim()
+        .replaceAll(RegExp('[<>"\';\\\\]'), '') // Strip XSS/SQL injection chars
+        .replaceAll(RegExp(r'\s+'), ' ');       // Collapse whitespace
+    return clean.length > maxLength ? clean.substring(0, maxLength) : clean;
+  }
+
+  /// 5. Phone Number Masking (The "Privacy Blur")
+  /// Use when displaying a user's phone number to others.
+  /// Example: 9801234567 → 980****567
+  static String maskPhone(String phone) {
+    if (phone.length < 7) return phone;
+    return '${phone.substring(0, 3)}****${phone.substring(phone.length - 3)}';
+  }
+
+  /// 6. Email Masking
+  /// Example: john@gmail.com → jo***@gmail.com
+  static String maskEmail(String email) {
+    final parts = email.split('@');
+    if (parts.length != 2 || parts[0].length < 3) return email;
+    return '${parts[0].substring(0, 2)}***@${parts[1]}';
+  }
+
+  /// 7. Nepal Phone Validation
+  /// Validates that a phone number is a valid Nepali mobile number.
+  static bool isValidNepalPhone(String phone) {
+    return RegExp(r'^(97|98)\d{8}$').hasMatch(phone.trim());
+  }
 }
+

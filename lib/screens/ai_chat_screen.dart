@@ -121,10 +121,32 @@ class _AiChatScreenState extends State<AiChatScreen> {
     );
   }
 
+  Widget _buildEmojiTip(String emoji) {
+    return GestureDetector(
+      onTap: () {
+        final text = _messageController.text;
+        _messageController.text = text + emoji;
+        _messageController.selection = TextSelection.fromPosition(
+          TextPosition(offset: _messageController.text.length),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        margin: const EdgeInsets.only(right: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Text(emoji, style: const TextStyle(fontSize: 16)),
+      ),
+    );
+  }
+
   Widget _buildInputArea() {
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [
@@ -135,36 +157,70 @@ class _AiChatScreenState extends State<AiChatScreen> {
             ),
           ],
         ),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: TextField(
-                  controller: _messageController,
-                  decoration: const InputDecoration(
-                    hintText: 'केही सोध्नुहोस्...',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            if (_messageController.text.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildEmojiTip('🏠'),
+                      _buildEmojiTip('🏢'),
+                      _buildEmojiTip('📍'),
+                      _buildEmojiTip('💰'),
+                      _buildEmojiTip('🤖'),
+                      _buildEmojiTip('🤔'),
+                      _buildEmojiTip('🙏'),
+                    ],
                   ),
-                  onSubmitted: (_) => _sendMessage(),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: _sendMessage,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                  color: AppTheme.brandColor,
-                  shape: BoxShape.circle,
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.emoji_emotions_outlined, color: Colors.grey, size: 22),
+                          onPressed: () {}, // System keyboard handles it
+                        ),
+                        Expanded(
+                          child: TextField(
+                            controller: _messageController,
+                            decoration: const InputDecoration(
+                              hintText: 'केही सोध्नुहोस्...',
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                            ),
+                            onSubmitted: (_) => _sendMessage(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                child: const Icon(Icons.send, color: Colors.white, size: 20),
-              ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: _sendMessage,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: const BoxDecoration(
+                      color: AppTheme.brandColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.send, color: Colors.white, size: 20),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import '../utils/khozna_ai_service.dart';
 import 'filter_results_screen.dart';
 import 'ai_chat_screen.dart';
+import '../utils/formatters.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -230,8 +231,8 @@ class _SearchScreenState extends State<SearchScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Min: Rs. 2,000', style: GoogleFonts.inter(color: airbnbGrey)),
-                      Text('Max: Rs. 1,00,000+', style: GoogleFonts.inter(color: airbnbGrey)),
+                      Text('Min: रू ${PriceFormatter.format('2000')}', style: GoogleFonts.inter(color: airbnbGrey)),
+                      Text('Max: रू ${PriceFormatter.format('100000')}+', style: GoogleFonts.inter(color: airbnbGrey)),
                     ],
                   ),
                   Slider(
@@ -242,7 +243,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     onChanged: (val) => setState(() => _priceValue = val),
                   ),
                   Text(
-                    'Up to Rs. ${_priceValue.toInt()}',
+                    'Up to रू ${PriceFormatter.format(_priceValue.toInt().toString())}',
                     style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor, fontSize: 16),
                   ),
                 ],

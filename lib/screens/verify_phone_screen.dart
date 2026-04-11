@@ -41,7 +41,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
     _currentVerificationId = widget.verificationId;
     _startTimer();
     // Secure OTP screen from screenshots/recordings
-    // SecurityUtils.setSecure(true); // Temporarily disabled for your screenshots
+    SecurityUtils.setSecure(true); // 🔐 Screen Shield: blocks OTP theft via screen recording
   }
 
   void _startTimer() {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
 import '../utils/supabase_service.dart';
@@ -92,22 +93,36 @@ class _MainScreenState extends State<MainScreen> {
                     // Central add button
                     Expanded(
                       child: InkWell(
-                        onTap: () {
-                          if (!_isKycVerified) {
+                        onTap: () async {
+                          final user = Supabase.instance.client.auth.currentUser;
+                          if (user == null) return;
+
+                          // Quick DB check
+                          bool isApproved = false;
+                          try {
+                            final data = await Supabase.instance.client
+                                .from('profiles')
+                                .select('kyc_status')
+                                .eq('id', user.id)
+                                .maybeSingle();
+                            if (data != null && data['kyc_status'] == 'verified') {
+                              isApproved = true;
+                            }
+                          } catch (e) {
+                            debugPrint('KYC Check error: $e');
+                          }
+
+                          if (!mounted) return;
+                          
+                          if (!isApproved) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const KycScreen()),
-                            ).then((value) {
-                              if (value == true) {
-                                setState(() => _isKycVerified = true);
-                              }
-                            });
+                            );
                           } else {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => const AddPropertyScreen(),
-                              ),
+                              MaterialPageRoute(builder: (context) => const AddPropertyScreen()),
                             );
                           }
                         },

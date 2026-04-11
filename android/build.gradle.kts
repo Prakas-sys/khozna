@@ -1,3 +1,6 @@
+val newBuildDir = File(rootProject.projectDir, "../build")
+rootProject.layout.buildDirectory.set(newBuildDir)
+
 allprojects {
     repositories {
         google()
@@ -5,35 +8,25 @@ allprojects {
     }
 }
 
-val newBuildDir: Directory =
-    rootProject.layout.buildDirectory
-        .dir("../../build")
-        .get()
-rootProject.layout.buildDirectory.value(newBuildDir)
-
 subprojects {
-    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
-    project.layout.buildDirectory.value(newSubprojectBuildDir)
-}
-subprojects {
+    val projectBuildDir = File(newBuildDir, project.name)
+    layout.buildDirectory.set(projectBuildDir)
     project.evaluationDependsOn(":app")
-    
-    // Fix for "Namespace not specified" in older plugins
-    fun configureNamespace() {
-        val android = project.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
-        if (android != null && android.namespace == null) {
-            android.namespace = "com.khozna.khozna.${project.name.replace("-", "_")}"
+
+    // Auto-fix namespace for old Flutter plugins that don't declare it (e.g. flutter_app_badger)
+    fun fixNamespace() {
+        val androidExt = extensions.findByName("android") as? com.android.build.gradle.BaseExtension
+        if (androidExt != null && androidExt.namespace == null) {
+            androidExt.namespace = "com.${project.name.replace("-", "_").replace(".", "_")}"
         }
     }
 
     if (project.state.executed) {
-        configureNamespace()
+        fixNamespace()
     } else {
-        afterEvaluate { configureNamespace() }
+        afterEvaluate { fixNamespace() }
     }
 }
-
-
 
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)

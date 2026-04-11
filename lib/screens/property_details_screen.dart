@@ -7,6 +7,7 @@ import '../utils/app_notifiers.dart';
 import '../utils/supabase_service.dart';
 import '../widgets/favourite_button.dart';
 import 'chat_screen.dart';
+import '../utils/formatters.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final String id;
@@ -22,6 +23,7 @@ class PropertyDetailsScreen extends StatefulWidget {
   final String? floor;
   final String ownerId;
   final String status;
+  final List<String> amenities;
 
   const PropertyDetailsScreen({
     super.key,
@@ -38,6 +40,7 @@ class PropertyDetailsScreen extends StatefulWidget {
     this.floor,
     this.ownerId = '',
     this.status = 'available',
+    this.amenities = const [],
   });
 
   @override
@@ -131,17 +134,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 const SizedBox(height: 32),
 
                 // PROPERTY STATS (Beds, Baths, Area, Floor)
-                _buildPropertyStats(),
-                const SizedBox(height: 24),
+                // BEAUTIFIED AMENITY GRID (Kathmandu Specific)
+                _buildAmenityGrid(),
+                const SizedBox(height: 32),
 
                 // PRICE BOX
                 _buildPriceBox(widget.price),
-                const SizedBox(height: 32),
-
-                // THE NEPAL ESSENTIALS
-                _buildSectionTitle('Essentials'),
-                const SizedBox(height: 16),
-                _buildEssentialGrid(),
                 const SizedBox(height: 32),
 
                 // DESCRIPTION
@@ -395,39 +393,108 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildPropertyStats() {
+  Widget _buildAmenityGrid() {
+    final Map<String, Map<String, dynamic>> amenityData = {
+      'water_melamchi': {
+        'icon': Icons.water_drop_outlined,
+        'label': 'खानेपानी',
+        'sub': 'Melamchi/Boring',
+      },
+      'parking_bike': {
+        'icon': Icons.pedal_bike_outlined,
+        'label': 'पार्किङ',
+        'sub': 'Bike Parking',
+      },
+      'parking_car': {
+        'icon': Icons.directions_car_outlined,
+        'label': 'पार्किङ',
+        'sub': 'Car Parking',
+      },
+      'sunny_room': {
+        'icon': Icons.wb_sunny_outlined,
+        'label': 'उज्यालो कोठा',
+        'sub': 'Sunny Room',
+      },
+      'hot_water': {
+        'icon': Icons.hot_tub_outlined,
+        'label': 'तातो पानी',
+        'sub': 'Solar/Electric',
+      },
+      'waste_mgmt': {
+        'icon': Icons.delete_outline,
+        'label': 'फोहोर व्यवस्थापन',
+        'sub': 'Waste Mgmt',
+      },
+      'peaceful': {
+        'icon': Icons.nature_people_outlined,
+        'label': 'शान्त वातावरण',
+        'sub': 'Peaceful',
+      },
+    };
+
+    List<Widget> items = [];
+    
+    // Add standard ones
+    if (widget.bedrooms != null && widget.bedrooms! > 0) {
+      items.add(_buildStatItem(Icons.bed_outlined, '${widget.bedrooms}', 'Bedrooms'));
+    }
+    if (widget.bathrooms != null && widget.bathrooms! > 0) {
+      items.add(_buildStatItem(Icons.bathtub_outlined, '${widget.bathrooms}', 'Bathrooms'));
+    }
+    if (widget.floor != null && widget.floor != 'N/A') {
+      items.add(_buildStatItem(Icons.layers_outlined, widget.floor!, 'Floor'));
+    }
+
+    // Add Kathmandu specific ones
+    for (var amenity in widget.amenities) {
+      if (amenityData.containsKey(amenity)) {
+        final data = amenityData[amenity]!;
+        items.add(_buildStatItem(data['icon'], data['label'], data['sub']));
+      }
+    }
+
+    if (items.isEmpty) return const SizedBox.shrink();
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
         border: Border.symmetric(
             horizontal: BorderSide(color: Colors.grey.withValues(alpha: 0.1))),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildStatItem(Icons.bed_outlined, '${widget.bedrooms ?? 1}', 'Bed'),
-          _buildStatItem(
-              Icons.bathtub_outlined, '${widget.bathrooms ?? 1}', 'Bath'),
-          _buildStatItem(
-              Icons.square_foot_outlined, widget.area ?? '450', 'Sq.ft'),
-          _buildStatItem(Icons.layers_outlined, widget.floor ?? '3rd', 'Floor'),
-        ],
+      child: GridView.count(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: 3,
+        mainAxisSpacing: 24,
+        crossAxisSpacing: 12,
+        childAspectRatio: 1.1,
+        children: items,
       ),
     );
   }
 
   Widget _buildStatItem(IconData icon, String value, String label) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Colors.black54, size: 22),
-        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppTheme.brandColor.withValues(alpha: 0.05),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: AppTheme.brandColor, size: 24),
+        ),
+        const SizedBox(height: 8),
         Text(
           value,
-          style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, height: 1.1),
         ),
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[500], height: 1.1),
         ),
       ],
     );
@@ -460,7 +527,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: price,
+                      text: 'रू ${PriceFormatter.format(price)}',
                       style: GoogleFonts.inter(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,

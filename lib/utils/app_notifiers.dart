@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
 
 /// Global notifier for the Messages tab badge count.
 final ValueNotifier<int> messageBadgeCount = ValueNotifier<int>(0);
@@ -15,11 +14,8 @@ final ValueNotifier<Set<String>> savedPropertiesStore = ValueNotifier<Set<String
 void initializeBadgeSync() {
   void updateNativeBadge() {
     final total = messageBadgeCount.value + notificationBadgeCount.value;
-    if (total > 0) {
-      FlutterAppBadger.updateBadgeCount(total);
-    } else {
-      FlutterAppBadger.removeBadge();
-    }
+    // Icon badge functionality temporarily disabled due to Android build incompatibility
+    debugPrint("Native icon badge sync requested for total: $total");
   }
 
   messageBadgeCount.addListener(updateNativeBadge);

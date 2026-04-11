@@ -96,14 +96,24 @@ class SupabaseService {
           .update({'status': 'booked'})
           .eq('id', propertyId);
 
-      // 2. Notify the owner
-      await _client.from('notifications').insert({
-        'user_id': ownerId, // The owner gets the notification
-        'sender_id': user.id, // The person who booked it
-        'title': 'New Booking Request! 🏠',
-        'message': '${user.userMetadata?['full_name'] ?? 'A user'} wants to rent your property: "$title".',
-        'type': 'booking',
-      });
+      // 2. Notify the owner (Only if not already notified for this property status)
+      final existingNote = await _client
+          .from('notifications')
+          .select()
+          .eq('user_id', ownerId)
+          .eq('type', 'booking')
+          .ilike('message', '%$title%')
+          .maybeSingle();
+
+      if (existingNote == null) {
+        await _client.from('notifications').insert({
+          'user_id': ownerId,
+          'sender_id': user.id,
+          'title': 'New Booking Request! 🏠',
+          'message': '${user.userMetadata?['full_name'] ?? 'A user'} wants to rent your property: "$title".',
+          'type': 'booking',
+        });
+      }
     } catch (e) {
       print('Supabase Booking Error: $e');
     }
@@ -219,14 +229,25 @@ class SupabaseService {
         'kyc_status': profileStatus,
       }).eq('id', userId);
 
-      await _client.from('notifications').insert({
-        'user_id': userId,
-        'title': status == 'verified' ? 'KYC Approved! ✅' : 'KYC Rejected ❌',
-        'message': status == 'verified' 
-            ? 'Your identity has been verified. You can now post properties.'
-            : 'Your KYC was rejected. Reason: ${reason ?? "Invalid documents"}. Please try again.',
-        'type': 'kyc_update',
-      });
+      // 3. Notify the user (Only if not already notified for this specific status)
+      final existingNote = await _client
+          .from('notifications')
+          .select()
+          .eq('user_id', userId)
+          .eq('type', 'kyc_update')
+          .eq('title', status == 'verified' ? 'KYC Approved! ✅' : 'KYC Rejected ❌')
+          .maybeSingle();
+
+      if (existingNote == null) {
+        await _client.from('notifications').insert({
+          'user_id': userId,
+          'title': status == 'verified' ? 'KYC Approved! ✅' : 'KYC Rejected ❌',
+          'message': status == 'verified' 
+              ? 'Your identity has been verified. You can now post properties.'
+              : 'Your KYC was rejected. Reason: ${reason ?? "Invalid documents"}. Please try again.',
+          'type': 'kyc_update',
+        });
+      }
     } catch (e) {
       print('Error updating KYC status: $e');
       rethrow;

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../screens/chat_screen.dart';
 import '../screens/property_details_screen.dart';
 import '../theme/app_theme.dart';
+import '../utils/formatters.dart';
 import 'favourite_button.dart';
 
 class PropertyCard extends StatelessWidget {
@@ -21,6 +22,7 @@ class PropertyCard extends StatelessWidget {
   final List<String> images;
   final String ownerId;
   final String status;
+  final List<String> amenities;
 
   const PropertyCard({
     super.key,
@@ -37,6 +39,7 @@ class PropertyCard extends StatelessWidget {
     this.images = const [],
     this.ownerId = '',
     this.status = 'available',
+    this.amenities = const [],
   });
 
   @override
@@ -61,6 +64,7 @@ class PropertyCard extends StatelessWidget {
               description: description,
               ownerId: ownerId,
               status: status,
+              amenities: amenities,
             ),
           ),
         );
@@ -152,7 +156,7 @@ class PropertyCard extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: price,
+                                text: 'रू ${PriceFormatter.format(price)}',
                                 style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -173,86 +177,7 @@ class PropertyCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    // Location + Amenity icons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.place_outlined,
-                              color: AppTheme.brandColor,
-                              size: 13,
-                            ),
-                            const SizedBox(width: 2),
-                            Text(
-                              location,
-                              style: GoogleFonts.inter(
-                                fontSize: 11.5,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Column(
-                              children: [
-                                const Icon(
-                                  Icons.bed_outlined,
-                                  color: AppTheme.brandColor,
-                                  size: 14,
-                                ),
-                                Text(
-                                  'Bed',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 8,
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 8),
-                            Column(
-                              children: [
-                                const Icon(
-                                  Icons.directions_car_outlined,
-                                  color: AppTheme.brandColor,
-                                  size: 14,
-                                ),
-                                Text(
-                                  'Parking',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 8,
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 8),
-                            Column(
-                              children: [
-                                const Icon(
-                                  Icons.wifi,
-                                  color: AppTheme.brandColor,
-                                  size: 14,
-                                ),
-                                Text(
-                                  'Wifi',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 8,
-                                    color: Colors.grey[700],
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    _buildAmenityItems(),
                     const SizedBox(height: 8),
                     // Action Buttons
                     Row(
@@ -346,6 +271,90 @@ class PropertyCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAmenityItems() {
+    // Top priority icons for the card
+    final Map<String, IconData> amenityIcons = {
+      'water_melamchi': Icons.water_drop_outlined,
+      'parking_bike': Icons.pedal_bike_outlined,
+      'parking_car': Icons.directions_car_outlined,
+      'sunny_room': Icons.wb_sunny_outlined,
+      'hot_water': Icons.hot_tub_outlined,
+      'waste_mgmt': Icons.delete_outline,
+      'peaceful': Icons.nature_people_outlined,
+    };
+
+    List<Widget> items = [];
+    
+    // 1. Show Location first in the summary row
+    // 1. Show Location first in the summary row
+    items.add(Flexible(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 13),
+          const SizedBox(width: 2),
+          Flexible(
+            child: Text(
+              location,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.inter(fontSize: 11.5, color: Colors.grey[600]),
+            ),
+          ),
+        ],
+      ),
+    ));
+
+    // 2. Always show Bedroom if count > 0
+    if (bedrooms > 0) {
+      items.add(_amenityIcon(Icons.bed_outlined, '$bedrooms Bed'));
+    }
+
+    // 3. Add priority Kathmandu amenities (up to 1-2 for card brevity)
+    int count = 0;
+    for (var amenity in amenities) {
+      if (count >= 1) break;
+      if (amenityIcons.containsKey(amenity)) {
+        items.add(_amenityIcon(amenityIcons[amenity]!, _getShortLabel(amenity)));
+        count++;
+      }
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: items,
+    );
+  }
+
+  String _getShortLabel(String key) {
+    switch (key) {
+      case 'water_melamchi': return 'Water';
+      case 'parking_bike': return 'Bike';
+      case 'parking_car': return 'Car';
+      case 'sunny_room': return 'Sunny';
+      case 'hot_water': return 'Hot';
+      case 'waste_mgmt': return 'Waste';
+      case 'peaceful': return 'Quiet';
+      default: return '';
+    }
+  }
+
+  Widget _amenityIcon(IconData icon, String label) {
+    return Column(
+      children: [
+        Icon(icon, color: AppTheme.brandColor, size: 14),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 8,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+      ],
     );
   }
 }

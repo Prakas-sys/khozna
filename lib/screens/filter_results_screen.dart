@@ -152,6 +152,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   p['description'] ?? '',
                   images.map((i) => i['image_url'].toString()).toList(),
                   p['owner_id'] ?? '',
+                  List<String>.from(p['amenities'] ?? []),
                 ),
               );
             },
@@ -225,6 +226,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
     String description,
     List<String> images,
     String ownerId,
+    List<String> amenities,
   ) {
     return GestureDetector(
       onTap: () => Navigator.push(
@@ -242,6 +244,8 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
             area: area,
             floor: floor,
             description: description,
+            ownerId: ownerId,
+            amenities: amenities,
           ),
         ),
       ),

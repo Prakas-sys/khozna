@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // SecurityUtils.setSecure(true); // Temporarily disabled for your screenshots
+    SecurityUtils.setSecure(true); // 🔐 Screen Shield: blocks screenshots/recordings on login
     _startCarouselTimer();
   }
 

@@ -360,6 +360,8 @@ class KycReviewScreen extends StatefulWidget {
 
 class _KycReviewScreenState extends State<KycReviewScreen> {
   late Future<List<Map<String, dynamic>>> _kycFuture;
+  final Map<String, bool> _processingKycs = {}; // Track which KYC is being processed
+  final Map<String, String?> _successStatus = {}; // Track 'verified' or 'rejected' status
 
   @override
   void initState() {
@@ -450,9 +452,20 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                                 boxShadow: [BoxShadow(color: Colors.green.withValues(alpha: 0.2), blurRadius: 6, offset: const Offset(0, 3))],
                               ),
                               child: ElevatedButton(
-                                onPressed: () => _processKyc(kyc['id'], kyc['user_id'], 'verified'),
+                                onPressed: _processingKycs[kycId] == true || _successStatus[kycId] != null ? null : () => _processKyc(kycId, kyc['user_id'], 'verified'),
                                 style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, padding: EdgeInsets.zero),
-                                child: const Text('Approve', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                child: _processingKycs[kycId] == true
+                                  ? const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)))
+                                  : _successStatus[kycId] == 'verified'
+                                    ? const Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                                          SizedBox(width: 8),
+                                          Text('Approved ✅', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                        ],
+                                      )
+                                    : const Text('Approve', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               ),
                             ),
                           ),
@@ -461,13 +474,16 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                             child: SizedBox(
                               height: 44,
                               child: OutlinedButton(
-                                onPressed: () => _showRejectDialog(kyc['id'], kyc['user_id']),
+                                onPressed: _processingKycs[kycId] == true || _successStatus[kycId] != null ? null : () => _showRejectDialog(kyc['id'], kyc['user_id']),
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.red,
-                                  side: const BorderSide(color: Colors.red, width: 1.5),
+                                  foregroundColor: _successStatus[kycId] == 'rejected' ? Colors.red : Colors.red,
+                                  backgroundColor: _successStatus[kycId] == 'rejected' ? Colors.red.withOpacity(0.1) : null,
+                                  side: BorderSide(color: _successStatus[kycId] == 'rejected' ? Colors.red : Colors.red, width: 1.5),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
-                                child: const Text('Reject', style: TextStyle(fontWeight: FontWeight.bold)),
+                                child: _successStatus[kycId] == 'rejected'
+                                  ? const Text('Rejected ❌', style: TextStyle(fontWeight: FontWeight.bold))
+                                  : const Text('Reject', style: TextStyle(fontWeight: FontWeight.bold)),
                               ),
                             ),
                           ),
@@ -530,15 +546,34 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
   }
 
   void _processKyc(String kycId, String userId, String status, {String? reason}) async {
+    if (_processingKycs[kycId] == true) return;
+    
     try {
-      showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
+      setState(() => _processingKycs[kycId] = true);
       await SupabaseService.updateKycStatus(kycId, userId, status, reason: reason);
-      Navigator.pop(context); // close loading
-      _refresh();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('KYC $status!')));
+      
+      if (mounted) {
+        setState(() {
+          _processingKycs.remove(kycId);
+          _successStatus[kycId] = status;
+        });
+
+        // Add a small delay so the user can see the "Approved" / "Rejected" button state
+        await Future.delayed(const Duration(milliseconds: 800));
+        
+        if (mounted) {
+          _refresh();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('KYC ${status == 'verified' ? 'Approved ✅' : 'Rejected ❌'}!'),
+              backgroundColor: status == 'verified' ? Colors.green : Colors.red,
+            )
+          );
+        }
+      }
     } catch (e) {
-      Navigator.pop(context); // close loading
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      setState(() => _processingKycs[kycId] = false);
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
