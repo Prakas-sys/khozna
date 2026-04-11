@@ -267,79 +267,85 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 68),
-              GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  _navigate(context, const SearchScreen());
-                },
-                child: Container(
-                  height: 52,
-                  padding: const EdgeInsets.fromLTRB(16, 0, 4, 0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.grey.shade200, width: 1.2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 15,
-                        spreadRadius: 0,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        CupertinoIcons.search,
-                        color: AppTheme.brandColor,
-                        size: 26,
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Text(
-                          'Search properties',
-                          style: GoogleFonts.inter(
-                            color: Colors.grey[400],
-                            fontSize: 16,
+              Hero(
+                tag: 'search_bar',
+                child: Material(
+                  color: Colors.transparent,
+                  child: GestureDetector(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _navigate(context, const SearchScreen());
+                    },
+                    child: Container(
+                      height: 52,
+                      padding: const EdgeInsets.fromLTRB(16, 0, 4, 0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: Colors.grey.shade200, width: 1.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 15,
+                            spreadRadius: 0,
+                            offset: const Offset(0, 6),
                           ),
-                        ),
+                        ],
                       ),
-                      InkWell(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          showModalBottomSheet(
-                            context: context,
-                            backgroundColor: Colors.transparent,
-                            isScrollControlled: true,
-                            builder: (context) => VoiceSearchOverlay(
-                              onResult: (text) {
-                                Navigator.pop(context);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SearchScreen(),
-                                    settings: RouteSettings(arguments: text),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: const BoxDecoration(
+                      child: Row(
+                        children: [
+                          Icon(
+                            CupertinoIcons.search,
                             color: AppTheme.brandColor,
-                            shape: BoxShape.circle,
+                            size: 26,
                           ),
-                          child: const Icon(
-                            Icons.mic,
-                            color: Colors.white,
-                            size: 22,
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              'Search properties',
+                              style: GoogleFonts.inter(
+                                color: Colors.grey[400],
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
-                        ),
+                          InkWell(
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                builder: (context) => VoiceSearchOverlay(
+                                  onResult: (text) {
+                                    Navigator.pop(context);
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const SearchScreen(),
+                                        settings: RouteSettings(arguments: text),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: AppTheme.brandColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.mic,
+                                color: Colors.white,
+                                size: 22,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),

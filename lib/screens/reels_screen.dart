@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import '../theme/app_theme.dart';
 import 'owner_profile_screen.dart';
 import 'chat_screen.dart';
@@ -226,10 +227,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.white.withOpacity(0.12)),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -243,9 +244,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     reel['title'],
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 17),
+                                    style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16),
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 3),
                                   Row(
                                     children: [
                                       const Icon(Icons.location_on, color: AppTheme.brandColor, size: 12),
@@ -289,15 +290,15 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 );
                               },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(24),
+                                    borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.white.withValues(alpha: 0.3),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
+                                        color: Colors.white.withValues(alpha: 0.2),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
@@ -309,12 +310,12 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                         style: GoogleFonts.inter(
                                           color: Colors.black,
                                           fontWeight: FontWeight.w900,
-                                          fontSize: 13,
+                                          fontSize: 12,
                                           letterSpacing: 0.8,
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
-                                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black, size: 12),
+                                      const SizedBox(width: 6),
+                                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black, size: 10),
                                     ],
                                   ),
                                 ),
@@ -348,12 +349,17 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 online: true,
                               ))),
                             ),
-                            _buildCompactAction(
+                             _buildCompactAction(
                               icon: Icons.send_rounded,
                               label: 'Share',
                               isActive: false,
                               activeColor: Colors.white,
-                              onTap: () {},
+                              onTap: () {
+                                Share.share(
+                                  'Check out this property: ${reel['title']} at ${reel['location']} for रू ${reel['price']}/month on Khozna!\n\nDownload the app to see more.',
+                                  subject: 'Khozna Property Share',
+                                );
+                              },
                             ),
                           ],
                         ),

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../widgets/favourite_button.dart';
+import '../widgets/voice_search_overlay.dart';
 import 'property_details_screen.dart';
 import 'chat_screen.dart';
+import 'search_screen.dart';
 
 class FilterResultsScreen extends StatefulWidget {
   final String location;
@@ -23,6 +27,7 @@ class FilterResultsScreen extends StatefulWidget {
 
 class _FilterResultsScreenState extends State<FilterResultsScreen> {
   late Future<List<Map<String, dynamic>>> _propertiesFuture;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -62,104 +67,166 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
     return List<Map<String, dynamic>>.from(result);
   }
 
+  void _navigate(BuildContext context, Widget destination) {
+    HapticFeedback.lightImpact();
+    Navigator.push(context, MaterialPageRoute(builder: (context) => destination));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Column(
+      appBar: null,
+      body: SafeArea(
+        child: Column(
           children: [
-            Text(widget.location, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
-            Text(widget.priceRange, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
-          ],
-        ),
-        centerTitle: true,
-      ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _propertiesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              itemCount: 10,
-              itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: _buildSkeletonCard(context),
-              ),
-            );
-          }
-
-          final properties = snapshot.data ?? [];
-
-          if (properties.isEmpty) {
-            return Center(
+            const SizedBox(height: 16),
+            // Location Header (Moved from AppBar to body)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.home_work_outlined, size: 80, color: Colors.grey[200]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No listings found yet',
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[400],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Be the first to post a property!',
-                    style: GoogleFonts.inter(
-                      color: Colors.grey[500],
-                    ),
-                  ),
+                  Text(widget.location, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+                  Text(widget.priceRange, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
                 ],
               ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            itemCount: properties.length,
-            itemBuilder: (context, index) {
-              final p = properties[index];
-              final images = (p['property_images'] as List);
-              final String mainImage = images.isNotEmpty 
-                  ? images[0]['image_url'] 
-                  : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: _buildWideCard(
-                  context,
-                  p['id'],
-                  mainImage,
-                  p['title'],
-                  p['area_name'],
-                  'रू ${p['price']}',
-                  p['bedrooms'] ?? 0,
-                  p['bathrooms'] ?? 0,
-                  p['sq_ft'] ?? '0',
-                  p['floor'] ?? 'N/A',
-                  p['description'] ?? '',
-                  images.map((i) => i['image_url'].toString()).toList(),
-                  p['owner_id'] ?? '',
-                  List<String>.from(p['amenities'] ?? []),
+            ),
+            const SizedBox(height: 20),
+            // Unified Premium Search Bar (Matches Home Screen)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+              child: Hero(
+                tag: 'search_bar',
+                child: Material(
+                  color: Colors.transparent,
+                  child: GestureDetector(
+                    onTap: () => _navigate(context, const SearchScreen()),
+                    child: Container(
+                      height: 52,
+                      padding: const EdgeInsets.fromLTRB(8, 0, 4, 0), // Smaller left padding for back button
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: Colors.grey.shade200, width: 1.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 15,
+                            spreadRadius: 0,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                          Icon(
+                            CupertinoIcons.search,
+                            color: AppTheme.brandColor,
+                            size: 26,
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              'Search properties',
+                              style: GoogleFonts.inter(
+                                color: Colors.grey[400],
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              );
-            },
-          );
-        },
+              ),
+            ),
+            
+            Expanded(
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: _propertiesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      itemCount: 10,
+                      itemBuilder: (context, index) => Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: _buildSkeletonCard(context),
+                      ),
+                    );
+                  }
+
+                  final properties = snapshot.data ?? [];
+
+                  if (properties.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.home_work_outlined, size: 80, color: Colors.grey[200]),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No listings found yet',
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Be the first to post a property!',
+                            style: GoogleFonts.inter(
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    itemCount: properties.length,
+                    itemBuilder: (context, index) {
+                      final p = properties[index];
+                      final images = (p['property_images'] as List);
+                      final String mainImage = images.isNotEmpty 
+                          ? images[0]['image_url'] 
+                          : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: _buildWideCard(
+                          context,
+                          p['id'],
+                          mainImage,
+                          p['title'],
+                          p['area_name'],
+                          'रू ${p['price']}',
+                          p['bedrooms'] ?? 0,
+                          p['bathrooms'] ?? 0,
+                          p['sq_ft'] ?? '0',
+                          p['floor'] ?? 'N/A',
+                          p['description'] ?? '',
+                          images.map((i) => i['image_url'].toString()).toList(),
+                          p['owner_id'] ?? '',
+                          List<String>.from(p['amenities'] ?? []),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
-    );
   }
 
   Widget _buildSkeletonCard(BuildContext context) {

@@ -30,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _avatarUrl;
   bool _isUploading = false;
   String _kycStatus = 'not_started';
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -56,7 +57,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       } catch (e) {
         debugPrint('Error loading profile: $e');
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
+    } else {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -300,14 +309,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                   // Verification Card (Only if not verified)
-                  if (_kycStatus != 'verified') ...[
+                   // Verification Card (Only if not verified and not loading)
+                  if (!_isLoading && _kycStatus != 'verified') ...[
                     _buildVerificationCard(),
                     const SizedBox(height: 20),
                   ],
 
                   // Post Property Call (Airbnb Style)
-                  if (_kycStatus == 'verified') ...[
+                  if (!_isLoading && _kycStatus == 'verified') ...[
                     _buildPostPropertyCard(),
                     const SizedBox(height: 24),
                   ],

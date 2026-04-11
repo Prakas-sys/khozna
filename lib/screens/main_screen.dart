@@ -22,7 +22,8 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  bool _isKycVerified = false; // Mock KYC status
+  bool _isKycVerified = false;
+  bool _isCheckingKyc = true;
 
   final List<Widget> _pages = [
     const HomeScreen(),
@@ -36,6 +37,33 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     // Magic: Listen for all user notifications in real-time
     SupabaseService.listenToUserNotifications();
+    _checkKycStatus();
+  }
+
+  Future<void> _checkKycStatus() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) {
+      setState(() => _isCheckingKyc = false);
+      return;
+    }
+
+    try {
+      final data = await Supabase.instance.client
+          .from('profiles')
+          .select('kyc_status')
+          .eq('id', user.id)
+          .maybeSingle();
+
+      if (mounted) {
+        setState(() {
+          _isKycVerified = (data != null && data['kyc_status'] == 'verified');
+          _isCheckingKyc = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Initial KYC check failed: $e');
+      if (mounted) setState(() => _isCheckingKyc = false);
+    }
   }
 
   void _onTabTapped(int index) {
@@ -97,24 +125,44 @@ class _MainScreenState extends State<MainScreen> {
                           final user = Supabase.instance.client.auth.currentUser;
                           if (user == null) return;
 
-                          // Quick DB check
-                          bool isApproved = false;
-                          try {
-                            final data = await Supabase.instance.client
-                                .from('profiles')
-                                .select('kyc_status')
-                                .eq('id', user.id)
-                                .maybeSingle();
-                            if (data != null && data['kyc_status'] == 'verified') {
-                              isApproved = true;
+                          // Instant reaction if cached
+                          if (_isKycVerified) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const AddPropertyScreen()),
+                            );
+                            return;
+                          }
+
+                          // If not cached-verified, show a quick check or go to KYC
+                          if (_isCheckingKyc) {
+                            // Wait for the initial check to finish if it's currently running
+                            int retries = 0;
+                            while (_isCheckingKyc && retries < 10) {
+                              await Future.delayed(const Duration(milliseconds: 200));
+                              retries++;
                             }
-                          } catch (e) {
-                            debugPrint('KYC Check error: $e');
+                          }
+
+                          // Double check in case they just got verified
+                          if (!_isKycVerified) {
+                            try {
+                              final data = await Supabase.instance.client
+                                  .from('profiles')
+                                  .select('kyc_status')
+                                  .eq('id', user.id)
+                                  .maybeSingle();
+                              if (data != null && data['kyc_status'] == 'verified') {
+                                setState(() => _isKycVerified = true);
+                              }
+                            } catch (e) {
+                              debugPrint('KYC Re-check error: $e');
+                            }
                           }
 
                           if (!mounted) return;
                           
-                          if (!isApproved) {
+                          if (!_isKycVerified) {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const KycScreen()),
@@ -141,7 +189,13 @@ class _MainScreenState extends State<MainScreen> {
                                   color: AppTheme.brandColor,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                child: const Icon(Icons.add, color: Colors.white, size: 22, weight: 700),
+                                child: _isCheckingKyc 
+                                  ? const SizedBox(
+                                      width: 20, 
+                                      height: 20, 
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                                    )
+                                  : const Icon(Icons.add, color: Colors.white, size: 22, weight: 700),
                               ),
                             ),
                             const Spacer(),

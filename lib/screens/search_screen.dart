@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/khozna_ai_service.dart';
+import '../widgets/voice_search_overlay.dart';
 import 'filter_results_screen.dart';
 import 'ai_chat_screen.dart';
 import '../utils/formatters.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final String? initialQuery;
+  const SearchScreen({super.key, this.initialQuery});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -29,8 +33,15 @@ class _SearchScreenState extends State<SearchScreen> {
     super.initState();
     _searchController = TextEditingController();
     
-    // Auto-fill from voice search if arguments are present
+    // Auto-fill from voice search or constructor
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
+        setState(() {
+          _searchController.text = widget.initialQuery!;
+        });
+        return;
+      }
+
       final Object? args = ModalRoute.of(context)?.settings.arguments;
       if (args is String && args.isNotEmpty) {
         setState(() {
@@ -52,35 +63,10 @@ class _SearchScreenState extends State<SearchScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leadingWidth: 70,
-        leading: Container(
-          margin: const EdgeInsets.only(left: 20, top: 8, bottom: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.grey.shade200),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.close_rounded, color: Colors.black, size: 20),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ),
-        title: Text(
-          'Search Filters',
-          style: GoogleFonts.inter(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      appBar: null,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -107,7 +93,11 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      Icon(
                         CupertinoIcons.search,
                         color: AppTheme.brandColor,
                         size: 26,
@@ -118,6 +108,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           controller: _searchController,
                           autofocus: _searchController.text.isEmpty,
                           style: GoogleFonts.inter(fontSize: 16, color: Colors.black),
+                          cursorColor: Colors.black, // No more blue cursor
                           decoration: InputDecoration(
                             hintText: 'Search properties',
                             hintStyle: GoogleFonts.inter(
@@ -125,6 +116,9 @@ class _SearchScreenState extends State<SearchScreen> {
                               fontSize: 16,
                             ),
                             border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(vertical: 0),
                           ),
                           onChanged: (val) => setState(() {}),
