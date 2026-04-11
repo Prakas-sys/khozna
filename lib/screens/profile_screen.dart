@@ -11,6 +11,7 @@ import 'kyc_screen.dart';
 import 'settings_screen.dart';
 import 'login_screen.dart';
 import 'edit_profile_screen.dart';
+import 'add_property_screen.dart';
 import '../utils/cloudinary_service.dart';
 
 class ProfileScreen extends StatefulWidget {

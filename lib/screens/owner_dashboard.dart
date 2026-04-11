@@ -452,11 +452,11 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                                 boxShadow: [BoxShadow(color: Colors.green.withValues(alpha: 0.2), blurRadius: 6, offset: const Offset(0, 3))],
                               ),
                               child: ElevatedButton(
-                                onPressed: _processingKycs[kycId] == true || _successStatus[kycId] != null ? null : () => _processKyc(kycId, kyc['user_id'], 'verified'),
+                                onPressed: _processingKycs[kyc['id']] == true || _successStatus[kyc['id']] != null ? null : () => _processKyc(kyc['id'], kyc['user_id'], 'verified'),
                                 style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, padding: EdgeInsets.zero),
-                                child: _processingKycs[kycId] == true
+                                child: _processingKycs[kyc['id']] == true
                                   ? const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)))
-                                  : _successStatus[kycId] == 'verified'
+                                  : _successStatus[kyc['id']] == 'verified'
                                     ? const Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
@@ -474,14 +474,14 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                             child: SizedBox(
                               height: 44,
                               child: OutlinedButton(
-                                onPressed: _processingKycs[kycId] == true || _successStatus[kycId] != null ? null : () => _showRejectDialog(kyc['id'], kyc['user_id']),
+                                onPressed: _processingKycs[kyc['id']] == true || _successStatus[kyc['id']] != null ? null : () => _showRejectDialog(kyc['id'], kyc['user_id']),
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: _successStatus[kycId] == 'rejected' ? Colors.red : Colors.red,
-                                  backgroundColor: _successStatus[kycId] == 'rejected' ? Colors.red.withOpacity(0.1) : null,
-                                  side: BorderSide(color: _successStatus[kycId] == 'rejected' ? Colors.red : Colors.red, width: 1.5),
+                                  foregroundColor: _successStatus[kyc['id']] == 'rejected' ? Colors.red : Colors.red,
+                                  backgroundColor: _successStatus[kyc['id']] == 'rejected' ? Colors.red.withOpacity(0.1) : null,
+                                  side: BorderSide(color: _successStatus[kyc['id']] == 'rejected' ? Colors.red : Colors.red, width: 1.5),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
-                                child: _successStatus[kycId] == 'rejected'
+                                child: _successStatus[kyc['id']] == 'rejected'
                                   ? const Text('Rejected ❌', style: TextStyle(fontWeight: FontWeight.bold))
                                   : const Text('Reject', style: TextStyle(fontWeight: FontWeight.bold)),
                               ),

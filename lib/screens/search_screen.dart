@@ -90,37 +90,39 @@ class _SearchScreenState extends State<SearchScreen> {
               child: Material(
                 color: Colors.transparent,
                 child: Container(
-                  height: 56,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  height: 52,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 4, 0),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.grey.shade200,
-                      width: 1.5,
-                    ),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: Colors.grey.shade200, width: 1.2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 15,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.search_rounded, color: AppTheme.brandColor, size: 22),
-                      const SizedBox(width: 12),
+                      const Icon(
+                        CupertinoIcons.search,
+                        color: AppTheme.brandColor,
+                        size: 26,
+                      ),
+                      const SizedBox(width: 14),
                       Expanded(
                         child: TextField(
                           controller: _searchController,
                           autofocus: _searchController.text.isEmpty,
                           style: GoogleFonts.inter(fontSize: 16, color: Colors.black),
                           decoration: InputDecoration(
-                            hintText: 'Where are you looking?',
+                            hintText: 'Search properties',
                             hintStyle: GoogleFonts.inter(
                               color: Colors.grey[400],
-                              fontSize: 15,
+                              fontSize: 16,
                             ),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -130,7 +132,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       if (_searchController.text.isNotEmpty)
                         IconButton(
-                          icon: const Icon(Icons.close_rounded, size: 18, color: Colors.grey),
+                          icon: const Icon(Icons.close_rounded, size: 20, color: Colors.grey),
                           onPressed: () {
                             setState(() {
                               _searchController.clear();

@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import 'owner_profile_screen.dart';
@@ -213,17 +214,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
                       ],
                     ),
                     const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white24)),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.location_on, color: AppTheme.brandColor, size: 10),
-                          const SizedBox(width: 4),
-                          Text(reel['location'], style: GoogleFonts.inter(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
-                        ],
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -255,7 +245,18 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     overflow: TextOverflow.ellipsis,
                                     style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 17),
                                   ),
-                                  const SizedBox(height: 2),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_on, color: AppTheme.brandColor, size: 12),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        reel['location'],
+                                        style: GoogleFonts.inter(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
                                   Text(
                                     'रू ${reel['price']} /month',
                                     style: GoogleFonts.inter(color: AppTheme.brandColor, fontWeight: FontWeight.w900, fontSize: 15),
@@ -287,22 +288,40 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   ),
                                 );
                               },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [BoxShadow(color: Colors.white24, blurRadius: 10)],
-                                ),
-                                child: Text(
-                                  'VISIT',
-                                  style: GoogleFonts.inter(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 0.5),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(24),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.white.withValues(alpha: 0.3),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'VISIT',
+                                        style: GoogleFonts.inter(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 13,
+                                          letterSpacing: 0.8,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black, size: 12),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
                         const Divider(color: Colors.white10, height: 1),
                         const SizedBox(height: 12),
                         // RE-ALIGNED ACTIONS ROW (Integrated into box)
@@ -317,7 +336,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               onTap: () => setState(() => reel['isFavorite'] = !reel['isFavorite']),
                             ),
                             _buildCompactAction(
-                              icon: Icons.chat_bubble_rounded,
+                              isSvg: true,
+                              svgPath: 'assets/icons/message.svg',
+                              icon: Icons.chat_bubble_rounded, // Fallback
                               label: 'Direct Chat',
                               isActive: false,
                               activeColor: Colors.white,
@@ -348,7 +369,15 @@ class _ReelsScreenState extends State<ReelsScreen> {
     );
   }
 
-  Widget _buildCompactAction({required IconData icon, required String label, required bool isActive, required Color activeColor, required VoidCallback onTap}) {
+  Widget _buildCompactAction({
+    required IconData icon, 
+    required String label, 
+    required bool isActive, 
+    required Color activeColor, 
+    required VoidCallback onTap,
+    bool isSvg = false,
+    String? svgPath,
+  }) {
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -359,8 +388,18 @@ class _ReelsScreenState extends State<ReelsScreen> {
         decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12)),
         child: Row(
           children: [
-            Icon(icon, color: isActive ? activeColor : Colors.white, size: 20),
-            const SizedBox(width: 6),
+            isSvg && svgPath != null
+              ? SvgPicture.asset(
+                  svgPath,
+                  width: 18,
+                  height: 18,
+                  colorFilter: ColorFilter.mode(
+                    isActive ? activeColor : Colors.white,
+                    BlendMode.srcIn,
+                  ),
+                )
+              : Icon(icon, color: isActive ? activeColor : Colors.white, size: 20),
+            const SizedBox(width: 8),
             Text(
               label,
               style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
