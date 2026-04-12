@@ -320,7 +320,7 @@ class HomeScreenState extends State<HomeScreen> {
                       onTap: () => _navigate(context, const SearchScreen()),
                       child: Container(
                         height: 52,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4), // Removed horizontal to allow mic to sit flush right
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(30),
@@ -335,7 +335,10 @@ class HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(CupertinoIcons.search, color: AppTheme.brandColor, size: 26),
+                            const Padding(
+                              padding: EdgeInsets.only(left: 18),
+                              child: Icon(CupertinoIcons.search, color: AppTheme.brandColor, size: 26),
+                            ),
                             const SizedBox(width: 14),
                             Expanded(
                               child: Text(
@@ -344,7 +347,7 @@ class HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(right: 0),
+                              padding: const EdgeInsets.only(right: 4), // Minimal padding for the mic circle to sit flush on the right
                               child: InkWell(
                                 onTap: () {
                                   showModalBottomSheet(
