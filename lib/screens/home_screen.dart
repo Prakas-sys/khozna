@@ -344,7 +344,7 @@ class HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(right: 3),
+                              padding: const EdgeInsets.only(right: 0),
                               child: InkWell(
                                 onTap: () {
                                   showModalBottomSheet(
@@ -444,14 +444,18 @@ class HomeScreenState extends State<HomeScreen> {
 
             final properties = snapshot.data ?? [];
             
-            // Demo data if empty for Verified
-            if (title == 'Verified Listings' && properties.isEmpty) {
-              properties.add({
-                'id': 'demo-1', 'title': 'Demo Luxury Flat', 'area_name': 'Baneshwor',
-                'price': '45000', 'bedrooms': 2, 'bathrooms': 2, 'sq_ft': '1200',
-                'floor': '3rd', 'description': 'Demo', 'status': 'available',
-                'property_images': [{'image_url': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267'}]
-              });
+            // Demo data permanent for Verified
+            if (title == 'Verified Listings') {
+              // Only insert if not already there (prevents duplication on rebuilds if same list)
+              bool exists = properties.any((p) => p['id'] == 'demo-1');
+              if (!exists) {
+                properties.insert(0, {
+                  'id': 'demo-1', 'title': 'Demo Luxury Flat', 'area_name': 'Baneshwor',
+                  'price': '45000', 'bedrooms': 2, 'bathrooms': 2, 'sq_ft': '1200',
+                  'floor': '3rd', 'description': 'Demo Luxury Flat - Permanent Showcase', 'status': 'available',
+                  'property_images': [{'image_url': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267'}]
+                });
+              }
             }
 
             if (properties.isEmpty) {
