@@ -182,10 +182,10 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         floor: item['floor'] ?? 'N/A',
         description: item['description'] ?? '',
         images: images.map((i) => i['image_url'].toString()).toList(),
-        status: item['status'] ?? 'available',
         ownerId: item['owner_id'] ?? '',
         amenities: List<String>.from(item['amenities'] ?? []),
         isOwnerView: true,
+        views: item['views'] ?? 0,
         onEdit: () {
           // Future Edit implementation
           ScaffoldMessenger.of(context).showSnackBar(

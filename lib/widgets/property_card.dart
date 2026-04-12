@@ -26,6 +26,8 @@ class PropertyCard extends StatelessWidget {
   final bool isOwnerView;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final int views;
+  final double? width;
   final List<Map<String, dynamic>> rawImages; // Added to pass full image objects if needed
 
   const PropertyCard({
@@ -47,6 +49,8 @@ class PropertyCard extends StatelessWidget {
     this.isOwnerView = false,
     this.onEdit,
     this.onDelete,
+    this.views = 0,
+    this.width,
     this.rawImages = const [],
   });
 
@@ -78,7 +82,7 @@ class PropertyCard extends StatelessWidget {
         );
       },
       child: Container(
-        width: 260,
+        width: width ?? 260,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
@@ -105,7 +109,21 @@ class PropertyCard extends StatelessWidget {
                     width: double.infinity,
                     child: Hero(
                       tag: id,
-                      child: Image.network(imageUrl, fit: BoxFit.cover),
+                      child: Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.grey[100],
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.image_not_supported_outlined, color: Colors.grey, size: 40),
+                            SizedBox(height: 8),
+                            Text('No Image', style: TextStyle(color: Colors.grey)),
+                          ],
+                        ),
+                      ),
+                    ),
                     ),
                   ),
                   // Status Badges
@@ -135,6 +153,37 @@ class PropertyCard extends StatelessWidget {
                     right: 10,
                     child: FavouriteButton(propertyId: id),
                   ),
+                  // Views Badge (Owner Only)
+                  if (isOwnerView)
+                    Positioned(
+                      bottom: 10,
+                      right: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.remove_red_eye_outlined, color: Colors.white, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              views > 999 
+                                ? '${(views / 1000).toStringAsFixed(1)}k' 
+                                : '$views',
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
               // --- Content below image ---
@@ -361,9 +410,13 @@ class PropertyCard extends StatelessWidget {
       }
     }
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: items,
+    return SizedBox(
+      height: 25, // Matches the height of the bedroom/column icon to keep alignment perfect
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: items,
+      ),
     );
   }
 

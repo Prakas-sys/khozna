@@ -70,6 +70,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
           'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
         ];
+    _incrementViews();
+  }
+
+  Future<void> _incrementViews() async {
+    if (widget.id.contains('demo')) return;
+    try {
+      await Supabase.instance.client.rpc(
+        'increment_property_views',
+        params: {'property_id': widget.id},
+      );
+    } catch (e) {
+      debugPrint('Error incrementing views: $e');
+    }
   }
 
   Future<void> _fetchOwnerData() async {

@@ -10,6 +10,7 @@ import '../widgets/voice_search_overlay.dart';
 import 'property_details_screen.dart';
 import 'chat_screen.dart';
 import 'search_screen.dart';
+import '../widgets/property_card.dart';
 
 class FilterResultsScreen extends StatefulWidget {
   final String location;
@@ -202,21 +203,22 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 24),
-                        child: _buildWideCard(
-                          context,
-                          p['id'],
-                          mainImage,
-                          p['title'],
-                          p['area_name'],
-                          'रू ${p['price']}',
-                          p['bedrooms'] ?? 0,
-                          p['bathrooms'] ?? 0,
-                          p['sq_ft'] ?? '0',
-                          p['floor'] ?? 'N/A',
-                          p['description'] ?? '',
-                          images.map((i) => i['image_url'].toString()).toList(),
-                          p['owner_id'] ?? '',
-                          List<String>.from(p['amenities'] ?? []),
+                        child: PropertyCard(
+                          id: p['id'],
+                          imageUrl: mainImage,
+                          title: p['title'],
+                          location: p['area_name'],
+                          price: p['price'].toString(),
+                          bedrooms: p['bedrooms'] ?? 0,
+                          bathrooms: p['bathrooms'] ?? 0,
+                          area: p['sq_ft'] ?? '0',
+                          floor: p['floor'] ?? 'N/A',
+                          description: p['description'] ?? '',
+                          images: images.map((i) => i['image_url'].toString()).toList(),
+                          ownerId: p['owner_id'] ?? '',
+                          status: p['status'] ?? 'available',
+                          amenities: List<String>.from(p['amenities'] ?? []),
+                          width: double.infinity,
                         ),
                       );
                     },
@@ -276,181 +278,6 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildWideCard(
-    BuildContext context, 
-    String id, 
-    String imageUrl, 
-    String title, 
-    String location, 
-    String price, 
-    int bedrooms, 
-    int bathrooms, 
-    String area, 
-    String floor, 
-    String description,
-    List<String> images,
-    String ownerId,
-    List<String> amenities,
-  ) {
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PropertyDetailsScreen(
-            id: id,
-            imageUrl: imageUrl,
-            images: images,
-            title: title,
-            location: location,
-            price: price,
-            bedrooms: bedrooms,
-            bathrooms: bathrooms,
-            area: area,
-            floor: floor,
-            description: description,
-            ownerId: ownerId,
-            amenities: amenities,
-          ),
-        ),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFF2F2F2)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                children: [
-                  SizedBox(
-                    height: 200,
-                    width: double.infinity,
-                    child: Image.network(imageUrl, fit: BoxFit.cover),
-                  ),
-                  Positioned(
-                    top: 12, left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2.5),
-                      decoration: BoxDecoration(color: const Color(0xFF2ECC71), borderRadius: BorderRadius.circular(20)),
-                      child: Text('For Rent', style: GoogleFonts.inter(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
-                  Positioned(
-                    top: 12, right: 12,
-                    child: FavouriteButton(propertyId: id),
-                  ),
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600))),
-                        Text(price, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        const Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 14),
-                        const SizedBox(width: 4),
-                        Text(location, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PropertyDetailsScreen(
-                                  id: id,
-                                  imageUrl: imageUrl,
-                                  images: images,
-                                  title: title,
-                                  location: location,
-                                  price: price,
-                                  bedrooms: bedrooms,
-                                  bathrooms: bathrooms,
-                                  area: area,
-                                  floor: floor,
-                                  description: description,
-                                ),
-                              ),
-                            ),
-                            icon: const Icon(Icons.directions_walk, size: 17),
-                            label: Text('Visit Now', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13.5)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.brandColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ChatScreen(
-                                    ownerId: ownerId,
-                                    name: 'Property Owner',
-                                    avatar: 'https://i.pravatar.cc/150?img=1',
-                                    online: true,
-                                  ),
-                                ),
-                              );
-                            },
-                            icon: SvgPicture.asset('assets/icons/message.svg', width: 17, height: 17, colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn)),
-                            label: Text('Message', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13.5)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.brandColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

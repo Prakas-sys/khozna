@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 class PriceFormatter {
   static String format(String priceStr) {
     try {
-      // Remove any non-numeric characters just in case
-      final cleanPrice = priceStr.replaceAll(RegExp(r'[^0-9]'), '');
+      // Remove any non-numeric characters EXCEPT decimal points
+      final cleanPrice = priceStr.replaceAll(RegExp(r'[^0-9.]'), '');
       if (cleanPrice.isEmpty) return priceStr;
       
       double price = double.parse(cleanPrice);
