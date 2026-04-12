@@ -189,7 +189,18 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.network(imageUrl, width: 90, height: 90, fit: BoxFit.cover),
+                  child: Image.network(
+                    imageUrl, 
+                    width: 90, 
+                    height: 90, 
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 90,
+                      height: 90,
+                      color: Colors.grey[100],
+                      child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -205,6 +216,8 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                       const SizedBox(height: 4),
                       Text(
                         'रू ${item['price']} /month',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.inter(
                           color: AppTheme.brandColor,
                           fontWeight: FontWeight.w700,

@@ -342,10 +342,20 @@ class HomeScreenState extends State<HomeScreen> {
                                 style: GoogleFonts.inter(color: Colors.grey[400], fontSize: 16),
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: const BoxDecoration(color: AppTheme.brandColor, shape: BoxShape.circle),
-                              child: const Icon(Icons.mic, color: Colors.white, size: 22),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 4),
+                              child: InkWell(
+                                onTap: () => VoiceSearchOverlay.show(context),
+                                borderRadius: BorderRadius.circular(30),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: AppTheme.brandColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.mic, color: Colors.white, size: 20),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -428,9 +438,15 @@ class HomeScreenState extends State<HomeScreen> {
 
             if (properties.isEmpty) {
               return SizedBox(
-                height: 200,
-                child: Center(
-                  child: Text('No properties found here yet', style: GoogleFonts.inter(color: Colors.grey)),
+                height: 304,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  itemCount: 3,
+                  itemBuilder: (_, __) => const Padding(
+                    padding: EdgeInsets.only(right: 16),
+                    child: SkeletonCard(),
+                  ),
                 ),
               );
             }
