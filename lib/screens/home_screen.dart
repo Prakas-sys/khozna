@@ -63,15 +63,14 @@ class HomeScreenState extends State<HomeScreen> {
         if (mounted) {
           setState(() {
             _currentPosition = position;
-            _isLoadingLocation = false;
           });
         }
       } else {
-        if (mounted) setState(() => _isLoadingLocation = false);
+        if (mounted) setState(() {});
       }
     } catch (e) {
       debugPrint("Error fetching location: $e");
-      if (mounted) setState(() => _isLoadingLocation = false);
+      if (mounted) setState(() {});
     }
   }
 
