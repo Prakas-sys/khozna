@@ -395,15 +395,17 @@ class PropertyCard extends StatelessWidget {
       ),
     ));
 
-    // 2. Always show Bedroom if count > 0
+    // 2. Priority 1: Bedrooms
     if (bedrooms > 0) {
       items.add(_amenityIcon(Icons.bed_outlined, '$bedrooms Bed'));
     }
 
-    // 3. Add priority Kathmandu amenities (up to 1-2 for card brevity)
+    // 3. Priority 2: Standard Amenities (Limit to fill up to 3 total items in row)
+    // We already have Location (1) and Beds (possibly 1).
+    int maxExtra = (bedrooms > 0) ? 1 : 2;
     int count = 0;
     for (var amenity in amenities) {
-      if (count >= 1) break;
+      if (count >= maxExtra) break;
       if (amenityIcons.containsKey(amenity)) {
         items.add(_amenityIcon(amenityIcons[amenity]!, _getShortLabel(amenity)));
         count++;
@@ -411,7 +413,7 @@ class PropertyCard extends StatelessWidget {
     }
 
     return SizedBox(
-      height: 25, // Matches the height of the bedroom/column icon to keep alignment perfect
+      height: 25,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -423,12 +425,15 @@ class PropertyCard extends StatelessWidget {
   String _getShortLabel(String key) {
     switch (key) {
       case 'water_melamchi': return 'Water';
+      case 'water_boring': return 'Boring';
       case 'parking_bike': return 'Bike';
       case 'parking_car': return 'Car';
       case 'sunny_room': return 'Sunny';
       case 'hot_water': return 'Hot';
       case 'waste_mgmt': return 'Waste';
       case 'peaceful': return 'Quiet';
+      case 'internet': return 'Wifi';
+      case 'kitchen': return 'Kitchen';
       default: return '';
     }
   }

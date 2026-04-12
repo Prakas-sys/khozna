@@ -64,12 +64,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     super.initState();
     _isReserved = widget.status == 'booked';
     _fetchOwnerData();
-    displayImages = widget.images ??
-        [
-          widget.imageUrl,
-          'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-          'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        ];
+    displayImages = (widget.images != null && widget.images!.isNotEmpty)
+        ? widget.images!
+        : (widget.id.contains('demo')
+            ? [
+                widget.imageUrl,
+                'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+              ]
+            : [widget.imageUrl]);
     _incrementViews();
   }
 
@@ -443,6 +446,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         'label': 'शान्त वातावरण',
         'sub': 'Peaceful',
       },
+      'water_boring': {
+        'icon': Icons.waves_outlined,
+        'label': 'बोरिङ',
+        'sub': 'Boring Water',
+      },
+      'internet': {
+        'icon': Icons.wifi_outlined,
+        'label': 'इन्टरनेट',
+        'sub': 'Internet/Wifi',
+      },
+      'kitchen': {
+        'icon': Icons.kitchen_outlined,
+        'label': 'भान्सा',
+        'sub': 'Separate Kitchen',
+      },
     };
 
     List<Widget> items = [];
@@ -454,8 +472,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (widget.bathrooms != null && widget.bathrooms! > 0) {
       items.add(_buildStatItem(Icons.bathtub_outlined, '${widget.bathrooms}', 'Bathrooms'));
     }
-    if (widget.floor != null && widget.floor != 'N/A') {
+    if (widget.floor != null && widget.floor != 'N/A' && widget.floor!.isNotEmpty) {
       items.add(_buildStatItem(Icons.layers_outlined, widget.floor!, 'Floor'));
+    }
+    if (widget.area != null && widget.area!.isNotEmpty) {
+      items.add(_buildStatItem(Icons.square_foot_outlined, widget.area!, 'Sq. Ft'));
     }
 
     // Add Kathmandu specific ones

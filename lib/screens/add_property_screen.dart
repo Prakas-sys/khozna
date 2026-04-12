@@ -27,6 +27,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final TextEditingController _landmarkController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _bedroomsController = TextEditingController();
+  final TextEditingController _bathroomsController = TextEditingController();
+  final TextEditingController _floorController = TextEditingController();
+  final TextEditingController _sqftController = TextEditingController();
 
   // Location State
   bool _isLocating = false;
@@ -63,6 +67,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     _landmarkController.dispose();
     _priceController.dispose();
     _descriptionController.dispose();
+    _bedroomsController.dispose();
+    _bathroomsController.dispose();
+    _floorController.dispose();
+    _sqftController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -128,7 +136,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         setState(() => _isUploadingVideo = false);
       }
 
-      // 2. Insert Property into Supabase
+      // 2. Upload images to Cloudinary first
+      List<String> uploadedUrls = [];
+      for (var file in _selectedImages) {
+        final url = await CloudinaryService.uploadImage(file);
+        if (url != null) uploadedUrls.add(url);
+      }
+
+      if (uploadedUrls.isEmpty) {
+        throw 'कम्तिमा एउटा फोटो अपलोड हुन सकेन (Failed to upload photos)';
+      }
+
+      // 3. Insert Property into Supabase
       final propertyResponse = await client.from('properties').insert({
         'owner_id': user.id,
         'title': _titleController.text,
@@ -136,8 +155,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         'area_name': _areaController.text,
         'landmark': _landmarkController.text,
         'price': double.tryParse(_priceController.text) ?? 0.0,
+        'bedrooms': int.tryParse(_bedroomsController.text) ?? 0,
+        'bathrooms': int.tryParse(_bathroomsController.text) ?? 0,
+        'floor': _floorController.text,
+        'sq_ft': _sqftController.text,
         'is_negotiable': _isNegotiable,
         'amenities': _selectedAmenities,
+        'images': uploadedUrls, // Save all URLs as array
         'description': _descriptionController.text,
         'latitude': _latitude,
         'longitude': _longitude,
@@ -149,9 +173,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
       final String propertyId = propertyResponse['id'];
 
-      // 3. Upload images to Cloudinary and save to property_images table
-      for (var file in _selectedImages) {
-        await CloudinaryService.uploadPropertyImage(file, propertyId);
+      // 4. Also save to property_images table for backward compatibility
+      for (var url in uploadedUrls) {
+        await client.from('property_images').insert({
+          'property_id': propertyId,
+          'image_url': url,
+        });
       }
 
       if (mounted) {
@@ -626,6 +653,54 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _quickPriceChip('२५,०००', '25000'),
           ]
         ),
+        const SizedBox(height: 32),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLabel('सुत्ने कोठा (Beds)', false),
+                  _buildTextField('उदा: २', controller: _bedroomsController, keyboardType: TextInputType.number),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLabel('नुहाउने कोठा (Baths)', false),
+                  _buildTextField('उदा: १', controller: _bathroomsController, keyboardType: TextInputType.number),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLabel('कुन तल्ला? (Floor)', false),
+                  _buildTextField('उदा: १/२/३', controller: _floorController),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildLabel('क्षेत्रफल (Sq. Ft)', false),
+                  _buildTextField('उदा: ४००', controller: _sqftController, keyboardType: TextInputType.number),
+                ],
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 24),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -742,16 +817,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           crossAxisSpacing: 12,
           childAspectRatio: 1.5,
           children: [
-            _amenityItem(Icons.water_drop, 'मेलम्ची / धारो', 'Water'),
-            _amenityItem(Icons.waves, 'बोरिङको पानी', 'Boring Water'),
-            _amenityItem(Icons.wb_sunny, 'घाम लाग्ने कोठा', 'Sunny Room'),
-            _amenityItem(Icons.solar_power, 'सोलार / तातो पानी', 'Hot Water'),
-            _amenityItem(Icons.motorcycle, 'बाइक पार्किङ', 'Bike Parking'),
-            _amenityItem(Icons.directions_car, 'कार पार्किङ', 'Car Parking'),
-            _amenityItem(Icons.delete_outline, 'फोहोर उठाउने', 'Waste Management'),
-            _amenityItem(Icons.nature_people, 'शान्त वातावरण', 'Peaceful'),
-            _amenityItem(Icons.wifi, 'इन्टरनेट', 'Internet'),
-            _amenityItem(Icons.kitchen, 'छुट्टै भान्सा', 'Kitchen'),
+            _amenityItem(Icons.water_drop, 'मेलम्ची / धारो', 'water_melamchi'),
+            _amenityItem(Icons.waves, 'बोरिङको पानी', 'water_boring'),
+            _amenityItem(Icons.wb_sunny, 'घाम लाग्ने कोठा', 'sunny_room'),
+            _amenityItem(Icons.solar_power, 'सोलार / तातो पानी', 'hot_water'),
+            _amenityItem(Icons.motorcycle, 'बाइक पार्किङ', 'parking_bike'),
+            _amenityItem(Icons.directions_car, 'कार पार्किङ', 'parking_car'),
+            _amenityItem(Icons.delete_outline, 'फोहोर उठाउने', 'waste_mgmt'),
+            _amenityItem(Icons.nature_people, 'शान्त वातावरण', 'peaceful'),
+            _amenityItem(Icons.wifi, 'इन्टरनेट', 'internet'),
+            _amenityItem(Icons.kitchen, 'छुट्टै भान्सा', 'kitchen'),
           ],
         ),
       ],
