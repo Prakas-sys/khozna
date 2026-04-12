@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import 'add_property_screen.dart';
+import '../widgets/property_card.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -165,120 +166,33 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
 
   Widget _buildListingCard(Map<String, dynamic> item) {
     final images = item['property_images'] as List;
-    final String imageUrl = images.isNotEmpty ? images[0]['image_url'] : 'https://via.placeholder.com/400';
+    final String mainImage = images.isNotEmpty ? images[0]['image_url'] : '';
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.network(
-                    imageUrl, 
-                    width: 90, 
-                    height: 90, 
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 90,
-                      height: 90,
-                      color: Colors.grey[100],
-                      child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['title'] ?? 'N/A',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'रू ${item['price']} /month',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                          color: AppTheme.brandColor,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Public Status: Active',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.green[700],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          // Actions bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(
-                      item['area_name'] ?? 'Nepal',
-                      style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {}, // Future Edit
-                      icon: const Icon(Icons.edit_note_rounded, size: 22, color: Colors.blueGrey),
-                    ),
-                    IconButton(
-                      onPressed: () => _deleteListing(item['id'].toString()),
-                      icon: const Icon(Icons.delete_sweep_rounded, size: 22, color: Colors.redAccent),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: PropertyCard(
+        id: item['id'].toString(),
+        imageUrl: mainImage,
+        title: item['title'] ?? 'Apartment',
+        location: item['area_name'] ?? 'Kathmandu',
+        price: (item['price'] ?? 0).toString(),
+        bedrooms: item['bedrooms'] ?? 0,
+        bathrooms: item['bathrooms'] ?? 0,
+        area: (item['sq_ft'] ?? 0).toString(),
+        floor: item['floor'] ?? 'N/A',
+        description: item['description'] ?? '',
+        images: images.map((i) => i['image_url'].toString()).toList(),
+        status: item['status'] ?? 'available',
+        ownerId: item['owner_id'] ?? '',
+        amenities: List<String>.from(item['amenities'] ?? []),
+        isOwnerView: true,
+        onEdit: () {
+          // Future Edit implementation
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Edit feature coming soon!')),
+          );
+        },
+        onDelete: () => _deleteListing(item['id'].toString()),
       ),
     );
   }

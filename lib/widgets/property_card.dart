@@ -23,6 +23,10 @@ class PropertyCard extends StatelessWidget {
   final String ownerId;
   final String status;
   final List<String> amenities;
+  final bool isOwnerView;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final List<Map<String, dynamic>> rawImages; // Added to pass full image objects if needed
 
   const PropertyCard({
     super.key,
@@ -40,6 +44,10 @@ class PropertyCard extends StatelessWidget {
     this.ownerId = '',
     this.status = 'available',
     this.amenities = const [],
+    this.isOwnerView = false,
+    this.onEdit,
+    this.onDelete,
+    this.rawImages = const [],
   });
 
   @override
@@ -182,86 +190,116 @@ class PropertyCard extends StatelessWidget {
                     // Action Buttons
                     Row(
                       children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => PropertyDetailsScreen(
-                                  id: id,
-                                  imageUrl: imageUrl,
-                                  images: images,
-                                  title: title,
-                                  location: location,
-                                  price: price,
-                                  bedrooms: bedrooms,
-                                  bathrooms: bathrooms,
-                                  area: area,
-                                  floor: floor,
-                                  description: description,
+                        if (!isOwnerView) ...[
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PropertyDetailsScreen(
+                                    id: id,
+                                    imageUrl: imageUrl,
+                                    images: images,
+                                    title: title,
+                                    location: location,
+                                    price: price,
+                                    bedrooms: bedrooms,
+                                    bathrooms: bathrooms,
+                                    area: area,
+                                    floor: floor,
+                                    description: description,
+                                  ),
                                 ),
                               ),
-                            ),
-                            icon: const Icon(Icons.directions_walk, size: 17),
-                            label: Text('Visit Now', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13.5)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.brandColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+                              icon: const Icon(Icons.directions_walk, size: 17),
+                              label: Text('Visit Now', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.brandColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+                                ),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const ChatScreen(
-                                  name: 'Jenny Wilson',
-                                  avatar: 'https://i.pravatar.cc/150?img=47',
-                                  online: true,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const ChatScreen(
+                                    name: 'Jenny Wilson',
+                                    avatar: 'https://i.pravatar.cc/150?img=47',
+                                    online: true,
+                                  ),
                                 ),
                               ),
-                            ),
-                            icon: SvgPicture.asset(
-                              'assets/icons/message.svg',
-                              width: 17,
-                              height: 17,
-                              colorFilter: const ColorFilter.mode(
-                                Colors.white,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            label: Text(
-                              'Message',
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13.5,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.brandColor,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                side: BorderSide(
-                                  color: Colors.white.withValues(alpha: 0.5),
-                                  width: 1.5,
+                              icon: SvgPicture.asset(
+                                'assets/icons/message.svg',
+                                width: 17,
+                                height: 17,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white,
+                                  BlendMode.srcIn,
                                 ),
                               ),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              label: Text(
+                                'Message',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13.5,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.brandColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: BorderSide(
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
                             ),
                           ),
-                        ),
+                        ] else ...[
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: onEdit,
+                              icon: const Icon(Icons.edit_note_rounded, size: 20),
+                              label: const Text('Edit Listing'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.blueGrey[700],
+                                side: BorderSide(color: Colors.grey.shade300),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: onDelete,
+                              icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                              label: const Text('Delete'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.redAccent,
+                                side: BorderSide(color: Colors.red.withOpacity(0.2)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],
