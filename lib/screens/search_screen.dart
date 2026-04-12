@@ -83,7 +83,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     const SizedBox(width: 16),
                     Expanded(
                       child: Hero(
-                        tag: 'search_bar',
+                        tag: 'search_bar_container',
                         child: Material(
                           color: Colors.transparent,
                           child: Container(
