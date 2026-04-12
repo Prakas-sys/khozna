@@ -71,4 +71,28 @@ class CloudinaryService {
       return null;
     }
   }
+  /// Uploads a video to Cloudinary and returns the URL.
+  static Future<String?> uploadVideo(File videoFile) async {
+    final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/video/upload');
+
+    try {
+      final request = http.MultipartRequest('POST', url)
+        ..fields['upload_preset'] = uploadPreset
+        ..files.add(await http.MultipartFile.fromPath('file', videoFile.path));
+
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.toBytes();
+        final responseString = String.fromCharCodes(responseData);
+        final jsonMap = jsonDecode(responseString);
+        return jsonMap['secure_url'];
+      } else {
+        print('Cloudinary Video Upload Failed: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Cloudinary Video Error: $e');
+      return null;
+    }
+  }
 }

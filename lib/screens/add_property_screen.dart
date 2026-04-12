@@ -45,6 +45,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   bool _isEstimatingPrice = false;
   String? _aiPriceSuggestion;
   
+  // Media State
+  File? _selectedVideo;
+  bool _isUploadingVideo = false;
+  
   // New Location Analysis State
   bool _isAnalyzingLocation = false;
   String? _aiLocationAnalysis;
@@ -68,6 +72,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     if (images.isNotEmpty) {
       setState(() {
         _selectedImages.addAll(images.map((x) => File(x.path)));
+      });
+    }
+  }
+
+  Future<void> _pickVideo() async {
+    final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
+    if (video != null) {
+      setState(() {
+        _selectedVideo = File(video.path);
       });
     }
   }
@@ -101,29 +114,37 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       );
       
       if (scamResult.toLowerCase().contains("scam") || scamResult.toLowerCase().contains("warning")) {
-         // In a real app, you might block or flag this, for now we just show a warning
          debugPrint("AI SCAM WARNING: $scamResult");
       }
 
-      // 1. Insert Property into Supabase
+      // 1. Upload Video if selected (Optional)
+      String? videoUrl;
+      if (_selectedVideo != null) {
+        setState(() => _isUploadingVideo = true);
+        videoUrl = await CloudinaryService.uploadVideo(_selectedVideo!);
+        setState(() => _isUploadingVideo = false);
+      }
+
+      // 2. Insert Property into Supabase
       final propertyResponse = await client.from('properties').insert({
         'owner_id': user.id,
         'title': _titleController.text,
         'category': _selectedCategory,
         'area_name': _areaController.text,
         'landmark': _landmarkController.text,
-        'price': _priceController.text,
+        'price': double.tryParse(_priceController.text) ?? 0.0,
         'is_negotiable': _isNegotiable,
         'amenities': _selectedAmenities,
         'description': _descriptionController.text,
         'latitude': _latitude,
         'longitude': _longitude,
+        'video_url': videoUrl,
         'status': 'available',
       }).select().single();
 
       final String propertyId = propertyResponse['id'];
 
-      // 2. Upload images to Cloudinary and save to property_images table
+      // 3. Upload images to Cloudinary and save to property_images table
       for (var file in _selectedImages) {
         await CloudinaryService.uploadPropertyImage(file, propertyId);
       }
@@ -135,7 +156,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context, true); // Return true to indicate success
+        Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
@@ -144,7 +165,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isPublishing = false);
+      if (mounted) {
+        setState(() {
+          _isPublishing = false;
+          _isUploadingVideo = false;
+        });
+      }
     }
   }
 
@@ -728,12 +754,45 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
         const SizedBox(height: 20),
         // VIDEO UPLOAD (REEL)
-        _buildMediaUploadBox(
-          icon: Icons.videocam_outlined,
-          title: 'भिडियो राख्नुहोस् (Upload Reel)',
-          desc: 'भिडियोले ग्राहकलाई छिटो आकर्षित गर्छ।',
-          isBlue: true,
+        GestureDetector(
+          onTap: _pickVideo,
+          child: _buildMediaUploadBox(
+            icon: Icons.videocam_outlined,
+            title: _selectedVideo != null ? 'भिडियो छानियो ✓' : 'भिडियो राख्नुहोस् (Upload Reel)',
+            desc: _selectedVideo != null 
+                ? 'भिडियो परिवर्तन गर्न ट्याप गर्नुहोस्' 
+                : 'भिडियोले ग्राहकलाई छिटो आकर्षित गर्छ।',
+            isBlue: true,
+            hasFile: _selectedVideo != null,
+          ),
         ),
+        if (_selectedVideo != null) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.video_file, color: Colors.blue),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Video: ${_selectedVideo!.path.split('/').last}',
+                    style: GoogleFonts.inter(fontSize: 12, color: Colors.blue[900]),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.red, size: 20),
+                  onPressed: () => setState(() => _selectedVideo = null),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 40),
         Container(
           padding: const EdgeInsets.all(16),
@@ -825,20 +884,39 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildMediaUploadBox({required IconData icon, required String title, required String desc, required bool isBlue}) {
+  Widget _buildMediaUploadBox({required IconData icon, required String title, required String desc, required bool isBlue, bool hasFile = false}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isBlue ? AppTheme.brandColor.withOpacity(0.05) : const Color(0xFFF9F9F9),
+        color: hasFile 
+            ? (isBlue ? Colors.blue.withOpacity(0.1) : Colors.green.withOpacity(0.1))
+            : (isBlue ? AppTheme.brandColor.withOpacity(0.05) : const Color(0xFFF9F9F9)),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isBlue ? AppTheme.brandColor.withOpacity(0.2) : Colors.grey[200]!),
+        border: Border.all(
+          color: hasFile 
+              ? (isBlue ? Colors.blue : Colors.green)
+              : (isBlue ? AppTheme.brandColor.withOpacity(0.2) : Colors.grey[200]!),
+          width: hasFile ? 2 : 1,
+        ),
       ),
       child: Column(
         children: [
-          Icon(icon, color: isBlue ? AppTheme.brandColor : Colors.grey[600], size: 40),
+          Icon(
+            hasFile ? Icons.check_circle : icon, 
+            color: hasFile 
+                ? (isBlue ? Colors.blue : Colors.green) 
+                : (isBlue ? AppTheme.brandColor : Colors.grey[600]), 
+            size: 40
+          ),
           const SizedBox(height: 12),
-          Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          Text(
+            title, 
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold,
+              color: hasFile ? (isBlue ? Colors.blue[900] : Colors.green[900]) : Colors.black87,
+            )
+          ),
           Text(desc, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
         ],
       ),
