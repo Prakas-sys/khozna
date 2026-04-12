@@ -346,7 +346,24 @@ class HomeScreenState extends State<HomeScreen> {
                             Padding(
                               padding: const EdgeInsets.only(right: 4),
                               child: InkWell(
-                                onTap: () => VoiceSearchOverlay.show(context),
+                                onTap: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    builder: (context) => VoiceSearchOverlay(
+                                      onResult: (text) {
+                                        Navigator.pop(context);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => SearchScreen(initialQuery: text),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
                                 borderRadius: BorderRadius.circular(30),
                                 child: Container(
                                   padding: const EdgeInsets.all(8),
