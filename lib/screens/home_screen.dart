@@ -335,10 +335,7 @@ class HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.only(left: 18),
-                              child: Icon(CupertinoIcons.search, color: AppTheme.brandColor, size: 26),
-                            ),
+                            const Icon(CupertinoIcons.search, color: AppTheme.brandColor, size: 26),
                             const SizedBox(width: 14),
                             Expanded(
                               child: Text(
