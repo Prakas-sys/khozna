@@ -290,7 +290,7 @@ class HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
             child: Column(
               children: [
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: Column(
@@ -311,7 +311,7 @@ class HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 68),
+                const SizedBox(height: 44),
                 Hero(
                   tag: 'search_bar_container', // Changed tag to be more specific
                   child: Material(
@@ -375,7 +375,7 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 45),
+                const SizedBox(height: 32),
                 // Sections with stable index matching
                 ...List.generate(10, (index) {
                   final titles = [
