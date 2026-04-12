@@ -66,260 +66,260 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: null,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Premium Search Bar
-            Hero(
-              tag: 'search_bar',
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  height: 52,
-                  padding: const EdgeInsets.fromLTRB(16, 0, 4, 0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.grey.shade200, width: 1.2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 15,
-                        spreadRadius: 0,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      Icon(
-                        CupertinoIcons.search,
-                        color: AppTheme.brandColor,
-                        size: 26,
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          autofocus: _searchController.text.isEmpty,
-                          style: GoogleFonts.inter(fontSize: 16, color: Colors.black),
-                          cursorColor: Colors.black, // No more blue cursor
-                          decoration: InputDecoration(
-                            hintText: 'Search properties',
-                            hintStyle: GoogleFonts.inter(
-                              color: Colors.grey[400],
-                              fontSize: 16,
-                            ),
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            errorBorder: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                          ),
-                          onChanged: (val) => setState(() {}),
-                        ),
-                      ),
-                      if (_searchController.text.isNotEmpty)
-                        IconButton(
-                          icon: const Icon(Icons.close_rounded, size: 20, color: Colors.grey),
-                          onPressed: () {
-                            setState(() {
-                              _searchController.clear();
-                            });
-                          },
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            // MAGIC AI SEARCH BUTTON
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: _isAiSearching ? null : _runAiSearch,
-                icon: _isAiSearching 
-                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                  : const Icon(Icons.auto_awesome, size: 18),
-                label: Text(
-                  _isAiSearching ? 'AI Matching...' : 'Magic AI Match (Nepal Edition)',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ),
-            if (_aiSearchResult != null)
-              Container(
-                margin: const EdgeInsets.only(top: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.purple.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.purple.withValues(alpha: 0.1)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Premium Search Header
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.stars, color: Colors.purple, size: 18),
-                        const SizedBox(width: 8),
-                        Text('AI Suggestions', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.purple[800])),
-                        const Spacer(),
-                        IconButton(
-                          icon: const Icon(Icons.close, size: 16, color: Colors.grey),
-                          onPressed: () => setState(() => _aiSearchResult = null),
-                        )
-                      ],
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87, size: 22),
+                      onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
-                    Text(
-                      _aiSearchResult!,
-                      style: GoogleFonts.inter(fontSize: 13, height: 1.5),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Hero(
+                        tag: 'search_bar',
+                        child: Material(
+                          color: Colors.transparent,
+                          child: Container(
+                            height: 48,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF7F7F7),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade200, width: 1),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  CupertinoIcons.search,
+                                  color: Colors.grey[600],
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _searchController,
+                                    autofocus: _searchController.text.isEmpty,
+                                    style: GoogleFonts.inter(fontSize: 15, color: Colors.black87),
+                                    cursorColor: AppTheme.brandColor,
+                                    decoration: InputDecoration(
+                                      hintText: 'Search properties',
+                                      hintStyle: GoogleFonts.inter(
+                                        color: Colors.grey[500],
+                                        fontSize: 15,
+                                      ),
+                                      border: InputBorder.none,
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                      contentPadding: EdgeInsets.zero,
+                                      isDense: true,
+                                    ),
+                                    onChanged: (val) => setState(() {}),
+                                  ),
+                                ),
+                                if (_searchController.text.isNotEmpty)
+                                  GestureDetector(
+                                    onTap: () => setState(() => _searchController.clear()),
+                                    child: Icon(Icons.cancel, size: 20, color: Colors.grey[400]),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              ),
-            const SizedBox(height: 32),
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Price Range ',
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                const SizedBox(height: 16),
+                
+                // MAGIC AI SEARCH BUTTON
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _isAiSearching ? null : _runAiSearch,
+                    icon: _isAiSearching 
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : const Icon(Icons.auto_awesome, size: 18),
+                    label: Text(
+                      _isAiSearching ? 'AI Matching...' : 'Magic AI Match (Nepal Edition)',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
-                  TextSpan(
-                    text: '(भाडाको सीमा)',
-                    style: GoogleFonts.mukta(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
+                ),
+                if (_aiSearchResult != null)
+                  Container(
+                    margin: const EdgeInsets.only(top: 16),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.purple.withValues(alpha: 0.1)),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9F9F9),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.grey[200]!),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Min: रू ${PriceFormatter.format('2000')}', style: GoogleFonts.inter(color: airbnbGrey)),
-                      Text('Max: रू ${PriceFormatter.format('100000')}+', style: GoogleFonts.inter(color: airbnbGrey)),
-                    ],
-                  ),
-                  Slider(
-                    value: _priceValue,
-                    min: 2000,
-                    max: 100000,
-                    activeColor: AppTheme.brandColor,
-                    onChanged: (val) => setState(() => _priceValue = val),
-                  ),
-                  Text(
-                    'Up to रू ${PriceFormatter.format(_priceValue.toInt().toString())}',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor, fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: RichText(
-                    text: TextSpan(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(
-                          text: 'Recently Searched ',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                        Row(
+                          children: [
+                            const Icon(Icons.stars, color: Colors.purple, size: 18),
+                            const SizedBox(width: 8),
+                            Text('AI Suggestions', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.purple[800])),
+                            const Spacer(),
+                            IconButton(
+                              icon: const Icon(Icons.close, size: 16, color: Colors.grey),
+                              onPressed: () => setState(() => _aiSearchResult = null),
+                            )
+                          ],
                         ),
-                        TextSpan(
-                          text: '(भर्खरै खोजिएका)',
-                          style: GoogleFonts.mukta(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[600],
-                          ),
+                        Text(
+                          _aiSearchResult!,
+                          style: GoogleFonts.inter(fontSize: 13, height: 1.5),
                         ),
                       ],
                     ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _recentSearches.clear();
-                    });
-                  },
-                  child: Text(
-                    'Clear',
-                    style: GoogleFonts.inter(color: airbnbGrey),
+                const SizedBox(height: 32),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Price Range ',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '(भाडाको सीमा)',
+                        style: GoogleFonts.mukta(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9F9F9),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Min: रू ${PriceFormatter.format('2000')}', style: GoogleFonts.inter(color: airbnbGrey)),
+                          Text('Max: रू ${PriceFormatter.format('100000')}+', style: GoogleFonts.inter(color: airbnbGrey)),
+                        ],
+                      ),
+                      Slider(
+                        value: _priceValue,
+                        min: 2000,
+                        max: 100000,
+                        activeColor: AppTheme.brandColor,
+                        onChanged: (val) => setState(() => _priceValue = val),
+                      ),
+                      Text(
+                        'Up to रू ${PriceFormatter.format(_priceValue.toInt().toString())}',
+                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Recently Searched ',
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '(भर्खरै खोजिएका)',
+                              style: GoogleFonts.mukta(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _recentSearches.clear();
+                        });
+                      },
+                      child: Text(
+                        'Clear',
+                        style: GoogleFonts.inter(color: airbnbGrey),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8, runSpacing: 12,
+                  children: _recentSearches.map((search) => _buildRecentTag(search)).toList(),
+                ),
+                const SizedBox(height: 40),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Popular Areas ',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '(लोकप्रिय ठाउँहरू)',
+                        style: GoogleFonts.mukta(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildAreaItem('Baluwatar, Kathmandu', '450+ Listings'),
+                _buildAreaItem('Sanepa, Lalitpur', '320+ Listings'),
+                _buildAreaItem('Baneshwor, Kathmandu', '580+ Listings'),
+                _buildAreaItem('Jhamsikhel, Lalitpur', '210+ Listings'),
               ],
             ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8, runSpacing: 12,
-              children: _recentSearches.map((search) => _buildRecentTag(search)).toList(),
-            ),
-            const SizedBox(height: 40),
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Popular Areas ',
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  TextSpan(
-                    text: '(लोकप्रिय ठाउँहरू)',
-                    style: GoogleFonts.mukta(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildAreaItem('Baluwatar, Kathmandu', '450+ Listings'),
-            _buildAreaItem('Sanepa, Lalitpur', '320+ Listings'),
-            _buildAreaItem('Baneshwor, Kathmandu', '580+ Listings'),
-            _buildAreaItem('Jhamsikhel, Lalitpur', '210+ Listings'),
-          ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(

@@ -96,9 +96,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       return;
     }
 
-    if (_titleController.text.isEmpty || _priceController.text.isEmpty || _selectedImages.isEmpty) {
+    if (_titleController.text.isEmpty || _priceController.text.isEmpty || _selectedImages.isEmpty || _areaController.text.isEmpty) {
+      String msg = "कृपया सबै रित्तो ठाउँ भर्नुहोस्";
+      if (_selectedImages.isEmpty) msg = "कम्तिमा एउटा फोटो राख्नुहोस् (Add at least one photo)";
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields and add at least one photo')),
+        SnackBar(content: Text(msg)),
       );
       return;
     }
@@ -140,6 +143,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         'longitude': _longitude,
         'video_url': videoUrl,
         'status': 'available',
+        'is_verified': true,
+        'is_premium': (double.tryParse(_priceController.text) ?? 0.0) >= 15000.0,
       }).select().single();
 
       final String propertyId = propertyResponse['id'];
@@ -229,12 +234,54 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   void _nextStep() {
-    if (_currentStep < 4) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+    bool isValid = false;
+    String errorMessage = "";
+
+    if (_currentStep == 0) {
+      if (_titleController.text.trim().isEmpty) {
+        errorMessage = "कृपया शीर्षक राख्नुहोस् (Please enter a title)";
+      } else if (_selectedCategory == null) {
+        errorMessage = "कृपया वर्ग छान्नुहोस् (Please select a category)";
+      } else {
+        isValid = true;
+      }
+    } else if (_currentStep == 1) {
+      if (_areaController.text.trim().isEmpty) {
+        errorMessage = "कृपया टोलको नाम राख्नुहोस् (Please enter Area Name)";
+      } else if (_landmarkController.text.trim().isEmpty) {
+        errorMessage = "कृपया चिनिने ठाउँ राख्नुहोस् (Please enter Landmark)";
+      } else if (_latitude == null) {
+        errorMessage = "कृपया नक्शामा लोकेशन सेट गर्नुहोस् (Please set location on Map)";
+      } else {
+        isValid = true;
+      }
+    } else if (_currentStep == 2) {
+      if (_priceController.text.trim().isEmpty) {
+        errorMessage = "कृपया भाडा दर राख्नुहोस् (Please enter Price)";
+      } else {
+        isValid = true;
+      }
+    } else {
+      // Step 3 (Amenities) is optional
+      isValid = true;
+    }
+
+    if (isValid) {
+      if (_currentStep < 4) {
+        _pageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        setState(() => _currentStep++);
+      }
+    } else if (errorMessage.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
-      setState(() => _currentStep++);
     }
   }  @override
   Widget build(BuildContext context) {
@@ -246,7 +293,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         scrolledUnderElevation: 0,
         title: Text(
           'प्रोपर्टी राख्नुहोस्',
-          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.mukta(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black87),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -258,8 +305,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 20),
               child: Text(
-                'स्टेप ${_currentStep + 1} / 5',
-                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor, fontSize: 16),
+                'Step ${_currentStep + 1} / 5',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppTheme.brandColor, fontSize: 15),
               ),
             ),
           )
@@ -315,43 +362,55 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         _buildTextField('उदा: सानेपामा राम्रो २ कोठा खाली छ', controller: _titleController),
         const SizedBox(height: 24),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildLabel('प्रोपर्टी विवरण (Description)', false),
-            TextButton.icon(
-              onPressed: _isGeneratingDescription ? null : () async {
-                if (_titleController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a title first')),
-                  );
-                  return;
-                }
-                setState(() => _isGeneratingDescription = true);
-                try {
-                  final description = await _aiService.generateDescription(
-                    title: _titleController.text,
-                    category: _selectedCategory ?? 'Room',
-                    area: _areaController.text.isEmpty ? "Kathmandu" : _areaController.text,
-                    landmark: _landmarkController.text.isEmpty ? "Nearby" : _landmarkController.text,
-                    amenities: _selectedAmenities,
-                  );
-                  setState(() => _descriptionController.text = description);
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('AI Generation failed: $e')),
-                  );
-                } finally {
-                  setState(() => _isGeneratingDescription = false);
-                }
-              },
-              icon: _isGeneratingDescription 
-                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.brandColor))
-                : const Icon(Icons.flash_on, size: 16, color: AppTheme.brandColor),
-              label: Text(
-                _isGeneratingDescription ? 'लेख्दैछ...' : 'स्वत: भर्नुहोस्',
-                style: GoogleFonts.inter(color: AppTheme.brandColor, fontWeight: FontWeight.bold),
+            Expanded(child: _buildLabel('प्रोपर्टी विवरण (Description)', false)),
+            const SizedBox(width: 8),
+            if (_isGeneratingDescription)
+              const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.brandColor))
+            else
+              TextButton(
+                onPressed: () async {
+                  if (_titleController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please enter a title first')),
+                    );
+                    return;
+                  }
+                  setState(() => _isGeneratingDescription = true);
+                  try {
+                    final description = await _aiService.generateDescription(
+                      title: _titleController.text,
+                      category: _selectedCategory ?? 'Room',
+                      area: _areaController.text.isEmpty ? "Kathmandu" : _areaController.text,
+                      landmark: _landmarkController.text.isEmpty ? "Nearby" : _landmarkController.text,
+                      amenities: _selectedAmenities,
+                    );
+                    setState(() => _descriptionController.text = description);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('AI Generation failed: $e')),
+                    );
+                  } finally {
+                    setState(() => _isGeneratingDescription = false);
+                  }
+                },
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.flash_on, size: 16, color: AppTheme.brandColor),
+                    const SizedBox(width: 4),
+                    Text(
+                      'स्वत: भर्नुहोस्',
+                      style: GoogleFonts.mukta(color: AppTheme.brandColor, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
         _buildTextField(
@@ -817,10 +876,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black87, height: 1.3)),
-          const SizedBox(height: 8),
-          Text(subtitle, style: GoogleFonts.inter(color: AppTheme.brandColor, fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 32),
+          Text(title, style: GoogleFonts.mukta(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.black87, height: 1.2)),
+          const SizedBox(height: 4),
+          Text(subtitle, style: GoogleFonts.inter(color: AppTheme.brandColor, fontSize: 14, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 28),
           ...content,
         ],
       ),
@@ -851,8 +910,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               child: Icon(icon, color: isSelected ? Colors.white : Colors.grey[600], size: 28),
             ),
             const SizedBox(width: 20),
-            Text(label, style: GoogleFonts.inter(fontSize: 18, fontWeight: isSelected ? FontWeight.bold : FontWeight.w600, color: Colors.black87)),
-            const Spacer(),
+            Expanded(
+              child: Text(
+                label, 
+                style: GoogleFonts.mukta(fontSize: 17, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, color: Colors.black87)
+              ),
+            ),
             if (isSelected) const Icon(Icons.check_circle, color: AppTheme.brandColor, size: 28),
           ],
         ),
@@ -877,7 +940,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           children: [
             Icon(icon, color: isSelected ? Colors.white : Colors.grey[600], size: 36),
             const SizedBox(height: 8),
-            Text(label, textAlign: TextAlign.center, style: GoogleFonts.inter(fontSize: 13, color: isSelected ? Colors.white : Colors.black87, fontWeight: FontWeight.bold)),
+            Text(label, textAlign: TextAlign.center, style: GoogleFonts.mukta(fontSize: 14, color: isSelected ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -926,7 +989,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildLabel(String label, bool isRequired) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Row(children: [Text(label, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15)), if (isRequired) const Text(' *', style: TextStyle(color: Colors.red))]),
+      child: Row(children: [Text(label, style: GoogleFonts.mukta(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black87)), if (isRequired) const Text(' *', style: TextStyle(color: Colors.red))]),
     );
   }
 
@@ -936,9 +999,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       maxLines: maxLines,
       keyboardType: keyboardType,
       onChanged: (v) => setState(() {}),
-      style: GoogleFonts.inter(
+      style: GoogleFonts.mukta(
         fontSize: 15,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w500,
         color: Colors.black87,
       ),
       decoration: InputDecoration(
@@ -985,7 +1048,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     side: BorderSide(color: Colors.grey.shade300, width: 2), 
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))
                   ), 
-                  child: Text('पछाडि', style: GoogleFonts.inter(color: Colors.grey[800], fontSize: 16, fontWeight: FontWeight.bold))
+                  child: Text('पछाडि', style: GoogleFonts.mukta(color: Colors.grey[800], fontSize: 17, fontWeight: FontWeight.w600))
                 )
               ),
             if (_currentStep > 0) const SizedBox(width: 16),
@@ -1003,7 +1066,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ), 
                 child: _isPublishing 
                   ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                  : Text(_currentStep == 4 ? 'प्रकाशित गर्ने (Publish)' : 'अर्को जानुहोस् (Next)', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                  : Text(_currentStep == 4 ? 'प्रकाशित गर्ने (Publish)' : 'अर्को जानुहोस् (Next)', style: GoogleFonts.mukta(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.white)),
               ),
             ),
           ],

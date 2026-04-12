@@ -24,17 +24,21 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _isKycVerified = false;
   bool _isCheckingKyc = true;
+  
+  // Key to communicate with HomeScreen for refreshing data
+  final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
 
-  final List<Widget> _pages = [
-    const HomeScreen(),
-    const ReelsScreen(),
-    const MessagesScreen(),
-    const ProfileScreen(),
-  ];
+  late final List<Widget> _pages;
 
   @override
   void initState() {
     super.initState();
+    _pages = [
+      HomeScreen(key: _homeKey),
+      const ReelsScreen(),
+      const MessagesScreen(),
+      const ProfileScreen(),
+    ];
     // Magic: Listen for all user notifications in real-time
     SupabaseService.listenToUserNotifications();
     _checkKycStatus();
@@ -168,10 +172,16 @@ class _MainScreenState extends State<MainScreen> {
                               MaterialPageRoute(builder: (context) => const KycScreen()),
                             );
                           } else {
-                            Navigator.push(
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => const AddPropertyScreen()),
                             );
+                            
+                            // If a property was successfully published, refresh the home screen
+                            if (result == true) {
+                              _homeKey.currentState?.refreshData();
+                              setState(() => _currentIndex = 0); // Ensure we are on Home tab
+                            }
                           }
                         },
                         splashColor: Colors.transparent,

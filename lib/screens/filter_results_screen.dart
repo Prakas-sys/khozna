@@ -227,6 +227,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
           ],
         ),
       ),
+    );
   }
 
   Widget _buildSkeletonCard(BuildContext context) {

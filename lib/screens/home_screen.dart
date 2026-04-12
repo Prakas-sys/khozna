@@ -18,13 +18,15 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   // Caching futures to prevent flickering on rebuild
   final List<Future<List<Map<String, dynamic>>>> _sectionFutures = [];
   int _bossTaps = 0;
+  Position? _currentPosition;
+  bool _isLoadingLocation = true;
   final String _adminEmail = 'khoznaapp@gmail.com';
   final String _adminPin = '8888';
 
@@ -112,21 +114,107 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _fetchInitialData();
+  }
+
+  Future<void> _fetchInitialData() async {
+    await _getCurrentLocation();
     _initializeFutures();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      
+      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+        final position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(accuracy: LocationAccuracy.low)
+        );
+        if (mounted) {
+          setState(() {
+            _currentPosition = position;
+            _isLoadingLocation = false;
+          });
+        }
+      } else {
+        if (mounted) setState(() => _isLoadingLocation = false);
+      }
+    } catch (e) {
+      debugPrint("Error fetching location: $e");
+      if (mounted) setState(() => _isLoadingLocation = false);
+    }
+  }
+
+  Future<void> refreshData() async {
+    // Re-fetch location before refreshing data
+    await _getCurrentLocation();
+    setState(() {
+      _sectionFutures.clear();
+      _initializeFutures();
+    });
+    // Wait for all futures to complete for the RefreshIndicator
+    await Future.wait(_sectionFutures);
   }
 
   void _initializeFutures() {
     final client = Supabase.instance.client;
+    
     for (int i = 0; i < 10; i++) {
-      final query = client
+      var query = client
           .from('properties')
           .select('*, property_images(image_url)');
       
-      final orderedQuery = i % 2 == 0 
-          ? query.order('created_at', ascending: false)
-          : query.order('price', ascending: true);
+      // Categorization logic based on titles[index] in build method
+      switch (i) {
+        case 0: // Verified Listings
+          query = query.eq('is_verified', true).order('created_at', ascending: false);
+          break;
+        case 1: // Recently Added
+          query = query.order('created_at', ascending: false);
+          break;
+        case 2: // Near You (Location based)
+          if (_currentPosition != null) {
+            // Basic box filter (approx 10km radius calculation: ~0.1 degrees)
+            query = query
+              .gte('latitude', _currentPosition!.latitude - 0.1)
+              .lte('latitude', _currentPosition!.latitude + 0.1)
+              .gte('longitude', _currentPosition!.longitude - 0.1)
+              .lte('longitude', _currentPosition!.longitude + 0.1);
+          }
+          query = query.order('created_at', ascending: false);
+          break;
+        case 3: // Popular in Kathmandu
+          query = query.ilike('area_name', '%Kathmandu%').order('created_at', ascending: false);
+          break;
+        case 4: // Budget Friendly
+          query = query.lt('price', 10000).order('price', ascending: true);
+          break;
+        case 5: // High-End Apartments
+          query = query.eq('category', 'Apartment').gt('price', 20000).order('price', ascending: false);
+          break;
+        case 6: // Hot Deals (Recent + Cheap)
+          query = query.lt('price', 15000).order('created_at', ascending: false);
+          break;
+        case 7: // Student Housing (Small rooms or cheap)
+          query = query.eq('category', 'Room').lt('price', 7000).order('price', ascending: true);
+          break;
+        case 8: // Family Flats
+          query = query.eq('category', 'Flat').order('created_at', ascending: false);
+          break;
+        case 9: // Premium Collections
+          query = query.or('is_premium.eq.true,price.gt.15000').order('price', descending: true);
+          break;
+        default:
+          query = query.order('created_at', ascending: false);
+      }
+      
+      // Limit to 6 items per section for performance
+      final limitedQuery = query.limit(6);
           
-      _sectionFutures.add(orderedQuery.then((data) => List<Map<String, dynamic>>.from(data)));
+      _sectionFutures.add(limitedQuery.then((data) => List<Map<String, dynamic>>.from(data)));
     }
   }
 
@@ -221,11 +309,15 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 40.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 32),
+        child: RefreshIndicator(
+          onRefresh: refreshData,
+          color: AppTheme.brandColor,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 40.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 32),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
