@@ -8,6 +8,7 @@ import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
 import '../widgets/property_card.dart';
 import '../widgets/skeleton_card.dart';
+import '../widgets/voice_search_overlay.dart';
 import 'notifications_screen.dart';
 import 'search_screen.dart';
 import 'filter_results_screen.dart';
