@@ -23,6 +23,7 @@ class PropertyCard extends StatelessWidget {
   final String ownerId;
   final String status;
   final List<String> amenities;
+  final List<String> houseRules;
   final bool isOwnerView;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -46,6 +47,7 @@ class PropertyCard extends StatelessWidget {
     this.ownerId = '',
     this.status = 'available',
     this.amenities = const [],
+    this.houseRules = const [],
     this.isOwnerView = false,
     this.onEdit,
     this.onDelete,
@@ -77,6 +79,7 @@ class PropertyCard extends StatelessWidget {
               ownerId: ownerId,
               status: status,
               amenities: amenities,
+              houseRules: houseRules,
             ),
           ),
         );
@@ -363,7 +366,8 @@ class PropertyCard extends StatelessWidget {
 
   Widget _buildAmenityItems() {
     // Top priority icons for the card
-    final Map<String, IconData> amenityIcons = {
+    final Map<String, IconData> featureIcons = {
+      // Amenities
       'water_melamchi': Icons.water_drop_outlined,
       'parking_bike': Icons.pedal_bike_outlined,
       'parking_car': Icons.directions_car_outlined,
@@ -371,6 +375,11 @@ class PropertyCard extends StatelessWidget {
       'hot_water': Icons.hot_tub_outlined,
       'waste_mgmt': Icons.delete_outline,
       'peaceful': Icons.nature_people_outlined,
+      // House Rules
+      'family_only': Icons.family_restroom,
+      'boys_allowed': Icons.man,
+      'girls_allowed': Icons.woman,
+      'pets_allowed': Icons.pets,
     };
 
     List<Widget> items = [];
@@ -400,14 +409,18 @@ class PropertyCard extends StatelessWidget {
       items.add(_amenityIcon(Icons.bed_outlined, '$bedrooms Bed'));
     }
 
-    // 3. Priority 2: Standard Amenities (Limit to fill up to 3 total items in row)
+    // 3. Priority 2: Standard Amenities & Rules (Limit to fill up to 3 total items in row)
     // We already have Location (1) and Beds (possibly 1).
     int maxExtra = (bedrooms > 0) ? 1 : 2;
     int count = 0;
-    for (var amenity in amenities) {
+    
+    // Combine amenities and house rules for display
+    final combinedFeatures = [...amenities, ...houseRules];
+    
+    for (var feature in combinedFeatures) {
       if (count >= maxExtra) break;
-      if (amenityIcons.containsKey(amenity)) {
-        items.add(_amenityIcon(amenityIcons[amenity]!, _getShortLabel(amenity)));
+      if (featureIcons.containsKey(feature)) {
+        items.add(_amenityIcon(featureIcons[feature]!, _getShortLabel(feature)));
         count++;
       }
     }
@@ -434,6 +447,10 @@ class PropertyCard extends StatelessWidget {
       case 'peaceful': return 'Quiet';
       case 'internet': return 'Wifi';
       case 'kitchen': return 'Kitchen';
+      case 'family_only': return 'Family';
+      case 'boys_allowed': return 'Boys';
+      case 'girls_allowed': return 'Girls';
+      case 'pets_allowed': return 'Pets';
       default: return '';
     }
   }

@@ -502,6 +502,7 @@ class HomeScreenState extends State<HomeScreen> {
                         status: p['status'] ?? 'available',
                         ownerId: p['owner_id'] ?? '',
                         amenities: List<String>.from(p['amenities'] ?? []),
+                        houseRules: List<String>.from(p['house_rules'] ?? []),
                       ),
                     );
                   } else {

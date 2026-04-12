@@ -24,6 +24,7 @@ class PropertyDetailsScreen extends StatefulWidget {
   final String ownerId;
   final String status;
   final List<String> amenities;
+  final List<String> houseRules;
 
   const PropertyDetailsScreen({
     super.key,
@@ -41,6 +42,7 @@ class PropertyDetailsScreen extends StatefulWidget {
     this.ownerId = '',
     this.status = 'available',
     this.amenities = const [],
+    this.houseRules = const [],
   });
 
   @override
@@ -227,12 +229,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 const SizedBox(height: 32),
 
                 // HOUSE RULES
-                _buildSectionTitle('नियमहरू (House Rules)'),
-                const SizedBox(height: 16),
-                _buildRuleRow(Icons.pets_outlined, 'Pets Allowed', 'No'),
-                _buildRuleRow(
-                    Icons.smoke_free_outlined, 'Smoking', 'Outside only'),
-                _buildRuleRow(Icons.people_outline, 'Max Guests', '4 People'),
+                if (widget.houseRules.isNotEmpty) ...[
+                  _buildSectionTitle('नियमहरू (House Rules)'),
+                  const SizedBox(height: 16),
+                  ...widget.houseRules.map((rule) {
+                    final detail = _ruleDetails(rule);
+                    return _buildRuleRow(detail['icon'] as IconData, detail['label'] as String);
+                  }),
+                  const SizedBox(height: 32),
+                ],
 
                 const SizedBox(height: 140),
               ]),
@@ -756,7 +761,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildRuleRow(IconData icon, String title, String value) {
+  Widget _buildRuleRow(IconData icon, String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -765,13 +770,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           const SizedBox(width: 10),
           Text(title,
               style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700])),
-          const Spacer(),
-          Text(value,
-              style: GoogleFonts.inter(
-                  fontSize: 13, fontWeight: FontWeight.bold)),
         ],
       ),
     );
+  }
+
+  Map<String, dynamic> _ruleDetails(String key) {
+    switch (key) {
+      case 'family_only':
+        return {'icon': Icons.family_restroom, 'label': 'परिवार मात्र (Family Only)'};
+      case 'boys_allowed':
+        return {'icon': Icons.man, 'label': 'केटा मात्र (Boys Allowed)'};
+      case 'girls_allowed':
+        return {'icon': Icons.woman, 'label': 'केटी मात्र (Girls Allowed)'};
+      case 'pets_allowed':
+        return {'icon': Icons.pets, 'label': 'जनावर राख्न पाईने (Pets Allowed)'};
+      case 'smoking_allowed':
+        return {'icon': Icons.smoke_free, 'label': 'चुरोट पिउन पाईने (Smoking Allowed)'};
+      case 'alcohol_allowed':
+        return {'icon': Icons.local_bar, 'label': 'मदिरा पिउन पाईने (Alcohol Allowed)'};
+      default:
+        return {'icon': Icons.info_outline, 'label': key};
+    }
   }
 
   Widget _buildSectionTitle(String title) {

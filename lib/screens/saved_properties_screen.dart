@@ -83,8 +83,9 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                             bathrooms: p['bathrooms'] ?? 0,
                             area: p['sq_ft'] ?? '0',
                             ownerId: p['owner_id'] ?? '',
-                            status: p['status'] ?? 'available',
                             images: images.map((i) => i['image_url'].toString()).toList(),
+                            amenities: List<String>.from(p['amenities'] ?? []),
+                            houseRules: List<String>.from(p['house_rules'] ?? []),
                           ),
                         );
                       },

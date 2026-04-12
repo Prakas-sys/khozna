@@ -218,6 +218,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           ownerId: p['owner_id'] ?? '',
                           status: p['status'] ?? 'available',
                           amenities: List<String>.from(p['amenities'] ?? []),
+                          houseRules: List<String>.from(p['house_rules'] ?? []),
                           width: double.infinity,
                         ),
                       );

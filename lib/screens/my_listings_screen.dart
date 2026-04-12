@@ -184,6 +184,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         images: images.map((i) => i['image_url'].toString()).toList(),
         ownerId: item['owner_id'] ?? '',
         amenities: List<String>.from(item['amenities'] ?? []),
+        houseRules: List<String>.from(item['house_rules'] ?? []),
         isOwnerView: true,
         views: item['views'] ?? 0,
         onEdit: () {

@@ -19,6 +19,8 @@ class AddPropertyScreen extends StatefulWidget {
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
   final PageController _pageController = PageController();
+  final ScrollController _step1ScrollController = ScrollController();
+  final FocusNode _titleFocusNode = FocusNode();
   final ImagePicker _picker = ImagePicker();
 
   // Form State
@@ -41,6 +43,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   String? _selectedCategory = 'Room';
   bool _isNegotiable = true;
   final List<String> _selectedAmenities = [];
+  final List<String> _selectedRules = [];
   final List<File> _selectedImages = [];
   bool _isPublishing = false;
   
@@ -72,6 +75,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     _floorController.dispose();
     _sqftController.dispose();
     _pageController.dispose();
+    _step1ScrollController.dispose();
+    _titleFocusNode.dispose();
     super.dispose();
   }
 
@@ -161,6 +166,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         'sq_ft': _sqftController.text,
         'is_negotiable': _isNegotiable,
         'amenities': _selectedAmenities,
+        'house_rules': _selectedRules,
         'images': uploadedUrls, // Save all URLs as array
         'description': _descriptionController.text,
         'latitude': _latitude,
@@ -260,9 +266,22 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     });
   }
 
+  void _toggleRule(String rule) {
+    setState(() {
+      if (_selectedRules.contains(rule)) {
+        _selectedRules.remove(rule);
+      } else {
+        _selectedRules.add(rule);
+      }
+    });
+  }
+
   void _nextStep() {
     bool isValid = false;
     String errorMessage = "";
+    
+    // Hide keyboard automatically when moving to next step
+    FocusScope.of(context).unfocus();
 
     if (_currentStep == 0) {
       if (_titleController.text.trim().isEmpty) {
@@ -289,12 +308,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         isValid = true;
       }
     } else {
-      // Step 3 (Amenities) is optional
+      // Step 3 (Amenities), Step 4 (Rules) are optional
       isValid = true;
     }
 
     if (isValid) {
-      if (_currentStep < 4) {
+      if (_currentStep < 5) { // Now 6 steps
         _pageController.nextPage(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
@@ -332,7 +351,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 20),
               child: Text(
-                'Step ${_currentStep + 1} / 5',
+                'Step ${_currentStep + 1} / 6',
                 style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppTheme.brandColor, fontSize: 15),
               ),
             ),
@@ -347,7 +366,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: LinearProgressIndicator(
-                value: (_currentStep + 1) / 5,
+                value: (_currentStep + 1) / 6,
                 minHeight: 12,
                 backgroundColor: Colors.grey[200],
                 valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.brandColor),
@@ -364,7 +383,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 _buildStep2(), // Location & Landmarks
                 _buildStep3(), // Pricing
                 _buildStep4(), // Amenities Grid
-                _buildStep5(), // Media & Finish
+                _buildStep5(), // House Rules
+                _buildStep6(), // Media & Finish
               ],
             ),
           ),
@@ -377,6 +397,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   // --- STEP 1: CATEGORY ---
   Widget _buildStep1() {
     return _stepLayout(
+      controller: _step1ScrollController,
       title: 'तपाईं के भाडामा दिँदै हुनुहुन्छ?',
       subtitle: 'सुरु गरौं! (Let\'s start)',
       content: [
@@ -386,7 +407,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         _categoryCard('अन्य / Other', Icons.more_horiz, 'Other'),
         const SizedBox(height: 32),
         _buildLabel('विज्ञापनको नाम (Title)', true),
-        _buildTextField('उदा: सानेपामा राम्रो २ कोठा खाली छ', controller: _titleController),
+        _buildTextField('उदा: सानेपामा राम्रो २ कोठा खाली छ', controller: _titleController, focusNode: _titleFocusNode),
         const SizedBox(height: 24),
         Row(
           children: [
@@ -833,8 +854,58 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  // --- STEP 5: MEDIA & PUBLISH ---
+  // --- STEP 5: HOUSE RULES ---
   Widget _buildStep5() {
+    return _stepLayout(
+      title: 'नियमहरू राख्नुहोस्',
+      subtitle: 'House Rules (Optional)',
+      content: [
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.5,
+          children: [
+            _ruleItem(Icons.family_restroom, 'परिवार मात्र', 'family_only'),
+            _ruleItem(Icons.man, 'केटा मात्र', 'boys_allowed'),
+            _ruleItem(Icons.woman, 'केटी मात्र', 'girls_allowed'),
+            _ruleItem(Icons.pets, 'जनावर राख्न पाईने', 'pets_allowed'),
+            _ruleItem(Icons.smoke_free, 'चुरोट पिउन पाईने', 'smoking_allowed'),
+            _ruleItem(Icons.local_bar, 'मदिरा पिउन पाईने', 'alcohol_allowed'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _ruleItem(IconData icon, String label, String value) {
+    bool isSelected = _selectedRules.contains(value);
+    return InkWell(
+      onTap: () => _toggleRule(value),
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.brandColor : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey[300]!, width: 2),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: isSelected ? Colors.white : Colors.grey[600], size: 36),
+            const SizedBox(height: 8),
+            Text(label, textAlign: TextAlign.center, style: GoogleFonts.mukta(fontSize: 14, color: isSelected ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- STEP 6: MEDIA & PUBLISH ---
+  Widget _buildStep6() {
     return _stepLayout(
       title: 'फोटो र भिडियो राख्नुहोस्',
       subtitle: 'Show the real look of your property',
@@ -945,8 +1016,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   // --- REUSABLE COMPONENTS ---
 
-  Widget _stepLayout({required String title, required String subtitle, required List<Widget> content}) {
+  Widget _stepLayout({required String title, required String subtitle, required List<Widget> content, ScrollController? controller}) {
     return SingleChildScrollView(
+      controller: controller,
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -964,7 +1036,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _categoryCard(String label, IconData icon, String value) {
     bool isSelected = _selectedCategory == value;
     return InkWell(
-      onTap: () => setState(() => _selectedCategory = value),
+      onTap: () {
+        setState(() => _selectedCategory = value);
+        // UX: Auto-scroll to Title box and focus it to pop open keyboard
+        if (_step1ScrollController.hasClients) {
+          _step1ScrollController.animateTo(
+            300.0, // Approximate scroll offset to bring Title into view
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+        _titleFocusNode.requestFocus();
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -1068,9 +1151,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildTextField(String hint, {String? prefix, TextEditingController? controller, int maxLines = 1, TextInputType? keyboardType}) {
+  Widget _buildTextField(String hint, {String? prefix, TextEditingController? controller, FocusNode? focusNode, int maxLines = 1, TextInputType? keyboardType}) {
     return TextFormField(
       controller: controller,
+      focusNode: focusNode,
       maxLines: maxLines,
       keyboardType: keyboardType,
       onChanged: (v) => setState(() {}),
@@ -1130,18 +1214,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             Expanded(
               flex: 2, 
               child: ElevatedButton(
-                onPressed: _currentStep == 4 
+                onPressed: _currentStep == 5 
                   ? (_isPublishing ? null : _publishProperty) 
                   : _nextStep, 
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 20), 
-                  backgroundColor: _currentStep == 4 ? Colors.green : AppTheme.brandColor, 
+                  backgroundColor: _currentStep == 5 ? Colors.green : AppTheme.brandColor, 
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ), 
                 child: _isPublishing 
                   ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                  : Text(_currentStep == 4 ? 'प्रकाशित गर्ने (Publish)' : 'अर्को जानुहोस् (Next)', style: GoogleFonts.mukta(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.white)),
+                  : Text(_currentStep == 5 ? 'प्रकाशित गर्ने (Publish)' : 'अर्को जानुहोस् (Next)', style: GoogleFonts.mukta(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.white)),
               ),
             ),
           ],
