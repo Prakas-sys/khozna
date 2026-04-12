@@ -344,7 +344,7 @@ class HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(right: 6),
+                              padding: const EdgeInsets.only(right: 3),
                               child: InkWell(
                                 onTap: () {
                                   showModalBottomSheet(
@@ -366,12 +366,12 @@ class HomeScreenState extends State<HomeScreen> {
                                 },
                                 borderRadius: BorderRadius.circular(30),
                                 child: Container(
-                                  padding: const EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(10),
                                   decoration: const BoxDecoration(
                                     color: AppTheme.brandColor,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(Icons.mic, color: Colors.white, size: 20),
+                                  child: const Icon(Icons.mic, color: Colors.white, size: 22),
                                 ),
                               ),
                             ),
