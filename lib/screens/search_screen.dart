@@ -87,19 +87,26 @@ class _SearchScreenState extends State<SearchScreen> {
                         child: Material(
                           color: Colors.transparent,
                           child: Container(
-                            height: 48,
+                            height: 52,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF7F7F7),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade200, width: 1),
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.grey.shade200, width: 1.2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: Row(
                               children: [
                                 Icon(
                                   CupertinoIcons.search,
-                                  color: Colors.grey[600],
-                                  size: 20,
+                                  color: AppTheme.brandColor,
+                                  size: 22,
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
