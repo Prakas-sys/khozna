@@ -474,31 +474,39 @@ class HomeScreenState extends State<HomeScreen> {
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
-                itemCount: properties.length,
+                itemCount: 4, // Always show 4 items to keep UI full
                 itemBuilder: (context, index) {
-                  final p = properties[index];
-                  final List images = p['property_images'] ?? [];
-                  final String mainImage = images.isNotEmpty ? images[0]['image_url'] : '';
-                  
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: PropertyCard(
-                      id: p['id'].toString(),
-                      imageUrl: mainImage,
-                      title: p['title'] ?? 'Apartment',
-                      location: p['area_name'] ?? 'Kathmandu',
-                      price: (p['price'] ?? 0).toString(),
-                      bedrooms: p['bedrooms'] ?? 0,
-                      bathrooms: p['bathrooms'] ?? 0,
-                      area: (p['sq_ft'] ?? 0).toString(),
-                      floor: p['floor'] ?? 'N/A',
-                      description: p['description'] ?? '',
-                      images: images.map((i) => i['image_url'].toString()).toList(),
-                      status: p['status'] ?? 'available',
-                      ownerId: p['owner_id'] ?? '',
-                      amenities: List<String>.from(p['amenities'] ?? []),
-                    ),
-                  );
+                  if (index < properties.length) {
+                    final p = properties[index];
+                    final List images = p['property_images'] ?? [];
+                    final String mainImage = images.isNotEmpty ? images[0]['image_url'] : '';
+                    
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: PropertyCard(
+                        id: p['id'].toString(),
+                        imageUrl: mainImage,
+                        title: p['title'] ?? 'Apartment',
+                        location: p['area_name'] ?? 'Kathmandu',
+                        price: (p['price'] ?? 0).toString(),
+                        bedrooms: p['bedrooms'] ?? 0,
+                        bathrooms: p['bathrooms'] ?? 0,
+                        area: (p['sq_ft'] ?? 0).toString(),
+                        floor: p['floor'] ?? 'N/A',
+                        description: p['description'] ?? '',
+                        images: images.map((i) => i['image_url'].toString()).toList(),
+                        status: p['status'] ?? 'available',
+                        ownerId: p['owner_id'] ?? '',
+                        amenities: List<String>.from(p['amenities'] ?? []),
+                      ),
+                    );
+                  } else {
+                    // Fill remaining slots with skeletons
+                    return const Padding(
+                      padding: EdgeInsets.only(right: 16),
+                      child: SkeletonCard(),
+                    );
+                  }
                 },
               ),
             );
