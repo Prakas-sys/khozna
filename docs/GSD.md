@@ -16,6 +16,9 @@ This file tracks the technical status.
 - [x] Reels UI Overhaul: Applied 60-30-10 rule and Glassmorphism to the Reels screen.
 - [x] Code Refactor: Moved `PropertyCard` into `lib/widgets/`.
 - [x] Build Repair: Fixed `signInWithFacebook` missing method and `messages_screen.dart` syntax errors.
+- [x] Property Listing: 6-step flow — House Rules (Step 5) with animated grid selector.
+- [x] Bug Fix: "Visit Now" button in PropertyCard now passes amenities, houseRules, ownerId, status to details screen.
+- [x] Code Cleanup: Removed dead methods (_buildCircleAction, _buildEssentialGrid) and unused imports from filter_results_screen.
 
 ## 3. Atomic GSD Steps Complete
 - [x] Initialized GSD Structure.
@@ -30,3 +33,4 @@ This file tracks the technical status.
 - (2025-03-24) **Mission: Premium Polish.** Added Hero animations and Tab selection haptics. Overhauled Reels UI with Glassmorphism.
 - (2026-03-27) **Mission: Build Repair.** Restored `messages_screen.dart` structure and implemented `signInWithFacebook`.
 - (2026-04-02) **Mission: Environment Restoration & Project Organization.** Fixed JDK/Flutter/Android config. Cleaned root directory (Moved logs to `debug_logs/` and scripts to `scripts/`).
+- (2026-04-13) **Mission: Property Listing Polish.** Fixed Visit Now button bug (missing amenities/houseRules/ownerId/status). Removed 70 lines of dead code. All 3 screens (Home, Filter, Saved) verified passing correct data to details screen.

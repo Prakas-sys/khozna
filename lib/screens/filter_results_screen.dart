@@ -2,13 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
-import '../widgets/favourite_button.dart';
-import '../widgets/voice_search_overlay.dart';
-import 'property_details_screen.dart';
-import 'chat_screen.dart';
 import 'search_screen.dart';
 import '../widgets/property_card.dart';
 
@@ -28,7 +23,6 @@ class FilterResultsScreen extends StatefulWidget {
 
 class _FilterResultsScreenState extends State<FilterResultsScreen> {
   late Future<List<Map<String, dynamic>>> _propertiesFuture;
-  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -196,9 +190,18 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                     itemCount: properties.length,
                     itemBuilder: (context, index) {
                       final p = properties[index];
-                      final images = (p['property_images'] as List);
-                      final String mainImage = images.isNotEmpty 
-                          ? images[0]['image_url'] 
+                      final List joinImages = p['property_images'] ?? [];
+                      final List arrayImages = p['images'] ?? [];
+                      List<String> finalImages = [];
+                      
+                      if (joinImages.isNotEmpty) {
+                        finalImages = joinImages.map((i) => i['image_url'].toString()).toList();
+                      } else if (arrayImages.isNotEmpty) {
+                        finalImages = arrayImages.map((i) => i.toString()).toList();
+                      }
+
+                      final String mainImage = finalImages.isNotEmpty 
+                          ? finalImages[0] 
                           : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 
                       return Padding(
@@ -214,7 +217,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           area: p['sq_ft'] ?? '0',
                           floor: p['floor'] ?? 'N/A',
                           description: p['description'] ?? '',
-                          images: images.map((i) => i['image_url'].toString()).toList(),
+                          images: finalImages,
                           ownerId: p['owner_id'] ?? '',
                           status: p['status'] ?? 'available',
                           amenities: List<String>.from(p['amenities'] ?? []),

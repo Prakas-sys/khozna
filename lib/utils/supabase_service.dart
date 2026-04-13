@@ -97,15 +97,15 @@ class SupabaseService {
           .eq('id', propertyId);
 
       // 2. Notify the owner (Only if not already notified for this property status)
-      final existingNote = await _client
+      final existingNoteList = await _client
           .from('notifications')
           .select()
           .eq('user_id', ownerId)
           .eq('type', 'booking')
           .ilike('message', '%$title%')
-          .maybeSingle();
+          .limit(1);
 
-      if (existingNote == null) {
+      if (existingNoteList.isEmpty) {
         await _client.from('notifications').insert({
           'user_id': ownerId,
           'sender_id': user.id,
@@ -230,17 +230,18 @@ class SupabaseService {
       }).eq('id', userId);
 
       // 3. Notify the user (Only if not already notified for this specific status)
-      final existingNote = await _client
+      final existingNoteList = await _client
           .from('notifications')
           .select()
           .eq('user_id', userId)
           .eq('type', 'kyc_update')
           .eq('title', status == 'verified' ? 'KYC Approved! ✅' : 'KYC Rejected ❌')
-          .maybeSingle();
+          .limit(1);
 
-      if (existingNote == null) {
+      if (existingNoteList.isEmpty) {
         await _client.from('notifications').insert({
           'user_id': userId,
+          'sender_id': _client.auth.currentUser?.id, // Assign Admin as Sender to prevent null-join drops
           'title': status == 'verified' ? 'KYC Approved! ✅' : 'KYC Rejected ❌',
           'message': status == 'verified' 
               ? 'Your identity has been verified. You can now post properties.'

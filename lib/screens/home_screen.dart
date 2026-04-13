@@ -482,8 +482,19 @@ class HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (context, index) {
                   if (index < properties.length) {
                     final p = properties[index];
-                    final List images = p['property_images'] ?? [];
-                    final String mainImage = images.isNotEmpty ? images[0]['image_url'] : '';
+                    final List joinImages = p['property_images'] ?? [];
+                    final List arrayImages = p['images'] ?? [];
+                    List<String> finalImages = [];
+                    
+                    if (joinImages.isNotEmpty) {
+                      finalImages = joinImages.map((i) => i['image_url'].toString()).toList();
+                    } else if (arrayImages.isNotEmpty) {
+                      finalImages = arrayImages.map((i) => i.toString()).toList();
+                    }
+
+                    final String mainImage = finalImages.isNotEmpty 
+                        ? finalImages[0] 
+                        : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
                     
                     return Padding(
                       padding: const EdgeInsets.only(right: 16),
@@ -498,7 +509,7 @@ class HomeScreenState extends State<HomeScreen> {
                         area: (p['sq_ft'] ?? 0).toString(),
                         floor: p['floor'] ?? 'N/A',
                         description: p['description'] ?? '',
-                        images: images.map((i) => i['image_url'].toString()).toList(),
+                        images: finalImages,
                         status: p['status'] ?? 'available',
                         ownerId: p['owner_id'] ?? '',
                         amenities: List<String>.from(p['amenities'] ?? []),

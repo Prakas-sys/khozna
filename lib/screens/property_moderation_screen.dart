@@ -52,8 +52,11 @@ class _PropertyModerationScreenState extends State<PropertyModerationScreen> {
             separatorBuilder: (context, index) => const Divider(height: 32),
             itemBuilder: (context, index) {
               final p = properties[index];
-              final images = p['property_images'] as List? ?? [];
-              final mainImage = images.isNotEmpty ? images[0]['image_url'] : 'https://via.placeholder.com/150';
+              final List joinImages = p['property_images'] as List? ?? [];
+              final List arrayImages = p['images'] as List? ?? [];
+              final String mainImage = joinImages.isNotEmpty 
+                  ? joinImages[0]['image_url'] 
+                  : (arrayImages.isNotEmpty ? arrayImages[0].toString() : 'https://via.placeholder.com/150');
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

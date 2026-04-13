@@ -66,24 +66,33 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                         final p = savedItem['properties'];
                         if (p == null) return const SizedBox.shrink();
 
-                        final images = (p['property_images'] as List? ?? []);
-                        final String mainImage = images.isNotEmpty
-                            ? images[0]['image_url']
+                        final List joinImages = p['property_images'] ?? [];
+                        final List arrayImages = p['images'] ?? [];
+                        List<String> finalImages = [];
+                        
+                        if (joinImages.isNotEmpty) {
+                          finalImages = joinImages.map((i) => i['image_url'].toString()).toList();
+                        } else if (arrayImages.isNotEmpty) {
+                          finalImages = arrayImages.map((i) => i.toString()).toList();
+                        }
+
+                        final String mainImage = finalImages.isNotEmpty
+                            ? finalImages[0]
                             : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 24),
                           child: PropertyCard(
-                            id: p['id'],
+                            id: p['id'].toString(), // Ensure string
                             imageUrl: mainImage,
                             title: p['title'] ?? 'Property',
                             location: p['area_name'] ?? 'Location',
-                            price: 'रू ${p['price']}',
+                            price: p['price'].toString(),
                             bedrooms: p['bedrooms'] ?? 0,
                             bathrooms: p['bathrooms'] ?? 0,
-                            area: p['sq_ft'] ?? '0',
+                            area: (p['sq_ft'] ?? 0).toString(),
                             ownerId: p['owner_id'] ?? '',
-                            images: images.map((i) => i['image_url'].toString()).toList(),
+                            images: finalImages,
                             amenities: List<String>.from(p['amenities'] ?? []),
                             houseRules: List<String>.from(p['house_rules'] ?? []),
                           ),

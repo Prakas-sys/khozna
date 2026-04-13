@@ -349,18 +349,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildCircleAction(IconData icon, VoidCallback onTap) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-      child: CircleAvatar(
-        backgroundColor: Colors.white,
-        child: IconButton(
-          icon: Icon(icon, color: Colors.black, size: 18),
-          onPressed: onTap,
-        ),
-      ),
-    );
-  }
 
   Widget _buildHeader(String title, String location) {
     return Column(
@@ -609,59 +597,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildEssentialGrid() {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      childAspectRatio: 2.8,
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
-      children: [
-        _buildEssentialItem(
-            Icons.water_drop_outlined, 'पानी (Water)', '24/7 Supply'),
-        _buildEssentialItem(
-            Icons.bolt_outlined, 'बिजुली (Light)', 'Sub-meter'),
-        _buildEssentialItem(
-            Icons.directions_car_outlined, 'पार्किङ (Parking)', 'Available'),
-        _buildEssentialItem(Icons.wifi, 'इन्टरनेट (WiFi)', 'Available'),
-      ],
-    );
-  }
-
-  Widget _buildEssentialItem(IconData icon, String title, String value) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[100]!),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: AppTheme.brandColor, size: 18),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(title,
-                    style:
-                        GoogleFonts.inter(fontSize: 9, color: Colors.grey[600])),
-                Text(
-                  value,
-                  style: GoogleFonts.inter(
-                      fontSize: 11, fontWeight: FontWeight.bold),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildNearbyGrid() {
     return Column(

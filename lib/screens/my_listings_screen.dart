@@ -165,8 +165,17 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   }
 
   Widget _buildListingCard(Map<String, dynamic> item) {
-    final images = item['property_images'] as List;
-    final String mainImage = images.isNotEmpty ? images[0]['image_url'] : '';
+    final List joinImages = item['property_images'] as List? ?? [];
+    final List arrayImages = item['images'] as List? ?? [];
+    List<String> finalImages = [];
+    
+    if (joinImages.isNotEmpty) {
+      finalImages = joinImages.map((i) => i['image_url'].toString()).toList();
+    } else if (arrayImages.isNotEmpty) {
+      finalImages = arrayImages.map((i) => i.toString()).toList();
+    }
+
+    final String mainImage = finalImages.isNotEmpty ? finalImages[0] : '';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -181,7 +190,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         area: (item['sq_ft'] ?? 0).toString(),
         floor: item['floor'] ?? 'N/A',
         description: item['description'] ?? '',
-        images: images.map((i) => i['image_url'].toString()).toList(),
+        images: finalImages,
         ownerId: item['owner_id'] ?? '',
         amenities: List<String>.from(item['amenities'] ?? []),
         houseRules: List<String>.from(item['house_rules'] ?? []),

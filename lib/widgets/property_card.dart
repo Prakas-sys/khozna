@@ -113,7 +113,9 @@ class PropertyCard extends StatelessWidget {
                     child: Hero(
                       tag: id,
                       child: Image.network(
-                      imageUrl,
+                      imageUrl.isNotEmpty 
+                        ? imageUrl 
+                        : (images.isNotEmpty ? images[0] : ''),
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey[100],
@@ -260,6 +262,10 @@ class PropertyCard extends StatelessWidget {
                                     area: area,
                                     floor: floor,
                                     description: description,
+                                    ownerId: ownerId,
+                                    status: status,
+                                    amenities: amenities,
+                                    houseRules: houseRules,
                                   ),
                                 ),
                               ),
