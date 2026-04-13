@@ -187,6 +187,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         });
       }
 
+      // 5. Update user profile to mark as owner if not already
+      await client.from('profiles').update({
+        'is_owner': true,
+      }).eq('id', user.id);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

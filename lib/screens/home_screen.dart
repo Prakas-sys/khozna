@@ -22,9 +22,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  // Use a fixed-size list initialized with placeholder futures to prevent RangeError
+  // Reduced to 5 high-impact sections to prevent duplication
   final List<Future<List<Map<String, dynamic>>>> _sectionFutures = 
-      List.generate(10, (index) => Future.value(<Map<String, dynamic>>[]));
+      List.generate(5, (index) => Future.value(<Map<String, dynamic>>[]));
   
   int _bossTaps = 0;
   Position? _currentPosition;
@@ -88,7 +88,7 @@ class HomeScreenState extends State<HomeScreen> {
   void _initializeFutures() {
     final client = Supabase.instance.client;
     
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 5; i++) {
       _sectionFutures[i] = _fetchSectionData(client, i);
     }
   }
@@ -99,13 +99,10 @@ class HomeScreenState extends State<HomeScreen> {
         .select('*, property_images(image_url)');
     
     switch (index) {
-      case 0: // Verified Listings
+      case 0: // Verified Listings (Main Featured)
         query = query.eq('is_verified', true).order('created_at', ascending: false);
         break;
-      case 1: // Recently Added
-        query = query.order('created_at', ascending: false);
-        break;
-      case 2: // Near You
+      case 1: // Near You (Location-based)
         if (_currentPosition != null) {
           query = query
             .gte('latitude', _currentPosition!.latitude - 0.1)
@@ -115,26 +112,14 @@ class HomeScreenState extends State<HomeScreen> {
         }
         query = query.order('created_at', ascending: false);
         break;
-      case 3: // Kathmandu Popular
-        query = query.ilike('area_name', '%Kathmandu%').order('created_at', ascending: false);
-        break;
-      case 4: // Budget Friendly
-        query = query.lt('price', 10000).order('price', ascending: true);
-        break;
-      case 5: // High-End
-        query = query.eq('category', 'Apartment').gt('price', 20000).order('price', ascending: false);
-        break;
-      case 6: // Hot Deals
-        query = query.lt('price', 15000).order('created_at', ascending: false);
-        break;
-      case 7: // Student
+      case 2: // Student Housing (Room < 7k)
         query = query.eq('category', 'Room').lt('price', 7000).order('price', ascending: true);
         break;
-      case 8: // Family Flats
+      case 3: // Family Flats (Flat)
         query = query.eq('category', 'Flat').order('created_at', ascending: false);
         break;
-      case 9: // Premium
-        query = query.or('is_premium.eq.true,price.gt.15000').order('price', descending: true);
+      case 4: // Premium Collections
+        query = query.or('is_premium.eq.true,price.gt.20000').order('price', descending: true);
         break;
       default:
         query = query.order('created_at', ascending: false);
@@ -382,23 +367,61 @@ class HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 38),
-                // Sections with stable index matching
-                ...List.generate(10, (index) {
-                  final titles = [
-                    'Verified Listings', 'Recently Added', 'Near You', 'Popular in Kathmandu',
-                    'Budget Friendly', 'High-End Apartments', 'Hot Deals', 'Student Housing',
-                    'Family Flats', 'Premium Collections'
-                  ];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 40),
-                    child: _buildHorizontalSection(
-                      context, 
-                      titles[index], 
-                      'Explore properties in ${titles[index]}', 
-                      _sectionFutures[index]
-                    ),
-                  );
-                }),
+                
+                // --- SECTION 1: VERIFIED ---
+                _buildHorizontalSection(
+                  context, 
+                  'Verified Listings', 
+                  'Handpicked & Checked Properties', 
+                  _sectionFutures[0]
+                ),
+
+                const SizedBox(height: 12),
+                
+                // --- SYSTEM ADDITION: EXPLORE CATEGORIES ---
+                _buildCategoryGrid(),
+
+                const SizedBox(height: 48),
+
+                // --- SECTION 2: NEAR YOU ---
+                _buildHorizontalSection(
+                  context, 
+                  'Near You', 
+                  'Properties in your current area', 
+                  _sectionFutures[1]
+                ),
+
+                const SizedBox(height: 40),
+
+                // --- SECTION 3: STUDENT HOUSING ---
+                _buildHorizontalSection(
+                  context, 
+                  'Student Specials', 
+                  'Budget rooms near colleges', 
+                  _sectionFutures[2]
+                ),
+
+                const SizedBox(height: 40),
+
+                // --- SECTION 4: FAMILY FLATS ---
+                _buildHorizontalSection(
+                  context, 
+                  'Family Flats', 
+                  'Spacious homes for everyone', 
+                  _sectionFutures[3]
+                ),
+
+                const SizedBox(height: 40),
+
+                // --- SECTION 5: PREMIUM ---
+                _buildHorizontalSection(
+                  context, 
+                  'Premium Collections', 
+                  'Luxurious & Executive stays', 
+                  _sectionFutures[4]
+                ),
+
+                const SizedBox(height: 40),
               ],
             ),
           ),
@@ -529,6 +552,52 @@ class HomeScreenState extends State<HomeScreen> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildCategoryGrid() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Explore Categories',
+          style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildCategoryItem('Rooms', Icons.bed_outlined, Colors.blue, 'Room'),
+            _buildCategoryItem('Flats', Icons.apartment_outlined, Colors.orange, 'Flat'),
+            _buildCategoryItem('Apartments', Icons.domain_outlined, Colors.purple, 'Apartment'),
+            _buildCategoryItem('Other', Icons.more_horiz_outlined, Colors.teal, 'Other'),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCategoryItem(String title, IconData icon, Color color, String categoryValue) {
+    return GestureDetector(
+      onTap: () => _navigate(context, FilterResultsScreen(location: categoryValue, priceRange: 'Category Search')),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: color.withValues(alpha: 0.1)),
+            ),
+            child: Icon(icon, color: color, size: 28),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            title,
+            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
+          ),
+        ],
+      ),
     );
   }
 }

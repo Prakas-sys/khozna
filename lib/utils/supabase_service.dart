@@ -8,6 +8,22 @@ class SupabaseService {
   static RealtimeChannel? _ownerKycChannel;
   static RealtimeChannel? _ownerReportChannel;
 
+  /// Fetch a user's profile by ID
+  static Future<Map<String, dynamic>?> getUserProfile(String userId) async {
+    if (userId.isEmpty) return null;
+    try {
+      final response = await _client
+          .from('profiles')
+          .select()
+          .eq('id', userId)
+          .maybeSingle();
+      return response;
+    } catch (e) {
+      debugPrint('Error fetching profile $userId: $e');
+      return null;
+    }
+  }
+
   /// Sync Supabase User to Profiles table
   static Future<void> syncUserWithSupabase(User user) async {
     try {
@@ -90,10 +106,13 @@ class SupabaseService {
     if (user == null) return;
 
     try {
-      // 1. Update property status
+      // 1. Update property status and capture booking time
       await _client
           .from('properties')
-          .update({'status': 'booked'})
+          .update({
+            'status': 'booked',
+            'booked_at': DateTime.now().toUtc().toIso8601String(),
+          })
           .eq('id', propertyId);
 
       // 2. Notify the owner

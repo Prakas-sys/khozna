@@ -455,6 +455,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         'label': 'भान्सा',
         'sub': 'Separate Kitchen',
       },
+      'attached_bathroom': {
+        'icon': Icons.bathroom_outlined,
+        'label': 'बाथरुम',
+        'sub': 'Attached Bathroom',
+      },
+      'security': {
+        'icon': Icons.security_rounded,
+        'label': 'सुरक्षा',
+        'sub': 'CCTV/Security',
+      },
+      'power_backup': {
+        'icon': Icons.battery_charging_full_rounded,
+        'label': 'बत्ती ब्याकअप',
+        'sub': 'Power Backup',
+      },
     };
 
     List<Widget> items = [];

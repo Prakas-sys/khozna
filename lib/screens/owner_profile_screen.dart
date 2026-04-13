@@ -137,7 +137,19 @@ class OwnerProfileScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChatScreen(
+                            ownerId: ownerId,
+                            name: name,
+                            avatar: avatar,
+                            online: true,
+                          ),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.brandColor,
                       foregroundColor: Colors.white,

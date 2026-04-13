@@ -34,19 +34,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
       'isFavorite': true,
       'totalListings': 5,
     },
-    {
-      'id': '2',
-      'imageUrl': 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'title': 'Modern Apartment in Sanepa',
-      'ownerName': 'Jenny Wilson',
-      'ownerAvatar': 'https://i.pravatar.cc/150?img=47',
-      'ownerId': 'owner_jenny_wilson',
-      'price': '25,000',
-      'location': 'Sanepa, Lalitpur',
-      'likes': '1.8K',
-      'isFavorite': false,
-      'totalListings': 3,
-    },
   ];
 
   @override
@@ -175,7 +162,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Owner Header (outside glass or integrated)
+              // Owner Header
               Padding(
                 padding: const EdgeInsets.only(left: 8, bottom: 12),
                 child: Row(
@@ -214,7 +201,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         ),
                       ],
                     ),
-                    const Spacer(),
                   ],
                 ),
               ),
@@ -266,7 +252,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            // Visit Button (More Premium)
+                            // Visit Button with WALKING UI
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.lightImpact();
@@ -289,43 +275,60 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   ),
                                 );
                               },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.white.withValues(alpha: 0.2),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 3),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.white.withOpacity(0.3),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    TweenAnimationBuilder<double>(
+                                      tween: Tween(begin: 0.0, end: 1.0),
+                                      duration: const Duration(milliseconds: 600),
+                                      curve: Curves.easeInOut,
+                                      builder: (context, value, child) {
+                                        return Transform.translate(
+                                          offset: Offset(value * 2, 0),
+                                          child: Icon(
+                                            Icons.directions_walk_rounded, 
+                                            color: Colors.black, 
+                                            size: 18,
+                                            shadows: [
+                                              Shadow(color: Colors.black.withOpacity(0.1), blurRadius: 2, offset: const Offset(1, 1))
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'VISIT REEL',
+                                      style: GoogleFonts.inter(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 11,
+                                        letterSpacing: 0.5,
                                       ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'VISIT',
-                                        style: GoogleFonts.inter(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 12,
-                                          letterSpacing: 0.8,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black, size: 10),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
                         const Divider(color: Colors.white10, height: 1),
                         const SizedBox(height: 12),
-                        // RE-ALIGNED ACTIONS ROW (Integrated into box)
+                        // ACTIONS ROW
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -339,17 +342,18 @@ class _ReelsScreenState extends State<ReelsScreen> {
                             _buildCompactAction(
                               isSvg: true,
                               svgPath: 'assets/icons/message.svg',
-                              icon: Icons.chat_bubble_rounded, // Fallback
+                              icon: Icons.chat_bubble_rounded,
                               label: 'Direct Chat',
                               isActive: false,
                               activeColor: Colors.white,
                               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(
+                                ownerId: reel['ownerId'] ?? '',
                                 name: reel['ownerName'],
                                 avatar: reel['ownerAvatar'],
                                 online: true,
                               ))),
                             ),
-                             _buildCompactAction(
+                            _buildCompactAction(
                               icon: Icons.send_rounded,
                               label: 'Share',
                               isActive: false,

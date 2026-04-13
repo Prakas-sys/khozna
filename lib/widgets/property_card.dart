@@ -141,35 +141,23 @@ class PropertyCard extends StatelessWidget {
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: isBooked ? Colors.orange.shade800 : const Color(0xFF2ECC71),
+                            color: isBooked ? Colors.redAccent : const Color(0xFF00C853),
                             borderRadius: BorderRadius.circular(30),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withOpacity(0.15),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),
                             ],
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                isBooked ? Icons.lock_clock_rounded : Icons.check_circle_rounded,
+                          child: Text(
+                            isBooked ? 'BOOKED' : 'FOR RENT',
+                            style: GoogleFonts.inter(
                                 color: Colors.white,
-                                size: 12,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                isBooked ? 'Booked' : 'For Rent',
-                                style: GoogleFonts.inter(
-                                  color: Colors.white, 
-                                  fontSize: 10.0, 
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -0.2,
-                                ),
-                              ),
-                            ],
+                                fontSize: 11.0,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5),
                           ),
                         );
                       },
@@ -310,16 +298,24 @@ class PropertyCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const ChatScreen(
-                                    name: 'Jenny Wilson',
-                                    avatar: 'https://i.pravatar.cc/150?img=47',
-                                    online: true,
-                                  ),
-                                ),
-                              ),
+                              onPressed: () async {
+                                // Real Owner Fetch logic
+                                final ownerProfile = await SupabaseService.getUserProfile(ownerId);
+                                if (context.mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ChatScreen(
+                                        ownerId: ownerId,
+                                        name: ownerProfile?['full_name'] ?? 'Khozna User',
+                                        avatar: ownerProfile?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=1',
+                                        online: true,
+                                        phone: ownerProfile?['phone_number'] ?? "+977 9801234567",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
                               icon: SvgPicture.asset(
                                 'assets/icons/message.svg',
                                 width: 17,
@@ -404,8 +400,11 @@ class PropertyCard extends StatelessWidget {
       'hot_water': Icons.hot_tub_outlined,
       'waste_mgmt': Icons.delete_outline,
       'peaceful': Icons.nature_people_outlined,
+      'internet': Icons.wifi_outlined,
+      'kitchen': Icons.kitchen_outlined,
+      'attached_bathroom': Icons.bathroom_outlined,
       // House Rules
-      'family_only': Icons.family_restroom,
+      'family_only': Icons.family_restroom_outlined,
       'boys_allowed': Icons.man,
       'girls_allowed': Icons.woman,
       'pets_allowed': Icons.pets,
