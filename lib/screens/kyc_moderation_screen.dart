@@ -30,7 +30,10 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: Text('KYC Moderation', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text(
+          'KYC Moderation',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
@@ -47,17 +50,25 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           final requests = snapshot.data ?? [];
-          
+
           if (requests.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.verified_user_outlined, size: 80, color: Colors.grey[300]),
+                  Icon(
+                    Icons.verified_user_outlined,
+                    size: 80,
+                    color: Colors.grey[300],
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'All caught up!',
-                    style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.grey[800]),
+                    style: GoogleFonts.inter(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[800],
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -116,24 +127,37 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                     children: [
                       Text(
                         request['full_name'] ?? 'Unknown User',
-                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                       Text(
                         'ID: ${request['citizenship_number'] ?? 'N/A'}',
-                        style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 12),
+                        style: GoogleFonts.inter(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.orange.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     'PENDING',
-                    style: GoogleFonts.inter(color: Colors.orange, fontSize: 10, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.inter(
+                      color: Colors.orange,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 4),
@@ -145,16 +169,22 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
               ],
             ),
           ),
-          
+
           const Divider(height: 1),
-          
+
           // Documents Preview
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Submitted Documents:', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13)),
+                Text(
+                  'Submitted Documents:',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -168,7 +198,7 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
               ],
             ),
           ),
-          
+
           // Actions
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -181,9 +211,14 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                       foregroundColor: Colors.red,
                       side: const BorderSide(color: Colors.red),
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    child: const Text('Reject', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'Reject',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -193,10 +228,18 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       elevation: 0,
                     ),
-                    child: const Text('Approve', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                    child: const Text(
+                      'Approve',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -224,15 +267,22 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: Colors.grey.shade300),
-                image: (url != null && url.isNotEmpty) ? DecorationImage(
-                  image: NetworkImage(url),
-                  fit: BoxFit.cover,
-                ) : null,
+                image: (url != null && url.isNotEmpty)
+                    ? DecorationImage(
+                        image: NetworkImage(url),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
-              child: (url == null || url.isEmpty) ? const Icon(Icons.image_not_supported, color: Colors.grey) : null,
+              child: (url == null || url.isEmpty)
+                  ? const Icon(Icons.image_not_supported, color: Colors.grey)
+                  : null,
             ),
             const SizedBox(height: 6),
-            Text(label, style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[700])),
+            Text(
+              label,
+              style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[700]),
+            ),
           ],
         ),
       ),
@@ -250,7 +300,13 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
           appBar: AppBar(
             backgroundColor: Colors.black,
             iconTheme: const IconThemeData(color: Colors.white),
-            title: Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            title: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           body: Center(
             child: InteractiveViewer(
@@ -265,7 +321,11 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                 height: double.infinity,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  return const Center(child: CircularProgressIndicator(color: AppTheme.brandColor));
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.brandColor,
+                    ),
+                  );
                 },
               ),
             ),
@@ -280,9 +340,14 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Permanently?'),
-        content: const Text('This will erase this KYC record completely from the database. This action cannot be undone.'),
+        content: const Text(
+          'This will erase this KYC record completely from the database. This action cannot be undone.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -296,31 +361,51 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
       try {
         await SupabaseService.deleteKycPermanently(request['id']);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC Record Deleted.'), backgroundColor: Colors.red));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('KYC Record Deleted.'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
         _refresh();
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
         }
       }
     }
   }
 
-  Future<void> _handleAction(Map<String, dynamic> request, {required bool isApprove}) async {
+  Future<void> _handleAction(
+    Map<String, dynamic> request, {
+    required bool isApprove,
+  }) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(isApprove ? 'Approve KYC?' : 'Reject KYC?'),
-        content: Text(isApprove 
-            ? 'This will verify the user and allow them to list properties.' 
-            : 'This will reject their documents. They will need to submit again.'),
+        content: Text(
+          isApprove
+              ? 'This will verify the user and allow them to list properties.'
+              : 'This will reject their documents. They will need to submit again.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: isApprove ? Colors.green : Colors.red),
-            child: Text(isApprove ? 'Yes, Approve' : 'Yes, Reject', style: const TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isApprove ? Colors.green : Colors.red,
+            ),
+            child: Text(
+              isApprove ? 'Yes, Approve' : 'Yes, Reject',
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -329,8 +414,12 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
     if (confirmed == true) {
       try {
         if (isApprove) {
-          await SupabaseService.updateKycStatus(request['id'], request['user_id'], 'verified');
-          
+          await SupabaseService.updateKycStatus(
+            request['id'],
+            request['user_id'],
+            'verified',
+          );
+
           // Show realistic Check Tick UI icon!
           if (mounted) {
             showDialog(
@@ -349,11 +438,18 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.check_circle, color: Colors.green, size: 80),
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 80,
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           'KYC Approved!',
-                          style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.inter(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -361,7 +457,7 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                 ),
               ),
             );
-            
+
             // Auto dismiss the success check tick dialog after 1.5 seconds
             Future.delayed(const Duration(milliseconds: 1500), () {
               if (mounted) Navigator.pop(context);
@@ -369,14 +465,27 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
             });
           }
         } else {
-          await SupabaseService.updateKycStatus(request['id'], request['user_id'], 'rejected', reason: 'Documents invalid.');
+          await SupabaseService.updateKycStatus(
+            request['id'],
+            request['user_id'],
+            'rejected',
+            reason: 'Documents invalid.',
+          );
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC Rejected.'), backgroundColor: Colors.red));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('KYC Rejected.'),
+                backgroundColor: Colors.red,
+              ),
+            );
             _refresh();
           }
         }
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        if (mounted)
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }

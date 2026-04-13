@@ -24,7 +24,7 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _isKycVerified = false;
   bool _isCheckingKyc = true;
-  
+
   // Key to communicate with HomeScreen for refreshing data
   final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
 
@@ -120,20 +120,37 @@ class _MainScreenState extends State<MainScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildNavItem(0, 'Khozna', 'assets/icons/explore.svg', activeColor, inactiveColor, 0),
-                    _buildNavItem(1, 'Reels', 'assets/icons/reels.svg', activeColor, inactiveColor, 0),
+                    _buildNavItem(
+                      0,
+                      'Khozna',
+                      'assets/icons/explore.svg',
+                      activeColor,
+                      inactiveColor,
+                      0,
+                    ),
+                    _buildNavItem(
+                      1,
+                      'Reels',
+                      'assets/icons/reels.svg',
+                      activeColor,
+                      inactiveColor,
+                      0,
+                    ),
                     // Central add button
                     Expanded(
                       child: InkWell(
                         onTap: () async {
-                          final user = Supabase.instance.client.auth.currentUser;
+                          final user =
+                              Supabase.instance.client.auth.currentUser;
                           if (user == null) return;
 
                           // Instant reaction if cached
                           if (_isKycVerified) {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const AddPropertyScreen()),
+                              MaterialPageRoute(
+                                builder: (context) => const AddPropertyScreen(),
+                              ),
                             );
                             return;
                           }
@@ -143,7 +160,9 @@ class _MainScreenState extends State<MainScreen> {
                             // Wait for the initial check to finish if it's currently running
                             int retries = 0;
                             while (_isCheckingKyc && retries < 10) {
-                              await Future.delayed(const Duration(milliseconds: 200));
+                              await Future.delayed(
+                                const Duration(milliseconds: 200),
+                              );
                               retries++;
                             }
                           }
@@ -156,7 +175,8 @@ class _MainScreenState extends State<MainScreen> {
                                   .select('kyc_status')
                                   .eq('id', user.id)
                                   .maybeSingle();
-                              if (data != null && data['kyc_status'] == 'verified') {
+                              if (data != null &&
+                                  data['kyc_status'] == 'verified') {
                                 setState(() => _isKycVerified = true);
                               }
                             } catch (e) {
@@ -165,22 +185,28 @@ class _MainScreenState extends State<MainScreen> {
                           }
 
                           if (!mounted) return;
-                          
+
                           if (!_isKycVerified) {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const KycScreen()),
+                              MaterialPageRoute(
+                                builder: (context) => const KycScreen(),
+                              ),
                             );
                           } else {
                             final result = await Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const AddPropertyScreen()),
+                              MaterialPageRoute(
+                                builder: (context) => const AddPropertyScreen(),
+                              ),
                             );
-                            
+
                             // If a property was successfully published, refresh the home screen
                             if (result == true) {
                               _homeKey.currentState?.refreshData();
-                              setState(() => _currentIndex = 0); // Ensure we are on Home tab
+                              setState(
+                                () => _currentIndex = 0,
+                              ); // Ensure we are on Home tab
                             }
                           }
                         },
@@ -194,18 +220,29 @@ class _MainScreenState extends State<MainScreen> {
                             Transform.translate(
                               offset: const Offset(0, -4),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppTheme.brandColor,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                child: _isCheckingKyc 
-                                  ? const SizedBox(
-                                      width: 20, 
-                                      height: 20, 
-                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                                    )
-                                  : const Icon(Icons.add, color: Colors.white, size: 22, weight: 700),
+                                child: _isCheckingKyc
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 22,
+                                        weight: 700,
+                                      ),
                               ),
                             ),
                             const Spacer(),
@@ -213,8 +250,22 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                     ),
-                    _buildNavItem(2, 'Message', 'assets/icons/message.svg', activeColor, inactiveColor, badgeCount),
-                    _buildNavItem(3, 'Profile', 'assets/icons/profile.svg', activeColor, inactiveColor, 0),
+                    _buildNavItem(
+                      2,
+                      'Message',
+                      'assets/icons/message.svg',
+                      activeColor,
+                      inactiveColor,
+                      badgeCount,
+                    ),
+                    _buildNavItem(
+                      3,
+                      'Profile',
+                      'assets/icons/profile.svg',
+                      activeColor,
+                      inactiveColor,
+                      0,
+                    ),
                   ],
                 ),
               ),
@@ -251,7 +302,9 @@ class _MainScreenState extends State<MainScreen> {
               width: isSelected ? 48 : 0,
               decoration: BoxDecoration(
                 color: isSelected ? AppTheme.brandColor : Colors.transparent,
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(3)),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(3),
+                ),
               ),
             ),
             const Spacer(),
@@ -272,10 +325,54 @@ class _MainScreenState extends State<MainScreen> {
                       children: [
                         if (isSelected) ...[
                           // Pseudo-stroke to make the icon bolder when active
-                          Transform.translate(offset: const Offset(0.5, 0), child: SvgPicture.asset(iconPath, width: 24, height: 24, colorFilter: ColorFilter.mode(activeColor, BlendMode.srcIn))),
-                          Transform.translate(offset: const Offset(-0.5, 0), child: SvgPicture.asset(iconPath, width: 24, height: 24, colorFilter: ColorFilter.mode(activeColor, BlendMode.srcIn))),
-                          Transform.translate(offset: const Offset(0, 0.5), child: SvgPicture.asset(iconPath, width: 24, height: 24, colorFilter: ColorFilter.mode(activeColor, BlendMode.srcIn))),
-                          Transform.translate(offset: const Offset(0, -0.5), child: SvgPicture.asset(iconPath, width: 24, height: 24, colorFilter: ColorFilter.mode(activeColor, BlendMode.srcIn))),
+                          Transform.translate(
+                            offset: const Offset(0.5, 0),
+                            child: SvgPicture.asset(
+                              iconPath,
+                              width: 24,
+                              height: 24,
+                              colorFilter: ColorFilter.mode(
+                                activeColor,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                          Transform.translate(
+                            offset: const Offset(-0.5, 0),
+                            child: SvgPicture.asset(
+                              iconPath,
+                              width: 24,
+                              height: 24,
+                              colorFilter: ColorFilter.mode(
+                                activeColor,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                          Transform.translate(
+                            offset: const Offset(0, 0.5),
+                            child: SvgPicture.asset(
+                              iconPath,
+                              width: 24,
+                              height: 24,
+                              colorFilter: ColorFilter.mode(
+                                activeColor,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                          Transform.translate(
+                            offset: const Offset(0, -0.5),
+                            child: SvgPicture.asset(
+                              iconPath,
+                              width: 24,
+                              height: 24,
+                              colorFilter: ColorFilter.mode(
+                                activeColor,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
                         ],
                         SvgPicture.asset(
                           iconPath,
@@ -295,12 +392,21 @@ class _MainScreenState extends State<MainScreen> {
                       top: -4,
                       right: -2,
                       child: Container(
-                        constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 1,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFF0000), // Pure vibrant red
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.white, width: 1.5), // Pure white border for contrast
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 1.5,
+                          ), // Pure white border for contrast
                         ),
                         child: Center(
                           child: Text(

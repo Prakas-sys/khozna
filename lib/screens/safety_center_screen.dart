@@ -14,12 +14,20 @@ class SafetyCenterScreen extends StatelessWidget {
       appBar: AppBar(
         title: RichText(
           text: TextSpan(
-            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+              color: Colors.black,
+            ),
             children: [
               const TextSpan(text: 'सुरक्षा केन्द्र '),
               TextSpan(
                 text: '(Safety Center)',
-                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.grey[500]),
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[500],
+                ),
               ),
             ],
           ),
@@ -46,17 +54,29 @@ class SafetyCenterScreen extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const Icon(Icons.gpp_maybe_outlined, color: Colors.red, size: 64),
+                  const Icon(
+                    Icons.gpp_maybe_outlined,
+                    color: Colors.red,
+                    size: 64,
+                  ),
                   const SizedBox(height: 16),
                   RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
-                      style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red[800]),
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red[800],
+                      ),
                       children: [
                         const TextSpan(text: 'ठगीबाट बच्नुहोस्\n'),
                         TextSpan(
                           text: '(Stay Safe from Scams)',
-                          style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.red[600]),
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.red[600],
+                          ),
                         ),
                       ],
                     ),
@@ -92,7 +112,11 @@ class SafetyCenterScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'यदि तपाईंलाई कुनै पनि प्रयोगकर्ता वा प्रोपर्टी शंकास्पद लाग्यो भने, प्रोफाइलमा गएर "Report" बटन थिच्नुहोस्। हाम्रो टिमले तुरुन्त समीक्षा गर्नेछ।',
-              style: GoogleFonts.inter(fontSize: 14, color: airbnbGrey, height: 1.6),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: airbnbGrey,
+                height: 1.6,
+              ),
             ),
             const SizedBox(height: 40),
 
@@ -103,9 +127,17 @@ class SafetyCenterScreen extends StatelessWidget {
                 onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppTheme.brandColor),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: Text('बुझेँ (I Understand)', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
+                child: Text(
+                  'बुझेँ (I Understand)',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.brandColor,
+                  ),
+                ),
               ),
             ),
           ],
@@ -117,16 +149,32 @@ class SafetyCenterScreen extends StatelessWidget {
   Widget _buildSectionTitle(String english, String nepali) {
     return RichText(
       text: TextSpan(
-        style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+        style: GoogleFonts.inter(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
         children: [
           TextSpan(text: '$nepali '),
-          TextSpan(text: '($english)', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w500)),
+          TextSpan(
+            text: '($english)',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: Colors.grey[500],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSafetyTip(IconData icon, String nepaliTitle, String nepaliDesc, String englishDesc) {
+  Widget _buildSafetyTip(
+    IconData icon,
+    String nepaliTitle,
+    String nepaliDesc,
+    String englishDesc,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
       child: Row(
@@ -134,7 +182,10 @@ class SafetyCenterScreen extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.05), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: Colors.red.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, color: Colors.red, size: 24),
           ),
           const SizedBox(width: 16),
@@ -142,11 +193,30 @@ class SafetyCenterScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(nepaliTitle, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold)),
+                Text(
+                  nepaliTitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(nepaliDesc, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[800], height: 1.4)),
+                Text(
+                  nepaliDesc,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: Colors.grey[800],
+                    height: 1.4,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(englishDesc, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500])),
+                Text(
+                  englishDesc,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
               ],
             ),
           ),

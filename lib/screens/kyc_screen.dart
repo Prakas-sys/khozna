@@ -24,7 +24,7 @@ class _KycScreenState extends State<KycScreen> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _citizenshipController = TextEditingController();
-  
+
   int _currentStep = 1; // 1: Basic Info, 2: Documents
   bool _isSubmitting = false;
   bool _isLocating = false;
@@ -54,12 +54,14 @@ class _KycScreenState extends State<KycScreen> {
       final metadata = user.userMetadata ?? {};
       if (mounted) {
         setState(() {
-          _nameController.text = metadata['full_name'] ?? metadata['name'] ?? '';
+          _nameController.text =
+              metadata['full_name'] ?? metadata['name'] ?? '';
           _emailController.text = user.email ?? '';
           _phoneController.text = user.phone ?? '';
-          
+
           if (user.email != null) _isEmailVerified = true;
-          if (user.phone != null && user.phone!.isNotEmpty) _isPhoneVerified = true;
+          if (user.phone != null && user.phone!.isNotEmpty)
+            _isPhoneVerified = true;
         });
       }
 
@@ -69,10 +71,11 @@ class _KycScreenState extends State<KycScreen> {
             .select()
             .eq('id', user.id)
             .single();
-        
+
         if (mounted) {
           setState(() {
-            if (profile['full_name'] != null) _nameController.text = profile['full_name'];
+            if (profile['full_name'] != null)
+              _nameController.text = profile['full_name'];
             if (profile['email'] != null) {
               _emailController.text = profile['email'];
               _isEmailVerified = true;
@@ -99,8 +102,7 @@ class _KycScreenState extends State<KycScreen> {
     super.dispose();
   }
 
-// Removed local redundant secure screen method
-
+  // Removed local redundant secure screen method
 
   Future<void> _detectLocation() async {
     setState(() => _isLocating = true);
@@ -109,7 +111,8 @@ class _KycScreenState extends State<KycScreen> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) {
+      if (permission == LocationPermission.deniedForever ||
+          permission == LocationPermission.denied) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location permission denied.')),
@@ -136,7 +139,9 @@ class _KycScreenState extends State<KycScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLocating = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -167,12 +172,19 @@ class _KycScreenState extends State<KycScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.check_circle_outline, color: Colors.green, size: 80),
+            const Icon(
+              Icons.check_circle_outline,
+              color: Colors.green,
+              size: 80,
+            ),
             const SizedBox(height: 24),
             Text(
               'प्रमाणिकरणको लागि प्राप्त भयो!',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.bold),
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -191,9 +203,17 @@ class _KycScreenState extends State<KycScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.brandColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: const Text('ठीक छ (Okay)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'ठीक छ (Okay)',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
@@ -233,17 +253,25 @@ class _KycScreenState extends State<KycScreen> {
       debugPrint('--- KYC: Starting Parallel Uploads ---');
       // 1. Upload Images to Cloudinary in Parallel (Speed Boost! 🚀)
       final results = await Future.wait([
-        CloudinaryService.uploadImage(_frontImage!).timeout(const Duration(minutes: 2)),
-        CloudinaryService.uploadImage(_backImage!).timeout(const Duration(minutes: 2)),
-        CloudinaryService.uploadImage(_selfieImage!).timeout(const Duration(minutes: 2)),
+        CloudinaryService.uploadImage(
+          _frontImage!,
+        ).timeout(const Duration(minutes: 2)),
+        CloudinaryService.uploadImage(
+          _backImage!,
+        ).timeout(const Duration(minutes: 2)),
+        CloudinaryService.uploadImage(
+          _selfieImage!,
+        ).timeout(const Duration(minutes: 2)),
       ]);
-      
+
       final frontUrl = results[0];
       final backUrl = results[1];
       final selfieUrl = results[2];
 
       if (frontUrl == null || backUrl == null || selfieUrl == null) {
-        debugPrint('KYC: Image upload returned null. Check network or Cloudinary.');
+        debugPrint(
+          'KYC: Image upload returned null. Check network or Cloudinary.',
+        );
         throw Exception('Image upload failed (नेटवर्क वा क्लाउडिनरी समस्या)');
       }
 
@@ -266,11 +294,14 @@ class _KycScreenState extends State<KycScreen> {
       });
 
       // 3. Update Profile Status
-      await supabase.Supabase.instance.client.from('profiles').update({
-        'kyc_status': 'pending',
-        'email_verified': _isEmailVerified,
-        'phone_verified': _isPhoneVerified,
-      }).eq('id', user.id);
+      await supabase.Supabase.instance.client
+          .from('profiles')
+          .update({
+            'kyc_status': 'pending',
+            'email_verified': _isEmailVerified,
+            'phone_verified': _isPhoneVerified,
+          })
+          .eq('id', user.id);
 
       debugPrint('--- KYC: Submission Successful ---');
       if (mounted) {
@@ -301,10 +332,15 @@ class _KycScreenState extends State<KycScreen> {
           _buildPremiumHeader(),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20.0,
+                vertical: 20,
+              ),
               child: Form(
                 key: _formKey,
-                child: _currentStep == 1 ? _buildBasicInfoStep() : _buildDocumentStep(),
+                child: _currentStep == 1
+                    ? _buildBasicInfoStep()
+                    : _buildDocumentStep(),
               ),
             ),
           ),
@@ -319,7 +355,12 @@ class _KycScreenState extends State<KycScreen> {
       children: [
         _buildSectionHeader('Basic Information (व्यक्तिगत विवरण)', false),
         const SizedBox(height: 20),
-        _buildTextField(_nameController, 'Full Name (पूरा नाम)', Icons.person_outline, (v) => v!.isEmpty ? 'आवश्यक (Required)' : null),
+        _buildTextField(
+          _nameController,
+          'Full Name (पूरा नाम)',
+          Icons.person_outline,
+          (v) => v!.isEmpty ? 'आवश्यक (Required)' : null,
+        ),
         const SizedBox(height: 24),
         _buildTextField(
           _emailController,
@@ -327,7 +368,7 @@ class _KycScreenState extends State<KycScreen> {
           Icons.email_outlined,
           (v) => v!.isEmpty ? 'Required' : null,
           isVerified: _isEmailVerified,
-          providerLogo: _authProvider == 'google' 
+          providerLogo: _authProvider == 'google'
               ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1200px-Google_%22G%22_logo.svg.png'
               : null,
         ),
@@ -354,9 +395,7 @@ class _KycScreenState extends State<KycScreen> {
           'Citizenship Number (नागरिकता नम्बर)',
           Icons.badge_outlined,
           (v) => v!.isEmpty ? 'Required' : null,
-          inputFormatters: [
-            CitizenshipFormatter(),
-          ],
+          inputFormatters: [CitizenshipFormatter()],
         ),
         const SizedBox(height: 40),
         _buildStepButton('Next Step (अर्को चरण)', _nextStep),
@@ -365,12 +404,12 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   Widget _buildTextField(
-    TextEditingController controller, 
-    String label, 
-    IconData icon, 
+    TextEditingController controller,
+    String label,
+    IconData icon,
     String? Function(String?)? validator, {
-    TextInputType? keyboardType, 
-    List<TextInputFormatter>? inputFormatters, 
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
     bool isVerified = false,
     String? providerLogo,
   }) {
@@ -389,14 +428,25 @@ class _KycScreenState extends State<KycScreen> {
       ),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[700], fontSize: 13, fontWeight: FontWeight.w600),
-        floatingLabelStyle: GoogleFonts.plusJakartaSans(color: AppTheme.brandColor, fontWeight: FontWeight.bold),
-        prefixIcon: providerLogo != null 
-          ? Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Image.network(providerLogo, width: 20, height: 20),
-            )
-          : Icon(icon, color: AppTheme.brandColor.withValues(alpha: 0.8), size: 22),
+        labelStyle: GoogleFonts.plusJakartaSans(
+          color: Colors.grey[700],
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+        floatingLabelStyle: GoogleFonts.plusJakartaSans(
+          color: AppTheme.brandColor,
+          fontWeight: FontWeight.bold,
+        ),
+        prefixIcon: providerLogo != null
+            ? Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Image.network(providerLogo, width: 20, height: 20),
+              )
+            : Icon(
+                icon,
+                color: AppTheme.brandColor.withValues(alpha: 0.8),
+                size: 22,
+              ),
         suffixIcon: isVerified
             ? Container(
                 padding: const EdgeInsets.only(right: 16.0),
@@ -413,35 +463,48 @@ class _KycScreenState extends State<KycScreen> {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    const Icon(Icons.verified_user_rounded, color: Color(0xFF00B4F5), size: 16),
+                    const Icon(
+                      Icons.verified_user_rounded,
+                      color: Color(0xFF00B4F5),
+                      size: 16,
+                    ),
                   ],
                 ),
               )
             : null,
         filled: true,
-        fillColor: isVerified ? const Color(0xFFF1F5F9) : (controller.text.isNotEmpty ? Colors.white : const Color(0xFFF8FAFC)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        fillColor: isVerified
+            ? const Color(0xFFF1F5F9)
+            : (controller.text.isNotEmpty
+                  ? Colors.white
+                  : const Color(0xFFF8FAFC)),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 18,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16), 
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: Colors.grey.shade200),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16), 
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: controller.text.isNotEmpty ? AppTheme.brandColor.withValues(alpha: 0.4) : Colors.grey.shade200,
+            color: controller.text.isNotEmpty
+                ? AppTheme.brandColor.withValues(alpha: 0.4)
+                : Colors.grey.shade200,
             width: 1,
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16), 
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.8),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16), 
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Colors.redAccent, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16), 
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Colors.red, width: 1.8),
         ),
       ),
@@ -456,15 +519,34 @@ class _KycScreenState extends State<KycScreen> {
         const SizedBox(height: 32),
         _buildSectionHeader('Citizenship Front (नागरिकताको अगाडि)', false),
         const SizedBox(height: 12),
-        _buildPhotoUploadBox('front', 'Upload Front (अगाडिको फोटो)', 'PNG, JPG (max. 5MB)', _frontImage),
+        _buildPhotoUploadBox(
+          'front',
+          'Upload Front (अगाडिको फोटो)',
+          'PNG, JPG (max. 5MB)',
+          _frontImage,
+        ),
         const SizedBox(height: 32),
         _buildSectionHeader('Citizenship Back (नागरिकताको पछाडि)', false),
         const SizedBox(height: 12),
-        _buildPhotoUploadBox('back', 'Upload Back (पछाडिको फोटो)', 'PNG, JPG (max. 5MB)', _backImage),
+        _buildPhotoUploadBox(
+          'back',
+          'Upload Back (पछाडिको फोटो)',
+          'PNG, JPG (max. 5MB)',
+          _backImage,
+        ),
         const SizedBox(height: 32),
-        _buildSectionHeader('Selfie with Document (नागरिकता समातेको सेल्फी)', false),
+        _buildSectionHeader(
+          'Selfie with Document (नागरिकता समातेको सेल्फी)',
+          false,
+        ),
         const SizedBox(height: 12),
-        _buildPhotoUploadBox('selfie', 'Upload Selfie (सेल्फी)', 'Hold ID clearly', _selfieImage, isSelfie: true),
+        _buildPhotoUploadBox(
+          'selfie',
+          'Upload Selfie (सेल्फी)',
+          'Hold ID clearly',
+          _selfieImage,
+          isSelfie: true,
+        ),
         const SizedBox(height: 40),
         _buildSubmitButton(),
         const SizedBox(height: 16),
@@ -496,7 +578,13 @@ class _KycScreenState extends State<KycScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         color: AppTheme.brandColor,
-        boxShadow: [BoxShadow(color: AppTheme.brandColor.withValues(alpha: 0.25), blurRadius: 15, offset: const Offset(0, 8))],
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.brandColor.withValues(alpha: 0.25),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: ElevatedButton(
         onPressed: onPressed,
@@ -504,9 +592,17 @@ class _KycScreenState extends State<KycScreen> {
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
-        child: Text(text, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
+        child: Text(
+          text,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
       ),
     );
   }
@@ -521,21 +617,50 @@ class _KycScreenState extends State<KycScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.15), shape: BoxShape.circle),
-                child: const Icon(Icons.shield_outlined, color: Colors.white, size: 24),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.shield_outlined,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('Verify Your Identity', style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -0.5), textAlign: TextAlign.center),
+                    Text(
+                      'Verify Your Identity',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: -0.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 2),
-                    Text('(पहिचान प्रमाणित गर्नुहोस्)', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.95), letterSpacing: -0.2, height: 1.1), textAlign: TextAlign.center),
+                    Text(
+                      '(पहिचान प्रमाणित गर्नुहोस्)',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white.withValues(alpha: 0.95),
+                        letterSpacing: -0.2,
+                        height: 1.1,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ],
                 ),
               ),
-              IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close, color: Colors.white, size: 22)),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close, color: Colors.white, size: 22),
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -578,9 +703,7 @@ class _KycScreenState extends State<KycScreen> {
           painter: DashRectPainter(color: Colors.grey.shade300, gap: 4),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
             child: Row(
               children: [
                 Container(
@@ -590,8 +713,12 @@ class _KycScreenState extends State<KycScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    _latitude != null ? Icons.location_on_rounded : Icons.location_on_rounded,
-                    color: _latitude != null ? const Color(0xFF00B4F5) : Colors.grey[400],
+                    _latitude != null
+                        ? Icons.location_on_rounded
+                        : Icons.location_on_rounded,
+                    color: _latitude != null
+                        ? const Color(0xFF00B4F5)
+                        : Colors.grey[400],
                     size: 24,
                   ),
                 ),
@@ -610,9 +737,9 @@ class _KycScreenState extends State<KycScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _latitude != null 
-                          ? 'GPS Verified: ${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}'
-                          : 'Required for security (सुरक्षाका लागि आवश्यक)',
+                        _latitude != null
+                            ? 'GPS Verified: ${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}'
+                            : 'Required for security (सुरक्षाका लागि आवश्यक)',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 11,
                           color: const Color(0xFF888888),
@@ -632,15 +759,30 @@ class _KycScreenState extends State<KycScreen> {
                       foregroundColor: Colors.white,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     child: _isLocating
-                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : Text(
-                          _latitude != null ? 'Verify Location\n(प्रमाणित)' : 'Verify Location\n(प्रमाणित)',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w800, height: 1.1),
-                        ),
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            _latitude != null
+                                ? 'Verify Location\n(प्रमाणित)'
+                                : 'Verify Location\n(प्रमाणित)',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              height: 1.1,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -682,7 +824,13 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
-  Widget _buildPhotoUploadBox(String type, String title, String subtitle, File? image, {bool isSelfie = false}) {
+  Widget _buildPhotoUploadBox(
+    String type,
+    String title,
+    String subtitle,
+    File? image, {
+    bool isSelfie = false,
+  }) {
     return GestureDetector(
       onTap: () => _pickImage(type),
       child: CustomPaint(
@@ -690,16 +838,19 @@ class _KycScreenState extends State<KycScreen> {
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 30),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (image != null) ...[
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.file(image, height: 100, width: 160, fit: BoxFit.cover),
+                  child: Image.file(
+                    image,
+                    height: 100,
+                    width: 160,
+                    fit: BoxFit.cover,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -718,7 +869,9 @@ class _KycScreenState extends State<KycScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    isSelfie ? Icons.camera_alt_outlined : Icons.file_upload_outlined,
+                    isSelfie
+                        ? Icons.camera_alt_outlined
+                        : Icons.file_upload_outlined,
                     color: const Color(0xFF00B4F5),
                     size: 26,
                   ),
@@ -756,13 +909,15 @@ class _KycScreenState extends State<KycScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         color: _isSubmitting ? Colors.grey[300] : AppTheme.brandColor,
-        boxShadow: _isSubmitting ? null : [
-          BoxShadow(
-            color: AppTheme.brandColor.withValues(alpha: 0.25),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        boxShadow: _isSubmitting
+            ? null
+            : [
+                BoxShadow(
+                  color: AppTheme.brandColor.withValues(alpha: 0.25),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
       ),
       child: ElevatedButton(
         onPressed: _isSubmitting ? null : _submit,
@@ -772,17 +927,26 @@ class _KycScreenState extends State<KycScreen> {
           disabledForegroundColor: Colors.grey[600],
           shadowColor: Colors.transparent,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
         child: _isSubmitting
-          ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-          : Text(
-              'Submit Verification (सबमिट गर्नुहोस्)',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : Text(
+                'Submit Verification (सबमिट गर्नुहोस्)',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
       ),
     );
   }
@@ -811,12 +975,17 @@ class CitizenshipFormatter extends TextInputFormatter {
     );
   }
 }
+
 class DashRectPainter extends CustomPainter {
   final Color color;
   final double strokeWidth;
   final double gap;
 
-  DashRectPainter({this.color = Colors.black, this.strokeWidth = 1.0, this.gap = 5.0});
+  DashRectPainter({
+    this.color = Colors.black,
+    this.strokeWidth = 1.0,
+    this.gap = 5.0,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -826,7 +995,9 @@ class DashRectPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     Path path = Path();
-    path.addRRect(RRect.fromLTRBR(0, 0, size.width, size.height, const Radius.circular(12)));
+    path.addRRect(
+      RRect.fromLTRBR(0, 0, size.width, size.height, const Radius.circular(12)),
+    );
 
     Path dashPath = Path();
     for (PathMetric pathMetric in path.computeMetrics()) {

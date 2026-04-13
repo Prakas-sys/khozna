@@ -58,13 +58,15 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
       body: FutureBuilder<Map<String, int>>(
         future: _statsFuture,
         builder: (context, snapshot) {
-          final stats = snapshot.data ?? {
-            'totalUsers': 0,
-            'totalProperties': 0,
-            'pendingKyc': 0,
-            'pendingReports': 0,
-            'activeBookings': 0,
-          };
+          final stats =
+              snapshot.data ??
+              {
+                'totalUsers': 0,
+                'totalProperties': 0,
+                'pendingKyc': 0,
+                'pendingReports': 0,
+                'activeBookings': 0,
+              };
 
           return RefreshIndicator(
             onRefresh: () async => _refreshStats(),
@@ -86,7 +88,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   if (snapshot.connectionState == ConnectionState.waiting)
                     const Center(child: LinearProgressIndicator())
                   else
@@ -99,45 +101,65 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                       childAspectRatio: 1.4,
                       children: [
                         _buildStatCard(
-                          'Total Users', 
-                          stats['totalUsers'].toString(), 
-                          Icons.people_outline, 
+                          'Total Users',
+                          stats['totalUsers'].toString(),
+                          Icons.people_outline,
                           Colors.blue,
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserManagementScreen())),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const UserManagementScreen(),
+                            ),
+                          ),
                         ),
                         _buildStatCard(
-                          'Pending KYC', 
-                          stats['pendingKyc'].toString(), 
-                          Icons.verified_user_outlined, 
+                          'Pending KYC',
+                          stats['pendingKyc'].toString(),
+                          Icons.verified_user_outlined,
                           Colors.orange,
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KycReviewScreen())).then((_) => _refreshStats()),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const KycReviewScreen(),
+                            ),
+                          ).then((_) => _refreshStats()),
                         ),
                         _buildStatCard(
-                          'Properties', 
-                          stats['totalProperties'].toString(), 
-                          Icons.home_work_outlined, 
+                          'Properties',
+                          stats['totalProperties'].toString(),
+                          Icons.home_work_outlined,
                           Colors.purple,
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyModerationScreen())).then((_) => _refreshStats()),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const PropertyModerationScreen(),
+                            ),
+                          ).then((_) => _refreshStats()),
                         ),
                         _buildStatCard(
-                          'Active Bookings', 
-                          stats['activeBookings'].toString(), 
-                          Icons.calendar_today_outlined, 
+                          'Active Bookings',
+                          stats['activeBookings'].toString(),
+                          Icons.calendar_today_outlined,
                           Colors.green,
                           onTap: () {
                             // Navigation to BookingManagementScreen (to be added)
                           },
                         ),
                         _buildStatCard(
-                          'User Reports', 
-                          stats['pendingReports'].toString(), 
-                          Icons.report_problem_outlined, 
+                          'User Reports',
+                          stats['pendingReports'].toString(),
+                          Icons.report_problem_outlined,
                           Colors.red,
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserReportsScreen())).then((_) => _refreshStats()),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const UserReportsScreen(),
+                            ),
+                          ).then((_) => _refreshStats()),
                         ),
                       ],
                     ),
-                  
+
                   const SizedBox(height: 24),
 
                   Text(
@@ -154,10 +176,14 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                     'Review pending identity verifications',
                     Icons.assignment_ind_outlined,
                     Colors.orange,
-                    badge: stats['pendingKyc']! > 0 ? stats['pendingKyc'].toString() : null,
+                    badge: stats['pendingKyc']! > 0
+                        ? stats['pendingKyc'].toString()
+                        : null,
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const KycReviewScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const KycReviewScreen(),
+                      ),
                     ).then((_) => _refreshStats()),
                   ),
                   _buildActionItem(
@@ -167,7 +193,9 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                     Colors.redAccent,
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const PropertyModerationScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const PropertyModerationScreen(),
+                      ),
                     ).then((_) => _refreshStats()),
                   ),
                   _buildActionItem(
@@ -177,7 +205,9 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                     Colors.blue,
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const UserManagementScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const UserManagementScreen(),
+                      ),
                     ),
                   ),
                   _buildActionItem(
@@ -185,21 +215,28 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                     'Manage reported users and scams',
                     Icons.report_problem_outlined,
                     Colors.red,
-                    badge: stats['pendingReports']! > 0 ? stats['pendingReports'].toString() : null,
+                    badge: stats['pendingReports']! > 0
+                        ? stats['pendingReports'].toString()
+                        : null,
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const UserReportsScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const UserReportsScreen(),
+                      ),
                     ).then((_) => _refreshStats()),
                   ),
                   const SizedBox(height: 40),
-                  
+
                   Center(
                     child: TextButton.icon(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.exit_to_app, color: Colors.grey),
                       label: Text(
                         'Exit Owner Mode',
-                        style: GoogleFonts.inter(color: Colors.grey, fontWeight: FontWeight.w600),
+                        style: GoogleFonts.inter(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -236,7 +273,11 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
         children: [
           const Text(
             'Hello, Boss! 👋',
-            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
@@ -252,7 +293,13 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, {VoidCallback? onTap}) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color, {
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -277,7 +324,8 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Icon(icon, color: color, size: 28),
-                if (onTap != null) const Icon(Icons.open_in_new, size: 14, color: Colors.grey),
+                if (onTap != null)
+                  const Icon(Icons.open_in_new, size: 14, color: Colors.grey),
               ],
             ),
             Column(
@@ -306,7 +354,14 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     );
   }
 
-  Widget _buildActionItem(String title, String subtitle, IconData icon, Color color, {String? badge, VoidCallback? onTap}) {
+  Widget _buildActionItem(
+    String title,
+    String subtitle,
+    IconData icon,
+    Color color, {
+    String? badge,
+    VoidCallback? onTap,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -333,19 +388,26 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
           subtitle,
           style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500]),
         ),
-        trailing: badge != null 
-          ? Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                badge,
-                style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-              ),
-            )
-          : const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+        trailing: badge != null
+            ? Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  badge,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            : const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
       ),
     );
   }
@@ -360,8 +422,10 @@ class KycReviewScreen extends StatefulWidget {
 
 class _KycReviewScreenState extends State<KycReviewScreen> {
   late Future<List<Map<String, dynamic>>> _kycFuture;
-  final Map<String, bool> _processingKycs = {}; // Track which KYC is being processed
-  final Map<String, String?> _successStatus = {}; // Track 'verified' or 'rejected' status
+  final Map<String, bool> _processingKycs =
+      {}; // Track which KYC is being processed
+  final Map<String, String?> _successStatus =
+      {}; // Track 'verified' or 'rejected' status
 
   @override
   void initState() {
@@ -383,7 +447,10 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('KYC Review', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text(
+          'KYC Review',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _kycFuture,
@@ -394,7 +461,10 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
           final list = snapshot.data ?? [];
           if (list.isEmpty) {
             return Center(
-              child: Text('No pending KYCs!', style: GoogleFonts.inter(color: Colors.grey)),
+              child: Text(
+                'No pending KYCs!',
+                style: GoogleFonts.inter(color: Colors.grey),
+              ),
             );
           }
 
@@ -404,7 +474,9 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
             itemBuilder: (context, index) {
               final kyc = list[index];
               return Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 margin: const EdgeInsets.only(bottom: 16),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -417,19 +489,35 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(kyc['full_name'], style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
-                              Text(kyc['phone_number'], style: GoogleFonts.inter(color: Colors.grey)),
+                              Text(
+                                kyc['full_name'],
+                                style: GoogleFonts.inter(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                kyc['phone_number'],
+                                style: GoogleFonts.inter(color: Colors.grey),
+                              ),
                             ],
                           ),
                           IconButton(
                             onPressed: () => _confirmPermanentDelete(kyc['id']),
-                            icon: const Icon(Icons.delete_forever, color: Colors.red, size: 22),
+                            icon: const Icon(
+                              Icons.delete_forever,
+                              color: Colors.red,
+                              size: 22,
+                            ),
                             tooltip: 'Permanently Delete Record',
                           ),
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text('Citizenship: ${kyc['citizenship_number']}', style: GoogleFonts.inter()),
+                      Text(
+                        'Citizenship: ${kyc['citizenship_number']}',
+                        style: GoogleFonts.inter(),
+                      ),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -448,24 +536,70 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                               height: 44,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
-                                gradient: const LinearGradient(colors: [Colors.green, Color(0xFF27AE60)]),
-                                boxShadow: [BoxShadow(color: Colors.green.withValues(alpha: 0.2), blurRadius: 6, offset: const Offset(0, 3))],
+                                gradient: const LinearGradient(
+                                  colors: [Colors.green, Color(0xFF27AE60)],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.green.withValues(alpha: 0.2),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
                               child: ElevatedButton(
-                                onPressed: _processingKycs[kyc['id']] == true || _successStatus[kyc['id']] != null ? null : () => _processKyc(kyc['id'], kyc['user_id'], 'verified'),
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent, padding: EdgeInsets.zero),
+                                onPressed:
+                                    _processingKycs[kyc['id']] == true ||
+                                        _successStatus[kyc['id']] != null
+                                    ? null
+                                    : () => _processKyc(
+                                        kyc['id'],
+                                        kyc['user_id'],
+                                        'verified',
+                                      ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  padding: EdgeInsets.zero,
+                                ),
                                 child: _processingKycs[kyc['id']] == true
-                                  ? const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)))
-                                  : _successStatus[kyc['id']] == 'verified'
+                                    ? const Center(
+                                        child: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                      )
+                                    : _successStatus[kyc['id']] == 'verified'
                                     ? const Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
+                                          Icon(
+                                            Icons.check_circle_outline,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
                                           SizedBox(width: 8),
-                                          Text('Approved ✅', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                          Text(
+                                            'Approved ✅',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ],
                                       )
-                                    : const Text('Approve', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    : const Text(
+                                        'Approve',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),
@@ -474,16 +608,47 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
                             child: SizedBox(
                               height: 44,
                               child: OutlinedButton(
-                                onPressed: _processingKycs[kyc['id']] == true || _successStatus[kyc['id']] != null ? null : () => _showRejectDialog(kyc['id'], kyc['user_id']),
+                                onPressed:
+                                    _processingKycs[kyc['id']] == true ||
+                                        _successStatus[kyc['id']] != null
+                                    ? null
+                                    : () => _showRejectDialog(
+                                        kyc['id'],
+                                        kyc['user_id'],
+                                      ),
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: _successStatus[kyc['id']] == 'rejected' ? Colors.red : Colors.red,
-                                  backgroundColor: _successStatus[kyc['id']] == 'rejected' ? Colors.red.withOpacity(0.1) : null,
-                                  side: BorderSide(color: _successStatus[kyc['id']] == 'rejected' ? Colors.red : Colors.red, width: 1.5),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  foregroundColor:
+                                      _successStatus[kyc['id']] == 'rejected'
+                                      ? Colors.red
+                                      : Colors.red,
+                                  backgroundColor:
+                                      _successStatus[kyc['id']] == 'rejected'
+                                      ? Colors.red.withOpacity(0.1)
+                                      : null,
+                                  side: BorderSide(
+                                    color:
+                                        _successStatus[kyc['id']] == 'rejected'
+                                        ? Colors.red
+                                        : Colors.red,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
                                 child: _successStatus[kyc['id']] == 'rejected'
-                                  ? const Text('Rejected ❌', style: TextStyle(fontWeight: FontWeight.bold))
-                                  : const Text('Reject', style: TextStyle(fontWeight: FontWeight.bold)),
+                                    ? const Text(
+                                        'Rejected ❌',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Reject',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),
@@ -513,14 +678,25 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
-              _processKyc(kycId, userId, 'rejected', reason: reasonController.text);
+              _processKyc(
+                kycId,
+                userId,
+                'rejected',
+                reason: reasonController.text,
+              );
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Reject Now', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Reject Now',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -536,7 +712,9 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
           decoration: BoxDecoration(
             color: Colors.grey[200],
             borderRadius: BorderRadius.circular(8),
-            image: url != null ? DecorationImage(image: NetworkImage(url), fit: BoxFit.cover) : null,
+            image: url != null
+                ? DecorationImage(image: NetworkImage(url), fit: BoxFit.cover)
+                : null,
           ),
           child: url == null ? const Icon(Icons.image_not_supported) : null,
         ),
@@ -545,13 +723,23 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
     );
   }
 
-  void _processKyc(String kycId, String userId, String status, {String? reason}) async {
+  void _processKyc(
+    String kycId,
+    String userId,
+    String status, {
+    String? reason,
+  }) async {
     if (_processingKycs[kycId] == true) return;
-    
+
     try {
       setState(() => _processingKycs[kycId] = true);
-      await SupabaseService.updateKycStatus(kycId, userId, status, reason: reason);
-      
+      await SupabaseService.updateKycStatus(
+        kycId,
+        userId,
+        status,
+        reason: reason,
+      );
+
       if (mounted) {
         setState(() {
           _processingKycs.remove(kycId);
@@ -560,20 +748,25 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
 
         // Add a small delay so the user can see the "Approved" / "Rejected" button state
         await Future.delayed(const Duration(milliseconds: 800));
-        
+
         if (mounted) {
           _refresh();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('KYC ${status == 'verified' ? 'Approved ✅' : 'Rejected ❌'}!'),
+              content: Text(
+                'KYC ${status == 'verified' ? 'Approved ✅' : 'Rejected ❌'}!',
+              ),
               backgroundColor: status == 'verified' ? Colors.green : Colors.red,
-            )
+            ),
           );
         }
       }
     } catch (e) {
       setState(() => _processingKycs[kycId] = false);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -582,13 +775,21 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Permanent Delete?'),
-        content: const Text('This will totally remove this KYC record from the database. This cannot be undone.'),
+        content: const Text(
+          'This will totally remove this KYC record from the database. This cannot be undone.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete Permanently', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Delete Permanently',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -598,9 +799,15 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
       try {
         await SupabaseService.deleteKycPermanently(kycId);
         _refresh();
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC Record Deleted.')));
+        if (mounted)
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('KYC Record Deleted.')));
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error deleting: $e')));
+        if (mounted)
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error deleting: $e')));
       }
     }
   }
@@ -632,14 +839,19 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Reports', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text(
+          'User Reports',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _reportsFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return const Center(child: CircularProgressIndicator());
           final reports = snapshot.data ?? [];
-          if (reports.isEmpty) return const Center(child: Text('No reports found.'));
+          if (reports.isEmpty)
+            return const Center(child: Text('No reports found.'));
 
           return ListView.separated(
             padding: const EdgeInsets.all(16),
@@ -661,22 +873,41 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
                       children: [
                         CircleAvatar(
                           radius: 18,
-                          backgroundImage: report['reported']['avatar_url'] != null ? NetworkImage(report['reported']['avatar_url']) : null,
-                          child: report['reported']['avatar_url'] == null ? const Icon(Icons.person) : null,
+                          backgroundImage:
+                              report['reported']['avatar_url'] != null
+                              ? NetworkImage(report['reported']['avatar_url'])
+                              : null,
+                          child: report['reported']['avatar_url'] == null
+                              ? const Icon(Icons.person)
+                              : null,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(report['reported']['full_name'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold)),
-                              Text('Reported by: ${report['reporter']['full_name'] ?? 'System'}', style: TextStyle(color: Colors.grey[600], fontSize: 11)),
+                              Text(
+                                report['reported']['full_name'] ?? 'Unknown',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Reported by: ${report['reporter']['full_name'] ?? 'System'}',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 11,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                         IconButton(
                           onPressed: () => _deleteReport(report['id']),
-                          icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),
@@ -684,10 +915,16 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: Colors.red.withOpacity(0.05), borderRadius: BorderRadius.circular(12)),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: Text(
                         report['reason'] ?? 'No reason provided',
-                        style: GoogleFonts.inter(fontSize: 13, color: Colors.red[900]),
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: Colors.red[900],
+                        ),
                       ),
                     ),
                   ],
@@ -704,9 +941,15 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
     try {
       await SupabaseService.deleteReport(id);
       _refresh();
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Report dismissed.')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Report dismissed.')));
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 }

@@ -41,9 +41,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         if (mounted) {
           setState(() {
-            _fullNameController.text = profile?['full_name'] ?? user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? '';
+            _fullNameController.text =
+                profile?['full_name'] ??
+                user?.userMetadata?['full_name'] ??
+                user?.userMetadata?['name'] ??
+                '';
             _emailController.text = profile?['email'] ?? user?.email ?? '';
-            _phoneController.text = profile?['phone_number'] ?? user?.phone ?? '';
+            _phoneController.text =
+                profile?['phone_number'] ?? user?.phone ?? '';
             _avatarUrl = profile?['avatar_url'];
           });
         }
@@ -56,7 +61,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
@@ -83,14 +90,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             },
           ),
         );
-        
+
         // Also update the profiles table if it exists
-        await Supabase.instance.client.from('profiles').update({
-          'full_name': _fullNameController.text,
-          'email': _emailController.text,
-          'avatar_url': newImageUrl,
-        }).eq('id', user!.id);
-        
+        await Supabase.instance.client
+            .from('profiles')
+            .update({
+              'full_name': _fullNameController.text,
+              'email': _emailController.text,
+              'avatar_url': newImageUrl,
+            })
+            .eq('id', user!.id);
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Profile updated successfully!')),
@@ -100,9 +110,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating profile: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating profile: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -148,7 +158,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.grey[100],
-                        border: Border.all(color: AppTheme.brandColor.withOpacity(0.1), width: 2),
+                        border: Border.all(
+                          color: AppTheme.brandColor.withOpacity(0.1),
+                          width: 2,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: AppTheme.brandColor.withOpacity(0.1),
@@ -161,8 +174,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: _imageFile != null
                             ? Image.file(_imageFile!, fit: BoxFit.cover)
                             : (_avatarUrl != null && _avatarUrl!.isNotEmpty)
-                                ? Image.network(_avatarUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(Icons.person_rounded, size: 50, color: AppTheme.brandColor.withOpacity(0.5)))
-                                : Icon(Icons.person_rounded, size: 50, color: AppTheme.brandColor.withOpacity(0.5)),
+                            ? Image.network(
+                                _avatarUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.person_rounded,
+                                  size: 50,
+                                  color: AppTheme.brandColor.withOpacity(0.5),
+                                ),
+                              )
+                            : Icon(
+                                Icons.person_rounded,
+                                size: 50,
+                                color: AppTheme.brandColor.withOpacity(0.5),
+                              ),
                       ),
                     ),
                   ),
@@ -185,7 +210,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 14),
+                        child: const Icon(
+                          Icons.camera_alt_rounded,
+                          color: Colors.white,
+                          size: 14,
+                        ),
                       ),
                     ),
                   ),
@@ -195,11 +224,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 32),
             _buildSectionTitle('PERSONAL INFORMATION'),
             const SizedBox(height: 16),
-            _buildTextField('Full Name', _fullNameController, Icons.person_outline),
+            _buildTextField(
+              'Full Name',
+              _fullNameController,
+              Icons.person_outline,
+            ),
             const SizedBox(height: 20),
-            _buildTextField('Email Address', _emailController, Icons.email_outlined, enabled: false),
+            _buildTextField(
+              'Email Address',
+              _emailController,
+              Icons.email_outlined,
+              enabled: false,
+            ),
             const SizedBox(height: 20),
-            _buildTextField('Phone Number', _phoneController, Icons.phone_android_outlined, enabled: false),
+            _buildTextField(
+              'Phone Number',
+              _phoneController,
+              Icons.phone_android_outlined,
+              enabled: false,
+            ),
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
@@ -208,7 +251,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 onPressed: _isLoading ? null : _updateProfile,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.brandColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 0,
                 ),
                 child: _isLoading
@@ -241,7 +286,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller, IconData icon, {bool enabled = true}) {
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    bool enabled = true,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -262,7 +312,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           enabled: enabled,
           onChanged: (v) => setState(() {}),
           style: GoogleFonts.inter(
-            fontSize: 15, 
+            fontSize: 15,
             color: enabled ? Colors.black87 : Colors.grey,
             fontWeight: FontWeight.w600,
           ),
@@ -277,28 +327,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Icon(icon, color: AppTheme.brandColor, size: 18),
             ),
             filled: true,
-            fillColor: !enabled ? const Color(0xFFF1F5F9) : (controller.text.isNotEmpty ? Colors.white : const Color(0xFFF8FAFC)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+            fillColor: !enabled
+                ? const Color(0xFFF1F5F9)
+                : (controller.text.isNotEmpty
+                      ? Colors.white
+                      : const Color(0xFFF8FAFC)),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 20,
+            ),
             hintText: 'Enter your $label',
             hintStyle: GoogleFonts.inter(color: Colors.grey[300], fontSize: 14),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20), 
+              borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide(color: Colors.grey.shade200),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20), 
+              borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide(
-                color: (enabled && controller.text.isNotEmpty) ? AppTheme.brandColor.withOpacity(0.4) : Colors.grey.shade200,
+                color: (enabled && controller.text.isNotEmpty)
+                    ? AppTheme.brandColor.withOpacity(0.4)
+                    : Colors.grey.shade200,
                 width: 1,
               ),
             ),
             disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20), 
+              borderRadius: BorderRadius.circular(20),
               borderSide: BorderSide(color: Colors.grey.shade100),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20), 
-              borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.8),
+              borderRadius: BorderRadius.circular(20),
+              borderSide: const BorderSide(
+                color: AppTheme.brandColor,
+                width: 1.8,
+              ),
             ),
           ),
         ),

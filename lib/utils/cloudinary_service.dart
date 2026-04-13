@@ -7,14 +7,17 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class CloudinaryService {
   static final String cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
   static final String apiKey = dotenv.env['CLOUDINARY_API_KEY'] ?? '';
-  
+
   // For security, unsigned uploads are recommended for client-side apps.
   // You should create an "unsigned upload preset" in your Cloudinary Dashboard.
-  static final String uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? ''; 
+  static final String uploadPreset =
+      dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '';
 
   /// Uploads any image to Cloudinary and returns the URL.
   static Future<String?> uploadImage(File imageFile) async {
-    final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+    final url = Uri.parse(
+      'https://api.cloudinary.com/v1_1/$cloudName/image/upload',
+    );
 
     try {
       final request = http.MultipartRequest('POST', url)
@@ -38,8 +41,13 @@ class CloudinaryService {
   }
 
   /// Uploads an image to Cloudinary and saves the URL to Supabase.
-  static Future<String?> uploadPropertyImage(File imageFile, String propertyId) async {
-    final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+  static Future<String?> uploadPropertyImage(
+    File imageFile,
+    String propertyId,
+  ) async {
+    final url = Uri.parse(
+      'https://api.cloudinary.com/v1_1/$cloudName/image/upload',
+    );
 
     try {
       // 1. Prepare Request
@@ -71,9 +79,12 @@ class CloudinaryService {
       return null;
     }
   }
+
   /// Uploads a video to Cloudinary and returns the URL.
   static Future<String?> uploadVideo(File videoFile) async {
-    final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/video/upload');
+    final url = Uri.parse(
+      'https://api.cloudinary.com/v1_1/$cloudName/video/upload',
+    );
 
     try {
       final request = http.MultipartRequest('POST', url)

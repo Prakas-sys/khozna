@@ -13,7 +13,7 @@ class FavouriteButton extends StatefulWidget {
   final bool showShadow;
 
   const FavouriteButton({
-    super.key, 
+    super.key,
     required this.propertyId,
     this.size = 28,
     this.color,
@@ -41,10 +41,10 @@ class _FavouriteButtonState extends State<FavouriteButton> {
               );
               return;
             }
-            
+
             // Haptic Feedback for premium feel
             HapticFeedback.mediumImpact();
-            
+
             // This now triggers an optimistic update through the global store!
             await SupabaseService.toggleSaveProperty(widget.propertyId);
           },
@@ -52,13 +52,15 @@ class _FavouriteButtonState extends State<FavouriteButton> {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              boxShadow: isLiked ? [
-                BoxShadow(
-                  color: const Color(0xFFFF385C).withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  spreadRadius: 2,
-                ),
-              ] : [],
+              boxShadow: isLiked
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFFFF385C).withValues(alpha: 0.3),
+                        blurRadius: 20,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : [],
             ),
             child: SvgPicture.string(
               '''

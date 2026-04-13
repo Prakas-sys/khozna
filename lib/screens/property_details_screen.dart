@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // firebase_auth removed
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
 import '../utils/supabase_service.dart';
 import '../widgets/favourite_button.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
 import '../utils/formatters.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final String id;
@@ -25,6 +27,8 @@ class PropertyDetailsScreen extends StatefulWidget {
   final String status;
   final List<String> amenities;
   final List<String> houseRules;
+  final double? latitude;
+  final double? longitude;
 
   const PropertyDetailsScreen({
     super.key,
@@ -43,6 +47,8 @@ class PropertyDetailsScreen extends StatefulWidget {
     this.status = 'available',
     this.amenities = const [],
     this.houseRules = const [],
+    this.latitude,
+    this.longitude,
   });
 
   @override
@@ -56,8 +62,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   bool _isBooking = false;
   Map<String, dynamic>? _ownerData;
 
-  String get _currentUserId => Supabase.instance.client.auth.currentUser?.id ?? '';
-  bool get _isMyProperty => (widget.ownerId == _currentUserId) && !widget.id.contains('demo');
+  String get _currentUserId =>
+      Supabase.instance.client.auth.currentUser?.id ?? '';
+  bool get _isMyProperty =>
+      (widget.ownerId == _currentUserId) && !widget.id.contains('demo');
   static const Color _airbnbGrey = Color(0xFF717171);
 
   late final List<String> displayImages;
@@ -70,12 +78,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     displayImages = (widget.images != null && widget.images!.isNotEmpty)
         ? widget.images!
         : (widget.id.contains('demo')
-            ? [
-                widget.imageUrl,
-                'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-                'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-              ]
-            : [widget.imageUrl]);
+              ? [
+                  widget.imageUrl,
+                  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                  'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+                ]
+              : [widget.imageUrl]);
     _incrementViews();
   }
 
@@ -107,6 +115,25 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
   }
 
+  Future<void> _openMap() async {
+    if (widget.latitude != null && widget.longitude != null) {
+      final url = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=${widget.latitude},${widget.longitude}',
+      );
+      if (await canLaunchUrl(url)) {
+        await launchUrl(url, mode: LaunchMode.externalApplication);
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No exact GPS location available for this property.'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -128,7 +155,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.share_outlined, color: Colors.black, size: 22), onPressed: () {}),
+          IconButton(
+            icon: const Icon(
+              Icons.share_outlined,
+              color: Colors.black,
+              size: 22,
+            ),
+            onPressed: () {},
+          ),
           FavouriteButton(
             propertyId: widget.id,
             size: 24,
@@ -168,7 +202,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   widget.description ??
                       'सानेपाको शान्त वातावरणमा अवस्थित यो २ कोठाको फ्ल्याट विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ। उज्यालो कोठाहरू र खुल्ला पार्किङको सुविधा उपलब्ध छ। मुख्य बाटोबाट मात्र ५ मिनेटको दुरीमा।',
                   style: GoogleFonts.inter(
-                      fontSize: 15, color: _airbnbGrey, height: 1.6),
+                    fontSize: 15,
+                    color: _airbnbGrey,
+                    height: 1.6,
+                  ),
                 ),
                 const SizedBox(height: 32),
 
@@ -178,38 +215,62 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 _buildLocationDetails(widget.location),
                 const SizedBox(height: 16),
                 // Map View with rounded corners
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    height: 200,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
-                    child: Stack(
-                      children: [
-                        Image.network(
-                          'https://miro.medium.com/v2/resize:fit:1400/1*q69O5N7I6kUf6J39sP5nPQ.png',
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                        Center(
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                    color: Colors.black12, blurRadius: 10)
-                              ],
-                            ),
-                            child: const Icon(Icons.location_on,
-                                color: AppTheme.brandColor, size: 28),
+                GestureDetector(
+                  onTap: _openMap,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: Stack(
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl:
+                                'https://miro.medium.com/v2/resize:fit:1400/1*q69O5N7I6kUf6J39sP5nPQ.png',
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            placeholder: (context, url) =>
+                                Container(color: Colors.grey[200]),
                           ),
-                        ),
-                      ],
+                          Center(
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                  ),
+                                ],
+                              ),
+                              child: const Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.location_on,
+                                    color: AppTheme.brandColor,
+                                    size: 28,
+                                  ),
+                                  Text(
+                                    "Tap to open Map",
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: AppTheme.brandColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -235,7 +296,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   const SizedBox(height: 16),
                   ...widget.houseRules.map((rule) {
                     final detail = _ruleDetails(rule);
-                    return _buildRuleRow(detail['icon'] as IconData, detail['label'] as String);
+                    return _buildRuleRow(
+                      detail['icon'] as IconData,
+                      detail['label'] as String,
+                    );
                   }),
                   const SizedBox(height: 32),
                 ],
@@ -272,10 +336,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           children: [
             PageView.builder(
               controller: _pageController,
-              onPageChanged: (index) => setState(() => _currentImageIndex = index),
+              onPageChanged: (index) =>
+                  setState(() => _currentImageIndex = index),
               itemCount: displayImages.length,
               itemBuilder: (context, index) {
-                final image = Image.network(displayImages[index], fit: BoxFit.cover);
+                final image = CachedNetworkImage(
+                  imageUrl: displayImages[index],
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) =>
+                      Container(color: Colors.grey[200]),
+                  errorWidget: (context, url, error) =>
+                      Container(color: Colors.grey[200]),
+                );
                 if (index == 0) {
                   return Hero(tag: widget.id, child: image);
                 }
@@ -316,8 +388,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     height: 6,
                     width: _currentImageIndex == index ? 18 : 6,
                     decoration: BoxDecoration(
-                      color: _currentImageIndex == index 
-                          ? Colors.white 
+                      color: _currentImageIndex == index
+                          ? Colors.white
                           : Colors.white.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(3),
                     ),
@@ -330,7 +402,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               top: 16,
               right: 16,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
@@ -338,9 +413,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 child: Text(
                   '${_currentImageIndex + 1}/${displayImages.length}',
                   style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -349,7 +425,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       ),
     );
   }
-
 
   Widget _buildHeader(String title, String location) {
     return Column(
@@ -473,19 +548,31 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     };
 
     List<Widget> items = [];
-    
+
     // Add standard ones
     if (widget.bedrooms != null && widget.bedrooms! > 0) {
-      items.add(_buildStatItem(Icons.bed_outlined, '${widget.bedrooms}', 'Bedrooms'));
+      items.add(
+        _buildStatItem(Icons.bed_outlined, '${widget.bedrooms}', 'Bedrooms'),
+      );
     }
     if (widget.bathrooms != null && widget.bathrooms! > 0) {
-      items.add(_buildStatItem(Icons.bathtub_outlined, '${widget.bathrooms}', 'Bathrooms'));
+      items.add(
+        _buildStatItem(
+          Icons.bathtub_outlined,
+          '${widget.bathrooms}',
+          'Bathrooms',
+        ),
+      );
     }
-    if (widget.floor != null && widget.floor != 'N/A' && widget.floor!.isNotEmpty) {
+    if (widget.floor != null &&
+        widget.floor != 'N/A' &&
+        widget.floor!.isNotEmpty) {
       items.add(_buildStatItem(Icons.layers_outlined, widget.floor!, 'Floor'));
     }
     if (widget.area != null && widget.area!.isNotEmpty) {
-      items.add(_buildStatItem(Icons.square_foot_outlined, widget.area!, 'Sq. Ft'));
+      items.add(
+        _buildStatItem(Icons.square_foot_outlined, widget.area!, 'Sq. Ft'),
+      );
     }
 
     // Add Kathmandu specific ones
@@ -502,7 +589,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
         border: Border.symmetric(
-            horizontal: BorderSide(color: Colors.grey.withValues(alpha: 0.1))),
+          horizontal: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
+        ),
       ),
       child: GridView.count(
         shrinkWrap: true,
@@ -532,12 +620,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         Text(
           value,
           textAlign: TextAlign.center,
-          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, height: 1.1),
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            height: 1.1,
+          ),
         ),
         Text(
           label,
           textAlign: TextAlign.center,
-          style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[500], height: 1.1),
+          style: GoogleFonts.inter(
+            fontSize: 10,
+            color: Colors.grey[500],
+            height: 1.1,
+          ),
         ),
       ],
     );
@@ -596,7 +692,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04), blurRadius: 8)
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                ),
               ],
             ),
             child: Text(
@@ -613,14 +711,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-
   Widget _buildNearbyGrid() {
     return Column(
       children: [
         _buildNearbyItem(
-            Icons.local_hospital_outlined, 'Hospital', '200m (Civil)'),
+          Icons.local_hospital_outlined,
+          'Hospital',
+          '200m (Civil)',
+        ),
         _buildNearbyItem(Icons.school_outlined, 'School', '500m (KMC)'),
-        _buildNearbyItem(Icons.shopping_bag_outlined, 'Market', '300m (Bazaar)'),
+        _buildNearbyItem(
+          Icons.shopping_bag_outlined,
+          'Market',
+          '300m (Bazaar)',
+        ),
       ],
     );
   }
@@ -633,20 +737,24 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                color: Colors.blue.withValues(alpha: 0.05),
-                shape: BoxShape.circle),
+              color: Colors.blue.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, size: 16, color: Colors.blue[700]),
           ),
           const SizedBox(width: 12),
-          Text(title,
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700])),
+          Text(
+            title,
+            style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700]),
+          ),
           const Spacer(),
           Text(
             distance,
             style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.primaryTextColor),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.primaryTextColor,
+            ),
           ),
         ],
       ),
@@ -655,7 +763,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildOwnerCard() {
     final name = _ownerData?['full_name'] ?? 'Loading...';
-    final avatar = _ownerData?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=1';
+    final avatar =
+        _ownerData?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=1';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -668,7 +777,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         children: [
           CircleAvatar(
             radius: 28,
-            backgroundImage: NetworkImage(avatar),
+            backgroundImage: CachedNetworkImageProvider(avatar),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -678,39 +787,47 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Text(
                   name,
                   style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.primaryTextColor),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryTextColor,
+                  ),
                 ),
                 Text(
-                  _isReserved 
-                    ? 'Already Booked' 
-                    : 'Verified Owner',
+                  _isReserved ? 'Already Booked' : 'Verified Owner',
                   style: GoogleFonts.inter(
-                    fontSize: 12, 
-                    color: _isReserved ? Colors.orange.shade800 : Colors.grey[500],
-                    fontWeight: _isReserved ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 12,
+                    color: _isReserved
+                        ? Colors.orange.shade800
+                        : Colors.grey[500],
+                    fontWeight: _isReserved
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
               ],
             ),
           ),
           IconButton(
-            onPressed: _isMyProperty ? null : () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => chat_page.ChatScreen(
-                    ownerId: widget.ownerId,
-                    name: name,
-                    avatar: avatar,
-                    online: true,
-                  ),
-                ),
-              );
-            },
-            icon: Icon(Icons.chat_bubble_outline,
-                color: _isMyProperty ? Colors.grey : AppTheme.brandColor, size: 22),
+            onPressed: _isMyProperty
+                ? null
+                : () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => chat_page.ChatScreen(
+                          ownerId: widget.ownerId,
+                          name: name,
+                          avatar: avatar,
+                          online: true,
+                        ),
+                      ),
+                    );
+                  },
+            icon: Icon(
+              Icons.chat_bubble_outline,
+              color: _isMyProperty ? Colors.grey : AppTheme.brandColor,
+              size: 22,
+            ),
           ),
         ],
       ),
@@ -724,8 +841,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         children: [
           Icon(icon, size: 18, color: Colors.grey[600]),
           const SizedBox(width: 10),
-          Text(title,
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700])),
+          Text(
+            title,
+            style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700]),
+          ),
         ],
       ),
     );
@@ -734,17 +853,29 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Map<String, dynamic> _ruleDetails(String key) {
     switch (key) {
       case 'family_only':
-        return {'icon': Icons.family_restroom, 'label': 'परिवार मात्र (Family Only)'};
+        return {
+          'icon': Icons.family_restroom,
+          'label': 'परिवार मात्र (Family Only)',
+        };
       case 'boys_allowed':
         return {'icon': Icons.man, 'label': 'केटा मात्र (Boys Allowed)'};
       case 'girls_allowed':
         return {'icon': Icons.woman, 'label': 'केटी मात्र (Girls Allowed)'};
       case 'pets_allowed':
-        return {'icon': Icons.pets, 'label': 'जनावर राख्न पाईने (Pets Allowed)'};
+        return {
+          'icon': Icons.pets,
+          'label': 'जनावर राख्न पाईने (Pets Allowed)',
+        };
       case 'smoking_allowed':
-        return {'icon': Icons.smoke_free, 'label': 'चुरोट पिउन पाईने (Smoking Allowed)'};
+        return {
+          'icon': Icons.smoke_free,
+          'label': 'चुरोट पिउन पाईने (Smoking Allowed)',
+        };
       case 'alcohol_allowed':
-        return {'icon': Icons.local_bar, 'label': 'मदिरा पिउन पाईने (Alcohol Allowed)'};
+        return {
+          'icon': Icons.local_bar,
+          'label': 'मदिरा पिउन पाईने (Alcohol Allowed)',
+        };
       default:
         return {'icon': Icons.info_outline, 'label': key};
     }
@@ -767,21 +898,34 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       children: [
         Row(
           children: [
-            const Icon(Icons.directions_walk,
-                color: AppTheme.brandColor, size: 16),
+            const Icon(
+              Icons.place,
+              color: AppTheme.brandColor,
+              size: 16,
+            ),
             const SizedBox(width: 6),
             Text(
-              'मुख्य बाटोबाट मात्र ५ मिनेट',
+              location,
               style: GoogleFonts.inter(
-                  fontWeight: FontWeight.bold, fontSize: 13),
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 6),
-        Text(
-          'शान्त टोल, ढल र पिच रोडको सुविधा भएको ठाउँ।',
-          style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
-        ),
+        if (widget.latitude != null && widget.longitude != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            'GPS coordinates verified. Tap the map below to get directions via Google Maps.',
+            style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
+          ),
+        ] else ...[
+          const SizedBox(height: 6),
+          Text(
+            'Exact GPS location not provided. Contact the owner for precise directions.',
+            style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
+          ),
+        ],
       ],
     );
   }
@@ -809,7 +953,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   color: Colors.white,
-                  border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.3), width: 1),
+                  border: Border.all(
+                    color: AppTheme.brandColor.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.03),
@@ -852,131 +999,158 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             Expanded(
               flex: 2,
               child: ElevatedButton(
-                onPressed: (_isReserved || _isBooking) 
-                  ? (_isMyProperty && _isReserved ? () async {
-                      // OWNER CANCEL FEATURE
-                      setState(() => _isBooking = true);
-                      try {
-                        await SupabaseService.cancelBooking(widget.id);
-                        if (mounted) {
-                          setState(() {
-                            _isReserved = false;
-                            _isBooking = false;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Status set to Available'))
+                onPressed: (_isReserved || _isBooking)
+                    ? (_isMyProperty && _isReserved
+                          ? () async {
+                              // OWNER CANCEL FEATURE
+                              setState(() => _isBooking = true);
+                              try {
+                                await SupabaseService.cancelBooking(widget.id);
+                                if (mounted) {
+                                  setState(() {
+                                    _isReserved = false;
+                                    _isBooking = false;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Status set to Available'),
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                if (mounted) setState(() => _isBooking = false);
+                              }
+                            }
+                          : null)
+                    : () async {
+                        setState(() => _isBooking = true);
+                        try {
+                          // Call Supabase Magic
+                          await SupabaseService.bookProperty(
+                            widget.id,
+                            widget.title,
+                            widget.ownerId,
                           );
-                        }
-                      } catch (e) {
-                         if (mounted) setState(() => _isBooking = false);
-                      }
-                    } : null)
-                  : () async {
-                    setState(() => _isBooking = true);
-                    try {
-                      // Call Supabase Magic
-                      await SupabaseService.bookProperty(widget.id, widget.title, widget.ownerId);
-                      
-                      // Increment Notifications badge
-                      notificationBadgeCount.value += 1;
-                      
-                      if (mounted) {
-                        setState(() {
-                          _isReserved = true;
-                          _isBooking = false;
-                        });
 
-                        // Show premium notification
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            behavior: SnackBarBehavior.floating,
-                            margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            content: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E1E1E).withOpacity(0.95),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.white10),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.3),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 10),
+                          // Increment Notifications badge
+                          notificationBadgeCount.value += 1;
+
+                          if (mounted) {
+                            setState(() {
+                              _isReserved = true;
+                              _isBooking = false;
+                            });
+
+                            // Show premium notification
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                behavior: SnackBarBehavior.floating,
+                                margin: const EdgeInsets.fromLTRB(
+                                  16,
+                                  0,
+                                  16,
+                                  20,
+                                ),
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                                content: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
                                   ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.withOpacity(0.2),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
+                                  decoration: BoxDecoration(
+                                    color: const Color(
+                                      0xFF1E1E1E,
+                                    ).withOpacity(0.95),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: Colors.white10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.3),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 10),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Reserved Successfully!',
-                                          style: GoogleFonts.inter(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
-                                          ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.withOpacity(0.2),
+                                          shape: BoxShape.circle,
                                         ),
-                                        Text(
-                                          'The owner has been notified.',
-                                          style: GoogleFonts.inter(
-                                            color: Colors.white70,
-                                            fontSize: 12,
-                                          ),
+                                        child: const Icon(
+                                          Icons.check_circle_rounded,
+                                          color: Colors.green,
+                                          size: 20,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Reserved Successfully!',
+                                              style: GoogleFonts.inter(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            Text(
+                                              'The owner has been notified.',
+                                              style: GoogleFonts.inter(
+                                                color: Colors.white70,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      if (mounted) {
-                        setState(() => _isBooking = false);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                           SnackBar(content: Text('Booking failed: $e'))
-                        );
-                      }
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isMyProperty 
-                        ? Colors.blue[600]
-                        : _isReserved 
-                            ? Colors.grey[700] 
-                            : AppTheme.brandColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 4,
-                    shadowColor: AppTheme.brandColor.withOpacity(0.3),
+                            );
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            setState(() => _isBooking = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Booking failed: $e')),
+                            );
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isMyProperty
+                      ? Colors.blue[600]
+                      : _isReserved
+                      ? Colors.grey[700]
+                      : AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                  elevation: 4,
+                  shadowColor: AppTheme.brandColor.withOpacity(0.3),
+                ),
                 child: Text(
                   (_isMyProperty && !widget.id.contains('demo'))
                       ? 'Your Listing'
-                      : _isReserved 
-                          ? 'Booked ✓' 
-                          : 'BOOK NOW (बुक गर्नुहोस्)',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5),
+                      : _isReserved
+                      ? 'Booked ✓'
+                      : 'BOOK NOW (बुक गर्नुहोस्)',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             ),

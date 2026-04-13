@@ -18,15 +18,17 @@ class ReelsScreen extends StatefulWidget {
 
 class _ReelsScreenState extends State<ReelsScreen> {
   final PageController _pageController = PageController();
-  bool isImageView = true; 
-  
+  bool isImageView = true;
+
   final List<Map<String, dynamic>> mockReels = [
     {
       'id': '1',
-      'imageUrl': 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      'imageUrl':
+          'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       'title': 'Single room for student',
       'ownerName': 'Ram Bahadur',
-      'ownerAvatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
+      'ownerAvatar':
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
       'ownerId': 'owner_ram_bahadur',
       'price': '8,000',
       'location': 'Baneshwar, Kathmandu',
@@ -63,7 +65,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
             right: 0,
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -72,7 +77,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: Colors.white.withOpacity(0.1)),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -102,7 +109,12 @@ class _ReelsScreenState extends State<ReelsScreen> {
     );
   }
 
-  Widget _buildSegmentButton({required String title, required IconData icon, required bool isSelected, required VoidCallback onTap}) {
+  Widget _buildSegmentButton({
+    required String title,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -114,7 +126,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 16, color: isSelected ? Colors.black87 : Colors.white70),
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.black87 : Colors.white70,
+            ),
             const SizedBox(width: 6),
             Text(
               title,
@@ -136,7 +152,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
       children: [
         // Content (Image)
         Image.network(reel['imageUrl'], fit: BoxFit.cover),
-        
+
         // Gradient
         Container(
           decoration: BoxDecoration(
@@ -168,17 +184,28 @@ class _ReelsScreenState extends State<ReelsScreen> {
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OwnerProfileScreen(
-                        ownerId: reel['ownerId'] ?? 'unknown',
-                        name: reel['ownerName'],
-                        avatar: reel['ownerAvatar'],
-                        location: reel['location'],
-                        totalListings: reel['totalListings'],
-                      ))),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OwnerProfileScreen(
+                            ownerId: reel['ownerId'] ?? 'unknown',
+                            name: reel['ownerName'],
+                            avatar: reel['ownerAvatar'],
+                            location: reel['location'],
+                            totalListings: reel['totalListings'],
+                          ),
+                        ),
+                      ),
                       child: Container(
                         padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 1.5)),
-                        child: CircleAvatar(radius: 18, backgroundImage: NetworkImage(reel['ownerAvatar'])),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 1.5),
+                        ),
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundImage: NetworkImage(reel['ownerAvatar']),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -189,15 +216,26 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           children: [
                             Text(
                               reel['ownerName'],
-                              style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
                             ),
                             const SizedBox(width: 4),
-                            const Icon(Icons.verified, color: AppTheme.brandColor, size: 12),
+                            const Icon(
+                              Icons.verified,
+                              color: AppTheme.brandColor,
+                              size: 12,
+                            ),
                           ],
                         ),
                         Text(
                           '@${reel['ownerName'].toString().split(' ')[0].toLowerCase()}',
-                          style: GoogleFonts.inter(color: Colors.white60, fontSize: 11),
+                          style: GoogleFonts.inter(
+                            color: Colors.white60,
+                            fontSize: 11,
+                          ),
                         ),
                       ],
                     ),
@@ -216,7 +254,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.white.withOpacity(0.12)),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -230,23 +271,39 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     reel['title'],
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16),
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                   const SizedBox(height: 3),
                                   Row(
                                     children: [
-                                      const Icon(Icons.location_on, color: AppTheme.brandColor, size: 12),
+                                      const Icon(
+                                        Icons.location_on,
+                                        color: AppTheme.brandColor,
+                                        size: 12,
+                                      ),
                                       const SizedBox(width: 4),
                                       Text(
                                         reel['location'],
-                                        style: GoogleFonts.inter(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500),
+                                        style: GoogleFonts.inter(
+                                          color: Colors.white70,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     'रू ${reel['price']} /month',
-                                    style: GoogleFonts.inter(color: AppTheme.brandColor, fontWeight: FontWeight.w900, fontSize: 15),
+                                    style: GoogleFonts.inter(
+                                      color: AppTheme.brandColor,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 15,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -270,13 +327,17 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       bathrooms: 0,
                                       area: 'N/A',
                                       floor: 'N/A',
-                                      description: 'Detailed view of ${reel['title']}',
+                                      description:
+                                          'Detailed view of ${reel['title']}',
                                     ),
                                   ),
                                 );
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(30),
@@ -293,17 +354,25 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   children: [
                                     TweenAnimationBuilder<double>(
                                       tween: Tween(begin: 0.0, end: 1.0),
-                                      duration: const Duration(milliseconds: 600),
+                                      duration: const Duration(
+                                        milliseconds: 600,
+                                      ),
                                       curve: Curves.easeInOut,
                                       builder: (context, value, child) {
                                         return Transform.translate(
                                           offset: Offset(value * 2, 0),
                                           child: Icon(
-                                            Icons.directions_walk_rounded, 
-                                            color: Colors.black, 
+                                            Icons.directions_walk_rounded,
+                                            color: Colors.black,
                                             size: 18,
                                             shadows: [
-                                              Shadow(color: Colors.black.withOpacity(0.1), blurRadius: 2, offset: const Offset(1, 1))
+                                              Shadow(
+                                                color: Colors.black.withOpacity(
+                                                  0.1,
+                                                ),
+                                                blurRadius: 2,
+                                                offset: const Offset(1, 1),
+                                              ),
                                             ],
                                           ),
                                         );
@@ -333,11 +402,15 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             _buildCompactAction(
-                              icon: reel['isFavorite'] ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                              icon: reel['isFavorite']
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
                               label: reel['likes'],
                               isActive: reel['isFavorite'],
                               activeColor: AppTheme.brandColor,
-                              onTap: () => setState(() => reel['isFavorite'] = !reel['isFavorite']),
+                              onTap: () => setState(
+                                () => reel['isFavorite'] = !reel['isFavorite'],
+                              ),
                             ),
                             _buildCompactAction(
                               isSvg: true,
@@ -385,10 +458,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
   }
 
   Widget _buildCompactAction({
-    required IconData icon, 
-    required String label, 
-    required bool isActive, 
-    required Color activeColor, 
+    required IconData icon,
+    required String label,
+    required bool isActive,
+    required Color activeColor,
     required VoidCallback onTap,
     bool isSvg = false,
     String? svgPath,
@@ -400,24 +473,35 @@ class _ReelsScreenState extends State<ReelsScreen> {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(color: Colors.white.withOpacity(0.05), borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: Row(
           children: [
             isSvg && svgPath != null
-              ? SvgPicture.asset(
-                  svgPath,
-                  width: 18,
-                  height: 18,
-                  colorFilter: ColorFilter.mode(
-                    isActive ? activeColor : Colors.white,
-                    BlendMode.srcIn,
+                ? SvgPicture.asset(
+                    svgPath,
+                    width: 18,
+                    height: 18,
+                    colorFilter: ColorFilter.mode(
+                      isActive ? activeColor : Colors.white,
+                      BlendMode.srcIn,
+                    ),
+                  )
+                : Icon(
+                    icon,
+                    color: isActive ? activeColor : Colors.white,
+                    size: 20,
                   ),
-                )
-              : Icon(icon, color: isActive ? activeColor : Colors.white, size: 20),
             const SizedBox(width: 8),
             Text(
               label,
-              style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+              style: GoogleFonts.inter(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),

@@ -15,11 +15,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final List<Map<String, dynamic>> _messages = [
     {
-      'text': 'नमस्ते! म खोज्न (Khozna) AI सहयात्री हुँ। म तपाईंलाई कोठा, फ्ल्याट वा घर खोज्न मद्दत गर्न सक्छु। के सहयोग गरूँ?',
+      'text':
+          'नमस्ते! म खोज्न (Khozna) AI सहयात्री हुँ। म तपाईंलाई कोठा, फ्ल्याट वा घर खोज्न मद्दत गर्न सक्छु। के सहयोग गरूँ?',
       'isMe': false,
-    }
+    },
   ];
-  
+
   final KhoznaAiService _aiService = KhoznaAiService();
   bool _isTyping = false;
 
@@ -48,8 +49,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
       if (mounted) {
         setState(() {
           _messages.add({
-            'text': 'माफ गर्नुहोस्, केही प्राविधिक समस्या आयो। फेरि प्रयास गर्नुहोला। (Error: ${e.toString().split(':').last})',
-            'isMe': false
+            'text':
+                'माफ गर्नुहोस्, केही प्राविधिक समस्या आयो। फेरि प्रयास गर्नुहोला। (Error: ${e.toString().split(':').last})',
+            'isMe': false,
           });
           _isTyping = false;
         });
@@ -93,10 +95,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final msg = _messages[index];
-                return _ChatBubble(
-                  message: msg['text'],
-                  isMe: msg['isMe'],
-                );
+                return _ChatBubble(message: msg['text'], isMe: msg['isMe']);
               },
             ),
           ),
@@ -108,10 +107,16 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   SizedBox(
                     width: 12,
                     height: 12,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.brandColor),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppTheme.brandColor,
+                    ),
                   ),
                   SizedBox(width: 12),
-                  Text('AI जवाफ लेख्दै छ...', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  Text(
+                    'AI जवाफ लेख्दै छ...',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                 ],
               ),
             ),
@@ -190,7 +195,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
                       children: [
                         const SizedBox(width: 8),
                         IconButton(
-                          icon: const Icon(Icons.emoji_emotions_outlined, color: Colors.grey, size: 22),
+                          icon: const Icon(
+                            Icons.emoji_emotions_outlined,
+                            color: Colors.grey,
+                            size: 22,
+                          ),
                           onPressed: () {}, // System keyboard handles it
                         ),
                         Expanded(
@@ -199,7 +208,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
                             decoration: const InputDecoration(
                               hintText: 'केही सोध्नुहोस्...',
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 4,
+                                vertical: 12,
+                              ),
                             ),
                             onSubmitted: (_) => _sendMessage(),
                           ),
@@ -217,7 +229,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
                       color: AppTheme.brandColor,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.send, color: Colors.white, size: 20),
+                    child: const Icon(
+                      Icons.send,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
                 ),
               ],
@@ -242,7 +258,9 @@ class _ChatBubble extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        ),
         decoration: BoxDecoration(
           color: isMe ? AppTheme.brandColor : Colors.grey[100],
           borderRadius: BorderRadius.only(

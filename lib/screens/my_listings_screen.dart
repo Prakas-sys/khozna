@@ -32,7 +32,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           .select('*, property_images(image_url)')
           .eq('owner_id', user!.id)
           .order('created_at', ascending: false);
-          
+
       if (mounted) {
         setState(() {
           _listings = List<Map<String, dynamic>>.from(response);
@@ -51,13 +51,28 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('Delete Property?', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20)),
-        content: Text('This will permanently delete your property listing from Khozna. This action cannot be undone.', 
-          style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600], height: 1.5)),
+        title: Text(
+          'Delete Property?',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
+        ),
+        content: Text(
+          'This will permanently delete your property listing from Khozna. This action cannot be undone.',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            color: Colors.grey[600],
+            height: 1.5,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.bold)),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.inter(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -65,9 +80,14 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: Text('Permanently Delete', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+            child: Text(
+              'Permanently Delete',
+              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -84,9 +104,9 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to delete: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to delete: $e')));
         }
       }
     }
@@ -99,12 +119,20 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       appBar: AppBar(
         title: RichText(
           text: TextSpan(
-            style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+              color: Colors.black,
+            ),
             children: [
               const TextSpan(text: 'मेरो प्रोपर्टी '),
               TextSpan(
                 text: '(My Listings)',
-                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: Colors.grey[500]),
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[500],
+                ),
               ),
             ],
           ),
@@ -119,22 +147,31 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.brandColor),
+            )
           : _listings.isEmpty
-              ? _buildEmptyState()
-              : RefreshIndicator(
-                  onRefresh: _fetchListings,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: _listings.length,
-                    itemBuilder: (context, index) => _buildListingCard(_listings[index]),
-                  ),
-                ),
+          ? _buildEmptyState()
+          : RefreshIndicator(
+              onRefresh: _fetchListings,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(20),
+                itemCount: _listings.length,
+                itemBuilder: (context, index) =>
+                    _buildListingCard(_listings[index]),
+              ),
+            ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddPropertyScreen())).then((_) => _fetchListings()),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AddPropertyScreen()),
+        ).then((_) => _fetchListings()),
         backgroundColor: AppTheme.brandColor,
         elevation: 6,
-        extendedPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+        extendedPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 0,
+        ),
         icon: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
         label: Column(
           mainAxisSize: MainAxisSize.min,
@@ -168,7 +205,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     final List joinImages = item['property_images'] as List? ?? [];
     final List arrayImages = item['images'] as List? ?? [];
     List<String> finalImages = [];
-    
+
     if (joinImages.isNotEmpty) {
       finalImages = joinImages.map((i) => i['image_url'].toString()).toList();
     } else if (arrayImages.isNotEmpty) {
@@ -218,7 +255,11 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               color: Colors.grey[50],
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.home_work_rounded, size: 72, color: Colors.grey[200]),
+            child: Icon(
+              Icons.home_work_rounded,
+              size: 72,
+              color: Colors.grey[200],
+            ),
           ),
           const SizedBox(height: 24),
           Text(

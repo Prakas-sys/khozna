@@ -51,15 +51,20 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: _isLoading 
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.brandColor),
+            )
           : RefreshIndicator(
               onRefresh: _fetchSavedProperties,
               color: AppTheme.brandColor,
-              child: _savedProperties.isEmpty 
+              child: _savedProperties.isEmpty
                   ? _buildEmptyState()
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
                       itemCount: _savedProperties.length,
                       itemBuilder: (context, index) {
                         final savedItem = _savedProperties[index];
@@ -69,11 +74,15 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                         final List joinImages = p['property_images'] ?? [];
                         final List arrayImages = p['images'] ?? [];
                         List<String> finalImages = [];
-                        
+
                         if (joinImages.isNotEmpty) {
-                          finalImages = joinImages.map((i) => i['image_url'].toString()).toList();
+                          finalImages = joinImages
+                              .map((i) => i['image_url'].toString())
+                              .toList();
                         } else if (arrayImages.isNotEmpty) {
-                          finalImages = arrayImages.map((i) => i.toString()).toList();
+                          finalImages = arrayImages
+                              .map((i) => i.toString())
+                              .toList();
                         }
 
                         final String mainImage = finalImages.isNotEmpty
@@ -94,7 +103,9 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                             ownerId: p['owner_id'] ?? '',
                             images: finalImages,
                             amenities: List<String>.from(p['amenities'] ?? []),
-                            houseRules: List<String>.from(p['house_rules'] ?? []),
+                            houseRules: List<String>.from(
+                              p['house_rules'] ?? [],
+                            ),
                           ),
                         );
                       },
@@ -114,13 +125,24 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(color: Colors.grey[50], shape: BoxShape.circle),
-                child: Icon(Icons.bookmark_border_rounded, size: 48, color: Colors.grey[200]),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.bookmark_border_rounded,
+                  size: 48,
+                  color: Colors.grey[200],
+                ),
               ),
               const SizedBox(height: 20),
               Text(
                 'No saved properties',
-                style: GoogleFonts.inter(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+                style: GoogleFonts.inter(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 4),
               Text(

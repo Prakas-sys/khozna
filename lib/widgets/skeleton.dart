@@ -5,18 +5,14 @@ class Skeleton extends StatefulWidget {
   final double? width;
   final double borderRadius;
 
-  const Skeleton({
-    super.key,
-    this.height,
-    this.width,
-    this.borderRadius = 12,
-  });
+  const Skeleton({super.key, this.height, this.width, this.borderRadius = 12});
 
   @override
   State<Skeleton> createState() => _SkeletonState();
 }
 
-class _SkeletonState extends State<Skeleton> with SingleTickerProviderStateMixin {
+class _SkeletonState extends State<Skeleton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -57,11 +53,7 @@ class _SkeletonState extends State<Skeleton> with SingleTickerProviderStateMixin
                 Color(0xFFF4F4F4),
                 Color(0xFFEBEBF4),
               ],
-              stops: [
-                0.1,
-                _animation.value,
-                0.9,
-              ],
+              stops: [0.1, _animation.value, 0.9],
             ),
           ),
         );

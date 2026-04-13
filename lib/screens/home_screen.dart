@@ -23,9 +23,9 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   // Reduced to 5 high-impact sections to prevent duplication
-  final List<Future<List<Map<String, dynamic>>>> _sectionFutures = 
+  final List<Future<List<Map<String, dynamic>>>> _sectionFutures =
       List.generate(5, (index) => Future.value(<Map<String, dynamic>>[]));
-  
+
   int _bossTaps = 0;
   Position? _currentPosition;
   final String _adminEmail = 'khoznaapp@gmail.com';
@@ -40,8 +40,8 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> _fetchInitialData() async {
     // Acquire location asynchronously
     await _getCurrentLocation();
-    
-    // Once location is found, refresh only the sections that rely on location 
+
+    // Once location is found, refresh only the sections that rely on location
     // or just refresh everything for simplicity since indices are now stable.
     if (mounted) {
       setState(() {
@@ -56,10 +56,13 @@ class HomeScreenState extends State<HomeScreen> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      
-      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
         final position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(accuracy: LocationAccuracy.low)
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.low,
+          ),
         );
         if (mounted) {
           setState(() {
@@ -87,39 +90,51 @@ class HomeScreenState extends State<HomeScreen> {
 
   void _initializeFutures() {
     final client = Supabase.instance.client;
-    
+
     for (int i = 0; i < 5; i++) {
       _sectionFutures[i] = _fetchSectionData(client, i);
     }
   }
 
-  Future<List<Map<String, dynamic>>> _fetchSectionData(SupabaseClient client, int index) async {
+  Future<List<Map<String, dynamic>>> _fetchSectionData(
+    SupabaseClient client,
+    int index,
+  ) async {
     dynamic query = client
         .from('properties')
         .select('*, property_images(image_url)');
-    
+
     switch (index) {
       case 0: // Verified Listings (Main Featured)
-        query = query.eq('is_verified', true).order('created_at', ascending: false);
+        query = query
+            .eq('is_verified', true)
+            .order('created_at', ascending: false);
         break;
       case 1: // Near You (Location-based)
         if (_currentPosition != null) {
           query = query
-            .gte('latitude', _currentPosition!.latitude - 0.1)
-            .lte('latitude', _currentPosition!.latitude + 0.1)
-            .gte('longitude', _currentPosition!.longitude - 0.1)
-            .lte('longitude', _currentPosition!.longitude + 0.1);
+              .gte('latitude', _currentPosition!.latitude - 0.1)
+              .lte('latitude', _currentPosition!.latitude + 0.1)
+              .gte('longitude', _currentPosition!.longitude - 0.1)
+              .lte('longitude', _currentPosition!.longitude + 0.1);
         }
         query = query.order('created_at', ascending: false);
         break;
       case 2: // Student Housing (Room < 7k)
-        query = query.eq('category', 'Room').lt('price', 7000).order('price', ascending: true);
+        query = query
+            .eq('category', 'Room')
+            .lt('price', 7000)
+            .order('price', ascending: true);
         break;
       case 3: // Family Flats (Flat)
-        query = query.eq('category', 'Flat').order('created_at', ascending: false);
+        query = query
+            .eq('category', 'Flat')
+            .order('created_at', ascending: false);
         break;
       case 4: // Premium Collections
-        query = query.or('is_premium.eq.true,price.gt.20000').order('price', descending: true);
+        query = query
+            .or('is_premium.eq.true,price.gt.20000')
+            .order('price', descending: true);
         break;
       default:
         query = query.order('created_at', ascending: false);
@@ -154,9 +169,18 @@ class HomeScreenState extends State<HomeScreen> {
         title: Column(
           children: [
             const SizedBox(height: 16),
-            Text('Admin Access', style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 22)),
+            Text(
+              'Admin Access',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w900,
+                fontSize: 22,
+              ),
+            ),
             const SizedBox(height: 8),
-            Text('Enter 4-digit security PIN', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
+            Text(
+              'Enter 4-digit security PIN',
+              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600]),
+            ),
           ],
         ),
         content: TextField(
@@ -165,8 +189,16 @@ class HomeScreenState extends State<HomeScreen> {
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           maxLength: 4,
-          style: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 16),
-          decoration: const InputDecoration(counterText: '', hintText: '••••', border: InputBorder.none),
+          style: GoogleFonts.inter(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 16,
+          ),
+          decoration: const InputDecoration(
+            counterText: '',
+            hintText: '••••',
+            border: InputBorder.none,
+          ),
         ),
         actions: [
           SizedBox(
@@ -176,7 +208,10 @@ class HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 if (pinController.text == '8888') {
                   Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const OwnerDashboard()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const OwnerDashboard()),
+                  );
                 } else {
                   HapticFeedback.heavyImpact();
                   Navigator.pop(context);
@@ -185,9 +220,17 @@ class HomeScreenState extends State<HomeScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.brandColor,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
-              child: Text('Unlock Dashboard', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white)),
+              child: Text(
+                'Unlock Dashboard',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
         ],
@@ -197,7 +240,10 @@ class HomeScreenState extends State<HomeScreen> {
 
   void _navigate(BuildContext context, Widget destination) {
     HapticFeedback.lightImpact();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => destination));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => destination),
+    );
   }
 
   @override
@@ -215,7 +261,11 @@ class HomeScreenState extends State<HomeScreen> {
           onTap: _handleBossTap,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.asset('assets/images/original logo.png', height: 48, fit: BoxFit.contain),
+            child: Image.asset(
+              'assets/images/original logo.png',
+              height: 48,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
         actions: [
@@ -240,7 +290,11 @@ class HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(color: Colors.grey.shade200),
                         ),
-                        child: const Icon(CupertinoIcons.bell, color: Colors.black87, size: 28),
+                        child: const Icon(
+                          CupertinoIcons.bell,
+                          color: Colors.black87,
+                          size: 28,
+                        ),
                       ),
                       if (badgeCount > 0)
                         Positioned(
@@ -248,12 +302,22 @@ class HomeScreenState extends State<HomeScreen> {
                           right: -4,
                           child: Container(
                             padding: const EdgeInsets.all(5),
-                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                            constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 22,
+                              minHeight: 22,
+                            ),
                             child: Center(
                               child: Text(
                                 badgeCount > 9 ? '9+' : '$badgeCount',
-                                style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w900),
+                                style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                ),
                               ),
                             ),
                           ),
@@ -283,14 +347,22 @@ class HomeScreenState extends State<HomeScreen> {
                       FittedBox(
                         child: Text(
                           'Find your Next Home',
-                          style: GoogleFonts.zenAntiqueSoft(fontSize: 30, fontWeight: FontWeight.w800, color: Colors.black87),
+                          style: GoogleFonts.zenAntiqueSoft(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 4),
                       FittedBox(
                         child: Text(
                           'No middleman',
-                          style: GoogleFonts.zenAntiqueSoft(fontSize: 30, fontWeight: FontWeight.w800, color: AppTheme.brandColor),
+                          style: GoogleFonts.zenAntiqueSoft(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.brandColor,
+                          ),
                         ),
                       ),
                     ],
@@ -298,18 +370,26 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 54),
                 Hero(
-                  tag: 'search_bar_container', // Changed tag to be more specific
+                  tag:
+                      'search_bar_container', // Changed tag to be more specific
                   child: Material(
                     color: Colors.transparent,
                     child: GestureDetector(
                       onTap: () => _navigate(context, const SearchScreen()),
                       child: Container(
                         height: 52,
-                        padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4), // Removed horizontal to allow mic to sit flush right
+                        padding: const EdgeInsets.only(
+                          left: 16,
+                          top: 4,
+                          bottom: 4,
+                        ), // Removed horizontal to allow mic to sit flush right
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(30),
-                          border: Border.all(color: Colors.grey.shade200, width: 1.2),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            width: 1.2,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.06),
@@ -320,16 +400,25 @@ class HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(CupertinoIcons.search, color: AppTheme.brandColor, size: 26),
+                            const Icon(
+                              CupertinoIcons.search,
+                              color: AppTheme.brandColor,
+                              size: 26,
+                            ),
                             const SizedBox(width: 14),
                             Expanded(
                               child: Text(
                                 'Search properties',
-                                style: GoogleFonts.inter(color: Colors.grey[400], fontSize: 16),
+                                style: GoogleFonts.inter(
+                                  color: Colors.grey[400],
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(right: 4), // Minimal padding for the mic circle to sit flush on the right
+                              padding: const EdgeInsets.only(
+                                right: 4,
+                              ), // Minimal padding for the mic circle to sit flush on the right
                               child: InkWell(
                                 onTap: () {
                                   showModalBottomSheet(
@@ -342,7 +431,9 @@ class HomeScreenState extends State<HomeScreen> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (_) => SearchScreen(initialQuery: text),
+                                            builder: (_) => SearchScreen(
+                                              initialQuery: text,
+                                            ),
                                           ),
                                         );
                                       },
@@ -356,7 +447,11 @@ class HomeScreenState extends State<HomeScreen> {
                                     color: AppTheme.brandColor,
                                     shape: BoxShape.circle,
                                   ),
-                                  child: const Icon(Icons.mic, color: Colors.white, size: 22),
+                                  child: const Icon(
+                                    Icons.mic,
+                                    color: Colors.white,
+                                    size: 22,
+                                  ),
                                 ),
                               ),
                             ),
@@ -367,53 +462,53 @@ class HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 38),
-                
+
                 // --- SECTION 1: VERIFIED ---
                 _buildHorizontalSection(
-                  context, 
-                  'Verified Listings', 
-                  'Handpicked & Checked Properties', 
-                  _sectionFutures[0]
+                  context,
+                  'Verified Listings',
+                  'Handpicked & Checked Properties',
+                  _sectionFutures[0],
                 ),
 
                 const SizedBox(height: 12),
 
                 // --- SECTION 2: NEAR YOU ---
                 _buildHorizontalSection(
-                  context, 
-                  'Near You', 
-                  'Properties in your current area', 
-                  _sectionFutures[1]
+                  context,
+                  'Near You',
+                  'Properties in your current area',
+                  _sectionFutures[1],
                 ),
 
                 const SizedBox(height: 40),
 
                 // --- SECTION 3: STUDENT HOUSING ---
                 _buildHorizontalSection(
-                  context, 
-                  'Student Specials', 
-                  'Budget rooms near colleges', 
-                  _sectionFutures[2]
+                  context,
+                  'Student Specials',
+                  'Budget rooms near colleges',
+                  _sectionFutures[2],
                 ),
 
                 const SizedBox(height: 40),
 
                 // --- SECTION 4: FAMILY FLATS ---
                 _buildHorizontalSection(
-                  context, 
-                  'Family Flats', 
-                  'Spacious homes for everyone', 
-                  _sectionFutures[3]
+                  context,
+                  'Family Flats',
+                  'Spacious homes for everyone',
+                  _sectionFutures[3],
                 ),
 
                 const SizedBox(height: 40),
 
                 // --- SECTION 5: PREMIUM ---
                 _buildHorizontalSection(
-                  context, 
-                  'Premium Collections', 
-                  'Luxurious & Executive stays', 
-                  _sectionFutures[4]
+                  context,
+                  'Premium Collections',
+                  'Luxurious & Executive stays',
+                  _sectionFutures[4],
                 ),
 
                 const SizedBox(height: 40),
@@ -425,7 +520,12 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHorizontalSection(BuildContext context, String title, String subtitle, Future<List<Map<String, dynamic>>> future) {
+  Widget _buildHorizontalSection(
+    BuildContext context,
+    String title,
+    String subtitle,
+    Future<List<Map<String, dynamic>>> future,
+  ) {
     return Column(
       children: [
         Row(
@@ -433,13 +533,23 @@ class HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               title,
-              style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
             ),
             InkWell(
-              onTap: () => _navigate(context, FilterResultsScreen(location: title, priceRange: subtitle)),
+              onTap: () => _navigate(
+                context,
+                FilterResultsScreen(location: title, priceRange: subtitle),
+              ),
               child: Container(
                 padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(color: const Color(0xFFF2F2F2), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F2F2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: const Icon(Icons.east, size: 16),
               ),
             ),
@@ -451,34 +561,23 @@ class HomeScreenState extends State<HomeScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SizedBox(
-                height: 304,
+                height: 340,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: 3,
-                  itemBuilder: (_, __) => const Padding(padding: EdgeInsets.only(right: 16), child: SkeletonCard()),
+                  itemBuilder: (_, __) => const Padding(
+                    padding: EdgeInsets.only(right: 16),
+                    child: SkeletonCard(),
+                  ),
                 ),
               );
             }
 
             final properties = snapshot.data ?? [];
-            
-            // Demo data permanent for Verified
-            if (title == 'Verified Listings') {
-              // Only insert if not already there (prevents duplication on rebuilds if same list)
-              bool exists = properties.any((p) => p['id'] == 'demo-1');
-              if (!exists) {
-                properties.insert(0, {
-                  'id': 'demo-1', 'title': 'Demo Luxury Flat', 'area_name': 'Baneshwor',
-                  'price': '45000', 'bedrooms': 2, 'bathrooms': 2, 'sq_ft': '1200',
-                  'floor': '3rd', 'description': 'Demo Luxury Flat - Permanent Showcase', 'status': 'available',
-                  'property_images': [{'image_url': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267'}]
-                });
-              }
-            }
 
             if (properties.isEmpty) {
               return SizedBox(
-                height: 304,
+                height: 340,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   clipBehavior: Clip.none,
@@ -492,7 +591,7 @@ class HomeScreenState extends State<HomeScreen> {
             }
 
             return SizedBox(
-              height: 304,
+              height: 340,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
@@ -503,17 +602,21 @@ class HomeScreenState extends State<HomeScreen> {
                     final List joinImages = p['property_images'] ?? [];
                     final List arrayImages = p['images'] ?? [];
                     List<String> finalImages = [];
-                    
+
                     if (joinImages.isNotEmpty) {
-                      finalImages = joinImages.map((i) => i['image_url'].toString()).toList();
+                      finalImages = joinImages
+                          .map((i) => i['image_url'].toString())
+                          .toList();
                     } else if (arrayImages.isNotEmpty) {
-                      finalImages = arrayImages.map((i) => i.toString()).toList();
+                      finalImages = arrayImages
+                          .map((i) => i.toString())
+                          .toList();
                     }
 
-                    final String mainImage = finalImages.isNotEmpty 
-                        ? finalImages[0] 
+                    final String mainImage = finalImages.isNotEmpty
+                        ? finalImages[0]
                         : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-                    
+
                     return Padding(
                       padding: const EdgeInsets.only(right: 16),
                       child: PropertyCard(
@@ -532,6 +635,12 @@ class HomeScreenState extends State<HomeScreen> {
                         ownerId: p['owner_id'] ?? '',
                         amenities: List<String>.from(p['amenities'] ?? []),
                         houseRules: List<String>.from(p['house_rules'] ?? []),
+                        latitude: p['latitude'] != null
+                            ? double.tryParse(p['latitude'].toString())
+                            : null,
+                        longitude: p['longitude'] != null
+                            ? double.tryParse(p['longitude'].toString())
+                            : null,
                       ),
                     );
                   } else {
@@ -549,5 +658,4 @@ class HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-
 }

@@ -36,10 +36,19 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
     final priceInt = int.tryParse(priceStr);
 
     // Generic section titles that are NOT location filters
-    const genericTitles = ['Verified Listings', 'Recently Added', 'Near You',
-      'Popular in Kathmandu', 'Budget Friendly', 'High-End Apartments',
-      'Hot Deals', 'Student Housing', 'Family Flats', 'Premium Collections',
-      'Top Rated Properties'];
+    const genericTitles = [
+      'Verified Listings',
+      'Recently Added',
+      'Near You',
+      'Popular in Kathmandu',
+      'Budget Friendly',
+      'High-End Apartments',
+      'Hot Deals',
+      'Student Housing',
+      'Family Flats',
+      'Premium Collections',
+      'Top Rated Properties',
+    ];
     final isLocationSearch = !genericTitles.contains(widget.location);
 
     var query = Supabase.instance.client
@@ -64,7 +73,10 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
 
   void _navigate(BuildContext context, Widget destination) {
     HapticFeedback.lightImpact();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => destination));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => destination),
+    );
   }
 
   @override
@@ -81,8 +93,21 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  Text(widget.location, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
-                  Text(widget.priceRange, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
+                  Text(
+                    widget.location,
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    widget.priceRange,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -98,11 +123,19 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                     onTap: () => _navigate(context, const SearchScreen()),
                     child: Container(
                       height: 52,
-                      padding: const EdgeInsets.fromLTRB(8, 0, 4, 0), // Smaller left padding for back button
+                      padding: const EdgeInsets.fromLTRB(
+                        8,
+                        0,
+                        4,
+                        0,
+                      ), // Smaller left padding for back button
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: Colors.grey.shade200, width: 1.2),
+                        border: Border.all(
+                          color: Colors.grey.shade200,
+                          width: 1.2,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.06),
@@ -115,7 +148,10 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                       child: Row(
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                            icon: const Icon(
+                              Icons.arrow_back_ios_new_rounded,
+                              size: 20,
+                            ),
                             onPressed: () => Navigator.pop(context),
                           ),
                           Icon(
@@ -140,14 +176,17 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                 ),
               ),
             ),
-            
+
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
                 future: _propertiesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
                       itemCount: 10,
                       itemBuilder: (context, index) => Padding(
                         padding: const EdgeInsets.only(bottom: 24),
@@ -163,7 +202,11 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.home_work_outlined, size: 80, color: Colors.grey[200]),
+                          Icon(
+                            Icons.home_work_outlined,
+                            size: 80,
+                            color: Colors.grey[200],
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             'No listings found yet',
@@ -176,9 +219,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'Be the first to post a property!',
-                            style: GoogleFonts.inter(
-                              color: Colors.grey[500],
-                            ),
+                            style: GoogleFonts.inter(color: Colors.grey[500]),
                           ),
                         ],
                       ),
@@ -186,22 +227,29 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   }
 
                   return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
                     itemCount: properties.length,
                     itemBuilder: (context, index) {
                       final p = properties[index];
                       final List joinImages = p['property_images'] ?? [];
                       final List arrayImages = p['images'] ?? [];
                       List<String> finalImages = [];
-                      
+
                       if (joinImages.isNotEmpty) {
-                        finalImages = joinImages.map((i) => i['image_url'].toString()).toList();
+                        finalImages = joinImages
+                            .map((i) => i['image_url'].toString())
+                            .toList();
                       } else if (arrayImages.isNotEmpty) {
-                        finalImages = arrayImages.map((i) => i.toString()).toList();
+                        finalImages = arrayImages
+                            .map((i) => i.toString())
+                            .toList();
                       }
 
-                      final String mainImage = finalImages.isNotEmpty 
-                          ? finalImages[0] 
+                      final String mainImage = finalImages.isNotEmpty
+                          ? finalImages[0]
                           : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 
                       return Padding(
@@ -263,12 +311,33 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(width: 140, height: 16, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
-                    Container(width: 80, height: 16, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
+                    Container(
+                      width: 140,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    Container(
+                      width: 80,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                Container(width: 100, height: 10, decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(4))),
+                Container(
+                  width: 100,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
                 const SizedBox(height: 24),
                 Container(
                   width: double.infinity,

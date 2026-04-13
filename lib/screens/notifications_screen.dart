@@ -72,163 +72,220 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         actions: [
           if (_notifications.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.delete_sweep_outlined, color: Colors.red, size: 24),
+              icon: const Icon(
+                Icons.delete_sweep_outlined,
+                color: Colors.red,
+                size: 24,
+              ),
               tooltip: 'Clear All',
               onPressed: _confirmClearAll,
             ),
           const SizedBox(width: 8),
         ],
       ),
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2))
-        : RefreshIndicator(
-            onRefresh: _fetchNotifications,
-            color: AppTheme.brandColor,
-            child: ListView.builder(
-              itemCount: _notifications.length + 1, // +1 for the pinned card
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              itemBuilder: (context, index) {
-                // PINNED SUPPORT CARD AT THE TOP
-                if (index == 0) {
-                  return Column(
-                    children: [
-                      _buildPinnedSupportCard(),
-                      if (_notifications.isNotEmpty) ...[
-                        const SizedBox(height: 24),
-                        Row(
-                          children: [
-                            Text(
-                              'Recent Activity', 
-                              style: GoogleFonts.inter(
-                                fontSize: 13, 
-                                fontWeight: FontWeight.w800, 
-                                color: Colors.grey[400],
-                                letterSpacing: 0.5,
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: AppTheme.brandColor,
+                strokeWidth: 2,
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _fetchNotifications,
+              color: AppTheme.brandColor,
+              child: ListView.builder(
+                itemCount: _notifications.length + 1, // +1 for the pinned card
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 16,
+                ),
+                itemBuilder: (context, index) {
+                  // PINNED SUPPORT CARD AT THE TOP
+                  if (index == 0) {
+                    return Column(
+                      children: [
+                        _buildPinnedSupportCard(),
+                        if (_notifications.isNotEmpty) ...[
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Text(
+                                'Recent Activity',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.grey[400],
+                                  letterSpacing: 0.5,
+                                ),
                               ),
-                            ),
-                            const Spacer(),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                      if (_notifications.isEmpty) ...[
-                        const SizedBox(height: 40),
-                        _buildEmptyStateContent(),
-                      ],
-                    ],
-                  );
-                }
-
-                final note = _notifications[index - 1];
-                final sender = note['sender'];
-                final String id = note['id'].toString();
-                
-                return Dismissible(
-                  key: Key(id),
-                  direction: DismissDirection.endToStart,
-                  onDismissed: (_) async {
-                    if (index - 1 < _notifications.length) {
-                       setState(() => _notifications.removeAt(index - 1));
-                       await SupabaseService.deleteNotification(id);
-                    }
-                  },
-                  background: Container(
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    color: Colors.red.shade50,
-                    child: const Icon(Icons.delete_outline, color: Colors.red, size: 24),
-                  ),
-                  child: InkWell(
-                    onTap: () {},
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              if (sender != null) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => OwnerProfileScreen(
-                                      ownerId: sender['id']?.toString() ?? '',
-                                      name: sender['full_name'] ?? 'Khozna User',
-                                      avatar: sender['avatar_url'] ?? 'https://via.placeholder.com/150',
-                                      location: 'Kathmandu, Nepal',
-                                      totalListings: 0,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                            child: Stack(
-                              children: [
-                                CircleAvatar(
-                                  radius: 26,
-                                  backgroundColor: Colors.grey[100],
-                                  backgroundImage: sender != null && sender['avatar_url'] != null
-                                      ? NetworkImage(sender['avatar_url'])
-                                      : null,
-                                  child: sender == null || sender['avatar_url'] == null
-                                      ? Icon(Icons.person, color: Colors.grey[400], size: 28)
-                                      : null,
-                                ),
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: BoxDecoration(
-                                      color: _getTypeColor(note['type']),
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 2),
-                                    ),
-                                    child: Icon(_getTypeIcon(note['type']), size: 10, color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            ),
+                              const Spacer(),
+                            ],
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                RichText(
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  text: TextSpan(
-                                    style: GoogleFonts.inter(fontSize: 14, color: Colors.black, height: 1.3),
-                                    children: [
-                                      TextSpan(
-                                        text: sender != null ? sender['full_name'] + ' ' : '',
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
-                                      ),
-                                      TextSpan(text: note['message'] ?? note['title'] ?? ''),
-                                      TextSpan(
-                                        text: '  ' + _formatTime(note['created_at']),
-                                        style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => _confirmDelete(id, index - 1),
-                            icon: Icon(Icons.delete_outline, color: Colors.red.withOpacity(0.3), size: 18),
-                          ),
+                          const SizedBox(height: 12),
                         ],
+                        if (_notifications.isEmpty) ...[
+                          const SizedBox(height: 40),
+                          _buildEmptyStateContent(),
+                        ],
+                      ],
+                    );
+                  }
+
+                  final note = _notifications[index - 1];
+                  final sender = note['sender'];
+                  final String id = note['id'].toString();
+
+                  return Dismissible(
+                    key: Key(id),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (_) async {
+                      if (index - 1 < _notifications.length) {
+                        setState(() => _notifications.removeAt(index - 1));
+                        await SupabaseService.deleteNotification(id);
+                      }
+                    },
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      color: Colors.red.shade50,
+                      child: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.red,
+                        size: 24,
                       ),
                     ),
-                  ),
-                );
-              },
+                    child: InkWell(
+                      onTap: () {},
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                if (sender != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => OwnerProfileScreen(
+                                        ownerId: sender['id']?.toString() ?? '',
+                                        name:
+                                            sender['full_name'] ??
+                                            'Khozna User',
+                                        avatar:
+                                            sender['avatar_url'] ??
+                                            'https://via.placeholder.com/150',
+                                        location: 'Kathmandu, Nepal',
+                                        totalListings: 0,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Stack(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 26,
+                                    backgroundColor: Colors.grey[100],
+                                    backgroundImage:
+                                        sender != null &&
+                                            sender['avatar_url'] != null
+                                        ? NetworkImage(sender['avatar_url'])
+                                        : null,
+                                    child:
+                                        sender == null ||
+                                            sender['avatar_url'] == null
+                                        ? Icon(
+                                            Icons.person,
+                                            color: Colors.grey[400],
+                                            size: 28,
+                                          )
+                                        : null,
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(3),
+                                      decoration: BoxDecoration(
+                                        color: _getTypeColor(note['type']),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        _getTypeIcon(note['type']),
+                                        size: 10,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  RichText(
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    text: TextSpan(
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                        height: 1.3,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text: sender != null
+                                              ? sender['full_name'] + ' '
+                                              : '',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text:
+                                              note['message'] ??
+                                              note['title'] ??
+                                              '',
+                                        ),
+                                        TextSpan(
+                                          text:
+                                              '  ' +
+                                              _formatTime(note['created_at']),
+                                          style: TextStyle(
+                                            color: Colors.grey[400],
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () => _confirmDelete(id, index - 1),
+                              icon: Icon(
+                                Icons.delete_outline,
+                                color: Colors.red.withOpacity(0.3),
+                                size: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
     );
   }
 
@@ -304,7 +361,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   color: Colors.white.withOpacity(0.2),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.support_agent_rounded, color: Colors.white, size: 24),
+                child: const Icon(
+                  Icons.support_agent_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -313,11 +374,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   children: [
                     Text(
                       'Official Khozna Support',
-                      style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     Text(
                       'Always active for you',
-                      style: GoogleFonts.inter(color: Colors.white.withOpacity(0.8), fontSize: 12),
+                      style: GoogleFonts.inter(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
@@ -327,7 +395,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           const SizedBox(height: 16),
           Text(
             'Facing any struggle? Our team is here to solve it. Message us directly to report problems or provide feedback.',
-            style: GoogleFonts.inter(color: Colors.white, fontSize: 13, height: 1.4),
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 13,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -337,7 +409,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                  builder: (context) => chat_page.ChatScreen(
+                    builder: (context) => chat_page.ChatScreen(
                       ownerId: '8746409d-5644-4f4f-93ff-bbf9a19dd505',
                       name: 'Khozna Official Support',
                       avatar: 'https://khozna.com/logo.png',
@@ -351,11 +423,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 foregroundColor: AppTheme.brandColor,
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: Text(
                 'Message Team (कुरा गर्नुहोस्)',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w900, fontSize: 13),
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
+                ),
               ),
             ),
           ),
@@ -367,24 +444,49 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void _confirmDelete(String id, int index) async {
     final bool? confirm = await showModalBottomSheet<bool>(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
             const SizedBox(height: 24),
-            Text('Remove notification?', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Remove notification?',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 12),
-            Text('This will permanently delete this alert from your feed.', textAlign: TextAlign.center, style: GoogleFonts.inter(color: Colors.grey)),
+            Text(
+              'This will permanently delete this alert from your feed.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(color: Colors.grey),
+            ),
             const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
                   child: TextButton(
                     onPressed: () => Navigator.pop(context, false),
-                    child: Text('Cancel', style: GoogleFonts.inter(color: Colors.black, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Cancel',
+                      style: GoogleFonts.inter(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -395,9 +497,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: Text('Delete', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Delete',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ],
@@ -409,7 +516,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
 
     if (confirm == true) {
-      final String targetId = id; 
+      final String targetId = id;
       if (index < _notifications.length) {
         setState(() => _notifications.removeAt(index));
         await SupabaseService.deleteNotification(targetId);
@@ -421,19 +528,36 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Clear all notifications?', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-        content: Text('This will permanently delete all your notifications.', style: GoogleFonts.inter()),
+        title: Text(
+          'Clear all notifications?',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'This will permanently delete all your notifications.',
+          style: GoogleFonts.inter(),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 0,
             ),
-            child: Text('Clear All', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text(
+              'Clear All',
+              style: GoogleFonts.inter(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -444,33 +568,47 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         _notifications.clear();
       });
       await SupabaseService.deleteAllNotifications();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('All notifications cleared')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All notifications cleared')),
+      );
     }
   }
 
   IconData _getTypeIcon(String? type) {
     switch (type) {
-      case 'love_alert': return Icons.favorite_rounded;
+      case 'love_alert':
+        return Icons.favorite_rounded;
       case 'booking_alert':
-      case 'saved_booking_alert': return Icons.home_work_rounded;
-      case 'message': return Icons.chat_bubble_rounded;
+      case 'saved_booking_alert':
+        return Icons.home_work_rounded;
+      case 'message':
+        return Icons.chat_bubble_rounded;
       case 'booking':
-      case 'kyc_update': return Icons.verified_user_rounded;
-      case 'security': return Icons.security_rounded;
-      default: return Icons.notifications_rounded;
+      case 'kyc_update':
+        return Icons.verified_user_rounded;
+      case 'security':
+        return Icons.security_rounded;
+      default:
+        return Icons.notifications_rounded;
     }
   }
 
   Color _getTypeColor(String? type) {
     switch (type) {
-      case 'love_alert': return Colors.red;
+      case 'love_alert':
+        return Colors.red;
       case 'booking_alert':
-      case 'saved_booking_alert': return Colors.orange;
-      case 'message': return AppTheme.brandColor;
+      case 'saved_booking_alert':
+        return Colors.orange;
+      case 'message':
+        return AppTheme.brandColor;
       case 'booking':
-      case 'kyc_update': return Colors.green;
-      case 'security': return Colors.black;
-      default: return Colors.grey;
+      case 'kyc_update':
+        return Colors.green;
+      case 'security':
+        return Colors.black;
+      default:
+        return Colors.grey;
     }
   }
 }

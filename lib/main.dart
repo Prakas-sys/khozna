@@ -20,7 +20,8 @@ import 'screens/login_screen.dart';
 // import 'screens/splash_screen.dart'; // Removed
 
 // Local Notifications Plugin
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 // Handle Background Push Messages
 @pragma('vm:entry-point')
@@ -28,14 +29,16 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   // 🔥 RED BADGE IN BACKGROUND - Temporarily disabled due to Android build incompatibility
   if (message.notification != null) {
-    debugPrint("Background notification received: ${message.notification?.title}");
+    debugPrint(
+      "Background notification received: ${message.notification?.title}",
+    );
   }
 }
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  
+
   // Load environment variables for security
   try {
     await dotenv.load(fileName: ".env");
@@ -60,7 +63,7 @@ void main() async {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
-  
+
   runApp(const KhoznaApp());
 }
 
@@ -79,7 +82,11 @@ class _CompromisedDeviceApp extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.security_rounded, color: Color(0xFF00A3E1), size: 80),
+                const Icon(
+                  Icons.security_rounded,
+                  color: Color(0xFF00A3E1),
+                  size: 80,
+                ),
                 const SizedBox(height: 24),
                 Text(
                   'Security Alert',
@@ -111,7 +118,7 @@ class _CompromisedDeviceApp extends StatelessWidget {
 /// New central initialization hub
 Future<void> _initializeServices() async {
   debugPrint('--- SERVICE INITIALIZATION START ---');
-  
+
   // 1. Supabase (Crucial)
   try {
     await supabase.Supabase.initialize(
@@ -155,7 +162,8 @@ Future<void> _setupNotifications() async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     RemoteNotification? notification = message.notification;
     // Check if it's a chat message based on data payload
-    final bool isChatMessage = message.data['table'] == 'messages' || message.data['type'] == 'chat';
+    final bool isChatMessage =
+        message.data['table'] == 'messages' || message.data['type'] == 'chat';
 
     if (notification != null) {
       if (isChatMessage) {
@@ -172,10 +180,22 @@ Future<void> _setupNotifications() async {
 
 void _showLocalNotification(String title, String body) async {
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails('high_importance_channel', 'High Importance Notifications',
-          importance: Importance.max, priority: Priority.high, showWhen: false);
-  const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
-  await flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
+      AndroidNotificationDetails(
+        'high_importance_channel',
+        'High Importance Notifications',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: false,
+      );
+  const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    android: androidPlatformChannelSpecifics,
+  );
+  await flutterLocalNotificationsPlugin.show(
+    0,
+    title,
+    body,
+    platformChannelSpecifics,
+  );
 }
 
 class KhoznaApp extends StatefulWidget {
@@ -198,12 +218,12 @@ class _KhoznaAppState extends State<KhoznaApp> {
 
   Future<void> _initApp() async {
     debugPrint('--- _initApp START ---');
-    
+
     // Start global service initialization
     await _initializeServices();
     await SupabaseService.fetchSavedPropertyIds(); // Fetch Master Memory IDs
     initializeBadgeSync();
-    
+
     // 🧹 AUTO-CLEAR RED BADGE ON OPEN - Temporarily disabled due to Android build incompatibility
     debugPrint("Auto-clearing badges on app open");
     notificationBadgeCount.value = 0; // Reset internal counter
@@ -217,20 +237,23 @@ class _KhoznaAppState extends State<KhoznaApp> {
         setState(() {
           _session = session;
           // When we get the initial session or a sign-in, we are no longer "initializing" the auth check
-          if (event == supabase.AuthChangeEvent.initialSession || event == supabase.AuthChangeEvent.signedIn) {
+          if (event == supabase.AuthChangeEvent.initialSession ||
+              event == supabase.AuthChangeEvent.signedIn) {
             _isInitializing = false;
           }
         });
       }
 
-      if (event == supabase.AuthChangeEvent.signedIn || 
-          event == supabase.AuthChangeEvent.initialSession || 
+      if (event == supabase.AuthChangeEvent.signedIn ||
+          event == supabase.AuthChangeEvent.initialSession ||
           event == supabase.AuthChangeEvent.tokenRefreshed) {
-        debugPrint('--- [AUTH] Session Sync: Event=$event. Initializing Realtime Listeners ---');
+        debugPrint(
+          '--- [AUTH] Session Sync: Event=$event. Initializing Realtime Listeners ---',
+        );
         SupabaseService.initRealtimeListeners();
         SupabaseService.fetchSavedPropertyIds();
       }
-      
+
       if (event == supabase.AuthChangeEvent.signedOut) {
         debugPrint('--- [AUTH] User Signed Out ---');
         if (mounted) {
@@ -246,7 +269,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
 
     // Initial check is handled by the onAuthStateChange.initialSession listener above
     // No need to call manually here as it would double-initialize
-    
+
     // Check location permission
     try {
       final status = await Permission.location.status;
@@ -280,12 +303,13 @@ class _KhoznaAppState extends State<KhoznaApp> {
         });
         return child!;
       },
-      home: _isInitializing 
+      home: _isInitializing
           ? Container(color: Colors.white)
-          : (_session != null 
-              ? (_isLocationGranted ? const MainScreen() : const LocationPermissionScreen())
-              : const LoginScreen()),
+          : (_session != null
+                ? (_isLocationGranted
+                      ? const MainScreen()
+                      : const LocationPermissionScreen())
+                : const LoginScreen()),
     );
   }
-
 }

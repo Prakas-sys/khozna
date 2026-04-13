@@ -20,11 +20,11 @@ class VideoService {
     try {
       // 1. COMPRESS VIDEO
       if (onProgress != null) onProgress(0.1); // Indicate compression started
-      
+
       final MediaInfo? mediaInfo = await VideoCompress.compressVideo(
         videoFile.path,
         quality: VideoQuality.MediumQuality, // Good balance for reels
-        deleteOrigin: false, 
+        deleteOrigin: false,
         includeAudio: true,
       );
 
@@ -34,31 +34,39 @@ class VideoService {
       }
 
       final File compressedFile = mediaInfo.file!;
-      
+
       // Verify size (optional but good practice)
       final int sizeInBytes = await compressedFile.length();
-      if (sizeInBytes > 31457280) { // ~30MB
-        print('Video still too large after compression: ${sizeInBytes / 1024 / 1024} MB');
-        // We proceed anyway as it's much smaller than the original, 
+      if (sizeInBytes > 31457280) {
+        // ~30MB
+        print(
+          'Video still too large after compression: ${sizeInBytes / 1024 / 1024} MB',
+        );
+        // We proceed anyway as it's much smaller than the original,
         // but the 50MB policy will catch it if it exceeds that.
       }
 
       if (onProgress != null) onProgress(0.3); // Indicate compression done
 
-      final String fileName = '${DateTime.now().millisecondsSinceEpoch}${p.extension(compressedFile.path)}';
+      final String fileName =
+          '${DateTime.now().millisecondsSinceEpoch}${p.extension(compressedFile.path)}';
       final String filePath = '${user.id}/$fileName';
 
       // 2. Upload Video to Storage
-      await _client.storage.from('reels').upload(
+      await _client.storage
+          .from('reels')
+          .upload(
             filePath,
             compressedFile,
             fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
           );
 
-      if (onProgress != null) onProgress(0.8); 
+      if (onProgress != null) onProgress(0.8);
 
       // 3. Get Public URL
-      final String videoUrl = _client.storage.from('reels').getPublicUrl(filePath);
+      final String videoUrl = _client.storage
+          .from('reels')
+          .getPublicUrl(filePath);
 
       // 4. Save to Reels Table
       await _client.from('reels').insert({

@@ -21,9 +21,14 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   double _priceValue = 5000;
-  final List<String> _recentSearches = ['Baluwatar', '2BHK Sanepa', 'Flat under 20k', 'Baneshwor Room'];
+  final List<String> _recentSearches = [
+    'Baluwatar',
+    '2BHK Sanepa',
+    'Flat under 20k',
+    'Baneshwor Room',
+  ];
   late TextEditingController _searchController;
-  
+
   // AI Search State
   final KhoznaAiService _aiService = KhoznaAiService();
   bool _isAiSearching = false;
@@ -33,7 +38,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
-    
+
     // Auto-fill from voice search or constructor
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
@@ -58,8 +63,6 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,7 +79,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87, size: 22),
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Colors.black87,
+                        size: 22,
+                      ),
                       onPressed: () => Navigator.pop(context),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -93,7 +100,10 @@ class _SearchScreenState extends State<SearchScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: Colors.grey.shade200, width: 1.2),
+                              border: Border.all(
+                                color: Colors.grey.shade200,
+                                width: 1.2,
+                              ),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.03),
@@ -104,12 +114,19 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.search, color: Colors.grey, size: 20),
+                                const Icon(
+                                  Icons.search,
+                                  color: Colors.grey,
+                                  size: 20,
+                                ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: TextField(
                                     controller: _searchController,
-                                    style: GoogleFonts.inter(fontSize: 15, color: Colors.black87),
+                                    style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      color: Colors.black87,
+                                    ),
                                     cursorColor: AppTheme.brandColor,
                                     decoration: InputDecoration(
                                       hintText: 'Search properties',
@@ -128,8 +145,14 @@ class _SearchScreenState extends State<SearchScreen> {
                                 ),
                                 if (_searchController.text.isNotEmpty)
                                   GestureDetector(
-                                    onTap: () => setState(() => _searchController.clear()),
-                                    child: Icon(Icons.cancel, size: 20, color: Colors.grey[400]),
+                                    onTap: () => setState(
+                                      () => _searchController.clear(),
+                                    ),
+                                    child: Icon(
+                                      Icons.cancel,
+                                      size: 20,
+                                      color: Colors.grey[400],
+                                    ),
                                   ),
                               ],
                             ),
@@ -140,7 +163,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                
+
                 // PREMIUM MAGIC AI SEARCH CARD
                 Container(
                   width: double.infinity,
@@ -169,33 +192,56 @@ class _SearchScreenState extends State<SearchScreen> {
                         Positioned(
                           right: -10,
                           top: -10,
-                          child: Icon(Icons.auto_awesome, size: 80, color: Colors.white.withValues(alpha: 0.1)),
+                          child: Icon(
+                            Icons.auto_awesome,
+                            size: 80,
+                            color: Colors.white.withValues(alpha: 0.1),
+                          ),
                         ),
                         Material(
                           color: Colors.transparent,
                           child: InkWell(
                             onTap: _isAiSearching ? null : _runAiSearch,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                                horizontal: 20,
+                              ),
                               child: Row(
                                 children: [
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.2),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: _isAiSearching 
-                                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                      : const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
+                                    child: _isAiSearching
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Icon(
+                                            Icons.auto_awesome_rounded,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
                                   ),
                                   const SizedBox(width: 14),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          _isAiSearching ? 'AI Finding Perfect Match...' : 'Magic AI Match',
+                                          _isAiSearching
+                                              ? 'AI Finding Perfect Match...'
+                                              : 'Magic AI Match',
                                           style: GoogleFonts.inter(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w900,
@@ -214,7 +260,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                       ],
                                     ),
                                   ),
-                                  const Icon(Icons.chevron_right_rounded, color: Colors.white70),
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: Colors.white70,
+                                  ),
                                 ],
                               ),
                             ),
@@ -231,21 +280,38 @@ class _SearchScreenState extends State<SearchScreen> {
                     decoration: BoxDecoration(
                       color: Colors.purple.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.purple.withValues(alpha: 0.1)),
+                      border: Border.all(
+                        color: Colors.purple.withValues(alpha: 0.1),
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.stars, color: Colors.purple, size: 18),
+                            const Icon(
+                              Icons.stars,
+                              color: Colors.purple,
+                              size: 18,
+                            ),
                             const SizedBox(width: 8),
-                            Text('AI Suggestions', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.purple[800])),
+                            Text(
+                              'AI Suggestions',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.purple[800],
+                              ),
+                            ),
                             const Spacer(),
                             IconButton(
-                              icon: const Icon(Icons.close, size: 16, color: Colors.grey),
-                              onPressed: () => setState(() => _aiSearchResult = null),
-                            )
+                              icon: const Icon(
+                                Icons.close,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () =>
+                                  setState(() => _aiSearchResult = null),
+                            ),
                           ],
                         ),
                         Text(
@@ -285,17 +351,36 @@ class _SearchScreenState extends State<SearchScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('रू 2K', style: GoogleFonts.inter(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 13)),
-                          Text('रू 100K+', style: GoogleFonts.inter(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 13)),
+                          Text(
+                            'रू 2K',
+                            style: GoogleFonts.inter(
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                          Text(
+                            'रू 100K+',
+                            style: GoogleFonts.inter(
+                              color: Colors.grey,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
                         ],
                       ),
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
                           activeTrackColor: AppTheme.brandColor,
-                          inactiveTrackColor: AppTheme.brandColor.withOpacity(0.1),
+                          inactiveTrackColor: AppTheme.brandColor.withOpacity(
+                            0.1,
+                          ),
                           thumbColor: Colors.white,
                           overlayColor: AppTheme.brandColor.withOpacity(0.1),
-                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10, elevation: 4),
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 10,
+                            elevation: 4,
+                          ),
                           trackHeight: 4,
                         ),
                         child: Slider(
@@ -331,7 +416,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,
-                  children: _recentSearches.map((search) => _buildRecentTag(search)).toList(),
+                  children: _recentSearches
+                      .map((search) => _buildRecentTag(search))
+                      .toList(),
                 ),
                 const SizedBox(height: 40),
                 RichText(
@@ -371,24 +458,45 @@ class _SearchScreenState extends State<SearchScreen> {
           padding: const EdgeInsets.all(24.0),
           child: ElevatedButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => FilterResultsScreen(priceRange: 'Up to Rs. ${_priceValue.toInt()}')));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FilterResultsScreen(
+                    priceRange: 'Up to Rs. ${_priceValue.toInt()}',
+                  ),
+                ),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.brandColor,
               minimumSize: const Size(double.infinity, 56),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
-            child: Text('Apply Filters & Search', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
+            child: Text(
+              'Apply Filters & Search',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AiChatScreen()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AiChatScreen()),
+          );
         },
         backgroundColor: Colors.purple,
         icon: const Icon(Icons.support_agent, color: Colors.white),
-        label: Text('AI Assistant', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        label: Text(
+          'AI Assistant',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
@@ -396,8 +504,22 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildRecentTag(String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.grey[300]!)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.history, size: 14, color: Colors.grey), const SizedBox(width: 8), Text(text, style: GoogleFonts.inter(fontSize: 13, color: Colors.black87))]),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.history, size: 14, color: Colors.grey),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: GoogleFonts.inter(fontSize: 13, color: Colors.black87),
+          ),
+        ],
+      ),
     );
   }
 
@@ -417,7 +539,11 @@ class _SearchScreenState extends State<SearchScreen> {
             color: AppTheme.brandColor.withValues(alpha: 0.08),
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.location_on_rounded, color: AppTheme.brandColor, size: 20),
+          child: const Icon(
+            Icons.location_on_rounded,
+            color: AppTheme.brandColor,
+            size: 20,
+          ),
         ),
         title: Text(
           title,
@@ -425,9 +551,17 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         subtitle: Text(
           count,
-          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w500),
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w500,
+          ),
         ),
-        trailing: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey.shade400),
+        trailing: Icon(
+          Icons.arrow_forward_ios_rounded,
+          size: 14,
+          color: Colors.grey.shade400,
+        ),
         onTap: () {},
       ),
     );
@@ -435,7 +569,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _runAiSearch() async {
     if (_searchController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please type what you are looking for first!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please type what you are looking for first!'),
+        ),
+      );
       return;
     }
 
@@ -451,11 +589,15 @@ class _SearchScreenState extends State<SearchScreen> {
           .from('properties')
           .select('id, title, price, area_name, category')
           .limit(10);
-      
-      final List<Map<String, dynamic>> properties = propertiesData.cast<Map<String, dynamic>>();
+
+      final List<Map<String, dynamic>> properties = propertiesData
+          .cast<Map<String, dynamic>>();
 
       // 2. Call AI Service
-      final result = await _aiService.matchProperty(_searchController.text, properties);
+      final result = await _aiService.matchProperty(
+        _searchController.text,
+        properties,
+      );
 
       setState(() {
         _aiSearchResult = result;
@@ -464,7 +606,9 @@ class _SearchScreenState extends State<SearchScreen> {
     } catch (e) {
       setState(() => _isAiSearching = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('AI Search failed: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('AI Search failed: $e')));
       }
     }
   }

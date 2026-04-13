@@ -4,12 +4,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecurityUtils {
   static const MethodChannel _platform = MethodChannel('khozna/security');
-  
+
   // Encrypted Storage Instance (The "Vault")
   static const FlutterSecureStorage _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
-    ),
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 
   /// 1. Secure Screen Shield (The "Privacy Glass")
@@ -31,19 +29,19 @@ class SecurityUtils {
       // SafeDevice checks multiple factors: rooted, real device, mock location
       bool isRooted = await SafeDevice.isJailBroken;
       bool isRealDevice = await SafeDevice.isRealDevice;
-      
+
       // We consider the device compromised if it's rooted OR it's an emulator (optional)
       // For now, only block rooted/jailbroken devices.
       return isRooted;
     } catch (e) {
       // If detection fails, assume safe to avoid blocking legitimate users due to errors.
-      return false; 
+      return false;
     }
   }
 
   /// 3. Secure Storage Methods (The "Vault")
   /// Use these instead of SharedPreferences for sensitive data like tokens.
-  
+
   static Future<void> writeSecurely(String key, String value) async {
     await _storage.write(key: key, value: value);
   }
@@ -67,7 +65,7 @@ class SecurityUtils {
     final clean = input
         .trim()
         .replaceAll(RegExp('[<>"\';\\\\]'), '') // Strip XSS/SQL injection chars
-        .replaceAll(RegExp(r'\s+'), ' ');       // Collapse whitespace
+        .replaceAll(RegExp(r'\s+'), ' '); // Collapse whitespace
     return clean.length > maxLength ? clean.substring(0, maxLength) : clean;
   }
 
@@ -93,4 +91,3 @@ class SecurityUtils {
     return RegExp(r'^(97|98)\d{8}$').hasMatch(phone.trim());
   }
 }
-

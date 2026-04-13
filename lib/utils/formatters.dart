@@ -6,7 +6,7 @@ class PriceFormatter {
       // Remove any non-numeric characters EXCEPT decimal points
       final cleanPrice = priceStr.replaceAll(RegExp(r'[^0-9.]'), '');
       if (cleanPrice.isEmpty) return priceStr;
-      
+
       double price = double.parse(cleanPrice);
 
       if (price >= 10000000) {

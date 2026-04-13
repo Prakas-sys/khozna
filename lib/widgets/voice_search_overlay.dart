@@ -12,7 +12,8 @@ class VoiceSearchOverlay extends StatefulWidget {
   State<VoiceSearchOverlay> createState() => _VoiceSearchOverlayState();
 }
 
-class _VoiceSearchOverlayState extends State<VoiceSearchOverlay> with SingleTickerProviderStateMixin {
+class _VoiceSearchOverlayState extends State<VoiceSearchOverlay>
+    with SingleTickerProviderStateMixin {
   late stt.SpeechToText _speech;
   bool _isListening = false;
   String _text = 'Listening...';
@@ -28,9 +29,10 @@ class _VoiceSearchOverlayState extends State<VoiceSearchOverlay> with SingleTick
       vsync: this,
       duration: const Duration(seconds: 1),
     )..repeat(reverse: true);
-    _animation = Tween<double>(begin: 1.0, end: 1.2).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: 1.0,
+      end: 1.2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _startListening();
   }
 
@@ -46,12 +48,12 @@ class _VoiceSearchOverlayState extends State<VoiceSearchOverlay> with SingleTick
       onStatus: (val) {
         if (val == 'done' || val == 'notListening') {
           if (mounted && _isListening) {
-             setState(() => _isListening = false);
-             if (_text != 'Listening...' && _text.isNotEmpty) {
-               Future.delayed(const Duration(milliseconds: 500), () {
-                 if (mounted) widget.onResult(_text);
-               });
-             }
+            setState(() => _isListening = false);
+            if (_text != 'Listening...' && _text.isNotEmpty) {
+              Future.delayed(const Duration(milliseconds: 500), () {
+                if (mounted) widget.onResult(_text);
+              });
+            }
           }
         }
       },
@@ -143,11 +145,8 @@ class _VoiceSearchOverlayState extends State<VoiceSearchOverlay> with SingleTick
           ),
           const Spacer(),
           Text(
-             'Speak clearly: "Flat in Baluwatar"',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: Colors.grey[500],
-            ),
+            'Speak clearly: "Flat in Baluwatar"',
+            style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[500]),
           ),
           const SizedBox(height: 12),
         ],

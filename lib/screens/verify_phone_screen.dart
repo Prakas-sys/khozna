@@ -28,7 +28,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
   );
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
   bool _isLoading = false;
-  
+
   // Timer for OTP resend
   Timer? _timer;
   int _timerSeconds = 60;
@@ -41,7 +41,9 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
     _currentVerificationId = widget.verificationId;
     _startTimer();
     // Secure OTP screen from screenshots/recordings
-    SecurityUtils.setSecure(true); // 🔐 Screen Shield: blocks OTP theft via screen recording
+    SecurityUtils.setSecure(
+      true,
+    ); // 🔐 Screen Shield: blocks OTP theft via screen recording
   }
 
   void _startTimer() {
@@ -86,13 +88,28 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
       await supabase.Supabase.instance.client.auth.signInWithOtp(
         phone: widget.phoneNumber,
       );
-      
+
       setState(() => _isLoading = false);
       _startTimer();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Verification code resent!', style: GoogleFonts.inter()), backgroundColor: AppTheme.brandColor, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Verification code resent!',
+            style: GoogleFonts.inter(),
+          ),
+          backgroundColor: AppTheme.brandColor,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e', style: GoogleFonts.inter()), backgroundColor: Colors.redAccent, behavior: SnackBarBehavior.floating));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e', style: GoogleFonts.inter()),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -101,7 +118,10 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
     if (otp.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Please enter the full 6-digit code', style: GoogleFonts.inter()),
+          content: Text(
+            'Please enter the full 6-digit code',
+            style: GoogleFonts.inter(),
+          ),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -126,9 +146,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
           // Take user to home screen
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(
-              builder: (context) => const MainScreen(),
-            ),
+            MaterialPageRoute(builder: (context) => const MainScreen()),
             (route) => false,
           );
         }
@@ -137,7 +155,10 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Invalid OTP or verification failed', style: GoogleFonts.inter()),
+          content: Text(
+            'Invalid OTP or verification failed',
+            style: GoogleFonts.inter(),
+          ),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
         ),
@@ -153,7 +174,11 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppTheme.primaryTextColor, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppTheme.primaryTextColor,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -172,14 +197,14 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
               ),
             ),
           ),
-          
+
           SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                   const SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   // Illustration
                   SizedBox(
                     height: 180,
@@ -224,24 +249,24 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                     ),
                   ),
                   const SizedBox(height: 48),
-                  
+
                   // OTP Input Row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(
-                      6, 
+                      6,
                       (index) => Flexible(
-                        flex: 1, 
+                        flex: 1,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0), 
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
                           child: _buildOtpBox(index),
                         ),
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   // Verify Button
                   SizedBox(
                     width: double.infinity,
@@ -253,21 +278,37 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                         foregroundColor: Colors.white,
                         elevation: 8,
                         shadowColor: AppTheme.brandColor.withOpacity(0.3),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                       child: _isLoading
-                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                          : Text('Verify & Continue', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : Text(
+                              'Verify & Continue',
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 40),
-                  
+
                   // Resend Section
                   Column(
                     children: [
                       Text(
-                        _canResend 
+                        _canResend
                             ? "Didn't receive the code?"
                             : "Resend code in $_timerSeconds seconds",
                         style: GoogleFonts.inter(
@@ -280,7 +321,9 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                         child: Text(
                           'Resend Code',
                           style: GoogleFonts.inter(
-                            color: _canResend ? AppTheme.brandColor : Colors.grey,
+                            color: _canResend
+                                ? AppTheme.brandColor
+                                : Colors.grey,
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
                           ),
@@ -306,16 +349,20 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _focusNodes[index].hasFocus ? AppTheme.brandColor : Colors.grey.withOpacity(0.3),
+          color: _focusNodes[index].hasFocus
+              ? AppTheme.brandColor
+              : Colors.grey.withOpacity(0.3),
           width: 2,
         ),
-        boxShadow: _focusNodes[index].hasFocus ? [
-          BoxShadow(
-            color: AppTheme.brandColor.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          )
-        ] : [],
+        boxShadow: _focusNodes[index].hasFocus
+            ? [
+                BoxShadow(
+                  color: AppTheme.brandColor.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : [],
       ),
       child: Center(
         child: TextField(
@@ -325,7 +372,9 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
           keyboardType: TextInputType.number,
           autofillHints: const [AutofillHints.oneTimeCode],
           inputFormatters: [
-            LengthLimitingTextInputFormatter(6), // Increased from 1 to 6 to catch autofills
+            LengthLimitingTextInputFormatter(
+              6,
+            ), // Increased from 1 to 6 to catch autofills
             FilteringTextInputFormatter.digitsOnly,
           ],
           style: GoogleFonts.inter(
@@ -346,7 +395,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
               for (int i = 0; i < value.length && (index + i) < 6; i++) {
                 _controllers[index + i].text = value[i];
               }
-              
+
               int nextIndex = index + value.length;
               if (nextIndex < 6) {
                 _focusNodes[nextIndex].requestFocus();

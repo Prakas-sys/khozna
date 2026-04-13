@@ -50,7 +50,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.add_circle_outline, color: Colors.black87, size: 26),
+                    icon: const Icon(
+                      Icons.add_circle_outline,
+                      color: Colors.black87,
+                      size: 26,
+                    ),
                     onPressed: () {},
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
@@ -92,7 +96,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(width: 16),
-                    const Icon(Icons.search, color: AppTheme.brandColor, size: 22),
+                    const Icon(
+                      Icons.search,
+                      color: AppTheme.brandColor,
+                      size: 22,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: TextField(
@@ -100,7 +108,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         style: GoogleFonts.inter(fontSize: 14),
                         decoration: InputDecoration(
                           hintText: 'Search messages',
-                          hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 14),
+                          hintStyle: GoogleFonts.inter(
+                            color: Colors.grey[400],
+                            fontSize: 14,
+                          ),
                           isCollapsed: true,
                           border: InputBorder.none,
                           enabledBorder: InputBorder.none,
@@ -133,17 +144,24 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         onTap: () => setState(() => _selectedTab = i),
                         child: Container(
                           margin: const EdgeInsets.only(right: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 0,
+                          ),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: selected ? AppTheme.brandColor : const Color(0xFFF2F4F7),
+                            color: selected
+                                ? AppTheme.brandColor
+                                : const Color(0xFFF2F4F7),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             label,
                             style: GoogleFonts.inter(
                               fontSize: 13,
-                              fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                              fontWeight: selected
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
                               color: selected ? Colors.white : Colors.grey[700],
                             ),
                           ),
@@ -157,7 +175,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         color: const Color(0xFFF2F4F7),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Icon(Icons.add, size: 18, color: Colors.black54),
+                      child: const Icon(
+                        Icons.add,
+                        size: 18,
+                        color: Colors.black54,
+                      ),
                     ),
                   ],
                 ),
@@ -168,14 +190,18 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
             // ── CHAT LIST ──
             Expanded(
-              child: _isLoading 
-                ? const Center(child: CircularProgressIndicator())
-                : _chats.isEmpty
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _chats.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.chat_bubble_outline, size: 60, color: Colors.grey[300]),
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 60,
+                            color: Colors.grey[300],
+                          ),
                           const SizedBox(height: 16),
                           Text(
                             'No messages right now.',
@@ -201,17 +227,26 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       onRefresh: _loadChats,
                       child: ListView.builder(
                         itemCount: _chats.length,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
                         itemBuilder: (context, index) {
                           final chat = _chats[index];
                           // Find the other participant (not the current user)
-                          final currentUserId = Supabase.instance.client.auth.currentUser?.id;
-                          final participants = List<Map<String, dynamic>>.from(chat['profiles'] ?? []);
+                          final currentUserId =
+                              Supabase.instance.client.auth.currentUser?.id;
+                          final participants = List<Map<String, dynamic>>.from(
+                            chat['profiles'] ?? [],
+                          );
                           final otherUser = participants.firstWhere(
                             (p) => p['id'] != currentUserId,
-                            orElse: () => {'full_name': 'Unknown', 'avatar_url': null},
+                            orElse: () => {
+                              'full_name': 'Unknown',
+                              'avatar_url': null,
+                            },
                           );
-                          
+
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12),
                             child: InkWell(
@@ -222,8 +257,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                     builder: (_) => chat_page.ChatScreen(
                                       chatId: chat['id'],
                                       name: otherUser['full_name'] ?? 'User',
-                                      avatar: otherUser['avatar_url'] ?? 'https://i.pravatar.cc/150',
-                                      online: true, 
+                                      avatar:
+                                          otherUser['avatar_url'] ??
+                                          'https://i.pravatar.cc/150',
+                                      online: true,
                                     ),
                                   ),
                                 );
@@ -234,7 +271,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.grey.shade200, width: 1.2),
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                    width: 1.2,
+                                  ),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.02),
@@ -250,12 +290,18 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                         Container(
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
-                                            border: Border.all(color: Colors.grey.shade100, width: 1),
+                                            border: Border.all(
+                                              color: Colors.grey.shade100,
+                                              width: 1,
+                                            ),
                                           ),
                                           child: CircleAvatar(
                                             radius: 26,
                                             backgroundColor: Colors.grey[100],
-                                            backgroundImage: NetworkImage(otherUser['avatar_url'] ?? 'https://i.pravatar.cc/150'),
+                                            backgroundImage: NetworkImage(
+                                              otherUser['avatar_url'] ??
+                                                  'https://i.pravatar.cc/150',
+                                            ),
                                           ),
                                         ),
                                         Positioned(
@@ -267,7 +313,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                             decoration: BoxDecoration(
                                               color: const Color(0xFF4CAF50),
                                               shape: BoxShape.circle,
-                                              border: Border.all(color: Colors.white, width: 2),
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -276,13 +325,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                     const SizedBox(width: 14),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                otherUser['full_name'] ?? 'User',
+                                                otherUser['full_name'] ??
+                                                    'User',
                                                 style: GoogleFonts.inter(
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w700,
@@ -290,7 +342,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                                 ),
                                               ),
                                               Text(
-                                                'Just now', 
+                                                'Just now',
                                                 style: GoogleFonts.inter(
                                                   fontSize: 12,
                                                   color: Colors.grey[500],
@@ -300,7 +352,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            chat['last_message'] ?? 'Check your messages',
+                                            chat['last_message'] ??
+                                                'Check your messages',
                                             style: GoogleFonts.inter(
                                               fontSize: 13,
                                               color: Colors.grey[500],

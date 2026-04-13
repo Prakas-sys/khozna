@@ -46,20 +46,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final List<String> _selectedRules = [];
   final List<File> _selectedImages = [];
   bool _isPublishing = false;
-  
+
   // AI Service (Using Khozna AI)
   final KhoznaAiService _aiService = KhoznaAiService();
   bool _isEstimatingPrice = false;
   String? _aiPriceSuggestion;
-  
+
   // Media State
   File? _selectedVideo;
   bool _isUploadingVideo = false;
-  
+
   // New Location Analysis State
   bool _isAnalyzingLocation = false;
   String? _aiLocationAnalysis;
-  
+
   // AI Description State
   bool _isGeneratingDescription = false;
 
@@ -109,13 +109,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       return;
     }
 
-    if (_titleController.text.isEmpty || _priceController.text.isEmpty || _selectedImages.isEmpty || _areaController.text.isEmpty) {
+    if (_titleController.text.isEmpty ||
+        _priceController.text.isEmpty ||
+        _selectedImages.isEmpty ||
+        _areaController.text.isEmpty) {
       String msg = "कृपया सबै रित्तो ठाउँ भर्नुहोस्";
-      if (_selectedImages.isEmpty) msg = "कम्तिमा एउटा फोटो राख्नुहोस् (Add at least one photo)";
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      if (_selectedImages.isEmpty)
+        msg = "कम्तिमा एउटा फोटो राख्नुहोस् (Add at least one photo)";
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
       return;
     }
 
@@ -124,13 +126,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     try {
       // 0. AI Scam Detector Check
       final String scamResult = await _aiService.detectScam(
-        _titleController.text, 
-        _priceController.text, 
-        _areaController.text
+        _titleController.text,
+        _priceController.text,
+        _areaController.text,
       );
-      
-      if (scamResult.toLowerCase().contains("scam") || scamResult.toLowerCase().contains("warning")) {
-         debugPrint("AI SCAM WARNING: $scamResult");
+
+      if (scamResult.toLowerCase().contains("scam") ||
+          scamResult.toLowerCase().contains("warning")) {
+        debugPrint("AI SCAM WARNING: $scamResult");
       }
 
       // 1. Upload Video if selected (Optional)
@@ -153,29 +156,34 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       }
 
       // 3. Insert Property into Supabase
-      final propertyResponse = await client.from('properties').insert({
-        'owner_id': user.id,
-        'title': _titleController.text,
-        'category': _selectedCategory,
-        'area_name': _areaController.text,
-        'landmark': _landmarkController.text,
-        'price': double.tryParse(_priceController.text) ?? 0.0,
-        'bedrooms': int.tryParse(_bedroomsController.text) ?? 0,
-        'bathrooms': int.tryParse(_bathroomsController.text) ?? 0,
-        'floor': _floorController.text,
-        'sq_ft': _sqftController.text,
-        'is_negotiable': _isNegotiable,
-        'amenities': _selectedAmenities,
-        'house_rules': _selectedRules,
-        'images': uploadedUrls, // Save all URLs as array
-        'description': _descriptionController.text,
-        'latitude': _latitude,
-        'longitude': _longitude,
-        'video_url': videoUrl,
-        'status': 'available',
-        'is_verified': true,
-        'is_premium': (double.tryParse(_priceController.text) ?? 0.0) >= 15000.0,
-      }).select().single();
+      final propertyResponse = await client
+          .from('properties')
+          .insert({
+            'owner_id': user.id,
+            'title': _titleController.text,
+            'category': _selectedCategory,
+            'area_name': _areaController.text,
+            'landmark': _landmarkController.text,
+            'price': double.tryParse(_priceController.text) ?? 0.0,
+            'bedrooms': int.tryParse(_bedroomsController.text) ?? 0,
+            'bathrooms': int.tryParse(_bathroomsController.text) ?? 0,
+            'floor': _floorController.text,
+            'sq_ft': _sqftController.text,
+            'is_negotiable': _isNegotiable,
+            'amenities': _selectedAmenities,
+            'house_rules': _selectedRules,
+            'images': uploadedUrls, // Save all URLs as array
+            'description': _descriptionController.text,
+            'latitude': _latitude,
+            'longitude': _longitude,
+            'video_url': videoUrl,
+            'status': 'available',
+            'is_verified': true,
+            'is_premium':
+                (double.tryParse(_priceController.text) ?? 0.0) >= 15000.0,
+          })
+          .select()
+          .single();
 
       final String propertyId = propertyResponse['id'];
 
@@ -188,9 +196,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       }
 
       // 5. Update user profile to mark as owner if not already
-      await client.from('profiles').update({
-        'is_owner': true,
-      }).eq('id', user.id);
+      await client
+          .from('profiles')
+          .update({'is_owner': true})
+          .eq('id', user.id);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -203,9 +212,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Publishing failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Publishing failed: $e')));
       }
     } finally {
       if (mounted) {
@@ -226,10 +235,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) {
+      if (permission == LocationPermission.deniedForever ||
+          permission == LocationPermission.denied) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permission denied. Please enable it in Settings.')),
+            const SnackBar(
+              content: Text(
+                'Location permission denied. Please enable it in Settings.',
+              ),
+            ),
           );
         }
         setState(() => _isLocating = false);
@@ -254,9 +268,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLocating = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not get location: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Could not get location: $e')));
       }
     }
   }
@@ -284,7 +298,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   void _nextStep() {
     bool isValid = false;
     String errorMessage = "";
-    
+
     // Hide keyboard automatically when moving to next step
     FocusScope.of(context).unfocus();
 
@@ -302,7 +316,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       } else if (_landmarkController.text.trim().isEmpty) {
         errorMessage = "कृपया चिनिने ठाउँ राख्नुहोस् (Please enter Landmark)";
       } else if (_latitude == null) {
-        errorMessage = "कृपया नक्शामा लोकेशन सेट गर्नुहोस् (Please set location on Map)";
+        errorMessage =
+            "कृपया नक्शामा लोकेशन सेट गर्नुहोस् (Please set location on Map)";
       } else {
         isValid = true;
       }
@@ -318,7 +333,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     }
 
     if (isValid) {
-      if (_currentStep < 5) { // Now 6 steps
+      if (_currentStep < 5) {
+        // Now 6 steps
         _pageController.nextPage(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
@@ -334,7 +350,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ),
       );
     }
-  }  @override
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -344,7 +362,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         scrolledUnderElevation: 0,
         title: Text(
           'प्रोपर्टी राख्नुहोस्',
-          style: GoogleFonts.mukta(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.black87),
+          style: GoogleFonts.mukta(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -357,10 +379,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               padding: const EdgeInsets.only(right: 20),
               child: Text(
                 'Step ${_currentStep + 1} / 6',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: AppTheme.brandColor, fontSize: 15),
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.brandColor,
+                  fontSize: 15,
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
       body: Column(
@@ -374,11 +400,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 value: (_currentStep + 1) / 6,
                 minHeight: 12,
                 backgroundColor: Colors.grey[200],
-                valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.brandColor),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppTheme.brandColor,
+                ),
               ),
             ),
           ),
-          
+
           Expanded(
             child: PageView(
               controller: _pageController,
@@ -412,20 +440,35 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         _categoryCard('अन्य / Other', Icons.more_horiz, 'Other'),
         const SizedBox(height: 32),
         _buildLabel('विज्ञापनको नाम (Title)', true),
-        _buildTextField('उदा: सानेपामा राम्रो २ कोठा खाली छ', controller: _titleController, focusNode: _titleFocusNode),
+        _buildTextField(
+          'उदा: सानेपामा राम्रो २ कोठा खाली छ',
+          controller: _titleController,
+          focusNode: _titleFocusNode,
+        ),
         const SizedBox(height: 24),
         Row(
           children: [
-            Expanded(child: _buildLabel('प्रोपर्टी विवरण (Description)', false)),
+            Expanded(
+              child: _buildLabel('प्रोपर्टी विवरण (Description)', false),
+            ),
             const SizedBox(width: 8),
             if (_isGeneratingDescription)
-              const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.brandColor))
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppTheme.brandColor,
+                ),
+              )
             else
               TextButton(
                 onPressed: () async {
                   if (_titleController.text.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter a title first')),
+                      const SnackBar(
+                        content: Text('Please enter a title first'),
+                      ),
                     );
                     return;
                   }
@@ -434,8 +477,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     final description = await _aiService.generateDescription(
                       title: _titleController.text,
                       category: _selectedCategory ?? 'Room',
-                      area: _areaController.text.isEmpty ? "Kathmandu" : _areaController.text,
-                      landmark: _landmarkController.text.isEmpty ? "Nearby" : _landmarkController.text,
+                      area: _areaController.text.isEmpty
+                          ? "Kathmandu"
+                          : _areaController.text,
+                      landmark: _landmarkController.text.isEmpty
+                          ? "Nearby"
+                          : _landmarkController.text,
                       amenities: _selectedAmenities,
                     );
                     setState(() => _descriptionController.text = description);
@@ -455,11 +502,19 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.flash_on, size: 16, color: AppTheme.brandColor),
+                    const Icon(
+                      Icons.flash_on,
+                      size: 16,
+                      color: AppTheme.brandColor,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       'स्वत: भर्नुहोस्',
-                      style: GoogleFonts.mukta(color: AppTheme.brandColor, fontWeight: FontWeight.bold, fontSize: 13),
+                      style: GoogleFonts.mukta(
+                        color: AppTheme.brandColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
@@ -485,11 +540,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         _buildTextField('उदा: ललितपुर, सानेपा-२', controller: _areaController),
         const SizedBox(height: 24),
         _buildLabel('नजिकैको चिनिने ठाउँ (Landmark)', true),
-        _buildTextField('उदा: सिभिल हस्पिटलको पछाडि', controller: _landmarkController),
+        _buildTextField(
+          'उदा: सिभिल हस्पिटलको पछाडि',
+          controller: _landmarkController,
+        ),
         const SizedBox(height: 20),
 
         // SMART LOCATION VERIFIER BUTTON
-        if (_areaController.text.isNotEmpty || _landmarkController.text.isNotEmpty)
+        if (_areaController.text.isNotEmpty ||
+            _landmarkController.text.isNotEmpty)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -502,14 +561,29 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.check_circle_outline, color: AppTheme.brandColor),
+                    const Icon(
+                      Icons.check_circle_outline,
+                      color: AppTheme.brandColor,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('ठाउँ रुजु गर्नुहोस् (Smart Check)', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black87)),
-                          Text('Ensure your location is accurate', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
+                          Text(
+                            'ठाउँ रुजु गर्नुहोस् (Smart Check)',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Text(
+                            'Ensure your location is accurate',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -519,45 +593,69 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   const SizedBox(height: 12),
                   Text(
                     _aiLocationAnalysis!,
-                    style: GoogleFonts.inter(fontSize: 13, color: Colors.blue[900], height: 1.4),
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.blue[900],
+                      height: 1.4,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _isAnalyzingLocation ? null : () async {
-                      if (_areaController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter an area name first')));
-                        return;
-                      }
-                      setState(() => _isAnalyzingLocation = true);
-                      final result = await _aiService.verifyLocation(
-                        _areaController.text, 
-                        _landmarkController.text
-                      );
-                      setState(() {
-                        _aiLocationAnalysis = result;
-                        _isAnalyzingLocation = false;
-                      });
-                    },
+                    onPressed: _isAnalyzingLocation
+                        ? null
+                        : () async {
+                            if (_areaController.text.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Please enter an area name first',
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
+                            setState(() => _isAnalyzingLocation = true);
+                            final result = await _aiService.verifyLocation(
+                              _areaController.text,
+                              _landmarkController.text,
+                            );
+                            setState(() {
+                              _aiLocationAnalysis = result;
+                              _isAnalyzingLocation = false;
+                            });
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.brandColor.withOpacity(0.1),
                       foregroundColor: AppTheme.brandColor,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: _isAnalyzingLocation 
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2))
-                      : const Text('ठाउँ रुजु गर्नुहोस् (Check)', style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: _isAnalyzingLocation
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: AppTheme.brandColor,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'ठाउँ रुजु गर्नुहोस् (Check)',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                   ),
                 ),
               ],
             ),
           ),
-        
+
         const SizedBox(height: 32),
-        
+
         // MAP INTERACTION
         Container(
           padding: const EdgeInsets.all(20),
@@ -580,8 +678,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 size: 32,
               ),
               const SizedBox(height: 12),
-              if (_latitude != null) ...
-              [
+              if (_latitude != null) ...[
                 Text(
                   'लोकेशन सेट भयो! ✓',
                   style: GoogleFonts.inter(
@@ -607,15 +704,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     fontStyle: FontStyle.italic,
                   ),
                 ),
-              ] else ...
-              [
+              ] else ...[
                 const Text(
                   'मैले अहिले भएकै ठाउँ रोज्नुहोस्',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.brandColor,
+                  ),
                 ),
                 Text(
                   '(Use my current location on Map)',
-                  style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
                 ),
               ],
               const SizedBox(height: 16),
@@ -623,23 +725,35 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 onPressed: _isLocating ? null : _detectLocation,
                 icon: _isLocating
                     ? const SizedBox(
-                        width: 16, height: 16,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
                       )
-                    : Icon(_latitude != null ? Icons.refresh : Icons.gps_fixed, size: 18),
+                    : Icon(
+                        _latitude != null ? Icons.refresh : Icons.gps_fixed,
+                        size: 18,
+                      ),
                 label: Text(
                   _isLocating
                       ? 'GPS खोज्दै छ...'
                       : _latitude != null
-                          ? 'लोकेशन अपडेट गर्नुहोस्'
-                          : 'लोकेशन सेट गर्नुहोस्',
+                      ? 'लोकेशन अपडेट गर्नुहोस्'
+                      : 'लोकेशन सेट गर्नुहोस्',
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _latitude != null ? Colors.green : AppTheme.brandColor,
+                  backgroundColor: _latitude != null
+                      ? Colors.green
+                      : AppTheme.brandColor,
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -649,7 +763,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _quickPriceChip(String label, String value) {
     return ActionChip(
-      label: Text('रु. $label', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black87)),
+      label: Text(
+        'रु. $label',
+        style: GoogleFonts.inter(
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+      ),
       backgroundColor: Colors.grey[100],
       side: BorderSide.none,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -666,7 +786,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       subtitle: 'लगभग आधा काम सकियो! (Halfway there!)',
       content: [
         _buildLabel('महिनाको जम्मा भाडा', true),
-        _buildTextField('उदा: ५०००', prefix: 'रु. ', controller: _priceController, keyboardType: TextInputType.number),
+        _buildTextField(
+          'उदा: ५०००',
+          prefix: 'रु. ',
+          controller: _priceController,
+          keyboardType: TextInputType.number,
+        ),
         const SizedBox(height: 16),
         Wrap(
           spacing: 8,
@@ -677,7 +802,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             _quickPriceChip('१२,०००', '12000'),
             _quickPriceChip('१५,०००', '15000'),
             _quickPriceChip('२५,०००', '25000'),
-          ]
+          ],
         ),
         const SizedBox(height: 32),
         Row(
@@ -687,7 +812,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildLabel('सुत्ने कोठा (Beds)', false),
-                  _buildTextField('उदा: २', controller: _bedroomsController, keyboardType: TextInputType.number),
+                  _buildTextField(
+                    'उदा: २',
+                    controller: _bedroomsController,
+                    keyboardType: TextInputType.number,
+                  ),
                 ],
               ),
             ),
@@ -697,7 +826,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildLabel('नुहाउने कोठा (Baths)', false),
-                  _buildTextField('उदा: १', controller: _bathroomsController, keyboardType: TextInputType.number),
+                  _buildTextField(
+                    'उदा: १',
+                    controller: _bathroomsController,
+                    keyboardType: TextInputType.number,
+                  ),
                 ],
               ),
             ),
@@ -721,7 +854,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildLabel('क्षेत्रफल (Sq. Ft)', false),
-                  _buildTextField('उदा: ४००', controller: _sqftController, keyboardType: TextInputType.number),
+                  _buildTextField(
+                    'उदा: ४००',
+                    controller: _sqftController,
+                    keyboardType: TextInputType.number,
+                  ),
                 ],
               ),
             ),
@@ -731,9 +868,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: _isNegotiable ? AppTheme.brandColor.withOpacity(0.05) : Colors.grey[50],
+            color: _isNegotiable
+                ? AppTheme.brandColor.withOpacity(0.05)
+                : Colors.grey[50],
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: _isNegotiable ? AppTheme.brandColor : Colors.grey[200]!),
+            border: Border.all(
+              color: _isNegotiable ? AppTheme.brandColor : Colors.grey[200]!,
+            ),
           ),
           child: Row(
             children: [
@@ -743,8 +884,17 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('भाडा मिलाउन सकिन्छ', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-                    Text('Price is Negotiable', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
+                    Text(
+                      'भाडा मिलाउन सकिन्छ',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Price is Negotiable',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -757,7 +907,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           ),
         ),
         const SizedBox(height: 32),
-        
+
         // SMART PRICE ESTIMATOR BUTTON
         Container(
           padding: const EdgeInsets.all(16),
@@ -776,50 +926,88 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('उचित भाडा हेर्नुहोस् (Price Guide)', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black87)),
-                        Text('See typical rent in this area', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
+                        Text(
+                          'उचित भाडा हेर्नुहोस् (Price Guide)',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          'See typical rent in this area',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              if (_aiPriceSuggestion != null) 
+              if (_aiPriceSuggestion != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     _aiPriceSuggestion!,
-                    style: GoogleFonts.inter(fontSize: 13, color: Colors.purple[900], fontStyle: FontStyle.italic),
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.purple[900],
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _isEstimatingPrice ? null : () async {
-                    if (_areaController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter an area first (Step 2)')));
-                      return;
-                    }
-                    setState(() => _isEstimatingPrice = true);
-                    final result = await _aiService.estimatePrice(
-                      _areaController.text, 
-                      _selectedCategory == 'Room' ? 1 : 3, // Simplification
-                      _selectedCategory ?? 'Room'
-                    );
-                    setState(() {
-                      _aiPriceSuggestion = result;
-                      _isEstimatingPrice = false;
-                    });
-                  },
+                  onPressed: _isEstimatingPrice
+                      ? null
+                      : () async {
+                          if (_areaController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Please enter an area first (Step 2)',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+                          setState(() => _isEstimatingPrice = true);
+                          final result = await _aiService.estimatePrice(
+                            _areaController.text,
+                            _selectedCategory == 'Room'
+                                ? 1
+                                : 3, // Simplification
+                            _selectedCategory ?? 'Room',
+                          );
+                          setState(() {
+                            _aiPriceSuggestion = result;
+                            _isEstimatingPrice = false;
+                          });
+                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.brandColor.withOpacity(0.1),
                     foregroundColor: AppTheme.brandColor,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: _isEstimatingPrice 
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2))
-                    : const Text('कति भाडा राख्ने? (Get Suggestion)', style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: _isEstimatingPrice
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: AppTheme.brandColor,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const Text(
+                          'कति भाडा राख्ने? (Get Suggestion)',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                 ),
               ),
             ],
@@ -895,14 +1083,29 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.brandColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey[300]!, width: 2),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : Colors.grey[300]!,
+            width: 2,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: isSelected ? Colors.white : Colors.grey[600], size: 36),
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : Colors.grey[600],
+              size: 36,
+            ),
             const SizedBox(height: 8),
-            Text(label, textAlign: TextAlign.center, style: GoogleFonts.mukta(fontSize: 14, color: isSelected ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.mukta(
+                fontSize: 14,
+                color: isSelected ? Colors.white : Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
@@ -925,7 +1128,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             isBlue: false,
           ),
         ),
-        
+
         if (_selectedImages.isNotEmpty) ...[
           const SizedBox(height: 16),
           SizedBox(
@@ -947,12 +1150,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   child: Align(
                     alignment: Alignment.topRight,
                     child: GestureDetector(
-                      onTap: () => setState(() => _selectedImages.removeAt(index)),
+                      onTap: () =>
+                          setState(() => _selectedImages.removeAt(index)),
                       child: Container(
                         margin: const EdgeInsets.all(4),
                         padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                        child: const Icon(Icons.close, color: Colors.white, size: 16),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ),
                     ),
                   ),
@@ -968,9 +1179,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           onTap: _pickVideo,
           child: _buildMediaUploadBox(
             icon: Icons.videocam_outlined,
-            title: _selectedVideo != null ? 'भिडियो छानियो ✓' : 'भिडियो राख्नुहोस् (Upload Reel)',
-            desc: _selectedVideo != null 
-                ? 'भिडियो परिवर्तन गर्न ट्याप गर्नुहोस्' 
+            title: _selectedVideo != null
+                ? 'भिडियो छानियो ✓'
+                : 'भिडियो राख्नुहोस् (Upload Reel)',
+            desc: _selectedVideo != null
+                ? 'भिडियो परिवर्तन गर्न ट्याप गर्नुहोस्'
                 : 'भिडियोले ग्राहकलाई छिटो आकर्षित गर्छ।',
             isBlue: true,
             hasFile: _selectedVideo != null,
@@ -991,7 +1204,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 Expanded(
                   child: Text(
                     'Video: ${_selectedVideo!.path.split('/').last}',
-                    style: GoogleFonts.inter(fontSize: 12, color: Colors.blue[900]),
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: Colors.blue[900],
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -1006,31 +1222,63 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 40),
         Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: Colors.green.withOpacity(0.05), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(
+            color: Colors.green.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Row(
             children: [
               const Icon(Icons.verified_outlined, color: Colors.green),
               const SizedBox(width: 12),
-              Expanded(child: Text('तपाईंको विज्ञापन प्रमाणित भएपछि प्रकाशित हुनेछ।', style: GoogleFonts.inter(color: Colors.green[800], fontSize: 13, height: 1.4))),
+              Expanded(
+                child: Text(
+                  'तपाईंको विज्ञापन प्रमाणित भएपछि प्रकाशित हुनेछ।',
+                  style: GoogleFonts.inter(
+                    color: Colors.green[800],
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
+                ),
+              ),
             ],
           ),
-        )
+        ),
       ],
     );
   }
 
   // --- REUSABLE COMPONENTS ---
 
-  Widget _stepLayout({required String title, required String subtitle, required List<Widget> content, ScrollController? controller}) {
+  Widget _stepLayout({
+    required String title,
+    required String subtitle,
+    required List<Widget> content,
+    ScrollController? controller,
+  }) {
     return SingleChildScrollView(
       controller: controller,
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: GoogleFonts.mukta(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.black87, height: 1.2)),
+          Text(
+            title,
+            style: GoogleFonts.mukta(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+              height: 1.2,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text(subtitle, style: GoogleFonts.inter(color: AppTheme.brandColor, fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(
+            subtitle,
+            style: GoogleFonts.inter(
+              color: AppTheme.brandColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 28),
           ...content,
         ],
@@ -1058,9 +1306,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor.withOpacity(0.1) : Colors.white,
+          color: isSelected
+              ? AppTheme.brandColor.withOpacity(0.1)
+              : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey[300]!, width: isSelected ? 2 : 1),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : Colors.grey[300]!,
+            width: isSelected ? 2 : 1,
+          ),
         ),
         child: Row(
           children: [
@@ -1070,16 +1323,29 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 color: isSelected ? AppTheme.brandColor : Colors.grey[100],
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: isSelected ? Colors.white : Colors.grey[600], size: 28),
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.white : Colors.grey[600],
+                size: 28,
+              ),
             ),
             const SizedBox(width: 20),
             Expanded(
               child: Text(
-                label, 
-                style: GoogleFonts.mukta(fontSize: 17, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, color: Colors.black87)
+                label,
+                style: GoogleFonts.mukta(
+                  fontSize: 17,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: Colors.black87,
+                ),
               ),
             ),
-            if (isSelected) const Icon(Icons.check_circle, color: AppTheme.brandColor, size: 28),
+            if (isSelected)
+              const Icon(
+                Icons.check_circle,
+                color: AppTheme.brandColor,
+                size: 28,
+              ),
           ],
         ),
       ),
@@ -1096,54 +1362,86 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.brandColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey[300]!, width: 2),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : Colors.grey[300]!,
+            width: 2,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: isSelected ? Colors.white : Colors.grey[600], size: 36),
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : Colors.grey[600],
+              size: 36,
+            ),
             const SizedBox(height: 8),
-            Text(label, textAlign: TextAlign.center, style: GoogleFonts.mukta(fontSize: 14, color: isSelected ? Colors.white : Colors.black87, fontWeight: FontWeight.w600)),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.mukta(
+                fontSize: 14,
+                color: isSelected ? Colors.white : Colors.black87,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMediaUploadBox({required IconData icon, required String title, required String desc, required bool isBlue, bool hasFile = false}) {
+  Widget _buildMediaUploadBox({
+    required IconData icon,
+    required String title,
+    required String desc,
+    required bool isBlue,
+    bool hasFile = false,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: hasFile 
-            ? (isBlue ? Colors.blue.withOpacity(0.1) : Colors.green.withOpacity(0.1))
-            : (isBlue ? AppTheme.brandColor.withOpacity(0.05) : const Color(0xFFF9F9F9)),
+        color: hasFile
+            ? (isBlue
+                  ? Colors.blue.withOpacity(0.1)
+                  : Colors.green.withOpacity(0.1))
+            : (isBlue
+                  ? AppTheme.brandColor.withOpacity(0.05)
+                  : const Color(0xFFF9F9F9)),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: hasFile 
+          color: hasFile
               ? (isBlue ? Colors.blue : Colors.green)
-              : (isBlue ? AppTheme.brandColor.withOpacity(0.2) : Colors.grey[200]!),
+              : (isBlue
+                    ? AppTheme.brandColor.withOpacity(0.2)
+                    : Colors.grey[200]!),
           width: hasFile ? 2 : 1,
         ),
       ),
       child: Column(
         children: [
           Icon(
-            hasFile ? Icons.check_circle : icon, 
-            color: hasFile 
-                ? (isBlue ? Colors.blue : Colors.green) 
-                : (isBlue ? AppTheme.brandColor : Colors.grey[600]), 
-            size: 40
+            hasFile ? Icons.check_circle : icon,
+            color: hasFile
+                ? (isBlue ? Colors.blue : Colors.green)
+                : (isBlue ? AppTheme.brandColor : Colors.grey[600]),
+            size: 40,
           ),
           const SizedBox(height: 12),
           Text(
-            title, 
+            title,
             style: GoogleFonts.inter(
               fontWeight: FontWeight.bold,
-              color: hasFile ? (isBlue ? Colors.blue[900] : Colors.green[900]) : Colors.black87,
-            )
+              color: hasFile
+                  ? (isBlue ? Colors.blue[900] : Colors.green[900])
+                  : Colors.black87,
+            ),
           ),
-          Text(desc, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
+          Text(
+            desc,
+            style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+          ),
         ],
       ),
     );
@@ -1152,11 +1450,30 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildLabel(String label, bool isRequired) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Row(children: [Text(label, style: GoogleFonts.mukta(fontWeight: FontWeight.w600, fontSize: 15, color: Colors.black87)), if (isRequired) const Text(' *', style: TextStyle(color: Colors.red))]),
+      child: Row(
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.mukta(
+              fontWeight: FontWeight.w600,
+              fontSize: 15,
+              color: Colors.black87,
+            ),
+          ),
+          if (isRequired) const Text(' *', style: TextStyle(color: Colors.red)),
+        ],
+      ),
     );
   }
 
-  Widget _buildTextField(String hint, {String? prefix, TextEditingController? controller, FocusNode? focusNode, int maxLines = 1, TextInputType? keyboardType}) {
+  Widget _buildTextField(
+    String hint, {
+    String? prefix,
+    TextEditingController? controller,
+    FocusNode? focusNode,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+  }) {
     return TextFormField(
       controller: controller,
       focusNode: focusNode,
@@ -1172,23 +1489,33 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         hintText: hint,
         hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 14),
         prefixText: prefix,
-        prefixStyle: GoogleFonts.inter(color: AppTheme.brandColor, fontWeight: FontWeight.bold),
+        prefixStyle: GoogleFonts.inter(
+          color: AppTheme.brandColor,
+          fontWeight: FontWeight.bold,
+        ),
         filled: true,
-        fillColor: (controller != null && controller.text.isNotEmpty) ? Colors.white : const Color(0xFFF8FAFC),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        fillColor: (controller != null && controller.text.isNotEmpty)
+            ? Colors.white
+            : const Color(0xFFF8FAFC),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12), 
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade200),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12), 
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            color: (controller != null && controller.text.isNotEmpty) ? AppTheme.brandColor.withOpacity(0.4) : Colors.grey.shade200,
+            color: (controller != null && controller.text.isNotEmpty)
+                ? AppTheme.brandColor.withOpacity(0.4)
+                : Colors.grey.shade200,
             width: 1,
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12), 
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.8),
         ),
       ),
@@ -1199,38 +1526,75 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1))),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(
+            top: BorderSide(color: Colors.grey.shade200, width: 1),
+          ),
+        ),
         child: Row(
           children: [
             if (_currentStep > 0)
               Expanded(
                 flex: 1,
                 child: OutlinedButton(
-                  onPressed: () => _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut), 
+                  onPressed: () => _pageController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  ),
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 20), 
-                    side: BorderSide(color: Colors.grey.shade300, width: 2), 
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))
-                  ), 
-                  child: Text('पछाडि', style: GoogleFonts.mukta(color: Colors.grey[800], fontSize: 17, fontWeight: FontWeight.w600))
-                )
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    side: BorderSide(color: Colors.grey.shade300, width: 2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: Text(
+                    'पछाडि',
+                    style: GoogleFonts.mukta(
+                      color: Colors.grey[800],
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
             if (_currentStep > 0) const SizedBox(width: 16),
             Expanded(
-              flex: 2, 
+              flex: 2,
               child: ElevatedButton(
-                onPressed: _currentStep == 5 
-                  ? (_isPublishing ? null : _publishProperty) 
-                  : _nextStep, 
+                onPressed: _currentStep == 5
+                    ? (_isPublishing ? null : _publishProperty)
+                    : _nextStep,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 20), 
-                  backgroundColor: _currentStep == 5 ? Colors.green : AppTheme.brandColor, 
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  backgroundColor: _currentStep == 5
+                      ? Colors.green
+                      : AppTheme.brandColor,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ), 
-                child: _isPublishing 
-                  ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                  : Text(_currentStep == 5 ? 'प्रकाशित गर्ने (Publish)' : 'अर्को जानुहोस् (Next)', style: GoogleFonts.mukta(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.white)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: _isPublishing
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
+                      )
+                    : Text(
+                        _currentStep == 5
+                            ? 'प्रकाशित गर्ने (Publish)'
+                            : 'अर्को जानुहोस् (Next)',
+                        style: GoogleFonts.mukta(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ),
           ],

@@ -1,4 +1,4 @@
- import 'dart:io';
+import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,7 +16,10 @@ import '../utils/cloudinary_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isVerified;
-  const ProfileScreen({super.key, this.isVerified = false}); // Default to false for testing
+  const ProfileScreen({
+    super.key,
+    this.isVerified = false,
+  }); // Default to false for testing
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -47,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .select('avatar_url, kyc_status, is_owner')
             .eq('id', user!.id)
             .maybeSingle();
-        
+
         if (mounted && profile != null) {
           setState(() {
             _avatarUrl = profile['avatar_url'];
@@ -77,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .select('id')
             .eq('owner_id', user!.id)
             .limit(1);
-        
+
         if (mounted && response != null && (response as List).isNotEmpty) {
           setState(() {
             _isOwner = true;
@@ -90,7 +93,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
@@ -100,8 +105,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final imageUrl = await CloudinaryService.uploadImage(_imageFile!);
         if (imageUrl != null && user != null) {
           // Update database
-          await Supabase.instance.client.from('profiles').update({'avatar_url': imageUrl}).eq('id', user!.id);
-          
+          await Supabase.instance.client
+              .from('profiles')
+              .update({'avatar_url': imageUrl})
+              .eq('id', user!.id);
+
           // Also update Auth metadata to keep it in sync
           await Supabase.instance.client.auth.updateUser(
             UserAttributes(data: {'avatar_url': imageUrl}),
@@ -109,11 +117,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           if (mounted) {
             setState(() => _avatarUrl = imageUrl);
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile photo updated!')));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Profile photo updated!')),
+            );
           }
         }
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update photo: $e')));
+        if (mounted)
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to update photo: $e')));
       } finally {
         if (mounted) setState(() => _isUploading = false);
       }
@@ -150,12 +163,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Positioned(
                       top: -20,
                       right: -30,
-                      child: const CircleAvatar(radius: 60, backgroundColor: Colors.white12),
+                      child: const CircleAvatar(
+                        radius: 60,
+                        backgroundColor: Colors.white12,
+                      ),
                     ),
-                     Positioned(
+                    Positioned(
                       bottom: 40,
                       left: -20,
-                      child: const CircleAvatar(radius: 40, backgroundColor: Colors.white10),
+                      child: const CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.white10,
+                      ),
                     ),
                     SafeArea(
                       child: Column(
@@ -168,7 +187,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   padding: const EdgeInsets.all(3),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
-                                      colors: [Colors.white.withOpacity(0.5), Colors.white.withOpacity(0.2)],
+                                      colors: [
+                                        Colors.white.withOpacity(0.5),
+                                        Colors.white.withOpacity(0.2),
+                                      ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
@@ -191,24 +213,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       radius: 54,
                                       backgroundColor: Colors.grey[50],
                                       child: _isUploading
-                                          ? const CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2)
+                                          ? const CircularProgressIndicator(
+                                              color: AppTheme.brandColor,
+                                              strokeWidth: 2,
+                                            )
                                           : _imageFile != null
-                                              ? ClipOval(child: Image.file(_imageFile!, width: 108, height: 108, fit: BoxFit.cover))
-                                              : _avatarUrl != null
-                                                  ? ClipOval(child: Image.network(_avatarUrl!, width: 108, height: 108, fit: BoxFit.cover))
-                                                  : Container(
-                                                      width: 108,
-                                                      height: 108,
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        gradient: LinearGradient(
-                                                          colors: [Colors.grey[200]!, Colors.grey[100]!],
-                                                          begin: Alignment.topLeft,
-                                                          end: Alignment.bottomRight,
-                                                        ),
-                                                      ),
-                                                      child: Icon(Icons.person_rounded, size: 54, color: Colors.grey[400]),
-                                                    ),
+                                          ? ClipOval(
+                                              child: Image.file(
+                                                _imageFile!,
+                                                width: 108,
+                                                height: 108,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            )
+                                          : _avatarUrl != null
+                                          ? ClipOval(
+                                              child: Image.network(
+                                                _avatarUrl!,
+                                                width: 108,
+                                                height: 108,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            )
+                                          : Container(
+                                              width: 108,
+                                              height: 108,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Colors.grey[200]!,
+                                                    Colors.grey[100]!,
+                                                  ],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                              ),
+                                              child: Icon(
+                                                Icons.person_rounded,
+                                                size: 54,
+                                                color: Colors.grey[400],
+                                              ),
+                                            ),
                                     ),
                                   ),
                                 ),
@@ -224,7 +270,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withOpacity(0.15),
+                                            color: Colors.black.withOpacity(
+                                              0.15,
+                                            ),
                                             blurRadius: 10,
                                             offset: const Offset(0, 4),
                                           ),
@@ -246,7 +294,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? (_isOwner ? 'Owner' : 'Guest'),
+                                user?.userMetadata?['full_name'] ??
+                                    user?.userMetadata?['name'] ??
+                                    (_isOwner ? 'Owner' : 'Guest'),
                                 style: GoogleFonts.inter(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -262,8 +312,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
-                                    Icons.verified_rounded, 
-                                    color: Color(0xFF1D9BF0), // Twitter/Verified Blue
+                                    Icons.verified_rounded,
+                                    color: Color(
+                                      0xFF1D9BF0,
+                                    ), // Twitter/Verified Blue
                                     size: 16,
                                   ),
                                 ),
@@ -280,7 +332,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.settings_outlined, color: Colors.white),
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                ),
               ),
             ],
           ),
@@ -289,7 +344,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 children: [
-                   // Verification Card (Only if not verified and not loading)
+                  // Verification Card (Only if not verified and not loading)
                   if (!_isLoading && _kycStatus != 'verified') ...[
                     _buildVerificationCard(),
                     const SizedBox(height: 20),
@@ -300,37 +355,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildPostPropertyCard(),
                     const SizedBox(height: 24),
                   ],
-                  
+
                   // Menu Items in Sections
                   _buildMenuSection('OVERVIEW', [
-                    _buildMenuItem(Icons.list_alt_rounded, 'My Listings', 'Properties you posted', onTap: () {
-                       Navigator.push(context, MaterialPageRoute(builder: (_) => const MyListingsScreen()));
-                    }),
-                    _buildMenuItem(Icons.person_outline, 'Edit Profile', 'Update your personal info', onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const EditProfileScreen()),
-                      ).then((value) {
-                        if (value == true) _loadProfile();
-                      });
-                    }),
-                    _buildMenuItem(Icons.bookmark_outline, 'Saved Properties', 'Properties you liked', onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const SavedPropertiesScreen()));
-                    }),
+                    _buildMenuItem(
+                      Icons.list_alt_rounded,
+                      'My Listings',
+                      'Properties you posted',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const MyListingsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildMenuItem(
+                      Icons.person_outline,
+                      'Edit Profile',
+                      'Update your personal info',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const EditProfileScreen(),
+                          ),
+                        ).then((value) {
+                          if (value == true) _loadProfile();
+                        });
+                      },
+                    ),
+                    _buildMenuItem(
+                      Icons.bookmark_outline,
+                      'Saved Properties',
+                      'Properties you liked',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SavedPropertiesScreen(),
+                          ),
+                        );
+                      },
+                    ),
                   ]),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   _buildMenuSection('LEGAL & HELP', [
-                    _buildMenuItem(Icons.privacy_tip_outlined, 'Safety Center', 'Protect your account', 
+                    _buildMenuItem(
+                      Icons.privacy_tip_outlined,
+                      'Safety Center',
+                      'Protect your account',
                       color: Colors.redAccent,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SafetyCenterScreen()))),
-                    _buildMenuItem(Icons.help_center_outlined, 'Help Center', 'FAQs & Contact Support', onTap: () {}),
-                    _buildMenuItem(Icons.description_outlined, 'Terms & Privacy', 'Our guidelines', onTap: () {}),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SafetyCenterScreen(),
+                        ),
+                      ),
+                    ),
+                    _buildMenuItem(
+                      Icons.help_center_outlined,
+                      'Help Center',
+                      'FAQs & Contact Support',
+                      onTap: () {},
+                    ),
+                    _buildMenuItem(
+                      Icons.description_outlined,
+                      'Terms & Privacy',
+                      'Our guidelines',
+                      onTap: () {},
+                    ),
                   ]),
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // Log Out Button
                   SizedBox(
                     width: double.infinity,
@@ -340,39 +441,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           context: context,
                           builder: (context) => AlertDialog(
                             backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            title: Text('Log Out', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black)),
-                            content: Text('Are you sure you want to log out of Khozna?', style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            title: Text(
+                              'Log Out',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.black,
+                              ),
+                            ),
+                            content: Text(
+                              'Are you sure you want to log out of Khozna?',
+                              style: GoogleFonts.inter(
+                                color: Colors.grey[700],
+                                fontSize: 14,
+                              ),
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                                child: Text(
+                                  'Cancel',
+                                  style: GoogleFonts.inter(
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                               ElevatedButton(
                                 onPressed: () async {
                                   Navigator.pop(context); // Close dialog
                                   await Supabase.instance.client.auth.signOut();
-                                  if (mounted) Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const LoginScreen()), (route) => false);
+                                  if (mounted)
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const LoginScreen(),
+                                      ),
+                                      (route) => false,
+                                    );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                   elevation: 0,
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
                                   minimumSize: const Size(0, 36),
                                 ),
-                                child: Text('Log Out', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                                child: Text(
+                                  'Log Out',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         );
                       },
                       icon: const Icon(Icons.logout_rounded, color: Colors.red),
-                      label: Text('Log Out From Account', style: GoogleFonts.inter(color: Colors.red, fontWeight: FontWeight.w700, letterSpacing: -0.3)),
+                      label: Text(
+                        'Log Out From Account',
+                        style: GoogleFonts.inter(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         backgroundColor: Colors.red.withOpacity(0.05),
                       ),
                     ),
@@ -390,7 +541,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildVerificationCard() {
     final bool isVerified = _kycStatus == 'verified';
     final bool isPending = _kycStatus == 'pending';
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
@@ -398,13 +549,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: (isVerified ? Colors.green : Colors.orange).withValues(alpha: 0.08),
+            color: (isVerified ? Colors.green : Colors.orange).withValues(
+              alpha: 0.08,
+            ),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
         ],
         border: Border.all(
-          color: (isVerified ? Colors.green : Colors.orange).withValues(alpha: 0.1),
+          color: (isVerified ? Colors.green : Colors.orange).withValues(
+            alpha: 0.1,
+          ),
           width: 1,
         ),
       ),
@@ -414,7 +569,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: isVerified 
+                colors: isVerified
                     ? [Colors.green.shade50, Colors.green.shade100]
                     : [Colors.orange.shade50, Colors.orange.shade100],
                 begin: Alignment.topLeft,
@@ -423,8 +578,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isVerified ? Icons.verified_user_rounded : (isPending ? Icons.hourglass_empty_rounded : Icons.gpp_maybe_rounded),
-              color: isVerified ? Colors.green.shade700 : Colors.orange.shade700,
+              isVerified
+                  ? Icons.verified_user_rounded
+                  : (isPending
+                        ? Icons.hourglass_empty_rounded
+                        : Icons.gpp_maybe_rounded),
+              color: isVerified
+                  ? Colors.green.shade700
+                  : Colors.orange.shade700,
               size: 20,
             ),
           ),
@@ -434,7 +595,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isVerified ? 'Profile Verified' : (isPending ? 'Verification Pending' : 'Incomplete KYC'),
+                  isVerified
+                      ? 'Profile Verified'
+                      : (isPending ? 'Verification Pending' : 'Incomplete KYC'),
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -442,7 +605,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 Text(
-                  isVerified ? 'Your identity is fully confirmed.' : 'Get verified to start posting properties.',
+                  isVerified
+                      ? 'Your identity is fully confirmed.'
+                      : 'Get verified to start posting properties.',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey[600],
@@ -454,9 +619,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           if (!isVerified && !isPending)
             InkWell(
-              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KycScreen())),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const KycScreen()),
+              ),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor,
                   borderRadius: BorderRadius.circular(16),
@@ -488,10 +659,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            const Color(0xFF1E1E1E),
-            const Color(0xFF2D2D2D),
-          ],
+          colors: [const Color(0xFF1E1E1E), const Color(0xFF2D2D2D)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -509,7 +677,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Positioned(
             right: -10,
             top: -10,
-            child: Icon(Icons.home_work_rounded, size: 80, color: Colors.white.withValues(alpha: 0.05)),
+            child: Icon(
+              Icons.home_work_rounded,
+              size: 80,
+              color: Colors.white.withValues(alpha: 0.05),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(18.0),
@@ -524,7 +696,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: Colors.white.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.add_business_rounded, color: Colors.white, size: 20),
+                      child: const Icon(
+                        Icons.add_business_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Column(
@@ -556,14 +732,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const AddPropertyScreen()),
+                        MaterialPageRoute(
+                          builder: (_) => const AddPropertyScreen(),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       elevation: 0,
                     ),
                     child: Text(
@@ -620,7 +800,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title, String subtitle, {VoidCallback? onTap, Color? color}) {
+  Widget _buildMenuItem(
+    IconData icon,
+    String title,
+    String subtitle, {
+    VoidCallback? onTap,
+    Color? color,
+  }) {
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -635,19 +821,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       title: Text(
         title,
         style: GoogleFonts.inter(
-          fontSize: 15, 
-          fontWeight: FontWeight.bold, 
-          color: const Color(0xFF1E1E1E), 
-          letterSpacing: -0.3
+          fontSize: 15,
+          fontWeight: FontWeight.bold,
+          color: const Color(0xFF1E1E1E),
+          letterSpacing: -0.3,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: GoogleFonts.inter(
-          fontSize: 12, 
-          color: Colors.grey[500], 
+          fontSize: 12,
+          color: Colors.grey[500],
           fontWeight: FontWeight.w500,
-          letterSpacing: -0.1
+          letterSpacing: -0.1,
         ),
       ),
       trailing: Container(
@@ -656,7 +842,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: Colors.grey[50],
           shape: BoxShape.circle,
         ),
-        child: const Icon(Icons.chevron_right_rounded, size: 18, color: Colors.grey),
+        child: const Icon(
+          Icons.chevron_right_rounded,
+          size: 18,
+          color: Colors.grey,
+        ),
       ),
     );
   }

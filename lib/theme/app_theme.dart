@@ -33,14 +33,8 @@ class AppTheme {
           fontWeight: FontWeight.bold,
           color: primaryTextColor,
         ),
-        bodyLarge: GoogleFonts.inter(
-          fontSize: 16,
-          color: primaryTextColor,
-        ),
-        bodyMedium: GoogleFonts.inter(
-          fontSize: 14,
-          color: secondaryTextColor,
-        ),
+        bodyLarge: GoogleFonts.inter(fontSize: 16, color: primaryTextColor),
+        bodyMedium: GoogleFonts.inter(fontSize: 14, color: secondaryTextColor),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.white,
@@ -69,7 +63,10 @@ class AppTheme {
         filled: true,
         fillColor: Colors.white,
         hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 13),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(50),
           borderSide: BorderSide(color: Colors.grey[300]!),

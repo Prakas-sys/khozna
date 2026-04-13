@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/screens/property_details_screen.dart';
 import 'package:khozna/utils/supabase_service.dart';
@@ -30,7 +31,10 @@ class PropertyCard extends StatelessWidget {
   final VoidCallback? onDelete;
   final int views;
   final double? width;
-  final List<Map<String, dynamic>> rawImages; // Added to pass full image objects if needed
+  final List<Map<String, dynamic>>
+  rawImages; // Added to pass full image objects if needed
+  final double? latitude;
+  final double? longitude;
 
   const PropertyCard({
     super.key,
@@ -55,6 +59,8 @@ class PropertyCard extends StatelessWidget {
     this.views = 0,
     this.width,
     this.rawImages = const [],
+    this.latitude,
+    this.longitude,
   });
 
   @override
@@ -81,6 +87,8 @@ class PropertyCard extends StatelessWidget {
               status: status,
               amenities: amenities,
               houseRules: houseRules,
+              latitude: latitude,
+              longitude: longitude,
             ),
           ),
         );
@@ -113,23 +121,41 @@ class PropertyCard extends StatelessWidget {
                     width: double.infinity,
                     child: Hero(
                       tag: id,
-                      child: Image.network(
-                      imageUrl.isNotEmpty 
-                        ? imageUrl 
-                        : (images.isNotEmpty ? images[0] : ''),
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey[100],
-                        child: const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.image_not_supported_outlined, color: Colors.grey, size: 40),
-                            SizedBox(height: 8),
-                            Text('No Image', style: TextStyle(color: Colors.grey)),
-                          ],
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl.isNotEmpty
+                            ? imageUrl
+                            : (images.isNotEmpty ? images[0] : ''),
+                        fit: BoxFit.cover,
+                        memCacheWidth: 600, // Optimize memory for lists
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[100],
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.image_not_supported_outlined,
+                                color: Colors.grey,
+                                size: 40,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'No Image',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
                     ),
                   ),
                   // Status Badges
@@ -140,9 +166,14 @@ class PropertyCard extends StatelessWidget {
                       builder: (context) {
                         final isBooked = status == 'booked';
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: isBooked ? Colors.redAccent : const Color(0xFF00C853),
+                            color: isBooked
+                                ? Colors.redAccent
+                                : const Color(0xFF00C853),
                             borderRadius: BorderRadius.circular(30),
                             boxShadow: [
                               BoxShadow(
@@ -155,10 +186,11 @@ class PropertyCard extends StatelessWidget {
                           child: Text(
                             isBooked ? 'BOOKED' : 'FOR RENT',
                             style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: 11.0,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 0.5),
+                              color: Colors.white,
+                              fontSize: 11.0,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         );
                       },
@@ -176,21 +208,30 @@ class PropertyCard extends StatelessWidget {
                       bottom: 10,
                       right: 10,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.2),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.remove_red_eye_outlined, color: Colors.white, size: 14),
+                            const Icon(
+                              Icons.remove_red_eye_outlined,
+                              color: Colors.white,
+                              size: 14,
+                            ),
                             const SizedBox(width: 4),
                             Text(
-                              views > 999 
-                                ? '${(views / 1000).toStringAsFixed(1)}k' 
-                                : '$views',
+                              views > 999
+                                  ? '${(views / 1000).toStringAsFixed(1)}k'
+                                  : '$views',
                               style: GoogleFonts.inter(
                                 color: Colors.white,
                                 fontSize: 11,
@@ -278,19 +319,32 @@ class PropertyCard extends StatelessWidget {
                                     status: status,
                                     amenities: amenities,
                                     houseRules: houseRules,
+                                    latitude: latitude,
+                                    longitude: longitude,
                                   ),
                                 ),
                               ),
                               icon: const Icon(Icons.directions_walk, size: 17),
-                              label: Text('Visit Now', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                              label: Text(
+                                'Visit Now',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13.5,
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
-                                  side: BorderSide(color: Colors.white.withValues(alpha: 0.5), width: 1.5),
+                                  side: BorderSide(
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                    width: 1.5,
+                                  ),
                                 ),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
@@ -299,23 +353,22 @@ class PropertyCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () async {
-                                // Real Owner Fetch logic
-                                final ownerProfile = await SupabaseService.getUserProfile(ownerId);
-                                if (context.mounted) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => chat_page.ChatScreen(
-                                        ownerId: ownerId,
-                                        name: ownerProfile?['full_name'] ?? 'Khozna User',
-                                        avatar: ownerProfile?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=1',
-                                        online: true,
-                                        phone: ownerProfile?['phone_number'] ?? "+977 9801234567",
-                                      ),
+                              onPressed: () {
+                                HapticFeedback.lightImpact();
+                                // Instant navigation
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => chat_page.ChatScreen(
+                                      ownerId: ownerId,
+                                      name:
+                                          'Khozna User', // Triggers async load inside ChatScreen
+                                      avatar: 'https://i.pravatar.cc/150?img=1',
+                                      online: true,
+                                      phone: '+977 9801234567',
                                     ),
-                                  );
-                                }
+                                  ),
+                                );
                               },
                               icon: SvgPicture.asset(
                                 'assets/icons/message.svg',
@@ -336,7 +389,9 @@ class PropertyCard extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
@@ -353,13 +408,20 @@ class PropertyCard extends StatelessWidget {
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: onEdit,
-                              icon: const Icon(Icons.edit_note_rounded, size: 20),
+                              icon: const Icon(
+                                Icons.edit_note_rounded,
+                                size: 20,
+                              ),
                               label: const Text('Edit Listing'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.blueGrey[700],
                                 side: BorderSide(color: Colors.grey.shade300),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
                               ),
                             ),
                           ),
@@ -367,13 +429,22 @@ class PropertyCard extends StatelessWidget {
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: onDelete,
-                              icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                              icon: const Icon(
+                                Icons.delete_outline_rounded,
+                                size: 20,
+                              ),
                               label: const Text('Delete'),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.redAccent,
-                                side: BorderSide(color: Colors.red.withOpacity(0.2)),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                padding: const EdgeInsets.symmetric(vertical: 10),
+                                side: BorderSide(
+                                  color: Colors.red.withOpacity(0.2),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                ),
                               ),
                             ),
                           ),
@@ -412,13 +483,17 @@ class PropertyCard extends StatelessWidget {
     };
 
     List<Widget> items = [];
-    
+
     // 1. Build Location Widget
     Widget locationWidget = Flexible(
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 13),
+          const Icon(
+            Icons.place_outlined,
+            color: AppTheme.brandColor,
+            size: 13,
+          ),
           const SizedBox(width: 2),
           Flexible(
             child: Text(
@@ -435,7 +510,7 @@ class PropertyCard extends StatelessWidget {
     // 2. Build Amenities (Max 3 total items)
     List<Widget> amenityItems = [];
     int count = 0;
-    
+
     // Priority 1: Bedrooms
     if (bedrooms > 0) {
       amenityItems.add(_amenityIcon(Icons.bed_outlined, '$bedrooms Bed'));
@@ -444,14 +519,16 @@ class PropertyCard extends StatelessWidget {
 
     // Combine amenities and house rules for display
     final combinedFeatures = [...amenities, ...houseRules];
-    
+
     for (var feature in combinedFeatures) {
       if (count >= 3) break; // Maximum 3 items allowed
       if (featureIcons.containsKey(feature)) {
         if (amenityItems.isNotEmpty) {
           amenityItems.add(const SizedBox(width: 12));
         }
-        amenityItems.add(_amenityIcon(featureIcons[feature]!, _getShortLabel(feature)));
+        amenityItems.add(
+          _amenityIcon(featureIcons[feature]!, _getShortLabel(feature)),
+        );
         count++;
       }
     }
@@ -464,10 +541,7 @@ class PropertyCard extends StatelessWidget {
         children: [
           locationWidget,
           if (amenityItems.isNotEmpty)
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: amenityItems,
-            ),
+            Row(mainAxisSize: MainAxisSize.min, children: amenityItems),
         ],
       ),
     );
@@ -475,21 +549,36 @@ class PropertyCard extends StatelessWidget {
 
   String _getShortLabel(String key) {
     switch (key) {
-      case 'water_melamchi': return 'Water';
-      case 'water_boring': return 'Boring';
-      case 'parking_bike': return 'Bike';
-      case 'parking_car': return 'Car';
-      case 'sunny_room': return 'Sunny';
-      case 'hot_water': return 'Hot';
-      case 'waste_mgmt': return 'Waste';
-      case 'peaceful': return 'Quiet';
-      case 'internet': return 'Wifi';
-      case 'kitchen': return 'Kitchen';
-      case 'family_only': return 'Family';
-      case 'boys_allowed': return 'Boys';
-      case 'girls_allowed': return 'Girls';
-      case 'pets_allowed': return 'Pets';
-      default: return '';
+      case 'water_melamchi':
+        return 'Water';
+      case 'water_boring':
+        return 'Boring';
+      case 'parking_bike':
+        return 'Bike';
+      case 'parking_car':
+        return 'Car';
+      case 'sunny_room':
+        return 'Sunny';
+      case 'hot_water':
+        return 'Hot';
+      case 'waste_mgmt':
+        return 'Waste';
+      case 'peaceful':
+        return 'Quiet';
+      case 'internet':
+        return 'Wifi';
+      case 'kitchen':
+        return 'Kitchen';
+      case 'family_only':
+        return 'Family';
+      case 'boys_allowed':
+        return 'Boys';
+      case 'girls_allowed':
+        return 'Girls';
+      case 'pets_allowed':
+        return 'Pets';
+      default:
+        return '';
     }
   }
 

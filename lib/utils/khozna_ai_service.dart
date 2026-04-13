@@ -4,14 +4,19 @@ import 'package:http/http.dart' as http;
 
 class KhoznaAiService {
   // Switched to GROQ for 100% Free, High-Speed Cloud AI in Nepal
-  static const String _baseUrl = 'https://api.groq.com/openai/v1/chat/completions';
-  
+  static const String _baseUrl =
+      'https://api.groq.com/openai/v1/chat/completions';
+
   final String apiKey;
 
-  KhoznaAiService({String? apiKey}) : apiKey = apiKey ?? dotenv.env['GROQ_API_KEY'] ?? '';
+  KhoznaAiService({String? apiKey})
+    : apiKey = apiKey ?? dotenv.env['GROQ_API_KEY'] ?? '';
 
   /// Cloud AI Request with robust error handling
-  Future<String> _getAiResponse(String prompt, {required String systemPrompt}) async {
+  Future<String> _getAiResponse(
+    String prompt, {
+    required String systemPrompt,
+  }) async {
     // 1. Check if API Key is missing
     if (apiKey.isEmpty) {
       return "नमस्ते! (Hi!) 🇳🇵\nIt looks like the AI is not configured yet. Please follow these steps:\n1. Go to console.groq.com (It's 100% Free)\n2. Create an API Key\n3. Paste it in your .env file as GROQ_API_KEY";
@@ -25,7 +30,7 @@ class KhoznaAiService {
           'Authorization': 'Bearer $apiKey',
         },
         body: jsonEncode({
-          'model': 'llama-3.3-70b-versatile', 
+          'model': 'llama-3.3-70b-versatile',
           'messages': [
             {'role': 'system', 'content': systemPrompt},
             {'role': 'user', 'content': prompt},
@@ -49,12 +54,19 @@ class KhoznaAiService {
   }
 
   /// 1. AI Property Matching
-  Future<String> matchProperty(String userQuery, List<Map<String, dynamic>> properties) async {
-    String propertyData = properties.map((p) => 
-      "ID: ${p['id']}, Title: ${p['title']}, Price: ${p['price']}, Location: ${p['location']}"
-    ).join("\n");
+  Future<String> matchProperty(
+    String userQuery,
+    List<Map<String, dynamic>> properties,
+  ) async {
+    String propertyData = properties
+        .map(
+          (p) =>
+              "ID: ${p['id']}, Title: ${p['title']}, Price: ${p['price']}, Location: ${p['location']}",
+        )
+        .join("\n");
 
-    String prompt = """
+    String prompt =
+        """
     User Query: $userQuery
     Available Property List:
     $propertyData
@@ -65,8 +77,12 @@ class KhoznaAiService {
     3. If NO properties in the list match the query, respond ONLY with: "No matching properties found. (अहिले उपलब्ध छैन)"
     4. Keep the response extremely concise.
     """;
-    
-    return _getAiResponse(prompt, systemPrompt: "You are a strict property matcher. You ONLY use provided data. You do NOT hallucinate.");
+
+    return _getAiResponse(
+      prompt,
+      systemPrompt:
+          "You are a strict property matcher. You ONLY use provided data. You do NOT hallucinate.",
+    );
   }
 
   /// 2. AI Scam Detector
@@ -101,7 +117,8 @@ class KhoznaAiService {
     required String landmark,
     required List<String> amenities,
   }) async {
-    final String prompt = """
+    final String prompt =
+        """
     Generate a professional and catchy property description for a rental listing in Nepal.
     Details:
     - Title: $title
@@ -116,13 +133,17 @@ class KhoznaAiService {
     4. Be around 3-4 sentences long.
     5. Include a mix of English and Nepali for a local feel.
     """;
-    
-    return _getAiResponse(prompt, systemPrompt: "Marketing expert for Real Estate in Nepal.");
+
+    return _getAiResponse(
+      prompt,
+      systemPrompt: "Marketing expert for Real Estate in Nepal.",
+    );
   }
 
   /// 6. AI Location Expert (Verify & Nearby Analysis)
   Future<String> verifyLocation(String area, String landmark) async {
-    String prompt = """
+    String prompt =
+        """
     Location Area: $area
     Nearby Landmark: $landmark
     
@@ -133,7 +154,11 @@ class KhoznaAiService {
     
     Keep the response concise and friendly for a rental app user.
     """;
-    
-    return _getAiResponse(prompt, systemPrompt: "You are a local neighborhood expert in Nepal. You know all major landmarks and areas across Kathmandu, Lalitpur, Bhaktapur, and other major cities.");
+
+    return _getAiResponse(
+      prompt,
+      systemPrompt:
+          "You are a local neighborhood expert in Nepal. You know all major landmarks and areas across Kathmandu, Lalitpur, Bhaktapur, and other major cities.",
+    );
   }
 }

@@ -28,8 +28,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   void _search(String query) {
     setState(() {
-      _usersFuture = query.isEmpty 
-          ? SupabaseService.getAllUsers() 
+      _usersFuture = query.isEmpty
+          ? SupabaseService.getAllUsers()
           : SupabaseService.searchUsers(query);
     });
   }
@@ -39,7 +39,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('User Management', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text(
+          'User Management',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Padding(
@@ -52,7 +55,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.grey[100],
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
               ),
             ),
@@ -67,7 +73,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           }
           final users = snapshot.data ?? [];
           if (users.isEmpty) {
-            return Center(child: Text('No users found.', style: GoogleFonts.inter(color: Colors.grey)));
+            return Center(
+              child: Text(
+                'No users found.',
+                style: GoogleFonts.inter(color: Colors.grey),
+              ),
+            );
           }
 
           return ListView.separated(
@@ -76,7 +87,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             separatorBuilder: (context, index) => const Divider(height: 24),
             itemBuilder: (context, index) {
               final Map<String, dynamic> user = users[index];
-              final String fullName = user['full_name']?.toString() ?? 'Unknown User';
+              final String fullName =
+                  user['full_name']?.toString() ?? 'Unknown User';
               final String kycStatus = user['kyc_status']?.toString() ?? 'none';
               final String? avatarUrl = user['avatar_url']?.toString();
 
@@ -85,39 +97,76 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 leading: CircleAvatar(
                   radius: 24,
                   backgroundColor: AppTheme.brandColor.withOpacity(0.1),
-                  backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty) ? NetworkImage(avatarUrl) : null,
+                  backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty)
+                      ? NetworkImage(avatarUrl)
+                      : null,
                   child: (avatarUrl == null || avatarUrl.isEmpty)
                       ? (fullName.isNotEmpty
-                          ? Text(fullName.substring(0, 1).toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor))
-                          : const Icon(Icons.person, color: AppTheme.brandColor))
+                            ? Text(
+                                fullName.substring(0, 1).toUpperCase(),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.brandColor,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.person,
+                                color: AppTheme.brandColor,
+                              ))
                       : null,
                 ),
-                title: Text(fullName, style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+                title: Text(
+                  fullName,
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(user['phone_number'] ?? 'No Phone', style: GoogleFonts.inter(fontSize: 12)),
-                    Text(user['email'] ?? 'No Email', style: GoogleFonts.inter(fontSize: 11, color: Colors.grey)),
+                    Text(
+                      user['phone_number'] ?? 'No Phone',
+                      style: GoogleFonts.inter(fontSize: 12),
+                    ),
+                    Text(
+                      user['email'] ?? 'No Email',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: Colors.grey,
+                      ),
+                    ),
                   ],
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: _getStatusColor(kycStatus).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         kycStatus.toUpperCase(),
-                        style: TextStyle(color: _getStatusColor(kycStatus), fontSize: 10, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: _getStatusColor(kycStatus),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 4),
                     IconButton(
-                      onPressed: () => _confirmPermanentDelete(user['id'], user['full_name'] ?? 'this user'),
-                      icon: const Icon(Icons.delete_outline, color: Colors.grey, size: 20),
+                      onPressed: () => _confirmPermanentDelete(
+                        user['id'],
+                        user['full_name'] ?? 'this user',
+                      ),
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
                       tooltip: 'Delete User Permanently',
                     ),
                   ],
@@ -135,13 +184,21 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Delete $name?'),
-        content: const Text('This will permanently remove this user and all their data (KYC, notifications, profile) from the system. This cannot be undone.'),
+        content: const Text(
+          'This will permanently remove this user and all their data (KYC, notifications, profile) from the system. This cannot be undone.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete Permanently', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Delete Permanently',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -151,19 +208,29 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       try {
         await SupabaseService.deleteUserPermanently(userId);
         _refresh();
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User deleted successfully.')));
+        if (mounted)
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('User deleted successfully.')),
+          );
       } catch (e) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        if (mounted)
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
 
   Color _getStatusColor(String? status) {
     switch (status) {
-      case 'verified': return Colors.green;
-      case 'pending': return Colors.orange;
-      case 'rejected': return Colors.red;
-      default: return Colors.grey;
+      case 'verified':
+        return Colors.green;
+      case 'pending':
+        return Colors.orange;
+      case 'rejected':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 }

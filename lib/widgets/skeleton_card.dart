@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class SkeletonCard extends StatelessWidget {
   final bool isFullWidth;
 
-  const SkeletonCard({
-    super.key,
-    this.isFullWidth = false,
-  });
+  const SkeletonCard({super.key, this.isFullWidth = false});
 
   @override
   Widget build(BuildContext context) {

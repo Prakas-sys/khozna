@@ -29,7 +29,8 @@ class SupabaseService {
     try {
       final phone = user.phone;
       final metadata = user.userMetadata ?? {};
-      final String name = metadata['full_name'] ?? metadata['name'] ?? 'Khozna User';
+      final String name =
+          metadata['full_name'] ?? metadata['name'] ?? 'Khozna User';
       final String? avatar = metadata['avatar_url'] ?? metadata['picture'];
 
       await _client.from('profiles').upsert({
@@ -52,13 +53,17 @@ class SupabaseService {
     try {
       final response = await _client
           .from('saved_properties')
-      .select('property_id')
-      .eq('user_id', user.id);
+          .select('property_id')
+          .eq('user_id', user.id);
 
-      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+        response,
+      );
       final set = data.map((e) => e['property_id'].toString()).toSet();
       savedPropertiesStore.value = set;
-      debugPrint('--- [DATABASE] Master Memory Loaded: ${set.length} saved houses ---');
+      debugPrint(
+        '--- [DATABASE] Master Memory Loaded: ${set.length} saved houses ---',
+      );
     } catch (e) {
       print('Error fetching saved IDs: $e');
     }
@@ -72,7 +77,7 @@ class SupabaseService {
     // 1. Instantly update the Master Memory (Optimistic UX)
     final current = Set<String>.from(savedPropertiesStore.value);
     final isCurrentlySaved = current.contains(propertyId);
-    
+
     if (isCurrentlySaved) {
       current.remove(propertyId);
     } else {
@@ -83,9 +88,16 @@ class SupabaseService {
     // 2. Perform the database sync in the background
     try {
       if (isCurrentlySaved) {
-        await _client.from('saved_properties').delete().eq('user_id', user.id).eq('property_id', propertyId);
+        await _client
+            .from('saved_properties')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('property_id', propertyId);
       } else {
-        await _client.from('saved_properties').insert({'user_id': user.id, 'property_id': propertyId});
+        await _client.from('saved_properties').insert({
+          'user_id': user.id,
+          'property_id': propertyId,
+        });
       }
     } catch (e) {
       // 3. If it fails, revert the Memory back to original State
@@ -101,7 +113,11 @@ class SupabaseService {
   }
 
   /// Mark a property as booked and notify the owner.
-  static Future<void> bookProperty(String propertyId, String title, String ownerId) async {
+  static Future<void> bookProperty(
+    String propertyId,
+    String title,
+    String ownerId,
+  ) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
 
@@ -127,15 +143,19 @@ class SupabaseService {
           .limit(1);
 
       if (existingNoteList.isEmpty) {
-        final String name = user.userMetadata?['full_name'] ?? user.userMetadata?['name'] ?? 'A user';
+        final String name =
+            user.userMetadata?['full_name'] ??
+            user.userMetadata?['name'] ??
+            'A user';
         final String phone = user.phone ?? 'N/A';
         final String email = user.email ?? 'N/A';
-        
+
         await _client.from('notifications').insert({
           'user_id': ownerId,
           'sender_id': user.id,
           'title': 'Booking Request: $title 🏠',
-          'message': 'Requester: $name\nPhone: $phone\nEmail: $email\n\nThis user wants to rent your property.',
+          'message':
+              'Requester: $name\nPhone: $phone\nEmail: $email\n\nThis user wants to rent your property.',
           'type': 'booking',
         });
       }
@@ -154,7 +174,7 @@ class SupabaseService {
           .from('properties')
           .update({'status': 'available'})
           .eq('id', propertyId);
-          
+
       // Increment Notifications badge for the owner to confirm action (optional)
       notificationBadgeCount.value += 1;
     } catch (e) {
@@ -170,14 +190,20 @@ class SupabaseService {
   /// Fetch overview statistics for the Owner Dashboard
   static Future<Map<String, int>> getOwnerStats() async {
     try {
-      final userCount = await _client.from('profiles').select().count(CountOption.exact);
-      final propertyCount = await _client.from('properties').select().count(CountOption.exact);
+      final userCount = await _client
+          .from('profiles')
+          .select()
+          .count(CountOption.exact);
+      final propertyCount = await _client
+          .from('properties')
+          .select()
+          .count(CountOption.exact);
       final pendingKycCount = await _client
           .from('kyc_verifications')
           .select()
           .eq('status', 'pending')
           .count(CountOption.exact);
-      
+
       final reportCount = await _client
           .from('user_reports')
           .select()
@@ -198,7 +224,13 @@ class SupabaseService {
       };
     } catch (e) {
       print('Error fetching owner stats: $e');
-      return {'totalUsers': 0, 'totalProperties': 0, 'pendingKyc': 0, 'pendingReports': 0, 'activeBookings': 0};
+      return {
+        'totalUsers': 0,
+        'totalProperties': 0,
+        'pendingKyc': 0,
+        'pendingReports': 0,
+        'activeBookings': 0,
+      };
     }
   }
 
@@ -261,17 +293,25 @@ class SupabaseService {
   }
 
   /// Update KYC status (Approve/Reject)
-  static Future<void> updateKycStatus(String kycId, String userId, String status, {String? reason}) async {
+  static Future<void> updateKycStatus(
+    String kycId,
+    String userId,
+    String status, {
+    String? reason,
+  }) async {
     try {
-      await _client.from('kyc_verifications').update({
-        'status': status,
-        'rejection_reason': reason,
-      }).eq('id', kycId);
+      await _client
+          .from('kyc_verifications')
+          .update({'status': status, 'rejection_reason': reason})
+          .eq('id', kycId);
 
-      final String profileStatus = status == 'verified' ? 'verified' : 'rejected';
-      await _client.from('profiles').update({
-        'kyc_status': profileStatus,
-      }).eq('id', userId);
+      final String profileStatus = status == 'verified'
+          ? 'verified'
+          : 'rejected';
+      await _client
+          .from('profiles')
+          .update({'kyc_status': profileStatus})
+          .eq('id', userId);
 
       // 3. Notify the user (Only if not already notified for this specific status)
       final existingNoteList = await _client
@@ -279,15 +319,21 @@ class SupabaseService {
           .select()
           .eq('user_id', userId)
           .eq('type', 'kyc_update')
-          .eq('title', status == 'verified' ? 'KYC Approved! ✅' : 'KYC Rejected ❌')
+          .eq(
+            'title',
+            status == 'verified' ? 'KYC Approved! ✅' : 'KYC Rejected ❌',
+          )
           .limit(1);
 
       if (existingNoteList.isEmpty) {
         await _client.from('notifications').insert({
           'user_id': userId,
-          'sender_id': _client.auth.currentUser?.id, // Assign Admin as Sender to prevent null-join drops
+          'sender_id': _client
+              .auth
+              .currentUser
+              ?.id, // Assign Admin as Sender to prevent null-join drops
           'title': status == 'verified' ? 'KYC Approved! ✅' : 'KYC Rejected ❌',
-          'message': status == 'verified' 
+          'message': status == 'verified'
               ? 'Your identity has been verified. You can now post properties.'
               : 'Your KYC was rejected. Reason: ${reason ?? "Invalid documents"}. Please try again.',
           'type': 'kyc_update',
@@ -333,7 +379,7 @@ class SupabaseService {
       rethrow;
     }
   }
-  
+
   /// Delete a KYC record permanently
   static Future<void> deleteKycPermanently(String kycId) async {
     try {
@@ -360,7 +406,10 @@ class SupabaseService {
   /// Fetch all users for management
   static Future<List<Map<String, dynamic>>> getAllUsers() async {
     try {
-      return await _client.from('profiles').select().order('created_at', ascending: false);
+      return await _client
+          .from('profiles')
+          .select()
+          .order('created_at', ascending: false);
     } catch (e) {
       print('Error fetching users: $e');
       return [];
@@ -412,7 +461,7 @@ class SupabaseService {
     // 3. OWNER ONLY: Admin Alert Channels
     if (user.email == 'khoznaapp@gmail.com') {
       debugPrint('--- [ADMIN] Initializing Owner Realtime Channels ---');
-      
+
       _ownerKycChannel = _client
           .channel('owner-kycs')
           .onPostgresChanges(
@@ -451,9 +500,10 @@ class SupabaseService {
 
     try {
       // Save it to 'fcm_token' column in profiles table
-      await _client.from('profiles').update({
-        'fcm_token': token,
-      }).eq('id', user.id);
+      await _client
+          .from('profiles')
+          .update({'fcm_token': token})
+          .eq('id', user.id);
     } catch (e) {
       print('Error saving FCM Token: $e');
     }
@@ -473,7 +523,7 @@ class SupabaseService {
           schema: 'public',
           table: 'kyc_verifications',
           callback: (payload) {
-            // New KYC submitted! 
+            // New KYC submitted!
             notificationBadgeCount.value += 1;
             onNewEvent(); // Trigger UI refresh in Dashboard
           },
@@ -508,7 +558,7 @@ class SupabaseService {
           .select('*, sender:sender_id(full_name, avatar_url)')
           .eq('user_id', user.id)
           .order('created_at', ascending: false);
-      
+
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       print('Error fetching notifications: $e');
@@ -524,10 +574,12 @@ class SupabaseService {
     try {
       final response = await _client
           .from('saved_properties')
-          .select('*, properties(*, property_images(*), profiles(full_name, avatar_url))')
+          .select(
+            '*, properties(*, property_images(*), profiles(full_name, avatar_url))',
+          )
           .eq('user_id', user.id)
           .order('created_at', ascending: false);
-      
+
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       print('Error fetching saved properties: $e');
@@ -543,7 +595,7 @@ class SupabaseService {
       print('Error deleting notification: $e');
     }
   }
-  
+
   /// Delete all notifications for current user
   static Future<void> deleteAllNotifications() async {
     final user = _client.auth.currentUser;
@@ -558,9 +610,13 @@ class SupabaseService {
   // ==========================================
   // USER REPORTING METHODS
   // ==========================================
-  
+
   /// Report a user for bad behavior
-  static Future<void> reportUser(String userId, String reporterId, String reason) async {
+  static Future<void> reportUser(
+    String userId,
+    String reporterId,
+    String reason,
+  ) async {
     try {
       await _client.from('user_reports').insert({
         'reported_user_id': userId,
@@ -572,20 +628,22 @@ class SupabaseService {
       rethrow;
     }
   }
-  
+
   /// Fetch all user reports for admin
   static Future<List<Map<String, dynamic>>> getUserReports() async {
     try {
       return await _client
           .from('user_reports')
-          .select('*, reported:reported_user_id(full_name, avatar_url), reporter:reporter_id(full_name)')
+          .select(
+            '*, reported:reported_user_id(full_name, avatar_url), reporter:reporter_id(full_name)',
+          )
           .order('created_at', ascending: false);
     } catch (e) {
       print('Error fetching reports: $e');
       return [];
     }
   }
-  
+
   /// Delete a report record
   static Future<void> deleteReport(String reportId) async {
     try {
@@ -612,7 +670,7 @@ class SupabaseService {
           .select('*, profiles!participants(id, full_name, avatar_url)')
           .contains('participants', [user.id])
           .order('updated_at', ascending: false);
-      
+
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
       print('Error fetching conversations: $e');
@@ -627,11 +685,10 @@ class SupabaseService {
 
     try {
       // 1. Check if chat already exists
-      final existing = await _client
-          .from('chats')
-          .select()
-          .contains('participants', [user.id, otherUserId])
-          .maybeSingle();
+      final existing = await _client.from('chats').select().contains(
+        'participants',
+        [user.id, otherUserId],
+      ).maybeSingle();
 
       if (existing != null) return existing['id'];
 

@@ -9,7 +9,8 @@ class LocationPermissionScreen extends StatefulWidget {
   const LocationPermissionScreen({super.key});
 
   @override
-  State<LocationPermissionScreen> createState() => _LocationPermissionScreenState();
+  State<LocationPermissionScreen> createState() =>
+      _LocationPermissionScreenState();
 }
 
 class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
@@ -31,7 +32,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
 
   Future<void> _handlePermission() async {
     setState(() => _isRequesting = true);
-    
+
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
@@ -75,7 +76,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
               // Simplified Premium Icon
               _buildCleanIcon(),
               const SizedBox(height: 48),
-              
+
               // Text Content
               Text(
                 'Enable Location',
@@ -98,7 +99,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
                 ),
               ),
               const Spacer(flex: 4),
-              
+
               // Action Buttons
               Column(
                 children: [
@@ -202,7 +203,7 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
               color: AppTheme.brandColor.withValues(alpha: 0.08),
             ),
           ),
-          
+
           // Main Icon Circle
           Container(
             width: 90,

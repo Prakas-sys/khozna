@@ -6,10 +6,10 @@ final ValueNotifier<int> messageBadgeCount = ValueNotifier<int>(0);
 /// Global notifier for the Notification icon badge count.
 final ValueNotifier<int> notificationBadgeCount = ValueNotifier<int>(0);
 
-/// Master Memory: A global set of IDs for houses saved by the user. 
+/// Master Memory: A global set of IDs for houses saved by the user.
 /// Every heart listens to this to stay Red/Grey across all screens! 🧠✨
-final ValueNotifier<Set<String>> savedPropertiesStore = ValueNotifier<Set<String>>({});
-
+final ValueNotifier<Set<String>> savedPropertiesStore =
+    ValueNotifier<Set<String>>({});
 
 void initializeBadgeSync() {
   void updateNativeBadge() {
