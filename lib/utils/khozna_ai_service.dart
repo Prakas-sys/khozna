@@ -3,42 +3,48 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class KhoznaAiService {
-  // Switched to OpenRouter for 100% Forever Free Cloud AI
-  static const String _baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
+  // Switched to GROQ for 100% Free, High-Speed Cloud AI in Nepal
+  static const String _baseUrl = 'https://api.groq.com/openai/v1/chat/completions';
   
   final String apiKey;
 
-  KhoznaAiService({String? apiKey}) : apiKey = apiKey ?? dotenv.env['AI_API_KEY'] ?? '';
+  KhoznaAiService({String? apiKey}) : apiKey = apiKey ?? dotenv.env['GROQ_API_KEY'] ?? '';
 
-  /// 100% FREE Cloud AI Request (via OpenRouter Free Models)
+  /// Cloud AI Request with robust error handling
   Future<String> _getAiResponse(String prompt, {required String systemPrompt}) async {
+    // 1. Check if API Key is missing
+    if (apiKey.isEmpty) {
+      return "नमस्ते! (Hi!) 🇳🇵\nIt looks like the AI is not configured yet. Please follow these steps:\n1. Go to console.groq.com (It's 100% Free)\n2. Create an API Key\n3. Paste it in your .env file as GROQ_API_KEY";
+    }
+
     try {
       final response = await http.post(
         Uri.parse(_baseUrl),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $apiKey',
-          'HTTP-Referer': 'https://khozna.com', // Required by OpenRouter
-          'X-Title': 'Khozna App',
         },
         body: jsonEncode({
-          // Using the 100% FREE Gemma 3 12B model (confirmed by user screenshot)
-          'model': 'google/gemma-3-12b-it:free', 
+          'model': 'llama-3.3-70b-versatile', 
           'messages': [
             {'role': 'system', 'content': systemPrompt},
             {'role': 'user', 'content': prompt},
           ],
+          'temperature': 0.7,
+          'max_tokens': 1024,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return data['choices'][0]['message']['content'];
+      } else if (response.statusCode == 401) {
+        return "Invalid API Key. Please check your Groq API key in the .env file.";
       } else {
-        return "Error: ${response.statusCode} - ${response.body}";
+        return "AI is busy at the moment. Please try again in a few seconds.";
       }
     } catch (e) {
-      return "Exception: $e";
+      return "Connectivity issue. Please check your internet and try again.";
     }
   }
 
