@@ -58,17 +58,7 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  Future<void> _runAiSearch() async {
-    setState(() => _isAiSearching = true);
-    try {
-      final result = await _aiService.getAiRecommendation(_searchController.text);
-      setState(() => _aiSearchResult = result);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-    } finally {
-      setState(() => _isAiSearching = false);
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {

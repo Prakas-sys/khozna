@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/screens/property_details_screen.dart';
+import 'package:khozna/utils/supabase_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/formatters.dart';
 import 'favourite_button.dart';
