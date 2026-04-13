@@ -139,14 +139,37 @@ class PropertyCard extends StatelessWidget {
                       builder: (context) {
                         final isBooked = status == 'booked';
                         return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: isBooked ? Colors.red : const Color(0xFF2ECC71),
+                            color: isBooked ? Colors.orange.shade800 : const Color(0xFF2ECC71),
                             borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            isBooked ? 'Booked' : 'For Rent',
-                            style: GoogleFonts.inter(color: Colors.white, fontSize: 13.0, fontWeight: FontWeight.bold),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isBooked ? Icons.lock_clock_rounded : Icons.check_circle_rounded,
+                                color: Colors.white,
+                                size: 12,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isBooked ? 'बुक भएको (Booked)' : 'खाली छ (For Rent)',
+                                style: GoogleFonts.inter(
+                                  color: Colors.white, 
+                                  fontSize: 10.0, 
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       },

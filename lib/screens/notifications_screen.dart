@@ -341,6 +341,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'booking_alert':
       case 'saved_booking_alert': return Icons.home_work_rounded;
       case 'message': return Icons.chat_bubble_rounded;
+      case 'booking':
       case 'kyc_update': return Icons.verified_user_rounded;
       case 'security': return Icons.security_rounded;
       default: return Icons.notifications_rounded;
@@ -353,6 +354,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'booking_alert':
       case 'saved_booking_alert': return Colors.orange;
       case 'message': return AppTheme.brandColor;
+      case 'booking':
       case 'kyc_update': return Colors.green;
       case 'security': return Colors.black;
       default: return Colors.grey;

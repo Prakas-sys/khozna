@@ -96,26 +96,51 @@ class SupabaseService {
           .update({'status': 'booked'})
           .eq('id', propertyId);
 
-      // 2. Notify the owner (Only if not already notified for this property status)
+      // 2. Notify the owner
+      // Check if we already notified for this property and THIS sender to avoid duplicates
       final existingNoteList = await _client
           .from('notifications')
           .select()
           .eq('user_id', ownerId)
+          .eq('sender_id', user.id)
           .eq('type', 'booking')
           .ilike('message', '%$title%')
           .limit(1);
 
       if (existingNoteList.isEmpty) {
+        final String name = user.userMetadata?['full_name'] ?? user.userMetadata?['name'] ?? 'A user';
+        final String phone = user.phone ?? 'N/A';
+        final String email = user.email ?? 'N/A';
+        
         await _client.from('notifications').insert({
           'user_id': ownerId,
           'sender_id': user.id,
-          'title': 'New Booking Request! 🏠',
-          'message': '${user.userMetadata?['full_name'] ?? 'A user'} wants to rent your property: "$title".',
+          'title': 'Booking Request: $title 🏠',
+          'message': 'Requester: $name\nPhone: $phone\nEmail: $email\n\nThis user wants to rent your property.',
           'type': 'booking',
         });
       }
     } catch (e) {
       print('Supabase Booking Error: $e');
+    }
+  }
+
+  /// Cancel a booking and make the property available again
+  static Future<void> cancelBooking(String propertyId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      await _client
+          .from('properties')
+          .update({'status': 'available'})
+          .eq('id', propertyId);
+          
+      // Increment Notifications badge for the owner to confirm action (optional)
+      notificationBadgeCount.value += 1;
+    } catch (e) {
+      print('Supabase Cancel Booking Error: $e');
+      rethrow;
     }
   }
 

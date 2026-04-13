@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import '../theme/app_theme.dart';
+import '../utils/cloudinary_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -16,6 +19,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   bool _isLoading = false;
+  String? _avatarUrl;
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -23,11 +29,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _loadUserData();
   }
 
-  void _loadUserData() {
+  Future<void> _loadUserData() async {
     if (user != null) {
-      _fullNameController.text = user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? '';
-      _emailController.text = user?.email ?? '';
-      _phoneController.text = user?.phone ?? '';
+      setState(() => _isLoading = true);
+      try {
+        final profile = await Supabase.instance.client
+            .from('profiles')
+            .select()
+            .eq('id', user!.id)
+            .maybeSingle();
+
+        if (mounted) {
+          setState(() {
+            _fullNameController.text = profile?['full_name'] ?? user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? '';
+            _emailController.text = profile?['email'] ?? user?.email ?? '';
+            _phoneController.text = profile?['phone_number'] ?? user?.phone ?? '';
+            _avatarUrl = profile?['avatar_url'];
+          });
+        }
+      } catch (e) {
+        debugPrint('Error loading profile: $e');
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
     }
   }
 
@@ -35,9 +68,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _isLoading = true);
     try {
       if (user != null) {
+        String? newImageUrl = _avatarUrl;
+
+        // If a new image was picked, upload it first
+        if (_imageFile != null) {
+          newImageUrl = await CloudinaryService.uploadImage(_imageFile!);
+        }
+
         await Supabase.instance.client.auth.updateUser(
           UserAttributes(
-            data: {'full_name': _fullNameController.text},
+            data: {
+              'full_name': _fullNameController.text,
+              'avatar_url': newImageUrl,
+            },
           ),
         );
         
@@ -45,6 +88,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await Supabase.instance.client.from('profiles').update({
           'full_name': _fullNameController.text,
           'email': _emailController.text,
+          'avatar_url': newImageUrl,
         }).eq('id', user!.id);
         
         if (mounted) {
@@ -96,37 +140,53 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             Center(
               child: Stack(
                 children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [AppTheme.brandColor.withOpacity(0.1), AppTheme.brandColor.withOpacity(0.05)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey[100],
+                        border: Border.all(color: AppTheme.brandColor.withOpacity(0.1), width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.brandColor.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.brandColor.withOpacity(0.1),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
+                      child: ClipOval(
+                        child: _imageFile != null
+                            ? Image.file(_imageFile!, fit: BoxFit.cover)
+                            : (_avatarUrl != null && _avatarUrl!.isNotEmpty)
+                                ? Image.network(_avatarUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(Icons.person_rounded, size: 50, color: AppTheme.brandColor.withOpacity(0.5)))
+                                : Icon(Icons.person_rounded, size: 50, color: AppTheme.brandColor.withOpacity(0.5)),
+                      ),
                     ),
-                    child: Icon(Icons.person_rounded, size: 50, color: AppTheme.brandColor.withOpacity(0.5)),
                   ),
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: AppTheme.brandColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 14),
                       ),
-                      child: const Icon(Icons.edit_rounded, color: Colors.white, size: 12),
                     ),
                   ),
                 ],

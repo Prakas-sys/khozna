@@ -53,6 +53,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   int _currentImageIndex = 0;
   final PageController _pageController = PageController();
   bool _isReserved = false;
+  bool _isBooking = false;
   Map<String, dynamic>? _ownerData;
 
   String get _currentUserId => Supabase.instance.client.auth.currentUser?.id ?? '';
@@ -667,9 +668,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       color: AppTheme.primaryTextColor),
                 ),
                 Text(
-                  'Verified Owner • Khozna Member',
-                  style:
-                      GoogleFonts.inter(fontSize: 12, color: Colors.grey[500]),
+                  isBooked 
+                    ? 'बुक भएको (Already Booked)' 
+                    : 'भेरिफाइड मालिक (Verified Owner)',
+                  style: GoogleFonts.inter(
+                    fontSize: 12, 
+                    color: isBooked ? Colors.orange.shade800 : Colors.grey[500],
+                    fontWeight: isBooked ? FontWeight.bold : FontWeight.normal,
+                  ),
                 ),
               ],
             ),
@@ -831,35 +837,58 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             Expanded(
               flex: 2,
               child: ElevatedButton(
-                onPressed: () async {
-                    if (!_isReserved) {
+                onPressed: (_isReserved || _isBooking) 
+                  ? (_isMyProperty && _isReserved ? () async {
+                      // OWNER CANCEL FEATURE
+                      setState(() => _isBooking = true);
+                      try {
+                        await SupabaseService.cancelBooking(widget.id);
+                        if (mounted) {
+                          setState(() {
+                            _isReserved = false;
+                            _isBooking = false;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Status set to Available (रद्द भयो)'))
+                          );
+                        }
+                      } catch (e) {
+                         if (mounted) setState(() => _isBooking = false);
+                      }
+                    } : null)
+                  : () async {
+                    setState(() => _isBooking = true);
+                    try {
                       // Call Supabase Magic
                       await SupabaseService.bookProperty(widget.id, widget.title, widget.ownerId);
                       
                       // Increment Notifications badge
                       notificationBadgeCount.value += 1;
                       
-                      setState(() => _isReserved = true);
+                      if (mounted) {
+                        setState(() {
+                          _isReserved = true;
+                          _isBooking = false;
+                        });
 
-                      // Show premium notification
-                      if (context.mounted) {
+                        // Show premium notification
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             behavior: SnackBarBehavior.floating,
                             margin: const EdgeInsets.fromLTRB(16, 0, 16, 20),
                             backgroundColor: Colors.transparent,
                             elevation: 0,
-                            duration: const Duration(seconds: 3),
                             content: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF1C1C1E),
+                                color: const Color(0xFF1E1E1E).withOpacity(0.95),
                                 borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.white10),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
+                                    color: Colors.black.withOpacity(0.3),
                                     blurRadius: 20,
-                                    offset: const Offset(0, 8),
+                                    offset: const Offset(0, 10),
                                   ),
                                 ],
                               ),
@@ -868,32 +897,34 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.green.withValues(alpha: 0.2),
+                                      color: Colors.green.withOpacity(0.2),
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 20),
                                   ),
                                   const SizedBox(width: 12),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'बुकिङ अनुरोध पठाइयो! ✅',
-                                        style: GoogleFonts.inter(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Reserved Successfully! (सफल भयो)',
+                                          style: GoogleFonts.inter(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                          ),
                                         ),
-                                      ),
-                                      Text(
-                                        'नोटिफिकेसन सेक्सनमा हेर्नुहोस् 🔔',
-                                        style: GoogleFonts.inter(
-                                          color: Colors.white60,
-                                          fontSize: 12,
+                                        Text(
+                                          'The owner has been notified.',
+                                          style: GoogleFonts.inter(
+                                            color: Colors.white70,
+                                            fontSize: 12,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),

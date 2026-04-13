@@ -99,7 +99,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       try {
         final imageUrl = await CloudinaryService.uploadImage(_imageFile!);
         if (imageUrl != null && user != null) {
+          // Update database
           await Supabase.instance.client.from('profiles').update({'avatar_url': imageUrl}).eq('id', user!.id);
+          
+          // Also update Auth metadata to keep it in sync
+          await Supabase.instance.client.auth.updateUser(
+            UserAttributes(data: {'avatar_url': imageUrl}),
+          );
+
           if (mounted) {
             setState(() => _avatarUrl = imageUrl);
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile photo updated!')));
