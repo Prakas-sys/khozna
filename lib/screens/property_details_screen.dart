@@ -10,6 +10,7 @@ import '../widgets/favourite_button.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
 import '../utils/formatters.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:ui';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final String id;
@@ -218,54 +219,58 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 GestureDetector(
                   onTap: _openMap,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(24),
                     child: Container(
                       height: 200,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        border: Border.all(color: Colors.grey[200]!),
+                        color: Colors.grey[200],
+                        border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
                       ),
                       child: Stack(
                         children: [
-                          CachedNetworkImage(
-                            imageUrl:
-                                'https://miro.medium.com/v2/resize:fit:1400/1*q69O5N7I6kUf6J39sP5nPQ.png',
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            placeholder: (context, url) =>
-                                Container(color: Colors.grey[200]),
+                          Positioned.fill(
+                            child: CachedNetworkImage(
+                              imageUrl: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800',
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(color: Colors.grey[200]),
+                            ),
+                          ),
+                          Container(
+                            color: Colors.black.withValues(alpha: 0.2), // Dark wash for contrast
                           ),
                           Center(
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 10,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.85),
+                                    borderRadius: BorderRadius.circular(50),
+                                    border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
                                   ),
-                                ],
-                              ),
-                              child: const Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.location_on,
-                                    color: AppTheme.brandColor,
-                                    size: 28,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.map_outlined,
+                                        color: AppTheme.brandColor,
+                                        size: 22,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        "Explore Location",
+                                        style: GoogleFonts.inter(
+                                          fontSize: 15,
+                                          color: AppTheme.brandColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    "Tap to open Map",
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: AppTheme.brandColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
