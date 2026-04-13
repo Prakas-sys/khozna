@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../screens/chat_screen.dart';
-import '../screens/property_details_screen.dart';
+import 'package:khozna/screens/chat_screen.dart' as chat_page;
+import 'package:khozna/screens/property_details_screen.dart';
 import '../theme/app_theme.dart';
 import '../utils/formatters.dart';
 import 'favourite_button.dart';
@@ -305,7 +305,7 @@ class PropertyCard extends StatelessWidget {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => ChatScreen(
+                                      builder: (_) => chat_page.ChatScreen(
                                         ownerId: ownerId,
                                         name: ownerProfile?['full_name'] ?? 'Khozna User',
                                         avatar: ownerProfile?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=1',

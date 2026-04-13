@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../utils/supabase_service.dart';
 import 'owner_profile_screen.dart';
-import 'chat_screen.dart';
+import 'package:khozna/screens/chat_screen.dart' as chat_page;
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -337,7 +337,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ChatScreen(
+                  builder: (context) => chat_page.ChatScreen(
                       ownerId: '8746409d-5644-4f4f-93ff-bbf9a19dd505',
                       name: 'Khozna Official Support',
                       avatar: 'https://khozna.com/logo.png',

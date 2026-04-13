@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/supabase_service.dart';
+import 'package:khozna/screens/chat_screen.dart' as chat_page;
 
 class OwnerProfileScreen extends StatelessWidget {
   final String ownerId; // New: ownerId required for reporting
@@ -141,7 +142,7 @@ class OwnerProfileScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ChatScreen(
+                          builder: (_) => chat_page.ChatScreen(
                             ownerId: ownerId,
                             name: name,
                             avatar: avatar,

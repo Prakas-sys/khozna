@@ -6,7 +6,7 @@ import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
 import '../utils/supabase_service.dart';
 import '../widgets/favourite_button.dart';
-import 'chat_screen.dart';
+import 'package:khozna/screens/chat_screen.dart' as chat_page;
 import '../utils/formatters.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
@@ -700,7 +700,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => ChatScreen(
+                  builder: (_) => chat_page.ChatScreen(
                     ownerId: widget.ownerId,
                     name: name,
                     avatar: avatar,

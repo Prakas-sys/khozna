@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import '../theme/app_theme.dart';
 import 'owner_profile_screen.dart';
-import 'chat_screen.dart';
+import 'package:khozna/screens/chat_screen.dart' as chat_page;
 import 'property_details_screen.dart';
 
 class ReelsScreen extends StatefulWidget {
@@ -346,12 +346,17 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               label: 'Direct Chat',
                               isActive: false,
                               activeColor: Colors.white,
-                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(
-                                ownerId: reel['ownerId'] ?? '',
-                                name: reel['ownerName'],
-                                avatar: reel['ownerAvatar'],
-                                online: true,
-                              ))),
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => chat_page.ChatScreen(
+                                    ownerId: reel['ownerId'] ?? '',
+                                    name: reel['ownerName'],
+                                    avatar: reel['ownerAvatar'],
+                                    online: true,
+                                  ),
+                                ),
+                              ),
                             ),
                             _buildCompactAction(
                               icon: Icons.send_rounded,

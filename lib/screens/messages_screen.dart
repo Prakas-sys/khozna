@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/supabase_service.dart';
-import 'chat_screen.dart';
+import 'package:khozna/screens/chat_screen.dart' as chat_page;
 
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
@@ -219,7 +219,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => ChatScreen(
+                                    builder: (_) => chat_page.ChatScreen(
                                       chatId: chat['id'],
                                       name: otherUser['full_name'] ?? 'User',
                                       avatar: otherUser['avatar_url'] ?? 'https://i.pravatar.cc/150',
