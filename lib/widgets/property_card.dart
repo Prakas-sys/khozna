@@ -358,7 +358,7 @@ class PropertyCard extends StatelessWidget {
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.blueGrey[700],
                                 side: BorderSide(color: Colors.grey.shade300),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 padding: const EdgeInsets.symmetric(vertical: 10),
                               ),
                             ),
@@ -372,7 +372,7 @@ class PropertyCard extends StatelessWidget {
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.redAccent,
                                 side: BorderSide(color: Colors.red.withOpacity(0.2)),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 padding: const EdgeInsets.symmetric(vertical: 10),
                               ),
                             ),
@@ -413,9 +413,8 @@ class PropertyCard extends StatelessWidget {
 
     List<Widget> items = [];
     
-    // 1. Show Location first in the summary row
-    // 1. Show Location first in the summary row
-    items.add(Flexible(
+    // 1. Build Location Widget
+    Widget locationWidget = Flexible(
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -431,25 +430,28 @@ class PropertyCard extends StatelessWidget {
           ),
         ],
       ),
-    ));
+    );
 
-    // 2. Priority 1: Bedrooms
-    if (bedrooms > 0) {
-      items.add(_amenityIcon(Icons.bed_outlined, '$bedrooms Bed'));
-    }
-
-    // 3. Priority 2: Standard Amenities & Rules (Limit to fill up to 3 total items in row)
-    // We already have Location (1) and Beds (possibly 1).
-    int maxExtra = (bedrooms > 0) ? 1 : 2;
+    // 2. Build Amenities (Max 3 total items)
+    List<Widget> amenityItems = [];
     int count = 0;
     
+    // Priority 1: Bedrooms
+    if (bedrooms > 0) {
+      amenityItems.add(_amenityIcon(Icons.bed_outlined, '$bedrooms Bed'));
+      count++;
+    }
+
     // Combine amenities and house rules for display
     final combinedFeatures = [...amenities, ...houseRules];
     
     for (var feature in combinedFeatures) {
-      if (count >= maxExtra) break;
+      if (count >= 3) break; // Maximum 3 items allowed
       if (featureIcons.containsKey(feature)) {
-        items.add(_amenityIcon(featureIcons[feature]!, _getShortLabel(feature)));
+        if (amenityItems.isNotEmpty) {
+          amenityItems.add(const SizedBox(width: 12));
+        }
+        amenityItems.add(_amenityIcon(featureIcons[feature]!, _getShortLabel(feature)));
         count++;
       }
     }
@@ -459,7 +461,14 @@ class PropertyCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: items,
+        children: [
+          locationWidget,
+          if (amenityItems.isNotEmpty)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: amenityItems,
+            ),
+        ],
       ),
     );
   }

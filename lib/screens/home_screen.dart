@@ -349,7 +349,7 @@ class HomeScreenState extends State<HomeScreen> {
                                     ),
                                   );
                                 },
-                                borderRadius: BorderRadius.circular(30),
+                                borderRadius: BorderRadius.circular(12),
                                 child: Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: const BoxDecoration(
@@ -377,11 +377,6 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
 
                 const SizedBox(height: 12),
-                
-                // --- SYSTEM ADDITION: EXPLORE CATEGORIES ---
-                _buildCategoryGrid(),
-
-                const SizedBox(height: 48),
 
                 // --- SECTION 2: NEAR YOU ---
                 _buildHorizontalSection(
@@ -555,49 +550,4 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCategoryGrid() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Explore Categories',
-          style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildCategoryItem('Rooms', Icons.bed_outlined, Colors.blue, 'Room'),
-            _buildCategoryItem('Flats', Icons.apartment_outlined, Colors.orange, 'Flat'),
-            _buildCategoryItem('Apartments', Icons.domain_outlined, Colors.purple, 'Apartment'),
-            _buildCategoryItem('Other', Icons.more_horiz_outlined, Colors.teal, 'Other'),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCategoryItem(String title, IconData icon, Color color, String categoryValue) {
-    return GestureDetector(
-      onTap: () => _navigate(context, FilterResultsScreen(location: categoryValue, priceRange: 'Category Search')),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: color.withValues(alpha: 0.1)),
-            ),
-            child: Icon(icon, color: color, size: 28),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black87),
-          ),
-        ],
-      ),
-    );
-  }
 }

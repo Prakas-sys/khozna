@@ -54,8 +54,19 @@ class KhoznaAiService {
       "ID: ${p['id']}, Title: ${p['title']}, Price: ${p['price']}, Location: ${p['location']}"
     ).join("\n");
 
-    String prompt = "User Query: $userQuery\nData:\n$propertyData\nFind matches.";
-    return _getAiResponse(prompt, systemPrompt: "Property expert for Nepal.");
+    String prompt = """
+    User Query: $userQuery
+    Available Property List:
+    $propertyData
+    
+    INSTRUCTIONS:
+    1. Identify matching properties ONLY from the list above.
+    2. Do NOT mention any locations or property types (like 'land') NOT in the list.
+    3. If NO properties in the list match the query, respond ONLY with: "No matching properties found. (अहिले उपलब्ध छैन)"
+    4. Keep the response extremely concise.
+    """;
+    
+    return _getAiResponse(prompt, systemPrompt: "You are a strict property matcher. You ONLY use provided data. You do NOT hallucinate.");
   }
 
   /// 2. AI Scam Detector
