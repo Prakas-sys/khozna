@@ -161,7 +161,7 @@ class PropertyCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                isBooked ? 'बुक भएको (Booked)' : 'खाली छ (For Rent)',
+                                isBooked ? 'Booked' : 'For Rent',
                                 style: GoogleFonts.inter(
                                   color: Colors.white, 
                                   fontSize: 10.0, 

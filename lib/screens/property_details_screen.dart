@@ -668,13 +668,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       color: AppTheme.primaryTextColor),
                 ),
                 Text(
-                  isBooked 
-                    ? 'बुक भएको (Already Booked)' 
-                    : 'भेरिफाइड मालिक (Verified Owner)',
+                  _isReserved 
+                    ? 'Already Booked' 
+                    : 'Verified Owner',
                   style: GoogleFonts.inter(
                     fontSize: 12, 
-                    color: isBooked ? Colors.orange.shade800 : Colors.grey[500],
-                    fontWeight: isBooked ? FontWeight.bold : FontWeight.normal,
+                    color: _isReserved ? Colors.orange.shade800 : Colors.grey[500],
+                    fontWeight: _isReserved ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               ],
@@ -849,7 +849,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             _isBooking = false;
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Status set to Available (रद्द भयो)'))
+                            const SnackBar(content: Text('Status set to Available'))
                           );
                         }
                       } catch (e) {
@@ -909,7 +909,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Reserved Successfully! (सफल भयो)',
+                                          'Reserved Successfully!',
                                           style: GoogleFonts.inter(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
@@ -932,25 +932,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           ),
                         );
                       }
-                    } else {
-                      // Cancel booking - update database too!
-                      try {
-                        await Supabase.instance.client
-                            .from('properties')
-                            .update({'status': 'available'})
-                            .eq('id', widget.id);
-                        setState(() => _isReserved = false);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Booking request cancelled.')),
-                          );
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Could not cancel. Please try again.')),
-                          );
-                        }
+                    } catch (e) {
+                      if (mounted) {
+                        setState(() => _isBooking = false);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                           SnackBar(content: Text('Booking failed: $e'))
+                        );
                       }
                     }
                   },
