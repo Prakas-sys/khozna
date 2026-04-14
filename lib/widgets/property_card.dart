@@ -271,9 +271,9 @@ class PropertyCard extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '₹.', // Added full stop behind the symbol
+                                text: '₹', // Removed full stop for ultra-clean look
                                 style: GoogleFonts.inter(
-                                  fontSize: 20,
+                                  fontSize: 18, // Reduced from 20 to balance with digits
                                   fontWeight: FontWeight.w400,
                                   color: AppTheme.brandColor,
                                 ),
