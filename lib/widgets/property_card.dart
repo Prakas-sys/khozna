@@ -167,7 +167,7 @@ class PropertyCard extends StatelessWidget {
                         final isBooked = status == 'booked';
                         return Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
+                            horizontal: 7, // Reduced from 10 to make it tighter sideways
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
@@ -271,9 +271,17 @@ class PropertyCard extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: 'रू ${PriceFormatter.format(price)}',
+                                text: 'रू ',
                                 style: GoogleFonts.inter(
-                                  fontSize: 18, // Increased from 16 to make price and symbol pop
+                                  fontSize: 20, // Grown from 18 to make it pop
+                                  fontWeight: FontWeight.w900, // Extra bold for a 'pro' look
+                                  color: AppTheme.brandColor,
+                                ),
+                              ),
+                              TextSpan(
+                                text: PriceFormatter.format(price),
+                                style: GoogleFonts.inter(
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: AppTheme.brandColor,
                                 ),
