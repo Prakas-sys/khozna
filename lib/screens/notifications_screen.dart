@@ -94,45 +94,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               onRefresh: _fetchNotifications,
               color: AppTheme.brandColor,
               child: ListView.builder(
-                itemCount: _notifications.length + 1, // +1 for the pinned card
+                itemCount: _notifications.length,
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.symmetric(
                   vertical: 8,
                   horizontal: 16,
                 ),
                 itemBuilder: (context, index) {
-                  // PINNED SUPPORT CARD AT THE TOP
-                  if (index == 0) {
-                    return Column(
-                      children: [
-                        _buildPinnedSupportCard(),
-                        if (_notifications.isNotEmpty) ...[
-                          const SizedBox(height: 24),
-                          Row(
-                            children: [
-                              Text(
-                                'Recent Activity',
-                                style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.grey[400],
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              const Spacer(),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                        if (_notifications.isEmpty) ...[
-                          const SizedBox(height: 40),
-                          _buildEmptyStateContent(),
-                        ],
-                      ],
-                    );
-                  }
-
-                  final note = _notifications[index - 1];
+                itemBuilder: (context, index) {
+                  final note = _notifications[index];
                   final sender = note['sender'];
                   final String id = note['id'].toString();
 
@@ -318,7 +288,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
-            'Your activity and bookings will appear\nbelow our support section.',
+            'Your activity and bookings will appear\nhere as they happen.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
@@ -331,115 +301,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildPinnedSupportCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppTheme.brandColor, AppTheme.brandColor.withOpacity(0.8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.brandColor.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.support_agent_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Official Khozna Support',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      'Always active for you',
-                      style: GoogleFonts.inter(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Facing any struggle? Our team is here to solve it. Message us directly to report problems or provide feedback.',
-            style: GoogleFonts.inter(
-              color: Colors.white,
-              fontSize: 13,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => chat_page.ChatScreen(
-                      ownerId: '8746409d-5644-4f4f-93ff-bbf9a19dd505',
-                      name: 'Khozna Official Support',
-                      avatar: 'https://khozna.com/logo.png',
-                      online: true,
-                    ),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: AppTheme.brandColor,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                'Message Team (कुरा गर्नुहोस्)',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   void _confirmDelete(String id, int index) async {
     final bool? confirm = await showModalBottomSheet<bool>(

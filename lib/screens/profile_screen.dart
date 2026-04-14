@@ -7,6 +7,8 @@ import '../theme/app_theme.dart';
 import 'saved_properties_screen.dart';
 import 'my_listings_screen.dart';
 import 'safety_center_screen.dart';
+import 'help_center_screen.dart';
+import 'terms_privacy_screen.dart';
 import 'kyc_screen.dart';
 import 'settings_screen.dart';
 import 'login_screen.dart';
@@ -421,13 +423,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Icons.help_center_outlined,
                       'Help Center',
                       'FAQs & Contact Support',
-                      onTap: () {},
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const HelpCenterScreen(),
+                        ),
+                      ),
                     ),
                     _buildMenuItem(
                       Icons.description_outlined,
                       'Terms & Privacy',
                       'Our guidelines',
-                      onTap: () {},
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TermsPrivacyScreen(),
+                        ),
+                      ),
                     ),
                   ]),
 
