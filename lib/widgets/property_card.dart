@@ -246,7 +246,7 @@ class PropertyCard extends StatelessWidget {
               ),
               // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 1, 12, 12),
+                padding: const EdgeInsets.fromLTRB(12, 1, 12, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
