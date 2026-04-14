@@ -293,7 +293,7 @@ class PropertyCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     _buildAmenityItems(),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     // Action Buttons
                     Row(
                       children: [
@@ -336,7 +336,7 @@ class PropertyCard extends StatelessWidget {
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
+                                  vertical: 6,
                                 ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -390,7 +390,7 @@ class PropertyCard extends StatelessWidget {
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
+                                  vertical: 6,
                                 ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -420,7 +420,7 @@ class PropertyCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
+                                  vertical: 6,
                                 ),
                               ),
                             ),
@@ -443,7 +443,7 @@ class PropertyCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 10,
+                                  vertical: 6,
                                 ),
                               ),
                             ),

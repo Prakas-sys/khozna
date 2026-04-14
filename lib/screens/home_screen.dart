@@ -561,7 +561,7 @@ class HomeScreenState extends State<HomeScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SizedBox(
-                height: 340,
+                height: 310,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: 3,
@@ -577,7 +577,7 @@ class HomeScreenState extends State<HomeScreen> {
 
             if (properties.isEmpty) {
               return SizedBox(
-                height: 340,
+                height: 310,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   clipBehavior: Clip.none,
@@ -591,7 +591,7 @@ class HomeScreenState extends State<HomeScreen> {
             }
 
             return SizedBox(
-              height: 340,
+              height: 310,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
