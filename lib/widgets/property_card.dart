@@ -246,7 +246,7 @@ class PropertyCard extends StatelessWidget {
               ),
               // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 1, 12, 10), // Added 10px bottom padding
+                padding: const EdgeInsets.fromLTRB(12, 1, 12, 4), // Reduced from 10 to 4 for a tighter bottom look
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
