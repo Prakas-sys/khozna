@@ -271,10 +271,10 @@ class PropertyCard extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: 'रू ',
+                                text: '₹ ', // Modern minimalistic symbol
                                 style: GoogleFonts.inter(
-                                  fontSize: 20, // Grown from 18 to make it pop
-                                  fontWeight: FontWeight.w900, // Extra bold for a 'pro' look
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
                                   color: AppTheme.brandColor,
                                 ),
                               ),
