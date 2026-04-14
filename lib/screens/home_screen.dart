@@ -105,12 +105,7 @@ class HomeScreenState extends State<HomeScreen> {
         .select('*, property_images(image_url)');
 
     switch (index) {
-      case 0: // Verified Listings (Main Featured)
-        query = query
-            .eq('is_verified', true)
-            .order('created_at', ascending: false);
-        break;
-      case 1: // Near You (Location-based)
+      case 0: // Near You (Location-based) - Promoted to #1
         if (_currentPosition != null) {
           query = query
               .gte('latitude', _currentPosition!.latitude - 0.1)
@@ -119,6 +114,10 @@ class HomeScreenState extends State<HomeScreen> {
               .lte('longitude', _currentPosition!.longitude + 0.1);
         }
         query = query.order('created_at', ascending: false);
+        break;
+      case 1: // Recent Listings (Formerly Verified)
+        query = query
+            .order('created_at', ascending: false);
         break;
       case 2: // Student Housing (Room < 7k)
         query = query
@@ -463,21 +462,21 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 38),
 
-                // --- SECTION 1: VERIFIED ---
-                _buildHorizontalSection(
-                  context,
-                  'Verified Listings',
-                  'Handpicked & Checked Properties',
-                  _sectionFutures[0],
-                ),
-
-                const SizedBox(height: 12),
-
-                // --- SECTION 2: NEAR YOU ---
+                // --- SECTION 1: NEAR YOU ---
                 _buildHorizontalSection(
                   context,
                   'Near You',
                   'Properties in your current area',
+                  _sectionFutures[0],
+                ),
+
+                const SizedBox(height: 40),
+
+                // --- SECTION 2: DISCOVER ---
+                _buildHorizontalSection(
+                  context,
+                  'Discover',
+                  'Fresh listings personally for you',
                   _sectionFutures[1],
                 ),
 

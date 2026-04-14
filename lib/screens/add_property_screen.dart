@@ -19,11 +19,11 @@ class AddPropertyScreen extends StatefulWidget {
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   final ScrollController _step1ScrollController = ScrollController();
   final FocusNode _titleFocusNode = FocusNode();
   final ImagePicker _picker = ImagePicker();
-  final GlobalKey _titleSectionKey = GlobalKey(); // For precise auto-scroll
   late ConfettiController _confettiController;
 
   // Form State
@@ -374,6 +374,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -506,10 +507,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         _categoryCard('अपार्टमेन्ट / Apartment', Icons.domain, 'Apartment'),
         _categoryCard('अन्य / Other', Icons.more_horiz, 'Other'),
         const SizedBox(height: 32),
-        KeyedSubtree(
-          key: _titleSectionKey,
-          child: _buildLabel('विज्ञापनको नाम (Title)', true),
-        ),
+        _buildLabel('विज्ञापनको नाम (Title)', true),
         _buildTextField(
           'उदा: सानेपामा राम्रो २ कोठा खाली छ',
           controller: _titleController,
@@ -1383,18 +1381,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     return InkWell(
       onTap: () {
         setState(() => _selectedCategory = value);
-        // UX: Precisely scroll to Title field and focus it, no matter screen size
-        Future.delayed(const Duration(milliseconds: 100), () {
-          final ctx = _titleSectionKey.currentContext;
-          if (ctx != null) {
-            Scrollable.ensureVisible(
-              ctx,
-              duration: const Duration(milliseconds: 400),
+        // UX: Focus title field after category selection
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _titleFocusNode.requestFocus();
+          if (_step1ScrollController.hasClients) {
+            _step1ScrollController.animateTo(
+              300, // Scroll down to reveal title field
+              duration: const Duration(milliseconds: 300),
               curve: Curves.easeOut,
-              alignment: 0.0, // scroll so title appears at top of visible area
             );
           }
-          _titleFocusNode.requestFocus();
         });
       },
       borderRadius: BorderRadius.circular(16),

@@ -246,7 +246,7 @@ class PropertyCard extends StatelessWidget {
               ),
               // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 1, 12, 4), // Reduced from 10 to 4 for a tighter bottom look
+                padding: const EdgeInsets.fromLTRB(12, 1, 12, 2), // Further reduced for an ultra-tight bottom look
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -293,7 +293,7 @@ class PropertyCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2), // Reduced for tighter look
                     _buildAmenityItems(),
-                    const SizedBox(height: 12), // Increased to move buttons down
+                    const SizedBox(height: 6), // Reduced to bring buttons closer to details
                     // Action Buttons
                     Row(
                       children: [
