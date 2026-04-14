@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:confetti/confetti.dart';
 import '../theme/app_theme.dart';
 import '../utils/cloudinary_service.dart';
 import '../utils/khozna_ai_service.dart';
@@ -22,6 +23,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final ScrollController _step1ScrollController = ScrollController();
   final FocusNode _titleFocusNode = FocusNode();
   final ImagePicker _picker = ImagePicker();
+  final GlobalKey _titleSectionKey = GlobalKey(); // For precise auto-scroll
+  late ConfettiController _confettiController;
 
   // Form State
   final TextEditingController _titleController = TextEditingController();
@@ -64,7 +67,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   bool _isGeneratingDescription = false;
 
   @override
+  void initState() {
+    super.initState();
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
+  }
+
+  @override
   void dispose() {
+    _confettiController.dispose();
     _titleController.dispose();
     _areaController.dispose();
     _landmarkController.dispose();
@@ -201,16 +212,24 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           .update({'is_owner': true})
           .eq('id', user.id);
 
-      if (mounted) {
+        // FIRE CONFETTI!
+        _confettiController.play();
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Property published successfully! 🚀'),
+            content: Text('प्रोपर्टी प्रकाशित भयो! 🎉 (Success!)'),
             backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
           ),
         );
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
+
+        // Wait for confetti to show before popping
+        await Future.delayed(const Duration(seconds: 2));
+
+        if (mounted) {
+          Navigator.pop(context, true);
+        }
+      } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -369,20 +388,46 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           ),
         ),
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.black, size: 28),
-          onPressed: () => Navigator.pop(context),
+        leadingWidth: 64,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.grey.shade300, width: 1.5),
+              ),
+              child: const Icon(
+                Icons.close_rounded,
+                color: Colors.black87,
+                size: 20,
+              ),
+            ),
+          ),
         ),
         actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 20),
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppTheme.brandColor.withOpacity(0.25),
+                  width: 1.2,
+                ),
+              ),
               child: Text(
-                'Step ${_currentStep + 1} / 6',
+                '${_currentStep + 1} / 6',
                 style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: AppTheme.brandColor,
-                  fontSize: 15,
+                  fontSize: 13,
                 ),
               ),
             ),
@@ -391,33 +436,55 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       ),
       body: Column(
         children: [
-          // DUOLINGO STYLE THICK PROGRESS BAR
+          // BOLD, SIMPLE PROGRESS BAR
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: LinearProgressIndicator(
-                value: (_currentStep + 1) / 6,
-                minHeight: 12,
-                backgroundColor: Colors.grey[200],
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  AppTheme.brandColor,
+              child: SizedBox(
+                height: 14, // Thicker for clarity
+                child: LinearProgressIndicator(
+                  value: (_currentStep + 1) / 6,
+                  backgroundColor: Colors.grey[100],
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppTheme.brandColor,
+                  ),
                 ),
               ),
             ),
           ),
 
           Expanded(
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
+            child: Stack(
               children: [
-                _buildStep1(), // Basic Info
-                _buildStep2(), // Location & Landmarks
-                _buildStep3(), // Pricing
-                _buildStep4(), // Amenities Grid
-                _buildStep5(), // House Rules
-                _buildStep6(), // Media & Finish
+                PageView(
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _buildStep1(), // Basic Info
+                    _buildStep2(), // Location & Landmarks
+                    _buildStep3(), // Pricing
+                    _buildStep4(), // Amenities Grid
+                    _buildStep5(), // House Rules
+                    _buildStep6(), // Media & Finish
+                  ],
+                ),
+                // CONFETTI OVERLAY
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: ConfettiWidget(
+                    confettiController: _confettiController,
+                    blastDirectionality: BlastDirectionality.explosive,
+                    shouldLoop: false,
+                    colors: const [
+                      AppTheme.brandColor,
+                      Colors.blue,
+                      Colors.green,
+                      Colors.orange,
+                      Colors.pink
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -439,7 +506,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         _categoryCard('अपार्टमेन्ट / Apartment', Icons.domain, 'Apartment'),
         _categoryCard('अन्य / Other', Icons.more_horiz, 'Other'),
         const SizedBox(height: 32),
-        _buildLabel('विज्ञापनको नाम (Title)', true),
+        KeyedSubtree(
+          key: _titleSectionKey,
+          child: _buildLabel('विज्ञापनको नाम (Title)', true),
+        ),
         _buildTextField(
           'उदा: सानेपामा राम्रो २ कोठा खाली छ',
           controller: _titleController,
@@ -721,39 +791,47 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ),
               ],
               const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: _isLocating ? null : _detectLocation,
-                icon: _isLocating
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
+                ElevatedButton.icon(
+                  onPressed: _isLocating ? null : _detectLocation,
+                  icon: _isLocating
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : Icon(
+                          _latitude != null ? Icons.refresh : Icons.gps_fixed,
+                          size: 22,
                           color: Colors.white,
-                          strokeWidth: 2,
                         ),
-                      )
-                    : Icon(
-                        _latitude != null ? Icons.refresh : Icons.gps_fixed,
-                        size: 18,
-                      ),
-                label: Text(
-                  _isLocating
-                      ? 'GPS खोज्दै छ...'
-                      : _latitude != null
-                      ? 'लोकेशन अपडेट गर्नुहोस्'
-                      : 'लोकेशन सेट गर्नुहोस्',
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _latitude != null
-                      ? Colors.green
-                      : AppTheme.brandColor,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
+                  label: Text(
+                    _isLocating
+                        ? 'GPS खोज्दै छ...'
+                        : _latitude != null
+                            ? 'लोकेशन अपडेट गर्नुहोस्'
+                            : 'लोकेशन सेट गर्नुहोस्',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        _latitude != null ? Colors.green : AppTheme.brandColor,
+                    elevation: 4, // More obvious shadow
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 18,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
@@ -1076,7 +1154,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _ruleItem(IconData icon, String label, String value) {
     bool isSelected = _selectedRules.contains(value);
     return InkWell(
-      onTap: () => _toggleRule(value),
+      onTap: () {
+        _toggleRule(value);
+        if (!isSelected) {
+          Feedback.forTap(context);
+        }
+      },
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -1085,8 +1168,17 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppTheme.brandColor : Colors.grey[300]!,
-            width: 2,
+            width: isSelected ? 3 : 2, // Thicker border when selected
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.brandColor.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : [],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1291,15 +1383,19 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     return InkWell(
       onTap: () {
         setState(() => _selectedCategory = value);
-        // UX: Auto-scroll to Title box and focus it to pop open keyboard
-        if (_step1ScrollController.hasClients) {
-          _step1ScrollController.animateTo(
-            300.0, // Approximate scroll offset to bring Title into view
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-        _titleFocusNode.requestFocus();
+        // UX: Precisely scroll to Title field and focus it, no matter screen size
+        Future.delayed(const Duration(milliseconds: 100), () {
+          final ctx = _titleSectionKey.currentContext;
+          if (ctx != null) {
+            Scrollable.ensureVisible(
+              ctx,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOut,
+              alignment: 0.0, // scroll so title appears at top of visible area
+            );
+          }
+          _titleFocusNode.requestFocus();
+        });
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -1355,7 +1451,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _amenityItem(IconData icon, String label, String value) {
     bool isSelected = _selectedAmenities.contains(value);
     return InkWell(
-      onTap: () => _toggleAmenity(value),
+      onTap: () {
+        _toggleAmenity(value);
+        if (!isSelected) {
+          Feedback.forTap(context);
+        }
+      },
       borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -1363,9 +1464,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           color: isSelected ? AppTheme.brandColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? AppTheme.brandColor : Colors.grey[300]!,
-            width: 2,
+            color: isSelected ? AppTheme.brandColor : Colors.grey[400]!,
+            width: isSelected ? 3 : 2,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.brandColor.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : [],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1400,47 +1510,59 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
       decoration: BoxDecoration(
         color: hasFile
             ? (isBlue
-                  ? Colors.blue.withOpacity(0.1)
-                  : Colors.green.withOpacity(0.1))
+                ? Colors.blue.withOpacity(0.1)
+                : Colors.green.withOpacity(0.1))
             : (isBlue
-                  ? AppTheme.brandColor.withOpacity(0.05)
-                  : const Color(0xFFF9F9F9)),
+                ? AppTheme.brandColor.withOpacity(0.05)
+                : const Color(0xFFF9F9F9)),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: hasFile
               ? (isBlue ? Colors.blue : Colors.green)
-              : (isBlue
-                    ? AppTheme.brandColor.withOpacity(0.2)
-                    : Colors.grey[200]!),
-          width: hasFile ? 2 : 1,
+              : (isBlue ? AppTheme.brandColor : Colors.grey[300]!),
+          width: 3, // Thicker border for clarity
         ),
       ),
       child: Column(
         children: [
-          Icon(
-            hasFile ? Icons.check_circle : icon,
-            color: hasFile
-                ? (isBlue ? Colors.blue : Colors.green)
-                : (isBlue ? AppTheme.brandColor : Colors.grey[600]),
-            size: 40,
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: hasFile
+                  ? (isBlue ? Colors.blue : Colors.green)
+                  : (isBlue ? AppTheme.brandColor : Colors.grey[200]),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              hasFile ? Icons.check : icon,
+              color: Colors.white,
+              size: 32,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
             title,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.mukta(
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: hasFile
                   ? (isBlue ? Colors.blue[900] : Colors.green[900])
                   : Colors.black87,
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             desc,
-            style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -1567,11 +1689,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     ? (_isPublishing ? null : _publishProperty)
                     : _nextStep,
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 22),
                   backgroundColor: _currentStep == 5
                       ? Colors.green
                       : AppTheme.brandColor,
-                  elevation: 0,
+                  elevation: 2,
+                  shadowColor: Colors.black.withOpacity(0.3),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -1587,11 +1710,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       )
                     : Text(
                         _currentStep == 5
-                            ? 'प्रकाशित गर्ने (Publish)'
-                            : 'अर्को जानुहोस् (Next)',
+                            ? 'अन्तिम: प्रकाशित गर्नुहोस् (Publish)'
+                            : 'अर्को भाग (Next)',
                         style: GoogleFonts.mukta(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 20, // Larger for clarity
                           color: Colors.white,
                         ),
                       ),

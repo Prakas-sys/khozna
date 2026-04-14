@@ -292,6 +292,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center, // Perfect horizontal alignment
                             children: [
                               Text(
                                 user?.userMetadata?['full_name'] ??
@@ -773,7 +774,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title.toUpperCase(),
             style: GoogleFonts.inter(
               fontSize: 12,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600, // Changed from w900 for a cleaner look
               color: Colors.black38,
               letterSpacing: 1.2,
             ),
@@ -822,7 +823,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title,
         style: GoogleFonts.inter(
           fontSize: 15,
-          fontWeight: FontWeight.bold,
+          fontWeight: FontWeight.w500, // Changed from bold to regular/medium
           color: const Color(0xFF1E1E1E),
           letterSpacing: -0.3,
         ),

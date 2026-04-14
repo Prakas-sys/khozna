@@ -117,7 +117,7 @@ class PropertyCard extends StatelessWidget {
               Stack(
                 children: [
                   SizedBox(
-                    height: 190,
+                    height: 180, // Slightly reduced to avoid stretching the card
                     width: double.infinity,
                     child: Hero(
                       tag: id,
@@ -246,7 +246,7 @@ class PropertyCard extends StatelessWidget {
               ),
               // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 1, 12, 0),
+                padding: const EdgeInsets.fromLTRB(12, 1, 12, 10), // Added 10px bottom padding
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -260,7 +260,7 @@ class PropertyCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.inter(
-                              fontSize: 14,
+                              fontSize: 15, // Increased from 14 for better visibility
                               fontWeight: FontWeight.w600,
                               color: Colors.black,
                             ),
@@ -273,7 +273,7 @@ class PropertyCard extends StatelessWidget {
                               TextSpan(
                                 text: 'रू ${PriceFormatter.format(price)}',
                                 style: GoogleFonts.inter(
-                                  fontSize: 16,
+                                  fontSize: 18, // Increased from 16 to make price and symbol pop
                                   fontWeight: FontWeight.bold,
                                   color: AppTheme.brandColor,
                                 ),
@@ -291,9 +291,9 @@ class PropertyCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2), // Reduced for tighter look
                     _buildAmenityItems(),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 12), // Increased to move buttons down
                     // Action Buttons
                     Row(
                       children: [
