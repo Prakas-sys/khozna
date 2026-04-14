@@ -19,7 +19,7 @@ class SkeletonCard extends StatelessWidget {
         children: [
           // Image Placeholder
           Container(
-            height: 190,
+            height: 180,
             width: double.infinity,
             decoration: const BoxDecoration(
               color: Color(0xFFF5F5F5),
@@ -27,7 +27,7 @@ class SkeletonCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+            padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -53,17 +53,7 @@ class SkeletonCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                // Location line
-                Container(
-                  width: 100,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 6),
                 // Button lines
                 Row(
                   children: [

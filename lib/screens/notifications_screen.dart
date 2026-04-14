@@ -93,14 +93,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           : RefreshIndicator(
               onRefresh: _fetchNotifications,
               color: AppTheme.brandColor,
-              child: ListView.builder(
-                itemCount: _notifications.length,
+              child: _notifications.isEmpty
+                  ? SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * 0.75,
+                        alignment: Alignment.center,
+                        child: _buildEmptyStateContent(),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _notifications.length,
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.symmetric(
                   vertical: 8,
                   horizontal: 16,
                 ),
-                itemBuilder: (context, index) {
                 itemBuilder: (context, index) {
                   final note = _notifications[index];
                   final sender = note['sender'];
@@ -110,8 +118,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     key: Key(id),
                     direction: DismissDirection.endToStart,
                     onDismissed: (_) async {
-                      if (index - 1 < _notifications.length) {
-                        setState(() => _notifications.removeAt(index - 1));
+                      if (index < _notifications.length) {
+                        setState(() => _notifications.removeAt(index));
                         await SupabaseService.deleteNotification(id);
                       }
                     },
@@ -241,7 +249,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ),
                             ),
                             IconButton(
-                              onPressed: () => _confirmDelete(id, index - 1),
+                              onPressed: () => _confirmDelete(id, index),
                               icon: Icon(
                                 Icons.delete_outline,
                                 color: Colors.red.withOpacity(0.3),
@@ -261,42 +269,94 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildEmptyStateContent() {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            color: AppTheme.brandColor.withOpacity(0.05),
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.notifications_none_rounded,
-            size: 64,
-            color: AppTheme.brandColor,
-          ),
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+            ),
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+            ),
+            const Icon(
+              Icons.notifications_off_outlined,
+              size: 50,
+              color: AppTheme.brandColor,
+            ),
+            // Floating decorative icons
+            Positioned(
+              top: 10,
+              right: 15,
+              child: Transform.rotate(
+                angle: 0.4,
+                child: Icon(
+                  Icons.favorite_rounded,
+                  size: 20,
+                  color: Colors.red.withValues(alpha: 0.4),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 20,
+              left: 10,
+              child: Transform.rotate(
+                angle: -0.3,
+                child: Icon(
+                  Icons.chat_bubble_rounded,
+                  size: 18,
+                  color: AppTheme.brandColor.withValues(alpha: 0.4),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 40,
+              left: 0,
+              child: Icon(
+                Icons.home_work_rounded,
+                size: 16,
+                color: Colors.orange.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         Text(
-          'No other alerts yet',
+          'Your Inbox is Quiet',
           style: GoogleFonts.inter(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
             color: Colors.black,
-            letterSpacing: -0.5,
+            letterSpacing: -0.8,
           ),
         ),
         const SizedBox(height: 12),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 48),
           child: Text(
-            'Your activity and bookings will appear\nhere as they happen.',
+            'New alerts, bookings, and messages\nwill appear here in real-time.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 14,
-              color: Colors.grey[600],
+              fontSize: 15,
+              color: Colors.grey[500],
               height: 1.5,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ),
+        const SizedBox(height: 40),
+        // Optional: Ghost button to discover properties? 
       ],
     );
   }

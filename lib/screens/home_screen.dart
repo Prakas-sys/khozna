@@ -133,7 +133,7 @@ class HomeScreenState extends State<HomeScreen> {
       case 4: // Premium Collections
         query = query
             .or('is_premium.eq.true,price.gt.20000')
-            .order('price', descending: true);
+            .order('price', ascending: false);
         break;
       default:
         query = query.order('created_at', ascending: false);
@@ -560,7 +560,7 @@ class HomeScreenState extends State<HomeScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SizedBox(
-                height: 310,
+                height: 285,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: 3,
@@ -576,7 +576,7 @@ class HomeScreenState extends State<HomeScreen> {
 
             if (properties.isEmpty) {
               return SizedBox(
-                height: 310,
+                height: 285,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   clipBehavior: Clip.none,
@@ -590,7 +590,7 @@ class HomeScreenState extends State<HomeScreen> {
             }
 
             return SizedBox(
-              height: 310,
+              height: 285,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,

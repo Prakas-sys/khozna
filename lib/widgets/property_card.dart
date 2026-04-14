@@ -293,7 +293,7 @@ class PropertyCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2), // Reduced for tighter look
                     _buildAmenityItems(),
-                    const SizedBox(height: 6), // Reduced to bring buttons closer to details
+                    const SizedBox(height: 2), // Reduced to bring buttons closer to details
                     // Action Buttons
                     Row(
                       children: [
