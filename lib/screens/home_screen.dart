@@ -468,19 +468,7 @@ class HomeScreenState extends State<HomeScreen> {
                   'Near You',
                   'Properties in your current area',
                   _sectionFutures[0],
-                ),
-
-                const SizedBox(height: 40),
-
-                // --- SECTION 2: DISCOVER ---
-                _buildHorizontalSection(
-                  context,
-                  'Discover',
-                  'Fresh listings personally for you',
-                  _sectionFutures[1],
-                ),
-
-                const SizedBox(height: 40),
+                ),                const SizedBox(height: 24),
 
                 // --- SECTION 3: STUDENT HOUSING ---
                 _buildHorizontalSection(
@@ -490,7 +478,7 @@ class HomeScreenState extends State<HomeScreen> {
                   _sectionFutures[2],
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
 
                 // --- SECTION 4: FAMILY FLATS ---
                 _buildHorizontalSection(
@@ -500,7 +488,7 @@ class HomeScreenState extends State<HomeScreen> {
                   _sectionFutures[3],
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
 
                 // --- SECTION 5: PREMIUM ---
                 _buildHorizontalSection(
@@ -510,7 +498,7 @@ class HomeScreenState extends State<HomeScreen> {
                   _sectionFutures[4],
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -538,18 +526,21 @@ class HomeScreenState extends State<HomeScreen> {
                 color: Colors.black87,
               ),
             ),
-            InkWell(
-              onTap: () => _navigate(
-                context,
-                FilterResultsScreen(location: title, priceRange: subtitle),
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF2F2F2),
-                  borderRadius: BorderRadius.circular(8),
+            Transform.translate(
+              offset: const Offset(0, -4), // Nudge arrow up slightly
+              child: InkWell(
+                onTap: () => _navigate(
+                  context,
+                  FilterResultsScreen(location: title, priceRange: subtitle),
                 ),
-                child: const Icon(Icons.east, size: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF2F2F2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.east, size: 16),
+                ),
               ),
             ),
           ],
