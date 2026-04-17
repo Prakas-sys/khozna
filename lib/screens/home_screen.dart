@@ -363,7 +363,7 @@ class HomeScreenState extends State<HomeScreen> {
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.white,
         automaticallyImplyLeading: false,
-        titleSpacing: 20,
+        titleSpacing: 12,
         title: Row(
           children: [
             GestureDetector(
@@ -377,7 +377,7 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 4),
             Flexible(
               child: GestureDetector(
                 onTap: () async {
@@ -405,7 +405,7 @@ class HomeScreenState extends State<HomeScreen> {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
                   decoration: BoxDecoration(
                     color: AppTheme.brandColor.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(10),
@@ -420,14 +420,14 @@ class HomeScreenState extends State<HomeScreen> {
                       const Icon(
                         CupertinoIcons.location_solid,
                         color: AppTheme.brandColor,
-                        size: 14,
+                        size: 16,
                       ),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
                           _currentLocationName,
                           style: GoogleFonts.mukta(
-                            fontSize: 13,
+                            fontSize: 14,
                             fontWeight: FontWeight.w800,
                             color: Colors.black87,
                             height: 1.1,
@@ -438,7 +438,7 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                       const Icon(
                         Icons.keyboard_arrow_down_rounded,
-                        size: 14,
+                        size: 16,
                         color: AppTheme.brandColor,
                       ),
                     ],
