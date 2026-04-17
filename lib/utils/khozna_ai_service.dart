@@ -93,8 +93,11 @@ class KhoznaAiService {
 
   /// 3. AI Price Estimator
   Future<String> estimatePrice(String location, int rooms, String type) async {
-    String prompt = "$rooms room $type in $location. Price estimation?";
-    return _getAiResponse(prompt, systemPrompt: "Valuation expert.");
+    String prompt = "$rooms room $type in $location, Nepal. Estimate a fair monthly rent in NPR. Be concise. Reply in Nepali or English only.";
+    return _getAiResponse(
+      prompt,
+      systemPrompt: "You are a real estate valuation expert in Nepal. You ONLY respond in Nepali or English. You NEVER use Hindi.",
+    );
   }
 
   /// 4. AI Chatbot
@@ -127,16 +130,18 @@ class KhoznaAiService {
     - Amenities: ${amenities.join(', ')}
     
     The description should:
-    1. Have a catchy opening.
-    2. Highlight the key benefits of the location and amenities.
-    3. Mention that it's a great opportunity for tenants.
+    1. Have a catchy opening line.
+    2. Highlight the benefits of the location and nearby places (hospitals, schools, markets).
+    3. Mention it's a great opportunity for tenants.
     4. Be around 3-4 sentences long.
-    5. Include a mix of English and Nepali for a local feel.
+    5. MUST be written ONLY in Nepali (Devanagari) or a natural Nepali/English mix. 
+    6. ABSOLUTELY NO Hindi words. If you are unsure whether a word is Nepali or Hindi, write it in English instead.
     """;
 
     return _getAiResponse(
       prompt,
-      systemPrompt: "Marketing expert for Real Estate in Nepal.",
+      systemPrompt:
+          "You are a premium real estate marketing expert for Nepal. You write ONLY in Nepali (Devanagari script) or English. You NEVER use Hindi. If you accidentally think of a Hindi word, replace it with its English equivalent. This is a strict rule — violation means the output is rejected.",
     );
   }
 
@@ -148,17 +153,18 @@ class KhoznaAiService {
     Nearby Landmark: $landmark
     
     Please analyze this location in Nepal. 
-    1. Confirm if this is a known area/tink in Nepal.
+    1. Confirm if this is a known area/tole in Nepal.
     2. List 3-4 important nearby places (Major Hospitals, Schools, or Markets) that are usually near this area.
     3. Give a short 'Vibe Check' of the neighborhood (e.g., 'Residential', 'Commercial', 'Quiet').
     
+    LANGUAGE RULE: Write ONLY in Nepali (Devanagari) or English. NO Hindi words at all.
     Keep the response concise and friendly for a rental app user.
     """;
 
     return _getAiResponse(
       prompt,
       systemPrompt:
-          "You are a local neighborhood expert in Nepal. You know all major landmarks and areas across Kathmandu, Lalitpur, Bhaktapur, and other major cities.",
+          "You are a local neighborhood expert in Nepal who ONLY speaks Nepali and English. You know all major landmarks across Kathmandu, Lalitpur, Bhaktapur, and other major Nepali cities. You NEVER use Hindi — if unsure, use English instead.",
     );
   }
 
