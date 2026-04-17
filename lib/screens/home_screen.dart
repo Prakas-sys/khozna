@@ -93,7 +93,7 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> _fetchAreaName(Position position) async {
     try {
       final url = Uri.parse(
-        'https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=14&addressdetails=1',
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1',
       );
       final response = await http.get(url, headers: {
         'User-Agent': 'KhoznaApp/1.0',
@@ -102,13 +102,24 @@ class HomeScreenState extends State<HomeScreen> {
         final data = jsonDecode(response.body);
         final address = data['address'] as Map<String, dynamic>? ?? {};
         
-        String area = address['suburb'] ?? 
-                      address['village'] ?? 
-                      address['neighbourhood'] ?? 
-                      address['city_district'] ?? 
-                      address['city'] ?? 
-                      "Kathmandu, Nepal";
-                      
+        String micro = address['neighbourhood'] ?? 
+                       address['suburb'] ?? 
+                       address['residential'] ??
+                       address['village'] ?? 
+                       address['road'] ?? '';
+                       
+        String macro = address['city'] ?? 
+                       address['town'] ?? 
+                       address['municipality'] ?? 
+                       address['county'] ?? 
+                       address['state_district'] ?? '';
+                       
+        String area = [micro, macro].where((e) => e.isNotEmpty).join(", ");
+        
+        if (area.isEmpty) {
+           area = "Kathmandu, Nepal";
+        }
+        
         if (mounted) {
           setState(() {
             _currentLocationName = area;

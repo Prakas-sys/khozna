@@ -182,10 +182,11 @@ class KhoznaAiService {
       String prompt = '''
       Raw Address from GPS: $rawAddress
       
-      Please extract the common 'Area Name' (e.g. 'Baluwatar', 'Baneshwor', 'Jawalakhel') and a noticeable 'Landmark' (e.g. 'Near Nabil Bank', 'Close to Ring Road').
+      Please extract the precise location and format the 'Area Name' as "Micro-Area, City" (e.g., 'Khasibazar, Kirtipur' or 'Baluwatar, Kathmandu'). Do not just provide the city name, always include the local neighborhood/village if available.
+      Also provide a noticeable 'Landmark' (e.g. 'Near Nabil Bank', 'Close to Ring Road').
       Return ONLY a valid JSON object in this exact format with NO markdown formatting:
       {
-        "area": "area name",
+        "area": "Local Area, City",
         "landmark": "landmark name"
       }
       ''';
