@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../theme/app_theme.dart';
@@ -331,14 +332,41 @@ class HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
         titleSpacing: 20,
         title: GestureDetector(
-          onTap: () {
+          onTap: () async {
             HapticFeedback.lightImpact();
+            // Open Google Maps at the exact GPS coordinates to verify location
+            if (_currentPosition != null) {
+              final lat = _currentPosition!.latitude;
+              final lng = _currentPosition!.longitude;
+              final label = Uri.encodeComponent(_currentLocationName);
+              // Try Google Maps app first, then fall back to browser
+              final gMapsUri = Uri.parse('geo:$lat,$lng?q=$lat,$lng($label)');
+              final gMapsBrowserUri = Uri.parse(
+                'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+              );
+              if (await canLaunchUrl(gMapsUri)) {
+                await launchUrl(gMapsUri);
+              } else {
+                await launchUrl(gMapsBrowserUri, mode: LaunchMode.externalApplication);
+              }
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Location not yet detected. Please wait...'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: AppTheme.brandColor.withOpacity(0.08),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppTheme.brandColor.withOpacity(0.2),
+                width: 1,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -363,8 +391,8 @@ class HomeScreenState extends State<HomeScreen> {
                     Row(
                       children: [
                         Text(
-                          _currentLocationName.length > 20 
-                              ? '${_currentLocationName.substring(0, 20)}...' 
+                          _currentLocationName.length > 22
+                              ? '${_currentLocationName.substring(0, 22)}...'
                               : _currentLocationName,
                           style: GoogleFonts.mukta(
                             fontSize: 16,
@@ -377,7 +405,7 @@ class HomeScreenState extends State<HomeScreen> {
                         const Icon(
                           Icons.keyboard_arrow_down_rounded,
                           size: 16,
-                          color: Colors.black87,
+                          color: AppTheme.brandColor,
                         ),
                       ],
                     ),

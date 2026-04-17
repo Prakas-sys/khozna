@@ -214,20 +214,26 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
         // FIRE CONFETTI!
         _confettiController.play();
+        await Future.delayed(const Duration(milliseconds: 600));
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('प्रोपर्टी प्रकाशित भयो! 🎉 (Success!)'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-
-        // Wait for confetti to show before popping
-        await Future.delayed(const Duration(seconds: 2));
-
+        // Show full-page success screen
         if (mounted) {
-          Navigator.pop(context, true);
+          final user = Supabase.instance.client.auth.currentUser;
+          final ownerName = user?.userMetadata?['full_name'] ?? user?.email ?? 'Property Owner';
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => _PropertySuccessScreen(
+                ownerName: ownerName,
+                title: _titleController.text,
+                area: _areaController.text,
+                landmark: _landmarkController.text,
+                category: _selectedCategory ?? 'Property',
+                price: _priceController.text,
+                submittedAt: DateTime.now(),
+              ),
+            ),
+          );
         }
       } catch (e) {
       if (mounted) {
@@ -541,87 +547,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           'उदा: सानेपामा राम्रो २ कोठा खाली छ',
           controller: _titleController,
           focusNode: _titleFocusNode,
-        ),
-        const SizedBox(height: 24),
-        Row(
-          children: [
-            Expanded(
-              child: _buildLabel('प्रोपर्टी विवरण (Description)', false),
-            ),
-            const SizedBox(width: 8),
-            if (_isGeneratingDescription)
-              const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppTheme.brandColor,
-                ),
-              )
-            else
-              TextButton(
-                onPressed: () async {
-                  if (_titleController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter a title first'),
-                      ),
-                    );
-                    return;
-                  }
-                  setState(() => _isGeneratingDescription = true);
-                  try {
-                    final description = await _aiService.generateDescription(
-                      title: _titleController.text,
-                      category: _selectedCategory ?? 'Room',
-                      area: _areaController.text.isEmpty
-                          ? "Kathmandu"
-                          : _areaController.text,
-                      landmark: _landmarkController.text.isEmpty
-                          ? "Nearby"
-                          : _landmarkController.text,
-                      amenities: _selectedAmenities,
-                    );
-                    setState(() => _descriptionController.text = description);
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('AI Generation failed: $e')),
-                    );
-                  } finally {
-                    setState(() => _isGeneratingDescription = false);
-                  }
-                },
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.flash_on,
-                      size: 16,
-                      color: AppTheme.brandColor,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'स्वत: भर्नुहोस्',
-                      style: GoogleFonts.mukta(
-                        color: AppTheme.brandColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        _buildTextField(
-          'प्रोपर्टीको बारेमा थप जानकारी...',
-          controller: _descriptionController,
-          maxLines: 4,
         ),
       ],
     );
@@ -1238,6 +1163,123 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       title: 'फोटो र भिडियो राख्नुहोस्',
       subtitle: 'Show the real look of your property',
       content: [
+        // AI DESCRIPTION GENERATOR (moved here, has full context)
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppTheme.brandColor.withOpacity(0.08),
+                Colors.purple.withOpacity(0.06),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.brandColor.withOpacity(0.25)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.auto_awesome, color: Colors.white, size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'AI Description Writer',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        Text(
+                          'AI will auto-write using your location, price & amenities',
+                          style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (_isGeneratingDescription)
+                    const SizedBox(
+                      width: 22, height: 22,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.brandColor),
+                    )
+                  else
+                    TextButton.icon(
+                      onPressed: () async {
+                        setState(() => _isGeneratingDescription = true);
+                        try {
+                          final description = await _aiService.generateDescription(
+                            title: _titleController.text.isEmpty ? 'Property for rent' : _titleController.text,
+                            category: _selectedCategory ?? 'Room',
+                            area: _areaController.text.isEmpty ? 'Kathmandu' : _areaController.text,
+                            landmark: _landmarkController.text.isEmpty ? 'Nearby' : _landmarkController.text,
+                            amenities: _selectedAmenities,
+                          );
+                          setState(() => _descriptionController.text = description);
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('AI failed: $e')),
+                          );
+                        } finally {
+                          setState(() => _isGeneratingDescription = false);
+                        }
+                      },
+                      icon: const Icon(Icons.flash_on, size: 16, color: AppTheme.brandColor),
+                      label: Text(
+                        _descriptionController.text.isEmpty ? 'Generate' : 'Re-generate',
+                        style: GoogleFonts.inter(
+                          color: AppTheme.brandColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _descriptionController,
+                maxLines: 5,
+                onChanged: (v) => setState(() {}),
+                style: GoogleFonts.mukta(fontSize: 14, color: Colors.black87),
+                decoration: InputDecoration(
+                  hintText: _isGeneratingDescription
+                      ? 'AI is writing your description...'
+                      : 'Tap "Generate" and AI will write a professional description for you!',
+                  hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 13),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.all(14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppTheme.brandColor.withOpacity(0.3)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
         // PHOTO UPLOAD
         GestureDetector(
           onTap: _pickImages,
@@ -1749,6 +1791,305 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────
+// PREMIUM SUCCESS SCREEN
+// ─────────────────────────────────────────────────────
+class _PropertySuccessScreen extends StatefulWidget {
+  final String ownerName;
+  final String title;
+  final String area;
+  final String landmark;
+  final String category;
+  final String price;
+  final DateTime submittedAt;
+
+  const _PropertySuccessScreen({
+    required this.ownerName,
+    required this.title,
+    required this.area,
+    required this.landmark,
+    required this.category,
+    required this.price,
+    required this.submittedAt,
+  });
+
+  @override
+  State<_PropertySuccessScreen> createState() => _PropertySuccessScreenState();
+}
+
+class _PropertySuccessScreenState extends State<_PropertySuccessScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animController;
+  late Animation<double> _scaleAnim;
+  late Animation<double> _fadeAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _scaleAnim = CurvedAnimation(parent: _animController, curve: Curves.elasticOut);
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
+    _animController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  String _formatTime(DateTime dt) {
+    final h = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final m = dt.minute.toString().padLeft(2, '0');
+    final period = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$h:$m $period';
+  }
+
+  String _formatDate(DateTime dt) {
+    final months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return '${dt.day} ${months[dt.month - 1]} ${dt.year}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: FadeTransition(
+          opacity: _fadeAnim,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 32),
+
+                // BIG GREEN ANIMATED TICK
+                ScaleTransition(
+                  scale: _scaleAnim,
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [Colors.green.shade400, Colors.green.shade600],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.4),
+                          blurRadius: 30,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: 70,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                // TITLE
+                Text(
+                  'प्रकाशित भयो! 🎉',
+                  style: GoogleFonts.mukta(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Your property is now live on Khozna',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 36),
+
+                // DETAILS CARD
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Listing Summary',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.grey[500],
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _detailRow(Icons.person_outline, 'Owner', widget.ownerName),
+                      _detailRow(Icons.home_outlined, 'Title', widget.title.isEmpty ? 'My Property' : widget.title),
+                      _detailRow(Icons.category_outlined, 'Category', widget.category),
+                      _detailRow(Icons.location_on_outlined, 'Location', widget.area),
+                      if (widget.landmark.isNotEmpty)
+                        _detailRow(Icons.place_outlined, 'Landmark', widget.landmark),
+                      _detailRow(
+                        Icons.currency_rupee,
+                        'Monthly Rent',
+                        widget.price.isEmpty ? 'Not specified' : 'Rs. ${widget.price}/mo',
+                      ),
+                      _detailRow(Icons.calendar_today_outlined, 'Date', _formatDate(widget.submittedAt)),
+                      _detailRow(Icons.access_time_outlined, 'Time', _formatTime(widget.submittedAt)),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // STATUS BADGE
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.verified, color: Colors.green, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Listing is Live & Verified',
+                        style: GoogleFonts.inter(
+                          color: Colors.green[700],
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 36),
+
+                // GO TO HOME BUTTON
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.brandColor,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 4,
+                      shadowColor: AppTheme.brandColor.withOpacity(0.4),
+                    ),
+                    child: Text(
+                      'गृहपृष्ठमा जानुहोस् (Go Home)',
+                      style: GoogleFonts.mukta(
+                        color: Colors.white,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // VIEW LISTING BUTTON
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      'View My Listings',
+                      style: GoogleFonts.mukta(
+                        color: Colors.grey[700],
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: AppTheme.brandColor),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: GoogleFonts.mukta(
+                    fontSize: 15,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
