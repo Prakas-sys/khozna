@@ -73,7 +73,7 @@ class HomeScreenState extends State<HomeScreen> {
           permission == LocationPermission.always) {
         final position = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.low,
+            accuracy: LocationAccuracy.high,
           ),
         );
         if (mounted) {
@@ -103,22 +103,34 @@ class HomeScreenState extends State<HomeScreen> {
         final data = jsonDecode(response.body);
         final address = data['address'] as Map<String, dynamic>? ?? {};
         
-        String micro = address['neighbourhood'] ?? 
-                       address['suburb'] ?? 
-                       address['residential'] ??
-                       address['village'] ?? 
+        // Priority: suburb > quarter > village > neighbourhood > road
+        // 'suburb' gives recognizable names like "Khasibazar"
+        // 'neighbourhood' often returns obscure ward/tole names like "Sagha"
+        String micro = address['suburb'] ??
+                       address['quarter'] ??
+                       address['village'] ??
+                       address['hamlet'] ??
+                       address['neighbourhood'] ??
                        address['road'] ?? '';
-                       
-        String macro = address['city'] ?? 
-                       address['town'] ?? 
-                       address['municipality'] ?? 
-                       address['county'] ?? 
+
+        String macro = address['city'] ??
+                       address['town'] ??
+                       address['municipality'] ??
+                       address['county'] ??
                        address['state_district'] ?? '';
-                       
-        String area = [micro, macro].where((e) => e.isNotEmpty).join(", ");
-        
-        if (area.isEmpty) {
-           area = "Kathmandu, Nepal";
+
+        // Avoid duplicate: if micro == macro, just show macro
+        String area;
+        if (micro.isNotEmpty && macro.isNotEmpty && micro != macro) {
+          area = '$micro, $macro';
+        } else if (macro.isNotEmpty) {
+          area = macro;
+        } else {
+          area = micro;
+        }
+
+        if (area.trim().isEmpty) {
+           area = 'Kathmandu, Nepal';
         }
         
         if (mounted) {
