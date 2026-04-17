@@ -281,8 +281,37 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         setState(() {
           _latitude = position.latitude;
           _longitude = position.longitude;
-          _isLocating = false;
         });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('एआईले तपाईंको ठाउँ खोज्दैछ... 🤖\n(AI is predicting your Area)')),
+        );
+
+        final locData = await _aiService.autoDetectLocationArea(
+          position.latitude,
+          position.longitude,
+        );
+
+        if (mounted) {
+          setState(() {
+            if (locData['area']?.isNotEmpty == true) {
+              _areaController.text = locData['area']!;
+            }
+            if (locData['landmark']?.isNotEmpty == true) {
+              _landmarkController.text = locData['landmark']!;
+            }
+            _isLocating = false;
+          });
+
+          if (locData['area']?.isNotEmpty == true) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('AI found your location: ${locData['area']}'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -1706,11 +1735,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       )
                     : Text(
                         _currentStep == 5
-                            ? 'अन्तिम: प्रकाशित गर्नुहोस् (Publish)'
+                            ? 'प्रकाशित गर्नुहोस् (Publish)'
                             : 'अर्को भाग (Next)',
+                        textAlign: TextAlign.center,
                         style: GoogleFonts.mukta(
                           fontWeight: FontWeight.w800,
-                          fontSize: 20, // Larger for clarity
+                          fontSize: 16, // Reduced from 20 to prevent overflow
                           color: Colors.white,
                         ),
                       ),

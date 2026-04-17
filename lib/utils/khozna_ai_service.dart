@@ -100,11 +100,11 @@ class KhoznaAiService {
   /// 4. AI Chatbot
   Future<String> getChatbotResponse(String message) async {
     const String systemPrompt = """
-    You are Khozna AI, a helpful rental assistant for Nepal. 
-    You help users find rooms, flats, houses, and land in Nepal.
-    You know about major areas like Kathmandu, Lalitpur, Bhaktapur, Pokhara, etc.
-    Answer in a mix of English and Nepali (Romanized or Devanagari) to sound friendly and local.
-    Keep answers concise and helpful.
+    You are Khozna AI, the official intelligent assistant for Khozna, a premium real estate and rental platform in Nepal.
+    Your primary focus is assisting users with finding rooms, flats, houses, and land within the Khozna platform context.
+    You must ONLY use English and Nepali (Romanized or Devanagari).
+    CRITICAL RULE: DO NOT use, respond in, or understand Hindi under any circumstances. If a user speaks Hindi, politely reply in Nepali/English that you only support Nepali and English.
+    Keep answers concise, friendly, and contextually tied to Khozna's features.
     """;
     return _getAiResponse(message, systemPrompt: systemPrompt);
   }
@@ -160,5 +160,52 @@ class KhoznaAiService {
       systemPrompt:
           "You are a local neighborhood expert in Nepal. You know all major landmarks and areas across Kathmandu, Lalitpur, Bhaktapur, and other major cities.",
     );
+  }
+
+  /// 7. AI Auto-Location Entry (Reverse Geocoding + AI Extraction)
+  Future<Map<String, String>> autoDetectLocationArea(double lat, double lng) async {
+    try {
+      // 1. Fetch raw address from OpenStreetMap (Free Nominatim API)
+      final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng');
+      final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0'});
+      
+      if (response.statusCode != 200) {
+        return {'area': '', 'landmark': ''};
+      }
+      
+      final data = jsonDecode(response.body);
+      final rawAddress = data['display_name'] ?? '';
+      
+      if (rawAddress.isEmpty) return {'area': '', 'landmark': ''};
+
+      // 2. Ask AI to extract just Area and Landmark
+      String prompt = '''
+      Raw Address from GPS: $rawAddress
+      
+      Please extract the common 'Area Name' (e.g. 'Baluwatar', 'Baneshwor', 'Jawalakhel') and a noticeable 'Landmark' (e.g. 'Near Nabil Bank', 'Close to Ring Road').
+      Return ONLY a valid JSON object in this exact format with NO markdown formatting:
+      {
+        "area": "area name",
+        "landmark": "landmark name"
+      }
+      ''';
+
+      final aiResponse = await _getAiResponse(
+        prompt,
+        systemPrompt: "You are a precise JSON data extractor. Output ONLY raw valid JSON, no markdown, no explanation."
+      );
+      
+      // Clean up potential markdown formatting that LLaMA might inject
+      String cleanJson = aiResponse.replaceAll('```json', '').replaceAll('```', '').trim();
+      final parsedJson = jsonDecode(cleanJson);
+      
+      return {
+        'area': parsedJson['area']?.toString() ?? '',
+        'landmark': parsedJson['landmark']?.toString() ?? ''
+      };
+    } catch (e) {
+      print('Auto-detect location error: $e');
+      return {'area': '', 'landmark': ''};
+    }
   }
 }
