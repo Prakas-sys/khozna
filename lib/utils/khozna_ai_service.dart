@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:geocoding/geocoding.dart' as geo;
 
 class KhoznaAiService {
   // Switched to GROQ for 100% Free, High-Speed Cloud AI in Nepal
@@ -188,82 +189,42 @@ If a user asks about ANYTHING outside this list (e.g., buying land, hotel bookin
     );
   }
 
-  /// 7. AI Auto-Location Entry (Reverse Geocoding + AI Extraction)
   Future<Map<String, String>> autoDetectLocationArea(double lat, double lng) async {
     try {
-      // 1. Fetch structured address from OSM Nominatim at zoom=18 (street-level precision)
-      final url = Uri.parse(
-        'https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng&zoom=18&addressdetails=1',
-      );
-      final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0 (khoznaapp@gmail.com)'});
+      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(lat, lng);
 
-      if (response.statusCode != 200) {
-        return {'area': '', 'landmark': ''};
+      if (placemarks.isNotEmpty) {
+        geo.Placemark place = placemarks.first;
+
+        // Extract deep micro area (like Khasibazar, Tyanglaphat, etc.)
+        String microArea = place.subLocality ?? place.thoroughfare ?? place.name ?? '';
+        String city = place.locality ?? place.subAdministrativeArea ?? 'Nepal';
+        String road = place.street ?? place.thoroughfare ?? '';
+
+        String area = '';
+        if (microArea.isNotEmpty && city.isNotEmpty && microArea != city) {
+          if (microArea.toLowerCase().contains(city.toLowerCase())) {
+             area = microArea;
+          } else {
+             area = '$microArea, $city';
+          }
+        } else if (city.isNotEmpty) {
+          area = city;
+        }
+
+        String landmark = road.isNotEmpty && road != microArea ? 'Near $road' : '';
+
+        return {
+          'area': area,
+          'landmark': landmark,
+        };
       }
 
-      final data = jsonDecode(response.body);
-      final address = data['address'] as Map<String, dynamic>? ?? {};
-      final displayName = data['display_name']?.toString() ?? '';
-
-      // 2. Extract micro-area directly from OSM structured fields (no AI needed, zero hallucination)
-      final microArea = address['suburb'] 
-          ?? address['neighbourhood'] 
-          ?? address['quarter']
-          ?? address['village'] 
-          ?? address['hamlet']
-          ?? address['town']
-          ?? '';
-
-      final city = address['city'] 
-          ?? address['town'] 
-          ?? address['municipality'] 
-          ?? address['county']
-          ?? 'Nepal';
-
-      final road = address['road'] ?? address['pedestrian'] ?? '';
-
-      // 3. Build clean area string: "Micro Area, City" (e.g. "Khasibazar, Kirtipur")
-      String area = '';
-      if (microArea.isNotEmpty && city.isNotEmpty && microArea != city) {
-        area = '$microArea, $city';
-      } else if (city.isNotEmpty) {
-        area = city;
-      }
-
-      // 4. Build landmark from road or fallback to AI
-      String landmark = road.isNotEmpty ? 'Near $road' : '';
-
-      // 5. Only call AI if OSM gave us poor data (rare fallback)
-      if (area.isEmpty && displayName.isNotEmpty) {
-        String prompt = '''
-Raw Address from GPS: $displayName
-
-Extract the 'Area Name' as "Micro-Area, City" (e.g. "Khasibazar, Kirtipur").
-Return ONLY valid JSON with NO markdown:
-{
-  "area": "Local Area, City",
-  "landmark": "Near something"
-}
-''';
-        final aiResponse = await _getAiResponse(
-          prompt,
-          systemPrompt: "You are a precise JSON data extractor for Nepal addresses. Output ONLY raw valid JSON, no markdown, no explanation.",
-        );
-        String cleanJson = aiResponse.replaceAll('```json', '').replaceAll('```', '').trim();
-        try {
-          final parsed = jsonDecode(cleanJson);
-          area = parsed['area']?.toString() ?? '';
-          landmark = parsed['landmark']?.toString() ?? '';
-        } catch (_) {}
-      }
-
-      return {
-        'area': area,
-        'landmark': landmark,
-      };
+      return {'area': '', 'landmark': ''};
     } catch (e) {
       print('Auto-detect location error: $e');
       return {'area': '', 'landmark': ''};
     }
   }
 }
+

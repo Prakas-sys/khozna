@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:geocoding/geocoding.dart' as geo;
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
 import '../widgets/property_card.dart';
@@ -93,36 +94,27 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchAreaName(Position position) async {
     try {
-      final url = Uri.parse(
-        'https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1',
+      // Use native Google Geocoding which has perfect Nepali local mapping
+      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
       );
-      final response = await http.get(url, headers: {
-        'User-Agent': 'KhoznaApp/1.0',
-      });
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final address = data['address'] as Map<String, dynamic>? ?? {};
-        
-        // Priority: suburb > quarter > village > neighbourhood > road
-        // 'suburb' gives recognizable names like "Khasibazar"
-        // 'neighbourhood' often returns obscure ward/tole names like "Sagha"
-        String micro = address['suburb'] ??
-                       address['quarter'] ??
-                       address['village'] ??
-                       address['hamlet'] ??
-                       address['neighbourhood'] ??
-                       address['road'] ?? '';
 
-        String macro = address['city'] ??
-                       address['town'] ??
-                       address['municipality'] ??
-                       address['county'] ??
-                       address['state_district'] ?? '';
+      if (placemarks.isNotEmpty) {
+        geo.Placemark place = placemarks.first;
 
-        // Avoid duplicate: if micro == macro, just show macro
+        // e.g. subLocality = "Khasibazar", locality = "Kirtipur"
+        String micro = place.subLocality ?? place.thoroughfare ?? place.name ?? '';
+        String macro = place.locality ?? place.subAdministrativeArea ?? '';
+
         String area;
         if (micro.isNotEmpty && macro.isNotEmpty && micro != macro) {
-          area = '$micro, $macro';
+          // Check if micro already contains macro
+          if (micro.toLowerCase().contains(macro.toLowerCase())) {
+             area = micro;
+          } else {
+             area = '$micro, $macro';
+          }
         } else if (macro.isNotEmpty) {
           area = macro;
         } else {
@@ -130,9 +122,9 @@ class HomeScreenState extends State<HomeScreen> {
         }
 
         if (area.trim().isEmpty) {
-           area = 'Kathmandu, Nepal';
+          area = 'Kathmandu, Nepal';
         }
-        
+
         if (mounted) {
           setState(() {
             _currentLocationName = area;
