@@ -52,7 +52,7 @@ class _SkeletonCardState extends State<SkeletonCard>
           children: [
             // Image Placeholder (Shimmering)
             _buildShimmerItem(Container(
-              height: 180,
+              height: 175,
               width: double.infinity,
               color: Colors.white,
             )),
@@ -118,7 +118,7 @@ class _SkeletonCardState extends State<SkeletonCard>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 2),
                   // Button lines
                   Row(
                     children: [

@@ -190,7 +190,7 @@ class HomeScreenState extends State<HomeScreen> {
     try {
       dynamic query = client
           .from('properties')
-          .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, is_verified)');
+          .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url)');
 
       switch (index) {
         case 0: // Near You (Location-based) - Promoted to #1
@@ -374,9 +374,8 @@ class HomeScreenState extends State<HomeScreen> {
                 fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(width: 8),
-            Flexible(
-              child: GestureDetector(
+            const Spacer(),
+            GestureDetector(
                 onTap: () async {
                   HapticFeedback.lightImpact();
                   if (_currentPosition != null) {
@@ -405,37 +404,37 @@ class HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
                       color: AppTheme.brandColor.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(50), // Pill shape for modern look
+                      borderRadius: BorderRadius.circular(12), // Reduced from 50 (pill) for a tighter look
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          'LOCATION',
+                          'YOUR LOCATION',
                           style: GoogleFonts.inter(
-                            fontSize: 9.5,
+                            fontSize: 10,
                             fontWeight: FontWeight.w800,
-                            letterSpacing: 1.2,
+                            letterSpacing: 1.0,
                             color: Colors.grey[500],
                           ),
                         ),
-                        const SizedBox(height: 1),
+                        const SizedBox(height: 2),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(
                               CupertinoIcons.location_solid,
                               color: AppTheme.brandColor,
-                              size: 14,
+                              size: 18,
                             ),
                             const SizedBox(width: 4),
                             Flexible(
                               child: Text(
                                 _currentLocationName,
                                 style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14.5,
-                                  fontWeight: FontWeight.w800,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w900,
                                   color: Colors.black,
                                   height: 1.1,
                                 ),
@@ -523,7 +522,7 @@ class HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
             child: Column(
               children: [
-                const SizedBox(height: 24),
+                const SizedBox(height: 32), // Pushed down slightly from app bar
                 SizedBox(
                   width: double.infinity,
                   child: Column(
@@ -554,7 +553,7 @@ class HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 32), // Reduced from 54 for better hierarchy
+                const SizedBox(height: 42), // Increased gap below hero for better breathing room
                 Hero(
                   tag:
                       'search_bar_container', // Changed tag to be more specific
@@ -647,7 +646,7 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 38),
+                const SizedBox(height: 48), // Pushed down sections for a more centered stack
 
                 // --- SECTION 1: NEAR YOU ---
                 _buildHorizontalSection(
@@ -655,7 +654,7 @@ class HomeScreenState extends State<HomeScreen> {
                   'Near You',
                   'Properties in your current area',
                   _sectionFutures[0],
-                ),                const SizedBox(height: 24),
+                ),                const SizedBox(height: 18),
 
                 // --- SECTION 3: STUDENT HOUSING ---
                 _buildHorizontalSection(
@@ -665,7 +664,7 @@ class HomeScreenState extends State<HomeScreen> {
                   _sectionFutures[2],
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 18),
 
                 // --- SECTION 4: FAMILY FLATS ---
                 _buildHorizontalSection(
@@ -675,7 +674,7 @@ class HomeScreenState extends State<HomeScreen> {
                   _sectionFutures[3],
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 18),
 
                 // --- SECTION 5: PREMIUM ---
                 _buildHorizontalSection(
@@ -685,7 +684,7 @@ class HomeScreenState extends State<HomeScreen> {
                   _sectionFutures[4],
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 24), // Reduced to keep it tight near nav bar
               ],
             ),
           ),
@@ -732,13 +731,13 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 24), // Increased from 18 for better breathing room
+        const SizedBox(height: 12), // Tighten gap between title and cards
         FutureBuilder<List<Map<String, dynamic>>>(
           future: future,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SizedBox(
-                height: 320, // Increased to perfectly fit the refined PropertyCard without overflow
+                height: 285, // Perfectly fits the tightened PropertyCard without overflow
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
@@ -803,7 +802,7 @@ class HomeScreenState extends State<HomeScreen> {
             }
 
             return SizedBox(
-              height: 320, // Increased to perfectly fit the refined PropertyCard without overflow
+              height: 285, // Perfectly fits the tightened PropertyCard without overflow
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none, // Ensure shadows aren't clipped

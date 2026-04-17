@@ -128,7 +128,7 @@ class PropertyCard extends StatelessWidget {
               Stack(
                 children: [
                   SizedBox(
-                    height: 180, // Slightly reduced to avoid stretching the card
+                    height: 175, // Reduced from 180 to perfectly fit 285px parent without overflow
                     width: double.infinity,
                     child: Hero(
                       tag: id,
@@ -143,7 +143,7 @@ class PropertyCard extends StatelessWidget {
                             color: const Color(0xFFF5F5F5),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: SkeletonCard(isFullWidth: true), // Use skeleton as placeholder
+                          child: _buildImagePlaceholder(), // Use a dedicated image-only shimmer
                         ),
                         errorWidget: (context, url, error) => Container(
                           color: const Color(0xFFF9FAFB),
@@ -258,7 +258,7 @@ class PropertyCard extends StatelessWidget {
               ),
               // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 6), // Fixed overflow warning while keeping it tight
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 2), // Reduced bottom to push content closer to edge
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -313,7 +313,7 @@ class PropertyCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2), // Reduced for tighter look
                     _buildAmenityItems(),
-                    const SizedBox(height: 2), // Reduced to bring buttons closer to details
+                    const SizedBox(height: 7), // Pushed buttons lower into the available card space
                     // Action Buttons
                     Row(
                       children: [
@@ -345,21 +345,6 @@ class PropertyCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                                children: [
-                                  const Icon(
-                                    Icons.directions_walk_rounded,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Visit Now',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 13.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
@@ -376,6 +361,24 @@ class PropertyCard extends StatelessWidget {
                                 ),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.directions_walk_rounded,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Visit Now',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13.5,
+                                      height: 1.1, // Optical baseline adjustment
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -389,9 +392,9 @@ class PropertyCard extends StatelessWidget {
                                   MaterialPageRoute(
                                     builder: (_) => chat_page.ChatScreen(
                                       ownerId: ownerId,
-                                      name: ownerName,
-                                      avatar: ownerAvatar,
-                                      isVerified: isOwnerVerified,
+                                      name: ownerName ?? 'Khozna User',
+                                      avatar: ownerAvatar ?? '',
+                                      isVerified: isOwnerVerified ?? false,
                                       online: true,
                                       phone: '+977 9801234567',
                                     ),
@@ -416,6 +419,7 @@ class PropertyCard extends StatelessWidget {
                                     style: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13.5,
+                                      height: 1.1, // Optical baseline adjustment
                                     ),
                                   ),
                                 ],
@@ -629,6 +633,23 @@ class PropertyCard extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+  Widget _buildImagePlaceholder() {
+    return Container(
+      width: double.infinity,
+      height: 175,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.image_outlined,
+          color: Colors.grey[300],
+          size: 40,
+        ),
+      ),
     );
   }
 }
