@@ -764,7 +764,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         if (_areaController.text.isNotEmpty || _landmarkController.text.isNotEmpty)
           _premiumFeatureCard(
             icon: Icons.gps_fixed_rounded,
-            title: 'स्मार्ट रुजु (Distance Check)',
+            title: 'Distance Check',
             subtitle: 'Must be within 250m for verification',
             isLoading: _isAnalyzingLocation,
             accentColor: _latitude == null
@@ -772,86 +772,38 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 : (_isDistanceVerified ? Colors.green : Colors.orange),
             child: Column(
               children: [
-                if (_latitude == null)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
+                if (_latitude != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: (1.0 - (_distanceFromLandmark / 1000).clamp(0.0, 1.0)),
+                      minHeight: 10,
+                      backgroundColor: Colors.grey[100],
+                      color: _isDistanceVerified ? Colors.green : Colors.orange,
                     ),
-                    child: Text(
-                      'कृपया पहिला GPS बटन थिच्नुहोस्।\n(Please use GPS button above first)',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: Colors.amber[900],
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  )
-                else
-                  Column(
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Gauge UI
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            height: 12,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: AnimatedContainer(
-                              duration: const Duration(seconds: 1),
-                              curve: Curves.easeOutCubic,
-                              height: 12,
-                              width: MediaQuery.of(context).size.width *
-                                  (1.0 - (_distanceFromLandmark / 1000).clamp(0.0, 1.0)) * 0.7,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: _isDistanceVerified
-                                      ? [Colors.green, Colors.lightGreen]
-                                      : [Colors.orange, Colors.amber],
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ],
+                      Text(
+                        _isDistanceVerified ? 'Verified Accuracy' : 'Low Accuracy',
+                        style: GoogleFonts.mukta(
+                          fontWeight: FontWeight.bold,
+                          color: _isDistanceVerified ? Colors.green : Colors.orange,
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _isDistanceVerified
-                                ? 'Verified! (भेटियो)'
-                                : 'Check Accuracy! (अलि टाढा)',
-                            style: GoogleFonts.mukta(
-                              fontWeight: FontWeight.bold,
-                              color: _isDistanceVerified
-                                  ? Colors.green[700]
-                                  : Colors.orange[800],
-                            ),
-                          ),
-                          Text(
-                            '${_distanceFromLandmark.toStringAsFixed(0)}m away',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ],
+                      Text(
+                        '${_distanceFromLandmark.toStringAsFixed(0)}m away',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
-                const SizedBox(height: 16),
+                  const SizedBox(height: 16),
+                ],
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -859,45 +811,35 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         ? null
                         : () async {
                             setState(() => _isAnalyzingLocation = true);
-                            
                             try {
                               List<geo.Location> locations = await geo.locationFromAddress(
                                   "${_landmarkController.text}, ${_areaController.text}");
-                              
                               if (locations.isNotEmpty) {
                                 double dist = Geolocator.distanceBetween(
-                                  _latitude!,
-                                  _longitude!,
-                                  locations.first.latitude,
-                                  locations.first.longitude,
+                                  _latitude!, _longitude!,
+                                  locations.first.latitude, locations.first.longitude,
                                 );
-                                
                                 setState(() {
                                   _distanceFromLandmark = dist;
                                   _isDistanceVerified = dist <= 250;
-                                  _aiLocationAnalysis = _isDistanceVerified 
-                                    ? "Perfect! This landmark is very close to your GPS location."
-                                    : "Warning: Landmark seems far. Please double check the name.";
                                 });
-                              } else {
-                                setState(() => _aiLocationAnalysis = "AI could not verify this exact landmark coordinates, but it looks like a valid area.");
                               }
                             } catch (e) {
-                              setState(() => _aiLocationAnalysis = "Manual verification needed for this micro-landmark.");
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Verification failed. Use landmark name correctly.')),
+                              );
+                            } finally {
+                              setState(() => _isAnalyzingLocation = false);
                             }
-                            
-                            setState(() => _isAnalyzingLocation = false);
                           },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.brandColor,
-                      foregroundColor: Colors.white,
+                      backgroundColor: AppTheme.brandColor.withOpacity(0.1),
+                      foregroundColor: AppTheme.brandColor,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    child: const Text('स्मार्ट चेक (Start Verification)'),
+                    child: const Text('Start Smart Check'),
                   ),
                 ),
               ],
@@ -1068,30 +1010,22 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         // SMART PRICE ESTIMATOR (PREMIUM)
         _premiumFeatureCard(
           icon: Icons.insights_rounded,
-          title: 'उचित भाडा रुजु (Price Guide)',
-          subtitle: 'AI analysis based on neighborhood',
+          title: 'Price Guide',
+          subtitle: 'AI neighborhood analysis',
           isLoading: _isEstimatingPrice,
           accentColor: Colors.purple,
           child: Column(
             children: [
               if (_aiPriceSuggestion != null)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.purple.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.purple.withOpacity(0.1)),
-                  ),
-                  child: Text(
-                    _aiPriceSuggestion!,
-                    style: GoogleFonts.mukta(
-                      fontSize: 13,
-                      color: Colors.purple[900],
-                      height: 1.5,
-                    ),
+                Text(
+                  _aiPriceSuggestion!,
+                  style: GoogleFonts.mukta(
+                    fontSize: 14,
+                    color: Colors.black87,
+                    height: 1.5,
                   ),
                 ),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -1116,14 +1050,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                           });
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple[50],
+                    backgroundColor: Colors.purple.withOpacity(0.1),
                     foregroundColor: Colors.purple,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text('भाडा रुजु गर्नुहोस् (Check Price)'),
+                  child: const Text('Check Neighborhood Price'),
                 ),
               ),
             ],
@@ -1172,36 +1105,26 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         if (isAmenity) _toggleAmenity(value); else _toggleRule(value);
         Feedback.forTap(context);
       },
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? color.withOpacity(0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? color : Colors.grey[200]!,
-            width: isSelected ? 2 : 1.5,
+            width: 1.5,
           ),
-          boxShadow: isSelected
-              ? [BoxShadow(color: color.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))]
-              : [],
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: isSelected ? color : Colors.grey[50],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: isSelected ? Colors.white : Colors.grey[500],
-                size: 26,
-              ),
+            Icon(
+              icon,
+              color: isSelected ? color : Colors.grey[400],
+              size: 24,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
               label,
               textAlign: TextAlign.center,
@@ -1311,25 +1234,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           accentColor: AppTheme.brandColor,
           child: Column(
             children: [
-              SizedBox(
-                width: double.infinity,
-                child: TextField(
-                  controller: _descriptionController,
-                  maxLines: 4,
-                  style: GoogleFonts.mukta(fontSize: 14, color: Colors.black87),
-                  decoration: InputDecoration(
-                    hintText: 'Describe your property or tap Generate...',
-                    hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 13),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.grey[200]!),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.grey[200]!),
-                    ),
+              TextField(
+                controller: _descriptionController,
+                maxLines: 4,
+                style: GoogleFonts.mukta(fontSize: 14, color: Colors.black87),
+                decoration: InputDecoration(
+                  hintText: 'Describe your property or tap Generate...',
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
                   ),
                 ),
               ),
@@ -1511,30 +1430,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: accentColor.withOpacity(0.15), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: accentColor.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: accentColor.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: accentColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: accentColor, size: 22),
-              ),
-              const SizedBox(width: 12),
+              Icon(icon, color: accentColor, size: 20),
+              const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1543,7 +1448,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       title,
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        fontSize: 14,
                         color: Colors.black87,
                       ),
                     ),
@@ -1559,12 +1464,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               ),
               if (isLoading)
                 const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppTheme.brandColor,
-                  ),
+                  width: 16, height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.brandColor),
                 ),
             ],
           ),
@@ -1600,14 +1501,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _buildLabel(String label, bool isRequired) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10, left: 4),
+      padding: const EdgeInsets.only(bottom: 8, left: 4),
       child: Row(
         children: [
           Text(
             label,
             style: GoogleFonts.mukta(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
               color: Colors.black87,
             ),
           ),
@@ -1630,33 +1531,37 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     int? maxLines = 1,
     bool isPrice = false,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
+    return TextFormField(
+      controller: controller,
+      focusNode: focusNode,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      style: GoogleFonts.mukta(
+        fontSize: 15,
+        color: Colors.black87,
+        fontWeight: isPrice ? FontWeight.bold : FontWeight.normal,
       ),
-      child: TextFormField(
-        controller: controller,
-        focusNode: focusNode,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        style: GoogleFonts.mukta(
-          fontSize: 15,
-          color: Colors.black87,
-          fontWeight: isPrice ? FontWeight.bold : FontWeight.normal,
+      decoration: InputDecoration(
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.grey[50],
+        prefixText: prefix,
+        prefixStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: AppTheme.brandColor,
         ),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 13),
-          prefixText: prefix,
-          prefixStyle: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: AppTheme.brandColor,
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          border: InputBorder.none,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[200]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5),
         ),
       ),
     );
@@ -1701,70 +1606,41 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _categoryCard(String label, IconData icon, String value) {
     bool isSelected = _selectedCategory == value;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          setState(() => _selectedCategory = value);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _titleFocusNode.requestFocus();
-            if (_step1ScrollController.hasClients) {
-              _step1ScrollController.animateTo(
-                300,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOut,
-              );
-            }
-          });
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-          decoration: BoxDecoration(
-            color: isSelected ? AppTheme.brandColor : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              if (isSelected)
-                BoxShadow(
-                  color: AppTheme.brandColor.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                )
-              else
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-            ],
-            border: Border.all(
-              color: isSelected ? AppTheme.brandColor : Colors.grey[200]!,
-              width: 1.5,
+    return InkWell(
+      onTap: () {
+        setState(() => _selectedCategory = value);
+        _titleFocusNode.requestFocus();
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.brandColor.withOpacity(0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : Colors.grey[200]!,
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? AppTheme.brandColor : Colors.grey[400],
+              size: 32,
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                color: isSelected ? Colors.white : AppTheme.brandColor,
-                size: 36,
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.mukta(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: isSelected ? AppTheme.brandColor : Colors.black87,
               ),
-              const SizedBox(height: 12),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.mukta(
-                  fontSize: 15,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  color: isSelected ? Colors.white : Colors.black87,
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -1832,56 +1708,36 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       decoration: BoxDecoration(
-        color: hasFile
-            ? (isBlue
-                ? Colors.blue.withOpacity(0.1)
-                : Colors.green.withOpacity(0.1))
-            : (isBlue
-                ? AppTheme.brandColor.withOpacity(0.05)
-                : const Color(0xFFF9F9F9)),
-        borderRadius: BorderRadius.circular(20),
+        color: hasFile ? AppTheme.brandColor.withOpacity(0.05) : Colors.grey[50],
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: hasFile
-              ? (isBlue ? Colors.blue : Colors.green)
-              : (isBlue ? AppTheme.brandColor : Colors.grey[300]!),
-          width: 3, // Thicker border for clarity
+          color: hasFile ? AppTheme.brandColor : Colors.grey[200]!,
+          width: 2,
+          style: hasFile ? BorderStyle.solid : BorderStyle.none, // only show border if has file
         ),
       ),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: hasFile
-                  ? (isBlue ? Colors.blue : Colors.green)
-                  : (isBlue ? AppTheme.brandColor : Colors.grey[200]),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              hasFile ? Icons.check : icon,
-              color: Colors.white,
-              size: 32,
-            ),
+          Icon(
+            hasFile ? Icons.check_circle_rounded : icon,
+            color: hasFile ? AppTheme.brandColor : Colors.grey[400],
+            size: 32,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Text(
             title,
             style: GoogleFonts.mukta(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: hasFile
-                  ? (isBlue ? Colors.blue[900] : Colors.green[900])
-                  : Colors.black87,
+              color: Colors.black87,
             ),
           ),
-          const SizedBox(height: 4),
           Text(
             desc,
             style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontSize: 12,
               color: Colors.grey[600],
             ),
             textAlign: TextAlign.center,
