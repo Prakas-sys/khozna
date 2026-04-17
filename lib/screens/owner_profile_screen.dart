@@ -48,39 +48,38 @@ class OwnerProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             Center(
-              child: Stack(
+              child: CircleAvatar(
+                radius: 60,
+                backgroundImage: NetworkImage(avatar),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text.rich(
+              TextSpan(
                 children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundImage: NetworkImage(avatar),
+                  TextSpan(
+                    text: name,
+                    style: GoogleFonts.inter(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                   if (isVerified)
-                    Positioned(
-                      bottom: 0,
-                      right: 4,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.verified,
-                          color: Colors.blue,
-                          size: 28,
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: Icon(
+                          Icons.verified_rounded,
+                          color: AppTheme.brandColor,
+                          size: 22,
                         ),
                       ),
                     ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              name,
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Row(

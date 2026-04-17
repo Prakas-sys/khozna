@@ -1478,19 +1478,19 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _buildStepProgressBar() {
     return Container(
-      height: 4,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      height: 3,
+      padding: const EdgeInsets.symmetric(horizontal: 40),
       child: Row(
         children: List.generate(6, (index) {
           bool isActive = index <= _currentStep;
           return Expanded(
             child: Container(
-              margin: EdgeInsets.only(right: index == 5 ? 0 : 4),
+              margin: EdgeInsets.only(right: index == 5 ? 0 : 3),
               decoration: BoxDecoration(
                 color: isActive
                     ? AppTheme.brandColor
-                    : AppTheme.brandColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
+                    : AppTheme.brandColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
           );
@@ -1708,37 +1708,37 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       decoration: BoxDecoration(
-        color: hasFile ? AppTheme.brandColor.withOpacity(0.05) : Colors.grey[50],
-        borderRadius: BorderRadius.circular(16),
+        color: hasFile ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: hasFile ? AppTheme.brandColor : Colors.grey[200]!,
-          width: 2,
-          style: hasFile ? BorderStyle.solid : BorderStyle.none, // only show border if has file
+          width: 1.5,
         ),
       ),
       child: Column(
         children: [
           Icon(
             hasFile ? Icons.check_circle_rounded : icon,
-            color: hasFile ? AppTheme.brandColor : Colors.grey[400],
-            size: 32,
+            color: hasFile ? AppTheme.brandColor : Colors.grey[300],
+            size: 36,
           ),
           const SizedBox(height: 12),
           Text(
             title,
             style: GoogleFonts.mukta(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             desc,
             style: GoogleFonts.inter(
-              fontSize: 12,
-              color: Colors.grey[600],
+              fontSize: 13,
+              color: Colors.grey[500],
             ),
             textAlign: TextAlign.center,
           ),

@@ -420,48 +420,26 @@ class HomeScreenState extends State<HomeScreen> {
                       const Icon(
                         CupertinoIcons.location_solid,
                         color: AppTheme.brandColor,
-                        size: 16,
+                        size: 14,
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 4),
                       Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Your Location',
-                              style: GoogleFonts.inter(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    _currentLocationName,
-                                    style: GoogleFonts.mukta(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.black87,
-                                      height: 1.2,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  size: 14,
-                                  color: AppTheme.brandColor,
-                                ),
-                              ],
-                            ),
-                          ],
+                        child: Text(
+                          _currentLocationName,
+                          style: GoogleFonts.mukta(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black87,
+                            height: 1.1,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                      ),
+                      const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 14,
+                        color: AppTheme.brandColor,
                       ),
                     ],
                   ),

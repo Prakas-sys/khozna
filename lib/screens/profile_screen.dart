@@ -292,38 +292,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center, // Perfect horizontal alignment
-                            children: [
-                              Text(
-                                user?.userMetadata?['full_name'] ??
-                                    user?.userMetadata?['name'] ??
-                                    (_isOwner ? 'Owner' : 'Guest'),
-                                style: GoogleFonts.inter(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              if (_kycStatus == 'verified') ...[
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.all(2.5),
-                                  decoration: const BoxDecoration(
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: user?.userMetadata?['full_name'] ??
+                                      user?.userMetadata?['name'] ??
+                                      (_isOwner ? 'Owner' : 'Guest'),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
                                     color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.verified_rounded,
-                                    color: Color(
-                                      0xFF1D9BF0,
-                                    ), // Twitter/Verified Blue
-                                    size: 16,
                                   ),
                                 ),
+                                if (_kycStatus == 'verified')
+                                  WidgetSpan(
+                                    alignment: PlaceholderAlignment.middle,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 6),
+                                      child: const Icon(
+                                        Icons.verified_rounded,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
                               ],
-                            ],
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
@@ -671,107 +667,160 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [const Color(0xFF1E1E1E), const Color(0xFF2D2D2D)],
+        // Layer 1: Base Metallic Linear Gradient
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFFB88A44), // Deep Bronze
+            Color(0xFFD4AF37), // Metallic Gold
+            Color(0xFFF7EF8A), // Highlight Gold
+            Color(0xFFD4AF37), // Metallic Gold
+            Color(0xFFB88A44), // Deep Bronze
+          ],
+          stops: [0.0, 0.2, 0.5, 0.8, 1.0],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xFFF7EF8A).withValues(alpha: 0.5), // Specular Edge
+          width: 1.5,
+        ),
         boxShadow: [
+          // Deep physical shadow
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
+          // Golden glow/reflection
+          BoxShadow(
+            color: const Color(0xFFB88A44).withValues(alpha: 0.2),
+            blurRadius: 25,
+            spreadRadius: -5,
+            offset: const Offset(0, 0),
+          ),
         ],
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -10,
-            top: -10,
-            child: Icon(
-              Icons.home_work_rounded,
-              size: 80,
-              color: Colors.white.withValues(alpha: 0.05),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.add_business_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Ready to Earn?',
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'List your property and earn daily',
-                          style: GoogleFonts.inter(
-                            color: Colors.white70,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
+          children: [
+            // Layer 2: Radial Sheen (Studio Lighting Simulation)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(0.4, -0.4),
+                    focal: const Alignment(0.2, -0.2),
+                    focalRadius: 1.2,
+                    colors: [
+                      Colors.white.withValues(alpha: 0.35), // Primary Highlight
+                      Colors.transparent,
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const AddPropertyScreen(),
+              ),
+            ),
+            
+            // Background Pattern Icon
+            Positioned(
+              right: -15,
+              bottom: -15,
+              child: Icon(
+                Icons.home_work_rounded,
+                size: 110,
+                color: const Color(0xFF3D2C15).withValues(alpha: 0.05),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      // Premium Icon Container
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF3D2C15).withValues(alpha: 0.08),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF3D2C15).withValues(alpha: 0.1),
+                            width: 1,
+                          ),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        child: const Icon(
+                          Icons.add_business_rounded,
+                          color: Color(0xFF3D2C15), // Deep Coffee/Bronze
+                          size: 24,
+                        ),
                       ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Post Your Property',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w900,
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Ready to Earn?',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF3D2C15),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.6,
+                              ),
+                            ),
+                            Text(
+                              'List your property and earn daily',
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF4A371F).withValues(alpha: 0.8),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AddPropertyScreen(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3D2C15), // 'Burnt Umber' Premium button
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 6,
+                        shadowColor: const Color(0xFF3D2C15).withValues(alpha: 0.5),
+                      ),
+                      child: Text(
+                        'Post Your Property',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

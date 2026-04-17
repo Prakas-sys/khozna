@@ -75,200 +75,143 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Premium Search Header
+                // Top Header Section with Back Arrow
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
                       icon: const Icon(
                         Icons.arrow_back_ios_new_rounded,
                         color: Colors.black87,
-                        size: 22,
+                        size: 20,
                       ),
                       onPressed: () => Navigator.pop(context),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Hero(
-                        tag: 'search_bar_container',
-                        child: Material(
-                          color: Colors.transparent,
-                          child: Container(
-                            height: 52,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(
-                                color: Colors.grey.shade200,
-                                width: 1.2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.03),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.search,
-                                  color: Colors.grey,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: TextField(
-                                    controller: _searchController,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 15,
-                                      color: Colors.black87,
-                                    ),
-                                    cursorColor: AppTheme.brandColor,
-                                    decoration: InputDecoration(
-                                      hintText: 'Search properties',
-                                      hintStyle: GoogleFonts.inter(
-                                        color: Colors.grey[500],
-                                        fontSize: 15,
-                                      ),
-                                      border: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      contentPadding: EdgeInsets.zero,
-                                      isDense: true,
-                                    ),
-                                    onChanged: (val) => setState(() {}),
-                                  ),
-                                ),
-                                if (_searchController.text.isNotEmpty)
-                                  GestureDetector(
-                                    onTap: () => setState(
-                                      () => _searchController.clear(),
-                                    ),
-                                    child: Icon(
-                                      Icons.cancel,
-                                      size: 20,
-                                      color: Colors.grey[400],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
+                    Text(
+                      'Search Properties',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
                     ),
+                    const SizedBox(width: 40), // Balance the back button
                   ],
+                ),
+                const SizedBox(height: 24),
+
+                // Full Width Standardized Search Bar
+                Hero(
+                  tag: 'search_bar_container',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Container(
+                      height: 52,
+                      padding: const EdgeInsets.only(left: 16, right: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(
+                          color: Colors.grey.shade200,
+                          width: 1.2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                                const Icon(
+                                  CupertinoIcons.search,
+                                  color: Colors.black54,
+                                  size: 26,
+                                ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              autofocus: widget.initialQuery == null,
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                              cursorColor: AppTheme.brandColor,
+                              decoration: InputDecoration(
+                                hintText: 'Search properties',
+                                hintStyle: GoogleFonts.inter(
+                                  color: Colors.grey[400],
+                                  fontSize: 16,
+                                ),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                              onChanged: (val) => setState(() {}),
+                            ),
+                          ),
+                          if (_searchController.text.isNotEmpty)
+                            IconButton(
+                              icon: Icon(Icons.cancel, size: 20, color: Colors.grey[400]),
+                              onPressed: () => setState(() => _searchController.clear()),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
 
                 // PREMIUM MAGIC AI SEARCH CARD
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        const Color(0xFF8E2DE2),
-                        const Color(0xFF4A00E0),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF4A00E0).withValues(alpha: 0.25),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
+                // SIMPLIFIED AI SEARCH SECTION
+                GestureDetector(
+                  onTap: _isAiSearching ? null : _runAiSearch,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.grey.shade200,
+                        width: 1.5,
                       ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Stack(
+                    ),
+                    child: Row(
                       children: [
-                        Positioned(
-                          right: -10,
-                          top: -10,
-                          child: Icon(
-                            Icons.auto_awesome,
-                            size: 80,
-                            color: Colors.white.withValues(alpha: 0.1),
+                        _isAiSearching
+                            ? const SizedBox(
+                                width: 20, height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black54),
+                              )
+                            : const Icon(Icons.auto_awesome_rounded, color: Colors.black54, size: 22),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _isAiSearching ? 'AI Finding Match...' : 'Smart AI Search',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                'Find better rooms in one tap',
+                                style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 11),
+                              ),
+                            ],
                           ),
                         ),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: _isAiSearching ? null : _runAiSearch,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 20,
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.2,
-                                      ),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: _isAiSearching
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              color: Colors.white,
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : const Icon(
-                                            Icons.auto_awesome_rounded,
-                                            color: Colors.white,
-                                            size: 20,
-                                          ),
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          _isAiSearching
-                                              ? 'AI Finding Perfect Match...'
-                                              : 'Magic AI Match',
-                                          style: GoogleFonts.inter(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: 15,
-                                            letterSpacing: 0.2,
-                                          ),
-                                        ),
-                                        Text(
-                                          'Find your dream home in seconds',
-                                          style: GoogleFonts.inter(
-                                            color: Colors.white70,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const Icon(
-                                    Icons.chevron_right_rounded,
-                                    color: Colors.white70,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        Icon(Icons.arrow_forward_rounded, color: Colors.grey[400], size: 18),
                       ],
                     ),
                   ),
@@ -278,10 +221,11 @@ class _SearchScreenState extends State<SearchScreen> {
                     margin: const EdgeInsets.only(top: 16),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.purple.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: Colors.purple.withValues(alpha: 0.1),
+                        color: Colors.grey.shade200,
+                        width: 1.5,
                       ),
                     ),
                     child: Column(
@@ -289,34 +233,23 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(
-                              Icons.stars,
-                              color: Colors.purple,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 8),
+                            const Icon(Icons.info_outline_rounded, color: Colors.black54, size: 20),
+                            const SizedBox(width: 10),
                             Text(
-                              'AI Suggestions',
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.purple[800],
-                              ),
+                              'Smart Suggestion',
+                              style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black87),
                             ),
                             const Spacer(),
-                            IconButton(
-                              icon: const Icon(
-                                Icons.close,
-                                size: 16,
-                                color: Colors.grey,
-                              ),
-                              onPressed: () =>
-                                  setState(() => _aiSearchResult = null),
+                            GestureDetector(
+                                onTap: () => setState(() => _aiSearchResult = null),
+                                child: Icon(Icons.close, size: 18, color: Colors.grey[400])
                             ),
                           ],
                         ),
+                        const SizedBox(height: 12),
                         Text(
                           _aiSearchResult!,
-                          style: GoogleFonts.inter(fontSize: 13, height: 1.5),
+                          style: GoogleFonts.inter(fontSize: 14, height: 1.5, color: Colors.black87),
                         ),
                       ],
                     ),

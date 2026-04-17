@@ -78,11 +78,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'खोज्न AI सहयात्री (Khozna AI)',
+          'AI मद्दत (AI Help)',
           style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
-        elevation: 0,
+        elevation: 1,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
@@ -165,58 +165,28 @@ class _AiChatScreenState extends State<AiChatScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (_messageController.text.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildEmojiTip('🏠'),
-                      _buildEmojiTip('🏢'),
-                      _buildEmojiTip('📍'),
-                      _buildEmojiTip('💰'),
-                      _buildEmojiTip('🤖'),
-                      _buildEmojiTip('🤔'),
-                      _buildEmojiTip('🙏'),
-                    ],
-                  ),
-                ),
-              ),
+            // Removed emoji tips for a simpler "Old Man" friendly UI
             Row(
               children: [
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(24),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[300]!),
                     ),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 8),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.emoji_emotions_outlined,
-                            color: Colors.grey,
-                            size: 22,
-                          ),
-                          onPressed: () {}, // System keyboard handles it
+                    child: TextField(
+                      controller: _messageController,
+                      style: GoogleFonts.inter(fontSize: 16),
+                      decoration: const InputDecoration(
+                        hintText: 'यहाँ लेख्नुहोस् (Type here...)',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        Expanded(
-                          child: TextField(
-                            controller: _messageController,
-                            decoration: const InputDecoration(
-                              hintText: 'केही सोध्नुहोस्...',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 4,
-                                vertical: 12,
-                              ),
-                            ),
-                            onSubmitted: (_) => _sendMessage(),
-                          ),
-                        ),
-                      ],
+                      ),
+                      onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
                 ),
