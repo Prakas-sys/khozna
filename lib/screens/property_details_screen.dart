@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // firebase_auth removed
@@ -11,6 +12,8 @@ import 'package:khozna/screens/chat_screen.dart' as chat_page;
 import '../utils/formatters.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:ui';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final String id;
@@ -147,6 +150,47 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
   }
 
+  String _getStaticMapUrl() {
+    if (widget.latitude == null || widget.longitude == null) {
+      return 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800';
+    }
+    
+    // 🔐 SECURITY: Using Environment Variable for API Key
+    final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+    if (apiKey.isEmpty) {
+      if (kDebugMode) debugPrint("Warning: GOOGLE_MAPS_API_KEY not found in .env");
+      // Fallback: A high-quality generic map aesthetic
+      return 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800';
+    }
+    
+    final lat = widget.latitude;
+    final lng = widget.longitude;
+
+    // --- PREMIUM AIRBNB STYLE CONFIG ---
+    // 1. Muted Landscape (#F5F5F5)
+    // 2. Pure White Roads (#FFFFFF)
+    // 3. Muted Water (#E9E9E9)
+    // 4. Hide POIs & Clutter
+    const style = 'style=feature:all|element:geometry|color:0xf5f5f5'
+                 '&style=feature:all|element:labels.text.fill|color:0x616161'
+                 '&style=feature:all|element:labels.text.stroke|color:0xf5f5f5'
+                 '&style=feature:road|element:geometry|color:0xffffff'
+                 '&style=feature:water|element:geometry|color:0xe9e9e9'
+                 '&style=feature:poi|visibility:off'
+                 '&style=feature:transit|visibility:off';
+
+    // Premium Khozna Blue Marker
+    return 'https://maps.googleapis.com/maps/api/staticmap?'
+           'center=$lat,$lng'
+           '&zoom=15'
+           '&size=800x400'
+           '&maptype=roadmap'
+           '&$style' // Injecting the Airbnb vibe
+           '&markers=color:0x3B82F6%7C$lat,$lng'
+           '&scale=2' // Double resolution for Retina/OLED
+           '&key=$apiKey';
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -243,9 +287,39 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         children: [
                           Positioned.fill(
                             child: CachedNetworkImage(
-                              imageUrl: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800',
+                              imageUrl: _getStaticMapUrl(),
                               fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(color: Colors.grey[200]),
+                              placeholder: (context, url) => Container(
+                                color: Colors.grey[100],
+                                child: const Center(
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                color: const Color(0xFFF2F4F7),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.map_rounded, color: Colors.blue.withValues(alpha: 0.2), size: 48),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Real-time Map Preview',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        color: Colors.grey[500],
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      '(Requires Maps API Key)',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 10,
+                                        color: Colors.grey[400],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                           Container(
@@ -255,29 +329,40 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(50),
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.85),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     borderRadius: BorderRadius.circular(50),
-                                    border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(alpha: 0.4),
+                                      width: 1.5,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.1),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       const Icon(
-                                        Icons.map_outlined,
+                                        Icons.explore_rounded,
                                         color: AppTheme.brandColor,
-                                        size: 22,
+                                        size: 20,
                                       ),
-                                      const SizedBox(width: 8),
+                                      const SizedBox(width: 10),
                                       Text(
-                                        "Explore Location",
-                                        style: GoogleFonts.inter(
-                                          fontSize: 15,
+                                        "Explore Local Area",
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 16,
                                           color: AppTheme.brandColor,
-                                          fontWeight: FontWeight.bold,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: -0.2,
                                         ),
                                       ),
                                     ],

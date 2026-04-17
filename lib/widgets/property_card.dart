@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -131,29 +132,30 @@ class PropertyCard extends StatelessWidget {
                         fit: BoxFit.cover,
                         memCacheWidth: 600, // Optimize memory for lists
                         placeholder: (context, url) => Container(
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F5F5),
+                            borderRadius: BorderRadius.circular(20),
                           ),
+                          child: SkeletonCard(isFullWidth: true), // Use skeleton as placeholder
                         ),
                         errorWidget: (context, url, error) => Container(
-                          color: Colors.grey[100],
-                          child: const Column(
+                          color: const Color(0xFFF9FAFB),
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                Icons.image_not_supported_outlined,
-                                color: Colors.grey,
-                                size: 40,
+                                Icons.home_rounded,
+                                color: AppTheme.brandColor.withValues(alpha: 0.1),
+                                size: 54,
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
-                                'No Image',
-                                style: TextStyle(color: Colors.grey),
+                                'Khozna Home',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Colors.grey[400],
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ],
                           ),
@@ -249,7 +251,7 @@ class PropertyCard extends StatelessWidget {
               ),
               // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 1, 12, 2), // Further reduced for an ultra-tight bottom look
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 2), // Ultra-tight bottom for extreme 'hugging' look
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -334,37 +336,44 @@ class PropertyCard extends StatelessWidget {
                                     longitude: longitude,
                                     landmark: landmark,
                                   ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.visibility_outlined,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Visit Now',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13.5,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              icon: const Icon(Icons.directions_walk, size: 17),
-                              label: Text(
-                                'Visit Now',
-                                style: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13.5,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.brandColor,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
-                                ),
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  side: BorderSide(
-                                    color: Colors.white.withValues(alpha: 0.5),
-                                    width: 1.5,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.brandColor,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
                                   ),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    side: BorderSide(
+                                      color: Colors.white.withValues(alpha: 0.5),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: ElevatedButton.icon(
+                            child: ElevatedButton(
                               onPressed: () {
                                 HapticFeedback.lightImpact();
                                 // Instant navigation
@@ -382,27 +391,28 @@ class PropertyCard extends StatelessWidget {
                                   ),
                                 );
                               },
-                              icon: SvgPicture.asset(
-                                'assets/icons/message.svg',
-                                width: 17,
-                                height: 17,
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.white,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              label: Text(
-                                'Message',
-                                style: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13.5,
-                                ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.chat_bubble_outline_rounded,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Message',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13.5,
+                                    ),
+                                  ),
+                                ],
                               ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 6,
+                                  vertical: 8,
                                 ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(

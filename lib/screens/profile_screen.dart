@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../theme/app_theme.dart';
@@ -27,7 +28,7 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   final User? user = Supabase.instance.client.auth.currentUser;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
@@ -36,12 +37,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isUploading = false;
   String _kycStatus = 'not_started';
   bool _isLoading = true;
+  late AnimationController _shimmerController;
+  late Animation<double> _shimmerAnimation;
 
   @override
   void initState() {
     super.initState();
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat();
+    _shimmerAnimation = Tween<double>(begin: -1.0, end: 2.0).animate(
+      CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOutSine),
+    );
     _checkOwnerStatus();
     _loadProfile();
+  }
+
+  @override
+  void dispose() {
+    _shimmerController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadProfile() async {
@@ -667,14 +683,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        // Layer 1: Base Metallic Linear Gradient (Vibrant Golden Yellow)
+        // Layer 1: Base Metallic Linear Gradient (Electric Brand Blue)
         gradient: const LinearGradient(
           colors: [
-            Color(0xFFEBB400), // Deep Rich Gold
-            Color(0xFFFFD700), // Pure Gold
-            Color(0xFFFFF9C4), // Vivid Highlight
-            Color(0xFFFFD700), // Pure Gold
-            Color(0xFFEBB400), // Deep Rich Gold
+            Color(0xFF007799), // Deep Blue
+            Color(0xFF00A3E1), // Brand Blue
+            Color(0xFFE1F5FE), // Vivid Highlight
+            Color(0xFF00A3E1), // Brand Blue
+            Color(0xFF007799), // Deep Blue
           ],
           stops: [0.0, 0.2, 0.5, 0.8, 1.0],
           begin: Alignment.topLeft,
@@ -682,7 +698,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: const Color(0xFFFFF9C4).withValues(alpha: 0.6), // Specular Edge
+          color: const Color(0xFFE1F5FE).withValues(alpha: 0.6), // Specular Edge
           width: 1.5,
         ),
         boxShadow: [
@@ -692,9 +708,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
-          // Golden glow/reflection
+          // Brand Glow/Reflection
           BoxShadow(
-            color: const Color(0xFFFFD700).withValues(alpha: 0.25),
+            color: const Color(0xFF00A3E1).withValues(alpha: 0.25),
             blurRadius: 25,
             spreadRadius: -5,
             offset: const Offset(0, 0),
@@ -714,14 +730,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     focal: const Alignment(0.2, -0.2),
                     focalRadius: 1.2,
                     colors: [
-                      Colors.white.withValues(alpha: 0.45), // Stronger Primary Highlight
+                      Colors.white.withValues(alpha: 0.4), // Strong Primary Highlight
                       Colors.transparent,
                     ],
                   ),
                 ),
               ),
             ),
-            
+
+            // Layer 3: Advanced Sweeping Shimmer Animation
+            AnimatedBuilder(
+              animation: _shimmerAnimation,
+              builder: (context, child) {
+                return Positioned.fill(
+                  child: FractionallySizedBox(
+                    widthFactor: 2.0,
+                    alignment: Alignment(_shimmerAnimation.value, 0.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: const [0.35, 0.5, 0.65],
+                          colors: [
+                            Colors.transparent,
+                            Colors.white.withValues(alpha: 0.25),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+
             // Background Pattern Icon
             Positioned(
               right: -15,
@@ -729,7 +772,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Icon(
                 Icons.home_work_rounded,
                 size: 110,
-                color: const Color(0xFF40300A).withValues(alpha: 0.06),
+                color: const Color(0xFF002C40).withValues(alpha: 0.05),
               ),
             ),
 
@@ -744,16 +787,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF40300A).withValues(alpha: 0.1),
+                          color: const Color(0xFF002C40).withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFF40300A).withValues(alpha: 0.15),
+                            color: const Color(0xFF002C40).withValues(alpha: 0.15),
                             width: 1,
                           ),
                         ),
                         child: const Icon(
                           Icons.add_home_rounded,
-                          color: Color(0xFF40300A), // Etched Deep Gold-Amber
+                          color: Color(0xFF002C40), // Etched Deep Navy-Blue
                           size: 24,
                         ),
                       ),
@@ -765,7 +808,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               'Ready to Rent?',
                               style: GoogleFonts.plusJakartaSans(
-                                color: const Color(0xFF40300A),
+                                color: const Color(0xFF002C40),
                                 fontSize: 20,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -0.6,
@@ -774,7 +817,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Text(
                               'List your property easily',
                               style: GoogleFonts.plusJakartaSans(
-                                color: const Color(0xFF40300A).withValues(alpha: 0.7),
+                                color: const Color(0xFF002C40).withValues(alpha: 0.7),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 height: 1.1,
@@ -799,14 +842,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF40300A), // Deep Amber button for high contrast
+                        backgroundColor: const Color(0xFF002C40), // Deep Navy button for high contrast
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                         elevation: 6,
-                        shadowColor: const Color(0xFF40300A).withValues(alpha: 0.4),
+                        shadowColor: const Color(0xFF002C40).withValues(alpha: 0.4),
                       ),
                       child: Text(
                         'Post Your Property',

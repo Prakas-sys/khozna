@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
+import '../screens/login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -12,6 +15,98 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notifEnabled = true;
   String _language = 'English';
+  bool _isDeleting = false;
+
+  Future<void> _deleteAccount() async {
+    setState(() => _isDeleting = true);
+    
+    try {
+      // Call the Edge Function
+      await Supabase.instance.client.functions.invoke('delete-account');
+      
+      // Sign out locally
+      await Supabase.instance.client.auth.signOut();
+      
+      if (mounted) {
+        // Clear navigation stack and go to LoginScreen
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Account permanently deleted. We are sorry to see you go.'),
+            backgroundColor: Colors.black,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isDeleting = false);
+    }
+  }
+
+  void _showDeleteConfirmation() {
+    HapticFeedback.mediumImpact();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Delete Account?',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red),
+        ),
+        content: const Text(
+          'This will permanently delete your profile, properties, messages, and all other data. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showFinalConfirmation();
+            },
+            child: const Text('Continue', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showFinalConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Last Warning'),
+        content: const Text('Are you 100% sure? All your listed properties and earnings history will be lost forever.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Wait, keep it!'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteAccount();
+            },
+            child: const Text('Yes, Delete Everything', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +168,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'This action cannot be undone.',
               style: GoogleFonts.inter(fontSize: 12),
             ),
-            onTap: () {},
+            onTap: _isDeleting ? null : _showDeleteConfirmation,
+            trailing: _isDeleting 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.red))
+              : null,
           ),
 
           const SizedBox(height: 40),

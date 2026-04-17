@@ -363,21 +363,18 @@ class HomeScreenState extends State<HomeScreen> {
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.white,
         automaticallyImplyLeading: false,
-        titleSpacing: 12,
+        titleSpacing: 20, // Increased for breathing room
         title: Row(
           children: [
             GestureDetector(
               onTap: _handleBossTap,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  'assets/images/original logo.png',
-                  height: 44, // Restored to a larger, punchier size
-                  fit: BoxFit.contain,
-                ),
+              child: Image.asset(
+                'assets/images/original logo.png',
+                height: 48, // Increased for a more prominent brand presence
+                fit: BoxFit.contain,
               ),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 8),
             Flexible(
               child: GestureDetector(
                 onTap: () async {
@@ -404,46 +401,37 @@ class HomeScreenState extends State<HomeScreen> {
                     );
                   }
                 },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: AppTheme.brandColor.withOpacity(0.2),
-                      width: 1,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(50), // Pill shape for modern look
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          CupertinoIcons.location_solid,
+                          color: AppTheme.brandColor,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            _currentLocationName,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                              height: 1.1,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        CupertinoIcons.location_solid,
-                        color: AppTheme.brandColor,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      Flexible(
-                        child: Text(
-                          _currentLocationName,
-                          style: GoogleFonts.mukta(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.black87,
-                            height: 1.1,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        size: 16,
-                        color: AppTheme.brandColor,
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ),
           ],
@@ -527,20 +515,22 @@ class HomeScreenState extends State<HomeScreen> {
                       FittedBox(
                         child: Text(
                           'Find your Next Home',
-                          style: GoogleFonts.zenAntiqueSoft(
-                            fontSize: 30,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 32,
                             fontWeight: FontWeight.w800,
-                            color: Colors.black87,
+                            letterSpacing: -1.0,
+                            color: Colors.black,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       FittedBox(
                         child: Text(
                           'No middleman',
-                          style: GoogleFonts.zenAntiqueSoft(
-                            fontSize: 30,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 32,
                             fontWeight: FontWeight.w800,
+                            letterSpacing: -1.0,
                             color: AppTheme.brandColor,
                           ),
                         ),
@@ -548,7 +538,7 @@ class HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 54),
+                const SizedBox(height: 32), // Reduced from 54 for better hierarchy
                 Hero(
                   tag:
                       'search_bar_container', // Changed tag to be more specific
@@ -565,16 +555,16 @@ class HomeScreenState extends State<HomeScreen> {
                         ), // Removed horizontal to allow mic to sit flush right
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                             color: Colors.grey.shade200,
                             width: 1.2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 15,
-                              offset: const Offset(0, 6),
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
                             ),
                           ],
                         ),
@@ -726,15 +716,16 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 24), // Increased from 18 for better breathing room
         FutureBuilder<List<Map<String, dynamic>>>(
           future: future,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SizedBox(
-                height: 285,
+                height: 292, // Tightened to hug the cards perfectly
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
                   itemCount: 3,
                   itemBuilder: (_, __) => const Padding(
                     padding: EdgeInsets.only(right: 16),
@@ -796,10 +787,11 @@ class HomeScreenState extends State<HomeScreen> {
             }
 
             return SizedBox(
-              height: 285,
+              height: 292, // Tightened to hug the cards perfectly
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
+                clipBehavior: Clip.none, // Ensure shadows aren't clipped
+                physics: const BouncingScrollPhysics(),
                 itemCount: 4, // Always show 4 items to keep UI full
                 itemBuilder: (context, index) {
                   if (index < properties.length) {
