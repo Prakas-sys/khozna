@@ -190,7 +190,7 @@ class HomeScreenState extends State<HomeScreen> {
     try {
       dynamic query = client
           .from('properties')
-          .select('*, property_images(image_url)');
+          .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, is_verified)');
 
       switch (index) {
         case 0: // Near You (Location-based) - Promoted to #1
@@ -407,27 +407,43 @@ class HomeScreenState extends State<HomeScreen> {
                       color: AppTheme.brandColor.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(50), // Pill shape for modern look
                     ),
-                    child: Row(
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          CupertinoIcons.location_solid,
-                          color: AppTheme.brandColor,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        Flexible(
-                          child: Text(
-                            _currentLocationName,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                              height: 1.1,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        Text(
+                          'LOCATION',
+                          style: GoogleFonts.inter(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.2,
+                            color: Colors.grey[500],
                           ),
+                        ),
+                        const SizedBox(height: 1),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              CupertinoIcons.location_solid,
+                              color: AppTheme.brandColor,
+                              size: 14,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                _currentLocationName,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.black,
+                                  height: 1.1,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -722,7 +738,7 @@ class HomeScreenState extends State<HomeScreen> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return SizedBox(
-                height: 292, // Tightened to hug the cards perfectly
+                height: 320, // Increased to perfectly fit the refined PropertyCard without overflow
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
@@ -787,7 +803,7 @@ class HomeScreenState extends State<HomeScreen> {
             }
 
             return SizedBox(
-              height: 292, // Tightened to hug the cards perfectly
+              height: 320, // Increased to perfectly fit the refined PropertyCard without overflow
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none, // Ensure shadows aren't clipped
@@ -814,6 +830,11 @@ class HomeScreenState extends State<HomeScreen> {
                         ? finalImages[0]
                         : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 
+                    final ownerProfile = p['profiles'] as Map<String, dynamic>?;
+                    final String ownerName = ownerProfile?['full_name'] ?? 'Khozna User';
+                    final String ownerAvatar = ownerProfile?['avatar_url'] ?? '';
+                    final bool isOwnerVerified = ownerProfile?['is_verified'] ?? false;
+
                     return Padding(
                       padding: const EdgeInsets.only(right: 16),
                       child: PropertyCard(
@@ -830,6 +851,9 @@ class HomeScreenState extends State<HomeScreen> {
                         images: finalImages,
                         status: p['status'] ?? 'available',
                         ownerId: p['owner_id'] ?? '',
+                        ownerName: ownerName,
+                        ownerAvatar: ownerAvatar,
+                        isOwnerVerified: isOwnerVerified,
                         amenities: List<String>.from(p['amenities'] ?? []),
                         houseRules: List<String>.from(p['house_rules'] ?? []),
                         latitude: p['latitude'] != null

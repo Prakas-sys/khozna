@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // firebase_auth removed
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../theme/app_theme.dart';
@@ -34,6 +35,9 @@ class PropertyDetailsScreen extends StatefulWidget {
   final double? latitude;
   final double? longitude;
   final String landmark;
+  final String? ownerName;
+  final String? ownerAvatar;
+  final bool? isOwnerVerified;
 
   const PropertyDetailsScreen({
     super.key,
@@ -55,6 +59,9 @@ class PropertyDetailsScreen extends StatefulWidget {
     this.latitude,
     this.longitude,
     this.landmark = '',
+    this.ownerName,
+    this.ownerAvatar,
+    this.isOwnerVerified,
   });
 
   @override
@@ -80,6 +87,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   void initState() {
     super.initState();
     _isReserved = widget.status == 'booked';
+    
+    // Initialize owner data instantly if passed from previous screen
+    if (widget.ownerName != null || widget.ownerAvatar != null) {
+      _ownerData = {
+        'full_name': widget.ownerName,
+        'avatar_url': widget.ownerAvatar,
+        'is_verified': widget.isOwnerVerified ?? false,
+      };
+    }
+    
     _fetchOwnerData();
     displayImages = (widget.images != null && widget.images!.isNotEmpty)
         ? widget.images!.map((url) {
@@ -869,75 +886,93 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildOwnerCard() {
-    final name = _ownerData?['full_name'] ?? 'Loading...';
-    final avatar =
-        _ownerData?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=1';
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey[100]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.2), width: 2),
+    final String name = _ownerData?['full_name'] ?? widget.ownerName ?? 'Khozna User';
+    final String avatar = _ownerData?['avatar_url'] ?? widget.ownerAvatar ?? 'https://i.pravatar.cc/150?img=1';
+    final bool isVerified = _ownerData?['is_verified'] ?? widget.isOwnerVerified ?? false;
+
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.grey.shade100),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.2), width: 2),
+                  ),
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.grey[100],
+                    backgroundImage: CachedNetworkImageProvider(avatar),
+                  ),
                 ),
-                child: CircleAvatar(
-                  radius: 30,
-                  backgroundImage: CachedNetworkImageProvider(avatar),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryTextColor,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        Icon(Icons.verified_user, size: 12, color: Colors.blue[600]),
-                        const SizedBox(width: 4),
-                        Text(
-                          _isReserved ? 'Already Booked' : 'Verified Owner',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: _isReserved
-                                ? Colors.orange.shade800
-                                : Colors.grey[500],
-                            fontWeight: _isReserved
-                                ? FontWeight.bold
-                                : FontWeight.normal,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryTextColor,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          if (isVerified) ...[
+                            const SizedBox(width: 6),
+                            const Icon(Icons.verified, size: 18, color: Colors.blue),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(
+                            _isReserved ? Icons.lock_clock : Icons.verified_user_outlined,
+                            size: 14,
+                            color: _isReserved ? Colors.orange : Colors.blue[400],
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _isReserved ? 'Property Reserved' : 'Verified Owner',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12,
+                              color: _isReserved
+                                  ? Colors.orange.shade800
+                                  : Colors.grey[600],
+                              fontWeight: _isReserved
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           const SizedBox(height: 20),
           // Owner Message Placeholder / Action
           Container(
@@ -978,11 +1013,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             name: name,
                             avatar: avatar,
                             online: true,
+                            isVerified: isVerified,
                           ),
                         ),
                       );
                     },
-              icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+              icon: SvgPicture.asset(
+                'assets/icons/message.svg',
+                width: 18,
+                height: 18,
+                colorFilter: const ColorFilter.mode(
+                  Colors.white,
+                  BlendMode.srcIn,
+                ),
+              ),
               label: const Text("Message Owner"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.brandColor,

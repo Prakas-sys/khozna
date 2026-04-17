@@ -25,7 +25,10 @@ class ChatScreen extends StatefulWidget {
     required this.online,
     this.phone = "+977 9801234567",
     this.ownerId = '',
+    this.isVerified = false,
   });
+
+  final bool isVerified;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -402,13 +405,21 @@ class _ChatScreenState extends State<ChatScreen>
                           width: 80,
                           child: LinearProgressIndicator(minHeight: 2),
                         )
-                      : Text(
-                          _displayName,
-                          style: GoogleFonts.inter(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      : Row(
+                          children: [
+                            Text(
+                              _displayName,
+                              style: GoogleFonts.inter(
+                                color: Colors.black,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (widget.isVerified) ...[
+                              const SizedBox(width: 4),
+                              const Icon(Icons.verified, size: 16, color: Colors.blue),
+                            ],
+                          ],
                         ),
                   Text(
                     'Owner • ${widget.online ? 'Online' : 'Offline'}',

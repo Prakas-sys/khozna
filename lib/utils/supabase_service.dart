@@ -328,14 +328,10 @@ class SupabaseService {
       if (existingNoteList.isEmpty) {
         await _client.from('notifications').insert({
           'user_id': userId,
-          'sender_id': _client
-              .auth
-              .currentUser
-              ?.id, // Assign Admin as Sender to prevent null-join drops
           'title': status == 'verified' ? 'KYC Approved! ✅' : 'KYC Rejected ❌',
-          'message': status == 'verified'
-              ? 'Your identity has been verified. You can now post properties.'
-              : 'Your KYC was rejected. Reason: ${reason ?? "Invalid documents"}. Please try again.',
+          'message': status == 'verified' 
+            ? 'Congratulations! Your identity verification was successful. You can now post properties.'
+            : 'Your identity verification was rejected. Reason: ${reason ?? "No reason provided"}. Please re-submit.',
           'type': 'kyc_update',
         });
       }
@@ -575,7 +571,7 @@ class SupabaseService {
       final response = await _client
           .from('saved_properties')
           .select(
-            '*, properties(*, property_images(*), profiles(full_name, avatar_url))',
+            '*, properties(*, property_images(*), profiles(full_name, avatar_url, is_verified))',
           )
           .eq('user_id', user.id)
           .order('created_at', ascending: false);

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
@@ -10,6 +10,7 @@ import 'package:khozna/utils/supabase_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/formatters.dart';
 import 'favourite_button.dart';
+import 'skeleton_card.dart';
 
 class PropertyCard extends StatelessWidget {
   final String id;
@@ -27,6 +28,9 @@ class PropertyCard extends StatelessWidget {
   final String status;
   final List<String> amenities;
   final List<String> houseRules;
+  final String? ownerName;
+  final String? ownerAvatar;
+  final bool? isOwnerVerified;
   final bool isOwnerView;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -53,6 +57,9 @@ class PropertyCard extends StatelessWidget {
     this.images = const [],
     this.ownerId = '',
     this.status = 'available',
+    this.ownerName,
+    this.ownerAvatar,
+    this.isOwnerVerified,
     this.amenities = const [],
     this.houseRules = const [],
     this.isOwnerView = false,
@@ -251,7 +258,7 @@ class PropertyCard extends StatelessWidget {
               ),
               // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 2), // Ultra-tight bottom for extreme 'hugging' look
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 6), // Fixed overflow warning while keeping it tight
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -312,7 +319,7 @@ class PropertyCard extends StatelessWidget {
                       children: [
                         if (!isOwnerView) ...[
                           Expanded(
-                            child: ElevatedButton.icon(
+                            child: ElevatedButton(
                               onPressed: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -336,39 +343,39 @@ class PropertyCard extends StatelessWidget {
                                     longitude: longitude,
                                     landmark: landmark,
                                   ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.visibility_outlined,
-                                      size: 18,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Visit Now',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13.5,
-                                      ),
-                                    ),
-                                  ],
                                 ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.brandColor,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
+                              ),
+                                children: [
+                                  const Icon(
+                                    Icons.directions_walk_rounded,
+                                    size: 18,
                                   ),
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                    side: BorderSide(
-                                      color: Colors.white.withValues(alpha: 0.5),
-                                      width: 1.5,
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Visit Now',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13.5,
                                     ),
                                   ),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ],
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.brandColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
                                 ),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: BorderSide(
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                    width: 1.5,
+                                  ),
+                                ),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -376,15 +383,15 @@ class PropertyCard extends StatelessWidget {
                             child: ElevatedButton(
                               onPressed: () {
                                 HapticFeedback.lightImpact();
-                                // Instant navigation
+                                // Instant navigation with real metadata
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) => chat_page.ChatScreen(
                                       ownerId: ownerId,
-                                      name:
-                                          'Khozna User', // Triggers async load inside ChatScreen
-                                      avatar: 'https://i.pravatar.cc/150?img=1',
+                                      name: ownerName,
+                                      avatar: ownerAvatar,
+                                      isVerified: isOwnerVerified,
                                       online: true,
                                       phone: '+977 9801234567',
                                     ),
@@ -394,9 +401,14 @@ class PropertyCard extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
-                                    Icons.chat_bubble_outline_rounded,
-                                    size: 18,
+                                  SvgPicture.asset(
+                                    'assets/icons/message.svg',
+                                    width: 18,
+                                    height: 18,
+                                    colorFilter: const ColorFilter.mode(
+                                      Colors.white,
+                                      BlendMode.srcIn,
+                                    ),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(

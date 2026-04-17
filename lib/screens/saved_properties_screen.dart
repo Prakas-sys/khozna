@@ -89,6 +89,11 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                             ? finalImages[0]
                             : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 
+                        final ownerProfile = p['profiles'] as Map<String, dynamic>?;
+                        final String ownerName = ownerProfile?['full_name'] ?? 'Khozna User';
+                        final String ownerAvatar = ownerProfile?['avatar_url'] ?? '';
+                        final bool isOwnerVerified = ownerProfile?['is_verified'] ?? false;
+
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 24),
                           child: PropertyCard(
@@ -101,6 +106,9 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                             bathrooms: p['bathrooms'] ?? 0,
                             area: (p['sq_ft'] ?? 0).toString(),
                             ownerId: p['owner_id'] ?? '',
+                            ownerName: ownerName,
+                            ownerAvatar: ownerAvatar,
+                            isOwnerVerified: isOwnerVerified,
                             images: finalImages,
                             amenities: List<String>.from(p['amenities'] ?? []),
                             houseRules: List<String>.from(

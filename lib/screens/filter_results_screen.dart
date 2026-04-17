@@ -53,7 +53,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
 
     var query = Supabase.instance.client
         .from('properties')
-        .select('*, property_images(image_url)');
+        .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, is_verified)');
 
     // Filter by location if it's a real location
     if (isLocationSearch) {
@@ -252,6 +252,11 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           ? finalImages[0]
                           : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
 
+                      final ownerProfile = p['profiles'] as Map<String, dynamic>?;
+                      final String ownerName = ownerProfile?['full_name'] ?? 'Khozna User';
+                      final String ownerAvatar = ownerProfile?['avatar_url'] ?? '';
+                      final bool isOwnerVerified = ownerProfile?['is_verified'] ?? false;
+
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 24),
                         child: PropertyCard(
@@ -267,6 +272,9 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           description: p['description'] ?? '',
                           images: finalImages,
                           ownerId: p['owner_id'] ?? '',
+                          ownerName: ownerName,
+                          ownerAvatar: ownerAvatar,
+                          isOwnerVerified: isOwnerVerified,
                           status: p['status'] ?? 'available',
                           amenities: List<String>.from(p['amenities'] ?? []),
                           houseRules: List<String>.from(p['house_rules'] ?? []),
