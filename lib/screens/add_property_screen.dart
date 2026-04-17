@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:confetti/confetti.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import '../theme/app_theme.dart';
 import '../utils/cloudinary_service.dart';
 import '../utils/khozna_ai_service.dart';
