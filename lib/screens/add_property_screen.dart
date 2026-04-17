@@ -633,6 +633,119 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       title: 'प्रोपर्टी कहाँ छ?',
       subtitle: 'Accurate location builds trust',
       content: [
+        // MAP INTERACTION (MOVED TO TOP)
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: _latitude != null
+                ? Colors.green.withOpacity(0.05)
+                : AppTheme.brandColor.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _latitude != null
+                  ? Colors.green.withOpacity(0.3)
+                  : AppTheme.brandColor.withOpacity(0.1),
+            ),
+          ),
+          child: Column(
+            children: [
+              Icon(
+                _latitude != null ? Icons.location_on : Icons.my_location,
+                color: _latitude != null ? Colors.green : AppTheme.brandColor,
+                size: 32,
+              ),
+              const SizedBox(height: 12),
+              if (_latitude != null) ...[
+                Text(
+                  'लोकेशन सेट भयो! ✓',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green[700],
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Lat: ${_latitude!.toStringAsFixed(5)}, Lng: ${_longitude!.toStringAsFixed(5)}',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '(GPS verified location)',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.green[600],
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ] else ...[
+                const Text(
+                  'मैले अहिले भएकै ठाउँ रोज्नुहोस्',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.brandColor,
+                  ),
+                ),
+                Text(
+                  '(Use my current location on Map)',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _isLocating ? null : _detectLocation,
+                icon: _isLocating
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : Icon(
+                        _latitude != null ? Icons.refresh : Icons.gps_fixed,
+                        size: 22,
+                        color: Colors.white,
+                      ),
+                label: Text(
+                  _isLocating
+                      ? 'GPS खोज्दै छ...'
+                      : _latitude != null
+                          ? 'लोकेशन अपडेट गर्नुहोस्'
+                          : 'लोकेशन सेट गर्नुहोस्',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      _latitude != null ? Colors.green : AppTheme.brandColor,
+                  elevation: 4, // More obvious shadow
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 18,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        const SizedBox(height: 32),
+
+        // TEXT FIELDS FOR LOCATION
         _buildLabel('नगरपालिका / टोल (Area Name)', true),
         _buildTextField('उदा: ललितपुर, सानेपा-२', controller: _areaController),
         const SizedBox(height: 24),
@@ -750,118 +863,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               ],
             ),
           ),
-
-        const SizedBox(height: 32),
-
-        // MAP INTERACTION
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: _latitude != null
-                ? Colors.green.withOpacity(0.05)
-                : AppTheme.brandColor.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: _latitude != null
-                  ? Colors.green.withOpacity(0.3)
-                  : AppTheme.brandColor.withOpacity(0.1),
-            ),
-          ),
-          child: Column(
-            children: [
-              Icon(
-                _latitude != null ? Icons.location_on : Icons.my_location,
-                color: _latitude != null ? Colors.green : AppTheme.brandColor,
-                size: 32,
-              ),
-              const SizedBox(height: 12),
-              if (_latitude != null) ...[
-                Text(
-                  'लोकेशन सेट भयो! ✓',
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green[700],
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Lat: ${_latitude!.toStringAsFixed(5)}, Lng: ${_longitude!.toStringAsFixed(5)}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '(GPS verified location)',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: Colors.green[600],
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ] else ...[
-                const Text(
-                  'मैले अहिले भएकै ठाउँ रोज्नुहोस्',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.brandColor,
-                  ),
-                ),
-                Text(
-                  '(Use my current location on Map)',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-              const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: _isLocating ? null : _detectLocation,
-                  icon: _isLocating
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
-                          ),
-                        )
-                      : Icon(
-                          _latitude != null ? Icons.refresh : Icons.gps_fixed,
-                          size: 22,
-                          color: Colors.white,
-                        ),
-                  label: Text(
-                    _isLocating
-                        ? 'GPS खोज्दै छ...'
-                        : _latitude != null
-                            ? 'लोकेशन अपडेट गर्नुहोस्'
-                            : 'लोकेशन सेट गर्नुहोस्',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        _latitude != null ? Colors.green : AppTheme.brandColor,
-                    elevation: 4, // More obvious shadow
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 18,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
       ],
     );
   }
