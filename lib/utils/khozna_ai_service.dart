@@ -191,44 +191,75 @@ If a user asks about ANYTHING outside this list (e.g., buying land, hotel bookin
   /// 7. AI Auto-Location Entry (Reverse Geocoding + AI Extraction)
   Future<Map<String, String>> autoDetectLocationArea(double lat, double lng) async {
     try {
-      // 1. Fetch raw address from OpenStreetMap (Free Nominatim API)
-      final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng');
-      final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0'});
-      
+      // 1. Fetch structured address from OSM Nominatim at zoom=18 (street-level precision)
+      final url = Uri.parse(
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng&zoom=18&addressdetails=1',
+      );
+      final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0 (khoznaapp@gmail.com)'});
+
       if (response.statusCode != 200) {
         return {'area': '', 'landmark': ''};
       }
-      
+
       final data = jsonDecode(response.body);
-      final rawAddress = data['display_name'] ?? '';
-      
-      if (rawAddress.isEmpty) return {'area': '', 'landmark': ''};
+      final address = data['address'] as Map<String, dynamic>? ?? {};
+      final displayName = data['display_name']?.toString() ?? '';
 
-      // 2. Ask AI to extract just Area and Landmark
-      String prompt = '''
-      Raw Address from GPS: $rawAddress
-      
-      Please extract the precise location and format the 'Area Name' as "Micro-Area, City" (e.g., 'Khasibazar, Kirtipur' or 'Baluwatar, Kathmandu'). Do not just provide the city name, always include the local neighborhood/village if available.
-      Also provide a noticeable 'Landmark' (e.g. 'Near Nabil Bank', 'Close to Ring Road').
-      Return ONLY a valid JSON object in this exact format with NO markdown formatting:
-      {
-        "area": "Local Area, City",
-        "landmark": "landmark name"
+      // 2. Extract micro-area directly from OSM structured fields (no AI needed, zero hallucination)
+      final microArea = address['suburb'] 
+          ?? address['neighbourhood'] 
+          ?? address['quarter']
+          ?? address['village'] 
+          ?? address['hamlet']
+          ?? address['town']
+          ?? '';
+
+      final city = address['city'] 
+          ?? address['town'] 
+          ?? address['municipality'] 
+          ?? address['county']
+          ?? 'Nepal';
+
+      final road = address['road'] ?? address['pedestrian'] ?? '';
+
+      // 3. Build clean area string: "Micro Area, City" (e.g. "Khasibazar, Kirtipur")
+      String area = '';
+      if (microArea.isNotEmpty && city.isNotEmpty && microArea != city) {
+        area = '$microArea, $city';
+      } else if (city.isNotEmpty) {
+        area = city;
       }
-      ''';
 
-      final aiResponse = await _getAiResponse(
-        prompt,
-        systemPrompt: "You are a precise JSON data extractor. Output ONLY raw valid JSON, no markdown, no explanation."
-      );
-      
-      // Clean up potential markdown formatting that LLaMA might inject
-      String cleanJson = aiResponse.replaceAll('```json', '').replaceAll('```', '').trim();
-      final parsedJson = jsonDecode(cleanJson);
-      
+      // 4. Build landmark from road or fallback to AI
+      String landmark = road.isNotEmpty ? 'Near $road' : '';
+
+      // 5. Only call AI if OSM gave us poor data (rare fallback)
+      if (area.isEmpty && displayName.isNotEmpty) {
+        String prompt = '''
+Raw Address from GPS: $displayName
+
+Extract the 'Area Name' as "Micro-Area, City" (e.g. "Khasibazar, Kirtipur").
+Return ONLY valid JSON with NO markdown:
+{
+  "area": "Local Area, City",
+  "landmark": "Near something"
+}
+''';
+        final aiResponse = await _getAiResponse(
+          prompt,
+          systemPrompt: "You are a precise JSON data extractor for Nepal addresses. Output ONLY raw valid JSON, no markdown, no explanation.",
+        );
+        String cleanJson = aiResponse.replaceAll('```json', '').replaceAll('```', '').trim();
+        try {
+          final parsed = jsonDecode(cleanJson);
+          area = parsed['area']?.toString() ?? '';
+          landmark = parsed['landmark']?.toString() ?? '';
+        } catch (_) {}
+      }
+
       return {
-        'area': parsedJson['area']?.toString() ?? '',
-        'landmark': parsedJson['landmark']?.toString() ?? ''
+        'area': area,
+        'landmark': landmark,
       };
     } catch (e) {
       print('Auto-detect location error: $e');
