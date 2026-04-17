@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -103,20 +104,31 @@ class _MainScreenState extends State<MainScreen> {
           },
           child: Scaffold(
             backgroundColor: _currentIndex == 1 ? Colors.black : Colors.white,
+            extendBody: true, // Allow content to flow under the glass navbar
             body: _pages[_currentIndex],
-            bottomNavigationBar: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade200, width: 1.0),
-                ),
-              ),
-              child: BottomAppBar(
-                color: Colors.white,
-                surfaceTintColor: Colors.white,
-                padding: EdgeInsets.zero,
-                height: 58,
-                elevation: 0,
+            bottomNavigationBar: ClipRRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _currentIndex == 1 
+                        ? Colors.black.withValues(alpha: 0.8) 
+                        : Colors.white.withValues(alpha: 0.85),
+                    border: Border(
+                      top: BorderSide(
+                        color: _currentIndex == 1 
+                            ? Colors.white.withValues(alpha: 0.1) 
+                            : Colors.grey.withValues(alpha: 0.2), 
+                        width: 1.0
+                      ),
+                    ),
+                  ),
+                  child: BottomAppBar(
+                    color: Colors.transparent,
+                    surfaceTintColor: Colors.transparent,
+                    padding: EdgeInsets.zero,
+                    height: 58,
+                    elevation: 0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -228,21 +240,12 @@ class _MainScreenState extends State<MainScreen> {
                                   color: AppTheme.brandColor,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
-                                child: _isCheckingKyc
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 22,
-                                        weight: 700,
-                                      ),
+                                child: const Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: 22,
+                                  weight: 700,
+                                ),
                               ),
                             ),
                             const Spacer(),

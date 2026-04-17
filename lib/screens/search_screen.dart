@@ -352,7 +352,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'रू 2K',
+                            '₹ 2K',
                             style: GoogleFonts.inter(
                               color: Colors.grey,
                               fontWeight: FontWeight.bold,
@@ -360,7 +360,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                           ),
                           Text(
-                            'रू 100K+',
+                            '₹ 100K+',
                             style: GoogleFonts.inter(
                               color: Colors.grey,
                               fontWeight: FontWeight.bold,
@@ -392,7 +392,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'रू ${PriceFormatter.format(_priceValue.toInt().toString())} / month',
+                        '₹ ${PriceFormatter.format(_priceValue.toInt().toString())} / month',
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.w900,
                           color: AppTheme.brandColor,

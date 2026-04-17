@@ -30,6 +30,7 @@ class PropertyDetailsScreen extends StatefulWidget {
   final List<String> houseRules;
   final double? latitude;
   final double? longitude;
+  final String landmark;
 
   const PropertyDetailsScreen({
     super.key,
@@ -50,6 +51,7 @@ class PropertyDetailsScreen extends StatefulWidget {
     this.houseRules = const [],
     this.latitude,
     this.longitude,
+    this.landmark = '',
   });
 
   @override
@@ -77,14 +79,24 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     _isReserved = widget.status == 'booked';
     _fetchOwnerData();
     displayImages = (widget.images != null && widget.images!.isNotEmpty)
-        ? widget.images!
+        ? widget.images!.map((url) {
+            if (url.contains('cloudinary.com')) {
+              // Add quality transformations for HD display
+              return url.replaceAll('/upload/', '/upload/q_auto,f_auto,w_1200,c_limit/');
+            }
+            return url;
+          }).toList()
         : (widget.id.contains('demo')
               ? [
                   widget.imageUrl,
                   'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
                   'https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
                 ]
-              : [widget.imageUrl]);
+              : [
+                  widget.imageUrl.contains('cloudinary.com')
+                      ? widget.imageUrl.replaceAll('/upload/', '/upload/q_auto,f_auto,w_1200,c_limit/')
+                      : widget.imageUrl
+                ]);
     _incrementViews();
   }
 
@@ -436,23 +448,24 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: AppTheme.brandColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(6),
+            color: const Color(0xFF00B14F).withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFF00B14F).withValues(alpha: 0.2)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.verified, color: AppTheme.brandColor, size: 12),
-              const SizedBox(width: 4),
+              const Icon(Icons.verified_rounded, color: Color(0xFF00B14F), size: 14),
+              const SizedBox(width: 6),
               Text(
                 'VERIFIED LISTING',
                 style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.brandColor,
-                  letterSpacing: 0.5,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF00B14F),
+                  letterSpacing: 0.8,
                 ),
               ),
             ],
@@ -473,9 +486,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           children: [
             const Icon(Icons.place_outlined, color: Colors.grey, size: 16),
             const SizedBox(width: 4),
-            Text(
-              location,
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+            Expanded(
+              child: Text(
+                '${widget.location}${widget.landmark.isNotEmpty ? ' • ${widget.landmark}' : ''}',
+                style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -671,7 +688,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: 'रू ${PriceFormatter.format(price)}',
+                      text: '₹ ${PriceFormatter.format(price)}',
                       style: GoogleFonts.inter(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -772,66 +789,122 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         _ownerData?['avatar_url'] ?? 'https://i.pravatar.cc/150?img=1';
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundImage: CachedNetworkImageProvider(avatar),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey[100]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryTextColor,
-                  ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.2), width: 2),
                 ),
-                Text(
-                  _isReserved ? 'Already Booked' : 'Verified Owner',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: _isReserved
-                        ? Colors.orange.shade800
-                        : Colors.grey[500],
-                    fontWeight: _isReserved
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundImage: CachedNetworkImageProvider(avatar),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(Icons.verified_user, size: 12, color: Colors.blue[600]),
+                        const SizedBox(width: 4),
+                        Text(
+                          _isReserved ? 'Already Booked' : 'Verified Owner',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: _isReserved
+                                ? Colors.orange.shade800
+                                : Colors.grey[500],
+                            fontWeight: _isReserved
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          // Owner Message Placeholder / Action
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.format_quote, color: Colors.grey, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    "Hello! I am the owner. Feel free to message me for a visit or more details.",
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.grey[700],
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          IconButton(
-            onPressed: _isMyProperty
-                ? null
-                : () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => chat_page.ChatScreen(
-                          ownerId: widget.ownerId,
-                          name: name,
-                          avatar: avatar,
-                          online: true,
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _isMyProperty
+                  ? null
+                  : () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => chat_page.ChatScreen(
+                            ownerId: widget.ownerId,
+                            name: name,
+                            avatar: avatar,
+                            online: true,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-            icon: Icon(
-              Icons.chat_bubble_outline,
-              color: _isMyProperty ? Colors.grey : AppTheme.brandColor,
-              size: 22,
+                      );
+                    },
+              icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+              label: const Text("Message Owner"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.brandColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
             ),
           ),
         ],
@@ -901,36 +974,67 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(
-              Icons.place,
-              color: AppTheme.brandColor,
-              size: 16,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              location,
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-              ),
-            ),
-          ],
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: Column(
+            children: [
+              _locationInfoRow(Icons.location_on_rounded, 'नगरपालिका / टोल (Area)', location),
+              if (widget.landmark.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Divider(height: 1),
+                ),
+                _locationInfoRow(Icons.assistant_navigation, 'चिनिने ठाउँ (Landmark)', widget.landmark),
+              ],
+            ],
+          ),
         ),
+        const SizedBox(height: 16),
         if (widget.latitude != null && widget.longitude != null) ...[
-          const SizedBox(height: 6),
           Text(
             'GPS coordinates verified. Tap the map below to get directions via Google Maps.',
             style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
           ),
         ] else ...[
-          const SizedBox(height: 6),
           Text(
             'Exact GPS location not provided. Contact the owner for precise directions.',
             style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
           ),
         ],
+      ],
+    );
+  }
+
+  Widget _locationInfoRow(IconData icon, String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: AppTheme.brandColor, size: 20),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+              ),
+              Text(
+                value,
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: AppTheme.primaryTextColor,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

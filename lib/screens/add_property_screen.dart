@@ -840,7 +840,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _quickPriceChip(String label, String value) {
     return ActionChip(
       label: Text(
-        'रु. $label',
+        '₹ $label',
         style: GoogleFonts.inter(
           fontWeight: FontWeight.bold,
           color: Colors.black87,
@@ -864,7 +864,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         _buildLabel('महिनाको जम्मा भाडा', true),
         _buildTextField(
           'उदा: ५०००',
-          prefix: 'रु. ',
+          prefix: '₹ ',
           controller: _priceController,
           keyboardType: TextInputType.number,
         ),

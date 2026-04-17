@@ -21,3 +21,7 @@ void initializeBadgeSync() {
   messageBadgeCount.addListener(updateNativeBadge);
   notificationBadgeCount.addListener(updateNativeBadge);
 }
+
+/// Cache for Home Screen sections to enable "offline" viewing of last known data.
+final ValueNotifier<Map<int, List<Map<String, dynamic>>>> homeSectionCache =
+    ValueNotifier<Map<int, List<Map<String, dynamic>>>>({});

@@ -298,7 +298,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'रू ${reel['price']} /month',
+                                    '₹ ${reel['price']} /month',
                                     style: GoogleFonts.inter(
                                       color: AppTheme.brandColor,
                                       fontWeight: FontWeight.w900,
@@ -438,7 +438,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               activeColor: Colors.white,
                               onTap: () {
                                 Share.share(
-                                  'Check out this property: ${reel['title']} at ${reel['location']} for रू ${reel['price']}/month on Khozna!\n\nDownload the app to see more.',
+                                  'Check out this property: ${reel['title']} at ${reel['location']} for ₹ ${reel['price']}/month on Khozna!\n\nDownload the app to see more.',
                                   subject: 'Khozna Property Share',
                                 );
                               },

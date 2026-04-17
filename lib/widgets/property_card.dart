@@ -35,6 +35,7 @@ class PropertyCard extends StatelessWidget {
   rawImages; // Added to pass full image objects if needed
   final double? latitude;
   final double? longitude;
+  final String landmark;
 
   const PropertyCard({
     super.key,
@@ -61,6 +62,7 @@ class PropertyCard extends StatelessWidget {
     this.rawImages = const [],
     this.latitude,
     this.longitude,
+    this.landmark = '',
   });
 
   @override
@@ -89,6 +91,7 @@ class PropertyCard extends StatelessWidget {
               houseRules: houseRules,
               latitude: latitude,
               longitude: longitude,
+              landmark: landmark,
             ),
           ),
         );
@@ -271,10 +274,10 @@ class PropertyCard extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '₹', // Removed full stop for ultra-clean look
+                                text: '₹ ', // Indian Rupee Symbol (User preference)
                                 style: GoogleFonts.inter(
-                                  fontSize: 18, // Reduced from 20 to balance with digits
-                                  fontWeight: FontWeight.w400,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
                                   color: AppTheme.brandColor,
                                 ),
                               ),
@@ -329,6 +332,7 @@ class PropertyCard extends StatelessWidget {
                                     houseRules: houseRules,
                                     latitude: latitude,
                                     longitude: longitude,
+                                    landmark: landmark,
                                   ),
                                 ),
                               ),

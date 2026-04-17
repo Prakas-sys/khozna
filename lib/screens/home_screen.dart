@@ -13,6 +13,7 @@ import 'notifications_screen.dart';
 import 'search_screen.dart';
 import 'filter_results_screen.dart';
 import 'owner_dashboard.dart';
+import '../utils/offline_storage.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -38,6 +39,13 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchInitialData() async {
+    // Load offline cache from disk for instant display across app restarts
+    final diskCache = await OfflineStorage.loadHomeCache();
+    if (diskCache.isNotEmpty) {
+      homeSectionCache.value = diskCache;
+      if (mounted) setState(() {});
+    }
+
     // Acquire location asynchronously
     await _getCurrentLocation();
 
@@ -100,47 +108,68 @@ class HomeScreenState extends State<HomeScreen> {
     SupabaseClient client,
     int index,
   ) async {
-    dynamic query = client
-        .from('properties')
-        .select('*, property_images(image_url)');
+    try {
+      dynamic query = client
+          .from('properties')
+          .select('*, property_images(image_url)');
 
-    switch (index) {
-      case 0: // Near You (Location-based) - Promoted to #1
-        if (_currentPosition != null) {
+      switch (index) {
+        case 0: // Near You (Location-based) - Promoted to #1
+          if (_currentPosition != null) {
+            query = query
+                .gte('latitude', _currentPosition!.latitude - 0.1)
+                .lte('latitude', _currentPosition!.latitude + 0.1)
+                .gte('longitude', _currentPosition!.longitude - 0.1)
+                .lte('longitude', _currentPosition!.longitude + 0.1);
+          }
+          query = query.order('created_at', ascending: false);
+          break;
+        case 1: // Recent Listings (Formerly Verified)
           query = query
-              .gte('latitude', _currentPosition!.latitude - 0.1)
-              .lte('latitude', _currentPosition!.latitude + 0.1)
-              .gte('longitude', _currentPosition!.longitude - 0.1)
-              .lte('longitude', _currentPosition!.longitude + 0.1);
-        }
-        query = query.order('created_at', ascending: false);
-        break;
-      case 1: // Recent Listings (Formerly Verified)
-        query = query
-            .order('created_at', ascending: false);
-        break;
-      case 2: // Student Housing (Room < 7k)
-        query = query
-            .eq('category', 'Room')
-            .lt('price', 7000)
-            .order('price', ascending: true);
-        break;
-      case 3: // Family Flats (Flat)
-        query = query
-            .eq('category', 'Flat')
-            .order('created_at', ascending: false);
-        break;
-      case 4: // Premium Collections
-        query = query
-            .or('is_premium.eq.true,price.gt.20000')
-            .order('price', ascending: false);
-        break;
-      default:
-        query = query.order('created_at', ascending: false);
-    }
+              .order('created_at', ascending: false);
+          break;
+        case 2: // Student Housing (Room < 7k)
+          query = query
+              .eq('category', 'Room')
+              .lt('price', 7000)
+              .order('price', ascending: true);
+          break;
+        case 3: // Family Flats (Flat)
+          query = query
+              .eq('category', 'Flat')
+              .order('created_at', ascending: false);
+          break;
+        case 4: // Premium Collections
+          query = query
+              .or('is_premium.eq.true,price.gt.20000')
+              .order('price', ascending: false);
+          break;
+        default:
+          query = query.order('created_at', ascending: false);
+      }
 
-    final data = await query.limit(6);
-    return List<Map<String, dynamic>>.from(data);
+      final data = await query.limit(6);
+      final finalData = List<Map<String, dynamic>>.from(data);
+
+      // Successfully fetched fresh data, update cache
+      if (finalData.isNotEmpty) {
+        final currentCache = Map<int, List<Map<String, dynamic>>>.from(
+          homeSectionCache.value,
+        );
+        currentCache[index] = finalData;
+        homeSectionCache.value = currentCache;
+        OfflineStorage.saveHomeCache(currentCache); // Persist to disk
+      }
+      return finalData;
+    } catch (e) {
+      debugPrint("Error fetching section $index: $e");
+      // Fallback to cache if available
+      final cached = homeSectionCache.value[index];
+      if (cached != null && cached.isNotEmpty) {
+        return cached;
+      }
+      return [];
+    }
   }
 
   void _handleBossTap() {
@@ -566,6 +595,40 @@ class HomeScreenState extends State<HomeScreen> {
             final properties = snapshot.data ?? [];
 
             if (properties.isEmpty) {
+              if (snapshot.connectionState == ConnectionState.done && snapshot.hasError) {
+                return Container(
+                  height: 200,
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.wifi_off_rounded, color: Colors.grey[400], size: 48),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Offline Mode',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Check internet to refresh',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
               return SizedBox(
                 height: 285,
                 child: ListView.builder(
@@ -631,6 +694,7 @@ class HomeScreenState extends State<HomeScreen> {
                         longitude: p['longitude'] != null
                             ? double.tryParse(p['longitude'].toString())
                             : null,
+                        landmark: p['landmark'] ?? '',
                       ),
                     );
                   } else {
