@@ -191,36 +191,69 @@ If a user asks about ANYTHING outside this list (e.g., buying land, hotel bookin
 
   Future<Map<String, String>> autoDetectLocationArea(double lat, double lng) async {
     try {
-      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(lat, lng);
+      String micro = '';
+      String city = '';
+      String road = '';
 
-      if (placemarks.isNotEmpty) {
-        geo.Placemark place = placemarks.first;
+      // 1. Google Native Geocoding
+      try {
+        List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(lat, lng);
+        if (placemarks.isNotEmpty) {
+          geo.Placemark place = placemarks.first;
+          road = place.street ?? place.thoroughfare ?? '';
+          String name = place.name ?? '';
+          String subLocality = place.subLocality ?? '';
+          city = place.locality ?? place.subAdministrativeArea ?? 'Nepal';
 
-        // Extract deep micro area (like Khasibazar, Tyanglaphat, etc.)
-        String microArea = place.subLocality ?? place.thoroughfare ?? place.name ?? '';
-        String city = place.locality ?? place.subAdministrativeArea ?? 'Nepal';
-        String road = place.street ?? place.thoroughfare ?? '';
-
-        String area = '';
-        if (microArea.isNotEmpty && city.isNotEmpty && microArea != city) {
-          if (microArea.toLowerCase().contains(city.toLowerCase())) {
-             area = microArea;
+          if (road.isNotEmpty && !road.contains('+') && road.length > 3) {
+             micro = road;
+          } else if (name.isNotEmpty && !name.contains('+')) {
+             micro = name;
           } else {
-             area = '$microArea, $city';
+             micro = subLocality;
           }
-        } else if (city.isNotEmpty) {
-          area = city;
+          micro = micro.replaceAll('Road', '').replaceAll('Street', '').trim();
+          if (micro.endsWith(',')) micro = micro.substring(0, micro.length - 1);
         }
+      } catch (_) {}
 
-        String landmark = road.isNotEmpty && road != microArea ? 'Near $road' : '';
-
-        return {
-          'area': area,
-          'landmark': landmark,
-        };
+      // 2. OSM Fallback if Google misses deep micro Area
+      if (micro.isEmpty || micro.toLowerCase() == city.toLowerCase()) {
+        final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng&zoom=18&addressdetails=1');
+        final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0'});
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final displayName = data['display_name']?.toString() ?? '';
+          if (displayName.isNotEmpty) {
+            List<String> parts = displayName.split(',').map((e) => e.trim()).toList();
+            if (parts.isNotEmpty) {
+              micro = parts[0];
+              if (parts.length > 1 && city.isEmpty) city = parts[1];
+            }
+          }
+        }
       }
 
-      return {'area': '', 'landmark': ''};
+      // 3. Assemble
+      String area = '';
+      if (micro.isNotEmpty && city.isNotEmpty && micro.toLowerCase() != city.toLowerCase()) {
+        if (micro.toLowerCase().contains(city.toLowerCase())) {
+           area = micro;
+        } else {
+           area = '$micro, $city';
+        }
+      } else if (city.isNotEmpty) {
+        area = city;
+      } else {
+        area = micro;
+      }
+
+      String landmark = road.isNotEmpty && road != micro ? 'Near $road' : '';
+
+      return {
+        'area': area,
+        'landmark': landmark,
+      };
     } catch (e) {
       print('Auto-detect location error: $e');
       return {'area': '', 'landmark': ''};

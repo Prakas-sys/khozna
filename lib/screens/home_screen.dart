@@ -94,42 +94,71 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchAreaName(Position position) async {
     try {
-      // Use native Google Geocoding which has perfect Nepali local mapping
-      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
+      String micro = '';
+      String macro = '';
 
-      if (placemarks.isNotEmpty) {
-        geo.Placemark place = placemarks.first;
+      // 1. Try Native Google Geocoding first
+      try {
+        List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(position.latitude, position.longitude);
+        if (placemarks.isNotEmpty) {
+          geo.Placemark place = placemarks.first;
+          String street = place.street ?? '';
+          String name = place.name ?? '';
+          String subLocality = place.subLocality ?? '';
+          macro = place.locality ?? place.subAdministrativeArea ?? '';
 
-        // e.g. subLocality = "Khasibazar", locality = "Kirtipur"
-        String micro = place.subLocality ?? place.thoroughfare ?? place.name ?? '';
-        String macro = place.locality ?? place.subAdministrativeArea ?? '';
-
-        String area;
-        if (micro.isNotEmpty && macro.isNotEmpty && micro != macro) {
-          // Check if micro already contains macro
-          if (micro.toLowerCase().contains(macro.toLowerCase())) {
-             area = micro;
+          if (street.isNotEmpty && !street.contains('+') && street.length > 3) {
+             micro = street;
+          } else if (name.isNotEmpty && !name.contains('+')) {
+             micro = name;
           } else {
-             area = '$micro, $macro';
+             micro = subLocality;
           }
-        } else if (macro.isNotEmpty) {
-          area = macro;
+          micro = micro.replaceAll('Road', '').replaceAll('Street', '').trim();
+          if (micro.endsWith(',')) micro = micro.substring(0, micro.length - 1);
+        }
+      } catch (_) {}
+
+      // 2. If Google failed to get the deep micro area (e.g. only gave Kirtipur), fallback to OSM structured Display Name extraction
+      if (micro.isEmpty || micro == macro) {
+        final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1');
+        final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0'});
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final displayName = data['display_name']?.toString() ?? '';
+          if (displayName.isNotEmpty) {
+            // display_name format: "DeepArea, City, District, Province, Country"
+            List<String> parts = displayName.split(',').map((e) => e.trim()).toList();
+            if (parts.isNotEmpty) {
+              micro = parts[0]; // The deepest possible physical area
+              if (parts.length > 1 && macro.isEmpty) {
+                macro = parts[1]; // Next level up
+              }
+            }
+          }
+        }
+      }
+
+      // 3. Assemble and clean
+      String area;
+      if (micro.isNotEmpty && macro.isNotEmpty && micro.toLowerCase() != macro.toLowerCase()) {
+        if (micro.toLowerCase().contains(macro.toLowerCase())) {
+           area = micro;
         } else {
-          area = micro;
+           area = '$micro, $macro';
         }
+      } else if (macro.isNotEmpty) {
+        area = macro;
+      } else {
+        area = micro;
+      }
 
-        if (area.trim().isEmpty) {
-          area = 'Kathmandu, Nepal';
-        }
+      if (area.trim().isEmpty) area = 'Kathmandu, Nepal';
 
-        if (mounted) {
-          setState(() {
-            _currentLocationName = area;
-          });
-        }
+      if (mounted) {
+        setState(() {
+          _currentLocationName = area;
+        });
       }
     } catch (e) {
       debugPrint("Error fetching area name: $e");
@@ -335,105 +364,113 @@ class HomeScreenState extends State<HomeScreen> {
         surfaceTintColor: Colors.white,
         automaticallyImplyLeading: false,
         titleSpacing: 20,
-        title: GestureDetector(
-          onTap: () async {
-            HapticFeedback.lightImpact();
-            // Open Google Maps at the exact GPS coordinates to verify location
-            if (_currentPosition != null) {
-              final lat = _currentPosition!.latitude;
-              final lng = _currentPosition!.longitude;
-              final label = Uri.encodeComponent(_currentLocationName);
-              // Try Google Maps app first, then fall back to browser
-              final gMapsUri = Uri.parse('geo:$lat,$lng?q=$lat,$lng($label)');
-              final gMapsBrowserUri = Uri.parse(
-                'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
-              );
-              if (await canLaunchUrl(gMapsUri)) {
-                await launchUrl(gMapsUri);
-              } else {
-                await launchUrl(gMapsBrowserUri, mode: LaunchMode.externalApplication);
-              }
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Location not yet detected. Please wait...'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: AppTheme.brandColor.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppTheme.brandColor.withOpacity(0.2),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  CupertinoIcons.location_solid,
-                  color: AppTheme.brandColor,
-                  size: 20,
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Your Location',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          _currentLocationName.length > 22
-                              ? '${_currentLocationName.substring(0, 22)}...'
-                              : _currentLocationName,
-                          style: GoogleFonts.mukta(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.black87,
-                            height: 1.2,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          size: 16,
-                          color: AppTheme.brandColor,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
+        title: Row(
+          children: [
+            GestureDetector(
               onTap: _handleBossTap,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.asset(
                   'assets/images/original logo.png',
-                  height: 38,
+                  height: 44, // Restored to a larger, punchier size
                   fit: BoxFit.contain,
                 ),
               ),
             ),
-          ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: GestureDetector(
+                onTap: () async {
+                  HapticFeedback.lightImpact();
+                  if (_currentPosition != null) {
+                    final lat = _currentPosition!.latitude;
+                    final lng = _currentPosition!.longitude;
+                    final label = Uri.encodeComponent(_currentLocationName);
+                    final gMapsUri = Uri.parse('geo:$lat,$lng?q=$lat,$lng($label)');
+                    final gMapsBrowserUri = Uri.parse(
+                      'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+                    );
+                    if (await canLaunchUrl(gMapsUri)) {
+                      await launchUrl(gMapsUri);
+                    } else {
+                      await launchUrl(gMapsBrowserUri, mode: LaunchMode.externalApplication);
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Location not yet detected. Please wait...'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: AppTheme.brandColor.withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        CupertinoIcons.location_solid,
+                        color: AppTheme.brandColor,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Your Location',
+                              style: GoogleFonts.inter(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    _currentLocationName,
+                                    style: GoogleFonts.mukta(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.black87,
+                                      height: 1.2,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 2),
+                                const Icon(
+                                  Icons.keyboard_arrow_down_rounded,
+                                  size: 14,
+                                  color: AppTheme.brandColor,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: InkWell(

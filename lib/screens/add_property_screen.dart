@@ -66,6 +66,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   // AI Description State
   bool _isGeneratingDescription = false;
 
+  // Visual Guides
+  bool _showLocationNudge = false;
+
   @override
   void initState() {
     super.initState();
@@ -370,6 +373,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       } else if (_landmarkController.text.trim().isEmpty) {
         errorMessage = "कृपया चिनिने ठाउँ राख्नुहोस् (Please enter Landmark)";
       } else if (_latitude == null) {
+        setState(() => _showLocationNudge = true);
         errorMessage =
             "कृपया नक्शामा लोकेशन सेट गर्नुहोस् (Please set location on Map)";
       } else {
@@ -426,21 +430,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         centerTitle: true,
         leadingWidth: 64,
         leading: Padding(
-          padding: const EdgeInsets.only(left: 12),
+          padding: const EdgeInsets.all(12),
           child: GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Container(
-              width: 40,
-              height: 40,
               decoration: BoxDecoration(
                 color: Colors.grey[100],
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.grey.shade300, width: 1.5),
               ),
               child: const Icon(
                 Icons.close_rounded,
                 color: Colors.black87,
-                size: 20,
+                size: 18, // Medium size
               ),
             ),
           ),
@@ -537,11 +538,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       title: 'तपाईं के भाडामा दिँदै हुनुहुन्छ?',
       subtitle: 'सुरु गरौं! (Let\'s start)',
       content: [
-        _categoryCard('कोठा / Room', Icons.bed, 'Room'),
-        _categoryCard('फ्ल्याट / Flat', Icons.apartment, 'Flat'),
-        _categoryCard('अपार्टमेन्ट / Apartment', Icons.domain, 'Apartment'),
-        _categoryCard('अन्य / Other', Icons.more_horiz, 'Other'),
-        const SizedBox(height: 32),
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          childAspectRatio: 1.1,
+          children: [
+            _categoryCard('कोठा\nRoom', Icons.bed, 'Room'),
+            _categoryCard('फ्ल्याट\nFlat', Icons.apartment, 'Flat'),
+            _categoryCard('सटर / पसल\nShop', Icons.storefront, 'Shop'),
+            _categoryCard('अन्य\nOther', Icons.more_horiz, 'Other'),
+          ],
+        ),
+        const SizedBox(height: 24),
         _buildLabel('विज्ञापनको नाम (Title)', true),
         _buildTextField(
           'उदा: सानेपामा राम्रो २ कोठा खाली छ',
@@ -552,7 +563,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  // --- STEP 2: LOCATION (Nepal Context) ---
   Widget _buildStep2() {
     return _stepLayout(
       title: 'प्रोपर्टी कहाँ छ?',
@@ -560,107 +570,157 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       content: [
         // MAP INTERACTION (MOVED TO TOP)
         Container(
-          padding: const EdgeInsets.all(20),
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: _latitude != null
-                ? Colors.green.withOpacity(0.05)
-                : AppTheme.brandColor.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: _latitude != null
+                  ? [Colors.green.withOpacity(0.1), Colors.green.withOpacity(0.02)]
+                  : [AppTheme.brandColor.withOpacity(0.08), Colors.white],
+            ),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: _latitude != null
                   ? Colors.green.withOpacity(0.3)
-                  : AppTheme.brandColor.withOpacity(0.1),
+                  : AppTheme.brandColor.withOpacity(0.15),
+              width: 1.5,
             ),
           ),
           child: Column(
             children: [
-              Icon(
-                _latitude != null ? Icons.location_on : Icons.my_location,
-                color: _latitude != null ? Colors.green : AppTheme.brandColor,
-                size: 32,
+              if (_showLocationNudge && _latitude == null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.back_hand, color: Colors.orange, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'पहिला बटन थिच्नुहोस्! (Click here first)',
+                        style: GoogleFonts.inter(
+                          color: Colors.orange[800],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: _latitude != null ? Colors.green : AppTheme.brandColor,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: (_latitude != null ? Colors.green : AppTheme.brandColor)
+                              .withOpacity(0.3),
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                        )
+                      ],
+                    ),
+                    child: Icon(
+                      _latitude != null ? Icons.location_on : Icons.my_location,
+                      color: Colors.white,
+                      size: 32,
+                    ),
+                  ),
+                  if (_isLocating)
+                    SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: CircularProgressIndicator(
+                        color: AppTheme.brandColor.withOpacity(0.5),
+                        strokeWidth: 2,
+                      ),
+                    ),
+                ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               if (_latitude != null) ...[
                 Text(
                   'लोकेशन सेट भयो! ✓',
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.mukta(
+                    fontWeight: FontWeight.w700,
                     color: Colors.green[700],
-                    fontSize: 16,
+                    fontSize: 18,
                   ),
                 ),
-                const SizedBox(height: 4),
                 Text(
-                  'Lat: ${_latitude!.toStringAsFixed(5)}, Lng: ${_longitude!.toStringAsFixed(5)}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '(GPS verified location)',
+                  '(GPS verified location detected by AI)',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.green[600],
-                    fontStyle: FontStyle.italic,
                   ),
                 ),
               ] else ...[
-                const Text(
-                  'मैले अहिले भएकै ठाउँ रोज्नुहोस्',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.brandColor,
+                Text(
+                  'लोकेशन राख्नुहोस्',
+                  style: GoogleFonts.mukta(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                    fontSize: 18,
                   ),
                 ),
                 Text(
-                  '(Use my current location on Map)',
+                  'Use GPS for 100% accuracy',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: Colors.grey[600],
                   ),
                 ),
               ],
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: _isLocating ? null : _detectLocation,
+                onPressed: _isLocating
+                    ? null
+                    : () {
+                        setState(() => _showLocationNudge = false);
+                        _detectLocation();
+                      },
                 icon: _isLocating
                     ? const SizedBox(
-                        width: 20,
-                        height: 20,
+                        width: 18,
+                        height: 18,
                         child: CircularProgressIndicator(
                           color: Colors.white,
-                          strokeWidth: 2.5,
+                          strokeWidth: 2,
                         ),
                       )
                     : Icon(
                         _latitude != null ? Icons.refresh : Icons.gps_fixed,
-                        size: 22,
+                        size: 20,
                         color: Colors.white,
                       ),
                 label: Text(
                   _isLocating
-                      ? 'GPS खोज्दै छ...'
+                      ? 'खोज्दै छ...'
                       : _latitude != null
-                          ? 'लोकेशन अपडेट गर्नुहोस्'
-                          : 'लोकेशन सेट गर्नुहोस्',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                          ? 'फेरि खोज्नुहोस्'
+                          : 'मेरो लोकेशन पत्ता लगाउनुहोस्',
+                  style: GoogleFonts.mukta(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
                       _latitude != null ? Colors.green : AppTheme.brandColor,
-                  elevation: 4, // More obvious shadow
+                  elevation: 0,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 18,
+                    horizontal: 20,
+                    vertical: 14,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
@@ -1450,67 +1510,70 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _categoryCard(String label, IconData icon, String value) {
     bool isSelected = _selectedCategory == value;
-    return InkWell(
-      onTap: () {
-        setState(() => _selectedCategory = value);
-        // UX: Focus title field after category selection
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _titleFocusNode.requestFocus();
-          if (_step1ScrollController.hasClients) {
-            _step1ScrollController.animateTo(
-              300, // Scroll down to reveal title field
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
-          }
-        });
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.brandColor.withOpacity(0.1)
-              : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? AppTheme.brandColor : Colors.grey[300]!,
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isSelected ? AppTheme.brandColor : Colors.grey[100],
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: isSelected ? Colors.white : Colors.grey[600],
-                size: 28,
-              ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          setState(() => _selectedCategory = value);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _titleFocusNode.requestFocus();
+            if (_step1ScrollController.hasClients) {
+              _step1ScrollController.animateTo(
+                300,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+              );
+            }
+          });
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.brandColor : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              if (isSelected)
+                BoxShadow(
+                  color: AppTheme.brandColor.withOpacity(0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                )
+              else
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+            ],
+            border: Border.all(
+              color: isSelected ? AppTheme.brandColor : Colors.grey[200]!,
+              width: 1.5,
             ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Text(
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: isSelected ? Colors.white : AppTheme.brandColor,
+                size: 36,
+              ),
+              const SizedBox(height: 12),
+              Text(
                 label,
+                textAlign: TextAlign.center,
                 style: GoogleFonts.mukta(
-                  fontSize: 17,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: Colors.black87,
+                  fontSize: 15,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  color: isSelected ? Colors.white : Colors.black87,
+                  height: 1.2,
                 ),
               ),
-            ),
-            if (isSelected)
-              const Icon(
-                Icons.check_circle,
-                color: AppTheme.brandColor,
-                size: 28,
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
