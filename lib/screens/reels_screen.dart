@@ -1,9 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import 'owner_profile_screen.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
@@ -19,24 +19,53 @@ class ReelsScreen extends StatefulWidget {
 class _ReelsScreenState extends State<ReelsScreen> {
   final PageController _pageController = PageController();
   bool isImageView = true;
+  List<Map<String, dynamic>> reels = [];
+  bool _isLoading = true;
 
-  final List<Map<String, dynamic>> mockReels = [
-    {
-      'id': '1',
-      'imageUrl':
-          'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-      'title': 'Single room for student',
-      'ownerName': 'Ram Bahadur',
-      'ownerAvatar':
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80',
-      'ownerId': 'owner_ram_bahadur',
-      'price': '8,000',
-      'location': 'Baneshwar, Kathmandu',
-      'likes': '2.4K',
-      'isFavorite': true,
-      'totalListings': 5,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchReels();
+  }
+
+  Future<void> _fetchReels() async {
+    try {
+      final data = await Supabase.instance.client
+          .from('properties')
+          .select('id, title, images, video_url, area_name, landmark, price, owner_id, profiles!owner_id(full_name, avatar_url)')
+          .eq('status', 'available')
+          .not('images', 'is', null)
+          .order('created_at', ascending: false)
+          .limit(20);
+
+      if (mounted) {
+        setState(() {
+          reels = (data as List).map((p) {
+            final profile = p['profiles'] as Map<String, dynamic>? ?? {};
+            final images = (p['images'] as List?)?.cast<String>() ?? [];
+            return {
+              'id': p['id'] ?? '',
+              'imageUrl': images.isNotEmpty ? images.first : 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
+              'images': images,
+              'video_url': p['video_url'],
+              'title': p['title'] ?? 'Property for rent',
+              'ownerName': profile['full_name'] ?? 'Owner',
+              'ownerAvatar': profile['avatar_url'] ?? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200',
+              'ownerId': p['owner_id'] ?? '',
+              'price': p['price']?.toString() ?? '0',
+              'location': [p['area_name'], p['landmark']].where((e) => e != null && e.toString().isNotEmpty).join(' • '),
+              'likes': '0',
+              'isFavorite': false,
+              'totalListings': 1,
+            };
+          }).toList();
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -48,14 +77,31 @@ class _ReelsScreenState extends State<ReelsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Stack(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
+          : reels.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.video_library_outlined, color: Colors.white38, size: 64),
+                      const SizedBox(height: 16),
+                      Text(
+                        'अहिले कुनै Reel छैन।\n(No reels yet)',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.mukta(color: Colors.white60, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                )
+              : Stack(
         children: [
           PageView.builder(
             controller: _pageController,
             scrollDirection: Axis.vertical,
-            itemCount: mockReels.length,
+            itemCount: reels.length,
             itemBuilder: (context, index) {
-              return _buildReelItem(mockReels[index]);
+              return _buildReelItem(reels[index]);
             },
           ),
           // Top Toggle (Photo/Video)
@@ -286,19 +332,23 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                         size: 12,
                                       ),
                                       const SizedBox(width: 4),
-                                      Text(
-                                        reel['location'],
-                                        style: GoogleFonts.inter(
-                                          color: Colors.white70,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
+                                      Flexible(
+                                        child: Text(
+                                          reel['location'],
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.inter(
+                                            color: Colors.white70,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '₹ ${reel['price']} /month',
+                                    'Rs. ${reel['price']} /month',
                                     style: GoogleFonts.inter(
                                       color: AppTheme.brandColor,
                                       fontWeight: FontWeight.w900,
@@ -413,10 +463,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               ),
                             ),
                             _buildCompactAction(
-                              isSvg: true,
-                              svgPath: 'assets/icons/message.svg',
                               icon: Icons.chat_bubble_rounded,
-                              label: 'Direct Chat',
+                              label: 'Message',
                               isActive: false,
                               activeColor: Colors.white,
                               onTap: () => Navigator.push(
@@ -463,8 +511,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
     required bool isActive,
     required Color activeColor,
     required VoidCallback onTap,
-    bool isSvg = false,
-    String? svgPath,
   }) {
     return GestureDetector(
       onTap: () {
@@ -479,21 +525,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
         ),
         child: Row(
           children: [
-            isSvg && svgPath != null
-                ? SvgPicture.asset(
-                    svgPath,
-                    width: 18,
-                    height: 18,
-                    colorFilter: ColorFilter.mode(
-                      isActive ? activeColor : Colors.white,
-                      BlendMode.srcIn,
-                    ),
-                  )
-                : Icon(
-                    icon,
-                    color: isActive ? activeColor : Colors.white,
-                    size: 20,
-                  ),
+            Icon(
+              icon,
+              color: isActive ? activeColor : Colors.white,
+              size: 20,
+            ),
             const SizedBox(width: 8),
             Text(
               label,
