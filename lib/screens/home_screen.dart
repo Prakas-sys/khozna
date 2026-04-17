@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
 import '../widgets/property_card.dart';
@@ -30,6 +32,7 @@ class HomeScreenState extends State<HomeScreen> {
   int _bossTaps = 0;
   Position? _currentPosition;
   final String _adminEmail = 'khoznaapp@gmail.com';
+  String _currentLocationName = "Kathmandu, Nepal";
 
   @override
   void initState() {
@@ -76,6 +79,7 @@ class HomeScreenState extends State<HomeScreen> {
           setState(() {
             _currentPosition = position;
           });
+          _fetchAreaName(position);
         }
       } else {
         if (mounted) setState(() {});
@@ -83,6 +87,36 @@ class HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       debugPrint("Error fetching location: $e");
       if (mounted) setState(() {});
+    }
+  }
+
+  Future<void> _fetchAreaName(Position position) async {
+    try {
+      final url = Uri.parse(
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=14&addressdetails=1',
+      );
+      final response = await http.get(url, headers: {
+        'User-Agent': 'KhoznaApp/1.0',
+      });
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final address = data['address'] as Map<String, dynamic>? ?? {};
+        
+        String area = address['suburb'] ?? 
+                      address['village'] ?? 
+                      address['neighbourhood'] ?? 
+                      address['city_district'] ?? 
+                      address['city'] ?? 
+                      "Kathmandu, Nepal";
+                      
+        if (mounted) {
+          setState(() {
+            _currentLocationName = area;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Error fetching area name: $e");
     }
   }
 
@@ -286,17 +320,77 @@ class HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
         titleSpacing: 20,
         title: GestureDetector(
-          onTap: _handleBossTap,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              'assets/images/original logo.png',
-              height: 48,
-              fit: BoxFit.contain,
+          onTap: () {
+            HapticFeedback.lightImpact();
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  CupertinoIcons.location_solid,
+                  color: AppTheme.brandColor,
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Your Location',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          _currentLocationName.length > 20 
+                              ? '${_currentLocationName.substring(0, 20)}...' 
+                              : _currentLocationName,
+                          style: GoogleFonts.mukta(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black87,
+                            height: 1.2,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          size: 16,
+                          color: Colors.black87,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: GestureDetector(
+              onTap: _handleBossTap,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  'assets/images/original logo.png',
+                  height: 38,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: InkWell(
