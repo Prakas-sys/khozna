@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
+import 'package:permission_handler/permission_handler.dart';
 import '../theme/app_theme.dart';
 import '../utils/security_utils.dart';
 import '../utils/cloudinary_service.dart';
@@ -147,16 +148,53 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   Future<void> _pickImage(String type) async {
-    final XFile? image = await _picker.pickImage(
-      source: type == 'selfie' ? ImageSource.camera : ImageSource.gallery,
-      imageQuality: 70,
-    );
-    if (image != null) {
-      setState(() {
-        if (type == 'front') _frontImage = File(image.path);
-        if (type == 'back') _backImage = File(image.path);
-        if (type == 'selfie') _selfieImage = File(image.path);
-      });
+    try {
+      if (type == 'selfie') {
+        final status = await Permission.camera.request();
+        if (status.isDenied || status.isPermanentlyDenied) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text(
+                  'Camera permission is required for selfies (सेल्फीका लागि क्यामेरा अनुमति आवश्यक छ)',
+                ),
+                backgroundColor: Colors.orange[800],
+                behavior: SnackBarBehavior.floating,
+                action: SnackBarAction(
+                  label: 'Settings',
+                  textColor: Colors.white,
+                  onPressed: () => openAppSettings(),
+                ),
+              ),
+            );
+          }
+          return;
+        }
+      }
+
+      final XFile? image = await _picker.pickImage(
+        source: type == 'selfie' ? ImageSource.camera : ImageSource.gallery,
+        imageQuality: 70,
+      );
+
+      if (image != null) {
+        setState(() {
+          if (type == 'front') _frontImage = File(image.path);
+          if (type == 'back') _backImage = File(image.path);
+          if (type == 'selfie') _selfieImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 

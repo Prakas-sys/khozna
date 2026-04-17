@@ -667,14 +667,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        // Layer 1: Base Metallic Linear Gradient
+        // Layer 1: Base Metallic Linear Gradient (Vibrant Golden Yellow)
         gradient: const LinearGradient(
           colors: [
-            Color(0xFFB88A44), // Deep Bronze
-            Color(0xFFD4AF37), // Metallic Gold
-            Color(0xFFF7EF8A), // Highlight Gold
-            Color(0xFFD4AF37), // Metallic Gold
-            Color(0xFFB88A44), // Deep Bronze
+            Color(0xFFEBB400), // Deep Rich Gold
+            Color(0xFFFFD700), // Pure Gold
+            Color(0xFFFFF9C4), // Vivid Highlight
+            Color(0xFFFFD700), // Pure Gold
+            Color(0xFFEBB400), // Deep Rich Gold
           ],
           stops: [0.0, 0.2, 0.5, 0.8, 1.0],
           begin: Alignment.topLeft,
@@ -682,7 +682,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: const Color(0xFFF7EF8A).withValues(alpha: 0.5), // Specular Edge
+          color: const Color(0xFFFFF9C4).withValues(alpha: 0.6), // Specular Edge
           width: 1.5,
         ),
         boxShadow: [
@@ -694,7 +694,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           // Golden glow/reflection
           BoxShadow(
-            color: const Color(0xFFB88A44).withValues(alpha: 0.2),
+            color: const Color(0xFFFFD700).withValues(alpha: 0.25),
             blurRadius: 25,
             spreadRadius: -5,
             offset: const Offset(0, 0),
@@ -714,7 +714,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     focal: const Alignment(0.2, -0.2),
                     focalRadius: 1.2,
                     colors: [
-                      Colors.white.withValues(alpha: 0.35), // Primary Highlight
+                      Colors.white.withValues(alpha: 0.45), // Stronger Primary Highlight
                       Colors.transparent,
                     ],
                   ),
@@ -729,7 +729,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Icon(
                 Icons.home_work_rounded,
                 size: 110,
-                color: const Color(0xFF3D2C15).withValues(alpha: 0.05),
+                color: const Color(0xFF40300A).withValues(alpha: 0.06),
               ),
             ),
 
@@ -744,16 +744,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF3D2C15).withValues(alpha: 0.08),
+                          color: const Color(0xFF40300A).withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: const Color(0xFF3D2C15).withValues(alpha: 0.1),
+                            color: const Color(0xFF40300A).withValues(alpha: 0.15),
                             width: 1,
                           ),
                         ),
                         child: const Icon(
-                          Icons.add_business_rounded,
-                          color: Color(0xFF3D2C15), // Deep Coffee/Bronze
+                          Icons.add_home_rounded,
+                          color: Color(0xFF40300A), // Etched Deep Gold-Amber
                           size: 24,
                         ),
                       ),
@@ -763,20 +763,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Ready to Earn?',
-                              style: GoogleFonts.inter(
-                                color: const Color(0xFF3D2C15),
-                                fontSize: 18,
+                              'Ready to Rent?',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: const Color(0xFF40300A),
+                                fontSize: 20,
                                 fontWeight: FontWeight.w900,
                                 letterSpacing: -0.6,
                               ),
                             ),
                             Text(
-                              'List your property and earn daily',
-                              style: GoogleFonts.inter(
-                                color: const Color(0xFF4A371F).withValues(alpha: 0.8),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                              'List your property easily',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: const Color(0xFF40300A).withValues(alpha: 0.7),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                height: 1.1,
                               ),
                             ),
                           ],
@@ -789,6 +790,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
+                        HapticFeedback.mediumImpact();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -797,21 +799,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF3D2C15), // 'Burnt Umber' Premium button
+                        backgroundColor: const Color(0xFF40300A), // Deep Amber button for high contrast
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
                         elevation: 6,
-                        shadowColor: const Color(0xFF3D2C15).withValues(alpha: 0.5),
+                        shadowColor: const Color(0xFF40300A).withValues(alpha: 0.4),
                       ),
                       child: Text(
                         'Post Your Property',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.plusJakartaSans(
                           fontSize: 14,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4,
                         ),
                       ),
                     ),
