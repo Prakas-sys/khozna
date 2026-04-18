@@ -742,4 +742,32 @@ class SupabaseService {
       print('Error sending message: $e');
     }
   }
+
+  /// ─── REAL-TIME CLOUD LISTENERS (AUTO-PILOT) ───
+  /// This is the "Ear" of the app. It listens for notifications from the cloud.
+  static void initRealtimeListeners() {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    debugPrint('--- [CLOUD] Activating Auto-Pilot Signal Listener for ${user.id} ---');
+
+    // 1. Listen for new notifications specifically for this user
+    _client
+        .from('notifications')
+        .stream(primaryKey: ['id'])
+        .eq('user_id', user.id)
+        .listen((List<Map<String, dynamic>> data) {
+          if (data.isNotEmpty) {
+            final latest = data.last; // Get the newest notification
+            
+            // Only trigger if it's a KYC related notification
+            if (latest['title'].toString().contains('KYC')) {
+              debugPrint('--- [CLOUD] New KYC Signal Received! ---');
+              lastKycNotification.value = latest;
+            }
+          }
+        }, onError: (error) {
+          debugPrint('--- [CLOUD] Listener Error: $error ---');
+        });
+  }
 }
