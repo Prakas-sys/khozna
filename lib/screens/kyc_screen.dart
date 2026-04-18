@@ -431,17 +431,33 @@ class _KycScreenState extends State<KycScreen> {
         // Show a professional dialog informing the user about the cloud scan
         showDialog(
           context: context,
-          barrierDismissible: false,
+          barrierDismissible: true, // Allow tapping background to dismiss
           builder: (ctx) => AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-            title: Row(
+            title: Stack(
+              clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.green, size: 28),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'कागजातहरू बुझाइयो', 
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 18)
+                Row(
+                  children: [
+                    const Icon(Icons.check_circle_rounded, color: Colors.green, size: 28),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'कागजातहरू बुझाइयो', 
+                        style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 18)
+                      ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  right: -12,
+                  top: -12,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.grey),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      if (mounted) Navigator.pop(context);
+                    },
                   ),
                 ),
               ],
