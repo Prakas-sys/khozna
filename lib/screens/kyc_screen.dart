@@ -28,6 +28,7 @@ class _KycScreenState extends State<KycScreen> {
   int _currentStep = 1; // 1: Basic Info, 2: Documents
   bool _isSubmitting = false;
   bool _isLocating = false;
+  bool _isPickerActive = false;
   bool _isEmailVerified = false;
   bool _isPhoneVerified = false;
   double? _latitude;
@@ -144,6 +145,8 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   Future<void> _pickImage(String type) async {
+    if (_isPickerActive) return;
+    _isPickerActive = true;
     try {
       if (type == 'selfie') {
         final status = await Permission.camera.request();
@@ -182,6 +185,8 @@ class _KycScreenState extends State<KycScreen> {
       }
     } catch (e) {
       debugPrint('Error picking image: $e');
+      if (e.toString().contains('already_active')) return; // Ignore double taps silently
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -191,6 +196,8 @@ class _KycScreenState extends State<KycScreen> {
           ),
         );
       }
+    } finally {
+      _isPickerActive = false;
     }
   }
 
@@ -720,7 +727,7 @@ class _KycScreenState extends State<KycScreen> {
       children: [
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
+          padding: const EdgeInsets.fromLTRB(24, 52, 24, 24),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -751,6 +758,7 @@ class _KycScreenState extends State<KycScreen> {
                     ),
                   ),
                   GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () => Navigator.pop(context),
                     child: Container(
                       padding: const EdgeInsets.all(6),
@@ -765,23 +773,15 @@ class _KycScreenState extends State<KycScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Verify Your Identity',
-                style: GoogleFonts.mukta(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  height: 1.1,
-                ),
-              ),
-              Text(
-                'Unlock full access and build trust.',
+                'VERIFY IDENTITY (पहिचान प्रमाणित)',
                 style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 0.5,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 20),
               Row(
                 children: [
                   Expanded(child: _buildStepperIndicator(_currentStep >= 1)),
