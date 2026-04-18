@@ -919,17 +919,24 @@ class _KycScreenState extends State<KycScreen> {
           
           // Close Button (Right)
           Positioned(
-            right: 16,
-            top: 42,
-            child: GestureDetector(
-              onTap: () => Navigator.of(context).pop(),
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  shape: BoxShape.circle,
+            right: 12,
+            top: 40,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  Navigator.of(context).pop();
+                },
+                borderRadius: BorderRadius.circular(30),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close_rounded, color: Colors.white, size: 22),
                 ),
-                child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
               ),
             ),
           ),
