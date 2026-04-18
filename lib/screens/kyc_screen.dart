@@ -438,11 +438,16 @@ class _KycScreenState extends State<KycScreen> {
               children: [
                 const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor),
                 const SizedBox(width: 12),
-                Text('Auto-Pilot Active', style: GoogleFonts.inter(fontWeight: FontWeight.w800)),
+                Expanded(
+                  child: Text(
+                    'अटो-पाइलट सक्रिय छ', 
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 18)
+                  ),
+                ),
               ],
             ),
             content: Text(
-              'Your documents have been submitted! Our cloud AI is scanning them right now.\n\nYou can close this—you will be notified in a few seconds once verified! 🚀',
+              'तपाइँको कागजातहरू बुझाइएको छ! हाम्रो क्लाउड एआईले अहिले नै ती कागजातहरू जाँच गर्दैछ।\n\nतपाइँले यो स्क्रिन बन्द गर्न सक्नुहुन्छ—केही सेकेन्डमै प्रमाणीकरण भएपछि तपाइँलाई सूचना पठाइनेछ! 🚀',
               style: GoogleFonts.inter(),
             ),
             actions: [
@@ -451,7 +456,7 @@ class _KycScreenState extends State<KycScreen> {
                   Navigator.pop(ctx);
                   Navigator.pop(context); // Go back to profile
                 },
-                child: const Text('Great!'),
+                child: const Text('हुन्छ, राम्रो छ!'),
               ),
             ],
           ),
