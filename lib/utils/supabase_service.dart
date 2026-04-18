@@ -426,32 +426,6 @@ class SupabaseService {
     }
   }
 
-  /// Update KYC Status
-  static Future<void> updateKycStatus(String kycId, String userId, String status, {String? reason}) async {
-    try {
-      await _client.from('kyc_verifications').update({'status': status}).eq('id', kycId);
-      
-      if (status == 'verified' || status == 'rejected') {
-        await _client.from('profiles').update({'kyc_status': status}).eq('id', userId);
-        
-        final title = status == 'verified' ? 'KYC Approved! 🎉' : 'KYC Rejected ⚠️';
-        final message = status == 'verified'
-            ? 'Congratulations! Your identity has been verified. You can now post properties.'
-            : 'Your KYC was rejected. Reason: \n${reason ?? 'Invalid documents. Please try again.'}';
-            
-        await _client.from('notifications').insert({
-          'user_id': userId,
-          'title': title,
-          'message': message,
-          'type': 'system',
-        });
-      }
-    } catch (e) {
-      print('Error updating KYC: $e');
-      rethrow;
-    }
-  }
-
   /// NEW: Robust initializer for all real-time listeners
   static void initRealtimeListeners({Function? onOwnerEvent}) {
     final user = _client.auth.currentUser;

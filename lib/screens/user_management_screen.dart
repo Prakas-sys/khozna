@@ -456,7 +456,31 @@ class _KycDetailSheetState extends State<_KycDetailSheet> {
       longitude: kyc['longitude'] != null ? double.tryParse(kyc['longitude'].toString()) : null,
     );
 
-    if (mounted) setState(() { _aiResult = result; _isAnalysing = false; });
+    if (!mounted) return;
+
+    setState(() { _aiResult = result; _isAnalysing = false; });
+
+    final verdict = result['verdict'];
+    if (verdict == 'PASS' || verdict == 'FAIL') {
+      if (verdict == 'PASS') {
+        await SupabaseService.updateKycStatus(kyc['id'], widget.user['id'], 'verified');
+      } else {
+        final reason = List<String>.from(result['red_flags'] ?? []).join('\n');
+        await SupabaseService.updateKycStatus(kyc['id'], widget.user['id'], 'rejected', reason: reason);
+      }
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('AI Auto-Pilot successfully actioned this KYC as $verdict and notified user!'),
+            backgroundColor: verdict == 'PASS' ? Colors.green : Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        Navigator.pop(context); // close sheet
+        widget.onRefresh();
+      }
+    }
   }
 
   Future<void> _approve() async {

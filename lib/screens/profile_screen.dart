@@ -566,6 +566,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   Widget _buildVerificationCard() {
     final bool isVerified = _kycStatus == 'verified';
     final bool isPending = _kycStatus == 'pending';
+    final bool isRejected = _kycStatus == 'rejected';
+
+    Color mainColor = isVerified 
+        ? Colors.green 
+        : (isRejected ? Colors.red : Colors.orange);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -574,17 +579,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: (isVerified ? Colors.green : Colors.orange).withValues(
-              alpha: 0.08,
-            ),
+            color: mainColor.withValues(alpha: 0.08),
             blurRadius: 30,
             offset: const Offset(0, 10),
           ),
         ],
         border: Border.all(
-          color: (isVerified ? Colors.green : Colors.orange).withValues(
-            alpha: 0.1,
-          ),
+          color: mainColor.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -594,9 +595,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: isVerified
-                    ? [Colors.green.shade50, Colors.green.shade100]
-                    : [Colors.orange.shade50, Colors.orange.shade100],
+                colors: [
+                  isVerified ? Colors.green.shade50 : (isRejected ? Colors.red.shade50 : Colors.orange.shade50),
+                  isVerified ? Colors.green.shade100 : (isRejected ? Colors.red.shade100 : Colors.orange.shade100),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -607,10 +609,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ? Icons.verified_user_rounded
                   : (isPending
                         ? Icons.hourglass_empty_rounded
-                        : Icons.gpp_maybe_rounded),
+                        : (isRejected ? Icons.error_outline_rounded : Icons.gpp_maybe_rounded)),
               color: isVerified
                   ? Colors.green.shade700
-                  : Colors.orange.shade700,
+                  : (isRejected ? Colors.red.shade700 : Colors.orange.shade700),
               size: 20,
             ),
           ),
@@ -622,7 +624,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 Text(
                   isVerified
                       ? 'Profile Verified (प्रमाणित)'
-                      : (isPending ? 'Pending KYC (प्रमाणीकरण हुँदैछ)' : 'Incomplete KYC (अपूर्ण केवाईसी)'),
+                      : (isPending 
+                          ? 'Pending KYC (प्रमाणीकरण हुँदैछ)' 
+                          : (isRejected ? 'KYC Rejected (अस्वीकृत)' : 'Incomplete KYC (अपूर्ण केवाईसी)')),
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -632,7 +636,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 Text(
                   isVerified
                       ? 'तपाईंको पहिचान प्रमाणित भयो।'
-                      : (isPending ? 'तपाईंको कागजातहरू जाँच हुँदैछ।' : 'घरभाडामा राख्न केवाईसी भेरिफाइ गर्नुहोस्। 👉'),
+                      : (isPending 
+                          ? 'तपाईंको कागजातहरू जाँच हुँदैछ।' 
+                          : (isRejected ? 'कागजात अस्वीकृत भयो। फेरि प्रयास गर्नुहोस्।' : 'घरभाडामा राख्न केवाईसी भेरिफाइ गर्नुहोस्। 👉')),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey[600],
@@ -644,10 +650,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           ),
           if (!isVerified && !isPending)
             InkWell(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const KycScreen()),
-              ),
+              onTap: () async {
+                  final res = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const KycScreen()),
+                  );
+                  if (res == true) _loadProfile();
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -665,7 +674,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ],
                 ),
                 child: Text(
-                  'Verify  ➔',
+                  isRejected ? 'Retry  ➔' : 'Verify  ➔',
                   style: GoogleFonts.inter(
                     color: Colors.white,
                     fontSize: 12,
