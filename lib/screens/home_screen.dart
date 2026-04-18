@@ -402,24 +402,46 @@ class HomeScreenState extends State<HomeScreen> {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
                   decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppTheme.brandColor.withValues(alpha: 0.1),
-                      width: 1,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppTheme.brandColor.withValues(alpha: 0.12),
+                        AppTheme.brandColor.withValues(alpha: 0.04),
+                      ],
                     ),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppTheme.brandColor.withValues(alpha: 0.15),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.brandColor.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
-                        CupertinoIcons.location_solid,
-                        color: AppTheme.brandColor,
-                        size: 14,
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          CupertinoIcons.location_solid,
+                          color: AppTheme.brandColor,
+                          size: 14,
+                        ),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 10),
+                      // Marquee effect: Horizontal scrolling remains active for long text
                       Expanded(
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
@@ -427,20 +449,21 @@ class HomeScreenState extends State<HomeScreen> {
                           child: Text(
                             _currentLocationName,
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13,
+                              fontSize: 14,
                               fontWeight: FontWeight.w800,
-                              color: Colors.black,
+                              color: Colors.black.withValues(alpha: 0.8),
                               height: 1.1,
+                              letterSpacing: -0.2,
                             ),
                             maxLines: 1,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       Icon(
                         Icons.keyboard_arrow_down_rounded,
-                        color: Colors.grey[400],
-                        size: 14,
+                        color: AppTheme.brandColor.withValues(alpha: 0.5),
+                        size: 18,
                       ),
                     ],
                   ),
