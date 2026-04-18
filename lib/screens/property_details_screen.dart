@@ -1018,18 +1018,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: _isMyProperty
-                  ? null
-                  : () {
+              onPressed: () {
+                      HapticFeedback.lightImpact(); // Professional haptic
+                      final String ownerName = _ownerData?['full_name'] ?? widget.ownerName ?? 'Khozna User';
+                      final String ownerAvatar = _ownerData?['avatar_url'] ?? widget.ownerAvatar ?? 'https://i.pravatar.cc/150?img=1';
+                      final bool isOwnerVerified = _ownerData?['is_verified'] ?? widget.isOwnerVerified ?? false;
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => chat_page.ChatScreen(
                             ownerId: widget.ownerId,
-                            name: name,
-                            avatar: avatar,
+                            name: ownerName,
+                            avatar: ownerAvatar,
                             online: true,
-                            isVerified: isVerified,
+                            isVerified: isOwnerVerified,
                           ),
                         ),
                       );
@@ -1200,53 +1203,41 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: SafeArea(
         child: Row(
           children: [
-            // Call Now Button
-            Expanded(
-              flex: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.white,
-                  border: Border.all(
-                    color: AppTheme.brandColor.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+             // Call Now Button
+            _buildActionIconButton(
+              Icons.phone_rounded,
+              'Call',
+              AppTheme.brandColor,
+              () {
+                HapticFeedback.selectionClick();
+                // Call logic
+              },
+            ),
+            const SizedBox(width: 8),
+            // Message/Chat Button (NEW)
+            _buildActionIconButton(
+              Icons.chat_bubble_outline_rounded,
+              'Chat',
+              Colors.blue[700]!,
+              () {
+                HapticFeedback.mediumImpact();
+                final String ownerName = _ownerData?['full_name'] ?? widget.ownerName ?? 'Khozna User';
+                final String ownerAvatar = _ownerData?['avatar_url'] ?? widget.ownerAvatar ?? 'https://i.pravatar.cc/150?img=1';
+                final bool isOwnerVerified = _ownerData?['is_verified'] ?? widget.isOwnerVerified ?? false;
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => chat_page.ChatScreen(
+                      ownerId: widget.ownerId,
+                      name: ownerName,
+                      avatar: ownerAvatar,
+                      online: true,
+                      isVerified: isOwnerVerified,
                     ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: AppTheme.brandColor,
-                    elevation: 0,
-                    shadowColor: Colors.transparent,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.phone_rounded, size: 18),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Call',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                );
+              },
             ),
             const SizedBox(width: 12),
             // Dynamic Action Button (Reserve -> Cancel)
@@ -1406,6 +1397,45 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     letterSpacing: 0.5,
                   ),
                 ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionIconButton(IconData icon, String label, Color color, VoidCallback onTap) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: IconButton(
+        onPressed: onTap,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        icon: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 18),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                color: color,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
