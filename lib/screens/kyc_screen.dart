@@ -880,9 +880,9 @@ class _KycScreenState extends State<KycScreen> {
       ),
       child: Stack(
         children: [
-          // Content
+          // Content with Safe Area consideration
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 48, 24, 20),
+            padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 20, 24, 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -921,7 +921,7 @@ class _KycScreenState extends State<KycScreen> {
           // Shield Icon (Left)
           Positioned(
             left: 16,
-            top: 42,
+            top: MediaQuery.of(context).padding.top + 14,
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -936,7 +936,7 @@ class _KycScreenState extends State<KycScreen> {
           // Close Button (Right)
           Positioned(
             right: 12,
-            top: 40,
+            top: MediaQuery.of(context).padding.top + 12,
             child: Material(
               color: Colors.transparent,
               child: InkWell(
