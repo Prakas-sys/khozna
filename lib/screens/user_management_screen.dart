@@ -337,7 +337,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   const SizedBox(height: 12),
                   _buildTestField(backCtrl, '📄 Back ID Image URL', Icons.link_rounded),
                   const SizedBox(height: 12),
-                  _buildTestField(selfieCtrl, '🤳 Selfie with ID Image URL', Icons.link_rounded),
+                  _buildTestField(selfieCtrl, '🤳 Selfie Image URL', Icons.link_rounded),
                   const SizedBox(height: 24),
 
                   // Run Button
@@ -784,7 +784,6 @@ class _AiResultCard extends StatelessWidget {
           _CheckRow(label: 'Name Matches Document', value: result['name_match'] == true),
           _CheckRow(label: 'ID Number Matches', value: result['id_number_match'] == true),
           _CheckRow(label: 'Face Matches Card Photo', value: result['face_match'] == true),
-          _CheckRow(label: 'Physical Card in Selfie', value: result['physical_card_in_selfie'] == true),
           _CheckRow(label: 'GPS Location in Nepal', value: result['location_valid'] == true),
 
           // Red Flags
