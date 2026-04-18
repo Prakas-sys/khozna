@@ -363,19 +363,18 @@ class HomeScreenState extends State<HomeScreen> {
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.white,
         automaticallyImplyLeading: false,
-        titleSpacing: 20, // Increased for breathing room
+        titleSpacing: 20,
         title: Row(
           children: [
             GestureDetector(
               onTap: _handleBossTap,
               child: Image.asset(
                 'assets/images/original logo.png',
-                height: 48, // Increased for a more prominent brand presence
+                height: 48,
                 fit: BoxFit.contain,
               ),
+            ),
             const SizedBox(width: 8),
-            // Use Expanded to take all remaining space between logo and actions
-            // This is the definitive fix for the yellow overflow warning
             Expanded(
               child: GestureDetector(
                 onTap: () async {
@@ -402,52 +401,50 @@ class HomeScreenState extends State<HomeScreen> {
                     );
                   }
                 },
-                  child: Container(
-                    // Constrain the width so it doesn't push against the bell icon
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppTheme.brandColor.withValues(alpha: 0.1),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          CupertinoIcons.location_solid,
-                          color: AppTheme.brandColor,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 6),
-                        // Marquee effect: Horizontal scrolling enabled for long text
-                        Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            physics: const BouncingScrollPhysics(),
-                            child: Text(
-                              _currentLocationName,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.black,
-                                height: 1.1,
-                              ),
-                              maxLines: 1,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: Colors.grey[400],
-                          size: 14,
-                        ),
-                      ],
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppTheme.brandColor.withValues(alpha: 0.1),
+                      width: 1,
                     ),
                   ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        CupertinoIcons.location_solid,
+                        color: AppTheme.brandColor,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          child: Text(
+                            _currentLocationName,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black,
+                              height: 1.1,
+                            ),
+                            maxLines: 1,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: Colors.grey[400],
+                        size: 14,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
