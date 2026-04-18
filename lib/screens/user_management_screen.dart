@@ -517,14 +517,32 @@ class _AiResultCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final verdict = result['verdict']?.toString() ?? 'ERROR';
     final confidence = result['confidence'] ?? 0;
-    final reasons = List<String>.from(result['reasons'] ?? []);
+    final notes = result['notes']?.toString() ?? '';
+    final redFlags = List<String>.from(result['red_flags'] ?? []);
 
     Color verdictColor;
     IconData verdictIcon;
+    String verdictLabel;
     switch (verdict) {
-      case 'PASS': verdictColor = Colors.green; verdictIcon = Icons.verified_rounded; break;
-      case 'FAIL': verdictColor = Colors.red; verdictIcon = Icons.cancel_rounded; break;
-      default: verdictColor = Colors.orange; verdictIcon = Icons.help_rounded;
+      case 'PASS':
+        verdictColor = Colors.green;
+        verdictIcon = Icons.verified_rounded;
+        verdictLabel = 'PASS — Safe to Approve';
+        break;
+      case 'FAIL':
+        verdictColor = Colors.red;
+        verdictIcon = Icons.dangerous_rounded;
+        verdictLabel = 'FAIL — Likely Fake';
+        break;
+      case 'ERROR':
+        verdictColor = Colors.grey;
+        verdictIcon = Icons.error_outline_rounded;
+        verdictLabel = 'ERROR — Try again';
+        break;
+      default:
+        verdictColor = Colors.orange;
+        verdictIcon = Icons.help_rounded;
+        verdictLabel = 'UNCERTAIN — Review manually';
     }
 
     return Container(
@@ -538,47 +556,116 @@ class _AiResultCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Verdict Header
           Row(
             children: [
-              Icon(verdictIcon, color: verdictColor, size: 28),
+              Icon(verdictIcon, color: verdictColor, size: 30),
               const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('AI Verdict: $verdict',
-                      style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16, color: verdictColor)),
-                  Text('Confidence: $confidence%',
-                      style: GoogleFonts.inter(fontSize: 12, color: verdictColor.withOpacity(0.8))),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('AI Verdict',
+                        style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600)),
+                    Text(verdictLabel,
+                        style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 15, color: verdictColor)),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: verdictColor.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '$confidence%',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: verdictColor),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          // Checklist
-          _CheckRow(label: 'Name Match', value: result['name_match'] == true),
-          _CheckRow(label: 'ID Visible', value: result['id_visible'] == true),
-          _CheckRow(label: 'Face Match', value: result['face_match'] == true),
-          _CheckRow(label: 'Nepal Location', value: result['location_valid'] == true),
-          if (reasons.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text('Notes:', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
-            const SizedBox(height: 4),
-            ...reasons.map((r) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
+          const Divider(height: 1),
+          const SizedBox(height: 14),
+
+          // Detailed Checklist
+          Text('Verification Checks',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13, color: Colors.grey[700])),
+          const SizedBox(height: 10),
+          _CheckRow(label: 'Genuine Nepali नागरिकता Card', value: result['is_genuine_nepali_id'] == true),
+          _CheckRow(label: 'Name Matches Document', value: result['name_match'] == true),
+          _CheckRow(label: 'ID Number Matches', value: result['id_number_match'] == true),
+          _CheckRow(label: 'Face Matches Card Photo', value: result['face_match'] == true),
+          _CheckRow(label: 'Physical Card in Selfie', value: result['physical_card_in_selfie'] == true),
+          _CheckRow(label: 'GPS Location in Nepal', value: result['location_valid'] == true),
+
+          // Red Flags
+          if (redFlags.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.red.withOpacity(0.2)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.flag_rounded, color: Colors.red, size: 16),
+                      const SizedBox(width: 6),
+                      Text('Red Flags Detected',
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12, color: Colors.red)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ...redFlags.map((f) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('• ', style: TextStyle(fontSize: 12, color: Colors.red)),
+                        Expanded(child: Text(f, style: GoogleFonts.inter(fontSize: 12, color: Colors.red[800]))),
+                      ],
+                    ),
+                  )),
+                ],
+              ),
+            ),
+          ],
+
+          // AI Notes
+          if (notes.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('• ', style: TextStyle(fontSize: 13)),
-                  Expanded(child: Text(r, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[700]))),
+                  const Icon(Icons.info_outline_rounded, size: 16, color: Colors.blueGrey),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(notes,
+                        style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[700], height: 1.5)),
+                  ),
                 ],
               ),
-            )),
+            ),
           ],
         ],
       ),
     );
   }
 }
+
 
 class _CheckRow extends StatelessWidget {
   final String label;
