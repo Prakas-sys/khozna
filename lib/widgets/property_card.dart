@@ -404,14 +404,34 @@ class PropertyCard extends StatelessWidget {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  SvgPicture.asset(
-                                    'assets/icons/message.svg',
-                                    width: 18,
-                                    height: 18,
-                                    colorFilter: const ColorFilter.mode(
-                                      Colors.white,
-                                      BlendMode.srcIn,
-                                    ),
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      // Pseudo-stroke for bold look in PropertyCard
+                                      for (double i in [-0.4, 0.4])
+                                        for (double j in [-0.4, 0.4])
+                                          Transform.translate(
+                                            offset: Offset(i, j),
+                                            child: SvgPicture.asset(
+                                              'assets/icons/message.svg',
+                                              width: 18,
+                                              height: 18,
+                                              colorFilter: const ColorFilter.mode(
+                                                Colors.white,
+                                                BlendMode.srcIn,
+                                              ),
+                                            ),
+                                          ),
+                                      SvgPicture.asset(
+                                        'assets/icons/message.svg',
+                                        width: 18,
+                                        height: 18,
+                                        colorFilter: const ColorFilter.mode(
+                                          Colors.white,
+                                          BlendMode.srcIn,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
