@@ -14,6 +14,7 @@ import '../utils/formatters.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:ui';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {

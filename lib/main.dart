@@ -64,6 +64,14 @@ void main() async {
     ),
   );
 
+  // Initialize Firebase earlier to establish stable channel
+  try {
+    await Firebase.initializeApp();
+    debugPrint('--- FIREBASE CORE READY ---');
+  } catch (e) {
+    debugPrint('--- FIREBASE INIT ERROR: $e ---');
+  }
+
   runApp(const KhoznaApp());
 }
 
@@ -119,30 +127,27 @@ class _CompromisedDeviceApp extends StatelessWidget {
 Future<void> _initializeServices() async {
   debugPrint('--- PARALLEL SERVICE INITIALIZATION START ---');
 
-  // Launch Supabase and Firebase in parallel for massive speed boost
-  await Future.wait([
-    // 1. Supabase (Crucial)
-    supabase.Supabase.initialize(
-      url: dotenv.env['SUPABASE_URL'] ?? '',
-      anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-    ).then((_) => debugPrint('--- SUPABASE READY ---')).catchError((e) => debugPrint('Supabase Error: $e')),
+  // Staggered initialization for maximum stability on 6GB RAM systems
+  await Future.delayed(const Duration(milliseconds: 150));
+  await supabase.Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+  );
+  debugPrint('--- SUPABASE READY ---');
 
-    // 2. Firebase
-    Firebase.initializeApp().then((_) async {
-      debugPrint('--- FIREBASE READY ---');
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-      // Notifications can setup in background once Firebase is ready
-      _setupNotifications();
-    }).catchError((e) => debugPrint('Firebase Error: $e')),
+  await Future.delayed(const Duration(milliseconds: 150));
+  // Firebase Core is now pre-initialized in main()
+  debugPrint('--- SETTING UP FIREBASE SERVICES ---');
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  _setupNotifications();
 
-    // 3. Fonts (Asset pre-loading)
-    GoogleFonts.pendingFonts([
-      GoogleFonts.inter(),
-      GoogleFonts.plusJakartaSans(),
-      GoogleFonts.outfit(),
-    ]).catchError((_) => []),
-  ]);
-
+  await Future.delayed(const Duration(milliseconds: 150));
+  await GoogleFonts.pendingFonts([
+    GoogleFonts.inter(),
+    GoogleFonts.plusJakartaSans(),
+    GoogleFonts.outfit(),
+  ]).catchError((_) => []);
+  
   debugPrint('--- PARALLEL INITIALIZATION COMPLETE ---');
 }
 
