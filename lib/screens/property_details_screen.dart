@@ -220,32 +220,40 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
+      extendBodyBehindAppBar: true, // Let image sit under the top bar
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
-          onPressed: () => Navigator.pop(context),
+        surfaceTintColor: Colors.transparent,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: _buildFloatingCircle(
+            icon: Icons.arrow_back_ios_new_rounded,
+            onTap: () => Navigator.pop(context),
+            iconSize: 18,
+          ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.share_outlined,
-              color: Colors.black,
-              size: 22,
-            ),
-            onPressed: () {},
-          ),
-          FavouriteButton(
-            propertyId: widget.id,
-            size: 24,
-            color: Colors.black,
-            showShadow: false,
+          _buildFloatingCircle(
+            icon: Icons.share_outlined,
+            onTap: () {},
+            iconSize: 20,
           ),
           const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: _buildFloatingCircle(
+              onTap: () {},
+              child: FavouriteButton(
+                propertyId: widget.id,
+                size: 22,
+                color: Colors.white,
+                showShadow: false,
+              ),
+            ),
+          ),
         ],
       ),
       body: CustomScrollView(
@@ -1401,6 +1409,29 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFloatingCircle({
+    IconData? icon,
+    Widget? child,
+    required VoidCallback onTap,
+    double iconSize = 20,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.35),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.2), width: 0.5),
+        ),
+        child: child ?? Icon(icon, color: Colors.white, size: iconSize),
       ),
     );
   }
