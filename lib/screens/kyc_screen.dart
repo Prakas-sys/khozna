@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../theme/app_theme.dart';
 import '../utils/security_utils.dart';
 import '../utils/cloudinary_service.dart';
+import '../utils/kyc_ai_analyser.dart';
 
 class KycScreen extends StatefulWidget {
   const KycScreen({super.key});
@@ -201,7 +202,90 @@ class _KycScreenState extends State<KycScreen> {
     }
   }
 
-  void _showSuccessDialog() {
+  void _showAiRejectionDialog(List<String> redFlags) {
+    HapticFeedback.vibrate();
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        surfaceTintColor: Colors.white,
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.error_outline_rounded, color: Colors.red, size: 60),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Center(
+              child: Text(
+                'AI Rejection (अस्वीकृत)',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.mukta(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.red[800],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Our AI detected the following issues with your documents. Please fix them and try again:',
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[800], fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 12),
+            ...redFlags.map((flag) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('• ', style: TextStyle(color: Colors.red, fontSize: 16)),
+                      Expanded(
+                        child: Text(
+                          flag,
+                          style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'Try Again (फेरि प्रयास गर्नुहोस्)',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSuccessDialog(bool isVerified) {
     HapticFeedback.lightImpact();
     showDialog(
       context: context,
@@ -223,7 +307,7 @@ class _KycScreenState extends State<KycScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'प्रमाणिकरणको लागि प्राप्त भयो!',
+              isVerified ? 'Verification Complete! 🎉' : 'प्रमाणिकरणको लागि प्राप्त भयो!',
               textAlign: TextAlign.center,
               style: GoogleFonts.mukta(
                 fontSize: 22,
@@ -232,7 +316,9 @@ class _KycScreenState extends State<KycScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'तपाईको कागजातहरू प्राप्त भएका छन्। हामी ४८ घण्टा भित्र प्रमाणीकरण गर्नेछौं।',
+              isVerified 
+                  ? 'Our AI has instantly verified your identity. You can now post properties!'
+                  : 'तपाईको कागजातहरू प्राप्त भएका छन्। हामी ४८ घण्टा भित्र प्रमाणीकरण गर्नेछौं।',
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 14),
             ),
@@ -309,6 +395,33 @@ class _KycScreenState extends State<KycScreen> {
         throw Exception('Image upload failed (नेटवर्क वा क्लाउडिनरी समस्या)');
       }
 
+      // ─── AI AUTO-PILOT VERIFICATION ───
+      final aiResult = await KycAiAnalyser.analyseKycDocuments(
+        frontImageUrl: frontUrl,
+        backImageUrl: backUrl,
+        selfieImageUrl: selfieUrl,
+        fullName: _nameController.text.trim(),
+        citizenshipNumber: _citizenshipController.text.trim(),
+        latitude: _latitude,
+        longitude: _longitude,
+      );
+
+      final verdict = aiResult['verdict']?.toString() ?? 'ERROR';
+      String finalStatus = 'pending';
+      
+      if (verdict == 'FAIL') {
+        // Instant Rejection - Don't insert into DB
+        if (mounted) {
+          setState(() => _isSubmitting = false);
+          _showAiRejectionDialog(List<String>.from(aiResult['red_flags'] ?? []));
+        }
+        return;
+      } else if (verdict == 'PASS') {
+        finalStatus = 'verified';
+      } else {
+        finalStatus = 'pending';
+      }
+
       await supabase.Supabase.instance.client.from('kyc_verifications').insert({
         'user_id': user.id,
         'full_name': _nameController.text.trim(),
@@ -322,21 +435,37 @@ class _KycScreenState extends State<KycScreen> {
         'longitude': _longitude,
         'is_email_verified': _isEmailVerified,
         'is_phone_verified': _isPhoneVerified,
-        'status': 'pending',
+        'status': finalStatus,
       });
 
       await supabase.Supabase.instance.client
           .from('profiles')
           .update({
-            'kyc_status': 'pending',
+            'kyc_status': finalStatus,
             'email_verified': _isEmailVerified,
             'phone_verified': _isPhoneVerified,
           })
           .eq('id', user.id);
+          
+      // Ensure system sends notification to user
+      final title = finalStatus == 'verified' 
+          ? 'KYC Verified! 🎉' 
+          : 'KYC Submitted ⏳';
+      final message = finalStatus == 'verified'
+          ? 'Your identity has been verified instantly by our auto-pilot AI.'
+          : 'Your documents are currently under review.';
+
+      await supabase.Supabase.instance.client.from('notifications').insert({
+        'user_id': user.id,
+        'sender_id': user.id,
+        'title': title,
+        'message': message,
+        'type': 'system',
+      });
 
       if (mounted) {
         setState(() => _isSubmitting = false);
-        _showSuccessDialog();
+        _showSuccessDialog(finalStatus == 'verified');
       }
     } catch (e) {
       if (mounted) {
