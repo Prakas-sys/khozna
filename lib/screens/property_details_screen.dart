@@ -278,7 +278,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.grey[200],
-                        border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+                        border: Border.all(color: Colors.black.withOpacity(0.05)),
                       ),
                       child: Stack(
                         children: [
@@ -297,7 +297,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.map_rounded, color: Colors.blue.withValues(alpha: 0.2), size: 48),
+                                    Icon(Icons.map_rounded, color: Colors.blue.withOpacity(0.2), size: 48),
                                     const SizedBox(height: 12),
                                     Text(
                                       'Real-time Map Preview',
@@ -320,7 +320,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             ),
                           ),
                           Container(
-                            color: Colors.black.withValues(alpha: 0.2), // Dark wash for contrast
+                            color: Colors.black.withOpacity(0.2), // Dark wash for contrast
                           ),
                           Center(
                             child: ClipRRect(
@@ -330,15 +330,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.8),
+                                    color: Colors.white.withOpacity(0.8),
                                     borderRadius: BorderRadius.circular(50),
                                     border: Border.all(
-                                      color: Colors.white.withValues(alpha: 0.4),
+                                      color: Colors.white.withOpacity(0.4),
                                       width: 1.5,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.1),
+                                        color: Colors.black.withOpacity(0.1),
                                         blurRadius: 20,
                                         offset: const Offset(0, 4),
                                       ),
@@ -355,7 +355,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                       const SizedBox(width: 10),
                                       Text(
                                         "Explore Local Area",
-                                        style: GoogleFonts.plusJakartaSans(
+                                        style: GoogleFonts.outfit(
                                           fontSize: 16,
                                           color: AppTheme.brandColor,
                                           fontWeight: FontWeight.w700,
@@ -934,7 +934,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha: 0.05),
+              color: Colors.blue.withOpacity(0.05),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 16, color: Colors.blue[700]),
@@ -972,7 +972,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -985,7 +985,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.2), width: 2),
+                    border: Border.all(color: AppTheme.brandColor.withOpacity(0.2), width: 2),
                   ),
                   child: CircleAvatar(
                     radius: 30,
@@ -1251,7 +1251,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withOpacity(0.06),
             blurRadius: 15,
             offset: const Offset(0, -5),
           ),
@@ -1521,12 +1521,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
         border: Border.all(
-          color: color.withValues(alpha: 0.2),
+          color: color.withOpacity(0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withOpacity(0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
