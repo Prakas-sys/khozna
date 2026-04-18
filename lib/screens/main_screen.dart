@@ -25,6 +25,7 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _isKycVerified = false;
   bool _isCheckingKyc = true;
+  String _kycStatus = 'not_started';
 
   // Key to communicate with HomeScreen for refreshing data
   final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
@@ -62,6 +63,7 @@ class _MainScreenState extends State<MainScreen> {
       if (mounted) {
         setState(() {
           _isKycVerified = (data != null && data['kyc_status'] == 'verified');
+          _kycStatus = data?['kyc_status'] ?? 'not_started';
           _isCheckingKyc = false;
         });
       }
@@ -198,13 +200,78 @@ class _MainScreenState extends State<MainScreen> {
 
                           if (!mounted) return;
 
+                          // Fetch fresh status to distinguish pending vs not_started
+                          String freshStatus = _kycStatus;
+                          try {
+                            final freshData = await Supabase.instance.client
+                                .from('profiles')
+                                .select('kyc_status')
+                                .eq('id', user.id)
+                                .maybeSingle();
+                            freshStatus = freshData?['kyc_status'] ?? 'not_started';
+                            setState(() => _kycStatus = freshStatus);
+                          } catch (_) {}
+
+                          if (!mounted) return;
+
                           if (!_isKycVerified) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const KycScreen(),
-                              ),
-                            );
+                            if (freshStatus == 'pending') {
+                              // Show pending info dialog — do NOT open KYC form again
+                              showDialog(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.all(18),
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange.shade50,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(Icons.hourglass_top_rounded, color: Colors.orange.shade700, size: 40),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      Text(
+                                        'प्रमाणीकरण प्रक्रियामा छ',
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.mukta(fontSize: 20, fontWeight: FontWeight.w800),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'तपाईंको KYC कागजातहरू समीक्षाधीन छन्।\n४८ घण्टाभित्र प्रमाणीकरण हुनेछ।',
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600], height: 1.5),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                          onPressed: () => Navigator.pop(ctx),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppTheme.brandColor,
+                                            foregroundColor: Colors.white,
+                                            elevation: 0,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                            padding: const EdgeInsets.symmetric(vertical: 14),
+                                          ),
+                                          child: Text('ठीक छ', style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            } else {
+                              // Not started — open KYC form
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const KycScreen()),
+                              );
+                            }
                           } else {
                             final result = await Navigator.push(
                               context,

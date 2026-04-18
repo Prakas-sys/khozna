@@ -551,7 +551,7 @@ class _KycScreenState extends State<KycScreen> {
           fillColor: isVerified
               ? Colors.grey[50]
               : (controller.text.isNotEmpty ? Colors.blue[50]!.withOpacity(0.3) : Colors.white),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(color: Colors.grey.shade200),
@@ -727,7 +727,7 @@ class _KycScreenState extends State<KycScreen> {
       children: [
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(24, 52, 24, 24),
+          padding: const EdgeInsets.fromLTRB(24, 52, 24, 28),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -752,9 +752,9 @@ class _KycScreenState extends State<KycScreen> {
                       border: Border.all(color: Colors.white.withOpacity(0.2)),
                     ),
                     child: const Icon(
-                      Icons.shield_rounded,
+                      Icons.shield_outlined,
                       color: Colors.white,
-                      size: 28,
+                      size: 26,
                     ),
                   ),
                   GestureDetector(
@@ -792,12 +792,12 @@ class _KycScreenState extends State<KycScreen> {
                   color: Colors.white.withOpacity(0.85),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Row(
                 children: [
-                  Expanded(child: _buildStepperIndicator(_currentStep >= 1)),
+                  Expanded(child: _buildStepperIndicator(_currentStep >= 1, true)),
                   const SizedBox(width: 8),
-                  Expanded(child: _buildStepperIndicator(_currentStep >= 2)),
+                  Expanded(child: _buildStepperIndicator(_currentStep >= 2, _currentStep >= 2)),
                 ],
               ),
             ],
@@ -820,12 +820,14 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 
-  Widget _buildStepperIndicator(bool active) {
+  Widget _buildStepperIndicator(bool active, bool isCurrent) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       height: 4,
       decoration: BoxDecoration(
-        color: active ? Colors.white : Colors.white.withOpacity(0.2),
+        color: active
+            ? Colors.white
+            : Colors.white.withOpacity(0.3),
         borderRadius: BorderRadius.circular(10),
       ),
     );
