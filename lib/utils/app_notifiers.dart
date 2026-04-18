@@ -25,3 +25,8 @@ void initializeBadgeSync() {
 /// Cache for Home Screen sections to enable "offline" viewing of last known data.
 final ValueNotifier<Map<int, List<Map<String, dynamic>>>> homeSectionCache =
     ValueNotifier<Map<int, List<Map<String, dynamic>>>>({});
+
+/// Global notifier for real-time KYC status updates
+/// Used to trigger Success/Rejection popups across the app.
+final ValueNotifier<Map<String, dynamic>?> lastKycNotification = 
+    ValueNotifier<Map<String, dynamic>?>(null);

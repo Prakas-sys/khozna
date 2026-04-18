@@ -852,100 +852,105 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   Widget _buildPremiumHeader() {
-    return Stack(
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(24, 52, 24, 28),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.brandColor,
-                AppTheme.brandColor.withOpacity(0.8),
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppTheme.brandColor,
+            AppTheme.brandColor.withOpacity(0.85),
+          ],
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Content
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 48, 24, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'VERIFY IDENTITY',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'पहिचान प्रमाणित गर्नुहोस्',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.mukta(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(child: _buildStepperIndicator(_currentStep >= 1, true)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildStepperIndicator(_currentStep >= 2, _currentStep >= 2)),
+                  ],
+                ),
               ],
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white.withOpacity(0.2)),
-                    ),
-                    child: const Icon(
-                      Icons.shield_outlined,
-                      color: Colors.white,
-                      size: 26,
-                    ),
-                  ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => Navigator.of(context).pop(),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.25),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.close_rounded, color: Colors.white, size: 22),
-                    ),
-                  ),
-                ],
+          
+          // Shield Icon (Left)
+          Positioned(
+            left: 16,
+            top: 42,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white.withOpacity(0.15)),
               ),
-              const SizedBox(height: 20),
-              Text(
-                'VERIFY IDENTITY',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.2,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'पहिचान प्रमाणित गर्नुहोस्',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.mukta(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withOpacity(0.85),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(child: _buildStepperIndicator(_currentStep >= 1, true)),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildStepperIndicator(_currentStep >= 2, _currentStep >= 2)),
-                ],
-              ),
-            ],
-          ),
-        ),
-        // Decorative glowing orb
-        Positioned(
-          top: -20,
-          right: -20,
-          child: Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.08),
+              child: const Icon(Icons.shield_outlined, color: Colors.white, size: 22),
             ),
           ),
-        ),
-      ],
+          
+          // Close Button (Right)
+          Positioned(
+            right: 16,
+            top: 42,
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+              ),
+            ),
+          ),
+
+          // Decorative glowing orb
+          Positioned(
+            top: -30,
+            right: -20,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.06),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

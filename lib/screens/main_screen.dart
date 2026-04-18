@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_notifiers.dart';
 import '../utils/supabase_service.dart';
+import '../utils/security_utils.dart';
 import 'home_screen.dart';
 import 'reels_screen.dart';
 import 'messages_screen.dart';
@@ -41,9 +42,98 @@ class _MainScreenState extends State<MainScreen> {
       const MessagesScreen(),
       const ProfileScreen(),
     ];
-    // Magic: Listen for all user notifications in real-time
-    SupabaseService.listenToUserNotifications();
+    SupabaseService.initRealtimeListeners();
     _checkKycStatus();
+
+    // Listen for real-time KYC status changes to show the "Auto-Pilot" popup
+    lastKycNotification.addListener(_handleKycStatusUpdate);
+  }
+
+  void _handleKycStatusUpdate() {
+    final data = lastKycNotification.value;
+    if (data == null || !mounted) return;
+
+    final title = data['title'] ?? 'KYC Update';
+    final message = data['message'] ?? '';
+    final isSuccess = title.toString().contains('Approved') || title.toString().contains('Verified');
+
+    HapticFeedback.heavyImpact();
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: isSuccess ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isSuccess ? Icons.verified_user_rounded : Icons.gpp_bad_rounded,
+                  color: isSuccess ? Colors.green : Colors.red,
+                  size: 48,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  color: Colors.grey[600],
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    if (isSuccess) {
+                      _checkKycStatus(); // Refresh local state
+                      setState(() => _currentIndex = 0); // Go home
+                    } else {
+                      // Navigate to Profile to see the rejection card
+                      setState(() => _currentIndex = 3);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isSuccess ? Colors.green : Colors.black87,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(
+                    isSuccess ? 'Great!' : 'Review Status',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _checkKycStatus() async {

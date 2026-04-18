@@ -450,6 +450,13 @@ class SupabaseService {
           ),
           callback: (payload) {
             notificationBadgeCount.value += 1;
+            
+            // Push to global notifier if it's a KYC update
+            final data = payload.newRecord;
+            if (data['type'] == 'kyc_update' || 
+               (data['title'] ?? '').toString().contains('KYC')) {
+              lastKycNotification.value = data;
+            }
           },
         );
     _notificationChannel?.subscribe();

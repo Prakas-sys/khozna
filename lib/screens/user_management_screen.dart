@@ -37,6 +37,96 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     });
   }
 
+  Future<void> _runBulkAutoPilot() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Run KYC Auto-Pilot?'),
+        content: const Text('The AI will now automatically analyze and either Approve or Reject ALL currently pending KYC submissions in the backlog.\n\nThis may take a minute.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true), 
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor),
+            child: const Text('Start Auto-Pilot'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    // Show Progress Dialog
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 24),
+                Text('AI Auto-Pilot is processing backlog...', style: TextStyle(fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final pendingKycs = await SupabaseService.getPendingKycs();
+      int processed = 0;
+
+      for (var kyc in pendingKycs) {
+        final userId = kyc['user_id'];
+        
+        // 1. Run AI analysis
+        final result = await KycAiAnalyser.analyseKycDocuments(
+          frontImageUrl: kyc['front_image_url'] ?? '',
+          backImageUrl: kyc['back_image_url'] ?? '',
+          selfieImageUrl: kyc['selfie_image_url'] ?? '',
+          fullName: kyc['full_name'] ?? '',
+          citizenshipNumber: kyc['citizenship_number'] ?? '',
+          latitude: kyc['latitude'] != null ? double.tryParse(kyc['latitude'].toString()) : null,
+          longitude: kyc['longitude'] != null ? double.tryParse(kyc['longitude'].toString()) : null,
+        );
+
+        final verdict = result['verdict'];
+        if (verdict == 'PASS') {
+          await SupabaseService.updateKycStatus(kyc['id'], userId, 'verified');
+          processed++;
+        } else if (verdict == 'FAIL') {
+          final reason = List<String>.from(result['red_flags'] ?? []).join('\n');
+          await SupabaseService.updateKycStatus(kyc['id'], userId, 'rejected', reason: reason);
+          processed++;
+        }
+      }
+
+      if (mounted) {
+        Navigator.pop(context); // Close progress dialog
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Auto-Pilot finished! $processed KYCs were automatically actioned.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _refresh();
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Auto-Pilot error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
   Future<Map<String, dynamic>?> _fetchKycData(String userId) async {
     try {
       final result = await Supabase.instance.client
@@ -80,6 +170,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 20),
         ),
         actions: [
+          IconButton(
+            tooltip: 'Run Auto-Pilot on All Pending',
+            icon: const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor, size: 24),
+            onPressed: () => _runBulkAutoPilot(),
+          ),
           IconButton(
             tooltip: 'Test AI Analyser',
             icon: const Text('🧪', style: TextStyle(fontSize: 20)),
