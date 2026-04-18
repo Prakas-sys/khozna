@@ -448,7 +448,6 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
               ),
-            ),
           ],
         ),
         actions: [
