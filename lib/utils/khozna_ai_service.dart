@@ -234,8 +234,20 @@ If a user asks about ANYTHING outside this list (e.g., buying land, hotel bookin
         }
       }
 
-      // 3. Assemble
+      // 3. Assemble and Clean
+      String cleanText(String input) {
+        // Skip Plus Codes like "H9Q2+X4"
+        if (input.contains('+') && input.length < 12) return '';
+        // Skip purely numeric codes/house numbers (like "42" or "101")
+        if (RegExp(r'^\d*[a-zA-Z]?$').hasMatch(input.replaceAll(' ', ''))) return '';
+        return input;
+      }
+
       String area = '';
+      micro = cleanText(micro);
+      city = cleanText(city);
+      road = cleanText(road);
+
       if (micro.isNotEmpty && city.isNotEmpty && micro.toLowerCase() != city.toLowerCase()) {
         if (micro.toLowerCase().contains(city.toLowerCase())) {
            area = micro;
@@ -248,7 +260,9 @@ If a user asks about ANYTHING outside this list (e.g., buying land, hotel bookin
         area = micro;
       }
 
-      String landmark = road.isNotEmpty && road != micro ? 'Near $road' : '';
+      String landmark = (road.isNotEmpty && road != micro && cleanText(road).isNotEmpty) 
+          ? 'Near ${cleanText(road)}' 
+          : '';
 
       return {
         'area': area,

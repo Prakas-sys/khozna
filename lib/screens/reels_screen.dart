@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import 'owner_profile_screen.dart';
@@ -32,7 +31,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
     try {
       final data = await Supabase.instance.client
           .from('properties')
-          .select('id, title, images, video_url, area_name, landmark, price, owner_id, profiles!owner_id(full_name, avatar_url)')
+          .select('*, profiles:owner_id(full_name, avatar_url)')
           .eq('status', 'available')
           .not('images', 'is', null)
           .order('created_at', ascending: false)
@@ -54,6 +53,18 @@ class _ReelsScreenState extends State<ReelsScreen> {
               'ownerId': p['owner_id'] ?? '',
               'price': p['price']?.toString() ?? '0',
               'location': [p['area_name'], p['landmark']].where((e) => e != null && e.toString().isNotEmpty).join(' • '),
+              'area_name': p['area_name'] ?? '',
+              'landmark': p['landmark'] ?? '',
+              'category': p['category'] ?? 'Room',
+              'bedrooms': p['bedrooms'] ?? 0,
+              'bathrooms': p['bathrooms'] ?? 0,
+              'area': p['sq_ft'] ?? 'N/A',
+              'floor': p['floor'] ?? 'N/A',
+              'description': p['description'] ?? '',
+              'latitude': p['latitude'],
+              'longitude': p['longitude'],
+              'amenities': (p['amenities'] as List?)?.cast<String>() ?? [],
+              'house_rules': (p['house_rules'] as List?)?.cast<String>() ?? [],
               'likes': '0',
               'isFavorite': false,
               'totalListings': 1,
@@ -111,44 +122,33 @@ class _ReelsScreenState extends State<ReelsScreen> {
             right: 0,
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Flexible(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.15),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: Colors.white.withOpacity(0.15)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildSegmentButton(
+                            title: 'Photo',
+                            icon: Icons.image_rounded,
+                            isSelected: isImageView,
+                            onTap: () => setState(() => isImageView = true),
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Flexible(
-                              child: _buildSegmentButton(
-                                title: 'Photo',
-                                icon: Icons.image_rounded,
-                                isSelected: isImageView,
-                                onTap: () => setState(() => isImageView = true),
-                              ),
-                            ),
-                            Flexible(
-                              child: _buildSegmentButton(
-                                title: 'Video',
-                                icon: Icons.play_circle_fill,
-                                isSelected: !isImageView,
-                                onTap: () => setState(() => isImageView = false),
-                              ),
-                            ),
-                          ],
-                        ),
+                          _buildSegmentButton(
+                            title: 'Video',
+                            icon: Icons.play_circle_fill,
+                            isSelected: !isImageView,
+                            onTap: () => setState(() => isImageView = false),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -168,7 +168,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
     required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -226,7 +229,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
         Positioned(
           left: 12,
           right: 12,
-          bottom: 90, // Lifted significantly to clear the glass bottom navbar completely
+          bottom: 95, // Clears navbar + adds luxury padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -261,26 +264,21 @@ class _ReelsScreenState extends State<ReelsScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Text(
-                              reel['ownerName'],
-                              style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(
-                              Icons.verified,
-                              color: AppTheme.brandColor,
-                              size: 12,
-                            ),
-                          ],
+                        Text(
+                          reel['ownerName'],
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(
+                          Icons.verified,
+                          color: AppTheme.brandColor,
+                          size: 12,
                         ),
                       ],
                     ),
@@ -315,7 +313,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 18, // Slightly larger for clarity
+                                  fontSize: 18,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -368,24 +366,27 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     builder: (_) => PropertyDetailsScreen(
                                       id: reel['id'],
                                       imageUrl: reel['imageUrl'],
-                                      images: [reel['imageUrl']],
+                                      images: reel['images'],
                                       title: reel['title'],
                                       location: reel['location'],
                                       price: reel['price'],
-                                      bedrooms: 0,
-                                      bathrooms: 0,
-                                      area: 'N/A',
-                                      floor: 'N/A',
-                                      description: 'Detailed view',
+                                      description: reel['description'],
+                                      bedrooms: reel['bedrooms'],
+                                      bathrooms: reel['bathrooms'],
+                                      area: reel['area'],
+                                      floor: reel['floor'],
+                                      ownerId: reel['ownerId'],
+                                      landmark: reel['landmark'],
+                                      latitude: reel['latitude'],
+                                      longitude: reel['longitude'],
+                                      amenities: reel['amenities'],
+                                      houseRules: reel['house_rules'],
                                     ),
                                   ),
                                 );
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(30),
@@ -393,11 +394,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(
-                                      Icons.directions_walk_rounded,
-                                      color: Colors.black,
-                                      size: 18,
-                                    ),
+                                    const Icon(Icons.directions_walk_rounded, color: Colors.black, size: 18),
                                     const SizedBox(width: 6),
                                     Text(
                                       'VISIT',
@@ -412,7 +409,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            // CHAT BUTTON with pseudo-stroke
+                            // CHAT BUTTON
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.mediumImpact();
@@ -429,10 +426,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 );
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                                 decoration: BoxDecoration(
                                   color: AppTheme.brandColor,
                                   borderRadius: BorderRadius.circular(30),
@@ -447,17 +441,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                           for (double j in [-0.2, 0.2])
                                             Transform.translate(
                                               offset: Offset(i, j),
-                                              child: const Icon(
-                                                Icons.chat_bubble_rounded,
-                                                size: 16,
-                                                color: Colors.white,
-                                              ),
+                                              child: const Icon(Icons.chat_bubble_rounded, size: 16, color: Colors.white),
                                             ),
-                                        const Icon(
-                                          Icons.chat_bubble_rounded,
-                                          size: 16,
-                                          color: Colors.white,
-                                        ),
+                                        const Icon(Icons.chat_bubble_rounded, size: 16, color: Colors.white),
                                       ],
                                     ),
                                     const SizedBox(width: 8),
@@ -484,46 +470,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildCompactAction({
-    required IconData icon,
-    required String label,
-    required bool isActive,
-    required Color activeColor,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isActive ? activeColor : Colors.white,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
