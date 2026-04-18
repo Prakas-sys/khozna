@@ -395,33 +395,10 @@ class _KycScreenState extends State<KycScreen> {
         throw Exception('Image upload failed (नेटवर्क वा क्लाउडिनरी समस्या)');
       }
 
-      // ─── AI AUTO-PILOT VERIFICATION ───
-      final aiResult = await KycAiAnalyser.analyseKycDocuments(
-        frontImageUrl: frontUrl,
-        backImageUrl: backUrl,
-        selfieImageUrl: selfieUrl,
-        fullName: _nameController.text.trim(),
-        citizenshipNumber: _citizenshipController.text.trim(),
-        latitude: _latitude,
-        longitude: _longitude,
-      );
-
-      final verdict = aiResult['verdict']?.toString() ?? 'ERROR';
-      String finalStatus = 'pending';
+      // ─── CLOUD AUTO-PILOT (PRO) ───
+      // The backend now automatically handles the AI scan via a DB trigger.
+      // We just need to submit the data and wait for the real-time notification!
       
-      if (verdict == 'FAIL') {
-        // Instant Rejection - Don't insert into DB
-        if (mounted) {
-          setState(() => _isSubmitting = false);
-          _showAiRejectionDialog(List<String>.from(aiResult['red_flags'] ?? []));
-        }
-        return;
-      } else if (verdict == 'PASS') {
-        finalStatus = 'verified';
-      } else {
-        finalStatus = 'pending';
-      }
-
       await supabase.Supabase.instance.client.from('kyc_verifications').insert({
         'user_id': user.id,
         'full_name': _nameController.text.trim(),
@@ -435,37 +412,50 @@ class _KycScreenState extends State<KycScreen> {
         'longitude': _longitude,
         'is_email_verified': _isEmailVerified,
         'is_phone_verified': _isPhoneVerified,
-        'status': finalStatus,
+        'status': 'pending', // Backend will update this automatically
       });
 
       await supabase.Supabase.instance.client
           .from('profiles')
           .update({
-            'kyc_status': finalStatus,
+            'kyc_status': 'pending',
             'email_verified': _isEmailVerified,
             'phone_verified': _isPhoneVerified,
           })
           .eq('id', user.id);
-          
-      // Ensure system sends notification to user
-      final title = finalStatus == 'verified' 
-          ? 'KYC Verified! 🎉' 
-          : 'KYC Submitted ⏳';
-      final message = finalStatus == 'verified'
-          ? 'Your identity has been verified instantly by our auto-pilot AI.'
-          : 'Your documents are currently under review.';
-
-      await supabase.Supabase.instance.client.from('notifications').insert({
-        'user_id': user.id,
-        'sender_id': user.id,
-        'title': title,
-        'message': message,
-        'type': 'system',
-      });
 
       if (mounted) {
         setState(() => _isSubmitting = false);
-        _showSuccessDialog(finalStatus == 'verified');
+        HapticFeedback.mediumImpact();
+        
+        // Show a professional dialog informing the user about the cloud scan
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            title: Row(
+              children: [
+                const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor),
+                const SizedBox(width: 12),
+                Text('Auto-Pilot Active', style: GoogleFonts.inter(fontWeight: FontWeight.w800)),
+              ],
+            ),
+            content: Text(
+              'Your documents have been submitted! Our cloud AI is scanning them right now.\n\nYou can close this—you will be notified in a few seconds once verified! 🚀',
+              style: GoogleFonts.inter(),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.pop(context); // Go back to profile
+                },
+                child: const Text('Great!'),
+              ),
+            ],
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
