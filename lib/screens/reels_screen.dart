@@ -216,11 +216,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
           ),
         ),
 
-        // Slim, Long Bottom Glass Box
+        // Slim, High-End Bottom Glass Box
         Positioned(
           left: 12,
           right: 12,
-          bottom: 24,
+          bottom: 34, // Lifted up slightly to fix the "pushed down" look
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -276,90 +276,83 @@ class _ReelsScreenState extends State<ReelsScreen> {
                             ),
                           ],
                         ),
-                        Text(
-                          '@${reel['ownerName'].toString().split(' ')[0].toLowerCase()}',
-                          style: GoogleFonts.inter(
-                            color: Colors.white60,
-                            fontSize: 11,
-                          ),
-                        ),
                       ],
                     ),
                   ],
                 ),
               ),
 
-              // THE MAIN SLIM GLASS BOX
+              // THE MAIN COMPACT GLASS BOX
               ClipRRect(
                 borderRadius: BorderRadius.circular(28),
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.white.withOpacity(0.12)),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                        // LEFT: Property Info
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                reel['title'],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 18, // Slightly larger for clarity
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
                                 children: [
-                                  Text(
-                                    reel['title'],
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.inter(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 16,
-                                    ),
+                                  const Icon(
+                                    Icons.location_on,
+                                    color: AppTheme.brandColor,
+                                    size: 14,
                                   ),
-                                  const SizedBox(height: 3),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.location_on,
-                                        color: AppTheme.brandColor,
-                                        size: 12,
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      reel['location'],
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.inter(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
                                       ),
-                                      const SizedBox(width: 4),
-                                      Flexible(
-                                        child: Text(
-                                          reel['location'],
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: GoogleFonts.inter(
-                                            color: Colors.white70,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Rs. ${reel['price']} /month',
-                                    style: GoogleFonts.inter(
-                                      color: AppTheme.brandColor,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 15,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            // Visit Button with WALKING UI
+                              const SizedBox(height: 6),
+                              Text(
+                                'Rs. ${reel['price']} /month',
+                                style: GoogleFonts.inter(
+                                  color: AppTheme.brandColor,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // RIGHT: VISIT & CHAT BUTTONS
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Visit Button
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.lightImpact();
@@ -377,8 +370,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       bathrooms: 0,
                                       area: 'N/A',
                                       floor: 'N/A',
-                                      description:
-                                          'Detailed view of ${reel['title']}',
+                                      description: 'Detailed view',
                                     ),
                                   ),
                                 );
@@ -391,105 +383,89 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(30),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.3),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    TweenAnimationBuilder<double>(
-                                      tween: Tween(begin: 0.0, end: 1.0),
-                                      duration: const Duration(
-                                        milliseconds: 600,
-                                      ),
-                                      curve: Curves.easeInOut,
-                                      builder: (context, value, child) {
-                                        return Transform.translate(
-                                          offset: Offset(value * 2, 0),
-                                          child: Icon(
-                                            Icons.directions_walk_rounded,
-                                            color: Colors.black,
-                                            size: 18,
-                                            shadows: [
-                                              Shadow(
-                                                color: Colors.black.withOpacity(
-                                                  0.1,
-                                                ),
-                                                blurRadius: 2,
-                                                offset: const Offset(1, 1),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
+                                    const Icon(
+                                      Icons.directions_walk_rounded,
+                                      color: Colors.black,
+                                      size: 18,
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'VISIT REEL',
+                                      'VISIT',
                                       style: GoogleFonts.inter(
                                         color: Colors.black,
                                         fontWeight: FontWeight.w900,
                                         fontSize: 11,
-                                        letterSpacing: 0.5,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const Divider(color: Colors.white10, height: 1),
-                        const SizedBox(height: 12),
-                        // ACTIONS ROW
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildCompactAction(
-                              icon: reel['isFavorite']
-                                  ? Icons.favorite_rounded
-                                  : Icons.favorite_border_rounded,
-                              label: reel['likes'],
-                              isActive: reel['isFavorite'],
-                              activeColor: AppTheme.brandColor,
-                              onTap: () => setState(
-                                () => reel['isFavorite'] = !reel['isFavorite'],
-                              ),
-                            ),
-                            _buildCompactAction(
-                              icon: Icons.chat_bubble_rounded,
-                              label: 'Message',
-                              isActive: false,
-                              activeColor: Colors.white,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => chat_page.ChatScreen(
-                                    ownerId: reel['ownerId'] ?? '',
-                                    name: reel['ownerName'],
-                                    avatar: reel['ownerAvatar'],
-                                    online: true,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            _buildCompactAction(
-                              icon: Icons.send_rounded,
-                              label: 'Share',
-                              isActive: false,
-                              activeColor: Colors.white,
+                            const SizedBox(height: 8),
+                            // CHAT BUTTON with pseudo-stroke
+                            GestureDetector(
                               onTap: () {
-                                Share.share(
-                                  'Check out this property: ${reel['title']} at ${reel['location']} for ₹ ${reel['price']}/month on Khozna!\n\nDownload the app to see more.',
-                                  subject: 'Khozna Property Share',
+                                HapticFeedback.mediumImpact();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => chat_page.ChatScreen(
+                                      ownerId: reel['ownerId'] ?? '',
+                                      name: reel['ownerName'],
+                                      avatar: reel['ownerAvatar'],
+                                      online: true,
+                                    ),
+                                  ),
                                 );
                               },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        for (double i in [-0.2, 0.2])
+                                          for (double j in [-0.2, 0.2])
+                                            Transform.translate(
+                                              offset: Offset(i, j),
+                                              child: const Icon(
+                                                Icons.chat_bubble_rounded,
+                                                size: 16,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                        const Icon(
+                                          Icons.chat_bubble_rounded,
+                                          size: 16,
+                                          color: Colors.white,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'CHAT',
+                                      style: GoogleFonts.inter(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ],
                         ),
