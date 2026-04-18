@@ -59,16 +59,6 @@
         </activity>
 
         <provider
-            android:name="io.flutter.plugins.share.ShareFileProvider"
-            android:authorities="${applicationId}.flutter.share_provider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/flutter_share_file_paths" />
-        </provider>
-
-        <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.flutter.image_provider"
             android:exported="false"
