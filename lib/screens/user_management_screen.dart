@@ -238,11 +238,26 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   }
 
   void _showAiTestDialog(BuildContext context) {
-    final frontCtrl = TextEditingController();
-    final backCtrl = TextEditingController();
+    // Demo citizenship card images (uploaded to Cloudinary)
+    const demoFrontUrl = 'https://res.cloudinary.com/dqxqfcicx/image/upload/v1776511543/vm8azkxw8vospt1fgrl9.jpg';
+    const demoBackUrl  = 'https://res.cloudinary.com/dqxqfcicx/image/upload/v1776511547/fcioeritsjq0mn58kond.jpg';
+
+    final frontCtrl  = TextEditingController();
+    final backCtrl   = TextEditingController();
     final selfieCtrl = TextEditingController();
-    final nameCtrl = TextEditingController();
-    final cidCtrl = TextEditingController();
+    final nameCtrl   = TextEditingController();
+    final cidCtrl    = TextEditingController();
+
+    void loadDemo(StateSetter setModalState) {
+      setModalState(() {
+        frontCtrl.text  = demoFrontUrl;
+        backCtrl.text   = demoBackUrl;
+        selfieCtrl.text = ''; // Selfie must be provided manually
+        nameCtrl.text   = '';
+        cidCtrl.text    = '';
+      });
+    }
+
     Map<String, dynamic>? aiResult;
     bool isLoading = false;
 
@@ -279,14 +294,27 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     children: [
                       const Text('🧪', style: TextStyle(fontSize: 28)),
                       const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Test AI Analyser',
-                              style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 20)),
-                          Text('Paste image URLs to test the AI',
-                              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[500])),
-                        ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Test AI Analyser',
+                                style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 20)),
+                            Text('Paste image URLs to test the AI',
+                                style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[500])),
+                          ],
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () => loadDemo(setModalState),
+                        icon: const Icon(Icons.auto_awesome, size: 16),
+                        label: const Text('Load Demo'),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.brandColor,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          backgroundColor: AppTheme.brandColor.withOpacity(0.1),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
                       ),
                     ],
                   ),
