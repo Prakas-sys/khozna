@@ -621,8 +621,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               children: [
                 Text(
                   isVerified
-                      ? 'Profile Verified'
-                      : (isPending ? 'Verification Pending' : 'Incomplete KYC'),
+                      ? 'Profile Verified (प्रमाणित)'
+                      : (isPending ? 'Pending KYC (प्रमाणीकरण हुँदैछ)' : 'Incomplete KYC (अपूर्ण केवाईसी)'),
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -631,8 +631,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 ),
                 Text(
                   isVerified
-                      ? 'Your identity is fully confirmed.'
-                      : 'Get verified to start posting properties.',
+                      ? 'तपाईंको पहिचान प्रमाणित भयो।'
+                      : (isPending ? 'तपाईंको कागजातहरू जाँच हुँदैछ।' : 'घरभाडामा राख्न केवाईसी भेरिफाइ गर्नुहोस्। 👉'),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey[600],
@@ -665,7 +665,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ],
                 ),
                 child: Text(
-                  'Verify',
+                  'Verify  ➔',
                   style: GoogleFonts.inter(
                     color: Colors.white,
                     fontSize: 12,

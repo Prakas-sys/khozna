@@ -357,8 +357,8 @@ class _KycScreenState extends State<KycScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.only(
-                    left: 20.0,
-                    right: 20.0,
+                    left: 24.0,
+                    right: 24.0,
                     top: 24.0,
                     bottom: 120.0, // Space for sticky bottom bar
                   ),
@@ -380,7 +380,7 @@ class _KycScreenState extends State<KycScreen> {
             bottom: 0,
             child: ClipRRect(
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                 child: Container(
                   padding: EdgeInsets.only(
                     left: 24,
@@ -389,7 +389,7 @@ class _KycScreenState extends State<KycScreen> {
                     bottom: MediaQuery.of(context).padding.bottom + 16,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
+                    color: Colors.white.withOpacity(0.92),
                     border: Border(
                       top: BorderSide(
                         color: Colors.grey.withOpacity(0.2),
@@ -475,9 +475,9 @@ class _KycScreenState extends State<KycScreen> {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.grey.withOpacity(0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -626,17 +626,13 @@ class _KycScreenState extends State<KycScreen> {
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
+        color: AppTheme.brandColor,
         borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          colors: [AppTheme.brandColor, Color(0xFF0091FF)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.brandColor.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: AppTheme.brandColor.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -667,22 +663,15 @@ class _KycScreenState extends State<KycScreen> {
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
+        color: _isSubmitting ? Colors.grey[300] : AppTheme.brandColor,
         borderRadius: BorderRadius.circular(16),
-        color: _isSubmitting ? Colors.grey[300] : null,
-        gradient: _isSubmitting
-            ? null
-            : const LinearGradient(
-                colors: [AppTheme.brandColor, Color(0xFF0080FF)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
         boxShadow: _isSubmitting
             ? null
             : [
                 BoxShadow(
-                  color: AppTheme.brandColor.withOpacity(0.4),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
+                  color: AppTheme.brandColor.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
               ],
       ),
@@ -732,13 +721,13 @@ class _KycScreenState extends State<KycScreen> {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF0055FF), // Deep Blue
-                AppTheme.brandColor, // Brand Blue
+                AppTheme.brandColor,
+                AppTheme.brandColor.withOpacity(0.8),
               ],
             ),
           ),
@@ -761,9 +750,9 @@ class _KycScreenState extends State<KycScreen> {
                       size: 28,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Container(
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(0.2),
