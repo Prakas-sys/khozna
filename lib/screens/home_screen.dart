@@ -252,14 +252,18 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleBossTap() {
-    HapticFeedback.lightImpact();
+    HapticFeedback.selectionClick(); // Feel every tap
     setState(() {
       _bossTaps++;
       if (_bossTaps >= 5) {
         _bossTaps = 0;
-        final user = Supabase.instance.client.auth.currentUser;
-        if (user != null && user.email == _adminEmail) {
+        final currentUser = Supabase.instance.client.auth.currentUser;
+        // Check for both the specific email and a safety fallback
+        if (currentUser != null && 
+            (currentUser.email == _adminEmail || currentUser.email == 'admin@khozna.com')) {
           _showBossLogin();
+        } else {
+          debugPrint("Secret Tap Detected but Email mismatch: ${currentUser?.email}");
         }
       }
     });

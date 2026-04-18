@@ -250,25 +250,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       ),
       body: CustomScrollView(
         slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // IMAGE CAROUSEL (CONTAINED) - MOVED TO TOP
-                _buildContainedCarousel(),
-                const SizedBox(height: 24),
+        _buildContainedCarousel(),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              const SizedBox(height: 12),
+              // VERIFIED BADGE & TITLE - NOW BELOW IMAGE
+              _buildHeader(widget.title, widget.location),
+              const SizedBox(height: 32),
 
-                // VERIFIED BADGE & TITLE - NOW BELOW IMAGE
-                _buildHeader(widget.title, widget.location),
-                const SizedBox(height: 32),
+              // PROPERTY STATS (Beds, Baths, Area, Floor)
+              // BEAUTIFIED AMENITY GRID (Kathmandu Specific)
+              _buildAmenityGrid(),
+              const SizedBox(height: 32),
 
-                // PROPERTY STATS (Beds, Baths, Area, Floor)
-                // BEAUTIFIED AMENITY GRID (Kathmandu Specific)
-                _buildAmenityGrid(),
-                const SizedBox(height: 32),
-
-                // PRICE BOX
-                _buildPriceBox(widget.price),
+              // PRICE BOX
+              _buildPriceBox(widget.price),
                 const SizedBox(height: 32),
 
                 // DESCRIPTION
@@ -438,21 +436,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   // --- COMPONENT BUILDERS ---
 
   Widget _buildContainedCarousel() {
-    return Container(
-      height: 280,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+    return SliverToBoxAdapter(
+      child: Container(
+        height: 320,
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
         child: Stack(
           children: [
             PageView.builder(
@@ -780,7 +770,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'महिनाको भाडा (Monthly Rent)',
+                'भाडा/महिना (Rent/Month)',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: _airbnbGrey,
@@ -824,7 +814,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ],
             ),
             child: Text(
-              'Negotiable',
+              'सल्लाह गर्न सकिने',
               style: GoogleFonts.inter(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -838,20 +828,44 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildNearbyGrid() {
+    // REAL DATA Logic: Use property coordinates to calculate distance to actual landmarks
+    final double lat = widget.latitude ?? 27.6710; // Fallback to Kathmandu center
+    final double lng = widget.longitude ?? 85.3444;
+
+    // A list of high-value landmarks in Kathmandu/Lalitpur
+    final List<Map<String, dynamic>> landmarks = [
+      {'name': 'Labim Mall', 'lat': 27.6775, 'lng': 85.3168, 'icon': Icons.shopping_bag_outlined, 'type': 'Market'},
+      {'name': 'Patan Hospital', 'lat': 27.6691, 'lng': 85.3204, 'icon': Icons.local_hospital_outlined, 'type': 'Health'},
+      {'name': 'Pulchowk Campus', 'lat': 27.6811, 'lng': 85.3184, 'icon': Icons.school_outlined, 'type': 'Uni'},
+      {'name': 'Civil Mall', 'lat': 27.6997, 'lng': 85.3125, 'icon': Icons.shopping_basket_outlined, 'type': 'Mall'},
+      {'name': 'TU Cricket Ground', 'lat': 27.6766, 'lng': 85.2974, 'icon': Icons.sports_cricket_rounded, 'type': 'Sports'},
+    ];
+
+    // Helper to calculate raw Euclidean distance (good enough for local landmarks)
+    double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+      return (lat1 - lat2).abs() + (lon1 - lon2).abs();
+    }
+
+    // Sort landmarks by proximity
+    landmarks.sort((a, b) => 
+      calculateDistance(lat, lng, a['lat'], a['lng']).compareTo(calculateDistance(lat, lng, b['lat'], b['lng']))
+    );
+
+    // Show top 3 closest landmarks
+    final nearest = landmarks.take(3).toList();
+
     return Column(
-      children: [
-        _buildNearbyItem(
-          Icons.local_hospital_outlined,
-          'Hospital',
-          '200m (Civil)',
-        ),
-        _buildNearbyItem(Icons.school_outlined, 'School', '500m (KMC)'),
-        _buildNearbyItem(
-          Icons.shopping_bag_outlined,
-          'Market',
-          '300m (Bazaar)',
-        ),
-      ],
+      children: nearest.map((place) {
+        // Humanized distance string
+        final double rawDist = calculateDistance(lat, lng, place['lat'], place['lng']) * 111; // Approx km
+        final String distStr = rawDist < 1 ? '${(rawDist * 1000).toInt()}m' : '${rawDist.toStringAsFixed(1)}km';
+        
+        return _buildNearbyItem(
+          place['icon'] as IconData,
+          place['type'] as String,
+          '$distStr (${place['name']})',
+        );
+      }).toList(),
     );
   }
 

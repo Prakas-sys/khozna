@@ -117,39 +117,33 @@ class _CompromisedDeviceApp extends StatelessWidget {
 
 /// New central initialization hub
 Future<void> _initializeServices() async {
-  debugPrint('--- SERVICE INITIALIZATION START ---');
+  debugPrint('--- PARALLEL SERVICE INITIALIZATION START ---');
 
-  // 1. Supabase (Crucial)
-  try {
-    await supabase.Supabase.initialize(
+  // Launch Supabase and Firebase in parallel for massive speed boost
+  await Future.wait([
+    // 1. Supabase (Crucial)
+    supabase.Supabase.initialize(
       url: dotenv.env['SUPABASE_URL'] ?? '',
       anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-    );
-    debugPrint('--- SUPABASE INITIALIZED ---');
-  } catch (e) {
-    debugPrint('Supabase Error: $e');
-  }
+    ).then((_) => debugPrint('--- SUPABASE READY ---')).catchError((e) => debugPrint('Supabase Error: $e')),
 
-  // 2. Firebase
-  try {
-    await Firebase.initializeApp();
-    debugPrint('--- FIREBASE INITIALIZED ---');
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    await _setupNotifications();
-    debugPrint('--- NOTIFICATIONS SETUP COMPLETE ---');
-  } catch (e) {
-    debugPrint('Firebase Error: $e');
-  }
+    // 2. Firebase
+    Firebase.initializeApp().then((_) async {
+      debugPrint('--- FIREBASE READY ---');
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      // Notifications can setup in background once Firebase is ready
+      _setupNotifications();
+    }).catchError((e) => debugPrint('Firebase Error: $e')),
 
-  // 3. Fonts (Low priority)
-  GoogleFonts.pendingFonts([
-    GoogleFonts.inter(),
-    GoogleFonts.playfairDisplay(),
-    GoogleFonts.zenAntiqueSoft(),
-    GoogleFonts.montserrat(),
-  ]).catchError((_) => []);
+    // 3. Fonts (Asset pre-loading)
+    GoogleFonts.pendingFonts([
+      GoogleFonts.inter(),
+      GoogleFonts.plusJakartaSans(),
+      GoogleFonts.outfit(),
+    ]).catchError((_) => []),
+  ]);
 
-  debugPrint('--- SERVICE INITIALIZATION END ---');
+  debugPrint('--- PARALLEL INITIALIZATION COMPLETE ---');
 }
 
 Future<void> _setupNotifications() async {
@@ -179,19 +173,30 @@ Future<void> _setupNotifications() async {
 }
 
 void _showLocalNotification(String title, String body) async {
-  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+  // FIX: Generate unique ID every time to prevent old ones from disappearing
+  final int notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
+
+  final AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
-        'high_importance_channel',
-        'High Importance Notifications',
-        importance: Importance.max,
-        priority: Priority.high,
-        showWhen: false,
-      );
-  const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    'high_importance_channel',
+    'High Importance Notifications',
+    importance: Importance.max,
+    priority: Priority.high,
+    showWhen: true,
+    // FIX: Enable BigText so long messages aren't cut off
+    styleInformation: BigTextStyleInformation(
+      body,
+      contentTitle: title,
+      summaryText: 'Khozna Alert',
+    ),
+  );
+
+  final NotificationDetails platformChannelSpecifics = NotificationDetails(
     android: androidPlatformChannelSpecifics,
   );
+
   await flutterLocalNotificationsPlugin.show(
-    0,
+    notificationId,
     title,
     body,
     platformChannelSpecifics,

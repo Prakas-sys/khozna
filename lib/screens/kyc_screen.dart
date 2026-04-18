@@ -418,6 +418,7 @@ class _KycScreenState extends State<KycScreen> {
       await supabase.Supabase.instance.client
           .from('profiles')
           .update({
+            'full_name': _nameController.text.trim(),
             'kyc_status': 'pending',
             'email_verified': _isEmailVerified,
             'phone_verified': _isPhoneVerified,
@@ -550,6 +551,31 @@ class _KycScreenState extends State<KycScreen> {
                   child: _currentStep == 1
                       ? _buildStepButton('Next Step (अर्को चरण)', _nextStep)
                       : _buildSubmitButton(),
+                ),
+              ),
+            ),
+          ),
+
+          // Top Absolute Escape Button (Nuclear Option)
+          Positioned(
+            right: 12,
+            top: MediaQuery.of(context).padding.top + 8,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  debugPrint('GLOBAL_KYC_EXIT_TAPPED');
+                  HapticFeedback.mediumImpact();
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                borderRadius: BorderRadius.circular(30),
+                child: Container(
+                  padding: const EdgeInsets.all(14), // Larger tap area
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.12), // Subtle dark ring for visibility
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
                 ),
               ),
             ),
@@ -933,30 +959,6 @@ class _KycScreenState extends State<KycScreen> {
             ),
           ),
           
-          // Close Button (Right)
-          Positioned(
-            right: 12,
-            top: MediaQuery.of(context).padding.top + 12,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                  Navigator.of(context).pop();
-                },
-                borderRadius: BorderRadius.circular(30),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.close_rounded, color: Colors.white, size: 22),
-                ),
-              ),
-            ),
-          ),
-
           // Decorative glowing orb
           Positioned(
             top: -30,

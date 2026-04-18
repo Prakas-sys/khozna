@@ -143,7 +143,21 @@ class PropertyCard extends StatelessWidget {
                             color: const Color(0xFFF5F5F5),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: _buildImagePlaceholder(), // Use a dedicated image-only shimmer
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Stack(
+                              children: [
+                                _buildImagePlaceholder(),
+                                // Subtly blurring overlay for the 'Instagram' feel
+                                Positioned.fill(
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                    child: Container(color: Colors.white.withOpacity(0)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                         errorWidget: (context, url, error) => Container(
                           color: const Color(0xFFF9FAFB),
