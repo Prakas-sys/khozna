@@ -145,7 +145,7 @@ class HomeScreenState extends State<HomeScreen> {
         if (micro.toLowerCase().contains(macro.toLowerCase())) {
            area = micro;
         } else {
-           area = '$micro, $macro';
+           area = '$macro, $micro';
         }
       } else if (macro.isNotEmpty) {
         area = macro;
