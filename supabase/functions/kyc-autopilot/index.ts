@@ -43,15 +43,17 @@ serve(async (req: Request) => {
     await supabase.from("notifications").insert({
       user_id: record.user_id,
       sender_id: record.user_id,
-      title: verdict === "verified" ? "KYC Approved! 🎉" : "KYC Rejected ⚠️",
-      message: "Cloud Auto-Pilot (Llama 4 Brain) has verified your identity.",
+      title: verdict === "verified" ? "Verification Successful! 🎉" : "Verification Failed ⚠️",
+      message: verdict === "verified" 
+        ? "Your identity has been successfully verified. You now have full access to Khozna." 
+        : "We couldn't verify your documents. Please check the details and try again.",
       type: "system"
     })
 
     return new Response(JSON.stringify({ success: true, verdict }), { status: 200 })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err)
-    console.error("Llama 4 Brain Error:", message)
+    console.error("Auto-Pilot Error:", message)
     return new Response(JSON.stringify({ error: message }), { status: 200 })
   }
 })
