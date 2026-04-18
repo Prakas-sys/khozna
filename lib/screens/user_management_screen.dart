@@ -79,6 +79,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           'User Management',
           style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 20),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Test AI Analyser',
+            icon: const Text('🧪', style: TextStyle(fontSize: 20)),
+            onPressed: () => _showAiTestDialog(context),
+          ),
+          const SizedBox(width: 8),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Padding(
@@ -228,7 +236,158 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       }
     }
   }
+
+  void _showAiTestDialog(BuildContext context) {
+    final frontCtrl = TextEditingController();
+    final backCtrl = TextEditingController();
+    final selfieCtrl = TextEditingController();
+    final nameCtrl = TextEditingController();
+    final cidCtrl = TextEditingController();
+    Map<String, dynamic>? aiResult;
+    bool isLoading = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) {
+          return DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            maxChildSize: 0.96,
+            minChildSize: 0.5,
+            builder: (_, sc) => Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              child: ListView(
+                controller: sc,
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40, height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      const Text('🧪', style: TextStyle(fontSize: 28)),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Test AI Analyser',
+                              style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 20)),
+                          Text('Paste image URLs to test the AI',
+                              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[500])),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Name + Citizenship
+                  _buildTestField(nameCtrl, 'Full Name (on ID card)', Icons.person_outline_rounded),
+                  const SizedBox(height: 12),
+                  _buildTestField(cidCtrl, 'Citizenship Number', Icons.badge_outlined),
+                  const SizedBox(height: 20),
+
+                  Text('Document Image URLs',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 14)),
+                  const SizedBox(height: 4),
+                  Text('Upload images to Cloudinary or paste any public image URL',
+                      style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500])),
+                  const SizedBox(height: 12),
+
+                  _buildTestField(frontCtrl, '📄 Front ID Image URL', Icons.link_rounded),
+                  const SizedBox(height: 12),
+                  _buildTestField(backCtrl, '📄 Back ID Image URL', Icons.link_rounded),
+                  const SizedBox(height: 12),
+                  _buildTestField(selfieCtrl, '🤳 Selfie with ID Image URL', Icons.link_rounded),
+                  const SizedBox(height: 24),
+
+                  // Run Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton.icon(
+                      onPressed: isLoading ? null : () async {
+                        if (frontCtrl.text.isEmpty || backCtrl.text.isEmpty || selfieCtrl.text.isEmpty) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            const SnackBar(content: Text('Please fill in all 3 image URLs')),
+                          );
+                          return;
+                        }
+                        setModalState(() { isLoading = true; aiResult = null; });
+                        final result = await KycAiAnalyser.analyseKycDocuments(
+                          frontImageUrl: frontCtrl.text.trim(),
+                          backImageUrl: backCtrl.text.trim(),
+                          selfieImageUrl: selfieCtrl.text.trim(),
+                          fullName: nameCtrl.text.trim(),
+                          citizenshipNumber: cidCtrl.text.trim(),
+                        );
+                        setModalState(() { isLoading = false; aiResult = result; });
+                      },
+                      icon: isLoading
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Text('🤖', style: TextStyle(fontSize: 20)),
+                      label: Text(
+                        isLoading ? 'Analysing...' : 'Run AI Analysis',
+                        style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 15),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.brandColor,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                    ),
+                  ),
+
+                  // AI Result
+                  if (aiResult != null) _AiResultCard(result: aiResult!),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildTestField(TextEditingController ctrl, String hint, IconData icon) {
+    return TextField(
+      controller: ctrl,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: GoogleFonts.inter(fontSize: 13, color: Colors.grey[400]),
+        prefixIcon: Icon(icon, size: 18, color: Colors.grey[400]),
+        filled: true,
+        fillColor: Colors.grey[50],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Colors.grey.shade200),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+    );
+  }
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // KYC DETAIL BOTTOM SHEET
