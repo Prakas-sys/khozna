@@ -59,7 +59,7 @@
         </activity>
 
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name="io.flutter.plugins.share.ShareFileProvider"
             android:authorities="${applicationId}.flutter.share_provider"
             android:exported="false"
             android:grantUriPermissions="true">

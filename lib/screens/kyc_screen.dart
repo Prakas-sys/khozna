@@ -739,7 +739,7 @@ class _KycScreenState extends State<KycScreen> {
             ),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -759,26 +759,37 @@ class _KycScreenState extends State<KycScreen> {
                   ),
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Navigator.of(context).pop(),
                     child: Container(
-                      padding: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withOpacity(0.25),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                      child: const Icon(Icons.close_rounded, color: Colors.white, size: 22),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               Text(
-                'VERIFY IDENTITY (पहिचान प्रमाणित)',
+                'VERIFY IDENTITY',
+                textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
-                  fontSize: 16,
+                  fontSize: 22,
                   fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
+                  letterSpacing: 1.2,
                   color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'पहिचान प्रमाणित गर्नुहोस्',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.mukta(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withOpacity(0.85),
                 ),
               ),
               const SizedBox(height: 20),
