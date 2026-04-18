@@ -373,9 +373,11 @@ class HomeScreenState extends State<HomeScreen> {
                 height: 48, // Increased for a more prominent brand presence
                 fit: BoxFit.contain,
               ),
-            ),
-            const Spacer(),
-            GestureDetector(
+            const SizedBox(width: 8),
+            // Use Expanded to take all remaining space between logo and actions
+            // This is the definitive fix for the yellow overflow warning
+            Expanded(
+              child: GestureDetector(
                 onTap: () async {
                   HapticFeedback.lightImpact();
                   if (_currentPosition != null) {
@@ -401,55 +403,56 @@ class HomeScreenState extends State<HomeScreen> {
                   }
                 },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    // Constrain the width so it doesn't push against the bell icon
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(12), // Reduced from 50 (pill) for a tighter look
+                      color: AppTheme.brandColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppTheme.brandColor.withValues(alpha: 0.1),
+                        width: 1,
+                      ),
                     ),
-                    child: Column(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          'YOUR LOCATION',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.0,
-                            color: Colors.grey[500],
+                        const Icon(
+                          CupertinoIcons.location_solid,
+                          color: AppTheme.brandColor,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 6),
+                        // Marquee effect: Horizontal scrolling enabled for long text
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            child: Text(
+                              _currentLocationName,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.black,
+                                height: 1.1,
+                              ),
+                              maxLines: 1,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              CupertinoIcons.location_solid,
-                              color: AppTheme.brandColor,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                _currentLocationName,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.black,
-                                  height: 1.1,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: Colors.grey[400],
+                          size: 14,
                         ),
                       ],
                     ),
                   ),
               ),
+            ),
           ],
         ),
+      ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),

@@ -407,9 +407,9 @@ class PropertyCard extends StatelessWidget {
                                   Stack(
                                     alignment: Alignment.center,
                                     children: [
-                                      // Pseudo-stroke for bold look in PropertyCard
-                                      for (double i in [-0.4, 0.4])
-                                        for (double j in [-0.4, 0.4])
+                                      // Pseudo-stroke for subtle bold look in PropertyCard
+                                      for (double i in [-0.2, 0.2])
+                                        for (double j in [-0.2, 0.2])
                                           Transform.translate(
                                             offset: Offset(i, j),
                                             child: SvgPicture.asset(
