@@ -106,43 +106,49 @@ class _ReelsScreenState extends State<ReelsScreen> {
           ),
           // Top Toggle (Photo/Video)
           Positioned(
-            top: 0,
+            top: 10,
             left: 0,
             right: 0,
             child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,
-                  vertical: 16,
+                  vertical: 8,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.15),
+                          ),
                         ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildSegmentButton(
-                            title: 'Photo',
-                            icon: Icons.image_rounded,
-                            isSelected: isImageView,
-                            onTap: () => setState(() => isImageView = true),
-                          ),
-                          _buildSegmentButton(
-                            title: 'Video',
-                            icon: Icons.play_circle_fill,
-                            isSelected: !isImageView,
-                            onTap: () => setState(() => isImageView = false),
-                          ),
-                        ],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: _buildSegmentButton(
+                                title: 'Photo',
+                                icon: Icons.image_rounded,
+                                isSelected: isImageView,
+                                onTap: () => setState(() => isImageView = true),
+                              ),
+                            ),
+                            Flexible(
+                              child: _buildSegmentButton(
+                                title: 'Video',
+                                icon: Icons.play_circle_fill,
+                                isSelected: !isImageView,
+                                onTap: () => setState(() => isImageView = false),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -220,7 +226,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
         Positioned(
           left: 12,
           right: 12,
-          bottom: 34, // Lifted up slightly to fix the "pushed down" look
+          bottom: 90, // Lifted significantly to clear the glass bottom navbar completely
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
