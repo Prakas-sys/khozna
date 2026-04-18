@@ -23,10 +23,11 @@ serve(async (req: Request) => {
       body: JSON.stringify({
         model: "meta-llama/llama-4-scout-17b-16e-instruct",
         messages: [{ role: "user", content: [
-          { type: "text", text: "Is this a valid Nepali ID? Return ONLY 'PASS' or 'FAIL'. User: " + record.full_name },
+          { type: "text", text: "Analyze this Nepali ID. Return in this JSON format: {\"verdict\": \"PASS\" or \"FAIL\", \"reason\": \"Short reason in Nepali why it failed or null if pass\"}. User Name: " + record.full_name },
           { type: "image_url", image_url: { url: record.front_image_url } }
         ]}],
-        max_tokens: 10
+        max_tokens: 100,
+        response_format: { type: "json_object" }
       })
     })
 
@@ -34,10 +35,16 @@ serve(async (req: Request) => {
     if (!groqResponse.ok) throw new Error("Groq API Error: " + bodyText)
 
     const aiData = JSON.parse(bodyText)
-    const rawContent = aiData.choices[0].message.content
-    const verdict = rawContent.includes("PASS") ? "verified" : "rejected"
+    const aiResult = JSON.parse(aiData.choices?.[0]?.message?.content || "{\"verdict\": \"FAIL\", \"reason\": \"प्रमाणिकरण त्रुटि\"}")
+    
+    const verdict = aiResult.verdict.toLowerCase() === "pass" ? "verified" : "rejected"
+    const reason = aiResult.reason || "कागजातहरू स्पष्ट छैनन्।"
 
-    await supabase.from("kyc_verifications").update({ status: verdict }).eq("id", record.id)
+    await supabase.from("kyc_verifications").update({ 
+      status: verdict, 
+      rejection_reason: verdict === "rejected" ? reason : null 
+    }).eq("id", record.id)
+    
     await supabase.from("profiles").update({ kyc_status: verdict }).eq("id", record.user_id)
     
     await supabase.from("notifications").insert({
@@ -45,12 +52,12 @@ serve(async (req: Request) => {
       sender_id: record.user_id,
       title: verdict === "verified" ? "Verification Successful! 🎉" : "Verification Failed ⚠️",
       message: verdict === "verified" 
-        ? "Your identity has been successfully verified. You now have full access to Khozna." 
-        : "We couldn't verify your documents. Please check the details and try again.",
+        ? "तपाइँको पहिचान प्रमाणित भयो। तपाइँ अब Khozna का सबै सुविधाहरू प्रयोग गर्न सक्नुहुन्छ।" 
+        : `कारण: ${reason}। कृपया पुन: प्रयास गर्नुहोस्।`,
       type: "system"
     })
 
-    return new Response(JSON.stringify({ success: true, verdict }), { status: 200 })
+    return new Response(JSON.stringify({ success: true, verdict, reason }), { status: 200 })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err)
     console.error("Auto-Pilot Error:", message)
