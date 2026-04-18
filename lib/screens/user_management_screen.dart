@@ -783,7 +783,7 @@ class _AiResultCard extends StatelessWidget {
           _CheckRow(label: 'Genuine Nepali नागरिकता Card', value: result['is_genuine_nepali_id'] == true),
           _CheckRow(label: 'Name Matches Document', value: result['name_match'] == true),
           _CheckRow(label: 'ID Number Matches', value: result['id_number_match'] == true),
-          _CheckRow(label: 'Face Matches Card Photo', value: result['face_match'] == true),
+          _CheckRow(label: 'Real Human Face in Selfie', value: result['human_face_in_selfie'] == true),
           _CheckRow(label: 'GPS Location in Nepal', value: result['location_valid'] == true),
 
           // Red Flags

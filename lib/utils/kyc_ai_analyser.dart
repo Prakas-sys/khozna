@@ -59,8 +59,7 @@ BACK SIDE features:
 5. Sometimes has a photo of the holder again
 
 SELFIE requirements:
-1. A clear photo of the user's face
-2. The person's face should reasonably match the photo on the citizenship card
+1. A clear photo of a real human face
 
 FAKE OR INVALID DOCUMENTS — red flags:
 - Random piece of paper without official Nepali text
@@ -100,7 +99,7 @@ Answer these questions strictly based on what you SEE in the images:
 1. Is the front image actually a Nepali नागरिकता प्रमाणपत्र (citizenship card)? Look for Nepali text, government seal, "नेपाल सरकार" header.
 2. Does the name on the card match "$fullName"?
 3. Does the citizenship number on the card match "$citizenshipNumber"?
-4. Does the face in the selfie reasonably match the photo on the citizenship card?
+4. Does the selfie clearly show a real human face?
 5. Is the GPS location within Nepal's boundaries (lat 26-30, lon 80-88)?
 6. Are there any red flags suggesting the documents are fake?
 
@@ -111,7 +110,7 @@ Return ONLY this exact JSON:
   "is_genuine_nepali_id": true or false,
   "name_match": true or false,
   "id_number_match": true or false,
-  "face_match": true or false,
+  "human_face_in_selfie": true or false,
   "location_valid": true or false,
   "red_flags": ["<flag 1>", "<flag 2>"],
   "notes": "<brief explanation of your verdict in 1-2 sentences>"
@@ -175,7 +174,7 @@ Return ONLY this exact JSON:
         'is_genuine_nepali_id': false,
         'name_match': false,
         'id_number_match': false,
-        'face_match': false,
+        'human_face_in_selfie': false,
         'location_valid': false,
         'red_flags': [message],
         'notes': message,
