@@ -1983,9 +1983,7 @@ class _PropertySuccessScreenState extends State<_PropertySuccessScreen>
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _detailRow(Icons.person_outline, 'Owner', widget.ownerName),
                       _detailRow(Icons.home_outlined, 'Title', widget.title.isEmpty ? 'My Property' : widget.title),
-                      _detailRow(Icons.category_outlined, 'Category', widget.category),
                       _detailRow(Icons.location_on_outlined, 'Location', widget.area),
                       if (widget.landmark.isNotEmpty)
                         _detailRow(Icons.place_outlined, 'Landmark', widget.landmark),
@@ -1994,8 +1992,6 @@ class _PropertySuccessScreenState extends State<_PropertySuccessScreen>
                         'Monthly Rent',
                         widget.price.isEmpty ? 'Not specified' : 'Rs. ${widget.price}/mo',
                       ),
-                      _detailRow(Icons.calendar_today_outlined, 'Date', _formatDate(widget.submittedAt)),
-                      _detailRow(Icons.access_time_outlined, 'Time', _formatTime(widget.submittedAt)),
                     ],
                   ),
                 ),

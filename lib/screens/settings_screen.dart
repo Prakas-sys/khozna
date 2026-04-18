@@ -60,24 +60,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Delete Account?',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.red),
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.redAccent),
+          textAlign: TextAlign.center,
         ),
-        content: const Text(
+        content: Text(
           'This will permanently delete your profile, properties, messages, and all other data. This action cannot be undone.',
+          style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14),
+          textAlign: TextAlign.center,
         ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _showFinalConfirmation();
-            },
-            child: const Text('Continue', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showFinalConfirmation();
+                  },
+                  child: Text('Continue to Delete', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15)),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.bold, fontSize: 15)),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -88,20 +116,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Last Warning'),
-        content: const Text('Are you 100% sure? All your listed properties and earnings history will be lost forever.'),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'Last Warning',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.redAccent),
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          'Are you 100% sure?\nAll your listed properties and earnings history will be lost forever.',
+          style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14),
+          textAlign: TextAlign.center,
+        ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Wait, keep it!'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              Navigator.pop(context);
-              _deleteAccount();
-            },
-            child: const Text('Yes, Delete Everything', style: TextStyle(color: Colors.white)),
+          SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _deleteAccount();
+                  },
+                  child: Text('Yes, Delete Everything', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15)),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text('Wait, keep my account', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.bold, fontSize: 15)),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -153,8 +153,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       final url = Uri.parse(
         'https://www.google.com/maps/search/?api=1&query=${widget.latitude},${widget.longitude}',
       );
-      if (await canLaunchUrl(url)) {
+      try {
         await launchUrl(url, mode: LaunchMode.externalApplication);
+      } catch (e) {
+        await launchUrl(url, mode: LaunchMode.inAppBrowserView);
       }
     } else {
       if (mounted) {

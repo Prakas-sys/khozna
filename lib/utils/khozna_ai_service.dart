@@ -260,9 +260,15 @@ If a user asks about ANYTHING outside this list (e.g., buying land, hotel bookin
         area = micro;
       }
 
-      String landmark = (road.isNotEmpty && road != micro && cleanText(road).isNotEmpty) 
-          ? 'Near ${cleanText(road)}' 
-          : '';
+      String landmark = '';
+      if (road.isNotEmpty && road != micro && cleanText(road).isNotEmpty) {
+        landmark = 'Near ${cleanText(road)}';
+      } else if (micro.isNotEmpty && micro.toLowerCase() != city.toLowerCase()) {
+        // If there's no road, the 'micro' location (often a shop, school, or neighborhood)
+        // should become the specific landmark, and we keep the broader city as the area!
+        landmark = 'Near $micro';
+        area = city.isNotEmpty ? city : area;
+      }
 
       return {
         'area': area,
