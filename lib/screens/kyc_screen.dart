@@ -436,27 +436,30 @@ class _KycScreenState extends State<KycScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
             title: Row(
               children: [
-                const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor),
+                const Icon(Icons.check_circle_rounded, color: Colors.green, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'अटो-पाइलट सक्रिय छ', 
+                    'कागजातहरू बुझाइयो', 
                     style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 18)
                   ),
                 ),
               ],
             ),
             content: Text(
-              'तपाइँको कागजातहरू बुझाइएको छ! हाम्रो क्लाउड एआईले अहिले नै ती कागजातहरू जाँच गर्दैछ।\n\nतपाइँले यो स्क्रिन बन्द गर्न सक्नुहुन्छ—केही सेकेन्डमै प्रमाणीकरण भएपछि तपाइँलाई सूचना पठाइनेछ! 🚀',
-              style: GoogleFonts.inter(),
+              'तपाइँको कागजातहरू सफलतापूर्वक बुझाइएको छ! हाम्रो टोलीले आगामी ४८ घण्टा भित्र यी कागजातहरू प्रमाणीकरण गर्नेछ।\n\nप्रक्रिया पूरा भएपछि तपाइँलाई मोबाइलमा सूचना (Notification) पठाइनेछ।',
+              style: GoogleFonts.inter(height: 1.5),
             ),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.pop(ctx);
-                  Navigator.pop(context); // Go back to profile
+                  if (mounted) Navigator.pop(context); // Go back to profile
                 },
-                child: const Text('हुन्छ, राम्रो छ!'),
+                child: Text(
+                  'हुन्छ, बुझें',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.blue),
+                ),
               ),
             ],
           ),
