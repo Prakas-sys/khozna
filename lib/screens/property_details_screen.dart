@@ -228,63 +228,34 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: _buildFloatingCircle(
-            icon: Icons.arrow_back_ios_new_rounded,
-            onTap: () => Navigator.pop(context),
-            iconSize: 18,
-          ),
-        ),
-        actions: [
-          _buildFloatingCircle(
-            icon: Icons.share_outlined,
-            onTap: () {},
-            iconSize: 20,
-          ),
-          const SizedBox(width: 8),
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: _buildFloatingCircle(
-              onTap: () {},
-              child: FavouriteButton(
-                propertyId: widget.id,
-                size: 22,
-                color: Colors.white,
-                showShadow: false,
-              ),
-            ),
-          ),
-        ],
+        automaticallyImplyLeading: false, // Custom header in Carousel
       ),
       body: CustomScrollView(
         slivers: [
         _buildContainedCarousel(),
         SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              const SizedBox(height: 12),
-              // VERIFIED BADGE & TITLE - NOW BELOW IMAGE
+              // VERIFIED BADGE & TITLE
               _buildHeader(widget.title, widget.location),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
 
               // PROPERTY STATS (Beds, Baths, Area, Floor)
-              // BEAUTIFIED AMENITY GRID (Kathmandu Specific)
               _buildAmenityGrid(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 16),
 
               // PRICE BOX
               _buildPriceBox(widget.price),
-                const SizedBox(height: 32),
+              const SizedBox(height: 20),
 
-                // DESCRIPTION
-                _buildSectionTitle('Description'),
-                const SizedBox(height: 12),
+              // DESCRIPTION
+              _buildSectionTitle('Description'),
+              const SizedBox(height: 8),
                 Text(
                   widget.description ??
                       'सानेपाको शान्त वातावरणमा अवस्थित यो २ कोठाको फ्ल्याट विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ। उज्यालो कोठाहरू र खुल्ला पार्किङको सुविधा उपलब्ध छ। मुख्य बाटोबाट मात्र ५ मिनेटको दुरीमा।',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.outfit(
                     fontSize: 15,
                     color: _airbnbGrey,
                     height: 1.6,
@@ -330,7 +301,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                     const SizedBox(height: 12),
                                     Text(
                                       'Real-time Map Preview',
-                                      style: GoogleFonts.inter(
+                                      style: GoogleFonts.outfit(
                                         fontSize: 12,
                                         color: Colors.grey[500],
                                         fontWeight: FontWeight.w600,
@@ -338,7 +309,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                     ),
                                     Text(
                                       '(Requires Maps API Key)',
-                                      style: GoogleFonts.inter(
+                                      style: GoogleFonts.outfit(
                                         fontSize: 10,
                                         color: Colors.grey[400],
                                       ),
@@ -447,7 +418,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildContainedCarousel() {
     return SliverToBoxAdapter(
       child: Container(
-        height: 320,
+        height: 360,
         width: double.infinity,
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -474,19 +445,67 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 return image;
               },
             ),
+            // Glass Floating Header - PRO DESIGN
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 8,
+              left: 16,
+              right: 16,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildGlassCircle(
+                    icon: Icons.arrow_back_ios_new_rounded,
+                    onTap: () => Navigator.pop(context),
+                    iconSize: 18,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(40),
+                      border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildGlassCircle(
+                          icon: Icons.ios_share_rounded,
+                          onTap: () {
+                            HapticFeedback.mediumImpact();
+                          },
+                          iconSize: 18,
+                          opacity: 0.25,
+                        ),
+                        const SizedBox(width: 8),
+                        _buildGlassCircle(
+                          onTap: () {},
+                          child: FavouriteButton(
+                            propertyId: widget.id,
+                            size: 20,
+                            color: Colors.white,
+                            showShadow: false,
+                          ),
+                          opacity: 0.25,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             // Bottom gradient for better contrast
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
               child: Container(
-                height: 60,
+                height: 80,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      Colors.black.withValues(alpha: 0.3),
+                      Colors.black.withOpacity(0.4),
                       Colors.transparent,
                     ],
                   ),
@@ -495,7 +514,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             // Dot Indicators
             Positioned(
-              bottom: 16,
+              bottom: 20,
               left: 0,
               right: 0,
               child: Row(
@@ -505,13 +524,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   (index) => AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     margin: const EdgeInsets.symmetric(horizontal: 4),
-                    height: 6,
-                    width: _currentImageIndex == index ? 18 : 6,
+                    height: 4,
+                    width: _currentImageIndex == index ? 20 : 4,
                     decoration: BoxDecoration(
                       color: _currentImageIndex == index
                           ? Colors.white
-                          : Colors.white.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(3),
+                          : Colors.white.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
                 ),
@@ -519,23 +538,30 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             // Image Counter Badge
             Positioned(
-              top: 16,
-              right: 16,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '${_currentImageIndex + 1}/${displayImages.length}',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+              bottom: 20,
+              right: 20,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white.withOpacity(0.3)),
+                    ),
+                    child: Text(
+                      '${_currentImageIndex + 1}/${displayImages.length}',
+                      style: GoogleFonts.outfit(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -551,48 +577,52 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color(0xFF00B14F).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFF00B14F).withValues(alpha: 0.2)),
+            color: const Color(0xFF00A3E1).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(100),
+            border: Border.all(color: const Color(0xFF00A3E1).withOpacity(0.2)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.verified_rounded, color: Color(0xFF00B14F), size: 14),
-              const SizedBox(width: 6),
+              const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 14),
+              const SizedBox(width: 8),
               Text(
                 'VERIFIED LISTING',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w900,
-                  color: const Color(0xFF00B14F),
-                  letterSpacing: 0.8,
+                style: GoogleFonts.outfit(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF00A3E1),
+                  letterSpacing: 1.2,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Text(
           title,
-          style: GoogleFonts.inter(
-            fontSize: 26,
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: AppTheme.primaryTextColor,
-            height: 1.2,
+            color: const Color(0xFF1A1A2E),
+            height: 1.1,
           ),
         ),
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(Icons.place_outlined, color: Colors.grey, size: 16),
-            const SizedBox(width: 4),
+            const Icon(Icons.location_on_rounded, color: Color(0xFF00A3E1), size: 18),
+            const SizedBox(width: 6),
             Expanded(
               child: Text(
                 '${widget.location}${widget.landmark.isNotEmpty ? ' • ${widget.landmark}' : ''}',
-                style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+                style: GoogleFonts.outfit(
+                  fontSize: 15,
+                  color: const Color(0xFF6B7280),
+                  fontWeight: FontWeight.w400,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -711,10 +741,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         border: Border.symmetric(
-          horizontal: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
+          horizontal: BorderSide(color: Colors.grey.withOpacity(0.05)),
         ),
       ),
       child: GridView.count(
@@ -734,29 +764,32 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.brandColor.withValues(alpha: 0.05),
+            color: const Color(0xFF00A3E1).withOpacity(0.08),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: AppTheme.brandColor, size: 24),
+          child: Icon(icon, color: const Color(0xFF00A3E1), size: 22),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Text(
           value,
           textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+          style: GoogleFonts.outfit(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF1A1A2E),
             height: 1.1,
           ),
         ),
+        const SizedBox(height: 2),
         Text(
           label,
           textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.outfit(
             fontSize: 10,
-            color: Colors.grey[500],
+            color: const Color(0xFF9CA3AF),
+            fontWeight: FontWeight.w500,
             height: 1.1,
           ),
         ),
@@ -766,70 +799,85 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildPriceBox(String price) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.brandColor.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.1)),
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF00A3E1).withOpacity(0.1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'भाडा/महिना (Rent/Month)',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: _airbnbGrey,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '₹ ${PriceFormatter.format(price)}',
-                      style: GoogleFonts.inter(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.brandColor,
-                      ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'भाडा/महिना (Rent/Month)',
+                    style: GoogleFonts.outfit(
+                      fontSize: 12,
+                      color: const Color(0xFF6B7280),
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.5,
                     ),
-                    TextSpan(
-                      text: ' /महिना',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: _airbnbGrey,
-                      ),
+                  ),
+                  const SizedBox(height: 4),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Rs. ${PriceFormatter.format(price)}',
+                          style: GoogleFonts.outfit(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF1A1A2E),
+                            letterSpacing: -1,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' /mo',
+                          style: GoogleFonts.outfit(
+                            fontSize: 16,
+                            color: const Color(0xFF9CA3AF),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00A3E1),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF00A3E1).withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
+                child: Text(
+                  'Negotiable',
+                  style: GoogleFonts.outfit(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ],
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: Text(
-              'सल्लाह गर्न सकिने',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.brandColor,
-              ),
-            ),
           ),
         ],
       ),
@@ -894,12 +942,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           const SizedBox(width: 12),
           Text(
             title,
-            style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700]),
+            style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[700]),
           ),
           const Spacer(),
           Text(
             distance,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.outfit(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppTheme.primaryTextColor,
@@ -957,10 +1005,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                               name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.outfit(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: AppTheme.primaryTextColor,
+                                color: const Color(0xFF1A1A2E),
                               ),
                             ),
                           ),
@@ -981,11 +1029,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           const SizedBox(width: 4),
                           Text(
                             _isReserved ? 'Property Reserved' : 'Verified Owner',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
+                            style: GoogleFonts.outfit(
+                              fontSize: 13,
                               color: _isReserved
                                   ? Colors.orange.shade800
-                                  : Colors.grey[600],
+                                  : const Color(0xFF6B7280),
                               fontWeight: _isReserved
                                   ? FontWeight.w700
                                   : FontWeight.w500,
@@ -1013,7 +1061,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Expanded(
                   child: Text(
                     "Hello! I am the owner. Feel free to message me for a visit or more details.",
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.outfit(
                       fontSize: 13,
                       fontStyle: FontStyle.italic,
                       color: Colors.grey[700],
@@ -1078,7 +1126,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           const SizedBox(width: 10),
           Text(
             title,
-            style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700]),
+            style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[700]),
           ),
         ],
       ),
@@ -1119,7 +1167,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.inter(
+      style: GoogleFonts.outfit(
         fontSize: 19,
         fontWeight: FontWeight.bold,
         color: AppTheme.primaryTextColor,
@@ -1155,12 +1203,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         if (widget.latitude != null && widget.longitude != null) ...[
           Text(
             'GPS coordinates verified. Tap the map below to get directions via Google Maps.',
-            style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
+            style: GoogleFonts.outfit(fontSize: 13, color: _airbnbGrey),
           ),
         ] else ...[
           Text(
             'Exact GPS location not provided. Contact the owner for precise directions.',
-            style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
+            style: GoogleFonts.outfit(fontSize: 13, color: _airbnbGrey),
           ),
         ],
       ],
@@ -1179,11 +1227,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             children: [
               Text(
                 label,
-                style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+                style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[500]),
               ),
               Text(
                 value,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.outfit(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                   color: AppTheme.primaryTextColor,
@@ -1349,7 +1397,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                           children: [
                                             Text(
                                               'Reserved Successfully!',
-                                              style: GoogleFonts.inter(
+                                              style: GoogleFonts.outfit(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
@@ -1357,7 +1405,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                             ),
                                             Text(
                                               'The owner has been notified.',
-                                              style: GoogleFonts.inter(
+                                              style: GoogleFonts.outfit(
                                                 color: Colors.white70,
                                                 fontSize: 12,
                                               ),
@@ -1400,7 +1448,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       : _isReserved
                       ? 'Booked ✓'
                       : 'BOOK NOW (बुक गर्नुहोस्)',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.outfit(
                     fontWeight: FontWeight.w900,
                     fontSize: 13,
                     letterSpacing: 0.5,
@@ -1409,6 +1457,36 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGlassCircle({
+    IconData? icon,
+    Widget? child,
+    required VoidCallback onTap,
+    double iconSize = 20,
+    double opacity = 0.2, // Added optional opacity
+  }) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(50),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(opacity),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withOpacity(0.25), width: 1),
+            ),
+            child: child ?? Icon(icon, color: Colors.white, size: iconSize),
+          ),
         ),
       ),
     );
@@ -1464,7 +1542,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             const SizedBox(height: 2),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.outfit(
                 color: color,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
