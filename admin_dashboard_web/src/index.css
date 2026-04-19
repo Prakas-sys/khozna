@@ -3,19 +3,31 @@
 @theme {
   --color-brand: #00A3E1;
   --color-brand-dark: #0079B1;
+  --color-brand-light: #E0F5FF;
+  --color-obsidian: #1A1A2E;
   --color-surface: #FFFFFF;
-  --color-bg: #F8F9FB;
+  --color-bg: #F8F9FA;
+  --shadow-premium: 0 4px 20px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
-body {
-  background-color: var(--color-bg);
-  color: #111827;
-  font-family: 'Inter', sans-serif;
+@layer base {
+  body {
+    @apply bg-bg antialiased text-obsidian;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
 }
 
-.glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+.font-brand {
+  font-family: 'Outfit', sans-serif;
+}
+
+.glass-pro {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-premium);
+}
+
+.sidebar-gradient {
+  background: linear-gradient(180deg, #1A1A2E 0%, #111827 100%);
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { Users, Search, Loader2, UserX, UserCheck, Trash2 } from 'lucide-react';
+import { Users, Search, Loader2, UserX, UserCheck, Trash2, Mail, Phone, Calendar, Shield } from 'lucide-react';
 
 export const UserManagement = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -28,7 +28,6 @@ export const UserManagement = () => {
     }
   };
 
-  // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchUsers();
@@ -37,11 +36,10 @@ export const UserManagement = () => {
   }, [search]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to permanently delete this user? ALL their data, properties, and KYCs will be wiped.")) return;
+    if (!confirm("CRITICAL ACTION: Permanently purge this user identity? All linked data will be lost.")) return;
     
     setProcessingId(id);
     try {
-      // Wiping related data manually to be safe (if no cascade)
       await supabase.from('kyc_verifications').delete().eq('user_id', id);
       await supabase.from('notifications').delete().eq('user_id', id);
       await supabase.from('saved_properties').delete().eq('user_id', id);
@@ -52,7 +50,7 @@ export const UserManagement = () => {
       setUsers(prev => prev.filter(u => u.id !== id));
     } catch (e) {
       console.error(e);
-      alert("Failed to delete user. Check permissions or constraints.");
+      alert("Purge failed. Constraint violation likely.");
     } finally {
       setProcessingId(null);
     }
@@ -61,88 +59,123 @@ export const UserManagement = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'verified':
-        return <span className="bg-green-100 text-green-700 border border-green-200 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><UserCheck size={14} /> Verified</span>;
+        return (
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-green-100">
+            <UserCheck size={12} fill="currentColor" className="opacity-30" /> Verified
+          </div>
+        );
       case 'pending':
-        return <span className="bg-orange-100 text-orange-700 border border-orange-200 px-3 py-1 rounded-full text-xs font-bold">Pending KYC</span>;
+        return (
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-orange-100">
+             Compliance Audit
+          </div>
+        );
       case 'rejected':
-        return <span className="bg-red-100 text-red-700 border border-red-200 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><UserX size={14} /> Rejected</span>;
+        return (
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-widest border border-red-100">
+            <UserX size={12} /> Access Denied
+          </div>
+        );
       default:
-        return <span className="bg-gray-100 text-gray-700 border border-gray-200 px-3 py-1 rounded-full text-xs font-bold">Unverified</span>;
+        return (
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-50 text-gray-400 rounded-lg text-[10px] font-black uppercase tracking-widest border border-gray-100">
+            Standard Entry
+          </div>
+        );
     }
   };
 
   return (
-    <div className="p-10 max-w-7xl mx-auto w-full flex-1 h-full flex flex-col overflow-hidden">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <div className="p-8 max-w-7xl mx-auto w-full flex-1 flex flex-col min-h-screen pb-24 selection:bg-brand/10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
         <div>
-          <h2 className="text-3xl font-extrabold text-gray-900">User Management</h2>
-          <p className="text-gray-500 mt-1">Search, view, and manage all users on the platform.</p>
+          <h2 className="text-3xl font-brand font-black text-obsidian tracking-tight mb-2">User Directory</h2>
+          <p className="text-gray-400 font-medium text-sm">Managing the Khozna ecosystem access control and identity validation.</p>
         </div>
         
-        <div className="relative w-full md:w-96">
+        <div className="relative group">
           <input 
             type="text" 
-            placeholder="Search name or phone..." 
+            placeholder="Filter identity database..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white border border-gray-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-[#00A3E1]/50 font-medium"
+            className="w-full md:w-80 bg-white border border-gray-100 rounded-2xl py-3 pl-11 pr-4 focus:outline-none focus:ring-4 focus:ring-brand/5 focus:border-brand font-bold text-sm shadow-sm transition-all"
           />
-          <Search size={20} className="absolute left-3 top-3.5 text-gray-400" />
+          <Search size={18} className="absolute left-4 top-3.5 text-gray-300 group-focus-within:text-brand transition-colors" />
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-gray-200 shadow-sm flex-1 overflow-hidden flex flex-col">
+      <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-premium flex-1 overflow-hidden flex flex-col animate-in fade-in slide-in-from-bottom-6 duration-700">
         {loading ? (
-          <div className="flex justify-center items-center h-full"><Loader2 className="animate-spin text-[#00A3E1]" size={40} /></div>
+          <div className="flex justify-center items-center h-full py-40">
+            <Loader2 className="animate-spin text-brand" size={40} strokeWidth={2.5} />
+          </div>
         ) : users.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-20 text-gray-400">
-            <Users size={64} className="mb-4 opacity-50" />
-            <p className="font-medium text-lg">No users found.</p>
+          <div className="flex flex-col items-center justify-center py-40 text-gray-400">
+            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <Users size={40} className="opacity-20" />
+            </div>
+            <p className="font-brand font-black text-obsidian text-lg uppercase tracking-widest opacity-20">Zero Matches Found</p>
           </div>
         ) : (
-          <div className="overflow-y-auto flex-1 p-2">
+          <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="text-xs uppercase tracking-widest text-gray-400 border-b border-gray-100">
-                  <th className="p-4 font-bold">User</th>
-                  <th className="p-4 font-bold">Registration / Phone</th>
-                  <th className="p-4 font-bold">KYC Status</th>
-                  <th className="p-4 font-bold text-right">Actions</th>
+                <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 bg-gray-50/50 border-b border-gray-100">
+                  <th className="px-10 py-6">Operator Identity</th>
+                  <th className="px-6 py-6 text-center">Contact Matrix</th>
+                  <th className="px-6 py-6 text-center">Compliance</th>
+                  <th className="px-10 py-6 text-right">System Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {users.map(user => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        {user.avatar_url ? (
-                          <img src={user.avatar_url} className="w-10 h-10 rounded-full object-cover border border-gray-200" alt="Avatar" />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-[#00A3E1]/10 text-[#00A3E1] flex items-center justify-center font-bold text-lg">
-                            {(user.full_name || '?')[0].toUpperCase()}
-                          </div>
-                        )}
+                {users.map((user, idx) => (
+                  <tr 
+                    key={user.id} 
+                    className="hover:bg-gray-50/50 transition-colors animate-in fade-in slide-in-from-left-4 duration-500 fill-mode-both"
+                    style={{ animationDelay: `${idx * 50}ms` }}
+                  >
+                    <td className="px-10 py-5">
+                      <div className="flex items-center gap-5">
+                        <div className="relative">
+                          {user.avatar_url ? (
+                            <img src={user.avatar_url} className="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-md" alt="Avatar" />
+                          ) : (
+                            <div className="w-12 h-12 rounded-2xl bg-brand/5 text-brand flex items-center justify-center font-brand font-black text-xl shadow-inner border border-brand/10">
+                              {(user.full_name || '?')[0].toUpperCase()}
+                            </div>
+                          )}
+                          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${user.kyc_status === 'verified' ? 'bg-green-500' : 'bg-gray-300'}`} />
+                        </div>
                         <div>
-                          <p className="font-bold text-gray-900">{user.full_name || 'Unknown'}</p>
-                          <p className="text-xs text-gray-500">{user.email || 'No email'}</p>
+                          <p className="font-brand font-black text-obsidian tracking-tight group-hover:text-brand transition-colors">{user.full_name || 'Anonymous User'}</p>
+                          <div className="flex items-center gap-1.5 text-gray-400 font-bold text-[10px] uppercase tracking-widest mt-0.5">
+                            <Mail size={12} className="opacity-40" /> {user.email || 'N/A'}
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4">
-                      <p className="font-medium text-gray-800">{user.phone_number || 'N/A'}</p>
-                      <p className="text-xs text-gray-400">{new Date(user.created_at).toLocaleDateString()}</p>
+                    <td className="px-6 py-5">
+                      <div className="flex flex-col items-center gap-1">
+                        <div className="flex items-center gap-1.5 text-obsidian font-black text-[11px] tracking-tight">
+                           <Phone size={12} className="text-brand opacity-60" /> {user.phone_number || 'UNDEFINED'}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
+                           <Calendar size={12} className="opacity-40" /> {new Date(user.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
                     </td>
-                    <td className="p-4">
+                    <td className="px-6 py-5 text-center">
                       {getStatusBadge(user.kyc_status)}
                     </td>
-                    <td className="p-4 text-right">
+                    <td className="px-10 py-5 text-right">
                       <button 
                         onClick={() => handleDelete(user.id)}
                         disabled={processingId === user.id}
-                        className="p-2 text-gray-400 hover:text-red-500 bg-white border border-gray-200 hover:bg-red-50 hover:border-red-200 rounded-lg transition-all disabled:opacity-50"
-                        title="Permanently Delete User"
+                        className="w-10 h-10 inline-flex items-center justify-center text-gray-300 hover:text-red-500 bg-white border border-gray-100 hover:bg-red-50 hover:border-red-200 rounded-xl shadow-sm transition-all disabled:opacity-50 group/btn"
+                        title="Force Purge"
                       >
-                        {processingId === user.id ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                        {processingId === user.id ? <Loader2 size={16} className="animate-spin text-brand" /> : <Trash2 size={16} className="group-hover/btn:scale-110 transition-transform" />}
                       </button>
                     </td>
                   </tr>
@@ -151,6 +184,16 @@ export const UserManagement = () => {
             </table>
           </div>
         )}
+      </div>
+
+      <div className="mt-8 flex items-center gap-4 bg-brand-light/20 p-6 rounded-[2rem] border border-brand/5 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+        <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+          <Shield size={24} className="text-brand" />
+        </div>
+        <div>
+          <p className="text-sm font-brand font-black text-obsidian uppercase tracking-widest mb-1">Audit Protocol</p>
+          <p className="text-xs text-brand/60 font-bold">Purging users is irreversible. Data integrity is maintained via PostgreSQL cascades.</p>
+        </div>
       </div>
     </div>
   );

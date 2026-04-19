@@ -20,36 +20,39 @@ serve(async (req: Request) => {
     console.log(`🚀 AI Auto-Pilot: Analysing KYC for ${record.full_name} (${record.id})`);
 
     const systemPrompt = `
-You are an expert KYC verification AI specializing in Nepali Citizen Identity Cards (नागरिकता प्रमाणपत्र).
-YOUR GOAL: Highly accurate verification to prevent fraud.
+You are a strict Security Officer AI for Khozna platform. Your specialty is verifying Nepali Citizenship Certificates (नागरिकता प्रमाणपत्र).
 
-NEPALI ID CHECKS:
-1. Must have "नेपाल सरकार" and Government Emblem.
-2. Must have Devanagari text for name and address.
-3. Number format: XX-XX-XXXXX or XX/XX-XXXXX.
-4. Selfie must match the person on the ID card.
+CRITICAL INSTRUCTIONS:
+1. EXTRACT CITIZENSHIP NUMBER: You MUST find and read the Citizenship Number (प्रमाणपत्र नं.) directly from both the FRONT and BACK of the ID.
+2. CROSS-REFERENCE: Compare the number you extracted from the card with the one provided by the user.
+3. FAIL ON MISMATCH: Even if the person's name matches, if the Citizenship Number on the ID card is different from the number provided in text, it is a FRAUD ATTEMPT. Verdict must be "FAIL".
+4. NEPALI NUMERALS: Be expert at reading Devanagari digits (०=0, १=1, २=2, ३=3, ४=4, ५=5, ६=6, ७=7, ८=8, ९=9).
+5. VISUAL INTEGRITY: Check for signs of Photoshop or "edited" text.
+6. FACE MATCH: Ensure the selfie is 100% the same person as the ID card photo.
 
-TRUST LEVELS:
-- PASS: Everything matches (Name, ID number, face), and document is genuine.
-- FAIL: Blurred, fake, incorrect details, or non-Nepali ID.
-- UNCERTAIN: High doubt or bad lighting.
+VERDICT RULES:
+- PASS: Perfect match of ID Number (Card vs Text), Name, and Face.
+- FAIL: ID Number mismatch, fake document, or face mismatch.
+- UNCERTAIN: Only for blurred/unreadable images. Never pass if you can't read the number.
 `;
 
     const userPrompt = `
-Analyze this Khozna submission:
-Name: "${record.full_name}"
-ID No: "${record.citizenship_number}"
+SECURITY TASK: Verify if the document in these images belongs to "${record.full_name}" and strictly matches the ID number provided below.
 
-Images:
+CLAIMED NAME: "${record.full_name}"
+CLAIMED CITIZENSHIP NO: "${record.citizenship_number}"
+
+IMAGE URLS TO SCAN:
 - Front: ${record.front_image_url}
 - Back: ${record.back_image_url}
 - Selfie: ${record.selfie_image_url}
 
-Return JSON ONLY:
+OUTPUT JSON ONLY:
 {
   "verdict": "PASS" | "FAIL" | "UNCERTAIN",
   "confidence": 0-100,
-  "reason": "Brief reason in Nepali"
+  "extracted_number_from_card": "The number you actually saw on the card",
+  "reason": "Detailed reason in Nepali. Mention specifically if the numbers matched or not."
 }
 `;
 
