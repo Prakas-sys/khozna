@@ -45,7 +45,7 @@ export const KycReview = () => {
         } else if (payload.eventType === 'UPDATE' || payload.eventType === 'DELETE') {
           // If a KYC is approved/rejected (by AI or other admin), remove from current pending list
           if (payload.eventType === 'DELETE' || payload.new.status !== 'pending') {
-            setKycs(prev => prev.filter(k => k.id !== (payload.old.id || payload.new.id)));
+            setKycs(prev => prev.filter(k => k.id !== ((payload.old as any).id || (payload.new as any).id)));
           }
         }
       })
@@ -191,7 +191,7 @@ export const KycReview = () => {
 
                 <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-2xl">
                   <div className="flex items-center gap-2 text-blue-600 font-bold text-xs mb-1">
-                    <Zap size={14} variant="bold" /> AI AUTO-PILOT TIP
+                    <Zap size={14} fill="currentColor" /> AI AUTO-PILOT TIP
                   </div>
                   <p className="text-[10px] text-blue-400 leading-relaxed font-medium">The AI is currently analyzing this submission. It will auto-approve if confidence exceeds 90%.</p>
                 </div>
