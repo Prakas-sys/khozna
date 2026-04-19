@@ -234,14 +234,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         slivers: [
         _buildContainedCarousel(),
         SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               // VERIFIED BADGE & TITLE
               _buildHeader(widget.title, widget.location),
               const SizedBox(height: 16),
 
-              // PROPERTY STATS (Beds, Baths, Area, Floor)
+              // AMENITIES SECTION
+              _buildSectionTitle('सुविधाहरू (Amenities)'),
+              const SizedBox(height: 12),
               _buildAmenityGrid(),
               const SizedBox(height: 16),
 
@@ -251,7 +253,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
               // DESCRIPTION
               _buildSectionTitle('Description'),
-              const SizedBox(height: 8),
+              const SizedBox(height: 2),
                 Text(
                   widget.description ??
                       'सानेपाको शान्त वातावरणमा अवस्थित यो २ कोठाको फ्ल्याट विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ। उज्यालो कोठाहरू र खुल्ला पार्किङको सुविधा उपलब्ध छ। मुख्य बाटोबाट मात्र ५ मिनेटको दुरीमा।',
@@ -265,9 +267,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
                 // LOCATION FOCUS SECTION
                 _buildSectionTitle('Location'),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildLocationDetails(widget.location),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 // Map View with rounded corners
                 GestureDetector(
                   onTap: _openMap,
@@ -373,26 +375,26 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
                 // NEARBY PLACES
                 _buildSectionTitle('वरपरका सुविधाहरू (Nearby)'),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildNearbyGrid(),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
                 // OWNER PROFILE SECTION
                 _buildSectionTitle('घरबेटीको विवरण (Owner)'),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildOwnerCard(),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
 
                 // HOUSE RULES
                 if (widget.houseRules.isNotEmpty) ...[
                   _buildSectionTitle('नियमहरू (House Rules)'),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   ...widget.houseRules.map((rule) {
                     final detail = _ruleDetails(rule);
                     return _buildRuleRow(
@@ -400,7 +402,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       detail['label'] as String,
                     );
                   }),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                 ],
 
                 const SizedBox(height: 140),
@@ -469,23 +471,25 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildGlassCircle(
+                          onTap: () {},
+                          child: FavouriteButton(
+                            propertyId: widget.id,
+                            size: 18,
+                            color: Colors.white,
+                            showShadow: false,
+                          ),
+                          opacity: 0.25,
+                          padding: 6,
+                        ),
+                        const SizedBox(width: 6),
+                        _buildGlassCircle(
                           icon: Icons.ios_share_rounded,
                           onTap: () {
                             HapticFeedback.mediumImpact();
                           },
                           iconSize: 18,
                           opacity: 0.25,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildGlassCircle(
-                          onTap: () {},
-                          child: FavouriteButton(
-                            propertyId: widget.id,
-                            size: 20,
-                            color: Colors.white,
-                            showShadow: false,
-                          ),
-                          opacity: 0.25,
+                          padding: 6,
                         ),
                       ],
                     ),
@@ -600,14 +604,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         Text(
           title,
-          style: GoogleFonts.playfairDisplay(
+          style: GoogleFonts.outfit(
             fontSize: 28,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
             color: const Color(0xFF1A1A2E),
             height: 1.1,
+            letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 8),
@@ -741,7 +746,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         border: Border.symmetric(
           horizontal: BorderSide(color: Colors.grey.withOpacity(0.05)),
@@ -751,7 +756,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 3,
-        mainAxisSpacing: 24,
+        mainAxisSpacing: 20,
         crossAxisSpacing: 12,
         childAspectRatio: 1.1,
         children: items,
@@ -764,14 +769,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: const Color(0xFF00A3E1).withOpacity(0.08),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: const Color(0xFF00A3E1), size: 22),
+          child: Icon(icon, color: const Color(0xFF00A3E1), size: 20),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 2),
         Text(
           value,
           textAlign: TextAlign.center,
@@ -782,7 +787,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             height: 1.1,
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 0),
         Text(
           label,
           textAlign: TextAlign.center,
@@ -799,7 +804,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildPriceBox(String price) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFF8F9FA),
         borderRadius: BorderRadius.circular(20),
@@ -1119,7 +1124,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildRuleRow(IconData icon, String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
           Icon(icon, size: 18, color: Colors.grey[600]),
@@ -1467,7 +1472,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     Widget? child,
     required VoidCallback onTap,
     double iconSize = 20,
-    double opacity = 0.2, // Added optional opacity
+    double opacity = 0.2,
+    double padding = 10,
   }) {
     return GestureDetector(
       onTap: () {
@@ -1479,7 +1485,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(padding),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(opacity),
               shape: BoxShape.circle,
