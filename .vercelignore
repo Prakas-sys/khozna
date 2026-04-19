@@ -1,0 +1,14 @@
+android/
+ios/
+linux/
+macos/
+windows/
+web/
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.dart
+pubspec.yaml
+pubspec.lock
+admin_dashboard_web/node_modules/
