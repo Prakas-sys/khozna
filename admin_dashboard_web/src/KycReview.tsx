@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { CheckCircle2, XCircle, Trash2, Loader2, Search, Zap, ShieldCheck, ShieldAlert, Phone, CreditCard, Layout, ShieldHalf } from 'lucide-react';
+import { XCircle, Trash2, Loader2, Search, Zap, ShieldCheck, ShieldAlert, Phone, CreditCard, Layout } from 'lucide-react';
 
 export const KycReview = () => {
   const [kycs, setKycs] = useState<any[]>([]);
