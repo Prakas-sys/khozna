@@ -56,3 +56,4 @@ package-lock.json
 debug_logs/
 *.txt
 *.log
+.vercel
