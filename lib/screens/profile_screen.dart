@@ -16,6 +16,7 @@ import 'login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'add_property_screen.dart';
 import '../utils/cloudinary_service.dart';
+import '../utils/auth_guard.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isVerified;
@@ -378,6 +379,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       'My Listings',
                       'Properties you posted',
                       onTap: () {
+                        if (!AuthGuard.checkAuth(context)) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -391,6 +393,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       'Edit Profile',
                       'Update your personal info',
                       onTap: () {
+                        if (!AuthGuard.checkAuth(context)) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -406,6 +409,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       'Saved Properties',
                       'Properties you liked',
                       onTap: () {
+                        if (!AuthGuard.checkAuth(context)) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -420,6 +424,17 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
                   _buildMenuSection('LEGAL & HELP', [
                     _buildMenuItem(
+                      Icons.help_center_outlined,
+                      'Help Center',
+                      'FAQs & Contact Support',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const HelpCenterScreen(),
+                        ),
+                      ),
+                    ),
+                    _buildMenuItem(
                       Icons.privacy_tip_outlined,
                       'Safety Center',
                       'Protect your account',
@@ -428,17 +443,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         context,
                         MaterialPageRoute(
                           builder: (_) => const SafetyCenterScreen(),
-                        ),
-                      ),
-                    ),
-                    _buildMenuItem(
-                      Icons.help_center_outlined,
-                      'Help Center',
-                      'FAQs & Contact Support',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const HelpCenterScreen(),
                         ),
                       ),
                     ),
@@ -841,8 +845,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         HapticFeedback.mediumImpact();
+                        if (!await AuthGuard.checkKyc(context)) return;
+                        if (!mounted) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(

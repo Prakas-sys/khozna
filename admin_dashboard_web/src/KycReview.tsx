@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { CheckCircle2, XCircle, Trash2, Loader2, Search, Zap, ShieldCheck, ShieldAlert, Phone, CreditCard, Layout } from 'lucide-react';
+import { CheckCircle2, XCircle, Trash2, Loader2, Search, Zap, ShieldCheck, ShieldAlert, Phone, CreditCard, Layout, ShieldHalf } from 'lucide-react';
 
 export const KycReview = () => {
   const [kycs, setKycs] = useState<any[]>([]);
@@ -100,8 +100,18 @@ export const KycReview = () => {
     }
   };
 
+  const RealisticShield = ({ color = 'brand', size = 32 }: { color?: string, size?: number }) => (
+    <div className="relative flex items-center justify-center">
+      <div className={`absolute inset-0 bg-${color}/20 blur-xl rounded-full scale-150 animate-pulse`} />
+      <div className="relative">
+        <ShieldCheck size={size} className={`text-${color} drop-shadow-[0_2px_8px_rgba(0,163,225,0.4)]`} strokeWidth={2.5} />
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/30 to-white/0 opacity-50 rounded-full" />
+      </div>
+    </div>
+  );
+
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full flex-1 overflow-y-auto min-h-screen pb-24 selection:bg-brand/10">
+    <div className="p-8 max-w-7xl mx-auto w-full flex-1 overflow-y-auto min-h-screen pb-24 selection:bg-brand/10 font-inter">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -114,8 +124,8 @@ export const KycReview = () => {
           <p className="text-gray-400 font-medium text-sm">Validating real-time identification protocols across the platform.</p>
         </div>
         
-        <button onClick={fetchKycs} className="px-6 py-3 bg-white border border-gray-100 rounded-2xl hover:bg-gray-50 flex items-center gap-3 font-bold shadow-sm transition-all text-sm group">
-           <Search size={18} className="text-gray-400 group-hover:text-brand transition-colors" /> 
+        <button onClick={fetchKycs} className="px-6 py-2.5 bg-white border border-gray-100 rounded-xl hover:bg-gray-50 flex items-center gap-3 font-bold shadow-sm transition-all text-sm group">
+           <Search size={16} className="text-gray-400 group-hover:text-brand transition-colors" /> 
            Queue Synchronization
         </button>
       </div>
@@ -126,10 +136,8 @@ export const KycReview = () => {
         </div>
       ) : kycs.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-32 bg-white/50 border border-dashed border-gray-200 rounded-[2.5rem] animate-in fade-in zoom-in-95 duration-700">
-          <div className="w-16 h-16 bg-brand-light text-brand rounded-full flex items-center justify-center mb-6 shadow-inner">
-            <ShieldCheck size={32} />
-          </div>
-          <h3 className="text-xl font-brand font-black text-obsidian">Pipeline Initialized</h3>
+          <RealisticShield size={48} />
+          <h3 className="text-xl font-brand font-black text-obsidian mt-6">Pipeline Initialized</h3>
           <p className="text-gray-400 mt-2 font-medium max-w-xs text-center text-sm">No pending audits. AI Auto-Pilot is actively filtering new submissions.</p>
         </div>
       ) : (
@@ -161,8 +169,8 @@ export const KycReview = () => {
                     </div>
                   </div>
                   
-                  <button onClick={() => handleDelete(kyc.id)} className="w-12 h-12 flex items-center justify-center text-gray-300 hover:text-red-500 transition-all bg-gray-50/50 hover:bg-red-50 rounded-2xl border border-transparent hover:border-red-100">
-                    <Trash2 size={20} />
+                  <button onClick={() => handleDelete(kyc.id)} className="w-10 h-10 flex items-center justify-center text-gray-300 hover:text-red-500 transition-all bg-gray-50/50 hover:bg-red-50 rounded-xl border border-transparent hover:border-red-100">
+                    <Trash2 size={18} />
                   </button>
                 </div>
                 
@@ -178,7 +186,7 @@ export const KycReview = () => {
                         <img src={img.url} className="w-full h-full object-cover transition-all duration-700 group-hover/img:scale-125 group-hover/img:rotate-2" alt={img.label} />
                       ) : (
                         <div className="w-full h-full flex flex-col justify-center items-center gap-3">
-                           <ShieldAlert className="text-gray-200" size={32} />
+                           <ShieldAlert className="text-red-200" size={32} />
                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Undefined Asset</span>
                         </div>
                       )}
@@ -188,7 +196,7 @@ export const KycReview = () => {
                 </div>
               </div>
               
-              <div className="xl:w-80 flex flex-col gap-4 justify-center xl:border-l xl:border-gray-50 xl:pl-12">
+              <div className="xl:w-80 flex flex-col gap-3 justify-center xl:border-l xl:border-gray-50 xl:pl-12">
                 <div className="text-center xl:text-left mb-4">
                   <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Human Decision Layer</p>
                   <p className="text-xs text-gray-500 font-medium">Final resolution required for user onboarding.</p>
@@ -197,18 +205,18 @@ export const KycReview = () => {
                 <button 
                   onClick={() => handleUpdate(kyc.id, kyc.user_id, 'verified')}
                   disabled={processingId === kyc.id}
-                  className="w-full bg-brand text-white font-black py-4 rounded-[1.25rem] flex items-center justify-center gap-3 shadow-lg shadow-brand/10 hover:shadow-brand/20 hover:-translate-y-1 transition-all disabled:opacity-50 active:scale-95 text-sm uppercase tracking-widest"
+                  className="w-full bg-brand text-white font-black py-3 rounded-xl flex items-center justify-center gap-3 shadow-lg shadow-brand/10 hover:shadow-brand/20 hover:-translate-y-1 transition-all disabled:opacity-50 active:scale-95 text-xs uppercase tracking-widest"
                 >
-                  {processingId === kyc.id ? <Loader2 className="animate-spin" /> : <ShieldCheck size={18} fill="currentColor" className="opacity-40" />}
+                  {processingId === kyc.id ? <Loader2 className="animate-spin" /> : <ShieldCheck size={16} strokeWidth={3} className="opacity-60" />}
                   Confirm Identity
                 </button>
                 
                 <button 
                   onClick={() => handleUpdate(kyc.id, kyc.user_id, 'rejected')}
                   disabled={processingId === kyc.id}
-                  className="w-full bg-white border-2 border-red-100 text-red-500 font-black py-4 rounded-[1.25rem] flex items-center justify-center gap-3 hover:bg-red-500 hover:border-red-500 hover:text-white transition-all disabled:opacity-50 active:scale-95 text-sm uppercase tracking-widest"
+                  className="w-full bg-white border-2 border-red-100 text-red-500 font-black py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-red-500 hover:border-red-500 hover:text-white transition-all disabled:opacity-50 active:scale-95 text-xs uppercase tracking-widest"
                 >
-                  {processingId === kyc.id ? <Loader2 className="animate-spin" /> : <XCircle size={18} />}
+                  {processingId === kyc.id ? <Loader2 className="animate-spin" /> : <XCircle size={16} />}
                   Reject Protocol
                 </button>
 

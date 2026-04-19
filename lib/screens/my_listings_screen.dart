@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import 'add_property_screen.dart';
 import '../widgets/property_card.dart';
+import '../utils/auth_guard.dart';
 
 class MyListingsScreen extends StatefulWidget {
   const MyListingsScreen({super.key});
@@ -24,7 +25,12 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   }
 
   Future<void> _fetchListings() async {
-    if (user == null) return;
+    if (user == null) {
+      if (mounted) {
+        AuthGuard.checkAuth(context);
+      }
+      return;
+    }
     setState(() => _isLoading = true);
     try {
       final response = await Supabase.instance.client
@@ -162,10 +168,14 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               ),
             ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AddPropertyScreen()),
-        ).then((_) => _fetchListings()),
+        onPressed: () async {
+          if (!await AuthGuard.checkKyc(context)) return;
+          if (!mounted) return;
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddPropertyScreen()),
+          ).then((_) => _fetchListings());
+        },
         backgroundColor: AppTheme.brandColor,
         elevation: 6,
         extendedPadding: const EdgeInsets.symmetric(
