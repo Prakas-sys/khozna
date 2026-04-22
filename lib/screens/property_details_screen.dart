@@ -259,7 +259,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
                 // AMENITIES SECTION
                 _buildSectionTitle('सुविधाहरू (Amenities)'),
-                const SizedBox(height: 4), 
+                const SizedBox(height: 20), 
                 _buildAmenityGrid(),
                 const SizedBox(height: 44), // Aggressive breathing room for premium feel
                 // PRICE BOX
@@ -453,7 +453,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildContainedCarousel() {
     return SliverToBoxAdapter(
       child: Container(
-        height: 320,
+        height: 380,
         width: double.infinity,
         margin: const EdgeInsets.fromLTRB(16, 12, 16, 0), // White layout border effect
         decoration: BoxDecoration(
@@ -615,13 +615,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           decoration: BoxDecoration(
             color: const Color(0xFF00C853), // Vibrant "For Rent" Green
             borderRadius: BorderRadius.circular(100),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF00C853).withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
