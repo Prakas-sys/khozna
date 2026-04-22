@@ -183,7 +183,7 @@ const RejectionModal = ({ onConfirm, onCancel }: { onConfirm: (r: string) => voi
 // ─── KYC Card ────────────────────────────────────────────────────────────────
 const KycCard = ({ kyc, onUpdate, onDelete, processingId }: {
   kyc: any;
-  onUpdate: (id: string, userId: string, status: 'verified' | 'rejected') => void;
+  onUpdate: (id: string, userId: string, status: 'verified' | 'rejected', reason?: string) => void;
   onDelete: (id: string) => void;
   processingId: string | null;
 }) => {
@@ -374,7 +374,7 @@ const KycCard = ({ kyc, onUpdate, onDelete, processingId }: {
           <RejectionModal
             onConfirm={reason => {
               setShowReject(false);
-              onUpdate(kyc.id, kyc.user_id, 'rejected');
+              onUpdate(kyc.id, kyc.user_id, 'rejected', reason);
             }}
             onCancel={() => setShowReject(false)}
           />
