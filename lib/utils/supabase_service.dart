@@ -122,49 +122,72 @@ class SupabaseService {
     String title,
     String ownerId,
   ) async {
+    // This is the old simple booking method. We'll keep it for compatibility 
+    // but the new BookingRequestScreen uses createBookingRequest below.
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    await createBookingRequest(
+      propertyId: propertyId,
+      propertyTitle: title,
+      ownerId: ownerId,
+      moveInDate: DateTime.now().add(const Duration(days: 7)),
+      durationMonths: 1,
+      guestCount: 1,
+      purpose: 'other',
+      message: 'Interested in booking this property.',
+    );
+  }
+
+  /// Create a formal booking request in the 'bookings' table
+  static Future<void> createBookingRequest({
+    required String propertyId,
+    required String propertyTitle,
+    required String ownerId,
+    required DateTime moveInDate,
+    required int durationMonths,
+    required int guestCount,
+    required String purpose,
+    required String message,
+  }) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
 
     try {
-      // 1. Set property to pending_approval (not booked yet — owner must approve)
+      // 1. Create the booking record
+      await _client.from('bookings').insert({
+        'property_id': propertyId,
+        'guest_id': user.id,
+        'owner_id': ownerId,
+        'property_title': propertyTitle,
+        'move_in_date': moveInDate.toIso8601String(),
+        'duration_months': durationMonths,
+        'guests_count': guestCount,
+        'purpose': purpose,
+        'message': message,
+        'status': 'pending',
+      });
+
+      // 2. Update property status (legacy compatibility)
       await _client
           .from('properties')
-          .update({
-            'status': 'pending_approval',
-            'booked_at': DateTime.now().toUtc().toIso8601String(),
-          })
+          .update({'status': 'pending_approval'})
           .eq('id', propertyId);
 
-      // 2. Check for duplicate notification
-      final existingNoteList = await _client
-          .from('notifications')
-          .select()
-          .eq('user_id', ownerId)
-          .eq('sender_id', user.id)
-          .eq('type', 'booking_request')
-          .eq('property_id', propertyId)
-          .limit(1);
+      // 3. Notify owner
+      final String name = user.userMetadata?['full_name'] ?? 'A user';
+      await _client.from('notifications').insert({
+        'user_id': ownerId,
+        'sender_id': user.id,
+        'title': '🏠 New Booking Request',
+        'message': '$name wants to rent "$propertyTitle"\nMove-in: ${moveInDate.day}/${moveInDate.month}',
+        'type': 'booking_request',
+        'property_id': propertyId,
+        'requester_id': user.id,
+      });
 
-      if (existingNoteList.isEmpty) {
-        final String name =
-            user.userMetadata?['full_name'] ??
-            user.userMetadata?['name'] ??
-            'A user';
-        final String phone = user.phone ?? 'N/A';
-
-        // 3. Notify owner with booking_request type (triggers Approve/Reject UI)
-        await _client.from('notifications').insert({
-          'user_id': ownerId,
-          'sender_id': user.id,
-          'title': '🏠 New Booking Request',
-          'message': '$name wants to rent "$title"\nPhone: $phone',
-          'type': 'booking_request',
-          'property_id': propertyId,
-          'requester_id': user.id,
-        });
-      }
+      notificationBadgeCount.value += 1;
     } catch (e) {
-      print('Supabase Booking Error: $e');
+      print('Booking Request Error: $e');
       rethrow;
     }
   }
@@ -186,7 +209,18 @@ class SupabaseService {
           .update({'status': 'booked'})
           .eq('id', propertyId);
 
-      // 2. Notify the guest
+      // 2. Update booking record if it exists
+      await _client
+          .from('bookings')
+          .update({
+            'status': 'confirmed',
+            'confirmed_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('property_id', propertyId)
+          .eq('guest_id', requesterId)
+          .eq('status', 'pending');
+
+      // 3. Notify the guest
       await _client.from('notifications').insert({
         'user_id': requesterId,
         'sender_id': _client.auth.currentUser?.id,
@@ -196,7 +230,7 @@ class SupabaseService {
         'property_id': propertyId,
       });
 
-      // 3. Delete the original booking_request notification (action done)
+      // 4. Delete the original booking_request notification (action done)
       await _client.from('notifications').delete().eq('id', notificationId);
     } catch (e) {
       print('Approve booking error: $e');
@@ -212,6 +246,7 @@ class SupabaseService {
     required String propertyTitle,
     required String requesterId,
     required String notificationId,
+    String? reason,
   }) async {
     try {
       // 1. Release the property back to available
@@ -220,17 +255,28 @@ class SupabaseService {
           .update({'status': 'available'})
           .eq('id', propertyId);
 
-      // 2. Notify the guest
+      // 2. Update booking record if it exists
+      await _client
+          .from('bookings')
+          .update({
+            'status': 'rejected',
+            'reject_reason': reason ?? 'Owner declined the request.',
+          })
+          .eq('property_id', propertyId)
+          .eq('guest_id', requesterId)
+          .eq('status', 'pending');
+
+      // 3. Notify the guest
       await _client.from('notifications').insert({
         'user_id': requesterId,
         'sender_id': _client.auth.currentUser?.id,
         'title': '❌ Booking Not Accepted',
-        'message': 'Unfortunately, the owner could not accept your request for "$propertyTitle" at this time. You can explore other properties.',
+        'message': 'Your booking request for "$propertyTitle" was not accepted. ${reason ?? ""}',
         'type': 'booking_rejected',
         'property_id': propertyId,
       });
 
-      // 3. Delete the original booking_request notification
+      // 4. Delete the original booking_request notification
       await _client.from('notifications').delete().eq('id', notificationId);
     } catch (e) {
       print('Reject booking error: $e');
@@ -828,4 +874,42 @@ class SupabaseService {
     }
   }
 
+  /// Get a single booking by ID
+  static Future<Map<String, dynamic>?> getBookingById(String bookingId) async {
+    final response = await _client
+        .from('bookings')
+        .select()
+        .eq('id', bookingId)
+        .maybeSingle();
+    return response;
+  }
+
+  /// Get all bookings where the current user is the guest
+  static Future<List<Map<String, dynamic>>> getMyBookings() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+    
+    final response = await _client
+        .from('bookings')
+        .select()
+        .eq('guest_id', user.id)
+        .order('created_at', ascending: false);
+    
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Get all booking requests for properties owned by the current user
+  static Future<List<Map<String, dynamic>>> getBookingRequestsForOwner() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return [];
+    
+    final response = await _client
+        .from('bookings')
+        .select()
+        .eq('owner_id', user.id)
+        .eq('status', 'pending')
+        .order('created_at', ascending: false);
+    
+    return List<Map<String, dynamic>>.from(response);
+  }
 }

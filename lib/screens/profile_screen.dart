@@ -15,6 +15,8 @@ import 'settings_screen.dart';
 import 'login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'add_property_screen.dart';
+import 'booking_status_screen.dart';
+import '../utils/supabase_service.dart';
 import '../utils/cloudinary_service.dart';
 import '../utils/auth_guard.dart';
 
@@ -374,6 +376,33 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
                   // Menu Items in Sections
                   _buildMenuSection('OVERVIEW', [
+                    _buildMenuItem(
+                      Icons.book_online_outlined,
+                      'My Bookings',
+                      'Track your rental requests',
+                      onTap: () async {
+                        if (!AuthGuard.checkAuth(context)) return;
+                        final bookings = await SupabaseService.getMyBookings();
+                        if (bookings.isEmpty) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('No bookings found.')),
+                            );
+                          }
+                          return;
+                        }
+                        
+                        // For now, show the latest booking
+                        if (mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BookingStatusScreen(booking: bookings.first),
+                            ),
+                          );
+                        }
+                      },
+                    ),
                     _buildMenuItem(
                       Icons.list_alt_rounded,
                       'My Listings',

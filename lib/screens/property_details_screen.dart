@@ -12,10 +12,11 @@ import '../widgets/favourite_button.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
 import '../utils/formatters.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:ui';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../widgets/trust_badge.dart';
+import 'booking_request_screen.dart';
+import 'dart:ui';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final String id;
@@ -1049,6 +1050,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 6),
+                      TrustBadge(badge: _ownerData?['trust_badge'] ?? 'new', fontSize: 10),
                     ],
                   ),
                 ),
@@ -1333,24 +1336,29 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             }
                           : null)
                     : () async {
-                        setState(() => _isBooking = true);
-                        try {
-                          // Call Supabase Magic
-                          await SupabaseService.bookProperty(
-                            widget.id,
-                            widget.title,
-                            widget.ownerId,
-                          );
+                        // NEW: Open Booking Request Screen
+                        final String name = _ownerData?['full_name'] ?? widget.ownerName ?? 'Owner';
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BookingRequestScreen(
+                              propertyId: widget.id,
+                              propertyTitle: widget.title,
+                              ownerId: widget.ownerId,
+                              ownerName: name,
+                            ),
+                          ),
+                        );
+                        
+                        if (result == true && mounted) {
+                          setState(() {
+                            _isReserved = true;
+                            _isPendingApproval = true;
+                          });
+                        }
+                      },
 
-                          // Increment Notifications badge
-                          notificationBadgeCount.value += 1;
 
-                          if (mounted) {
-                            setState(() {
-                              _isReserved = true;
-                              _isPendingApproval = true;
-                              _isBooking = false;
-                            });
 
                             // Show premium notification
                             ScaffoldMessenger.of(context).showSnackBar(

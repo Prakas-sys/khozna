@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../utils/supabase_service.dart';
 import 'owner_profile_screen.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
+import 'booking_status_screen.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -143,7 +144,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             ),
                           ),
                           child: InkWell(
-                            onTap: () {},
+                            onTap: () async {
+                              final type = note['type']?.toString() ?? '';
+                              if (type == 'booking_approved' || type == 'booking_rejected') {
+                                final propertyId = note['property_id'];
+                                if (propertyId != null) {
+                                  // Fetch latest booking for this guest and property
+                                  final bookings = await SupabaseService.getMyBookings();
+                                  final booking = bookings.firstWhere(
+                                    (b) => b['property_id'] == propertyId,
+                                    orElse: () => {},
+                                  );
+                                  
+                                  if (booking.isNotEmpty && mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BookingStatusScreen(booking: booking),
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+                            },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               child: Row(
@@ -344,22 +367,43 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               // Body: requester info
               Padding(
                 padding: const EdgeInsets.all(16),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Colors.grey[100],
-                      backgroundImage: sender != null && sender['avatar_url'] != null
-                          ? NetworkImage(sender['avatar_url']) : null,
-                      child: sender == null || sender['avatar_url'] == null
-                          ? Icon(Icons.person, color: Colors.grey[400], size: 24) : null,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        message,
-                        style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[700], height: 1.4),
-                      ),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 22,
+                          backgroundColor: Colors.grey[100],
+                          backgroundImage: sender != null && sender['avatar_url'] != null
+                              ? NetworkImage(sender['avatar_url']) : null,
+                          child: sender == null || sender['avatar_url'] == null
+                              ? Icon(Icons.person, color: Colors.grey[400], size: 24) : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                message,
+                                style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[700], height: 1.4),
+                              ),
+                              if (sender != null) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    TrustBadge(badge: sender['trust_badge'] ?? 'new', fontSize: 10),
+                                    const SizedBox(width: 8),
+                                    if (sender['is_verified'] == true)
+                                      const Icon(Icons.verified, size: 14, color: Colors.blue),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
