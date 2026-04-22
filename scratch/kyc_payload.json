@@ -1,0 +1,11 @@
+{
+  "record": {
+    "id": "62ae620c-1937-4c2f-819c-665047013f4c",
+    "user_id": "27a768e9-cf28-4a2c-b4f9-cb27749bb6ca",
+    "full_name": "Khozna app",
+    "citizenship_number": "12-34-55-748",
+    "front_image_url": "https://res.cloudinary.com/dqxqfcicx/image/upload/v1776848662/ubksm9ncymdsov6mo4q8.jpg",
+    "back_image_url": "https://res.cloudinary.com/dqxqfcicx/image/upload/v1776848660/ems73owun5tmefjl6o6m.jpg",
+    "selfie_image_url": "https://res.cloudinary.com/dqxqfcicx/image/upload/v1776848655/stymgdlglhk6zy7nxrn0.jpg"
+  }
+}
