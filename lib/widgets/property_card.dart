@@ -289,10 +289,11 @@ class PropertyCard extends StatelessWidget {
                             title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.inter(
-                              fontSize: 15, // Increased from 14 for better visibility
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800, // Semi-solid / Stronger look
+                              color: const Color(0xFF1A1A2E),
+                              letterSpacing: -0.5,
                             ),
                           ),
                         ),
@@ -301,11 +302,12 @@ class PropertyCard extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '₹ ', // Indian Rupee Symbol (User preference)
+                                text: '₹',
                                 style: GoogleFonts.inter(
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: AppTheme.brandColor,
+                                  letterSpacing: 0.3, // Micro-gap for perfect alignment
                                 ),
                               ),
                               TextSpan(
@@ -316,12 +318,17 @@ class PropertyCard extends StatelessWidget {
                                   color: AppTheme.brandColor,
                                 ),
                               ),
-                              TextSpan(
-                                text: '/mo',
-                                style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black87,
+                              WidgetSpan(
+                                child: Transform.translate(
+                                  offset: const Offset(1, -2.5), // Pixel-perfect alignment
+                                  child: Text(
+                                    '/mo',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],

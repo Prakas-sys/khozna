@@ -134,7 +134,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Future<void> _incrementViews() async {
-    if (widget.id.contains('demo')) return;
+    if (widget.id.contains('demo') || _isMyProperty) return;
     try {
       await Supabase.instance.client.rpc(
         'increment_property_views',
@@ -253,16 +253,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               delegate: SliverChildListDelegate([
                 // VERIFIED BADGE & TITLE
                 _buildHeader(widget.title, widget.location),
-                const SizedBox(height: 10),
+                const SizedBox(height: 24),
 
                 // AMENITIES SECTION
                 _buildSectionTitle('सुविधाहरू (Amenities)'),
-                const SizedBox(height: 2), // Even tighter
+                const SizedBox(height: 4), 
                 _buildAmenityGrid(),
-                const SizedBox(height: 12), // Restore some breathing room as requested
+                const SizedBox(height: 44), // Aggressive breathing room for premium feel
                 // PRICE BOX
                 _buildPriceBox(widget.price),
-                const SizedBox(height: 16), // Increased for better separation
+                const SizedBox(height: 28), // Better separation
                 // DESCRIPTION
                 _buildSectionTitle('Description'),
                 const SizedBox(height: 2),
@@ -384,12 +384,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        "View on Map",
-                                        style: GoogleFonts.inter(
-                                          fontSize: 14,
+                                        _hasLocation
+                                            ? "नक्सामा हेर्नुहोस्" // View on Map in Nepali
+                                            : "स्थान गोप्य छ",
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 16, // Bigger
                                           color: AppTheme.brandColor,
-                                          fontWeight: FontWeight.w700,
-                                          letterSpacing: -0.2,
+                                          fontWeight: FontWeight.w800, // Semi-solid
+                                          letterSpacing: -0.5,
                                         ),
                                       ),
                                     ],
@@ -449,28 +451,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildContainedCarousel() {
     return SliverToBoxAdapter(
       child: Container(
-        height: 300,
+        height: 320,
         width: double.infinity,
+        margin: const EdgeInsets.fromLTRB(16, 12, 16, 0), // White layout border effect
         decoration: BoxDecoration(
-          color: Colors.white, // Border color
-          borderRadius: const BorderRadius.vertical(
-            bottom: Radius.circular(34),
-          ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(color: Colors.white, width: 6), // Thick white border
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
             ),
           ],
         ),
-        padding: const EdgeInsets.only(
-          bottom: 4,
-        ), // The "White Border" thickness
         child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(
-            bottom: Radius.circular(30),
-          ),
+          borderRadius: BorderRadius.circular(26),
           child: Container(
             color: Colors.black,
             child: Stack(
@@ -498,77 +495,29 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
                 // Glass Floating Header - PRO DESIGN
                 Positioned(
-                  top: MediaQuery.of(context).padding.top + 8,
+                  top: MediaQuery.of(context).padding.top - 2, // Pulled higher into the status bar area
                   left: 16,
-                  right: 16,
+                  right: 10, // Adjusted for card-style love icon
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildGlassCircle(
                         icon: Icons.arrow_back_ios_new_rounded,
                         onTap: () => Navigator.pop(context),
                         iconSize: 18,
                       ),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(40),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(40),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.25),
-                                width: 0.8,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    HapticFeedback.mediumImpact();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    child: FavouriteButton(
-                                      propertyId: widget.id,
-                                      size: 18,
-                                      color: Colors.white,
-                                      showShadow: false,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  width: 1,
-                                  height: 16,
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                  ),
-                                  color: Colors.white.withOpacity(0.2),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    HapticFeedback.mediumImpact();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    child: const Icon(
-                                      Icons.ios_share_rounded,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      const Spacer(),
+                      // Share Button (Slimmer Glass)
+                      _buildGlassCircle(
+                        icon: Icons.ios_share_rounded,
+                        onTap: () {
+                          HapticFeedback.mediumImpact();
+                          // Share logic
+                        },
+                        iconSize: 16,
                       ),
+                      const SizedBox(width: 4),
+                      // LOVE ICON (Directly from PropertyCard style)
+                      FavouriteButton(propertyId: widget.id),
                     ],
                   ),
                 ),
@@ -662,16 +611,22 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color(0xFF10B981).withOpacity(0.1), // Green Background
+            color: const Color(0xFF00C853), // Vibrant "For Rent" Green
             borderRadius: BorderRadius.circular(100),
-            border: Border.all(color: const Color(0xFF10B981).withOpacity(0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF00C853).withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(
                 Icons.verified_rounded,
-                color: Color(0xFF10B981),
+                color: Colors.white,
                 size: 14,
               ),
               const SizedBox(width: 8),
@@ -679,8 +634,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 'VERIFIED LISTING',
                 style: GoogleFonts.inter(
                   fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF10B981),
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
                   letterSpacing: 1.2,
                 ),
               ),
@@ -690,33 +645,31 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         const SizedBox(height: 12),
         Text(
           title,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 28,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w900, // Maximum solid look
             color: const Color(0xFF1A1A2E),
             height: 1.1,
-            letterSpacing: -0.5,
+            letterSpacing: -1.0,
           ),
         ),
         const SizedBox(height: 8),
         Row(
           children: [
             const Icon(
-              Icons.location_on_rounded,
-              color: Color(0xFF00A3E1),
-              size: 18,
+              Icons.location_on_outlined,
+              color: Color(0xFF6B7280),
+              size: 16,
             ),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
-                '${widget.location}${widget.landmark.isNotEmpty ? ' • ${widget.landmark}' : ''}',
+                location,
                 style: GoogleFonts.inter(
-                  fontSize: 15,
+                  fontSize: 16,
                   color: const Color(0xFF6B7280),
-                  fontWeight: FontWeight.w400,
+                  fontWeight: FontWeight.w500,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -939,7 +892,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: 'Rs. ${PriceFormatter.format(price)}',
+                            text: 'Rs.${PriceFormatter.format(price)}',
                             style: GoogleFonts.inter(
                               fontSize: 28, // Slightly smaller to prevent overflow
                               fontWeight: FontWeight.w800,
@@ -947,12 +900,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                               letterSpacing: -1,
                             ),
                           ),
-                          TextSpan(
-                            text: ' /mo',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              color: const Color(0xFF9CA3AF),
-                              fontWeight: FontWeight.w500,
+                          WidgetSpan(
+                            child: Transform.translate(
+                              offset: const Offset(0, -5), // Move up to align with large price text
+                              child: Text(
+                                ' /mo',
+                                style: GoogleFonts.inter(
+                                  fontSize: 15,
+                                  color: const Color(0xFF9CA3AF),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -1498,13 +1456,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildBottomActionBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 15,
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 20,
             offset: const Offset(0, -5),
           ),
         ],
@@ -1512,143 +1470,57 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: SafeArea(
         child: Row(
           children: [
-            // Call Now Button
-            _buildActionIconButton(
-              Icons.phone_rounded,
-              'Call',
-              AppTheme.brandColor,
-              () {
-                HapticFeedback.selectionClick();
-                // Call logic
-              },
-            ),
-            const SizedBox(width: 8),
-            // Message/Chat Button (NEW)
-            _buildActionIconButton(
-              Icons.chat_bubble_outline_rounded,
-              'Chat',
-              Colors.blue[700]!,
-              () {
-                HapticFeedback.mediumImpact();
-                final String ownerName =
-                    _ownerData?['full_name'] ??
-                    widget.ownerName ??
-                    'Khozna User';
-                final String ownerAvatar =
-                    _ownerData?['avatar_url'] ??
-                    widget.ownerAvatar ??
-                    'https://i.pravatar.cc/150?img=1';
-                final bool isOwnerVerified =
-                    _ownerData?['is_verified'] ??
-                    widget.isOwnerVerified ??
-                    false;
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => chat_page.ChatScreen(
-                      ownerId: widget.ownerId,
-                      name: ownerName,
-                      avatar: ownerAvatar,
-                      online: true,
-                      isVerified: isOwnerVerified,
-                    ),
+            // CANCEL BUTTON
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.pop(context);
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                );
-              },
+                ),
+                child: Text(
+                  'Cancel',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: const Color(0xFF4B5563),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: 12),
-            // Dynamic Action Button (Reserve -> Cancel)
+            // BOOKING BUTTON
             Expanded(
               flex: 2,
               child: ElevatedButton(
-                onPressed: (_isReserved || _isBooking)
-                    ? (_isMyProperty && _isReserved
-                          ? () async {
-                              // OWNER CANCEL FEATURE
-                              setState(() => _isBooking = true);
-                              try {
-                                await SupabaseService.cancelBooking(widget.id);
-                                if (mounted) {
-                                  setState(() {
-                                    _isReserved = false;
-                                    _isBooking = false;
-                                  });
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Status set to Available'),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                if (mounted) setState(() => _isBooking = false);
-                              }
-                            }
-                          : null)
-                    : () async {
-                        // NEW: Open Booking Request Screen
-                        final String name =
-                            _ownerData?['full_name'] ??
-                            widget.ownerName ??
-                            'Owner';
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BookingRequestScreen(
-                              propertyId: widget.id,
-                              propertyTitle: widget.title,
-                              ownerId: widget.ownerId,
-                              ownerName: name,
-                            ),
-                          ),
-                        );
-
-                        if (result == true && mounted) {
-                          setState(() {
-                            _isReserved = true;
-                            _isPendingApproval = true;
-                          });
-                        }
-                      },
+                onPressed: () {
+                  HapticFeedback.heavyImpact();
+                  // Booking logic
+                },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isMyProperty
-                      ? Colors.blue[600]
-                      : _isPendingApproval
-                      ? const Color(0xFFF59E0B)
-                      : _isReserved
-                      ? Colors.grey[700]
-                      : AppTheme.brandColor,
+                  backgroundColor: AppTheme.brandColor,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   elevation: 4,
-                  shadowColor: AppTheme.brandColor.withOpacity(0.3),
+                  shadowColor: AppTheme.brandColor.withOpacity(0.4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
-                child: _isBooking
-                    ? const SizedBox(
-                        height: 18,
-                        width: 18,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Text(
-                        (_isMyProperty && !widget.id.contains('demo'))
-                            ? 'Your Listing'
-                            : _isPendingApproval
-                            ? '⏳ Pending Approval'
-                            : _isReserved
-                            ? 'Booked ✓'
-                            : 'BOOK NOW (बुक गर्नुहोस्)',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 13,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+                child: Text(
+                  'Book Now',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
             ),
           ],

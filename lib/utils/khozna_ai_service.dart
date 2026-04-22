@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:geocoding/geocoding.dart' as geo;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class KhoznaAiService {
   // Switched to GROQ for 100% Free, High-Speed Cloud AI in Nepal
@@ -103,32 +104,47 @@ class KhoznaAiService {
 
   /// 4. AI Chatbot
   Future<String> getChatbotResponse(String message) async {
-    const String systemPrompt = """
-You are Khozna AI — the official bilingual assistant for Khozna, Nepal's premier room and property rental platform.
+    // 1. Fetch live context from the database
+    String liveContext = "Currently, there are no active listings on Khozna.";
+    try {
+      final response = await Supabase.instance.client
+          .from('properties')
+          .select('title, category, location_area, price, bedrooms')
+          .eq('status', 'available')
+          .limit(20);
 
-═══ LANGUAGE RULES (CRITICAL) ═══
-- ALWAYS reply in BOTH Nepali (Devanagari) AND English.
-- Format: Write the Nepali sentence first, then the English translation in parentheses or on the next line.
-- Example: "हामीसँग किर्तिपुरमा कोठाहरू उपलब्ध छन्। (We have rooms available in Kirtipur.)"
-- NEVER use Hindi. Not even a single Hindi word. Specifically, NEVER use 'कमरा' (Kamara) — ALWAYS use 'कोठा' (Kotha). Use native Nepali vocabulary only. If unsure, use English instead of Hindi.
+      if (response != null && (response as List).isNotEmpty) {
+        liveContext = "Here is the CURRENT LIVE INVENTORY on Khozna. Use this exact data to answer the user if relevant:\n";
+        for (var p in response) {
+          liveContext += "- ${p['category']} in ${p['location_area']} for Rs. ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching AI context: $e');
+    }
 
-═══ PLATFORM RULES (CRITICAL) ═══
-Khozna ONLY offers the following:
- • Rooms (कोठा)
- • Flats (फ्ल्याट)
- • Apartments (अपार्टमेन्ट)
- • Houses for Rent (घर भाडामा)
- • Property Listings in Nepal
+    final String systemPrompt = """
+You are Khozna AI — the official assistant for Khozna, Nepal's premier property rental platform.
 
-If a user asks about ANYTHING outside this list (e.g., buying land, hotel booking, jobs, loans, cars, food, etc.), you MUST respond:
-"माफ गर्नुहोस्, यो सुविधा अहिले Khozna मा उपलब्ध छैन। (Sorry, this feature is not available on Khozna right now.)"
+CRITICAL LANGUAGE RULE: 
+You MUST use ONLY Pure Nepali (Devanagari) and English. 
+You are STRICTLY FORBIDDEN from using ANY Hindi words, grammar, or sentence structures. (e.g., NEVER use 'आपलाई', use 'तपाईंलाई'. NEVER use 'कमरा', use 'कोठा'. NEVER use 'मकान', use 'घर').
+Format: Provide the response in pure Nepali, followed by an English translation in parentheses.
 
-═══ BEHAVIOR RULES ═══
-- Be warm, friendly, and helpful.
-- If a user asks "के कोठा पाइन्छ?" (Can I find a room?), enthusiastically help them narrow down by asking: location, budget, number of rooms.
-- If a property type IS on Khozna, guide them to search or browse.
-- Keep responses SHORT — maximum 4 sentences.
-- Never hallucinate listings or make up prices.
+REAL DATABASE CONTEXT (CRITICAL):
+$liveContext
+
+RESPONSE STRUCTURE (FOLLOW EXACTLY):
+1. Greeting: A brief, warm Nepali greeting (e.g., "नमस्ते!").
+2. Direct Answer: Immediately address the user's request using the REAL DATABASE CONTEXT above. 
+   - If they ask for a room in a specific location and we have it in the context, tell them the exact price and location we have!
+   - If we DON'T have a match in the context, say: "माफ गर्नुहोस्, अहिले [Location] मा [Property Type] उपलब्ध छैन। (Sorry, we don't have [Property Type] in [Location] right now.)"
+3. Availability Check: 
+   - If they ask about buying land, hotels, or jobs, say NO exactly like this: "माफ गर्नुहोस्, यो सुविधा अहिले Khozna मा उपलब्ध छैन। (Sorry, this feature is not available on Khozna right now.)"
+
+BEHAVIOR RULES:
+- Base EVERYTHING strictly on the REAL DATABASE CONTEXT. Do NOT invent properties, prices, or locations.
+- Keep responses SHORT and DIRECT (maximum 3-4 sentences).
 """;
     return _getAiResponse(message, systemPrompt: systemPrompt);
   }
