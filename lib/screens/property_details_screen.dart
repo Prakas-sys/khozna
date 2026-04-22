@@ -839,15 +839,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           horizontal: BorderSide(color: Colors.grey.withOpacity(0.05)),
         ),
       ),
-      child: GridView.count(
-        padding: const EdgeInsets.symmetric(vertical: 8), // Add vertical breathing room
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisCount: 4,
-        mainAxisSpacing: 10, // More breathing room
-        crossAxisSpacing: 8,
-        childAspectRatio: 0.9, // Make it taller to prevent bottom overflow
-        children: items,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double itemWidth = (constraints.maxWidth - 24) / 4; // 4 items per row with gaps
+          return Wrap(
+            spacing: 8,
+            runSpacing: 16,
+            children: items.map((item) => SizedBox(
+              width: itemWidth,
+              child: item,
+            )).toList(),
+          );
+        },
       ),
     );
   }
