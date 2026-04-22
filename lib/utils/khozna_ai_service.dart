@@ -120,7 +120,7 @@ class KhoznaAiService {
         }
       }
     } catch (e) {
-      debugPrint('Error fetching AI context: $e');
+      print('Error fetching AI context: $e');
     }
 
     final String systemPrompt = """
