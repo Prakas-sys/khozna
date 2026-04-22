@@ -1,7 +1,15 @@
 {
   "version": 2,
-  "outputDirectory": "admin_dashboard_web/dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+  "name": "admin-dashboard-web-nu",
+  "builds": [
+    {
+      "src": "admin_dashboard_web/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    }
+  ],
+  "routes": [
+    { "src": "/assets/(.*)", "dest": "admin_dashboard_web/assets/$1" },
+    { "src": "/(.*)", "dest": "admin_dashboard_web/index.html" }
   ]
 }
