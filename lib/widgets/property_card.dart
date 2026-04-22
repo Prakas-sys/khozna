@@ -42,6 +42,7 @@ class PropertyCard extends StatelessWidget {
   final double? latitude;
   final double? longitude;
   final String landmark;
+  final List<dynamic> nearbyLandmarks;
 
   const PropertyCard({
     super.key,
@@ -72,6 +73,7 @@ class PropertyCard extends StatelessWidget {
     this.latitude,
     this.longitude,
     this.landmark = '',
+    this.nearbyLandmarks = const [],
   });
 
   @override
@@ -101,6 +103,7 @@ class PropertyCard extends StatelessWidget {
               latitude: latitude,
               longitude: longitude,
               landmark: landmark,
+              nearbyLandmarks: nearbyLandmarks,
             ),
           ),
         );
@@ -357,6 +360,7 @@ class PropertyCard extends StatelessWidget {
                                     latitude: latitude,
                                     longitude: longitude,
                                     landmark: landmark,
+                                    nearbyLandmarks: nearbyLandmarks,
                                   ),
                                 ),
                               ),

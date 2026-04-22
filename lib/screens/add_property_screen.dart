@@ -100,7 +100,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   Future<void> _pickImages() async {
-    final List<XFile> images = await _picker.pickMultiImage();
+    final List<XFile> images = await _picker.pickMultiImage(
+      imageQuality: 70, // ⚡ FAST UPLOAD: Drastically reduces file size before upload
+      maxWidth: 1920,   // ⚡ FAST UPLOAD: Limits resolution to HD
+      maxHeight: 1920,
+    );
     if (images.isNotEmpty) {
       setState(() {
         _selectedImages.addAll(images.map((x) => File(x.path)));
@@ -163,16 +167,30 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         setState(() => _isUploadingVideo = false);
       }
 
-      // 2. Upload images to Cloudinary first
+      // 2. Upload images to Cloudinary in PARALLEL (⚡ SUPER FAST)
       List<String> uploadedUrls = [];
-      for (var file in _selectedImages) {
-        final url = await CloudinaryService.uploadImage(file);
-        if (url != null) uploadedUrls.add(url);
+      try {
+        final List<Future<String?>> uploadFutures = _selectedImages
+            .map((file) => CloudinaryService.uploadImage(file))
+            .toList();
+        
+        final List<String?> results = await Future.wait(uploadFutures);
+        uploadedUrls = results.whereType<String>().toList();
+      } catch (e) {
+        debugPrint("Parallel Upload Error: $e");
       }
 
       if (uploadedUrls.isEmpty) {
         throw 'कम्तिमा एउटा फोटो अपलोड हुन सकेन (Failed to upload photos)';
       }
+
+      // 2.5. AI Landmark Generation (⚡ New Premium Feature)
+      // This automatically finds real nearby places using AI based on the user's location
+      final List<Map<String, dynamic>> nearbyLandmarks =
+          await _aiService.getNearbyLandmarks(
+            _areaController.text,
+            _landmarkController.text,
+          );
 
       // 3. Insert Property into Supabase
       final propertyResponse = await client
@@ -198,6 +216,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             'video_url': videoUrl,
             'status': 'available',
             'is_verified': true,
+            'nearby_landmarks':
+                nearbyLandmarks, // Save the AI generated landmarks!
             'is_premium':
                 (double.tryParse(_priceController.text) ?? 0.0) >= 15000.0,
           })
@@ -206,12 +226,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
       final String propertyId = propertyResponse['id'];
 
-      // 4. Also save to property_images table for backward compatibility
-      for (var url in uploadedUrls) {
-        await client.from('property_images').insert({
-          'property_id': propertyId,
-          'image_url': url,
-        });
+      // 4. Also save to property_images table (BATCH INSERT for ⚡ SPEED)
+      if (uploadedUrls.isNotEmpty) {
+        final List<Map<String, dynamic>> imageData = uploadedUrls
+            .map((url) => {
+                  'property_id': propertyId,
+                  'image_url': url,
+                })
+            .toList();
+        await client.from('property_images').insert(imageData);
       }
 
       // 5. Update user profile to mark as owner if not already

@@ -279,5 +279,48 @@ If a user asks about ANYTHING outside this list (e.g., buying land, hotel bookin
       return {'area': '', 'landmark': ''};
     }
   }
+
+  /// 7. AI Nearby Landmarks Generator
+  Future<List<Map<String, dynamic>>> getNearbyLandmarks(
+    String area,
+    String landmark,
+  ) async {
+    final String prompt =
+        """
+    Location: $area, near $landmark
+    Please identify 3-4 real or highly probable nearby landmarks for this location in Nepal (KTM, Lalitpur, Bhaktapur, Pokhara, etc).
+    Return ONLY a JSON list of objects.
+    
+    Keys required:
+    - name: (The name of the place in English)
+    - distance: (A realistic distance in meters between 50m and 300m, e.g., "120m")
+    - type: (The category, e.g., 'Health', 'Market', 'School', 'Bank', 'Transport')
+    - icon_code: (A Flutter IconData name suffix, e.g., 'local_hospital_rounded', 'shopping_bag_rounded', 'school_rounded', 'account_balance_rounded', 'directions_bus_rounded')
+    
+    Example Output:
+    [{"name": "Civil Bank ATM", "distance": "80m", "type": "Bank", "icon_code": "account_balance_rounded"}]
+    """;
+
+    final String response = await _getAiResponse(
+      prompt,
+      systemPrompt:
+          "You are a local geography expert for Nepal. You return ONLY clean JSON. No preamble, no explanation.",
+    );
+
+    try {
+      String jsonPart = response;
+      if (response.contains('[')) {
+        jsonPart = response.substring(
+          response.indexOf('['),
+          response.lastIndexOf(']') + 1,
+        );
+      }
+      final List<dynamic> decoded = jsonDecode(jsonPart);
+      return decoded.map((item) => Map<String, dynamic>.from(item)).toList();
+    } catch (e) {
+      print('AI Nearby Landmark error: $e');
+      return [];
+    }
+  }
 }
 

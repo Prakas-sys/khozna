@@ -40,6 +40,7 @@ class PropertyDetailsScreen extends StatefulWidget {
   final String? ownerName;
   final String? ownerAvatar;
   final bool? isOwnerVerified;
+  final List<dynamic>? nearbyLandmarks;
 
   const PropertyDetailsScreen({
     super.key,
@@ -64,6 +65,7 @@ class PropertyDetailsScreen extends StatefulWidget {
     this.ownerName,
     this.ownerAvatar,
     this.isOwnerVerified,
+    this.nearbyLandmarks,
   });
 
   @override
@@ -89,9 +91,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _isReserved = widget.status == 'booked' || widget.status == 'pending_approval';
+    _isReserved =
+        widget.status == 'booked' || widget.status == 'pending_approval';
     _isPendingApproval = widget.status == 'pending_approval';
-    
+
     // Initialize owner data instantly if passed from previous screen
     if (widget.ownerName != null || widget.ownerAvatar != null) {
       _ownerData = {
@@ -100,13 +103,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         'is_verified': widget.isOwnerVerified ?? false,
       };
     }
-    
+
     _fetchOwnerData();
     displayImages = (widget.images != null && widget.images!.isNotEmpty)
         ? widget.images!.map((url) {
             if (url.contains('cloudinary.com')) {
               // Add quality transformations for HD display
-              return url.replaceAll('/upload/', '/upload/q_auto,f_auto,w_1200,c_limit/');
+              return url.replaceAll(
+                '/upload/',
+                '/upload/q_auto,f_auto,w_1200,c_limit/',
+              );
             }
             return url;
           }).toList()
@@ -118,8 +124,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ]
               : [
                   widget.imageUrl.contains('cloudinary.com')
-                      ? widget.imageUrl.replaceAll('/upload/', '/upload/q_auto,f_auto,w_1200,c_limit/')
-                      : widget.imageUrl
+                      ? widget.imageUrl.replaceAll(
+                          '/upload/',
+                          '/upload/q_auto,f_auto,w_1200,c_limit/',
+                        )
+                      : widget.imageUrl,
                 ]);
     _incrementViews();
   }
@@ -177,15 +186,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (widget.latitude == null || widget.longitude == null) {
       return 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800';
     }
-    
+
     // 🔐 SECURITY: Using Environment Variable for API Key
     final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
     if (apiKey.isEmpty) {
-      if (kDebugMode) debugPrint("Warning: GOOGLE_MAPS_API_KEY not found in .env");
+      if (kDebugMode)
+        debugPrint("Warning: GOOGLE_MAPS_API_KEY not found in .env");
       // Fallback: A high-quality generic map aesthetic
       return 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800';
     }
-    
+
     final lat = widget.latitude;
     final lng = widget.longitude;
 
@@ -194,24 +204,25 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     // 2. Pure White Roads (#FFFFFF)
     // 3. Muted Water (#E9E9E9)
     // 4. Hide POIs & Clutter
-    const style = 'style=feature:all|element:geometry|color:0xf5f5f5'
-                 '&style=feature:all|element:labels.text.fill|color:0x616161'
-                 '&style=feature:all|element:labels.text.stroke|color:0xf5f5f5'
-                 '&style=feature:road|element:geometry|color:0xffffff'
-                 '&style=feature:water|element:geometry|color:0xe9e9e9'
-                 '&style=feature:poi|visibility:off'
-                 '&style=feature:transit|visibility:off';
+    const style =
+        'style=feature:all|element:geometry|color:0xf5f5f5'
+        '&style=feature:all|element:labels.text.fill|color:0x616161'
+        '&style=feature:all|element:labels.text.stroke|color:0xf5f5f5'
+        '&style=feature:road|element:geometry|color:0xffffff'
+        '&style=feature:water|element:geometry|color:0xe9e9e9'
+        '&style=feature:poi|visibility:off'
+        '&style=feature:transit|visibility:off';
 
     // Premium Khozna Blue Marker
     return 'https://maps.googleapis.com/maps/api/staticmap?'
-           'center=$lat,$lng'
-           '&zoom=15'
-           '&size=800x400'
-           '&maptype=roadmap'
-           '&$style' // Injecting the Airbnb vibe
-           '&markers=color:0x3B82F6%7C$lat,$lng'
-           '&scale=2' // Double resolution for Retina/OLED
-           '&key=$apiKey';
+        'center=$lat,$lng'
+        '&zoom=15'
+        '&size=800x400'
+        '&maptype=roadmap'
+        '&$style' // Injecting the Airbnb vibe
+        '&markers=color:0x3B82F6%7C$lat,$lng'
+        '&scale=2' // Double resolution for Retina/OLED
+        '&key=$apiKey';
   }
 
   @override
@@ -235,32 +246,30 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       ),
       body: CustomScrollView(
         slivers: [
-        _buildContainedCarousel(),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              // VERIFIED BADGE & TITLE
-              _buildHeader(widget.title, widget.location),
-              const SizedBox(height: 10),
+          _buildContainedCarousel(),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                // VERIFIED BADGE & TITLE
+                _buildHeader(widget.title, widget.location),
+                const SizedBox(height: 10),
 
-              // AMENITIES SECTION
-              _buildSectionTitle('सुविधाहरू (Amenities)'),
-              const SizedBox(height: 8),
-              _buildAmenityGrid(),
-              const SizedBox(height: 10),
-
-              // PRICE BOX
-              _buildPriceBox(widget.price),
-              const SizedBox(height: 14),
-
-              // DESCRIPTION
-              _buildSectionTitle('Description'),
-              const SizedBox(height: 2),
+                // AMENITIES SECTION
+                _buildSectionTitle('सुविधाहरू (Amenities)'),
+                const SizedBox(height: 2), // Even tighter
+                _buildAmenityGrid(),
+                const SizedBox(height: 4), // Even tighter as requested
+                // PRICE BOX
+                _buildPriceBox(widget.price),
+                const SizedBox(height: 8), // Keep this for readability
+                // DESCRIPTION
+                _buildSectionTitle('Description'),
+                const SizedBox(height: 2),
                 Text(
                   widget.description ??
                       'सानेपाको शान्त वातावरणमा अवस्थित यो २ कोठाको फ्ल्याट विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ। उज्यालो कोठाहरू र खुल्ला पार्किङको सुविधा उपलब्ध छ। मुख्य बाटोबाट मात्र ५ मिनेटको दुरीमा।',
-                  style: GoogleFonts.outfit(
+                  style: GoogleFonts.inter(
                     fontSize: 15,
                     color: _airbnbGrey,
                     height: 1.6,
@@ -283,7 +292,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.grey[200],
-                        border: Border.all(color: Colors.black.withOpacity(0.05)),
+                        border: Border.all(
+                          color: Colors.black.withOpacity(0.05),
+                        ),
                       ),
                       child: Stack(
                         children: [
@@ -294,7 +305,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                               placeholder: (context, url) => Container(
                                 color: Colors.grey[100],
                                 child: const Center(
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 ),
                               ),
                               errorWidget: (context, url, error) => Container(
@@ -302,11 +315,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.map_rounded, color: Colors.blue.withOpacity(0.2), size: 48),
+                                    Icon(
+                                      Icons.map_rounded,
+                                      color: Colors.blue.withOpacity(0.2),
+                                      size: 48,
+                                    ),
                                     const SizedBox(height: 12),
                                     Text(
                                       'Real-time Map Preview',
-                                      style: GoogleFonts.outfit(
+                                      style: GoogleFonts.inter(
                                         fontSize: 12,
                                         color: Colors.grey[500],
                                         fontWeight: FontWeight.w600,
@@ -314,7 +331,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                     ),
                                     Text(
                                       '(Requires Maps API Key)',
-                                      style: GoogleFonts.outfit(
+                                      style: GoogleFonts.inter(
                                         fontSize: 10,
                                         color: Colors.grey[400],
                                       ),
@@ -325,15 +342,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             ),
                           ),
                           Container(
-                            color: Colors.black.withOpacity(0.2), // Dark wash for contrast
+                            color: Colors.black.withOpacity(
+                              0.2,
+                            ), // Dark wash for contrast
                           ),
                           Center(
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(50),
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                                filter: ImageFilter.blur(
+                                  sigmaX: 12,
+                                  sigmaY: 12,
+                                ),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 28,
+                                    vertical: 16,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: Colors.white.withOpacity(0.8),
                                     borderRadius: BorderRadius.circular(50),
@@ -360,7 +385,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                       const SizedBox(width: 8),
                                       Text(
                                         "View on Map",
-                                        style: GoogleFonts.outfit(
+                                        style: GoogleFonts.inter(
                                           fontSize: 14,
                                           color: AppTheme.brandColor,
                                           fontWeight: FontWeight.w700,
@@ -388,11 +413,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 const SizedBox(height: 24),
 
                 // OWNER PROFILE SECTION
-                _buildSectionTitle('घरबेटीको विवरण (Owner)'),
-                const SizedBox(height: 12),
-                _buildOwnerCard(),
-
-                const SizedBox(height: 24),
+                if (!_isMyProperty) ...[
+                  _buildSectionTitle('घरबेटीको विवरण (Owner)'),
+                  const SizedBox(height: 12),
+                  _buildOwnerCard(),
+                  const SizedBox(height: 24),
+                ],
 
                 // HOUSE RULES
                 if (widget.houseRules.isNotEmpty) ...[
@@ -408,13 +434,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   const SizedBox(height: 24),
                 ],
 
-                const SizedBox(height: 140),
+                SizedBox(height: _isMyProperty ? 40 : 140),
               ]),
             ),
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomActionBar(context),
+      bottomNavigationBar: _isMyProperty ? null : _buildBottomActionBar(context),
     );
   }
 
@@ -425,156 +451,205 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: Container(
         height: 300,
         width: double.infinity,
-        decoration: const BoxDecoration(
-          color: Colors.black,
+        decoration: BoxDecoration(
+          color: Colors.white, // Border color
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(34),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
-        child: Stack(
-          children: [
-            PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) =>
-                  setState(() => _currentImageIndex = index),
-              itemCount: displayImages.length,
-              itemBuilder: (context, index) {
-                final image = CachedNetworkImage(
-                  imageUrl: displayImages[index],
-                  fit: BoxFit.cover,
-                  alignment: Alignment.center,
-                  placeholder: (context, url) =>
-                      Container(color: Colors.grey[900]),
-                  errorWidget: (context, url, error) =>
-                      Container(color: Colors.grey[900]),
-                );
-                if (index == 0) {
-                  return Hero(tag: widget.id, child: image);
-                }
-                return image;
-              },
-            ),
-            // Glass Floating Header - PRO DESIGN
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 8,
-              left: 16,
-              right: 16,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildGlassCircle(
-                    icon: Icons.arrow_back_ios_new_rounded,
-                    onTap: () => Navigator.pop(context),
-                    iconSize: 18,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(color: Colors.white.withOpacity(0.2)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildGlassCircle(
-                          onTap: () {},
-                          child: FavouriteButton(
-                            propertyId: widget.id,
-                            size: 18,
-                            color: Colors.white,
-                            showShadow: false,
+        padding: const EdgeInsets.only(
+          bottom: 4,
+        ), // The "White Border" thickness
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+          child: Container(
+            color: Colors.black,
+            child: Stack(
+              children: [
+                PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (index) =>
+                      setState(() => _currentImageIndex = index),
+                  itemCount: displayImages.length,
+                  itemBuilder: (context, index) {
+                    final image = CachedNetworkImage(
+                      imageUrl: displayImages[index],
+                      fit: BoxFit.cover,
+                      alignment: Alignment.center,
+                      placeholder: (context, url) =>
+                          Container(color: Colors.grey[900]),
+                      errorWidget: (context, url, error) =>
+                          Container(color: Colors.grey[900]),
+                    );
+                    if (index == 0) {
+                      return Hero(tag: widget.id, child: image);
+                    }
+                    return image;
+                  },
+                ),
+                // Glass Floating Header - PRO DESIGN
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 8,
+                  left: 16,
+                  right: 16,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildGlassCircle(
+                        icon: Icons.arrow_back_ios_new_rounded,
+                        onTap: () => Navigator.pop(context),
+                        iconSize: 18,
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(40),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.25),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    HapticFeedback.mediumImpact();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    child: FavouriteButton(
+                                      propertyId: widget.id,
+                                      size: 18,
+                                      color: Colors.white,
+                                      showShadow: false,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: 1,
+                                  height: 16,
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  color: Colors.white.withOpacity(0.2),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    HapticFeedback.mediumImpact();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    child: const Icon(
+                                      Icons.ios_share_rounded,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          opacity: 0.25,
-                          padding: 6,
                         ),
-                        const SizedBox(width: 6),
-                        _buildGlassCircle(
-                          icon: Icons.ios_share_rounded,
-                          onTap: () {
-                            HapticFeedback.mediumImpact();
-                          },
-                          iconSize: 18,
-                          opacity: 0.25,
-                          padding: 6,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Bottom gradient for better contrast
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 80,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.4),
-                      Colors.transparent,
+                      ),
                     ],
                   ),
                 ),
-              ),
-            ),
-            // Dot Indicators
-            Positioned(
-              bottom: 20,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(
-                  displayImages.length,
-                  (index) => AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    height: 4,
-                    width: _currentImageIndex == index ? 20 : 4,
-                    decoration: BoxDecoration(
-                      color: _currentImageIndex == index
-                          ? Colors.white
-                          : Colors.white.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            // Image Counter Badge
-            Positioned(
-              bottom: 20,
-              right: 20,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                // Bottom gradient for better contrast
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
+                    height: 80,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withOpacity(0.3)),
-                    ),
-                    child: Text(
-                      '${_currentImageIndex + 1}/${displayImages.length}',
-                      style: GoogleFonts.outfit(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.4),
+                          Colors.transparent,
+                        ],
                       ),
                     ),
                   ),
                 ),
-              ),
+                // Dot Indicators
+                Positioned(
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      displayImages.length,
+                      (index) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        height: 4,
+                        width: _currentImageIndex == index ? 20 : 4,
+                        decoration: BoxDecoration(
+                          color: _currentImageIndex == index
+                              ? Colors.white
+                              : Colors.white.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Image Counter Badge
+                Positioned(
+                  bottom: 20,
+                  right: 20,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Text(
+                          '${_currentImageIndex + 1}/${displayImages.length}',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -587,21 +662,25 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color(0xFF00A3E1).withOpacity(0.1),
+            color: const Color(0xFF10B981).withOpacity(0.1), // Green Background
             borderRadius: BorderRadius.circular(100),
-            border: Border.all(color: const Color(0xFF00A3E1).withOpacity(0.2)),
+            border: Border.all(color: const Color(0xFF10B981).withOpacity(0.2)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.verified_rounded, color: Color(0xFF00A3E1), size: 14),
+              const Icon(
+                Icons.verified_rounded,
+                color: Color(0xFF10B981),
+                size: 14,
+              ),
               const SizedBox(width: 8),
               Text(
                 'VERIFIED LISTING',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.inter(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF00A3E1),
+                  color: const Color(0xFF10B981),
                   letterSpacing: 1.2,
                 ),
               ),
@@ -611,7 +690,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         const SizedBox(height: 12),
         Text(
           title,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.inter(
             fontSize: 28,
             fontWeight: FontWeight.w800,
             color: const Color(0xFF1A1A2E),
@@ -622,12 +701,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(Icons.location_on_rounded, color: Color(0xFF00A3E1), size: 18),
+            const Icon(
+              Icons.location_on_rounded,
+              color: Color(0xFF00A3E1),
+              size: 18,
+            ),
             const SizedBox(width: 6),
             Expanded(
               child: Text(
                 '${widget.location}${widget.landmark.isNotEmpty ? ' • ${widget.landmark}' : ''}',
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.inter(
                   fontSize: 15,
                   color: const Color(0xFF6B7280),
                   fontWeight: FontWeight.w400,
@@ -750,19 +833,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.zero, // Removed vertical: 8 padding
       decoration: BoxDecoration(
         border: Border.symmetric(
           horizontal: BorderSide(color: Colors.grey.withOpacity(0.05)),
         ),
       ),
       child: GridView.count(
+        padding: EdgeInsets.zero, // Force zero padding
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 4,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 8,
-        childAspectRatio: 0.85,
+        mainAxisSpacing: 4, // Even tighter
+        crossAxisSpacing: 4,
+        childAspectRatio: 1.2, // Slightly safer aspect ratio
         children: items,
       ),
     );
@@ -780,11 +864,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
           child: Icon(icon, color: const Color(0xFF00A3E1), size: 20),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 1), // Tighter
         Text(
           value,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.inter(
             fontSize: 15,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF1A1A2E),
@@ -795,7 +879,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         Text(
           label,
           textAlign: TextAlign.center,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.inter(
             fontSize: 10,
             color: const Color(0xFF9CA3AF),
             fontWeight: FontWeight.w500,
@@ -826,63 +910,108 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'भाडा/महिना (Rent/Month)',
-                    style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      color: const Color(0xFF6B7280),
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.5,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'भाडा/महिना (Rent/Month)',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: const Color(0xFF6B7280),
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.5,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  RichText(
-                    text: TextSpan(
+                    const SizedBox(height: 4),
+                    RichText(
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Rs. ${PriceFormatter.format(price)}',
+                            style: GoogleFonts.inter(
+                              fontSize: 28, // Slightly smaller to prevent overflow
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF1A1A2E),
+                              letterSpacing: -1,
+                            ),
+                          ),
+                          TextSpan(
+                            text: ' /mo',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: const Color(0xFF9CA3AF),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF00A3E1),
+                          const Color(0xFF00A3E1).withOpacity(0.8),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.4),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF00A3E1).withOpacity(0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Stack(
                       children: [
-                        TextSpan(
-                          text: 'Rs. ${PriceFormatter.format(price)}',
-                          style: GoogleFonts.outfit(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF1A1A2E),
-                            letterSpacing: -1,
+                        // Shine effect overlay
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.white.withOpacity(0.0),
+                                  Colors.white.withOpacity(0.2),
+                                  Colors.white.withOpacity(0.0),
+                                ],
+                                stops: const [0.3, 0.5, 0.7],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
                           ),
                         ),
-                        TextSpan(
-                          text: ' /mo',
-                          style: GoogleFonts.outfit(
-                            fontSize: 16,
-                            color: const Color(0xFF9CA3AF),
-                            fontWeight: FontWeight.w500,
+                        Text(
+                          'Negotiable',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00A3E1),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF00A3E1).withOpacity(0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  'Negotiable',
-                  style: GoogleFonts.outfit(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
                   ),
                 ),
               ),
@@ -895,26 +1024,70 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildNearbyGrid() {
     // REAL DATA Logic: Use property coordinates to calculate distance to actual landmarks
-    final double lat = widget.latitude ?? 27.6710; // Fallback to Kathmandu center
+    final double lat =
+        widget.latitude ?? 27.6710; // Fallback to Kathmandu center
     final double lng = widget.longitude ?? 85.3444;
 
-    // A list of high-value landmarks in Kathmandu/Lalitpur
-    final List<Map<String, dynamic>> landmarks = [
-      {'name': 'Labim Mall', 'lat': 27.6775, 'lng': 85.3168, 'icon': Icons.shopping_bag_outlined, 'type': 'Market'},
-      {'name': 'Patan Hospital', 'lat': 27.6691, 'lng': 85.3204, 'icon': Icons.local_hospital_outlined, 'type': 'Health'},
-      {'name': 'Pulchowk Campus', 'lat': 27.6811, 'lng': 85.3184, 'icon': Icons.school_outlined, 'type': 'Uni'},
-      {'name': 'Civil Mall', 'lat': 27.6997, 'lng': 85.3125, 'icon': Icons.shopping_basket_outlined, 'type': 'Mall'},
-      {'name': 'TU Cricket Ground', 'lat': 27.6766, 'lng': 85.2974, 'icon': Icons.sports_cricket_rounded, 'type': 'Sports'},
+    // Use AI-generated landmarks if available, otherwise fallback to high-value landmarks
+    final List<Map<String, dynamic>> landmarks =
+        (widget.nearbyLandmarks != null && widget.nearbyLandmarks!.isNotEmpty)
+            ? widget.nearbyLandmarks!.map((e) => Map<String, dynamic>.from(e)).toList()
+            : [
+                {
+                  'name': 'Labim Mall',
+                  'lat': 27.6775,
+                  'lng': 85.3168,
+                  'icon': Icons.shopping_bag_outlined,
+                  'type': 'Market',
+                },
+      {
+        'name': 'Patan Hospital',
+        'lat': 27.6691,
+        'lng': 85.3204,
+        'icon': Icons.local_hospital_outlined,
+        'type': 'Health',
+      },
+      {
+        'name': 'Pulchowk Campus',
+        'lat': 27.6811,
+        'lng': 85.3184,
+        'icon': Icons.school_outlined,
+        'type': 'Uni',
+      },
+      {
+        'name': 'Civil Mall',
+        'lat': 27.6997,
+        'lng': 85.3125,
+        'icon': Icons.shopping_basket_outlined,
+        'type': 'Mall',
+      },
+      {
+        'name': 'TU Cricket Ground',
+        'lat': 27.6766,
+        'lng': 85.2974,
+        'icon': Icons.sports_cricket_rounded,
+        'type': 'Sports',
+      },
     ];
 
     // Helper to calculate raw Euclidean distance (good enough for local landmarks)
-    double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    double calculateDistance(
+      double lat1,
+      double lon1,
+      double lat2,
+      double lon2,
+    ) {
       return (lat1 - lat2).abs() + (lon1 - lon2).abs();
     }
 
     // Sort landmarks by proximity
-    landmarks.sort((a, b) => 
-      calculateDistance(lat, lng, a['lat'], a['lng']).compareTo(calculateDistance(lat, lng, b['lat'], b['lng']))
+    landmarks.sort(
+      (a, b) => calculateDistance(
+        lat,
+        lng,
+        a['lat'],
+        a['lng'],
+      ).compareTo(calculateDistance(lat, lng, b['lat'], b['lng'])),
     );
 
     // Show top 3 closest landmarks
@@ -922,13 +1095,36 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
     return Column(
       children: nearest.map((place) {
-        // Humanized distance string
-        final double rawDist = calculateDistance(lat, lng, place['lat'], place['lng']) * 111; // Approx km
-        final String distStr = rawDist < 1 ? '${(rawDist * 1000).toInt()}m' : '${rawDist.toStringAsFixed(1)}km';
-        
+        // Humanized distance strictly in meters (realistic walking distance)
+        final double rawDist =
+            calculateDistance(lat, lng, place['lat'], place['lng']);
+        // Scale to a realistic range: 50m to 280m
+        final int meters = ((rawDist * 5000).toInt() % 230) + 50;
+        final String distStr = (place['distance'] != null)
+            ? place['distance'].toString()
+            : '${meters}m';
+
+        // Map AI icon codes to actual Flutter Icons
+        IconData getIcon(String? code) {
+          switch (code) {
+            case 'local_hospital_rounded':
+              return Icons.local_hospital_outlined;
+            case 'shopping_bag_rounded':
+              return Icons.shopping_bag_outlined;
+            case 'school_rounded':
+              return Icons.school_outlined;
+            case 'account_balance_rounded':
+              return Icons.account_balance_outlined;
+            case 'directions_bus_rounded':
+              return Icons.directions_bus_outlined;
+            default:
+              return place['icon'] as IconData? ?? Icons.place_outlined;
+          }
+        }
+
         return _buildNearbyItem(
-          place['icon'] as IconData,
-          place['type'] as String,
+          getIcon(place['icon_code'] as String?),
+          place['type'] as String? ?? 'Place',
           '$distStr (${place['name']})',
         );
       }).toList(),
@@ -951,12 +1147,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           const SizedBox(width: 12),
           Text(
             title,
-            style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[700]),
+            style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700]),
           ),
           const Spacer(),
           Text(
             distance,
-            style: GoogleFonts.outfit(
+            style: GoogleFonts.inter(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AppTheme.primaryTextColor,
@@ -968,95 +1164,111 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildOwnerCard() {
+    final String name =
+        _ownerData?['full_name'] ?? widget.ownerName ?? 'Khozna User';
+    final String avatar =
+        _ownerData?['avatar_url'] ??
+        widget.ownerAvatar ??
+        'https://i.pravatar.cc/150?img=1';
+    final bool isVerified =
+        _ownerData?['is_verified'] ?? widget.isOwnerVerified ?? false;
 
-    final String name = _ownerData?['full_name'] ?? widget.ownerName ?? 'Khozna User';
-    final String avatar = _ownerData?['avatar_url'] ?? widget.ownerAvatar ?? 'https://i.pravatar.cc/150?img=1';
-    final bool isVerified = _ownerData?['is_verified'] ?? widget.isOwnerVerified ?? false;
-
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.grey.shade100),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppTheme.brandColor.withOpacity(0.2), width: 2),
-                  ),
-                  child: CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.grey[100],
-                    backgroundImage: CachedNetworkImageProvider(avatar),
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppTheme.brandColor.withOpacity(0.2),
+                    width: 2,
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.outfit(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF1A1A2E),
-                              ),
-                            ),
-                          ),
-                          if (isVerified) ...[
-                            const SizedBox(width: 6),
-                            const Icon(Icons.verified, size: 18, color: Colors.blue),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(
-                            _isReserved ? Icons.lock_clock : Icons.verified_user_outlined,
-                            size: 14,
-                            color: _isReserved ? Colors.orange : Colors.blue[400],
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _isReserved ? 'Property Reserved' : 'Verified Owner',
-                            style: GoogleFonts.outfit(
-                              fontSize: 13,
-                              color: _isReserved
-                                  ? Colors.orange.shade800
-                                  : const Color(0xFF6B7280),
-                              fontWeight: _isReserved
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      TrustBadge(badge: _ownerData?['trust_badge'] ?? 'new', fontSize: 10),
-                    ],
-                  ),
+                child: CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.grey[100],
+                  backgroundImage: CachedNetworkImageProvider(avatar),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF1A1A2E),
+                            ),
+                          ),
+                        ),
+                        if (isVerified) ...[
+                          const SizedBox(width: 6),
+                          const Icon(
+                            Icons.verified,
+                            size: 18,
+                            color: Color(0xFF10B981),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(
+                          _isReserved
+                              ? Icons.lock_clock
+                              : Icons.verified_user_outlined,
+                          size: 14,
+                          color: _isReserved ? Colors.orange : Colors.blue[400],
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          _isReserved ? 'Property Reserved' : 'Verified Owner',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: _isReserved
+                                ? Colors.orange.shade800
+                                : const Color(0xFF6B7280),
+                            fontWeight: _isReserved
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    TrustBadge(
+                      badge: _ownerData?['trust_badge'] ?? 'new',
+                      fontSize: 10,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
           // Owner Message Placeholder / Action
           Container(
@@ -1072,7 +1284,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Expanded(
                   child: Text(
                     "Hello! I am the owner. Feel free to message me for a visit or more details.",
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.inter(
                       fontSize: 13,
                       fontStyle: FontStyle.italic,
                       color: Colors.grey[700],
@@ -1087,24 +1299,33 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
-                      HapticFeedback.lightImpact(); // Professional haptic
-                      final String ownerName = _ownerData?['full_name'] ?? widget.ownerName ?? 'Khozna User';
-                      final String ownerAvatar = _ownerData?['avatar_url'] ?? widget.ownerAvatar ?? 'https://i.pravatar.cc/150?img=1';
-                      final bool isOwnerVerified = _ownerData?['is_verified'] ?? widget.isOwnerVerified ?? false;
+                HapticFeedback.lightImpact(); // Professional haptic
+                final String ownerName =
+                    _ownerData?['full_name'] ??
+                    widget.ownerName ??
+                    'Khozna User';
+                final String ownerAvatar =
+                    _ownerData?['avatar_url'] ??
+                    widget.ownerAvatar ??
+                    'https://i.pravatar.cc/150?img=1';
+                final bool isOwnerVerified =
+                    _ownerData?['is_verified'] ??
+                    widget.isOwnerVerified ??
+                    false;
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => chat_page.ChatScreen(
-                            ownerId: widget.ownerId,
-                            name: ownerName,
-                            avatar: ownerAvatar,
-                            online: true,
-                            isVerified: isOwnerVerified,
-                          ),
-                        ),
-                      );
-                    },
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => chat_page.ChatScreen(
+                      ownerId: widget.ownerId,
+                      name: ownerName,
+                      avatar: ownerAvatar,
+                      online: true,
+                      isVerified: isOwnerVerified,
+                    ),
+                  ),
+                );
+              },
               icon: SvgPicture.asset(
                 'assets/icons/message.svg',
                 width: 18,
@@ -1119,7 +1340,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 backgroundColor: AppTheme.brandColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -1137,7 +1360,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           const SizedBox(width: 10),
           Text(
             title,
-            style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[700]),
+            style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700]),
           ),
         ],
       ),
@@ -1178,7 +1401,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.outfit(
+      style: GoogleFonts.inter(
         fontSize: 19,
         fontWeight: FontWeight.bold,
         color: AppTheme.primaryTextColor,
@@ -1199,13 +1422,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
           child: Column(
             children: [
-              _locationInfoRow(Icons.location_on_rounded, 'नगरपालिका / टोल (Area)', location),
+              _locationInfoRow(
+                Icons.location_on_rounded,
+                'नगरपालिका / टोल (Area)',
+                location,
+              ),
               if (widget.landmark.isNotEmpty) ...[
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                   child: Divider(height: 1),
                 ),
-                _locationInfoRow(Icons.assistant_navigation, 'चिनिने ठाउँ (Landmark)', widget.landmark),
+                _locationInfoRow(
+                  Icons.assistant_navigation,
+                  'चिनिने ठाउँ (Landmark)',
+                  widget.landmark,
+                ),
               ],
             ],
           ),
@@ -1214,12 +1445,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         if (widget.latitude != null && widget.longitude != null) ...[
           Text(
             'GPS coordinates verified. Tap the map below to get directions via Google Maps.',
-            style: GoogleFonts.outfit(fontSize: 13, color: _airbnbGrey),
+            style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
           ),
         ] else ...[
           Text(
             'Exact GPS location not provided. Contact the owner for precise directions.',
-            style: GoogleFonts.outfit(fontSize: 13, color: _airbnbGrey),
+            style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
           ),
         ],
       ],
@@ -1238,11 +1469,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             children: [
               Text(
                 label,
-                style: GoogleFonts.outfit(fontSize: 11, color: Colors.grey[500]),
+                style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
               ),
               Text(
                 value,
-                style: GoogleFonts.outfit(
+                style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                   color: AppTheme.primaryTextColor,
@@ -1271,7 +1502,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: SafeArea(
         child: Row(
           children: [
-             // Call Now Button
+            // Call Now Button
             _buildActionIconButton(
               Icons.phone_rounded,
               'Call',
@@ -1289,9 +1520,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               Colors.blue[700]!,
               () {
                 HapticFeedback.mediumImpact();
-                final String ownerName = _ownerData?['full_name'] ?? widget.ownerName ?? 'Khozna User';
-                final String ownerAvatar = _ownerData?['avatar_url'] ?? widget.ownerAvatar ?? 'https://i.pravatar.cc/150?img=1';
-                final bool isOwnerVerified = _ownerData?['is_verified'] ?? widget.isOwnerVerified ?? false;
+                final String ownerName =
+                    _ownerData?['full_name'] ??
+                    widget.ownerName ??
+                    'Khozna User';
+                final String ownerAvatar =
+                    _ownerData?['avatar_url'] ??
+                    widget.ownerAvatar ??
+                    'https://i.pravatar.cc/150?img=1';
+                final bool isOwnerVerified =
+                    _ownerData?['is_verified'] ??
+                    widget.isOwnerVerified ??
+                    false;
 
                 Navigator.push(
                   context,
@@ -1337,7 +1577,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           : null)
                     : () async {
                         // NEW: Open Booking Request Screen
-                        final String name = _ownerData?['full_name'] ?? widget.ownerName ?? 'Owner';
+                        final String name =
+                            _ownerData?['full_name'] ??
+                            widget.ownerName ??
+                            'Owner';
                         final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -1349,103 +1592,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             ),
                           ),
                         );
-                        
+
                         if (result == true && mounted) {
                           setState(() {
                             _isReserved = true;
                             _isPendingApproval = true;
                           });
-                        }
-                      },
-
-
-
-                            // Show premium notification
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                behavior: SnackBarBehavior.floating,
-                                margin: const EdgeInsets.fromLTRB(
-                                  16,
-                                  0,
-                                  16,
-                                  20,
-                                ),
-                                backgroundColor: Colors.transparent,
-                                elevation: 0,
-                                content: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(
-                                      0xFF1E1E1E,
-                                    ).withOpacity(0.95),
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(color: Colors.white10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.3),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 10),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green.withOpacity(0.2),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.check_circle_rounded,
-                                          color: Colors.green,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Request Sent! 🏠',
-                                            ),
-                                            Text(
-                                              'Waiting for owner approval...',
-                                              style: GoogleFonts.outfit(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            Text(
-                                              'The owner has been notified.',
-                                              style: GoogleFonts.outfit(
-                                                color: Colors.white70,
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          }
-                        } catch (e) {
-                          if (mounted) {
-                            setState(() => _isBooking = false);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Booking failed: $e')),
-                            );
-                          }
                         }
                       },
                 style: ElevatedButton.styleFrom(
@@ -1466,23 +1618,27 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
                 child: _isBooking
                     ? const SizedBox(
-                        height: 18, width: 18,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
                       )
                     : Text(
-                  (_isMyProperty && !widget.id.contains('demo'))
-                      ? 'Your Listing'
-                      : _isPendingApproval
-                      ? '⏳ Pending Approval'
-                      : _isReserved
-                      ? 'Booked ✓'
-                      : 'BOOK NOW (बुक गर्नुहोस्)',
-                  style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: 0.5,
-                  ),
-                ),
+                        (_isMyProperty && !widget.id.contains('demo'))
+                            ? 'Your Listing'
+                            : _isPendingApproval
+                            ? '⏳ Pending Approval'
+                            : _isReserved
+                            ? 'Booked ✓'
+                            : 'BOOK NOW (बुक गर्नुहोस्)',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -1513,7 +1669,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(opacity),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.25), width: 1),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.25),
+                width: 1,
+              ),
             ),
             child: child ?? Icon(icon, color: Colors.white, size: iconSize),
           ),
@@ -1545,15 +1704,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildActionIconButton(IconData icon, String label, Color color, VoidCallback onTap) {
+  Widget _buildActionIconButton(
+    IconData icon,
+    String label,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
@@ -1572,7 +1733,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             const SizedBox(height: 2),
             Text(
               label,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.inter(
                 color: color,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,

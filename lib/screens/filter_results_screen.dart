@@ -278,6 +278,15 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           status: p['status'] ?? 'available',
                           amenities: List<String>.from(p['amenities'] ?? []),
                           houseRules: List<String>.from(p['house_rules'] ?? []),
+                          latitude: p['latitude'] != null
+                              ? double.tryParse(p['latitude'].toString())
+                              : null,
+                          longitude: p['longitude'] != null
+                              ? double.tryParse(p['longitude'].toString())
+                              : null,
+                          landmark: p['landmark'] ?? '',
+                          nearbyLandmarks:
+                              List<dynamic>.from(p['nearby_landmarks'] ?? []),
                           width: double.infinity,
                         ),
                       );

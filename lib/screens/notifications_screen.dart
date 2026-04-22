@@ -5,6 +5,7 @@ import '../utils/supabase_service.dart';
 import 'owner_profile_screen.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
 import 'booking_status_screen.dart';
+import '../widgets/trust_badge.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});

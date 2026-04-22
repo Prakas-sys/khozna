@@ -114,6 +114,15 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                             houseRules: List<String>.from(
                               p['house_rules'] ?? [],
                             ),
+                            latitude: p['latitude'] != null
+                                ? double.tryParse(p['latitude'].toString())
+                                : null,
+                            longitude: p['longitude'] != null
+                                ? double.tryParse(p['longitude'].toString())
+                                : null,
+                            landmark: p['landmark'] ?? '',
+                            nearbyLandmarks:
+                                List<dynamic>.from(p['nearby_landmarks'] ?? []),
                           ),
                         );
                       },

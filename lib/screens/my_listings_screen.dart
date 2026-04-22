@@ -241,6 +241,14 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         ownerId: item['owner_id'] ?? '',
         amenities: List<String>.from(item['amenities'] ?? []),
         houseRules: List<String>.from(item['house_rules'] ?? []),
+        latitude: item['latitude'] != null
+            ? double.tryParse(item['latitude'].toString())
+            : null,
+        longitude: item['longitude'] != null
+            ? double.tryParse(item['longitude'].toString())
+            : null,
+        landmark: item['landmark'] ?? '',
+        nearbyLandmarks: List<dynamic>.from(item['nearby_landmarks'] ?? []),
         isOwnerView: true,
         views: item['views'] ?? 0,
         onEdit: () {
