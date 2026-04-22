@@ -1,76 +1,44 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.42.7'
 
-// --- KHOZNA AI AUTO-PILOT (V8 - LLAMA 4) ---
-// Model: meta-llama/llama-4-scout-17b-16e-instruct
-// Logic: Advanced Nepali Document Verification with Llama 4 Vision
+// --- KHOZNA AI AUTO-PILOT (V8.3 - DEBUG) ---
+
+const cleanJsonResponse = (text: string) => {
+  try {
+    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/{[\s\S]*}/);
+    if (jsonMatch) return JSON.parse(jsonMatch[1] || jsonMatch[0]);
+    return JSON.parse(text);
+  } catch (e) {
+    throw new Error(`Invalid JSON from AI: ${text.slice(0, 100)}`);
+  }
+};
 
 serve(async (req: Request) => {
   const requestId = crypto.randomUUID().slice(0, 8);
-  console.log(`[${requestId}] 🚀 AI Auto-Pilot Triggered`);
+  console.log(`[${requestId}] 🚀 Triggered`);
 
   try {
-    const payload = await req.json()
-    const record = payload.record // Triggered by NEW kyc_verifications row
-    
-    if (!record) {
-      console.error(`[${requestId}] ❌ Error: No record found in payload`);
-      return new Response(JSON.stringify({ error: "No record found" }), { status: 400 });
-    }
+    const payload = await req.json();
+    const record = payload.record;
+    if (!record) return new Response("No record", { status: 400 });
 
-    // Environment Keys
-    const groqKey = Deno.env.get("GROQ_API_KEY") || Deno.env.get("VITE_GROQ_API_KEY")
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const groqKey = Deno.env.get("GROQ_API_KEY");
+    if (!groqKey) throw new Error("GROQ_API_KEY missing");
 
-    if (!groqKey) {
-      console.error(`[${requestId}] ❌ Error: GROQ_API_KEY missing`);
-      throw new Error("GROQ_API_KEY not configured");
-    }
+    console.log(`[${requestId}] 🤖 Calling Groq (llama-3.2-11b-vision-preview)...`);
 
-    console.log(`[${requestId}] 🔍 Analysing KYC for ${record.full_name} (${record.id})`);
-    console.log(`[${requestId}] 📄 Claimed ID: ${record.citizenship_number}`);
+    const systemPrompt = `You are a KYC Officer. Verify the Nepali Citizenship ID. Compare CLAIMED ID with ID on card.
+    EXTRACT ID, CONVERT digits to English.
+    OUTPUT JSON: {"verdict": "PASS" | "FAIL", "confidence": 0-100, "reason": "Nepali reason"}`;
 
-    const systemPrompt = `
-You are a HIGH-SECURITY Compliance Officer for Khozna. Your task is to verify Nepali Citizenship Certificates.
-
-CRITICAL INSTRUCTIONS:
-1. EXTRACT ID: You MUST find the Citizenship Number (प्रमाणपत्र नं.) on both FRONT and BACK images.
-2. CONVERT NEPALI: If numbers are in Devanagari (०-९), convert them to (0-9).
-3. COMPARE: If the extracted number does NOT 100% match the CLAIMED ID provided, you MUST FAIL.
-4. FACE MATCH: Ensure the user's selfie matches the photo on the ID card.
-5. SIGNS OF TAMPERING: Check for digital edits or "fake" IDs.
-
-OUTPUT JSON ONLY:
-{
-  "verdict": "PASS" | "FAIL" | "UNCERTAIN",
-  "confidence": 0-100,
-  "extracted_id_from_card": "the digits you actually saw",
-  "reason": "Detailed reason in Nepali. Explain why it matched or why it failed."
-}
-`;
-
-    const userPrompt = `
-CLAIMED NAME: "${record.full_name}"
-CLAIMED ID: "${record.citizenship_number}"
-
-IMAGE URLS:
-- Front: ${record.front_image_url}
-- Back: ${record.back_image_url}
-- Selfie: ${record.selfie_image_url}
-`;
-
-    console.log(`[${requestId}] 🤖 Sending request to Groq (Llama 4 Vision)...`);
+    const userPrompt = `CLAIMED ID: ${record.citizenship_number}`;
 
     const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json", 
-        "Authorization": `Bearer ${groqKey}` 
-      },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${groqKey}` },
       body: JSON.stringify({
-        model: "meta-llama/llama-4-scout-17b-16e-instruct",
+        model: "llama-3.2-11b-vision-preview",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: [
@@ -80,57 +48,62 @@ IMAGE URLS:
             { type: "image_url", image_url: { url: record.selfie_image_url } }
           ]}
         ],
-        temperature: 0.1,
-        response_format: { type: "json_object" }
+        temperature: 0.1
+        // Removed response_format to avoid potential model compatibility issues
       })
-    })
+    });
 
     if (!groqResponse.ok) {
-      const errorText = await groqResponse.text();
-      console.error(`[${requestId}] ❌ Groq API Error: ${groqResponse.status} - ${errorText}`);
-      throw new Error(`AI Engine Error: ${groqResponse.status}`);
+      const errorData = await groqResponse.json();
+      throw new Error(`Groq API Error: ${JSON.stringify(errorData)}`);
     }
-    
+
     const data = await groqResponse.json();
-    const aiResult = JSON.parse(data.choices?.[0]?.message?.content || "{}");
+    const content = data.choices?.[0]?.message?.content || "{}";
+    console.log(`[${requestId}] 🤖 Raw AI Response:`, content);
     
-    console.log(`[${requestId}] ✅ AI Decision: ${aiResult.verdict} (Confidence: ${aiResult.confidence}%)`);
-    console.log(`[${requestId}] 📝 Extracted Number: ${aiResult.extracted_id_from_card}`);
+    const result = cleanJsonResponse(content);
+    console.log(`[${requestId}] ✅ Decision: ${result.verdict} (${result.confidence}%)`);
 
-    // --- AUTO-ACTION LOGIC ---
-    let finalStatus = "pending";
-    if (aiResult.verdict === "PASS" && aiResult.confidence >= 90) {
-      finalStatus = "verified";
-    } else if (aiResult.verdict === "FAIL" && aiResult.confidence >= 80) {
-      finalStatus = "rejected";
-    }
+    const finalStatus = (result.verdict === "PASS" && result.confidence >= 80) ? "verified" : "rejected";
 
-    if (finalStatus !== "pending") {
-      console.log(`[${requestId}] ⚙️ Updating DB: ${finalStatus}`);
-      
-      await supabase.from("kyc_verifications").update({ 
-        status: finalStatus, 
-        rejection_reason: finalStatus === "rejected" ? aiResult.reason : null 
-      }).eq("id", record.id);
-      
-      await supabase.from("profiles").update({ kyc_status: finalStatus }).eq("id", record.user_id);
-      
-      // Notify User
-      await supabase.from("notifications").insert({
-        user_id: record.user_id,
-        title: finalStatus === "verified" ? "KYC Approved! ✅" : "KYC Rejected ❌",
-        message: finalStatus === "verified" 
-          ? "बधाई छ! तपाईंको पहिचान प्रमाणित भएको छ।" 
-          : `तपाईंको पहिचान पुष्टि हुन सकेन। कारण: ${aiResult.reason}`,
-        type: "kyc_update"
-      });
-    } else {
-      console.log(`[${requestId}] ⏸️ Result is UNCERTAIN. Leaving for manual audit.`);
-    }
+    // DB Updates
+    console.log(`[${requestId}] ⚙️ Updating DB: ${finalStatus}`);
+    await supabase.from("kyc_verifications").update({ 
+      status: finalStatus,
+      rejection_reason: finalStatus === "rejected" ? result.reason : null 
+    }).eq("id", record.id);
 
-    return new Response(JSON.stringify({ success: true, verdict: aiResult.verdict }), { status: 200 });
+    await supabase.from("profiles").update({ kyc_status: finalStatus }).eq("id", record.user_id);
+    
+    await supabase.from("notifications").insert({
+      user_id: record.user_id,
+      title: finalStatus === "verified" ? "KYC Approved! ✅" : "KYC Rejected ❌",
+      message: finalStatus === "verified" 
+        ? "बधाई छ! तपाईंको पहिचान प्रमाणित भएको छ।" 
+        : `तपाईंको पहिचान पुष्टि हुन सकेन। कारण: ${result.reason}`,
+      type: "kyc_update"
+    });
+
+    console.log(`[${requestId}] 🔔 Notification sent`);
+    return new Response(JSON.stringify({ success: true, verdict: result.verdict }), { status: 200 });
+
   } catch (err: any) {
-    console.error(`[${requestId}] 💥 Fatal Error:`, err.message);
+    console.error(`[${requestId}] 💥 Error:`, err.message);
+    
+    // DEBUG: Log error to notifications for the admin profile
+    try {
+      const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      await supabase.from("notifications").insert({
+        user_id: '27a768e9-cf28-4a2c-b4f9-cb27749bb6ca', // The "Khozna app" profile ID
+        title: "KYC Error Log",
+        message: `Error in requestId ${requestId}: ${err.message}`,
+        type: "system_error"
+      });
+    } catch (e) {
+      console.error("Failed to log error to DB:", e);
+    }
+
     return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 })
