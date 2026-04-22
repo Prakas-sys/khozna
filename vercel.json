@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "admin-dashboard-web-nu",
+  "name": "admin-dashboard-web",
   "builds": [
     {
       "src": "admin_dashboard_web/package.json",
@@ -9,7 +9,7 @@
     }
   ],
   "routes": [
-    { "src": "/assets/(.*)", "dest": "admin_dashboard_web/assets/$1" },
-    { "src": "/(.*)", "dest": "admin_dashboard_web/index.html" }
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "status": 200, "dest": "/index.html" }
   ]
 }
