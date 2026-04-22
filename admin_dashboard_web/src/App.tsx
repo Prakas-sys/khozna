@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Users, UserCheck, ShieldAlert, CheckSquare, Settings, LogOut, Loader2 } from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck, ShieldAlert, CheckSquare, Settings, LogOut, Loader2, Activity, Globe, Bell } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import { KycReview } from './KycReview';
 import { PropertyModeration } from './PropertyModeration';
@@ -22,49 +23,78 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
   ];
 
   return (
-    <div className="w-72 h-full sidebar-gradient p-8 flex flex-col justify-between text-white/70">
-      <div>
+    <div className="w-72 h-full sidebar-gradient p-8 flex flex-col justify-between text-white/50 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+      
+      <div className="relative z-10">
         <div className="flex items-center gap-4 mb-12">
-          <img src="/logo.png" alt="Khozna" className="h-10 object-contain brightness-0 invert" />
-          <div className="h-4 w-[1px] bg-white/20" />
-          <span className="font-brand font-black tracking-[0.2em] text-xs text-white">OP-CENTER</span>
+          <div className="w-10 h-10 bg-brand rounded-xl flex items-center justify-center shadow-lg shadow-brand/20">
+            <img src="/logo.png" alt="K" className="h-6 object-contain brightness-0 invert" />
+          </div>
+          <div className="h-4 w-[1px] bg-white/10" />
+          <span className="font-brand font-black tracking-[0.3em] text-[10px] text-white">CORE-X</span>
         </div>
 
-        <nav className="flex flex-col gap-1">
-          <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-4 pl-4">Operations</p>
+        <nav className="flex flex-col gap-1.5">
+          <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.25em] mb-4 pl-4">System Grid</p>
           {links.map((link) => (
             <Link
               key={link.name}
               to={link.path}
-              className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-semibold border border-transparent ${
-                isActive(link.path) 
-                  ? 'bg-brand/10 text-brand border-brand/20 shadow-lg shadow-brand/5' 
-                  : 'hover:bg-white/5 hover:text-white'
-              }`}
+              className="relative group"
             >
-              <span className={isActive(link.path) ? 'text-brand' : 'opacity-50'}>{link.icon}</span>
-              {link.name}
+              <div
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all text-sm font-bold border border-transparent ${
+                  isActive(link.path) 
+                    ? 'text-white border-white/5 bg-white/5' 
+                    : 'hover:text-white/80'
+                }`}
+              >
+                {isActive(link.path) && (
+                  <motion.div 
+                    layoutId="activeNav"
+                    className="absolute inset-0 bg-brand/10 border border-brand/20 rounded-xl"
+                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+                <span className={`relative z-10 ${isActive(link.path) ? 'text-brand' : 'opacity-40 group-hover:opacity-100'}`}>{link.icon}</span>
+                <span className="relative z-10">{link.name}</span>
+              </div>
             </Link>
           ))}
         </nav>
       </div>
 
-      <div className="space-y-4">
-        <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Status</p>
-          <div className="flex items-center gap-2 text-xs font-bold text-green-400">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            Live Production
+      <div className="relative z-10 space-y-6">
+        <div className="p-5 bg-white/[0.03] rounded-[2rem] border border-white/5 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">Environment</p>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse" />
+              <span className="text-[9px] font-black text-green-400 uppercase">Live</span>
+            </div>
+          </div>
+          <div className="space-y-3">
+             <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                <motion.div 
+                  initial={{ width: "0%" }}
+                  animate={{ width: "78%" }}
+                  className="h-full bg-brand"
+                />
+             </div>
+             <p className="text-[10px] text-white/40 font-bold">Network Stability: 99.9%</p>
           </div>
         </div>
         
-        <button 
-          onClick={onLock}
-          className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-red-400 hover:bg-red-500/10 font-bold transition-all text-sm group"
-        >
-          <LogOut size={18} className="opacity-50 group-hover:opacity-100" />
-          Terminating Session
-        </button>
+        <div className="flex flex-col gap-2">
+          <button 
+            onClick={onLock}
+            className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-red-400/60 hover:text-red-400 hover:bg-red-500/5 font-black transition-all text-[11px] uppercase tracking-widest group border border-transparent hover:border-red-500/10"
+          >
+            <LogOut size={16} className="opacity-40 group-hover:opacity-100" />
+            Decommission Session
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -72,22 +102,34 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
 
 const Header = ({ title }: { title: string }) => {
   return (
-    <header className="h-20 px-10 flex items-center justify-between border-b border-gray-100 bg-white/70 backdrop-blur-xl z-20 sticky top-0">
+    <header className="h-20 px-10 flex items-center justify-between border-b border-gray-100/50 bg-white/60 backdrop-blur-2xl z-20 sticky top-0">
       <div className="flex flex-col">
-        <h1 className="text-xl font-brand font-black tracking-tight text-obsidian">{title}</h1>
-        <div className="flex items-center gap-2 mt-0.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-brand" />
-          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Administrative Layer</span>
+        <div className="flex items-center gap-2 mb-0.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-brand shadow-[0_0_8px_#00A3E1]" />
+          <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em]">Administrative Layer</span>
         </div>
+        <h1 className="text-xl font-brand font-black tracking-tight text-obsidian">{title}</h1>
       </div>
       
-      <div className="flex items-center gap-4 group cursor-pointer p-2 hover:bg-gray-50 rounded-2xl transition-all">
-        <div className="text-right">
-          <p className="text-sm font-black text-obsidian">Master Operator</p>
-          <p className="text-[11px] text-gray-400 font-bold">khoznaapp@gmail.com</p>
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2">
+           {[Activity, Globe, Bell].map((Icon, i) => (
+             <button key={i} className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:text-obsidian hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100 group">
+               <Icon size={18} className="group-hover:scale-110 transition-transform" />
+             </button>
+           ))}
         </div>
-        <div className="w-10 h-10 bg-brand-light text-brand rounded-xl flex items-center justify-center font-bold shadow-inner border border-brand/10 group-hover:scale-110 transition-transform">
-          <Settings size={18} />
+
+        <div className="h-8 w-[1px] bg-gray-100" />
+
+        <div className="flex items-center gap-4 group cursor-pointer p-1.5 pr-4 hover:bg-gray-50 rounded-2xl transition-all border border-transparent hover:border-gray-100">
+          <div className="w-10 h-10 bg-obsidian text-white rounded-xl flex items-center justify-center font-bold shadow-lg overflow-hidden relative">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Khozna" className="w-full h-full object-cover" alt="Profile" />
+          </div>
+          <div className="text-left">
+            <p className="text-xs font-black text-obsidian uppercase tracking-wider">Master Ops</p>
+            <p className="text-[10px] text-gray-400 font-bold">Session: 04:12:01</p>
+          </div>
         </div>
       </div>
     </header>
@@ -125,57 +167,126 @@ const DashboardHome = () => {
   }, []);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto w-full flex-1 overflow-y-auto">
-      <div className="bg-white rounded-[2rem] p-10 shadow-premium border border-gray-100 mb-10 overflow-hidden relative group">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-brand/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-brand/10 transition-colors" />
-        
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="px-3 py-1 bg-brand-light text-brand text-[10px] font-black uppercase tracking-widest rounded-full border border-brand/10">
-              Live Operations
+    <div className="p-8 max-w-[1600px] mx-auto w-full flex-1 overflow-y-auto bg-[#F9FAFB]/50">
+      <div className="grid grid-cols-12 gap-8">
+        <div className="col-span-12 lg:col-span-8 space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-obsidian rounded-[2.5rem] p-12 shadow-2xl shadow-obsidian/20 relative overflow-hidden group"
+          >
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand/10 rounded-full -mr-40 -mt-40 blur-[120px] group-hover:bg-brand/20 transition-all duration-1000" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/5 rounded-full -ml-32 -mb-32 blur-[80px]" />
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="px-4 py-1.5 bg-white/5 border border-white/10 text-brand text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-md">
+                  System Protocol v5.2.0
+                </div>
+                <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                <span className="text-[11px] font-bold text-white/40 uppercase tracking-widest">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+              </div>
+              
+              <h2 className="text-5xl font-brand font-black tracking-tighter text-white mb-6 leading-[1.1]">
+                Welcome to the <br />
+                <span className="text-brand">Command Nexus</span>
+              </h2>
+              <p className="text-white/40 font-medium max-w-md leading-relaxed text-sm mb-10">
+                Orchestrating real-time asset flows and identity validation across the Khozna property ecosystem.
+              </p>
+
+              <div className="flex items-center gap-4">
+                 <button className="px-8 py-3.5 bg-brand text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-brand/20 hover:scale-105 active:scale-95 transition-all">
+                    System Audit
+                 </button>
+                 <button className="px-8 py-3.5 bg-white/5 text-white/60 border border-white/10 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all">
+                    Network Map
+                 </button>
+              </div>
             </div>
-            <div className="w-1 h-1 rounded-full bg-gray-300" />
-            <span className="text-xs font-bold text-gray-400">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+          </motion.div>
+
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black text-obsidian uppercase tracking-[0.3em] flex items-center gap-4">
+              Operational Metrics
+              <div className="h-[2px] w-12 bg-brand/30 rounded-full" />
+            </h3>
+            {loading && <Loader2 className="animate-spin text-brand" size={16} strokeWidth={3} />}
           </div>
           
-          <h2 className="text-4xl font-brand font-black tracking-tighter text-obsidian mb-4">
-            Command Dashboard <span className="text-brand">V5</span>
-          </h2>
-          <p className="text-gray-500 font-medium max-w-lg leading-relaxed">
-            Welcome back to the Khozna Administrative Core. Monitoring real-time verification traffic and platform health.
-          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { title: 'Identity Pipeline', value: stats.kyc, label: 'Pending Verification', icon: <UserCheck size={24} />, color: 'from-orange-400 to-orange-600', path: '/kyc' },
+              { title: 'Asset Inventory', value: stats.properties, label: 'Active Listings', icon: <LayoutDashboard size={24} />, color: 'from-brand to-brand-dark', path: '/properties' },
+              { title: 'Citizen Registry', value: stats.users, label: 'Registered Operators', icon: <Users size={24} />, color: 'from-indigo-500 to-purple-600', path: '/users' },
+              { title: 'Security Alerts', value: stats.bookings, label: 'Critical Reports', icon: <ShieldAlert size={24} />, color: 'from-red-500 to-red-700', path: '/reports' },
+            ].map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Link to={stat.path} className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm flex items-center gap-8 group hover:shadow-2xl hover:shadow-brand/5 hover:border-brand/10 transition-all">
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center bg-gray-50 text-gray-400 group-hover:bg-brand-light group-hover:text-brand transition-all shadow-inner relative overflow-hidden`}>
+                    <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
+                    {stat.icon}
+                  </div>
+                  <div>
+                    <h4 className="text-3xl font-brand font-black text-obsidian tracking-tighter mb-1">
+                      {loading ? '---' : stat.value}
+                    </h4>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      {stat.title}
+                    </p>
+                    <p className="text-[9px] font-bold text-gray-300 mt-0.5">{stat.label}</p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="flex items-center justify-between mb-8">
-        <h3 className="text-sm font-black text-obsidian uppercase tracking-[0.2em] flex items-center gap-3">
-          Key Performance Indicators
-          <div className="h-0.5 w-8 bg-brand rounded-full" />
-        </h3>
-        {loading && <Loader2 className="animate-spin text-brand" size={16} strokeWidth={3} />}
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { title: 'Total Users', value: stats.users, icon: <Users size={20} />, color: 'brand', path: '/users' },
-          { title: 'Pending KYC', value: stats.kyc, icon: <UserCheck size={20} />, color: 'orange-500', path: '/kyc' },
-          { title: 'Active Listings', value: stats.properties, icon: <LayoutDashboard size={20} />, color: 'indigo-500', path: '/properties' },
-          { title: 'Alerts', value: stats.bookings, icon: <ShieldAlert size={20} />, color: 'red-500', path: '/reports' },
-        ].map((stat, i) => (
-          <Link to={stat.path} key={i} className="bg-white p-6 rounded-[2rem] border border-gray-50 shadow-sm flex flex-col justify-between h-44 hover:shadow-premium hover:border-brand/10 transition-all group">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gray-50 text-gray-400 group-hover:bg-brand-light group-hover:text-brand transition-all shadow-inner`}>
-              {stat.icon}
-            </div>
-            <div>
-              <h4 className="text-4xl font-brand font-black text-obsidian tracking-tighter group-hover:text-brand transition-colors">
-                {loading ? '---' : stat.value}
-              </h4>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1 group-hover:text-gray-600">
-                {stat.title}
-              </p>
-            </div>
-          </Link>
-        ))}
+        <div className="col-span-12 lg:col-span-4 space-y-8">
+           <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm h-full flex flex-col">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-[10px] font-black text-obsidian uppercase tracking-widest">System Events</h3>
+                <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"><Activity size={14} /></div>
+              </div>
+
+              <div className="flex-1 space-y-6">
+                {[
+                  { user: "Operator-X", action: "Validated KYC ID #8291", time: "2m ago", status: "success" },
+                  { user: "System", action: "Refreshed Property Cache", time: "14m ago", status: "info" },
+                  { user: "Master", action: "Updated Auth Protocols", time: "1h ago", status: "warning" },
+                  { user: "Operator-Z", action: "Flagged Listing #1022", time: "3h ago", status: "error" },
+                ].map((event, i) => (
+                  <div key={i} className="flex gap-4 group cursor-default">
+                    <div className="relative">
+                      <div className={`w-2 h-2 rounded-full mt-2 ${
+                        event.status === 'success' ? 'bg-green-500' :
+                        event.status === 'error' ? 'bg-red-500' :
+                        event.status === 'warning' ? 'bg-orange-500' : 'bg-brand'
+                      }`} />
+                      {i !== 3 && <div className="absolute top-4 left-[3px] w-[2px] h-10 bg-gray-100" />}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-obsidian">{event.action}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[9px] font-black text-gray-400 uppercase">{event.user}</span>
+                        <span className="text-[9px] text-gray-300 font-medium">•</span>
+                        <span className="text-[9px] text-gray-300 font-medium">{event.time}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button className="w-full mt-10 py-4 bg-gray-50 rounded-2xl text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] hover:bg-gray-100 hover:text-obsidian transition-all">
+                Full Activity Log
+              </button>
+           </div>
+        </div>
       </div>
     </div>
   );

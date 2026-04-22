@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
-import { ShieldAlert, Trash2, Loader2, RefreshCw } from 'lucide-react';
+import { ShieldAlert, Trash2, Loader2, RefreshCcw, User, Clock, AlertTriangle } from 'lucide-react';
 
 export const Reports = () => {
   const [reports, setReports] = useState<any[]>([]);
@@ -46,65 +47,105 @@ export const Reports = () => {
   };
 
   return (
-    <div className="p-10 max-w-5xl mx-auto w-full flex-1 h-full overflow-y-auto">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-10 max-w-[1200px] mx-auto w-full flex-1 h-full overflow-y-auto bg-[#F9FAFB]/50">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-8"
+      >
         <div>
-          <h2 className="text-3xl font-extrabold text-gray-900 flex items-center gap-3">
-            <ShieldAlert className="text-red-500" size={32} /> User Reports
-          </h2>
-          <p className="text-gray-500 mt-1">Manage user flags and potential scams reported by the community.</p>
+          <div className="flex items-center gap-4 mb-2">
+            <h2 className="text-4xl font-brand font-black text-obsidian tracking-tighter flex items-center gap-4">
+              <ShieldAlert className="text-red-500" size={36} /> 
+              Threat Monitor
+            </h2>
+            <div className="px-3 py-1 bg-red-500 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-md shadow-lg shadow-red-500/20">Active: {reports.length}</div>
+          </div>
+          <p className="text-gray-400 font-medium text-sm">Managing community flags, behavioral violations, and security reports.</p>
         </div>
-        <button onClick={fetchReports} className="p-3 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 flex items-center gap-2 font-semibold shadow-sm">
-          {loading ? <Loader2 className="animate-spin text-gray-400" /> : <RefreshCw size={20} className="text-gray-600" />} 
-          Refresh List
+        
+        <button onClick={fetchReports} className="px-8 py-3.5 bg-white border border-gray-100 rounded-2xl hover:bg-gray-50 flex items-center gap-3 font-black shadow-sm transition-all text-xs uppercase tracking-widest group">
+           {loading ? <Loader2 className="animate-spin text-brand" size={16} /> : <RefreshCcw size={16} className="text-gray-400 group-hover:rotate-180 transition-transform duration-700" />} 
+           Refresh Intel
         </button>
-      </div>
+      </motion.div>
 
       {loading ? (
-        <div className="flex justify-center py-20"><Loader2 className="animate-spin text-red-500" size={40} /></div>
-      ) : reports.length === 0 ? (
-        <div className="text-center py-20 bg-white border border-gray-100 rounded-3xl shadow-sm">
-          <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <ShieldAlert size={32} />
-          </div>
-          <p className="text-gray-900 font-bold text-xl">All Clear!</p>
-          <p className="text-gray-400 mt-1">No pending reports to deal with right now.</p>
+        <div className="flex justify-center items-center py-48">
+          <div className="w-12 h-12 border-4 border-brand/10 border-t-brand rounded-full animate-spin" />
         </div>
+      ) : reports.length === 0 ? (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-48 bg-white border border-gray-100 rounded-[3rem] shadow-xl shadow-gray-100/50"
+        >
+          <div className="w-24 h-24 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+            <ShieldAlert size={40} />
+          </div>
+          <h3 className="text-2xl font-brand font-black text-obsidian uppercase tracking-widest">Sector Clear</h3>
+          <p className="text-gray-400 mt-3 font-medium max-w-sm mx-auto">No critical threats or user reports detected in the current cycle.</p>
+        </motion.div>
       ) : (
-        <div className="grid gap-4">
-          {reports.map((report) => (
-            <div key={report.id} className="bg-white border border-red-100 p-6 rounded-3xl shadow-sm relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-1 h-full bg-red-400" />
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-4 mb-4">
-                  {report.reported?.avatar_url ? (
-                    <img src={report.reported.avatar_url} className="w-12 h-12 rounded-full border border-gray-200 object-cover" alt="Avatar"/>
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center">
-                      <ShieldAlert size={20} />
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="font-bold text-gray-900 text-lg">Report against {report.reported?.full_name || 'Unknown User'}</h3>
-                    <p className="text-xs text-gray-500 font-medium">Submitted by: <span className="text-gray-800">{report.reporter?.full_name || 'System'}</span> • {new Date(report.created_at).toLocaleDateString()}</p>
-                  </div>
-                </div>
+        <div className="grid gap-6">
+          <AnimatePresence mode="popLayout">
+            {reports.map((report, idx) => (
+              <motion.div 
+                key={report.id} 
+                layout
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ delay: idx * 0.05 }}
+                className="bg-white border border-red-100 p-8 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:shadow-red-500/5 transition-all relative overflow-hidden group"
+              >
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-red-500" />
                 
-                <button 
-                  onClick={() => handleDelete(report.id)}
-                  disabled={processingId === report.id}
-                  className="p-2 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded-xl transition-colors disabled:opacity-50"
-                  title="Dismiss Report"
-                >
-                  {processingId === report.id ? <Loader2 size={24} className="animate-spin" /> : <Trash2 size={24} />}
-                </button>
-              </div>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                  <div className="flex items-center gap-6 flex-1">
+                    <div className="relative">
+                      {report.reported?.avatar_url ? (
+                        <img src={report.reported.avatar_url} className="w-16 h-16 rounded-2xl border-2 border-white shadow-lg object-cover" alt="Avatar"/>
+                      ) : (
+                        <div className="w-16 h-16 rounded-2xl bg-red-50 text-red-400 flex items-center justify-center border border-red-100 shadow-inner">
+                          <User size={24} />
+                        </div>
+                      )}
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                        <AlertTriangle size={10} className="text-white" />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-brand font-black text-obsidian text-xl tracking-tight mb-1">Target: {report.reported?.full_name || 'Unknown Subject'}</h3>
+                      <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                           <User size={12} className="text-brand opacity-40" /> Reporter: <span className="text-obsidian">{report.reporter?.full_name || 'Anonymous'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                           <Clock size={12} className="text-brand opacity-40" /> {new Date(report.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {new Date(report.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => handleDelete(report.id)}
+                    disabled={processingId === report.id}
+                    className="px-6 py-3 bg-red-500/5 text-red-500 font-black rounded-xl hover:bg-green-500 hover:text-white transition-all disabled:opacity-50 active:scale-95 text-[10px] uppercase tracking-widest border border-red-500/10 hover:border-green-500 shadow-sm"
+                  >
+                    {processingId === report.id ? <Loader2 size={16} className="animate-spin" /> : 'Dismiss Case'}
+                  </button>
+                </div>
 
-              <div className="bg-red-50 text-red-900 p-4 rounded-xl border border-red-100">
-                <p className="font-medium">{report.reason || 'No reason provided.'}</p>
-              </div>
-            </div>
-          ))}
+                <div className="mt-8 p-6 bg-red-500/[0.03] text-red-900 rounded-2xl border border-red-500/5 relative">
+                  <div className="flex items-center gap-2 text-[9px] font-black text-red-500/60 uppercase tracking-widest mb-2">
+                    <ShieldAlert size={12} /> Violation Narrative
+                  </div>
+                  <p className="font-medium text-sm leading-relaxed text-red-900/80 italic">"{report.reason || 'No violation data provided.'}"</p>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
     </div>
