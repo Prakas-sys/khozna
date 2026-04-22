@@ -31,7 +31,6 @@ class HomeScreenState extends State<HomeScreen> {
   final List<Future<List<Map<String, dynamic>>>> _sectionFutures =
       List.generate(5, (index) => Future.value(<Map<String, dynamic>>[]));
 
-  int _bossTaps = 0;
   Position? _currentPosition;
   final String _adminEmail = 'khoznaapp@gmail.com';
   String _currentLocationName = "Kathmandu, Nepal";
@@ -251,104 +250,6 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _handleBossTap() {
-    HapticFeedback.selectionClick(); // Feel every tap
-    setState(() {
-      _bossTaps++;
-      if (_bossTaps >= 5) {
-        _bossTaps = 0;
-        final currentUser = Supabase.instance.client.auth.currentUser;
-        // Check for both the specific email and a safety fallback
-        if (currentUser != null && 
-            (currentUser.email == _adminEmail || currentUser.email == 'admin@khozna.com')) {
-          _showBossLogin();
-        } else {
-          debugPrint("Secret Tap Detected but Email mismatch: ${currentUser?.email}");
-        }
-      }
-    });
-  }
-
-  void _showBossLogin() {
-    final TextEditingController pinController = TextEditingController();
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Column(
-          children: [
-            const SizedBox(height: 16),
-            Text(
-              'Admin Access',
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w900,
-                fontSize: 22,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Enter 4-digit security PIN',
-              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600]),
-            ),
-          ],
-        ),
-        content: TextField(
-          controller: pinController,
-          obscureText: true,
-          textAlign: TextAlign.center,
-          keyboardType: TextInputType.number,
-          maxLength: 4,
-          style: GoogleFonts.inter(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 16,
-          ),
-          decoration: const InputDecoration(
-            counterText: '',
-            hintText: '••••',
-            border: InputBorder.none,
-          ),
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                if (pinController.text == '8888') {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const OwnerDashboard()),
-                  );
-                } else {
-                  HapticFeedback.heavyImpact();
-                  Navigator.pop(context);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.brandColor,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: Text(
-                'Unlock Dashboard',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _navigate(BuildContext context, Widget destination) {
     HapticFeedback.lightImpact();
     Navigator.push(
@@ -370,13 +271,10 @@ class HomeScreenState extends State<HomeScreen> {
         titleSpacing: 20,
         title: Row(
           children: [
-            GestureDetector(
-              onTap: _handleBossTap,
-              child: Image.asset(
-                'assets/images/original logo.png',
-                height: 48,
-                fit: BoxFit.contain,
-              ),
+            Image.asset(
+              'assets/images/original logo.png',
+              height: 48,
+              fit: BoxFit.contain,
             ),
             const SizedBox(width: 8),
             Expanded(

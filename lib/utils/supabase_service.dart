@@ -463,37 +463,6 @@ class SupabaseService {
 
     // Fetch initial unread count
     fetchUnreadNotificationCount();
-
-    // 3. OWNER ONLY: Admin Alert Channels
-    if (user.email == 'khoznaapp@gmail.com') {
-      debugPrint('--- [ADMIN] Initializing Owner Realtime Channels ---');
-
-      _ownerKycChannel = _client
-          .channel('owner-kycs')
-          .onPostgresChanges(
-            event: PostgresChangeEvent.insert,
-            schema: 'public',
-            table: 'kyc_verifications',
-            callback: (payload) {
-              notificationBadgeCount.value += 1;
-              if (onOwnerEvent != null) onOwnerEvent();
-            },
-          );
-      _ownerKycChannel?.subscribe();
-
-      _ownerReportChannel = _client
-          .channel('owner-reports')
-          .onPostgresChanges(
-            event: PostgresChangeEvent.insert,
-            schema: 'public',
-            table: 'user_reports',
-            callback: (payload) {
-              notificationBadgeCount.value += 1;
-              if (onOwnerEvent != null) onOwnerEvent();
-            },
-          );
-      _ownerReportChannel?.subscribe();
-    }
   }
 
   /// DEPRECATED: Use initRealtimeListeners
@@ -566,48 +535,6 @@ class SupabaseService {
           .order('created_at', ascending: false);
 
       List<Map<String, dynamic>> allNotes = List<Map<String, dynamic>>.from(response);
-
-      // 2. If Admin, inject virtual alerts for pending tasks
-      if (user.email == 'khoznaapp@gmail.com') {
-        // Fetch pending KYCs
-        final kycs = await _client
-            .from('kyc_verifications')
-            .select('id, full_name, created_at')
-            .eq('status', 'pending');
-        
-        for (var kyc in kycs) {
-          allNotes.add({
-            'id': 'kyc_${kyc['id']}',
-            'user_id': user.id,
-            'title': 'New KYC Submitted 📝',
-            'message': 'User ${kyc['full_name']} has submitted their identity for verification.',
-            'created_at': kyc['created_at'],
-            'type': 'kyc_alert',
-            'is_read': false,
-          });
-        }
-
-        // Fetch pending Reports
-        final reports = await _client
-            .from('user_reports')
-            .select('id, reason, created_at, reporter:reporter_id(full_name)')
-            .eq('status', 'pending');
-
-        for (var report in reports) {
-          allNotes.add({
-            'id': 'report_${report['id']}',
-            'user_id': user.id,
-            'title': 'New User Report 🚩',
-            'message': 'Reported by ${report['reporter']?['full_name'] ?? 'Unknown'}: ${report['reason']}',
-            'created_at': report['created_at'],
-            'type': 'report_alert',
-            'is_read': false,
-          });
-        }
-
-        // Re-sort by date
-        allNotes.sort((a, b) => (b['created_at'] ?? '').toString().compareTo((a['created_at'] ?? '').toString()));
-      }
 
       return allNotes;
     } catch (e) {
@@ -689,23 +616,6 @@ class SupabaseService {
       
       int total = response.count;
 
-      // 2. If Admin, add pending tasks to the total
-      if (user.email == 'khoznaapp@gmail.com') {
-        final kycCount = await _client
-            .from('kyc_verifications')
-            .select()
-            .eq('status', 'pending')
-            .count(CountOption.exact);
-        
-        final reportCount = await _client
-            .from('user_reports')
-            .select()
-            .eq('status', 'pending')
-            .count(CountOption.exact);
-
-        total += (kycCount.count + reportCount.count);
-      }
-      
       notificationBadgeCount.value = total;
     } catch (e) {
       print('Error fetching unread count: $e');
