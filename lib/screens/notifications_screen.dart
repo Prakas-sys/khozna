@@ -106,166 +106,342 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     )
                   : ListView.builder(
                       itemCount: _notifications.length,
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8,
-                  horizontal: 16,
-                ),
-                itemBuilder: (context, index) {
-                  final note = _notifications[index];
-                  final sender = note['sender'];
-                  final String id = note['id'].toString();
-
-                  return Dismissible(
-                    key: Key(id),
-                    direction: DismissDirection.endToStart,
-                    onDismissed: (_) async {
-                      if (index < _notifications.length) {
-                        setState(() => _notifications.removeAt(index));
-                        await SupabaseService.deleteNotification(id);
-                      }
-                    },
-                    background: Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      color: Colors.red.shade50,
-                      child: const Icon(
-                        Icons.delete_outline,
-                        color: Colors.red,
-                        size: 24,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 16,
                       ),
-                    ),
-                    child: InkWell(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                if (sender != null) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => OwnerProfileScreen(
-                                        ownerId: sender['id']?.toString() ?? '',
-                                        name:
-                                            sender['full_name'] ??
-                                            'Khozna User',
-                                        avatar:
-                                            sender['avatar_url'] ??
-                                            'https://via.placeholder.com/150',
-                                        location: 'Kathmandu, Nepal',
-                                        totalListings: 0,
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Stack(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 26,
-                                    backgroundColor: Colors.grey[100],
-                                    backgroundImage:
-                                        sender != null &&
-                                            sender['avatar_url'] != null
-                                        ? NetworkImage(sender['avatar_url'])
-                                        : null,
-                                    child:
-                                        sender == null ||
-                                            sender['avatar_url'] == null
-                                        ? Icon(
-                                            Icons.person,
-                                            color: Colors.grey[400],
-                                            size: 28,
-                                          )
-                                        : null,
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(3),
-                                      decoration: BoxDecoration(
-                                        color: _getTypeColor(note['type']),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        _getTypeIcon(note['type']),
-                                        size: 10,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                      itemBuilder: (context, index) {
+                        final note = _notifications[index];
+                        final sender = note['sender'];
+                        final String id = note['id'].toString();
+                        final String type = note['type']?.toString() ?? '';
+
+                        // ── SPECIAL: Booking Request card with Approve/Reject ──
+                        if (type == 'booking_request') {
+                          return _buildBookingRequestCard(note, id, index, sender);
+                        }
+
+                        // ── Standard notification row ──
+                        return Dismissible(
+                          key: Key(id),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (_) async {
+                            if (index < _notifications.length) {
+                              setState(() => _notifications.removeAt(index));
+                              await SupabaseService.deleteNotification(id);
+                            }
+                          },
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            color: Colors.red.shade50,
+                            child: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                              size: 24,
                             ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                          ),
+                          child: InkWell(
+                            onTap: () {},
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  RichText(
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    text: TextSpan(
-                                      style: GoogleFonts.inter(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                        height: 1.3,
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          text: sender != null
-                                              ? sender['full_name'] + ' '
-                                              : '',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (sender != null) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => OwnerProfileScreen(
+                                              ownerId: sender['id']?.toString() ?? '',
+                                              name:
+                                                  sender['full_name'] ??
+                                                  'Khozna User',
+                                              avatar:
+                                                  sender['avatar_url'] ??
+                                                  'https://via.placeholder.com/150',
+                                              location: 'Kathmandu, Nepal',
+                                              totalListings: 0,
+                                            ),
                                           ),
+                                        );
+                                      }
+                                    },
+                                    child: Stack(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 26,
+                                          backgroundColor: Colors.grey[100],
+                                          backgroundImage:
+                                              sender != null &&
+                                                  sender['avatar_url'] != null
+                                              ? NetworkImage(sender['avatar_url'])
+                                              : null,
+                                          child:
+                                              sender == null ||
+                                                  sender['avatar_url'] == null
+                                              ? Icon(
+                                                  Icons.person,
+                                                  color: Colors.grey[400],
+                                                  size: 28,
+                                                )
+                                              : null,
                                         ),
-                                        TextSpan(
-                                          text:
-                                              note['message'] ??
-                                              note['title'] ??
-                                              '',
-                                        ),
-                                        TextSpan(
-                                          text:
-                                              '  ' +
-                                              _formatTime(note['created_at']),
-                                          style: TextStyle(
-                                            color: Colors.grey[400],
-                                            fontSize: 12,
+                                        Positioned(
+                                          bottom: 0,
+                                          right: 0,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(3),
+                                            decoration: BoxDecoration(
+                                              color: _getTypeColor(note['type']),
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: Icon(
+                                              _getTypeIcon(note['type']),
+                                              size: 10,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        RichText(
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          text: TextSpan(
+                                            style: GoogleFonts.inter(
+                                              fontSize: 14,
+                                              color: Colors.black,
+                                              height: 1.3,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text: sender != null
+                                                    ? sender['full_name'] + ' '
+                                                    : '',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text:
+                                                    note['message'] ??
+                                                    note['title'] ??
+                                                    '',
+                                              ),
+                                              TextSpan(
+                                                text:
+                                                    '  ' +
+                                                    _formatTime(note['created_at']),
+                                                style: TextStyle(
+                                                  color: Colors.grey[400],
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => _confirmDelete(id, index),
+                                    icon: Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red.withOpacity(0.3),
+                                      size: 18,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
-                            IconButton(
-                              onPressed: () => _confirmDelete(id, index),
-                              icon: Icon(
-                                Icons.delete_outline,
-                                color: Colors.red.withOpacity(0.3),
-                                size: 18,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+    );
+  }
+
+  /// Booking request notification card — shown ONLY to the owner
+  Widget _buildBookingRequestCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
+    final String propertyId = note['property_id']?.toString() ?? '';
+    final String requesterId = note['requester_id']?.toString() ?? note['sender_id']?.toString() ?? '';
+    // Extract property title from message: "$name wants to rent "$title""  
+    final String message = note['message']?.toString() ?? '';
+    final RegExp titleRegex = RegExp(r'wants to rent "(.+)"');
+    final match = titleRegex.firstMatch(message);
+    final String propertyTitle = match?.group(1) ?? 'this property';
+    bool _acting = false;
+
+    return StatefulBuilder(
+      builder: (context, setCardState) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFF00A3E1).withOpacity(0.15)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00A3E1).withOpacity(0.06),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00A3E1).withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.home_rounded, color: Color(0xFF00A3E1), size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            note['title'] ?? '🏠 New Booking Request',
+                            style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.black),
+                          ),
+                          Text(
+                            _formatTime(note['created_at']),
+                            style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[400]),
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-            ),
+              // Body: requester info
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Colors.grey[100],
+                      backgroundImage: sender != null && sender['avatar_url'] != null
+                          ? NetworkImage(sender['avatar_url']) : null,
+                      child: sender == null || sender['avatar_url'] == null
+                          ? Icon(Icons.person, color: Colors.grey[400], size: 24) : null,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        message,
+                        style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[700], height: 1.4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Action buttons
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: _acting
+                    ? const Center(child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ))
+                    : Row(
+                        children: [
+                          // REJECT
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                setCardState(() => _acting = true);
+                                try {
+                                  await SupabaseService.rejectBooking(
+                                    propertyId: propertyId,
+                                    propertyTitle: propertyTitle,
+                                    requesterId: requesterId,
+                                    notificationId: id,
+                                  );
+                                  if (mounted) setState(() => _notifications.removeAt(index));
+                                } catch (_) {
+                                  setCardState(() => _acting = false);
+                                }
+                              },
+                              icon: const Icon(Icons.close_rounded, size: 16),
+                              label: Text('Reject', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.red,
+                                side: const BorderSide(color: Colors.red, width: 1.5),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // APPROVE
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                setCardState(() => _acting = true);
+                                final ownerProfile = await SupabaseService.getUserProfile(
+                                  SupabaseService.currentUserId,
+                                );
+                                final ownerName = ownerProfile?['full_name'] ?? 'The owner';
+                                try {
+                                  await SupabaseService.approveBooking(
+                                    propertyId: propertyId,
+                                    propertyTitle: propertyTitle,
+                                    requesterId: requesterId,
+                                    ownerName: ownerName,
+                                    notificationId: id,
+                                  );
+                                  if (mounted) setState(() => _notifications.removeAt(index));
+                                } catch (_) {
+                                  setCardState(() => _acting = false);
+                                }
+                              },
+                              icon: const Icon(Icons.check_rounded, size: 16),
+                              label: Text('Approve', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF22C55E),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -505,6 +681,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'booking_alert':
       case 'saved_booking_alert':
         return Icons.home_work_rounded;
+      case 'booking_request':
+        return Icons.pending_actions_rounded;
+      case 'booking_approved':
+        return Icons.check_circle_rounded;
+      case 'booking_rejected':
+        return Icons.cancel_rounded;
       case 'message':
         return Icons.chat_bubble_rounded;
       case 'booking':
@@ -527,6 +709,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'booking_alert':
       case 'saved_booking_alert':
         return Colors.orange;
+      case 'booking_request':
+        return const Color(0xFF00A3E1);
+      case 'booking_approved':
+        return const Color(0xFF22C55E);
+      case 'booking_rejected':
+        return Colors.red;
       case 'message':
         return AppTheme.brandColor;
       case 'booking':

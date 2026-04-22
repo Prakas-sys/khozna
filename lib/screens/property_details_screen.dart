@@ -73,6 +73,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   int _currentImageIndex = 0;
   final PageController _pageController = PageController();
   bool _isReserved = false;
+  bool _isPendingApproval = false;
   bool _isBooking = false;
   Map<String, dynamic>? _ownerData;
 
@@ -87,7 +88,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _isReserved = widget.status == 'booked';
+    _isReserved = widget.status == 'booked' || widget.status == 'pending_approval';
+    _isPendingApproval = widget.status == 'pending_approval';
     
     // Initialize owner data instantly if passed from previous screen
     if (widget.ownerName != null || widget.ownerAvatar != null) {
@@ -1346,6 +1348,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           if (mounted) {
                             setState(() {
                               _isReserved = true;
+                              _isPendingApproval = true;
                               _isBooking = false;
                             });
 
@@ -1402,7 +1405,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Reserved Successfully!',
+                                              'Request Sent! 🏠',
+                                            ),
+                                            Text(
+                                              'Waiting for owner approval...',
                                               style: GoogleFonts.outfit(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
@@ -1437,6 +1443,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isMyProperty
                       ? Colors.blue[600]
+                      : _isPendingApproval
+                      ? const Color(0xFFF59E0B)
                       : _isReserved
                       ? Colors.grey[700]
                       : AppTheme.brandColor,
@@ -1448,9 +1456,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   elevation: 4,
                   shadowColor: AppTheme.brandColor.withOpacity(0.3),
                 ),
-                child: Text(
+                child: _isBooking
+                    ? const SizedBox(
+                        height: 18, width: 18,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    : Text(
                   (_isMyProperty && !widget.id.contains('demo'))
                       ? 'Your Listing'
+                      : _isPendingApproval
+                      ? '⏳ Pending Approval'
                       : _isReserved
                       ? 'Booked ✓'
                       : 'BOOK NOW (बुक गर्नुहोस्)',
