@@ -259,10 +259,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 _buildSectionTitle('सुविधाहरू (Amenities)'),
                 const SizedBox(height: 2), // Even tighter
                 _buildAmenityGrid(),
-                const SizedBox(height: 4), // Even tighter as requested
+                const SizedBox(height: 12), // Restore some breathing room as requested
                 // PRICE BOX
                 _buildPriceBox(widget.price),
-                const SizedBox(height: 8), // Keep this for readability
+                const SizedBox(height: 16), // Increased for better separation
                 // DESCRIPTION
                 _buildSectionTitle('Description'),
                 const SizedBox(height: 2),
@@ -840,13 +840,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ),
       ),
       child: GridView.count(
-        padding: EdgeInsets.zero, // Force zero padding
+        padding: const EdgeInsets.symmetric(vertical: 8), // Add vertical breathing room
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         crossAxisCount: 4,
-        mainAxisSpacing: 4, // Even tighter
-        crossAxisSpacing: 4,
-        childAspectRatio: 1.2, // Slightly safer aspect ratio
+        mainAxisSpacing: 10, // More breathing room
+        crossAxisSpacing: 8,
+        childAspectRatio: 0.9, // Make it taller to prevent bottom overflow
         children: items,
       ),
     );
