@@ -1,8 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "npm install --prefix admin_dashboard_web && npm run build --prefix admin_dashboard_web",
-  "outputDirectory": "admin_dashboard_web/dist",
+  "builds": [
+    {
+      "src": "admin_dashboard_web/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "admin_dashboard_web/index.html" }
   ]
 }
