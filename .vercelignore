@@ -1,8 +1,20 @@
-# Ignore everything except the admin dashboard and necessary configs
+# Ignore everything
 *
+
+# Allow only these
 !admin_dashboard_web/
+!admin_dashboard_web/**
 !vercel.json
+!.vercelignore
 !.gitignore
 
-# Ignore node_modules
-**/node_modules
+# Explicitly ignore heavy mobile folders
+/android
+/ios
+/lib
+/test
+/build
+/web
+/windows
+/linux
+/macos

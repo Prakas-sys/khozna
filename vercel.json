@@ -1,8 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "cd admin_dashboard_web && npm install && npm run build",
+  "buildCommand": "npm install --prefix admin_dashboard_web && npm run build --prefix admin_dashboard_web",
   "outputDirectory": "admin_dashboard_web/dist",
-  "framework": "vite",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
