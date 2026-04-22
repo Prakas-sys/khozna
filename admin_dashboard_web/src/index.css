@@ -15,12 +15,12 @@
 @layer base {
   body {
     @apply bg-bg antialiased text-obsidian;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 }
 
 .font-brand {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .glass-pro {
