@@ -1,0 +1,8 @@
+# Ignore everything except the admin dashboard and necessary configs
+*
+!admin_dashboard_web/
+!vercel.json
+!.gitignore
+
+# Ignore node_modules
+**/node_modules
