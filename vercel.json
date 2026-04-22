@@ -1,15 +1,7 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "admin_dashboard_web/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
+  "outputDirectory": "admin_dashboard_web/dist",
   "rewrites": [
-    { "source": "/(.*)", "destination": "admin_dashboard_web/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
