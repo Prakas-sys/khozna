@@ -234,22 +234,22 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         slivers: [
         _buildContainedCarousel(),
         SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               // VERIFIED BADGE & TITLE
               _buildHeader(widget.title, widget.location),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
 
               // AMENITIES SECTION
               _buildSectionTitle('सुविधाहरू (Amenities)'),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               _buildAmenityGrid(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
 
               // PRICE BOX
               _buildPriceBox(widget.price),
-              const SizedBox(height: 20),
+              const SizedBox(height: 14),
 
               // DESCRIPTION
               _buildSectionTitle('Description'),
@@ -350,15 +350,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       const Icon(
-                                        Icons.explore_rounded,
+                                        Icons.map_rounded,
                                         color: AppTheme.brandColor,
-                                        size: 20,
+                                        size: 18,
                                       ),
-                                      const SizedBox(width: 10),
+                                      const SizedBox(width: 8),
                                       Text(
-                                        "Explore Local Area",
+                                        "View on Map",
                                         style: GoogleFonts.outfit(
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           color: AppTheme.brandColor,
                                           fontWeight: FontWeight.w700,
                                           letterSpacing: -0.2,
@@ -420,10 +420,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildContainedCarousel() {
     return SliverToBoxAdapter(
       child: Container(
-        height: 360,
+        height: 300,
         width: double.infinity,
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: Colors.black,
         ),
         child: Stack(
           children: [
@@ -436,10 +436,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 final image = CachedNetworkImage(
                   imageUrl: displayImages[index],
                   fit: BoxFit.cover,
+                  alignment: Alignment.center,
                   placeholder: (context, url) =>
-                      Container(color: Colors.grey[200]),
+                      Container(color: Colors.grey[900]),
                   errorWidget: (context, url, error) =>
-                      Container(color: Colors.grey[200]),
+                      Container(color: Colors.grey[900]),
                 );
                 if (index == 0) {
                   return Hero(tag: widget.id, child: image);
@@ -755,10 +756,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: GridView.count(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        crossAxisCount: 3,
-        mainAxisSpacing: 20,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.1,
+        crossAxisCount: 4,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 8,
+        childAspectRatio: 0.85,
         children: items,
       ),
     );
