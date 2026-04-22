@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
-import { Shield, Loader2, ArrowRight, Lock, UserCheck, Smartphone } from 'lucide-react';
+import { Shield, Loader2, ArrowRight, Lock, UserCheck, Smartphone, AlertTriangle } from 'lucide-react';
 
 export const Login = ({ onPinSuccess }: { onPinSuccess: () => void }) => {
   const [session, setSession] = useState<any>(null);

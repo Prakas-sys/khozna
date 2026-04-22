@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
-import { XCircle, Trash2, Loader2, Search, Zap, ShieldCheck, ShieldAlert, Phone, CreditCard, Layout, RefreshCcw } from 'lucide-react';
+import { XCircle, Trash2, Loader2, Zap, ShieldCheck, ShieldAlert, Phone, CreditCard, Layout, RefreshCcw } from 'lucide-react';
 
 export const KycReview = () => {
   const [kycs, setKycs] = useState<any[]>([]);

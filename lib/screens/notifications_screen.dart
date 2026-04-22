@@ -29,6 +29,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       _notifications = data;
       _isLoading = false;
     });
+    // Mark all as read when the screen is opened/refreshed
+    await SupabaseService.markNotificationsAsRead();
   }
 
   String _formatTime(String? timestamp) {
@@ -507,7 +509,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return Icons.chat_bubble_rounded;
       case 'booking':
       case 'kyc_update':
+      case 'kyc_alert':
         return Icons.verified_user_rounded;
+      case 'report_alert':
+        return Icons.flag_rounded;
       case 'security':
         return Icons.security_rounded;
       default:
@@ -527,6 +532,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'booking':
       case 'kyc_update':
         return Colors.green;
+      case 'kyc_alert':
+        return Colors.orange;
+      case 'report_alert':
+        return Colors.red;
       case 'security':
         return Colors.black;
       default:

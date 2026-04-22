@@ -100,7 +100,9 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
   );
 };
 
-const Header = ({ title }: { title: string }) => {
+const Header = ({ title, notificationCount }: { title: string, notificationCount: number }) => {
+  const [showNotifications, setShowNotifications] = useState(false);
+  
   return (
     <header className="h-20 px-10 flex items-center justify-between border-b border-gray-100/50 bg-white/60 backdrop-blur-2xl z-20 sticky top-0">
       <div className="flex flex-col">
@@ -112,11 +114,80 @@ const Header = ({ title }: { title: string }) => {
       </div>
       
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 relative">
            {[Activity, Globe, Bell].map((Icon, i) => (
-             <button key={i} className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:text-obsidian hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100 group">
-               <Icon size={18} className="group-hover:scale-110 transition-transform" />
-             </button>
+             <div key={i} className="relative">
+               <button 
+                 onClick={() => Icon === Bell && setShowNotifications(!showNotifications)}
+                 className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:text-obsidian hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100 group relative"
+               >
+                 <Icon size={18} className="group-hover:scale-110 transition-transform" />
+                 {Icon === Bell && notificationCount > 0 && (
+                   <motion.div 
+                     initial={{ scale: 0 }}
+                     animate={{ scale: 1 }}
+                     className="absolute -top-1 -right-1 w-5 h-5 bg-[#FF0000] border-2 border-white rounded-full flex items-center justify-center shadow-lg shadow-red-500/40"
+                   >
+                     <span className="text-[10px] font-black text-white">{notificationCount}</span>
+                   </motion.div>
+                 )}
+               </button>
+
+               {Icon === Bell && showNotifications && (
+                 <AnimatePresence>
+                   <motion.div 
+                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                     animate={{ opacity: 1, y: 0, scale: 1 }}
+                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                     className="absolute right-0 mt-4 w-80 bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 z-50 overflow-hidden"
+                   >
+                     <div className="flex items-center justify-between mb-6">
+                       <h4 className="text-[10px] font-black text-obsidian uppercase tracking-widest">Pending Alerts</h4>
+                       <span className="px-2 py-0.5 bg-brand/10 text-brand text-[9px] font-black rounded-full uppercase">Live Update</span>
+                     </div>
+
+                     <div className="space-y-4">
+                       {notificationCount === 0 ? (
+                         <p className="text-xs text-gray-400 text-center py-4 font-medium">All protocols are clear. No pending alerts.</p>
+                       ) : (
+                         <>
+                           <Link 
+                            to="/kyc" 
+                            onClick={() => setShowNotifications(false)}
+                            className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-brand/20 transition-all group"
+                           >
+                             <div className="flex items-center gap-3">
+                               <div className="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center"><UserCheck size={14} /></div>
+                               <span className="text-xs font-bold text-obsidian">Identity Audits</span>
+                             </div>
+                             <span className="text-[10px] font-black text-orange-600">PENDING</span>
+                           </Link>
+
+                           <Link 
+                            to="/reports" 
+                            onClick={() => setShowNotifications(false)}
+                            className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-brand/20 transition-all group"
+                           >
+                             <div className="flex items-center gap-3">
+                               <div className="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center"><ShieldAlert size={14} /></div>
+                               <span className="text-xs font-bold text-obsidian">Threat Monitor</span>
+                             </div>
+                             <span className="text-[10px] font-black text-red-600">ACTION REQ</span>
+                           </Link>
+                         </>
+                       )}
+                     </div>
+
+                     <button 
+                        onClick={() => setShowNotifications(false)}
+                        className="w-full mt-6 py-3 bg-obsidian text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-brand transition-all"
+                     >
+                       Close Comms
+                     </button>
+                   </motion.div>
+                 </AnimatePresence>
+               )}
+             </div>
            ))}
         </div>
 
@@ -294,6 +365,35 @@ const DashboardHome = () => {
 
 const App = () => {
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  useEffect(() => {
+    if (!isUnlocked) return;
+
+    const fetchCounts = async () => {
+      const [kyc, reports] = await Promise.all([
+        supabase.from('kyc_verifications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+        supabase.from('user_reports').select('*', { count: 'exact', head: true }).eq('status', 'pending')
+      ]);
+      setNotificationCount((kyc.count || 0) + (reports.count || 0));
+    };
+
+    fetchCounts();
+
+    // Subscribe to changes
+    const kycSub = supabase.channel('kyc-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'kyc_verifications' }, fetchCounts)
+      .subscribe();
+      
+    const reportSub = supabase.channel('report-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_reports' }, fetchCounts)
+      .subscribe();
+
+    return () => {
+      kycSub.unsubscribe();
+      reportSub.unsubscribe();
+    };
+  }, [isUnlocked]);
 
   if (!isUnlocked) {
     return <Login onPinSuccess={() => setIsUnlocked(true)} />;
@@ -307,37 +407,37 @@ const App = () => {
           <Routes>
             <Route path="/" element={
               <>
-                <Header title="Command Center" />
+                <Header title="Command Center" notificationCount={notificationCount} />
                 <DashboardHome />
               </>
             } />
             <Route path="/kyc" element={
               <>
-                <Header title="KYC Verification Dashboard" />
+                <Header title="KYC Verification Dashboard" notificationCount={notificationCount} />
                 <KycReview />
               </>
             } />
             <Route path="/properties" element={
                <>
-                 <Header title="Property Moderation Dashboard" />
+                 <Header title="Property Moderation Dashboard" notificationCount={notificationCount} />
                  <PropertyModeration />
                </>
             } />
             <Route path="/users" element={
               <>
-                 <Header title="User Management" />
+                 <Header title="User Management" notificationCount={notificationCount} />
                  <UserManagement />
               </>
             } />
             <Route path="/reports" element={
               <>
-                 <Header title="Community Reports" />
+                 <Header title="Community Reports" notificationCount={notificationCount} />
                  <Reports />
               </>
             } />
             <Route path="/settings" element={
               <>
-                 <Header title="Platform Settings" />
+                 <Header title="Platform Settings" notificationCount={notificationCount} />
                  <div className="p-10 text-center py-20 text-gray-400"><h2 className="text-xl font-bold">Settings Panel Coming Soon</h2></div>
               </>
             } />

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
-import { ShieldAlert, Trash2, Loader2, RefreshCcw, User, Clock, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, Loader2, RefreshCcw, User, Clock, AlertTriangle } from 'lucide-react';
 
 export const Reports = () => {
   const [reports, setReports] = useState<any[]>([]);

@@ -17,24 +17,24 @@ class AppTheme {
       ),
       useMaterial3: true,
       scaffoldBackgroundColor: backgroundColor,
-      textTheme: GoogleFonts.interTextTheme().copyWith(
-        displayLarge: GoogleFonts.plusJakartaSans(
+      textTheme: GoogleFonts.outfitTextTheme().copyWith(
+        displayLarge: GoogleFonts.outfit(
           fontSize: 32,
           fontWeight: FontWeight.bold,
           color: primaryTextColor,
         ),
-        displayMedium: GoogleFonts.plusJakartaSans(
+        displayMedium: GoogleFonts.outfit(
           fontSize: 28,
           fontWeight: FontWeight.bold,
           color: primaryTextColor,
         ),
-        titleLarge: GoogleFonts.inter(
+        titleLarge: GoogleFonts.outfit(
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: primaryTextColor,
         ),
-        bodyLarge: GoogleFonts.inter(fontSize: 16, color: primaryTextColor),
-        bodyMedium: GoogleFonts.inter(fontSize: 14, color: secondaryTextColor),
+        bodyLarge: GoogleFonts.outfit(fontSize: 16, color: primaryTextColor),
+        bodyMedium: GoogleFonts.outfit(fontSize: 14, color: secondaryTextColor),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.white,
@@ -53,7 +53,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(50),
           ),
           padding: const EdgeInsets.symmetric(vertical: 16),
-          textStyle: GoogleFonts.inter(
+          textStyle: GoogleFonts.outfit(
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -62,7 +62,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 13),
+        hintStyle: GoogleFonts.outfit(color: Colors.grey[400], fontSize: 13),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 12,

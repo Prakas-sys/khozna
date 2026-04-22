@@ -240,7 +240,7 @@ class _KycScreenState extends State<KycScreen> {
             const SizedBox(height: 12),
             Text(
               'Our AI detected the following issues with your documents. Please fix them and try again:',
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[800], fontWeight: FontWeight.w500),
+              style: GoogleFonts.outfit(fontSize: 14, color: Colors.grey[800], fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 12),
             ...redFlags.map((flag) => Padding(
@@ -252,7 +252,7 @@ class _KycScreenState extends State<KycScreen> {
                       Expanded(
                         child: Text(
                           flag,
-                          style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 13),
+                          style: GoogleFonts.outfit(color: Colors.grey[700], fontSize: 13),
                         ),
                       ),
                     ],
@@ -272,7 +272,7 @@ class _KycScreenState extends State<KycScreen> {
                 ),
                 child: Text(
                   'Try Again (फेरि प्रयास गर्नुहोस्)',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
                   ),
@@ -320,7 +320,7 @@ class _KycScreenState extends State<KycScreen> {
                   ? 'Our AI has instantly verified your identity. You can now post properties!'
                   : 'तपाईको कागजातहरू प्राप्त भएका छन्। हामी ४८ घण्टा भित्र प्रमाणीकरण गर्नेछौं।',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 14),
+              style: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 14),
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -339,7 +339,7 @@ class _KycScreenState extends State<KycScreen> {
                 ),
                 child: Text(
                   'ठीक छ (Okay)',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.outfit(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
                   ),
@@ -445,7 +445,7 @@ class _KycScreenState extends State<KycScreen> {
                     Expanded(
                       child: Text(
                         'कागजातहरू बुझाइयो', 
-                        style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 18)
+                        style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: 18)
                       ),
                     ),
                   ],
@@ -465,7 +465,7 @@ class _KycScreenState extends State<KycScreen> {
             ),
             content: Text(
               'तपाइँको कागजातहरू सफलतापूर्वक बुझाइएको छ! हाम्रो टोलीले आगामी ४८ घण्टा भित्र यी कागजातहरू प्रमाणीकरण गर्नेछ।\n\nप्रक्रिया पूरा भएपछि तपाइँलाई मोबाइलमा सूचना (Notification) पठाइनेछ।',
-              style: GoogleFonts.inter(height: 1.5),
+              style: GoogleFonts.outfit(height: 1.5),
             ),
             actions: [
               TextButton(
@@ -475,7 +475,7 @@ class _KycScreenState extends State<KycScreen> {
                 },
                 child: Text(
                   'हुन्छ, बुझें',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.blue),
+                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.blue),
                 ),
               ),
             ],
@@ -556,26 +556,26 @@ class _KycScreenState extends State<KycScreen> {
             ),
           ),
 
-          // Top Absolute Escape Button (Nuclear Option)
+          // Top Absolute Escape Button
           Positioned(
-            right: 12,
-            top: MediaQuery.of(context).padding.top + 8,
+            right: 16,
+            top: MediaQuery.of(context).padding.top + 16,
             child: Material(
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-                  debugPrint('GLOBAL_KYC_EXIT_TAPPED');
                   HapticFeedback.mediumImpact();
                   Navigator.of(context, rootNavigator: true).pop();
                 },
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.all(14), // Larger tap area
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.12), // Subtle dark ring for visibility
-                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
                   ),
-                  child: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
+                  child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
                 ),
               ),
             ),
@@ -665,19 +665,19 @@ class _KycScreenState extends State<KycScreen> {
         readOnly: isVerified,
         enabled: !isVerified,
         onChanged: (v) => setState(() {}),
-        style: GoogleFonts.inter(
+        style: GoogleFonts.outfit(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: isVerified ? Colors.grey[600] : Colors.black87,
         ),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.inter(
+          labelStyle: GoogleFonts.outfit(
             color: Colors.grey[500],
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
-          floatingLabelStyle: GoogleFonts.inter(
+          floatingLabelStyle: GoogleFonts.outfit(
             color: AppTheme.brandColor,
             fontWeight: FontWeight.w700,
           ),
@@ -700,7 +700,7 @@ class _KycScreenState extends State<KycScreen> {
                     children: [
                       Text(
                         'Verified',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.outfit(
                           color: Colors.green[600],
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
@@ -785,7 +785,7 @@ class _KycScreenState extends State<KycScreen> {
             icon: Icon(Icons.arrow_back_rounded, size: 16, color: Colors.grey[600]),
             label: Text(
               'Back to Details (विवरण सच्याउनुहोस्)',
-              style: GoogleFonts.inter(
+              style: GoogleFonts.outfit(
                 color: Colors.grey[600],
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
@@ -798,36 +798,25 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   Widget _buildStepButton(String text, VoidCallback onPressed) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        color: AppTheme.brandColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.brandColor.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      height: 54,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppTheme.brandColor,
           foregroundColor: Colors.white,
-          shadowColor: Colors.transparent,
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
         child: Text(
           text,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.outfit(
             fontSize: 16,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.2,
           ),
         ),
       ),
@@ -835,41 +824,27 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   Widget _buildSubmitButton() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        color: _isSubmitting ? Colors.grey[300] : AppTheme.brandColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: _isSubmitting
-            ? null
-            : [
-                BoxShadow(
-                  color: AppTheme.brandColor.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
+      height: 54,
       child: ElevatedButton(
         onPressed: _isSubmitting ? null : _submit,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppTheme.brandColor,
           foregroundColor: Colors.white,
-          disabledForegroundColor: Colors.grey[600],
-          shadowColor: Colors.transparent,
+          disabledBackgroundColor: Colors.grey[200],
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
         child: _isSubmitting
             ? const SizedBox(
-                width: 24,
-                height: 24,
+                width: 22,
+                height: 22,
                 child: CircularProgressIndicator(
                   color: Colors.white,
-                  strokeWidth: 2.5,
+                  strokeWidth: 2,
                 ),
               )
             : Row(
@@ -879,10 +854,9 @@ class _KycScreenState extends State<KycScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Submit Verification',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.outfit(
                       fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.5,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -915,7 +889,7 @@ class _KycScreenState extends State<KycScreen> {
                 Text(
                   'VERIFY IDENTITY',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.outfit(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.2,
@@ -1034,7 +1008,7 @@ class _KycScreenState extends State<KycScreen> {
                   children: [
                     Text(
                       _latitude != null ? 'GPS Verified' : 'Detect Location',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.outfit(
                         fontWeight: FontWeight.w700,
                         fontSize: 15,
                         color: _latitude != null ? Colors.green[800] : Colors.black87,
@@ -1045,7 +1019,7 @@ class _KycScreenState extends State<KycScreen> {
                       _latitude != null
                           ? '${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}'
                           : 'Required for security',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.outfit(
                         fontSize: 12,
                         color: Colors.grey[600],
                       ),
@@ -1073,7 +1047,7 @@ class _KycScreenState extends State<KycScreen> {
                             height: 18,
                             child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                           )
-                        : Text('Verify', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
+                        : Text('Verify', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13)),
                   ),
                 ),
             ],
@@ -1140,7 +1114,7 @@ class _KycScreenState extends State<KycScreen> {
                     const SizedBox(width: 6),
                     Text(
                       'Uploaded Successfully',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.outfit(
                         fontSize: 13,
                         color: Colors.green[700],
                         fontWeight: FontWeight.w700,
@@ -1164,7 +1138,7 @@ class _KycScreenState extends State<KycScreen> {
                 const SizedBox(height: 16),
                 Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.outfit(
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
                     color: Colors.black87,
@@ -1173,7 +1147,7 @@ class _KycScreenState extends State<KycScreen> {
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.outfit(
                     fontSize: 13,
                     color: Colors.grey[500],
                     fontWeight: FontWeight.w500,

@@ -1,60 +1,67 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// --- AI AUTO-PILOT SYSTEM (V2) ---
-// Model: Llama-3.2-90b-Vision
-// Logic: Advanced Nepali Document Verification
+// --- KHOZNA AI AUTO-PILOT (V8 - LLAMA 4) ---
+// Model: meta-llama/llama-4-scout-17b-16e-instruct
+// Logic: Advanced Nepali Document Verification with Llama 4 Vision
 
 serve(async (req: Request) => {
+  const requestId = crypto.randomUUID().slice(0, 8);
+  console.log(`[${requestId}] 🚀 AI Auto-Pilot Triggered`);
+
   try {
     const payload = await req.json()
     const record = payload.record // Triggered by NEW kyc_verifications row
-    if (!record) throw new Error("No record found in payload")
+    
+    if (!record) {
+      console.error(`[${requestId}] ❌ Error: No record found in payload`);
+      return new Response(JSON.stringify({ error: "No record found" }), { status: 400 });
+    }
 
     // Environment Keys
-    const groqKey = Deno.env.get("VITE_GROQ_API_KEY") || Deno.env.get("GROQ_API_KEY")
+    const groqKey = Deno.env.get("GROQ_API_KEY") || Deno.env.get("VITE_GROQ_API_KEY")
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? ""
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    console.log(`🚀 AI Auto-Pilot: Analysing KYC for ${record.full_name} (${record.id})`);
+    if (!groqKey) {
+      console.error(`[${requestId}] ❌ Error: GROQ_API_KEY missing`);
+      throw new Error("GROQ_API_KEY not configured");
+    }
+
+    console.log(`[${requestId}] 🔍 Analysing KYC for ${record.full_name} (${record.id})`);
+    console.log(`[${requestId}] 📄 Claimed ID: ${record.citizenship_number}`);
 
     const systemPrompt = `
-You are a strict Security Officer AI for Khozna platform. Your specialty is verifying Nepali Citizenship Certificates (नागरिकता प्रमाणपत्र).
+You are a HIGH-SECURITY Compliance Officer for Khozna. Your task is to verify Nepali Citizenship Certificates.
 
 CRITICAL INSTRUCTIONS:
-1. EXTRACT CITIZENSHIP NUMBER: You MUST find and read the Citizenship Number (प्रमाणपत्र नं.) directly from both the FRONT and BACK of the ID.
-2. CROSS-REFERENCE: Compare the number you extracted from the card with the one provided by the user.
-3. FAIL ON MISMATCH: Even if the person's name matches, if the Citizenship Number on the ID card is different from the number provided in text, it is a FRAUD ATTEMPT. Verdict must be "FAIL".
-4. NEPALI NUMERALS: Be expert at reading Devanagari digits (०=0, १=1, २=2, ३=3, ४=4, ५=5, ६=6, ७=7, ८=8, ९=9).
-5. VISUAL INTEGRITY: Check for signs of Photoshop or "edited" text.
-6. FACE MATCH: Ensure the selfie is 100% the same person as the ID card photo.
-
-VERDICT RULES:
-- PASS: Perfect match of ID Number (Card vs Text), Name, and Face.
-- FAIL: ID Number mismatch, fake document, or face mismatch.
-- UNCERTAIN: Only for blurred/unreadable images. Never pass if you can't read the number.
-`;
-
-    const userPrompt = `
-SECURITY TASK: Verify if the document in these images belongs to "${record.full_name}" and strictly matches the ID number provided below.
-
-CLAIMED NAME: "${record.full_name}"
-CLAIMED CITIZENSHIP NO: "${record.citizenship_number}"
-
-IMAGE URLS TO SCAN:
-- Front: ${record.front_image_url}
-- Back: ${record.back_image_url}
-- Selfie: ${record.selfie_image_url}
+1. EXTRACT ID: You MUST find the Citizenship Number (प्रमाणपत्र नं.) on both FRONT and BACK images.
+2. CONVERT NEPALI: If numbers are in Devanagari (०-९), convert them to (0-9).
+3. COMPARE: If the extracted number does NOT 100% match the CLAIMED ID provided, you MUST FAIL.
+4. FACE MATCH: Ensure the user's selfie matches the photo on the ID card.
+5. SIGNS OF TAMPERING: Check for digital edits or "fake" IDs.
 
 OUTPUT JSON ONLY:
 {
   "verdict": "PASS" | "FAIL" | "UNCERTAIN",
   "confidence": 0-100,
-  "extracted_number_from_card": "The number you actually saw on the card",
-  "reason": "Detailed reason in Nepali. Mention specifically if the numbers matched or not."
+  "extracted_id_from_card": "the digits you actually saw",
+  "reason": "Detailed reason in Nepali. Explain why it matched or why it failed."
 }
 `;
+
+    const userPrompt = `
+CLAIMED NAME: "${record.full_name}"
+CLAIMED ID: "${record.citizenship_number}"
+
+IMAGE URLS:
+- Front: ${record.front_image_url}
+- Back: ${record.back_image_url}
+- Selfie: ${record.selfie_image_url}
+`;
+
+    console.log(`[${requestId}] 🤖 Sending request to Groq (Llama 4 Vision)...`);
 
     const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -63,7 +70,7 @@ OUTPUT JSON ONLY:
         "Authorization": `Bearer ${groqKey}` 
       },
       body: JSON.stringify({
-        model: "llama-3.2-90b-vision-preview",
+        model: "meta-llama/llama-4-scout-17b-16e-instruct",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: [
@@ -78,29 +85,32 @@ OUTPUT JSON ONLY:
       })
     })
 
-    if (!groqResponse.ok) throw new Error(`Groq API returned ${groqResponse.status}`);
+    if (!groqResponse.ok) {
+      const errorText = await groqResponse.text();
+      console.error(`[${requestId}] ❌ Groq API Error: ${groqResponse.status} - ${errorText}`);
+      throw new Error(`AI Engine Error: ${groqResponse.status}`);
+    }
     
     const data = await groqResponse.json();
     const aiResult = JSON.parse(data.choices?.[0]?.message?.content || "{}");
     
-    console.log(`🤖 AI Decision: ${aiResult.verdict} (Confidence: ${aiResult.confidence}%)`);
+    console.log(`[${requestId}] ✅ AI Decision: ${aiResult.verdict} (Confidence: ${aiResult.confidence}%)`);
+    console.log(`[${requestId}] 📝 Extracted Number: ${aiResult.extracted_id_from_card}`);
 
     // --- AUTO-ACTION LOGIC ---
-    // Threshold: 90% for automatic processing
     let finalStatus = "pending";
-    let rejectionReason = aiResult.reason;
-
     if (aiResult.verdict === "PASS" && aiResult.confidence >= 90) {
       finalStatus = "verified";
-    } else if (aiResult.verdict === "FAIL" && aiResult.confidence >= 90) {
+    } else if (aiResult.verdict === "FAIL" && aiResult.confidence >= 80) {
       finalStatus = "rejected";
     }
 
-    // Update DB if we made a firm decision
     if (finalStatus !== "pending") {
+      console.log(`[${requestId}] ⚙️ Updating DB: ${finalStatus}`);
+      
       await supabase.from("kyc_verifications").update({ 
         status: finalStatus, 
-        rejection_reason: finalStatus === "rejected" ? rejectionReason : null 
+        rejection_reason: finalStatus === "rejected" ? aiResult.reason : null 
       }).eq("id", record.id);
       
       await supabase.from("profiles").update({ kyc_status: finalStatus }).eq("id", record.user_id);
@@ -111,14 +121,16 @@ OUTPUT JSON ONLY:
         title: finalStatus === "verified" ? "KYC Approved! ✅" : "KYC Rejected ❌",
         message: finalStatus === "verified" 
           ? "बधाई छ! तपाईंको पहिचान प्रमाणित भएको छ।" 
-          : `तपाईंको कागजात अस्वीकार गरियो। कारण: ${rejectionReason}`,
+          : `तपाईंको पहिचान पुष्टि हुन सकेन। कारण: ${aiResult.reason}`,
         type: "kyc_update"
       });
+    } else {
+      console.log(`[${requestId}] ⏸️ Result is UNCERTAIN. Leaving for manual audit.`);
     }
 
-    return new Response(JSON.stringify({ success: true, ai_verdict: aiResult.verdict }), { status: 200 });
+    return new Response(JSON.stringify({ success: true, verdict: aiResult.verdict }), { status: 200 });
   } catch (err: any) {
-    console.error("Auto-Pilot Error:", err.message);
-    return new Response(JSON.stringify({ error: err.message }), { status: 200 });
+    console.error(`[${requestId}] 💥 Fatal Error:`, err.message);
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 })

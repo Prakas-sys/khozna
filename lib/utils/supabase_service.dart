@@ -461,6 +461,9 @@ class SupabaseService {
         );
     _notificationChannel?.subscribe();
 
+    // Fetch initial unread count
+    fetchUnreadNotificationCount();
+
     // 3. OWNER ONLY: Admin Alert Channels
     if (user.email == 'khoznaapp@gmail.com') {
       debugPrint('--- [ADMIN] Initializing Owner Realtime Channels ---');
@@ -555,14 +558,58 @@ class SupabaseService {
     if (user == null) return [];
 
     try {
-      // Fetch notifications and join with the profiles table for the sender_id
+      // 1. Fetch standard notifications
       final response = await _client
           .from('notifications')
           .select('*, sender:sender_id(full_name, avatar_url)')
           .eq('user_id', user.id)
           .order('created_at', ascending: false);
 
-      return List<Map<String, dynamic>>.from(response);
+      List<Map<String, dynamic>> allNotes = List<Map<String, dynamic>>.from(response);
+
+      // 2. If Admin, inject virtual alerts for pending tasks
+      if (user.email == 'khoznaapp@gmail.com') {
+        // Fetch pending KYCs
+        final kycs = await _client
+            .from('kyc_verifications')
+            .select('id, full_name, created_at')
+            .eq('status', 'pending');
+        
+        for (var kyc in kycs) {
+          allNotes.add({
+            'id': 'kyc_${kyc['id']}',
+            'user_id': user.id,
+            'title': 'New KYC Submitted 📝',
+            'message': 'User ${kyc['full_name']} has submitted their identity for verification.',
+            'created_at': kyc['created_at'],
+            'type': 'kyc_alert',
+            'is_read': false,
+          });
+        }
+
+        // Fetch pending Reports
+        final reports = await _client
+            .from('user_reports')
+            .select('id, reason, created_at, reporter:reporter_id(full_name)')
+            .eq('status', 'pending');
+
+        for (var report in reports) {
+          allNotes.add({
+            'id': 'report_${report['id']}',
+            'user_id': user.id,
+            'title': 'New User Report 🚩',
+            'message': 'Reported by ${report['reporter']?['full_name'] ?? 'Unknown'}: ${report['reason']}',
+            'created_at': report['created_at'],
+            'type': 'report_alert',
+            'is_read': false,
+          });
+        }
+
+        // Re-sort by date
+        allNotes.sort((a, b) => (b['created_at'] ?? '').toString().compareTo((a['created_at'] ?? '').toString()));
+      }
+
+      return allNotes;
     } catch (e) {
       print('Error fetching notifications: $e');
       return [];
@@ -605,8 +652,63 @@ class SupabaseService {
     if (user == null) return;
     try {
       await _client.from('notifications').delete().eq('user_id', user.id);
+      notificationBadgeCount.value = 0;
     } catch (e) {
       print('Error clearing notifications: $e');
+    }
+  }
+
+  /// Mark all notifications as read for the current user
+  static Future<void> markNotificationsAsRead() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    try {
+      await _client
+          .from('notifications')
+          .update({'is_read': true})
+          .eq('user_id', user.id)
+          .eq('is_read', false);
+      notificationBadgeCount.value = 0;
+    } catch (e) {
+      print('Error marking notifications as read: $e');
+    }
+  }
+
+  /// Fetch the number of unread notifications
+  static Future<void> fetchUnreadNotificationCount() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    try {
+      // 1. Fetch standard unread count
+      final response = await _client
+          .from('notifications')
+          .select()
+          .eq('user_id', user.id)
+          .eq('is_read', false)
+          .count(CountOption.exact);
+      
+      int total = response.count;
+
+      // 2. If Admin, add pending tasks to the total
+      if (user.email == 'khoznaapp@gmail.com') {
+        final kycCount = await _client
+            .from('kyc_verifications')
+            .select()
+            .eq('status', 'pending')
+            .count(CountOption.exact);
+        
+        final reportCount = await _client
+            .from('user_reports')
+            .select()
+            .eq('status', 'pending')
+            .count(CountOption.exact);
+
+        total += (kycCount.count + reportCount.count);
+      }
+      
+      notificationBadgeCount.value = total;
+    } catch (e) {
+      print('Error fetching unread count: $e');
     }
   }
 
