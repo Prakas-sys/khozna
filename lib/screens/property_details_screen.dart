@@ -856,40 +856,47 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildStatItem(IconData icon, String value, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFF00A3E1).withOpacity(0.08),
-            shape: BoxShape.circle,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00A3E1).withOpacity(0.08),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: const Color(0xFF00A3E1), size: 20),
           ),
-          child: Icon(icon, color: const Color(0xFF00A3E1), size: 20),
-        ),
-        const SizedBox(height: 1), // Tighter
-        Text(
-          value,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF1A1A2E),
-            height: 1.1,
+          const SizedBox(height: 4),
+          Text(
+            value,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1A1A2E),
+              height: 1.1,
+            ),
           ),
-        ),
-        const SizedBox(height: 0),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 10,
-            color: const Color(0xFF9CA3AF),
-            fontWeight: FontWeight.w500,
-            height: 1.1,
+          const SizedBox(height: 2),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: const Color(0xFF9CA3AF),
+              fontWeight: FontWeight.w500,
+              height: 1.1,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
