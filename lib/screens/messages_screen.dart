@@ -44,7 +44,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── AIRBNB HEADER ──
+            // ── BRANDED HEADER ──
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
               child: Row(
@@ -56,7 +56,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFF222222),
+                      color: AppTheme.brandColor,
                       letterSpacing: -1.0,
                     ),
                   ),
@@ -73,7 +73,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
             const SizedBox(height: 24),
 
-            // ── FILTER TABS (AIRBNB STYLE) ──
+            // ── FILTER TABS (AIRBNB STYLE WITH BRAND COLOR) ──
             SizedBox(
               height: 48,
               child: ListView.builder(
@@ -92,18 +92,18 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: selected ? const Color(0xFF222222) : const Color(0xFFF7F7F7),
+                        color: selected ? AppTheme.brandColor : const Color(0xFFF9FAFB),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: selected ? const Color(0xFF222222) : Colors.transparent,
+                          color: selected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
                         ),
                       ),
                       child: Text(
                         label,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 14,
-                          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                          color: selected ? Colors.white : const Color(0xFF222222),
+                          fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                          color: selected ? Colors.white : const Color(0xFF4B5563),
                         ),
                       ),
                     ),
@@ -150,11 +150,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F7F7),
+        color: AppTheme.brandColor.withValues(alpha: 0.1),
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.grey.shade100),
+        border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.2)),
       ),
-      child: Icon(icon, color: const Color(0xFF222222), size: 22),
+      child: Icon(icon, color: AppTheme.brandColor, size: 22),
     );
   }
 
@@ -168,7 +168,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             const Icon(
               Icons.chat_bubble_outline_rounded,
               size: 64,
-              color: Color(0xFF222222),
+              color: AppTheme.brandColor,
             ),
             const SizedBox(height: 24),
             Text(

@@ -84,6 +84,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       Supabase.instance.client.auth.currentUser?.id ?? '';
   bool get _isMyProperty =>
       (widget.ownerId == _currentUserId) && !widget.id.contains('demo');
+  bool get _hasLocation =>
+      widget.latitude != null && widget.longitude != null;
   static const Color _airbnbGrey = Color(0xFF717171);
 
   late final List<String> displayImages;
