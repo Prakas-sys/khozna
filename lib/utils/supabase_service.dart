@@ -817,18 +817,27 @@ class SupabaseService {
     if (user == null) return [];
 
     try {
-      // Fetch chats where participants array contains user.id
-      // We also fetch unread counts per chat via a subquery or separate logic
+      // 1. Fetch chats where user is a participant
       final response = await _client
           .from('chats')
-          .select('*, profiles!participants(id, full_name, avatar_url)')
+          .select()
           .contains('participants', [user.id])
           .order('last_message_time', ascending: false);
 
       List<Map<String, dynamic>> chats = List<Map<String, dynamic>>.from(response);
 
-      // Fetch unread counts for each chat
+      // 2. Enrich with other participant's profile and unread counts
       for (var chat in chats) {
+        final List participants = chat['participants'] ?? [];
+        final String? otherUserId = participants.firstWhere(
+          (id) => id != user.id,
+          orElse: () => null,
+        );
+
+        if (otherUserId != null) {
+          chat['sender'] = await getUserProfile(otherUserId);
+        }
+
         final unreadResponse = await _client
             .from('messages')
             .select()
@@ -841,7 +850,7 @@ class SupabaseService {
 
       return chats;
     } catch (e) {
-      print('Error fetching conversations: $e');
+      debugPrint('Error fetching conversations: $e');
       return [];
     }
   }
@@ -936,16 +945,31 @@ class SupabaseService {
     if (user == null) return;
 
     try {
+      // 1. Get IDs of all chats the user is in
+      final chatsResponse = await _client
+          .from('chats')
+          .select('id')
+          .contains('participants', [user.id]);
+      
+      final chatIds = (chatsResponse as List).map((c) => c['id']).toList();
+      
+      if (chatIds.isEmpty) {
+        messageBadgeCount.value = 0;
+        return;
+      }
+
+      // 2. Count unread messages ONLY in those chats
       final response = await _client
           .from('messages')
           .select()
+          .inFilter('chat_id', chatIds)
           .eq('is_read', false)
           .neq('sender_id', user.id)
           .count(CountOption.exact);
       
       messageBadgeCount.value = response.count;
     } catch (e) {
-      print('Error fetching unread message count: $e');
+      debugPrint('Error fetching unread message count: $e');
     }
   }
 
