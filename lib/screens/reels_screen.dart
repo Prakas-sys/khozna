@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
 import 'owner_profile_screen.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
+import 'package:url_launcher/url_launcher.dart';
 import 'property_details_screen.dart';
 
 class ReelsScreen extends StatefulWidget {
@@ -412,9 +414,47 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     const Icon(Icons.directions_walk_rounded, color: Colors.black, size: 18),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'VISIT',
+                                      'VISIT NOW',
                                       style: GoogleFonts.inter(
                                         color: Colors.black,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            // Map Button
+                            GestureDetector(
+                              onTap: () async {
+                                HapticFeedback.lightImpact();
+                                if (reel['latitude'] != null && reel['longitude'] != null) {
+                                  final url = Uri.parse(
+                                    'https://www.google.com/maps/search/?api=1&query=${reel['latitude']},${reel['longitude']}',
+                                  );
+                                  if (await canLaunchUrl(url)) {
+                                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                                  }
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.map_outlined, color: Colors.white, size: 16),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'MAP',
+                                      style: GoogleFonts.inter(
+                                        color: Colors.white,
                                         fontWeight: FontWeight.w900,
                                         fontSize: 11,
                                       ),
@@ -449,17 +489,14 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        for (double i in [-0.2, 0.2])
-                                          for (double j in [-0.2, 0.2])
-                                            Transform.translate(
-                                              offset: Offset(i, j),
-                                              child: const Icon(Icons.chat_bubble_rounded, size: 16, color: Colors.white),
-                                            ),
-                                        const Icon(Icons.chat_bubble_rounded, size: 16, color: Colors.white),
-                                      ],
+                                    SvgPicture.asset(
+                                      'assets/icons/message.svg',
+                                      width: 16,
+                                      height: 16,
+                                      colorFilter: const ColorFilter.mode(
+                                        Colors.white,
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
