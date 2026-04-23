@@ -874,11 +874,26 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _quickPriceChip(String label, String value) {
     return ActionChip(
-      label: Text(
-        '₹ $label',
-        style: GoogleFonts.inter(
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
+      label: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '₹ ',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            TextSpan(
+              text: label,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ],
         ),
       ),
       backgroundColor: Colors.grey[100],
@@ -899,7 +914,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         _buildLabel('महिमाको जम्मा भाडा (Monthly Rent)', true),
         _buildTextField(
           'उदा: ५०००',
-          prefix: 'Rs. ',
+          prefix: '₹ ',
           controller: _priceController,
           keyboardType: TextInputType.number,
           isPrice: true,
@@ -2013,7 +2028,7 @@ class _PropertySuccessScreenState extends State<_PropertySuccessScreen>
                       _detailRow(
                         Icons.currency_rupee,
                         'Monthly Rent',
-                        widget.price.isEmpty ? 'Not specified' : 'Rs. ${widget.price}/mo',
+                        widget.price.isEmpty ? 'Not specified' : '₹ ${widget.price}/mo',
                       ),
                     ],
                   ),

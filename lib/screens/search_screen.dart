@@ -314,20 +314,48 @@ class _SearchScreenState extends State<SearchScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            '₹ 2K',
-                            style: GoogleFonts.inter(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '₹',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: ' 2K',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            '₹ 100K+',
-                            style: GoogleFonts.inter(
-                              color: Colors.grey,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '₹',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: ' 100K+',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -354,12 +382,26 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        '₹ ${PriceFormatter.format(_priceValue.toInt().toString())} / month',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.brandColor,
-                          fontSize: 18,
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '₹ ',
+                              style: GoogleFonts.inter(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.brandColor,
+                              ),
+                            ),
+                            TextSpan(
+                              text: '${PriceFormatter.format(_priceValue.toInt().toString())} / month',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.brandColor,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -427,7 +469,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => FilterResultsScreen(
-                    priceRange: 'Up to Rs. ${_priceValue.toInt()}',
+                    priceRange: 'Up to ₹ ${_priceValue.toInt()}',
                   ),
                 ),
               );

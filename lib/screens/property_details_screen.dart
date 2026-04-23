@@ -418,7 +418,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildSliverCarousel() {
     return SliverAppBar(
-      expandedHeight: 300,
+      expandedHeight: 380,
       backgroundColor: Colors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -507,7 +507,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             // Dot Indicators
             Positioned(
-              bottom: 40,
+              bottom: 42,
               left: 0,
               right: 0,
               child: Row(
@@ -516,14 +516,71 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   displayImages.length,
                   (index) => AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    height: 4,
-                    width: _currentImageIndex == index ? 20 : 4,
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    height: 5,
+                    width: _currentImageIndex == index ? 22 : 5,
                     decoration: BoxDecoration(
                       color: _currentImageIndex == index
                           ? Colors.white
-                          : Colors.white.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(4),
+                          : Colors.white.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        if (_currentImageIndex == index)
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Verified Badge on Image
+            Positioned(
+              bottom: 42,
+              left: 20,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00C853).withOpacity(0.85),
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.verified_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'VERIFIED',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -571,32 +628,34 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: const Color(0xFF00C853), // Vibrant "For Rent" Green
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.verified_rounded,
-                color: Colors.white,
-                size: 14,
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
               ),
-              const SizedBox(width: 8),
-              Text(
-                'VERIFIED LISTING',
+              child: Text(
+                widget.category.toUpperCase(),
                 style: GoogleFonts.inter(
                   fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.brandColor,
+                  letterSpacing: 1,
                 ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '•  Available Now',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.green[600],
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         Text(
@@ -848,7 +907,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       text: TextSpan(
                         children: [
                           TextSpan(
-                            text: 'Rs.${PriceFormatter.format(price)}',
+                            text: '₹',
+                            style: GoogleFonts.inter(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF1A1A2E),
+                            ),
+                          ),
+                          TextSpan(
+                            text: PriceFormatter.format(price),
                             style: GoogleFonts.inter(
                               fontSize: 28, // Slightly smaller to prevent overflow
                               fontWeight: FontWeight.w800,

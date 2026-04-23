@@ -340,12 +340,26 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 ],
                               ),
                               const SizedBox(height: 6),
-                              Text(
-                                'Rs. ${reel['price']} /month',
-                                style: GoogleFonts.inter(
-                                  color: AppTheme.brandColor,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 16,
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: '₹ ',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppTheme.brandColor,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: '${reel['price']} /month',
+                                      style: GoogleFonts.inter(
+                                        color: AppTheme.brandColor,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
