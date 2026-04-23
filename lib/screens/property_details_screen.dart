@@ -886,18 +886,25 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: EdgeInsets.zero, // Removed vertical: 8 padding
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        border: Border.symmetric(
-          horizontal: BorderSide(color: Colors.grey.withOpacity(0.05)),
-        ),
+        color: const Color(0xFFF9FAFB), // Soft background for contrast
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final double itemWidth = (constraints.maxWidth - 24) / 4; // 4 items per row with gaps
           return Wrap(
             spacing: 8,
-            runSpacing: 16,
+            runSpacing: 20,
             children: items.map((item) => SizedBox(
               width: itemWidth,
               child: item,
@@ -909,47 +916,51 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildStatItem(IconData icon, String value, String label) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF00A3E1).withOpacity(0.08),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: const Color(0xFF00A3E1), size: 20),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.brandColor.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF1A1A2E),
-              height: 1.1,
-            ),
+          child: Icon(icon, color: AppTheme.brandColor, size: 22),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF1A1A2E),
+            height: 1.1,
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: const Color(0xFF9CA3AF),
-              fontWeight: FontWeight.w500,
-              height: 1.1,
-            ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: GoogleFonts.inter(
+            fontSize: 9,
+            color: const Color(0xFF6B7280),
+            fontWeight: FontWeight.w600,
+            height: 1.1,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
