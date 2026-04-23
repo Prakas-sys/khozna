@@ -1032,9 +1032,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           TextSpan(
                             text: PriceFormatter.format(price),
                             style: GoogleFonts.inter(
-                              fontSize: 28, // Slightly smaller to prevent overflow
+                              fontSize: 28,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF1A1A2E),
+                              color: AppTheme.brandColor,
                               letterSpacing: -1,
                             ),
                           ),
