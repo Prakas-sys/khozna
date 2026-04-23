@@ -1491,13 +1491,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       color: const Color(0xFFE8ECEF), // Typical map background
       child: Stack(
         children: [
-          // Fake roads for map aesthetic
-          Positioned(top: 80, left: -50, right: -50, child: Transform.rotate(angle: 0.15, child: Container(height: 12, color: Colors.white))),
-          Positioned(bottom: 60, left: -50, right: -50, child: Transform.rotate(angle: -0.1, child: Container(height: 16, color: Colors.white))),
-          Positioned(top: -50, bottom: -50, left: 120, child: Transform.rotate(angle: 0.2, child: Container(width: 14, color: Colors.white))),
-          Positioned(top: -50, bottom: -50, right: 100, child: Transform.rotate(angle: -0.15, child: Container(width: 10, color: Colors.white))),
-          // Accent route line (like a riding app path)
-          Positioned(top: 80, left: 120, child: Container(width: 150, height: 4, color: AppTheme.brandColor.withOpacity(0.5))),
+          // Background Map Image
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/Map view.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          // Subtle overlay to make pin stand out
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.05),
+            ),
+          ),
           
           // Center House Pin
           Center(
