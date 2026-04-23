@@ -186,7 +186,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   String _getStaticMapUrl() {
     if (widget.latitude == null || widget.longitude == null) {
-      return 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800';
+      return '';
     }
 
     // 🔐 SECURITY: Using Environment Variable for API Key
@@ -194,8 +194,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (apiKey.isEmpty) {
       if (kDebugMode)
         debugPrint("Warning: GOOGLE_MAPS_API_KEY not found in .env");
-      // Fallback: A high-quality generic map aesthetic
-      return 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=800';
+      // Fallback to custom widget
+      return '';
     }
 
     final lat = widget.latitude;
@@ -293,47 +293,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       child: Stack(
                         children: [
                           Positioned.fill(
-                            child: CachedNetworkImage(
-                              imageUrl: _getStaticMapUrl(),
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Container(
-                                color: Colors.grey[100],
-                                child: const Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                            child: _getStaticMapUrl().isEmpty
+                                ? _buildRidingAppMapPlaceholder()
+                                : CachedNetworkImage(
+                                    imageUrl: _getStaticMapUrl(),
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) => Container(
+                                      color: Colors.grey[100],
+                                      child: const Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    errorWidget: (context, url, error) => _buildRidingAppMapPlaceholder(),
                                   ),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                color: const Color(0xFFF2F4F7),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.map_rounded,
-                                      color: Colors.blue.withOpacity(0.2),
-                                      size: 48,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'Real-time Map Preview',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        color: Colors.grey[500],
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      '(Requires Maps API Key)',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 10,
-                                        color: Colors.grey[400],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
                           ),
                           Container(
                             color: Colors.black.withOpacity(
@@ -1404,6 +1378,57 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildRidingAppMapPlaceholder() {
+    return Container(
+      color: const Color(0xFFE8ECEF), // Typical map background
+      child: Stack(
+        children: [
+          // Fake roads for map aesthetic
+          Positioned(top: 80, left: -50, right: -50, child: Transform.rotate(angle: 0.15, child: Container(height: 12, color: Colors.white))),
+          Positioned(bottom: 60, left: -50, right: -50, child: Transform.rotate(angle: -0.1, child: Container(height: 16, color: Colors.white))),
+          Positioned(top: -50, bottom: -50, left: 120, child: Transform.rotate(angle: 0.2, child: Container(width: 14, color: Colors.white))),
+          Positioned(top: -50, bottom: -50, right: 100, child: Transform.rotate(angle: -0.15, child: Container(width: 10, color: Colors.white))),
+          // Accent route line (like a riding app path)
+          Positioned(top: 80, left: 120, child: Container(width: 150, height: 4, color: AppTheme.brandColor.withOpacity(0.5))),
+          
+          // Center House Pin
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.brandColor.withOpacity(0.4),
+                        blurRadius: 16,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                    border: Border.all(color: Colors.white, width: 3),
+                  ),
+                  child: const Icon(Icons.home_rounded, color: Colors.white, size: 24),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 4),
+                  width: 16,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
