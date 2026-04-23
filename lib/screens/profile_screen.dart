@@ -488,6 +488,17 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     ),
                   ]),
 
+                  const SizedBox(height: 24),
+
+                  _buildMenuSection('ACCOUNTS', [
+                    _buildMenuItem(
+                      Icons.switch_account_outlined,
+                      'Switch Account',
+                      'Manage multiple accounts',
+                      onTap: () => _showAccountSwitcher(context),
+                    ),
+                  ]),
+
                   const SizedBox(height: 32),
 
                   // Log Out Button
@@ -997,6 +1008,111 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           Icons.chevron_right_rounded,
           size: 18,
           color: Colors.grey,
+        ),
+      ),
+    );
+  }
+  void _showAccountSwitcher(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Switch Account',
+              style: GoogleFonts.inter(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Current Account
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.brandColor.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundImage: _avatarUrl != null 
+                        ? NetworkImage(_avatarUrl!) 
+                        : null,
+                    child: _avatarUrl == null 
+                        ? const Icon(Icons.person) 
+                        : null,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user?.userMetadata?['full_name'] ?? 'Current User',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          user?.email ?? '',
+                          style: GoogleFonts.inter(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.check_circle, color: AppTheme.brandColor),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Add Account Option
+            ListTile(
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                );
+              },
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.add, color: Colors.black),
+              ),
+              title: Text(
+                'Add Account',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              subtitle: Text(
+                'Log in with email and password',
+                style: GoogleFonts.inter(fontSize: 12),
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+            ),
+            const SizedBox(height: 24),
+          ],
         ),
       ),
     );
