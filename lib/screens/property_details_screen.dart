@@ -1118,7 +1118,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     // Use AI-generated landmarks if available, otherwise fallback to high-value landmarks
     final List<Map<String, dynamic>> landmarks =
         (widget.nearbyLandmarks != null && widget.nearbyLandmarks!.isNotEmpty)
-            ? widget.nearbyLandmarks!.map((e) => Map<String, dynamic>.from(e)).toList()
+            ? widget.nearbyLandmarks!
+                .where((e) => e is Map && e['lat'] != null && e['lng'] != null)
+                .map((e) => Map<String, dynamic>.from(e as Map))
+                .toList()
             : [
                 {
                   'name': 'Labim Mall',
@@ -1161,10 +1164,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     double calculateDistance(
       double lat1,
       double lon1,
-      double lat2,
-      double lon2,
+      dynamic lat2,
+      dynamic lon2,
     ) {
-      return (lat1 - lat2).abs() + (lon1 - lon2).abs();
+      try {
+        final dLat2 = (lat2 as num).toDouble();
+        final dLon2 = (lon2 as num).toDouble();
+        return (lat1 - dLat2).abs() + (lon1 - dLon2).abs();
+      } catch (e) {
+        return 999.0; // Return a large distance if coordinates are invalid
+      }
     }
 
     // Sort landmarks by proximity
