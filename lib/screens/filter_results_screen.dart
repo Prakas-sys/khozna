@@ -53,7 +53,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
 
     var query = Supabase.instance.client
         .from('properties')
-        .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, is_verified)');
+        .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)');
 
     // Filter by location if it's a real location
     if (isLocationSearch) {
@@ -90,23 +90,40 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
             const SizedBox(height: 16),
             // Location Header (Moved from AppBar to body)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  Text(
-                    widget.location,
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Colors.black,
+                        size: 22,
+                      ),
+                      onPressed: () => Navigator.pop(context),
                     ),
                   ),
-                  Text(
-                    widget.priceRange,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: Colors.grey[600],
-                    ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.location,
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        widget.priceRange,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -147,13 +164,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                       ),
                       child: Row(
                         children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              size: 20,
-                            ),
-                            onPressed: () => Navigator.pop(context),
-                          ),
+                          const SizedBox(width: 16),
                           Icon(
                             CupertinoIcons.search,
                             color: AppTheme.brandColor,
@@ -255,7 +266,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                       final ownerProfile = p['profiles'] as Map<String, dynamic>?;
                       final String ownerName = ownerProfile?['full_name'] ?? 'Khozna User';
                       final String ownerAvatar = ownerProfile?['avatar_url'] ?? '';
-                      final bool isOwnerVerified = ownerProfile?['is_verified'] ?? false;
+                      final bool isOwnerVerified = ownerProfile?['kyc_status'] == 'verified';
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 24),

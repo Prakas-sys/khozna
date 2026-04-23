@@ -189,7 +189,7 @@ class HomeScreenState extends State<HomeScreen> {
     try {
       dynamic query = client
           .from('properties')
-          .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url)');
+          .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)');
 
       switch (index) {
         case 0: // Near You (Location-based) - Promoted to #1
@@ -737,7 +737,7 @@ class HomeScreenState extends State<HomeScreen> {
                     final ownerProfile = p['profiles'] as Map<String, dynamic>?;
                     final String ownerName = ownerProfile?['full_name'] ?? 'Khozna User';
                     final String ownerAvatar = ownerProfile?['avatar_url'] ?? '';
-                    final bool isOwnerVerified = ownerProfile?['is_verified'] ?? false;
+                    final bool isOwnerVerified = ownerProfile?['kyc_status'] == 'verified';
 
                     return Padding(
                       padding: const EdgeInsets.only(right: 16),

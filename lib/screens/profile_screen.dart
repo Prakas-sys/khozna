@@ -659,7 +659,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       ? 'Profile Verified (प्रमाणित)'
                       : (isPending 
                           ? 'Pending KYC (प्रमाणीकरण हुँदैछ)' 
-                          : (isRejected ? 'KYC Rejected (अस्वीकृत)' : 'Incomplete KYC (अपूर्ण केवाईसी)')),
+                          : (isRejected ? 'KYC Rejected (अस्वीकृत)' : 'Verify Identity (पहिचान प्रमाणित)')),
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,

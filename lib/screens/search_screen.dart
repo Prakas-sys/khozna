@@ -76,28 +76,30 @@ class _SearchScreenState extends State<SearchScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Top Header Section with Back Arrow
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Stack(
+                  alignment: Alignment.center,
                   children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: Colors.black87,
-                        size: 20,
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: Colors.black,
+                          size: 22,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
                       ),
-                      onPressed: () => Navigator.pop(context),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
                     ),
                     Text(
                       'Search Properties',
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Colors.black,
                       ),
                     ),
-                    const SizedBox(width: 40), // Balance the back button
                   ],
                 ),
                 const SizedBox(height: 24),
