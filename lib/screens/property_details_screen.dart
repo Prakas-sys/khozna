@@ -256,9 +256,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 const SizedBox(height: 20), 
                 _buildAmenityGrid(),
                 const SizedBox(height: 44), // Aggressive breathing room for premium feel
-                // PRICE BOX
-                _buildPriceBox(widget.price),
-                const SizedBox(height: 28), // Better separation
+
                 // DESCRIPTION
                 _buildSectionTitle('Description'),
                 const SizedBox(height: 2),
@@ -667,44 +665,93 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                widget.category.toUpperCase(),
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.brandColor,
-                  letterSpacing: 1,
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    widget.category.toUpperCase(),
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.brandColor,
+                      letterSpacing: 1,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '•  Available Now',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Colors.green[600],
-              ),
+                const SizedBox(width: 8),
+                Text(
+                  '•  Available Now',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.green[600],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
         const SizedBox(height: 12),
-        Text(
-          title,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 28,
-            fontWeight: FontWeight.w900, // Maximum solid look
-            color: const Color(0xFF1A1A2E),
-            height: 1.1,
-            letterSpacing: -1.0,
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF1A1A2E),
+                  height: 1.1,
+                  letterSpacing: -1.0,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '₹',
+                        style: GoogleFonts.inter(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.brandColor,
+                        ),
+                      ),
+                      TextSpan(
+                        text: PriceFormatter.format(widget.price),
+                        style: GoogleFonts.inter(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF1A1A2E),
+                          letterSpacing: -1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  'भाडा/महिना',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: const Color(0xFF6B7280),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         Row(
@@ -721,7 +768,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 style: GoogleFonts.inter(
                   fontSize: 16,
                   color: AppTheme.brandColor,
-                  fontWeight: FontWeight.w600, // Made slightly bolder to match color pop
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -1653,23 +1700,24 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         HapticFeedback.lightImpact();
         onTap();
       },
-      child: Container(
-        width: 44,
-        height: 44,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.2),
+          color: Colors.black.withOpacity(0.15),
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+          border: Border.all(color: Colors.white.withOpacity(0.4), width: 1),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(19),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
             child: Center(
               child: Icon(
                 icon,
                 color: Colors.white,
-                size: 28,
+                size: 24,
               ),
             ),
           ),
