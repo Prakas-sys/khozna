@@ -239,7 +239,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       extendBody: true,
       backgroundColor: Colors.white,
       body: CustomScrollView(
-        padding: EdgeInsets.zero,
         slivers: [
           _buildSliverCarousel(),
           SliverPadding(

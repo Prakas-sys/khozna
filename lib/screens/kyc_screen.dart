@@ -965,92 +965,112 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   Widget _buildLocationVerification() {
+    final bool isVerified = _latitude != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Location Verification (लोकेसन)'),
         const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: _latitude != null ? Colors.green.withOpacity(0.05) : Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: _latitude != null ? Colors.green.withOpacity(0.5) : Colors.grey.shade200,
-              width: 1.5,
+        GestureDetector(
+          onTap: isVerified || _isLocating ? null : _detectLocation,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: isVerified ? Colors.green.withOpacity(0.05) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isVerified ? Colors.green.withOpacity(0.5) : AppTheme.brandColor.withOpacity(0.3),
+                width: isVerified ? 1.5 : 2.0,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isVerified ? Colors.green.withOpacity(0.1) : AppTheme.brandColor.withOpacity(0.08),
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: _latitude != null ? Colors.green : AppTheme.brandColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
+            child: Row(
+              children: [
+                // Fingerprint or Location Icon
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: isVerified ? Colors.green : AppTheme.brandColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: _isLocating
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2.5),
+                        )
+                      : Icon(
+                          isVerified ? Icons.my_location_rounded : Icons.fingerprint_rounded,
+                          color: isVerified ? Colors.white : AppTheme.brandColor,
+                          size: 28,
+                        ),
                 ),
-                child: Icon(
-                  _latitude != null ? Icons.my_location_rounded : Icons.location_on_rounded,
-                  color: _latitude != null ? Colors.white : AppTheme.brandColor,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _latitude != null ? 'GPS Verified' : 'Detect Location',
-                      style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15,
-                        color: _latitude != null ? Colors.green[800] : Colors.black87,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isVerified ? 'GPS Verified' : 'Tap to Verify Location',
+                        style: GoogleFonts.outfit(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                          color: isVerified ? Colors.green[800] : Colors.black87,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _latitude != null
-                          ? '${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}'
-                          : 'Required for security',
-                      style: GoogleFonts.outfit(
-                        fontSize: 12,
-                        color: Colors.grey[600],
+                      const SizedBox(height: 4),
+                      Text(
+                        isVerified
+                            ? '${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}'
+                            : 'Required for security (लोकेसन दिनुहोस्)',
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              if (_latitude == null)
-                SizedBox(
-                  height: 40,
-                  child: ElevatedButton(
-                    onPressed: _isLocating ? null : _detectLocation,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.brandColor,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: _isLocating
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
-                          )
-                        : Text('Verify', style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 13)),
+                    ],
                   ),
                 ),
-            ],
+                if (!isVerified && !_isLocating)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor,
+                      borderRadius: BorderRadius.circular(50), // Pill Shape
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.brandColor.withValues(alpha: 0.3),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.touch_app_rounded, color: Colors.white, size: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Tap',
+                          style: GoogleFonts.outfit(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ],
