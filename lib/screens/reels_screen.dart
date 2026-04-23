@@ -346,7 +346,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     TextSpan(
                                       text: '₹ ',
                                       style: GoogleFonts.inter(
-                                        fontSize: 22,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.w900,
                                         color: AppTheme.brandColor,
                                       ),
@@ -395,6 +395,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       longitude: reel['longitude'],
                                       amenities: reel['amenities'],
                                       houseRules: reel['house_rules'],
+                                      category: reel['category'],
                                     ),
                                   ),
                                 );

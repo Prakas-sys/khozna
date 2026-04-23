@@ -41,6 +41,7 @@ class PropertyDetailsScreen extends StatefulWidget {
   final String? ownerAvatar;
   final bool? isOwnerVerified;
   final List<dynamic>? nearbyLandmarks;
+  final String category;
 
   const PropertyDetailsScreen({
     super.key,
@@ -66,6 +67,7 @@ class PropertyDetailsScreen extends StatefulWidget {
     this.ownerAvatar,
     this.isOwnerVerified,
     this.nearbyLandmarks,
+    this.category = 'Room',
   });
 
   @override
@@ -909,7 +911,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           TextSpan(
                             text: '₹',
                             style: GoogleFonts.inter(
-                              fontSize: 24,
+                              fontSize: 18,
                               fontWeight: FontWeight.w600,
                               color: const Color(0xFF1A1A2E),
                             ),

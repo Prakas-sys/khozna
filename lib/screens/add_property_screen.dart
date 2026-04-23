@@ -880,7 +880,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             TextSpan(
               text: '₹ ',
               style: GoogleFonts.inter(
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),

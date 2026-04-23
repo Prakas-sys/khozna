@@ -769,6 +769,7 @@ class HomeScreenState extends State<HomeScreen> {
                         landmark: p['landmark'] ?? '',
                         nearbyLandmarks:
                             List<dynamic>.from(p['nearby_landmarks'] ?? []),
+                        category: p['category'] ?? 'Room',
                       ),
                     );
                   } else {

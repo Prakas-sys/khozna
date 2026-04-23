@@ -43,6 +43,7 @@ class PropertyCard extends StatelessWidget {
   final double? longitude;
   final String landmark;
   final List<dynamic> nearbyLandmarks;
+  final String category;
 
   const PropertyCard({
     super.key,
@@ -74,6 +75,7 @@ class PropertyCard extends StatelessWidget {
     this.longitude,
     this.landmark = '',
     this.nearbyLandmarks = const [],
+    this.category = 'Room',
   });
 
   @override
@@ -104,6 +106,7 @@ class PropertyCard extends StatelessWidget {
               longitude: longitude,
               landmark: landmark,
               nearbyLandmarks: nearbyLandmarks,
+              category: category,
             ),
           ),
         );
@@ -304,7 +307,7 @@ class PropertyCard extends StatelessWidget {
                               TextSpan(
                                 text: '₹',
                                 style: GoogleFonts.inter(
-                                  fontSize: 20,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                   color: AppTheme.brandColor,
                                   letterSpacing: 0.3, // Micro-gap for perfect alignment

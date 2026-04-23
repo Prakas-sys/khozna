@@ -284,9 +284,9 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           longitude: p['longitude'] != null
                               ? double.tryParse(p['longitude'].toString())
                               : null,
-                          landmark: p['landmark'] ?? '',
                           nearbyLandmarks:
                               List<dynamic>.from(p['nearby_landmarks'] ?? []),
+                          category: p['category'] ?? 'Room',
                           width: double.infinity,
                         ),
                       );

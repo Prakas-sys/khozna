@@ -320,7 +320,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 TextSpan(
                                   text: '₹',
                                   style: GoogleFonts.inter(
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey,
                                   ),
@@ -342,7 +342,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 TextSpan(
                                   text: '₹',
                                   style: GoogleFonts.inter(
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey,
                                   ),
@@ -388,7 +388,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             TextSpan(
                               text: '₹ ',
                               style: GoogleFonts.inter(
-                                fontSize: 24,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w900,
                                 color: AppTheme.brandColor,
                               ),
