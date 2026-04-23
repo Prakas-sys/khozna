@@ -1,185 +1,130 @@
 ---
 name: khozna_design
-description: Apply Khozna's complete design system to any screen or widget. Use this when the user asks to redesign, polish, or apply branding to UI. Covers colors, typography, glassmorphism, animations, and micro-interactions.
+description: Apply Khozna's complete design system, typography, and brand identity to any screen or widget. Use this when redesigning, polishing, or adding new features to ensure they match the Khozna "Platinum" platform standard.
 ---
 
-# 🎨 Khozna Design System — Full Brand Guide
+# 🎨 Khozna Design System & Brand Guide
+
+## 🏢 What is Khozna? (Company Core)
+Khozna is Nepal's next-generation, premium real estate and rental platform. 
+**Mission:** "Find your Next Home. No middleman."
+**Key Differentiators:** Social-media style Property Reels, AI-driven search/chat, and strict KYC verification for high-trust "Verified Listings."
 
 ## When to Use
 Use this skill whenever the user says:
 - "Make this look better / premium"
 - "Apply Khozna branding"
-- "Add glassmorphism / animations"
+- "Match the home screen / real app style"
 - "Polish the UI"
-- "It looks basic, fix it"
 
-## Step 1 — Read the Screen
-Read the target file fully before touching anything.
-
-## Step 2 — Apply the Complete Design System
+## Step 1 — Apply the Complete Design System
 
 ### 🎨 Color Palette
 ```dart
-// PRIMARY
-const Color kPrimary = Color(0xFF00A3E1);       // Khozna Cyan — CTA buttons, accents
+// PRIMARY BRAND
+const Color kPrimary = Color(0xFF00A3E1);       // Khozna Cyan — Icons, CTAs, Mic Button
 const Color kPrimaryLight = Color(0xFFE0F5FF);  // Light cyan — backgrounds, chips
 
-// NEUTRALS
-const Color kBgWhite = Color(0xFFFFFFFF);
-const Color kBgLight = Color(0xFFF8F9FA);
-const Color kTextDark = Color(0xFF1A1A2E);
-const Color kTextMid = Color(0xFF6B7280);
-const Color kTextLight = Color(0xFF9CA3AF);
-
-// SEMANTIC
-const Color kSuccess = Color(0xFF10B981);
-const Color kError = Color(0xFFEF4444);
-const Color kWarning = Color(0xFFF59E0B);
-
-// DARK (for cards, overlays)
+// NEUTRALS & TEXT
+const Color kBgWhite = Colors.white;
+const Color kBgLight = Color(0xFFF8F9FA);       // Inputs, soft backgrounds
+const Color kTextDark = Color(0xFF1A1A2E);      // Primary Headers
+const Color kTextMid = Color(0xFF6B7280);       // "Airbnb Grey" for descriptions
 const Color kDarkCard = Color(0xFF1E293B);
-const Color kOverlay = Color(0x80000000);  // 50% black
+
+// SEMANTIC & ALERTS
+const Color kSuccess = Color(0xFF00C853);       // Verified Green
+const Color kAlertBadge = Color(0xFFFF0000);    // Pure Red for notification badges
 ```
 
-### 🔤 Typography
+### 🔤 Typography (Multi-Font Strategy)
+Do NOT use Playfair Display. Use the following strict hierarchy:
 ```dart
-// HEADINGS — Playfair Display
-GoogleFonts.playfairDisplay(fontSize: 28, fontWeight: FontWeight.w700, color: kTextDark)
-GoogleFonts.playfairDisplay(fontSize: 22, fontWeight: FontWeight.w600, color: kTextDark)
+// HEADINGS — Plus Jakarta Sans (Massive, bold, tightly spaced)
+GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: Colors.black)
+GoogleFonts.plusJakartaSans(fontSize: 28, fontWeight: FontWeight.w900, letterSpacing: -1.0, color: kTextDark)
 
-// BODY / UI — Outfit
-GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w500, color: kTextDark)  // Body
-GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.w400, color: kTextMid)   // Secondary
-GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w400, color: kTextLight) // Caption
-GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w600, color: kPrimary)   // CTA label
+// UI LABELS & BADGES — Inter (Clean, readable system text)
+GoogleFonts.inter(fontSize: 16, color: kTextMid)
+GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white) // Badges
+
+// BODY / GLOBAL FALLBACK — Outfit
+GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w500, color: kTextDark)
 ```
 
-### ✨ Glassmorphism Card
+### ✨ Glassmorphism (Heavy Usage)
+Used for Nav Bars, Image overlay headers, and floating buttons.
 ```dart
-Container(
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(20),
-    color: Colors.white.withOpacity(0.15),
-    border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
-    boxShadow: [
-      BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 8)),
-    ],
-  ),
-  child: ClipRRect(
-    borderRadius: BorderRadius.circular(20),
-    child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-      child: Padding(padding: const EdgeInsets.all(16), child: /* content */),
+ClipRRect(
+  child: BackdropFilter(
+    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), // Standard blur
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.85), // or Colors.black.withOpacity(0.8) for dark
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+      ),
+      child: /* content */,
     ),
   ),
 )
-// Required import: import 'dart:ui';
 ```
 
-### 🃏 Standard Card
+### 🃏 Floating Property Carousel Image
+Never stretch images edge-to-edge. Wrap them in a white border with a heavy shadow.
 ```dart
 Container(
-  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
   decoration: BoxDecoration(
     color: Colors.white,
-    borderRadius: BorderRadius.circular(16),
-    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 4))],
+    borderRadius: BorderRadius.circular(32),
+    border: Border.all(color: Colors.white, width: 6), // Thick white border
+    boxShadow: [
+      BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 24, offset: const Offset(0, 12)),
+    ],
   ),
-  child: /* content */,
+  child: ClipRRect(borderRadius: BorderRadius.circular(26), child: /* image */),
 )
 ```
 
-### 🔘 Primary Button
+### 🔘 Primary Button & Inputs
 ```dart
+// Pill-shaped everything
 ElevatedButton(
   style: ElevatedButton.styleFrom(
     backgroundColor: const Color(0xFF00A3E1),
     foregroundColor: Colors.white,
-    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     elevation: 0,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)), // Pill shape
   ),
-  onPressed: () {},
-  child: Text('Button', style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w600)),
+  // ...
 )
 ```
 
-### ⌨️ Text Field
+### 💫 Micro-Animations & Haptics
 ```dart
-TextField(
-  decoration: InputDecoration(
-    hintText: 'Hint...',
-    hintStyle: GoogleFonts.outfit(color: const Color(0xFF9CA3AF)),
-    filled: true,
-    fillColor: const Color(0xFFF8F9FA),
-    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF00A3E1), width: 2)),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-  ),
-)
-```
-
-### 💫 Micro-Animations
-
-#### Fade + Slide In
-```dart
-// Wrap widget in AnimatedOpacity + AnimatedSlide or use TweenAnimationBuilder
-TweenAnimationBuilder<double>(
-  tween: Tween(begin: 0, end: 1),
-  duration: const Duration(milliseconds: 400),
-  builder: (context, value, child) => Opacity(
-    opacity: value,
-    child: Transform.translate(offset: Offset(0, 20 * (1 - value)), child: child),
-  ),
-  child: /* your widget */,
-)
-```
-
-#### Scale on Tap (Bouncy Button)
-```dart
-GestureDetector(
-  onTapDown: (_) => setState(() => _isPressed = true),
-  onTapUp: (_) => setState(() => _isPressed = false),
-  onTapCancel: () => setState(() => _isPressed = false),
-  child: AnimatedScale(
-    scale: _isPressed ? 0.95 : 1.0,
-    duration: const Duration(milliseconds: 100),
-    child: /* your tappable widget */,
-  ),
-)
-```
-
-### 📳 Haptics
-```dart
+// Always add haptics to buttons and tabs
 import 'package:flutter/services.dart';
+HapticFeedback.lightImpact();   // Standard taps
+HapticFeedback.mediumImpact();  // Refreshing, toggles
+HapticFeedback.heavyImpact();   // KYC alerts, big success
 
-HapticFeedback.lightImpact();   // Taps, selections
-HapticFeedback.mediumImpact();  // Likes, confirmations
-HapticFeedback.heavyImpact();   // Critical actions, errors
-```
-
-### 🏷️ Status Badge / Chip
-```dart
-Container(
-  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-  decoration: BoxDecoration(
-    color: const Color(0xFFE0F5FF),
-    borderRadius: BorderRadius.circular(100),
-  ),
-  child: Text('Verified', style: GoogleFonts.outfit(fontSize: 12, color: const Color(0xFF00A3E1), fontWeight: FontWeight.w600)),
+// Bouncy scale for icons (Pseudo-stroke for active state in bottom nav)
+AnimatedScale(
+  scale: isSelected ? 1.15 : 1.0,
+  duration: const Duration(milliseconds: 200),
+  // ...
 )
 ```
 
-## Step 3 — The 60-30-10 Rule
-For dark/reels style screens:
-- **60%** — Dark base (`#1A1A2E` or `#000000`)
-- **30%** — Secondary (`#FFFFFF` text, cards)
-- **10%** — Accent (`#00A3E1` — icons, buttons, highlights)
+## Step 2 — Product Guidelines
+1. **Bilingual:** Always mix English and Nepali for context (e.g., `"सुविधाहरू (Amenities)"`). Do NOT use Hindi.
+2. **Density:** Keep major sections separated by aggressive padding (`SizedBox(height: 44)`) for a premium "uncrowded" feel, but keep internal card elements tight.
+3. **No Middleman & Trust:** Always emphasize the "Verified Listing" tag in green (`#00C853`) and owner KYC.
+4. **Offline First:** Design with skeleton loaders and offline fallbacks in mind.
 
-## Step 4 — Checklist Before Done
-- [ ] All fonts use `GoogleFonts.outfit()` or `GoogleFonts.playfairDisplay()`
-- [ ] No hardcoded colors outside the palette
-- [ ] All cards have border radius + shadow
-- [ ] Loading states use cyan spinner
-- [ ] Buttons have haptic feedback
-- [ ] Sensitive screens have `SecurityUtils.setSecure(true)`
+## Step 3 — Checklist Before Done
+- [ ] Headers use `Plus Jakarta Sans` (tight tracking, heavy weight).
+- [ ] System text/badges use `Inter`.
+- [ ] Brand Cyan (`#00A3E1`) is used for primary CTAs.
+- [ ] Heavy use of pill shapes (`BorderRadius.circular(50)`) for buttons.
+- [ ] Floating elements use `BackdropFilter` glassmorphism.

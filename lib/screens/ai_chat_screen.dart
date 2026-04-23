@@ -16,7 +16,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
   final List<Map<String, dynamic>> _messages = [
     {
       'text':
-          'नमस्ते! म खोज्न (Khozna) AI सहयात्री हुँ। म तपाईंलाई कोठा, फ्ल्याट वा घर खोज्न मद्दत गर्न सक्छु। के सहयोग गरूँ?',
+          'नमस्ते! म खोज्न (Khozna) को स्मार्ट असिस्टेन्ट हुँ।\nतपाईंलाई कस्तो कोठा वा फ्ल्याट चाहिएको छ? नेपालीमै लेखेर वा बोलेर भन्न सक्नुहुन्छ।\n\n(Hello! I am Khozna AI. Tell me what kind of room you are looking for!)',
       'isMe': false,
     },
   ];
@@ -171,38 +171,46 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!),
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(50), // Premium pill shape
+                      border: Border.all(color: Colors.grey.shade300, width: 1.2),
                     ),
                     child: TextField(
                       controller: _messageController,
-                      style: GoogleFonts.inter(fontSize: 16),
-                      decoration: const InputDecoration(
+                      style: GoogleFonts.inter(fontSize: 15, color: Colors.black87),
+                      decoration: InputDecoration(
                         hintText: 'यहाँ लेख्नुहोस् (Type here...)',
+                        hintStyle: GoogleFonts.inter(color: Colors.grey.shade500),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 14,
                         ),
                       ),
                       onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 GestureDetector(
                   onTap: _sendMessage,
                   child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
                       color: AppTheme.brandColor,
                       shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.brandColor.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
                     child: const Icon(
-                      Icons.send,
+                      Icons.send_rounded,
                       color: Colors.white,
-                      size: 20,
+                      size: 22,
                     ),
                   ),
                 ),

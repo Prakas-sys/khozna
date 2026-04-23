@@ -176,42 +176,72 @@ class _SearchScreenState extends State<SearchScreen> {
                     duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        colors: [
+                          AppTheme.brandColor.withOpacity(0.05),
+                          Colors.white,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: Colors.grey.shade200,
+                        color: AppTheme.brandColor.withOpacity(0.15),
                         width: 1.5,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.brandColor.withOpacity(0.05),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Row(
                       children: [
                         _isAiSearching
                             ? const SizedBox(
-                                width: 20, height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black54),
+                                width: 22, height: 22,
+                                child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTheme.brandColor),
                               )
-                            : const Icon(Icons.auto_awesome_rounded, color: Colors.black54, size: 22),
-                        const SizedBox(width: 12),
+                            : Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor, size: 20),
+                              ),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _isAiSearching ? 'AI Finding Match...' : 'Smart AI Search',
+                                _isAiSearching ? 'AI is finding matches...' : 'Smart AI Search',
                                 style: GoogleFonts.inter(
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w800,
                                   color: Colors.black87,
-                                  fontSize: 14,
+                                  fontSize: 15,
                                 ),
                               ),
+                              const SizedBox(height: 2),
                               Text(
-                                'Find better rooms in one tap',
-                                style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 11),
+                                'Find perfect rooms in one tap',
+                                style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 12),
                               ),
                             ],
                           ),
                         ),
-                        Icon(Icons.arrow_forward_rounded, color: Colors.grey[400], size: 18),
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: const Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.brandColor, size: 12),
+                        ),
                       ],
                     ),
                   ),
@@ -359,16 +389,17 @@ class _SearchScreenState extends State<SearchScreen> {
                     children: [
                       TextSpan(
                         text: 'Popular Areas ',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.5,
                           color: Colors.black,
                         ),
                       ),
                       TextSpan(
                         text: '(लोकप्रिय ठाउँहरू)',
                         style: GoogleFonts.mukta(
-                          fontSize: 14,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: Colors.grey[600],
                         ),
@@ -381,6 +412,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 _buildAreaItem('Sanepa, Lalitpur', '320+ Listings'),
                 _buildAreaItem('Baneshwor, Kathmandu', '580+ Listings'),
                 _buildAreaItem('Jhamsikhel, Lalitpur', '210+ Listings'),
+                const SizedBox(height: 80), // Prevent collision with FAB
               ],
             ),
           ),
@@ -424,11 +456,13 @@ class _SearchScreenState extends State<SearchScreen> {
             MaterialPageRoute(builder: (context) => AiChatScreen()),
           );
         },
-        backgroundColor: Colors.purple,
+        backgroundColor: AppTheme.brandColor,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         icon: const Icon(Icons.support_agent, color: Colors.white),
         label: Text(
           'AI Assistant',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w800, color: Colors.white),
         ),
       ),
     );

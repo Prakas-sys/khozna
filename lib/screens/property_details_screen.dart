@@ -237,18 +237,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      extendBodyBehindAppBar: true, // Let image sit under the top bar
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        automaticallyImplyLeading: false, // Custom header in Carousel
-      ),
       body: CustomScrollView(
+        padding: EdgeInsets.zero,
         slivers: [
-          _buildContainedCarousel(),
+          _buildSliverCarousel(),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             sliver: SliverList(
@@ -450,157 +443,140 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   // --- COMPONENT BUILDERS ---
 
-  Widget _buildContainedCarousel() {
-    return SliverToBoxAdapter(
-      child: Container(
-        height: 380,
-        width: double.infinity,
-        margin: const EdgeInsets.fromLTRB(16, 12, 16, 0), // White layout border effect
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(color: Colors.white, width: 6), // Thick white border
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.12),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
-            ),
-          ],
+  Widget _buildSliverCarousel() {
+    return SliverAppBar(
+      expandedHeight: 380,
+      backgroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      pinned: true,
+      stretch: true,
+      automaticallyImplyLeading: false,
+      leading: Center(
+        child: _buildGlassCircle(
+          icon: Icons.arrow_back_ios_new_rounded,
+          onTap: () => Navigator.pop(context),
+          iconSize: 18,
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(26),
-          child: Container(
-            color: Colors.black,
-            child: Stack(
-              children: [
-                PageView.builder(
-                  controller: _pageController,
-                  onPageChanged: (index) =>
-                      setState(() => _currentImageIndex = index),
-                  itemCount: displayImages.length,
-                  itemBuilder: (context, index) {
-                    final image = CachedNetworkImage(
-                      imageUrl: displayImages[index],
-                      fit: BoxFit.cover,
-                      alignment: Alignment.center,
-                      placeholder: (context, url) =>
-                          Container(color: Colors.grey[900]),
-                      errorWidget: (context, url, error) =>
-                          Container(color: Colors.grey[900]),
-                    );
-                    if (index == 0) {
-                      return Hero(tag: widget.id, child: image);
-                    }
-                    return image;
-                  },
-                ),
-                // Glass Floating Header - PRO DESIGN
-                Positioned(
-                  top: MediaQuery.of(context).padding.top - 2, // Pulled higher into the status bar area
-                  left: 16,
-                  right: 10, // Adjusted for card-style love icon
-                  child: Row(
-                    children: [
-                      _buildGlassCircle(
-                        icon: Icons.arrow_back_ios_new_rounded,
-                        onTap: () => Navigator.pop(context),
-                        iconSize: 18,
-                      ),
-                      const Spacer(),
-                      // Share Button (Slimmer Glass)
-                      _buildGlassCircle(
-                        icon: Icons.ios_share_rounded,
-                        onTap: () {
-                          HapticFeedback.mediumImpact();
-                          // Share logic
-                        },
-                        iconSize: 16,
-                      ),
-                      const SizedBox(width: 4),
-                      // LOVE ICON (Directly from PropertyCard style)
-                      FavouriteButton(propertyId: widget.id),
+      ),
+      actions: [
+        Center(
+          child: _buildGlassCircle(
+            icon: Icons.ios_share_rounded,
+            onTap: () {
+              HapticFeedback.mediumImpact();
+            },
+            iconSize: 16,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Center(
+          child: FavouriteButton(propertyId: widget.id),
+        ),
+        const SizedBox(width: 16),
+      ],
+      flexibleSpace: FlexibleSpaceBar(
+        stretchModes: const [StretchMode.zoomBackground],
+        background: Stack(
+          fit: StackFit.expand,
+          children: [
+            PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) =>
+                  setState(() => _currentImageIndex = index),
+              itemCount: displayImages.length,
+              itemBuilder: (context, index) {
+                final image = CachedNetworkImage(
+                  imageUrl: displayImages[index],
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
+                  placeholder: (context, url) =>
+                      Container(color: Colors.grey[900]),
+                  errorWidget: (context, url, error) =>
+                      Container(color: Colors.grey[900]),
+                );
+                if (index == 0) {
+                  return Hero(tag: widget.id, child: image);
+                }
+                return image;
+              },
+            ),
+            // Bottom gradient for better contrast
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 120,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.6),
+                      Colors.transparent,
                     ],
                   ),
                 ),
-                // Bottom gradient for better contrast
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    height: 80,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.4),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                // Dot Indicators
-                Positioned(
-                  bottom: 20,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(
-                      displayImages.length,
-                      (index) => AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        margin: const EdgeInsets.symmetric(horizontal: 4),
-                        height: 4,
-                        width: _currentImageIndex == index ? 20 : 4,
-                        decoration: BoxDecoration(
-                          color: _currentImageIndex == index
-                              ? Colors.white
-                              : Colors.white.withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                // Image Counter Badge
-                Positioned(
-                  bottom: 20,
-                  right: 20,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.3),
-                          ),
-                        ),
-                        child: Text(
-                          '${_currentImageIndex + 1}/${displayImages.length}',
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            // Dot Indicators
+            Positioned(
+              bottom: 20,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  displayImages.length,
+                  (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    height: 4,
+                    width: _currentImageIndex == index ? 20 : 4,
+                    decoration: BoxDecoration(
+                      color: _currentImageIndex == index
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // Image Counter Badge
+            Positioned(
+              bottom: 20,
+              right: 20,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                      ),
+                    ),
+                    child: Text(
+                      '${_currentImageIndex + 1}/${displayImages.length}',
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -653,8 +629,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           children: [
             const Icon(
               Icons.location_on_outlined,
-              color: Color(0xFF6B7280),
-              size: 16,
+              color: AppTheme.brandColor,
+              size: 18,
             ),
             const SizedBox(width: 6),
             Expanded(
@@ -662,8 +638,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 location,
                 style: GoogleFonts.inter(
                   fontSize: 16,
-                  color: const Color(0xFF6B7280),
-                  fontWeight: FontWeight.w500,
+                  color: AppTheme.brandColor,
+                  fontWeight: FontWeight.w600, // Made slightly bolder to match color pop
                 ),
               ),
             ),
