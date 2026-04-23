@@ -947,8 +947,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           TextSpan(
                             text: '₹',
                             style: GoogleFonts.inter(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w700,
                               color: const Color(0xFF1A1A2E),
                             ),
                           ),
