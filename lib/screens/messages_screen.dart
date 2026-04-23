@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
@@ -171,10 +172,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 color: AppTheme.brandColor.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.mark_chat_unread_rounded,
-                size: 64,
-                color: AppTheme.brandColor,
+              child: SvgPicture.asset(
+                'assets/icons/message.svg',
+                width: 64,
+                height: 64,
+                colorFilter: const ColorFilter.mode(
+                  AppTheme.brandColor,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
             const SizedBox(height: 24),

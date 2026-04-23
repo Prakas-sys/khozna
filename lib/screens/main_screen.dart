@@ -412,7 +412,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     _buildNavItem(
                       2,
-                      'Message',
+                      'Messages',
                       'assets/icons/message.svg',
                       activeColor,
                       inactiveColor,
