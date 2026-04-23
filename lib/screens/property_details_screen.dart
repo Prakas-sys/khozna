@@ -444,7 +444,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildSliverCarousel() {
     return SliverAppBar(
-      expandedHeight: 380,
+      expandedHeight: 300,
       backgroundColor: Colors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
@@ -474,6 +474,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ),
         const SizedBox(width: 16),
       ],
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(0),
+        child: Container(
+          height: 32,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(32),
+            ),
+          ),
+        ),
+      ),
       flexibleSpace: FlexibleSpaceBar(
         stretchModes: const [StretchMode.zoomBackground],
         background: Stack(
@@ -521,7 +533,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             // Dot Indicators
             Positioned(
-              bottom: 20,
+              bottom: 40,
               left: 0,
               right: 0,
               child: Row(
@@ -545,7 +557,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             // Image Counter Badge
             Positioned(
-              bottom: 20,
+              bottom: 40,
               right: 20,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),

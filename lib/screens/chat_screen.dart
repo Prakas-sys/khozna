@@ -749,24 +749,31 @@ class _ChatScreenState extends State<ChatScreen>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.chat_bubble_outline_rounded,
-            color: Colors.grey[300],
-            size: 64,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No messages yet',
-            style: GoogleFonts.inter(
-              fontWeight: FontWeight.w600,
-              fontSize: 17,
-              color: Colors.grey[500],
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor.withValues(alpha: 0.08),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.forum_rounded,
+              color: AppTheme.brandColor,
+              size: 56,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 24),
           Text(
-            'Say hello to start the conversation! 👋',
-            style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[400]),
+            'Start the Conversation',
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.w700,
+              fontSize: 18,
+              color: const Color(0xFF111827),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Say hello or ask about the property! 👋',
+            style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF6B7280)),
           ),
         ],
       ),

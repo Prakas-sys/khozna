@@ -60,9 +60,8 @@ class _KycScreenState extends State<KycScreen> {
           _emailController.text = user.email ?? '';
           _phoneController.text = user.phone ?? '';
 
-          if (user.email != null) _isEmailVerified = true;
-          if (user.phone != null && user.phone!.isNotEmpty)
-            _isPhoneVerified = true;
+          if (user.email != null && user.email!.isNotEmpty) _isEmailVerified = true;
+          if (user.phone != null && user.phone!.isNotEmpty) _isPhoneVerified = true;
         });
       }
 
@@ -75,13 +74,14 @@ class _KycScreenState extends State<KycScreen> {
 
         if (mounted) {
           setState(() {
-            if (profile['full_name'] != null)
+            if (profile['full_name'] != null && profile['full_name'].toString().isNotEmpty) {
               _nameController.text = profile['full_name'];
-            if (profile['email'] != null) {
+            }
+            if (profile['email'] != null && profile['email'].toString().isNotEmpty) {
               _emailController.text = profile['email'];
               _isEmailVerified = true;
             }
-            if (profile['phone'] != null) {
+            if (profile['phone'] != null && profile['phone'].toString().isNotEmpty) {
               _phoneController.text = profile['phone'];
               _isPhoneVerified = true;
             }
@@ -651,7 +651,7 @@ class _KycScreenState extends State<KycScreen> {
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.03),
+            color: Colors.grey.withValues(alpha: 0.03),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -665,21 +665,21 @@ class _KycScreenState extends State<KycScreen> {
         readOnly: isVerified,
         enabled: !isVerified,
         onChanged: (v) => setState(() {}),
-        style: GoogleFonts.outfit(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
+        style: GoogleFonts.inter(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
           color: isVerified ? Colors.grey[600] : Colors.black87,
         ),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.outfit(
+          labelStyle: GoogleFonts.inter(
             color: Colors.grey[500],
             fontSize: 14,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
           ),
-          floatingLabelStyle: GoogleFonts.outfit(
+          floatingLabelStyle: GoogleFonts.inter(
             color: AppTheme.brandColor,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
           ),
           prefixIcon: providerLogo != null
               ? Padding(
@@ -689,7 +689,7 @@ class _KycScreenState extends State<KycScreen> {
               : Icon(
                   icon,
                   color: controller.text.isNotEmpty ? AppTheme.brandColor : Colors.grey[400],
-                  size: 22,
+                  size: 20,
                 ),
           suffixIcon: isVerified
               ? Container(
@@ -700,10 +700,10 @@ class _KycScreenState extends State<KycScreen> {
                     children: [
                       Text(
                         'Verified',
-                        style: GoogleFonts.outfit(
-                          color: Colors.green[600],
+                        style: GoogleFonts.inter(
+                          color: Colors.green[700],
                           fontSize: 12,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -719,8 +719,8 @@ class _KycScreenState extends State<KycScreen> {
           filled: true,
           fillColor: isVerified
               ? Colors.grey[50]
-              : (controller.text.isNotEmpty ? Colors.blue[50]!.withOpacity(0.3) : Colors.white),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              : (controller.text.isNotEmpty ? Colors.blue[50]!.withValues(alpha: 0.3) : Colors.white),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(color: Colors.grey.shade200),
@@ -728,7 +728,7 @@ class _KycScreenState extends State<KycScreen> {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(
-              color: controller.text.isNotEmpty ? AppTheme.brandColor.withOpacity(0.3) : Colors.grey.shade200,
+              color: controller.text.isNotEmpty ? AppTheme.brandColor.withValues(alpha: 0.3) : Colors.grey.shade200,
               width: 1.5,
             ),
           ),

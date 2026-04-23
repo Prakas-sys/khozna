@@ -165,28 +165,35 @@ class _MessagesScreenState extends State<MessagesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.chat_bubble_outline_rounded,
-              size: 64,
-              color: AppTheme.brandColor,
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.mark_chat_unread_rounded,
+                size: 64,
+                color: AppTheme.brandColor,
+              ),
             ),
             const SizedBox(height: 24),
             Text(
-              'You don’t have any messages',
+              'No Messages Yet',
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF222222),
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF111827),
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              'When you receive a new message, it will appear here.',
+              'When you connect with property owners, your conversations will appear here.',
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 16,
-                color: const Color(0xFF717171),
+                fontSize: 15,
+                color: const Color(0xFF6B7280),
                 height: 1.5,
               ),
             ),
