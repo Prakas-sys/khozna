@@ -420,8 +420,8 @@ class PropertyCard extends StatelessWidget {
                                 ),
                               ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.black,
+                                backgroundColor: AppTheme.brandColor,
+                                foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 8,
                                 ),
@@ -429,8 +429,8 @@ class PropertyCard extends StatelessWidget {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                   side: BorderSide(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    width: 1,
+                                    color: Colors.white.withValues(alpha: 0.5),
+                                    width: 1.5,
                                   ),
                                 ),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -441,15 +441,14 @@ class PropertyCard extends StatelessWidget {
                                   const Icon(
                                     Icons.directions_walk_rounded,
                                     size: 18,
-                                    color: Colors.black,
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Visit Now',
                                     style: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 13,
-                                      color: Colors.black,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13.5,
+                                      height: 1.1, // Optical baseline adjustment
                                     ),
                                   ),
                                 ],

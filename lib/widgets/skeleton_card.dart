@@ -118,7 +118,7 @@ class _SkeletonCardState extends State<SkeletonCard>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 7),
                   // Button lines
                   Row(
                     children: [

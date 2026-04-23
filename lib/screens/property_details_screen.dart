@@ -1252,9 +1252,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         }
 
         return _buildNearbyItem(
-          icon: getIcon(place['icon_code'] as String?, place['type'] as String?),
-          title: place['type'] as String? ?? 'Place',
-          distance: '$distStr (${place['name']})',
+          getIcon(place['icon_code'] as String?, place['type'] as String?),
+          place['type'] as String? ?? 'Place',
+          '$distStr (${place['name']})',
         );
       }).toList().cast<Widget>(),
     );
