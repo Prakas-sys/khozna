@@ -177,12 +177,14 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           ).then((_) => _fetchListings());
         },
         backgroundColor: AppTheme.brandColor,
-        elevation: 6,
+        elevation: 0, // Removed effect
+        highlightElevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         extendedPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 0,
+          horizontal: 24, // Bigger
+          vertical: 18,
         ),
-        icon: const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+        icon: const Icon(Icons.add, color: Colors.white, size: 24), // Bigger icon
         label: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,18 +192,18 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             Text(
               'नयाँ थप्नुहोस्',
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: 14, // Bigger font
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
                 height: 1.1,
               ),
             ),
             Text(
-              'Add New',
+              'Add New Listing', // More descriptive
               style: GoogleFonts.inter(
-                fontSize: 9,
+                fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: Colors.white.withOpacity(0.85),
+                color: Colors.white.withOpacity(0.9),
                 height: 1.0,
               ),
             ),

@@ -1144,59 +1144,49 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 .toList()
             : [];
 
-    // Fallback logic: If no valid landmarks, use premium defaults + Add a "100m" access item as requested
+    // Fallback logic: If no valid landmarks, use local amenities within walking distance
     final List<Map<String, dynamic>> landmarks = landmarksRaw.isNotEmpty
         ? landmarksRaw
         : [
             {
               'name': 'Main Road Access',
-              'lat': lat + 0.001,
-              'lng': lng + 0.001,
+              'lat': lat + 0.0007, // ~80m
+              'lng': lng + 0.0005,
               'icon': Icons.add_road_rounded,
               'type': 'Access',
-              'customDist': '100m', // Hardcoded 100m as requested
+              'customDist': '100m', 
             },
             {
-              'name': 'Labim Mall',
-              'lat': 27.6775,
-              'lng': 85.3168,
-              'icon': Icons.shopping_bag_outlined,
+              'name': 'Local Grocery Shop',
+              'lat': lat - 0.0012, // ~130m
+              'lng': lng + 0.0008,
+              'icon': Icons.shopping_basket_outlined,
               'type': 'Market',
             },
             {
-              'name': 'Patan Hospital',
-              'lat': 27.6691,
-              'lng': 85.3204,
+              'name': 'Pharmacy / Clinic',
+              'lat': lat + 0.0018, // ~200m
+              'lng': lng - 0.0011,
               'icon': Icons.local_hospital_outlined,
-              'type': 'Hospital',
+              'type': 'Health',
+            },
+            {
+              'name': 'Taxi / Bus Stand',
+              'lat': lat - 0.0015, // ~170m
+              'lng': lng - 0.0014,
+              'icon': Icons.directions_bus_filled_outlined,
+              'type': 'Transport',
+            },
+            {
+              'name': 'Temple / Park',
+              'lat': lat + 0.0022, // ~250m
+              'lng': lng + 0.0019,
+              'icon': Icons.park_outlined,
+              'type': 'Amenity',
             },
           ];
-        'type': 'Health',
-      },
-      {
-        'name': 'Pulchowk Campus',
-        'lat': 27.6811,
-        'lng': 85.3184,
-        'icon': Icons.school_outlined,
-        'type': 'Uni',
-      },
-      {
-        'name': 'Civil Mall',
-        'lat': 27.6997,
-        'lng': 85.3125,
-        'icon': Icons.shopping_basket_outlined,
-        'type': 'Mall',
-      },
-      {
-        'name': 'TU Cricket Ground',
-        'lat': 27.6766,
-        'lng': 85.2974,
-        'icon': Icons.sports_cricket_rounded,
-        'type': 'Sports',
-      },
-    ];
 
-    // Helper to calculate raw Euclidean distance (good enough for local landmarks)
+    // Helper to calculate raw Euclidean distance (scaled to meters)
     double calculateDistance(
       double lat1,
       double lon1,
@@ -1206,9 +1196,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       try {
         final dLat2 = (lat2 as num).toDouble();
         final dLon2 = (lon2 as num).toDouble();
-        return (lat1 - dLat2).abs() + (lon1 - dLon2).abs();
+        // Simple approximation: 1 degree latitude ~= 111,111 meters
+        // 1 degree longitude ~= 111,111 * cos(lat) meters
+        final dy = (lat1 - dLat2).abs() * 111111;
+        final dx = (lon1 - dLon2).abs() * 111111 * 0.88; // cos(27 deg) approx 0.88
+        return (dy + dx) / 1.4; // Average walking distance factor
       } catch (e) {
-        return 999.0; // Return a large distance if coordinates are invalid
+        return 999.0;
       }
     }
 
@@ -1230,15 +1224,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         // Humanized distance strictly in meters (realistic walking distance)
         final double rawDist =
             calculateDistance(lat, lng, place['lat'], place['lng']);
-        // Scale to a realistic range: 50m to 280m
-        final int meters =
-            place['customDist'] != null ? 100 : ((rawDist * 5000).toInt() % 230) + 50;
-        final String distStr = (place['distance'] != null)
-            ? place['distance'].toString()
-            : '${meters}m';
+        
+        final int meters = place['customDist'] != null 
+            ? 100 
+            : rawDist.toInt().clamp(50, 450);
+            
+        final String distStr = '${meters}m';
 
         // Map AI icon codes to actual Flutter Icons
-        IconData getIcon(String? code) {
+        IconData getIcon(String? code, String? type) {
+          if (type == 'Transport') return Icons.directions_bus_filled_outlined;
+          if (type == 'Amenity') return Icons.park_outlined;
+          if (type == 'Access') return Icons.add_road_rounded;
+          
           switch (code) {
             case 'local_hospital_rounded':
               return Icons.local_hospital_outlined;
@@ -1248,19 +1246,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               return Icons.school_outlined;
             case 'account_balance_rounded':
               return Icons.account_balance_outlined;
-            case 'directions_bus_rounded':
-              return Icons.directions_bus_outlined;
             default:
-              return place['icon'] as IconData? ?? Icons.place_outlined;
+              return Icons.location_on_outlined;
           }
         }
 
         return _buildNearbyItem(
-          getIcon(place['icon_code'] as String?),
-          place['type'] as String? ?? 'Place',
-          '$distStr (${place['name']})',
+          icon: getIcon(place['icon_code'] as String?, place['type'] as String?),
+          title: place['type'] as String? ?? 'Place',
+          distance: '$distStr (${place['name']})',
         );
-      }).toList(),
+      }).toList().cast<Widget>(),
     );
   }
 
@@ -1578,12 +1574,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         if (widget.latitude != null && widget.longitude != null) ...[
           Text(
             'GPS coordinates verified. Tap the map below to get directions via Google Maps.',
-            style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
+            style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF717171)),
           ),
         ] else ...[
           Text(
             'Exact GPS location not provided. Contact the owner for precise directions.',
-            style: GoogleFonts.inter(fontSize: 13, color: _airbnbGrey),
+            style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF717171)),
           ),
         ],
       ],
