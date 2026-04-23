@@ -272,6 +272,9 @@ class _LoginScreenState extends State<LoginScreen> {
         serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
       );
 
+      // Force account picker by signing out first
+      await googleSignIn.signOut();
+      
       final googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         setState(() => _isLoading = false);
