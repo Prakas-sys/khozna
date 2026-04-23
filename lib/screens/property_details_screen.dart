@@ -353,7 +353,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                       const SizedBox(width: 8),
                                       Text(
                                         _hasLocation
-                                            ? "नक्सामा हेर्नुहोस्" // View on Map in Nepali
+                                            ? "नक्सामा हेर्न यहाँ क्लिक गर्नुहोस्" // More interactive: "Click here to view on map"
                                             : "स्थान गोप्य छ",
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 16, // Bigger
@@ -886,25 +886,29 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB), // Soft background for contrast
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: AppTheme.brandColor.withValues(alpha: 0.05),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
           ),
         ],
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final double itemWidth = (constraints.maxWidth - 24) / 4; // 4 items per row with gaps
+          final double itemWidth = (constraints.maxWidth - 24) / 4;
           return Wrap(
             spacing: 8,
-            runSpacing: 20,
+            runSpacing: 24,
+            alignment: WrapAlignment.center,
             children: items.map((item) => SizedBox(
               width: itemWidth,
               child: item,
@@ -920,44 +924,59 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.white,
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(20), // Premium 'Squircle' look
+            border: Border.all(
+              color: AppTheme.brandColor.withValues(alpha: 0.08),
+              width: 1.5,
+            ),
             boxShadow: [
+              // Complex multi-layered shadow for depth
               BoxShadow(
-                color: AppTheme.brandColor.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: AppTheme.brandColor.withValues(alpha: 0.08),
+                blurRadius: 15,
+                offset: const Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.white,
+                blurRadius: 0,
+                offset: const Offset(0, 0),
               ),
             ],
           ),
-          child: Icon(icon, color: AppTheme.brandColor, size: 22),
+          child: Icon(
+            icon,
+            color: AppTheme.brandColor,
+            size: 24,
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Text(
           value,
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.inter(
-            fontSize: 13,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 14,
             fontWeight: FontWeight.w800,
             color: const Color(0xFF1A1A2E),
             height: 1.1,
+            letterSpacing: -0.3,
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 3),
         Text(
           label,
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: GoogleFonts.inter(
-            fontSize: 9,
-            color: const Color(0xFF6B7280),
+            fontSize: 10,
             fontWeight: FontWeight.w600,
-            height: 1.1,
+            color: Colors.black.withValues(alpha: 0.4),
+            letterSpacing: 0.1,
           ),
         ),
       ],
@@ -1116,25 +1135,42 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final double lng = widget.longitude ?? 85.3444;
 
     // Use AI-generated landmarks if available, otherwise fallback to high-value landmarks
-    final List<Map<String, dynamic>> landmarks =
-        (widget.nearbyLandmarks != null && widget.nearbyLandmarks!.isNotEmpty)
+    // Robust Landmark Filter: Ensure we only process valid Maps with coordinates
+    final List<Map<String, dynamic>> landmarksRaw =
+        (widget.nearbyLandmarks != null)
             ? widget.nearbyLandmarks!
                 .where((e) => e is Map && e['lat'] != null && e['lng'] != null)
                 .map((e) => Map<String, dynamic>.from(e as Map))
                 .toList()
-            : [
-                {
-                  'name': 'Labim Mall',
-                  'lat': 27.6775,
-                  'lng': 85.3168,
-                  'icon': Icons.shopping_bag_outlined,
-                  'type': 'Market',
-                },
-      {
-        'name': 'Patan Hospital',
-        'lat': 27.6691,
-        'lng': 85.3204,
-        'icon': Icons.local_hospital_outlined,
+            : [];
+
+    // Fallback logic: If no valid landmarks, use premium defaults + Add a "100m" access item as requested
+    final List<Map<String, dynamic>> landmarks = landmarksRaw.isNotEmpty
+        ? landmarksRaw
+        : [
+            {
+              'name': 'Main Road Access',
+              'lat': lat + 0.001,
+              'lng': lng + 0.001,
+              'icon': Icons.add_road_rounded,
+              'type': 'Access',
+              'customDist': '100m', // Hardcoded 100m as requested
+            },
+            {
+              'name': 'Labim Mall',
+              'lat': 27.6775,
+              'lng': 85.3168,
+              'icon': Icons.shopping_bag_outlined,
+              'type': 'Market',
+            },
+            {
+              'name': 'Patan Hospital',
+              'lat': 27.6691,
+              'lng': 85.3204,
+              'icon': Icons.local_hospital_outlined,
+              'type': 'Hospital',
+            },
+          ];
         'type': 'Health',
       },
       {
@@ -1195,7 +1231,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         final double rawDist =
             calculateDistance(lat, lng, place['lat'], place['lng']);
         // Scale to a realistic range: 50m to 280m
-        final int meters = ((rawDist * 5000).toInt() % 230) + 50;
+        final int meters =
+            place['customDist'] != null ? 100 : ((rawDist * 5000).toInt() % 230) + 50;
         final String distStr = (place['distance'] != null)
             ? place['distance'].toString()
             : '${meters}m';
@@ -1717,27 +1754,32 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildNavArrow({required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: () {
-        HapticFeedback.lightImpact();
+        HapticFeedback.mediumImpact();
         onTap();
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: 38,
-        height: 38,
+        width: 32,
+        height: 60, // Vertical pill shape to differentiate from circular back button
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.15),
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withOpacity(0.4), width: 1),
+          color: Colors.black.withValues(alpha: 0.25),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.3),
+            width: 1,
+          ),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(19),
+          borderRadius: BorderRadius.circular(16),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Center(
               child: Icon(
-                icon,
+                icon == Icons.chevron_left_rounded
+                    ? Icons.arrow_back_ios_new_rounded
+                    : Icons.arrow_forward_ios_rounded,
                 color: Colors.white,
-                size: 24,
+                size: 18,
               ),
             ),
           ),

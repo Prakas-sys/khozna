@@ -579,9 +579,28 @@ class SupabaseService {
           },
         );
     _notificationChannel?.subscribe();
+    // 3. User Messages Channel (for badges)
+    _client
+        .channel('public:messages-${user.id}')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'messages',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.neq,
+            column: 'sender_id',
+            value: user.id,
+          ),
+          callback: (payload) {
+            // New message received!
+            fetchUnreadMessageCount();
+          },
+        )
+        .subscribe();
 
-    // Fetch initial unread count
+    // Fetch initial unread counts
     fetchUnreadNotificationCount();
+    fetchUnreadMessageCount();
   }
 
   /// DEPRECATED: Use initRealtimeListeners
@@ -798,14 +817,29 @@ class SupabaseService {
     if (user == null) return [];
 
     try {
-      // Fetch chats where participants array contains use.id
+      // Fetch chats where participants array contains user.id
+      // We also fetch unread counts per chat via a subquery or separate logic
       final response = await _client
           .from('chats')
           .select('*, profiles!participants(id, full_name, avatar_url)')
           .contains('participants', [user.id])
-          .order('updated_at', ascending: false);
+          .order('last_message_time', ascending: false);
 
-      return List<Map<String, dynamic>>.from(response);
+      List<Map<String, dynamic>> chats = List<Map<String, dynamic>>.from(response);
+
+      // Fetch unread counts for each chat
+      for (var chat in chats) {
+        final unreadResponse = await _client
+            .from('messages')
+            .select()
+            .eq('chat_id', chat['id'])
+            .eq('is_read', false)
+            .neq('sender_id', user.id)
+            .count(CountOption.exact);
+        chat['unread_count'] = unreadResponse.count;
+      }
+
+      return chats;
     } catch (e) {
       print('Error fetching conversations: $e');
       return [];
@@ -862,15 +896,56 @@ class SupabaseService {
         'chat_id': chatId,
         'sender_id': user.id,
         'text': text,
+        'is_read': false,
       });
 
       // Update the chat's updated_at timestamp for sorting
+      // (Trigger handles last_message_text in DB)
       await _client
           .from('chats')
           .update({'updated_at': DateTime.now().toIso8601String()})
           .eq('id', chatId);
     } catch (e) {
       print('Error sending message: $e');
+    }
+  }
+
+  /// Mark all messages in a chat as read
+  static Future<void> markChatAsRead(String chatId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      await _client
+          .from('messages')
+          .update({'is_read': true})
+          .eq('chat_id', chatId)
+          .eq('is_read', false)
+          .neq('sender_id', user.id);
+      
+      // Update global count
+      fetchUnreadMessageCount();
+    } catch (e) {
+      print('Error marking chat as read: $e');
+    }
+  }
+
+  /// Fetch total unread message count across all chats
+  static Future<void> fetchUnreadMessageCount() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      final response = await _client
+          .from('messages')
+          .select()
+          .eq('is_read', false)
+          .neq('sender_id', user.id)
+          .count(CountOption.exact);
+      
+      messageBadgeCount.value = response.count;
+    } catch (e) {
+      print('Error fetching unread message count: $e');
     }
   }
 
@@ -896,6 +971,23 @@ class SupabaseService {
         .order('created_at', ascending: false);
     
     return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Mark all messages across all chats as read for the current user
+  static Future<void> markAllMessagesAsRead() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      await _client.rpc('mark_all_messages_as_read', params: {
+        'target_user_id': user.id,
+      });
+      
+      // Update global count
+      messageBadgeCount.value = 0;
+    } catch (e) {
+      print('Error marking all messages as read: $e');
+    }
   }
 
   /// Get all booking requests for properties owned by the current user

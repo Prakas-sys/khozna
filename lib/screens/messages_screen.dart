@@ -24,6 +24,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
   void initState() {
     super.initState();
     _loadChats();
+    // Clear global badge when screen is opened
+    SupabaseService.markAllMessagesAsRead();
   }
 
   Future<void> _loadChats() async {
@@ -209,11 +211,17 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   Widget _buildChatTile(Map<String, dynamic> chat, Map<String, dynamic> otherUser) {
+    final lastMessage = chat['last_message_text'] ?? 'No messages yet';
+    final lastTime = chat['last_message_time'] != null 
+        ? DateTime.parse(chat['last_message_time']).toLocal() 
+        : null;
+    final unreadCount = chat['unread_count'] ?? 0;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: InkWell(
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => chat_page.ChatScreen(
@@ -224,13 +232,44 @@ class _MessagesScreenState extends State<MessagesScreen> {
               ),
             ),
           );
+          // Refresh after returning from chat
+          _loadChats();
         },
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: const Color(0xFFF7F7F7),
-              backgroundImage: NetworkImage(otherUser['avatar_url'] ?? 'https://i.pravatar.cc/150'),
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: const Color(0xFFF7F7F7),
+                  backgroundImage: NetworkImage(otherUser['avatar_url'] ?? 'https://i.pravatar.cc/150'),
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppTheme.brandColor,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 20,
+                        minHeight: 20,
+                      ),
+                      child: Text(
+                        unreadCount > 9 ? '9+' : '$unreadCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -244,25 +283,27 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         otherUser['full_name'] ?? 'User',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: unreadCount > 0 ? FontWeight.w800 : FontWeight.w700,
                           color: const Color(0xFF222222),
                         ),
                       ),
                       Text(
-                        'Just now',
+                        lastTime != null ? _formatTime(lastTime) : '',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 12,
-                          color: const Color(0xFF717171),
+                          color: unreadCount > 0 ? AppTheme.brandColor : const Color(0xFF717171),
+                          fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    chat['last_message'] ?? 'Start a conversation',
+                    lastMessage,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
-                      color: const Color(0xFF717171),
+                      color: unreadCount > 0 ? const Color(0xFF1A1A1A) : const Color(0xFF717171),
+                      fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -274,5 +315,17 @@ class _MessagesScreenState extends State<MessagesScreen> {
         ),
       ),
     );
+  }
+
+  String _formatTime(DateTime time) {
+    final now = DateTime.now();
+    if (now.difference(time).inDays == 0) {
+      return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
+    } else if (now.difference(time).inDays < 7) {
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return days[time.weekday - 1];
+    } else {
+      return '${time.day}/${time.month}';
+    }
   }
 }

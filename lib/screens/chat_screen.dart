@@ -108,6 +108,8 @@ class _ChatScreenState extends State<ChatScreen>
       final id = await SupabaseService.getOrCreateChat(widget.ownerId);
       if (mounted) {
         setState(() => _activeChatId = id);
+        // Mark as read once initialized
+        SupabaseService.markChatAsRead(id);
       }
     } catch (e) {
       debugPrint('Chat init error: $e');
@@ -500,6 +502,11 @@ class _ChatScreenState extends State<ChatScreen>
                       final messages = snapshot.data ?? [];
 
                       if (messages.isEmpty) return _buildEmptyState();
+
+                      // Mark as read when new messages arrive and we are viewing
+                      if (_activeChatId != null) {
+                        SupabaseService.markChatAsRead(_activeChatId!);
+                      }
 
                       // Scroll to bottom when new messages arrive
                       WidgetsBinding.instance.addPostFrameCallback((_) {
