@@ -734,7 +734,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         style: GoogleFonts.inter(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A1A2E),
+                          color: AppTheme.brandColor,
                           letterSpacing: -1,
                         ),
                       ),
