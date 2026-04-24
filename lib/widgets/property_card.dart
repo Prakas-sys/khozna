@@ -82,36 +82,42 @@ class PropertyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => PropertyDetailsScreen(
-              id: id,
-              imageUrl: imageUrl,
-              images: images,
-              title: title,
-              location: location,
-              price: price,
-              bedrooms: bedrooms,
-              bathrooms: bathrooms,
-              area: area,
-              floor: floor,
-              description: description,
-              ownerId: ownerId,
-              status: status,
-              amenities: amenities,
-              houseRules: houseRules,
-              latitude: latitude,
-              longitude: longitude,
-              landmark: landmark,
-              nearbyLandmarks: nearbyLandmarks,
-              category: category,
-            ),
-          ),
-        );
-      },
+      onTap: isOwnerView
+          ? null // Owners can always tap their own cards
+          : () async {
+              HapticFeedback.lightImpact();
+              final allowed = await KycGuard.check(context);
+              if (!allowed) return;
+              if (context.mounted) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PropertyDetailsScreen(
+                      id: id,
+                      imageUrl: imageUrl,
+                      images: images,
+                      title: title,
+                      location: location,
+                      price: price,
+                      bedrooms: bedrooms,
+                      bathrooms: bathrooms,
+                      area: area,
+                      floor: floor,
+                      description: description,
+                      ownerId: ownerId,
+                      status: status,
+                      amenities: amenities,
+                      houseRules: houseRules,
+                      latitude: latitude,
+                      longitude: longitude,
+                      landmark: landmark,
+                      nearbyLandmarks: nearbyLandmarks,
+                      category: category,
+                    ),
+                  ),
+                );
+              }
+            },
       child: Container(
         width: width ?? 260,
         decoration: BoxDecoration(
