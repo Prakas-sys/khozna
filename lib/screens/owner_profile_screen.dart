@@ -50,7 +50,13 @@ class OwnerProfileScreen extends StatelessWidget {
             Center(
               child: CircleAvatar(
                 radius: 60,
-                backgroundImage: NetworkImage(avatar),
+                backgroundColor: Colors.grey[100],
+                backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
+                    ? NetworkImage(avatar)
+                    : null,
+                child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
+                    ? Icon(Icons.person, size: 60, color: Colors.grey[400])
+                    : null,
               ),
             ),
             const SizedBox(height: 16),

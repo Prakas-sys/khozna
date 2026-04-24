@@ -166,7 +166,13 @@ class _ChatScreenState extends State<ChatScreen>
               const SizedBox(height: 30),
               CircleAvatar(
                 radius: 50,
-                backgroundImage: CachedNetworkImageProvider(_displayAvatar),
+                backgroundColor: Colors.grey[200],
+                backgroundImage: (_displayAvatar.isNotEmpty && !_displayAvatar.contains('pravatar.cc'))
+                    ? CachedNetworkImageProvider(_displayAvatar)
+                    : null,
+                child: (_displayAvatar.isEmpty || _displayAvatar.contains('pravatar.cc'))
+                    ? Icon(Icons.person, size: 50, color: Colors.grey[400])
+                    : null,
               ),
               const SizedBox(height: 16),
               Text(
@@ -316,16 +322,7 @@ class _ChatScreenState extends State<ChatScreen>
         await SupabaseService.sendMessage(_activeChatId!, text);
       }
 
-      // Scroll to bottom
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+      // No manual scroll needed with reverse: true
     }
   }
 
@@ -396,7 +393,13 @@ class _ChatScreenState extends State<ChatScreen>
             children: [
               CircleAvatar(
                 radius: 18,
-                backgroundImage: CachedNetworkImageProvider(_displayAvatar),
+                backgroundColor: Colors.grey[100],
+                backgroundImage: (_displayAvatar.isNotEmpty && !_displayAvatar.contains('pravatar.cc'))
+                    ? CachedNetworkImageProvider(_displayAvatar)
+                    : null,
+                child: (_displayAvatar.isEmpty || _displayAvatar.contains('pravatar.cc'))
+                    ? Icon(Icons.person, size: 18, color: Colors.grey[400])
+                    : null,
               ),
               const SizedBox(width: 10),
               Column(
@@ -508,17 +511,11 @@ class _ChatScreenState extends State<ChatScreen>
                         SupabaseService.markChatAsRead(_activeChatId!);
                       }
 
-                      // Scroll to bottom when new messages arrive
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (_scrollController.hasClients) {
-                          _scrollController.jumpTo(
-                            _scrollController.position.maxScrollExtent,
-                          );
-                        }
-                      });
+                      // No manual scroll needed with reverse: true
 
                       return ListView.builder(
                         controller: _scrollController,
+                        reverse: true,
                         padding: const EdgeInsets.all(16),
                         itemCount: messages.length,
                         itemBuilder: (context, index) {
@@ -567,12 +564,12 @@ class _ChatScreenState extends State<ChatScreen>
                                               offset: const Offset(0, 1),
                                             ),
                                           ],
-                                    border: isMe
-                                        ? null
-                                        : Border.all(
-                                            color: Colors.grey.shade200,
-                                            width: 0.5,
-                                          ),
+                                    border: Border.all(
+                                      color: isMe
+                                          ? Colors.black.withValues(alpha: 0.08)
+                                          : Colors.grey.shade200,
+                                      width: 1,
+                                    ),
                                   ),
                                   child: Text(
                                     msg['text'] ?? '',

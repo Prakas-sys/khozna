@@ -1331,7 +1331,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 child: CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.grey[100],
-                  backgroundImage: CachedNetworkImageProvider(avatar),
+                  backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
+                      ? CachedNetworkImageProvider(avatar)
+                      : null,
+                  child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
+                      ? Icon(Icons.person, size: 30, color: Colors.grey[400])
+                      : null,
                 ),
               ),
               const SizedBox(width: 16),

@@ -457,7 +457,7 @@ class PropertyCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: ElevatedButton(
+                            child: OutlinedButton(
                               onPressed: () {
                                 HapticFeedback.lightImpact();
                                 // Instant navigation with real metadata
@@ -475,13 +475,27 @@ class PropertyCard extends StatelessWidget {
                                   ),
                                 );
                               },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppTheme.brandColor,
+                                side: const BorderSide(
+                                  color: AppTheme.brandColor,
+                                  width: 1.5,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Stack(
                                     alignment: Alignment.center,
                                     children: [
-                                      // Pseudo-stroke for subtle bold look in PropertyCard
+                                      // Pseudo-stroke for subtle bold look
                                       for (double i in [-0.2, 0.2])
                                         for (double j in [-0.2, 0.2])
                                           Transform.translate(
@@ -491,7 +505,7 @@ class PropertyCard extends StatelessWidget {
                                               width: 18,
                                               height: 18,
                                               colorFilter: const ColorFilter.mode(
-                                                Colors.white,
+                                                AppTheme.brandColor,
                                                 BlendMode.srcIn,
                                               ),
                                             ),
@@ -501,7 +515,7 @@ class PropertyCard extends StatelessWidget {
                                         width: 18,
                                         height: 18,
                                         colorFilter: const ColorFilter.mode(
-                                          Colors.white,
+                                          AppTheme.brandColor,
                                           BlendMode.srcIn,
                                         ),
                                       ),
@@ -513,26 +527,10 @@ class PropertyCard extends StatelessWidget {
                                     style: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13.5,
-                                      height: 1.1, // Optical baseline adjustment
+                                      height: 1.1,
                                     ),
                                   ),
                                 ],
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.brandColor,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                ),
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  side: BorderSide(
-                                    color: Colors.white.withValues(alpha: 0.5),
-                                    width: 1.5,
-                                  ),
-                                ),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                             ),
                           ),

@@ -227,7 +227,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
               builder: (_) => chat_page.ChatScreen(
                 chatId: chat['id'],
                 name: otherUser['full_name'] ?? 'User',
-                avatar: otherUser['avatar_url'] ?? 'https://i.pravatar.cc/150',
+                avatar: otherUser['avatar_url'] ?? '',
                 online: true,
               ),
             ),
@@ -242,7 +242,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: const Color(0xFFF7F7F7),
-                  backgroundImage: NetworkImage(otherUser['avatar_url'] ?? 'https://i.pravatar.cc/150'),
+                  backgroundImage: (otherUser['avatar_url'] != null && 
+                                  otherUser['avatar_url']!.isNotEmpty && 
+                                  !otherUser['avatar_url']!.contains('pravatar.cc'))
+                      ? NetworkImage(otherUser['avatar_url'])
+                      : null,
+                  child: (otherUser['avatar_url'] == null || 
+                          otherUser['avatar_url']!.isEmpty || 
+                          otherUser['avatar_url']!.contains('pravatar.cc'))
+                      ? Icon(Icons.person, color: Colors.grey[400], size: 28)
+                      : null,
                 ),
                 if (unreadCount > 0)
                   Positioned(

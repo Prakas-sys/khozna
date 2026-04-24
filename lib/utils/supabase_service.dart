@@ -891,7 +891,7 @@ class SupabaseService {
         .from('messages')
         .stream(primaryKey: ['id'])
         .eq('chat_id', chatId)
-        .order('created_at')
+        .order('created_at', ascending: false)
         .map((data) => List<Map<String, dynamic>>.from(data));
   }
 
