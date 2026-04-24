@@ -131,6 +131,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             itemBuilder: (context, index) {
                               final chat = _chats[index];
                               final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+                              // Skip chats deleted by the current user
+                              final deletedFor = List<dynamic>.from(chat['deleted_for'] ?? []);
+                              if (deletedFor.contains(currentUserId)) {
+                                return const SizedBox.shrink();
+                              }
                               final participants = List<Map<String, dynamic>>.from(chat['profiles'] ?? []);
                               final otherUser = participants.firstWhere(
                                 (p) => p['id'] != currentUserId,

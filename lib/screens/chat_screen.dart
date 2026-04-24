@@ -1,13 +1,17 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:cached_network_image/cached_network_image.dart';
 import '../theme/app_theme.dart';
 import '../utils/formatters.dart';
 import '../utils/supabase_service.dart';
+import '../utils/cloudinary_service.dart';
 import 'boost_promotion_screen.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -40,6 +44,8 @@ class _ChatScreenState extends State<ChatScreen>
   late ScrollController _scrollController;
   late TextEditingController _messageController;
   late ScrollController _bannerScrollController;
+  bool _isSendingImage = false;
+  bool _showEmojiPicker = false;
 
   String? _activeChatId;
   final String _currentUserId =
@@ -313,6 +319,7 @@ class _ChatScreenState extends State<ChatScreen>
     if (_messageController.text.trim().isNotEmpty) {
       final text = _messageController.text.trim();
       _messageController.clear();
+      setState(() => _showEmojiPicker = false);
 
       if (_activeChatId == null && widget.ownerId.isNotEmpty) {
         await _initializeChat();
@@ -321,8 +328,104 @@ class _ChatScreenState extends State<ChatScreen>
       if (_activeChatId != null) {
         await SupabaseService.sendMessage(_activeChatId!, text);
       }
+    }
+  }
 
-      // No manual scroll needed with reverse: true
+  Future<void> _pickAndSendImage() async {
+    final picker = ImagePicker();
+    final XFile? picked =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    if (picked == null) return;
+
+    if (_activeChatId == null && widget.ownerId.isNotEmpty) {
+      await _initializeChat();
+    }
+    if (_activeChatId == null) return;
+
+    setState(() => _isSendingImage = true);
+    try {
+      final url = await CloudinaryService.uploadImage(File(picked.path));
+      if (url != null) {
+        await SupabaseService.sendImageMessage(_activeChatId!, url);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to upload image')),
+          );
+        }
+      }
+    } finally {
+      if (mounted) setState(() => _isSendingImage = false);
+    }
+  }
+
+  void _showDeleteMessageDialog(String messageId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Delete Message',
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        content: Text('Remove this message for everyone?',
+            style: GoogleFonts.inter(color: Colors.grey[600])),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await SupabaseService.deleteMessage(messageId);
+            },
+            child: Text('Delete', style: GoogleFonts.inter()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteChatDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Delete Conversation',
+            style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        content: Text(
+            'This will permanently delete this chat for you. The other person will still see it.',
+            style: GoogleFonts.inter(color: Colors.grey[600])),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              if (_activeChatId != null) {
+                await SupabaseService.deleteChat(_activeChatId!);
+              }
+              if (mounted) Navigator.pop(context);
+            },
+            child: Text('Delete', style: GoogleFonts.inter()),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatMsgTime(String? isoTime) {
+    if (isoTime == null) return '';
+    try {
+      final dt = DateTime.parse(isoTime).toLocal();
+      return DateFormat('h:mm a').format(dt);
+    } catch (_) {
+      return '';
     }
   }
 
@@ -449,9 +552,32 @@ class _ChatScreenState extends State<ChatScreen>
             ),
             onPressed: _startCall,
           ),
-          IconButton(
+          PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.black, size: 22),
-            onPressed: _showProfileSheet,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            onSelected: (value) {
+              if (value == 'delete_chat') _showDeleteChatDialog();
+              if (value == 'profile') _showProfileSheet();
+            },
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'profile',
+                child: Row(children: [
+                  const Icon(Icons.person_outline, size: 18),
+                  const SizedBox(width: 10),
+                  Text('View Profile', style: GoogleFonts.inter()),
+                ]),
+              ),
+              PopupMenuItem(
+                value: 'delete_chat',
+                child: Row(children: [
+                  const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                  const SizedBox(width: 10),
+                  Text('Delete Chat',
+                      style: GoogleFonts.inter(color: Colors.red)),
+                ]),
+              ),
+            ],
           ),
           const SizedBox(width: 4),
         ],
@@ -518,101 +644,136 @@ class _ChatScreenState extends State<ChatScreen>
                         reverse: true,
                         padding: const EdgeInsets.all(16),
                         itemCount: messages.length,
-                        itemBuilder: (context, index) {
+                      itemBuilder: (context, index) {
                           final msg = messages[index];
                           final bool isMe = msg['sender_id'] == _currentUserId;
+                          final bool isDeleted = msg['is_deleted'] == true;
+                          final String? imageUrl = msg['image_url'];
+                          final bool hasImage = imageUrl != null && imageUrl.isNotEmpty;
 
-                          return Align(
-                            alignment: isMe
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Column(
-                              crossAxisAlignment: isMe
-                                  ? CrossAxisAlignment.end
-                                  : CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    vertical: 0.5,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: isMe
-                                        ? AppTheme.brandColor
-                                        : Colors.white,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: const Radius.circular(16),
-                                      topRight: const Radius.circular(16),
-                                      bottomLeft: Radius.circular(
-                                        isMe ? 16 : 4,
-                                      ),
-                                      bottomRight: Radius.circular(
-                                        isMe ? 4 : 16,
-                                      ),
+                          return GestureDetector(
+                            onLongPress: isMe && !isDeleted
+                                ? () => _showDeleteMessageDialog(msg['id'])
+                                : null,
+                            child: Align(
+                              alignment: isMe
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
+                              child: Column(
+                                crossAxisAlignment: isMe
+                                    ? CrossAxisAlignment.end
+                                    : CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(vertical: 0.5),
+                                    constraints: BoxConstraints(
+                                      maxWidth: MediaQuery.of(context).size.width * 0.72,
                                     ),
-                                    boxShadow: isMe
-                                        ? []
-                                        : [
-                                            BoxShadow(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.05,
+                                    padding: hasImage
+                                        ? EdgeInsets.zero
+                                        : const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: isDeleted
+                                          ? Colors.grey[100]
+                                          : isMe
+                                              ? AppTheme.brandColor
+                                              : Colors.white,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: const Radius.circular(16),
+                                        topRight: const Radius.circular(16),
+                                        bottomLeft: Radius.circular(isMe ? 16 : 4),
+                                        bottomRight: Radius.circular(isMe ? 4 : 16),
+                                      ),
+                                      boxShadow: isMe
+                                          ? []
+                                          : [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(alpha: 0.05),
+                                                blurRadius: 2,
+                                                offset: const Offset(0, 1),
                                               ),
-                                              blurRadius: 2,
-                                              offset: const Offset(0, 1),
-                                            ),
-                                          ],
-                                    border: Border.all(
-                                      color: isMe
-                                          ? Colors.black.withValues(alpha: 0.08)
-                                          : Colors.grey.shade200,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    msg['text'] ?? '',
-                                    style: GoogleFonts.inter(
-                                      color: isMe
-                                          ? Colors.white
-                                          : const Color(0xFF1A1A1A),
-                                      fontSize: 17,
-                                      height: 1.25,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 2,
-                                    right: 4,
-                                    left: 4,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (isMe) ...[
-                                        const Icon(
-                                          Icons.done_all_rounded,
-                                          size: 14,
-                                          color: Colors.blue,
-                                        ),
-                                        const SizedBox(width: 4),
-                                      ],
-                                      Text(
-                                        "Just now",
-                                        style: GoogleFonts.inter(
-                                          color: Colors.grey[500],
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w400,
-                                        ),
+                                            ],
+                                      border: Border.all(
+                                        color: isDeleted
+                                            ? Colors.grey.shade200
+                                            : isMe
+                                                ? Colors.black.withValues(alpha: 0.08)
+                                                : Colors.grey.shade200,
+                                        width: 1,
                                       ),
-                                    ],
+                                    ),
+                                    child: isDeleted
+                                        ? Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 6),
+                                            child: Text(
+                                              '🗑️ Message deleted',
+                                              style: GoogleFonts.inter(
+                                                color: Colors.grey[400],
+                                                fontSize: 13,
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                            ),
+                                          )
+                                        : hasImage
+                                            ? ClipRRect(
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: const Radius.circular(15),
+                                                  topRight: const Radius.circular(15),
+                                                  bottomLeft: Radius.circular(isMe ? 15 : 3),
+                                                  bottomRight: Radius.circular(isMe ? 3 : 15),
+                                                ),
+                                                child: CachedNetworkImage(
+                                                  imageUrl: imageUrl,
+                                                  width: 220,
+                                                  fit: BoxFit.cover,
+                                                  placeholder: (_, __) => Container(
+                                                    width: 220,
+                                                    height: 180,
+                                                    color: Colors.grey[200],
+                                                    child: const Center(
+                                                        child: CircularProgressIndicator()),
+                                                  ),
+                                                ),
+                                              )
+                                            : Text(
+                                                msg['text'] ?? '',
+                                                style: GoogleFonts.inter(
+                                                  color: isMe
+                                                      ? Colors.white
+                                                      : const Color(0xFF1A1A1A),
+                                                  fontSize: 16,
+                                                  height: 1.25,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              ),
                                   ),
-                                ),
-                                const SizedBox(height: 4),
-                              ],
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 2, right: 4, left: 4),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (isMe) ...[
+                                          const Icon(Icons.done_all_rounded,
+                                              size: 13, color: Colors.blue),
+                                          const SizedBox(width: 4),
+                                        ],
+                                        Text(
+                                          _formatMsgTime(msg['created_at']),
+                                          style: GoogleFonts.inter(
+                                            color: Colors.grey[500],
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                ],
+                              ),
                             ),
                           );
                         },
@@ -626,9 +787,46 @@ class _ChatScreenState extends State<ChatScreen>
           // EMOJI QUICK BAR
           Column(
             children: [
-              if (_messageController.text.isEmpty)
+              if (_isSendingImage)
+                const LinearProgressIndicator(
+                  minHeight: 2,
+                  color: AppTheme.brandColor,
+                ),
+              if (_showEmojiPicker)
+                Container(
+                  height: 250,
+                  color: Colors.white,
+                  child: GridView.count(
+                    crossAxisCount: 8,
+                    padding: const EdgeInsets.all(8),
+                    children: [
+                      '😀','😂','😍','🥰','😎','🤩','😊','🙏',
+                      '❤️','🔥','✅','💯','👍','👋','🤝','💰',
+                      '🏠','🔑','🛋️','🛁','🚗','📍','📷','🎉',
+                      '😢','😡','😅','🤔','😴','🥳','🫡','💪',
+                    ].map((e) => GestureDetector(
+                      onTap: () {
+                        final pos = _messageController.selection.base.offset;
+                        final text = _messageController.text;
+                        final newText = pos >= 0
+                            ? text.substring(0, pos) + e + text.substring(pos)
+                            : text + e;
+                        _messageController.value = TextEditingValue(
+                          text: newText,
+                          selection: TextSelection.collapsed(
+                              offset: (pos >= 0 ? pos : text.length) + e.length),
+                        );
+                        setState(() {});
+                      },
+                      child: Center(
+                        child: Text(e, style: const TextStyle(fontSize: 22)),
+                      ),
+                    )).toList(),
+                  ),
+                ),
+              if (!_showEmojiPicker)
                 Padding(
-                  padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+                  padding: const EdgeInsets.only(top: 10, left: 12, right: 12),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -653,10 +851,7 @@ class _ChatScreenState extends State<ChatScreen>
                   decoration: BoxDecoration(
                     color: const Color(0xFFF1F5F9),
                     borderRadius: BorderRadius.circular(28),
-                    border: Border.all(
-                      color: const Color(0xFFE2E8F0),
-                      width: 1,
-                    ),
+                    border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.04),
@@ -668,21 +863,38 @@ class _ChatScreenState extends State<ChatScreen>
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
+                      // Emoji toggle button
                       IconButton(
-                        icon: const Icon(
-                          Icons.emoji_emotions_outlined,
-                          color: Color(0xFF64748B),
+                        icon: Icon(
+                          _showEmojiPicker
+                              ? Icons.keyboard_rounded
+                              : Icons.emoji_emotions_outlined,
+                          color: _showEmojiPicker
+                              ? AppTheme.brandColor
+                              : const Color(0xFF64748B),
                         ),
                         onPressed: () {
-                          // Toggle emoji keyboard (or just focus the normal one for now)
-                          FocusScope.of(context).requestFocus(FocusNode());
+                          setState(() => _showEmojiPicker = !_showEmojiPicker);
+                          if (!_showEmojiPicker) {
+                            FocusScope.of(context).requestFocus(FocusNode());
+                          }
                         },
                       ),
+                      // Gallery button
+                      IconButton(
+                        icon: const Icon(
+                          Icons.image_outlined,
+                          color: Color(0xFF64748B),
+                        ),
+                        onPressed: _isSendingImage ? null : _pickAndSendImage,
+                      ),
+                      // Text field
                       Expanded(
                         child: TextField(
                           controller: _messageController,
                           maxLines: 5,
                           minLines: 1,
+                          onTap: () => setState(() => _showEmojiPicker = false),
                           style: GoogleFonts.inter(
                             fontSize: 15,
                             color: const Color(0xFF1E293B),
@@ -695,12 +907,12 @@ class _ChatScreenState extends State<ChatScreen>
                               fontSize: 15,
                             ),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 16,
-                            ),
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 16),
                           ),
                         ),
                       ),
+                      // Send button
                       Padding(
                         padding: const EdgeInsets.fromLTRB(8, 6, 6, 6),
                         child: GestureDetector(
@@ -720,20 +932,16 @@ class _ChatScreenState extends State<ChatScreen>
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppTheme.brandColor.withValues(
-                                    alpha: 0.3,
-                                  ),
+                                  color: AppTheme.brandColor
+                                      .withValues(alpha: 0.3),
                                   blurRadius: 6,
                                   offset: const Offset(0, 3),
                                 ),
                               ],
                             ),
                             child: const Center(
-                              child: Icon(
-                                Icons.send_rounded,
-                                color: Colors.white,
-                                size: 18,
-                              ),
+                              child: Icon(Icons.send_rounded,
+                                  color: Colors.white, size: 18),
                             ),
                           ),
                         ),

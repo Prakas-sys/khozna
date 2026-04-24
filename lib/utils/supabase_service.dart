@@ -1028,4 +1028,79 @@ class SupabaseService {
     
     return List<Map<String, dynamic>>.from(response);
   }
+
+  // ==========================================
+  // DELETE & MEDIA METHODS
+  // ==========================================
+
+  /// Soft-delete a single message (only the sender can delete their own message)
+  static Future<void> deleteMessage(String messageId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    try {
+      await _client
+          .from('messages')
+          .update({'is_deleted': true})
+          .eq('id', messageId)
+          .eq('sender_id', user.id);
+    } catch (e) {
+      debugPrint('Error deleting message: $e');
+      rethrow;
+    }
+  }
+
+  /// Permanently delete entire chat for the current user only (soft-delete via deleted_for array)
+  static Future<void> deleteChat(String chatId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    try {
+      // Fetch existing deleted_for array
+      final chat = await _client
+          .from('chats')
+          .select('deleted_for')
+          .eq('id', chatId)
+          .maybeSingle();
+
+      final List<dynamic> existing =
+          List<dynamic>.from(chat?['deleted_for'] ?? []);
+      if (!existing.contains(user.id)) {
+        existing.add(user.id);
+      }
+
+      await _client
+          .from('chats')
+          .update({'deleted_for': existing})
+          .eq('id', chatId);
+    } catch (e) {
+      debugPrint('Error deleting chat: $e');
+      rethrow;
+    }
+  }
+
+  /// Send an image message — stores image_url in messages table
+  static Future<void> sendImageMessage(String chatId, String imageUrl) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    try {
+      await _client.from('messages').insert({
+        'chat_id': chatId,
+        'sender_id': user.id,
+        'text': null,
+        'image_url': imageUrl,
+        'is_read': false,
+      });
+
+      await _client
+          .from('chats')
+          .update({
+            'updated_at': DateTime.now().toIso8601String(),
+            'last_message_text': '📷 Photo',
+          })
+          .eq('id', chatId);
+    } catch (e) {
+      debugPrint('Error sending image message: $e');
+      rethrow;
+    }
+  }
 }
+
