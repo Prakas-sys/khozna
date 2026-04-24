@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:khozna/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/screens/property_details_screen.dart';
 import 'package:khozna/utils/supabase_service.dart';
+import 'package:khozna/utils/kyc_guard.dart';
 import '../theme/app_theme.dart';
 import '../utils/formatters.dart';
 import 'favourite_button.dart';
@@ -393,32 +394,39 @@ class PropertyCard extends StatelessWidget {
                         if (!isOwnerView) ...[
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => PropertyDetailsScreen(
-                                    id: id,
-                                    imageUrl: imageUrl,
-                                    images: images,
-                                    title: title,
-                                    location: location,
-                                    price: price,
-                                    bedrooms: bedrooms,
-                                    bathrooms: bathrooms,
-                                    area: area,
-                                    floor: floor,
-                                    description: description,
-                                    ownerId: ownerId,
-                                    status: status,
-                                    amenities: amenities,
-                                    houseRules: houseRules,
-                                    latitude: latitude,
-                                    longitude: longitude,
-                                    landmark: landmark,
-                                    nearbyLandmarks: nearbyLandmarks,
-                                  ),
-                                ),
-                              ),
+                              onPressed: () async {
+                                HapticFeedback.lightImpact();
+                                final allowed = await KycGuard.check(context);
+                                if (!allowed) return;
+                                if (context.mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => PropertyDetailsScreen(
+                                        id: id,
+                                        imageUrl: imageUrl,
+                                        images: images,
+                                        title: title,
+                                        location: location,
+                                        price: price,
+                                        bedrooms: bedrooms,
+                                        bathrooms: bathrooms,
+                                        area: area,
+                                        floor: floor,
+                                        description: description,
+                                        ownerId: ownerId,
+                                        status: status,
+                                        amenities: amenities,
+                                        houseRules: houseRules,
+                                        latitude: latitude,
+                                        longitude: longitude,
+                                        landmark: landmark,
+                                        nearbyLandmarks: nearbyLandmarks,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
@@ -458,22 +466,25 @@ class PropertyCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: OutlinedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 HapticFeedback.lightImpact();
-                                // Instant navigation with real metadata
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => chat_page.ChatScreen(
-                                      ownerId: ownerId,
-                                      name: ownerName ?? 'Khozna User',
-                                      avatar: ownerAvatar ?? '',
-                                      isVerified: isOwnerVerified ?? false,
-                                      online: true,
-                                      phone: '+977 9801234567',
+                                final allowed = await KycGuard.check(context);
+                                if (!allowed) return;
+                                if (context.mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => chat_page.ChatScreen(
+                                        ownerId: ownerId,
+                                        name: ownerName ?? 'Khozna User',
+                                        avatar: ownerAvatar ?? '',
+                                        isVerified: isOwnerVerified ?? false,
+                                        online: true,
+                                        phone: '+977 9801234567',
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                }
                               },
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppTheme.brandColor,
