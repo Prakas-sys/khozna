@@ -414,47 +414,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     const Icon(Icons.directions_walk_rounded, color: Colors.black, size: 18),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'VISIT NOW',
+                                      'VISIT',
                                       style: GoogleFonts.inter(
                                         color: Colors.black,
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            // Map Button
-                            GestureDetector(
-                              onTap: () async {
-                                HapticFeedback.lightImpact();
-                                if (reel['latitude'] != null && reel['longitude'] != null) {
-                                  final url = Uri.parse(
-                                    'https://www.google.com/maps/search/?api=1&query=${reel['latitude']},${reel['longitude']}',
-                                  );
-                                  if (await canLaunchUrl(url)) {
-                                    await launchUrl(url, mode: LaunchMode.externalApplication);
-                                  }
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(30),
-                                  border: Border.all(color: Colors.white.withOpacity(0.2)),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.map_outlined, color: Colors.white, size: 16),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'MAP',
-                                      style: GoogleFonts.inter(
-                                        color: Colors.white,
                                         fontWeight: FontWeight.w900,
                                         fontSize: 11,
                                       ),
