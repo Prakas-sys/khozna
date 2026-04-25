@@ -185,7 +185,7 @@ class SupabaseService {
         'requester_id': user.id,
       });
 
-      notificationBadgeCount.value += 1;
+      // Note: badge count only increments for the RECIPIENT (owner), not the sender (guest)
     } catch (e) {
       print('Booking Request Error: $e');
       rethrow;
@@ -295,7 +295,7 @@ class SupabaseService {
           .update({'status': 'available'})
           .eq('id', propertyId);
 
-      notificationBadgeCount.value += 1;
+      // Property released back to available - no badge bump needed here
     } catch (e) {
       print('Supabase Cancel Booking Error: $e');
       rethrow;
@@ -912,7 +912,10 @@ class SupabaseService {
       // (Trigger handles last_message_text in DB)
       await _client
           .from('chats')
-          .update({'updated_at': DateTime.now().toIso8601String()})
+          .update({
+            'updated_at': DateTime.now().toIso8601String(),
+            'deleted_for': [], // Clear deleted state so the chat reappears
+          })
           .eq('id', chatId);
     } catch (e) {
       print('Error sending message: $e');
@@ -1033,14 +1036,14 @@ class SupabaseService {
   // DELETE & MEDIA METHODS
   // ==========================================
 
-  /// Soft-delete a single message (only the sender can delete their own message)
+  /// Delete a single message (only the sender can delete their own message)
   static Future<void> deleteMessage(String messageId) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
     try {
       await _client
           .from('messages')
-          .update({'is_deleted': true})
+          .delete()
           .eq('id', messageId)
           .eq('sender_id', user.id);
     } catch (e) {

@@ -46,6 +46,7 @@ class _ChatScreenState extends State<ChatScreen>
   late ScrollController _bannerScrollController;
   bool _isSendingImage = false;
   bool _showEmojiPicker = false;
+  final List<Map<String, dynamic>> _optimisticMessages = [];
 
   String? _activeChatId;
   final String _currentUserId =
@@ -321,12 +322,34 @@ class _ChatScreenState extends State<ChatScreen>
       _messageController.clear();
       setState(() => _showEmojiPicker = false);
 
+      final tempMsg = {
+        'id': 'temp_${DateTime.now().millisecondsSinceEpoch}',
+        'sender_id': _currentUserId,
+        'text': text,
+        'created_at': DateTime.now().toUtc().toIso8601String(),
+        'is_optimistic': true,
+      };
+
+      setState(() {
+        _optimisticMessages.insert(0, tempMsg);
+      });
+
       if (_activeChatId == null && widget.ownerId.isNotEmpty) {
         await _initializeChat();
       }
 
       if (_activeChatId != null) {
-        await SupabaseService.sendMessage(_activeChatId!, text);
+        // Fire and forget so the UI doesn't hitch
+        SupabaseService.sendMessage(_activeChatId!, text).catchError((e) {
+          if (mounted) {
+            setState(() {
+              _optimisticMessages.remove(tempMsg);
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to send message')),
+            );
+          }
+        });
       }
     }
   }
@@ -409,6 +432,15 @@ class _ChatScreenState extends State<ChatScreen>
               Navigator.pop(ctx);
               if (_activeChatId != null) {
                 await SupabaseService.deleteChat(_activeChatId!);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Chat deleted', style: GoogleFonts.inter()),
+                      backgroundColor: Colors.red,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
               }
               if (mounted) Navigator.pop(context);
             },
@@ -531,7 +563,9 @@ class _ChatScreenState extends State<ChatScreen>
                           ],
                         ),
                   Text(
-                    'Owner • ${widget.online ? 'Online' : 'Offline'}',
+                    widget.ownerId.isNotEmpty 
+                        ? 'Owner • ${widget.online ? 'Online' : 'Offline'}'
+                        : '${widget.online ? 'Online' : 'Offline'}',
                     style: GoogleFonts.inter(
                       color: widget.online ? Colors.green : Colors.grey,
                       fontSize: 11,
@@ -628,7 +662,11 @@ class _ChatScreenState extends State<ChatScreen>
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       }
-                      final messages = snapshot.data ?? [];
+                      final streamMessages = snapshot.data ?? [];
+                      
+                      final streamMessageTexts = streamMessages.where((m) => m['text'] != null).map((m) => m['text']).toSet();
+                      final pendingMessages = _optimisticMessages.where((m) => !streamMessageTexts.contains(m['text'])).toList();
+                      final messages = [...pendingMessages, ...streamMessages];
 
                       if (messages.isEmpty) return _buildEmptyState();
 
@@ -756,8 +794,11 @@ class _ChatScreenState extends State<ChatScreen>
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         if (isMe) ...[
-                                          const Icon(Icons.done_all_rounded,
-                                              size: 13, color: Colors.blue),
+                                          Icon(
+                                            msg['is_optimistic'] == true ? Icons.access_time_rounded : Icons.done_all_rounded,
+                                            size: 13, 
+                                            color: msg['is_optimistic'] == true ? Colors.white70 : Colors.blue,
+                                          ),
                                           const SizedBox(width: 4),
                                         ],
                                         Text(
@@ -792,58 +833,16 @@ class _ChatScreenState extends State<ChatScreen>
                   minHeight: 2,
                   color: AppTheme.brandColor,
                 ),
-              if (_showEmojiPicker)
-                Container(
-                  height: 250,
-                  color: Colors.white,
-                  child: GridView.count(
-                    crossAxisCount: 8,
-                    padding: const EdgeInsets.all(8),
-                    children: [
-                      '😀','😂','😍','🥰','😎','🤩','😊','🙏',
-                      '❤️','🔥','✅','💯','👍','👋','🤝','💰',
-                      '🏠','🔑','🛋️','🛁','🚗','📍','📷','🎉',
-                      '😢','😡','😅','🤔','😴','🥳','🫡','💪',
-                    ].map((e) => GestureDetector(
-                      onTap: () {
-                        final pos = _messageController.selection.base.offset;
-                        final text = _messageController.text;
-                        final newText = pos >= 0
-                            ? text.substring(0, pos) + e + text.substring(pos)
-                            : text + e;
-                        _messageController.value = TextEditingValue(
-                          text: newText,
-                          selection: TextSelection.collapsed(
-                              offset: (pos >= 0 ? pos : text.length) + e.length),
-                        );
-                        setState(() {});
-                      },
-                      child: Center(
-                        child: Text(e, style: const TextStyle(fontSize: 22)),
-                      ),
-                    )).toList(),
-                  ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10, left: 16, right: 16),
+                child: Row(
+                  children: [
+                    _buildEmojiTip('🏠'),
+                    _buildEmojiTip('🔑'),
+                    _buildEmojiTip('💰'),
+                  ],
                 ),
-              if (!_showEmojiPicker)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10, left: 12, right: 12),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildEmojiTip('🏠'),
-                        _buildEmojiTip('🔑'),
-                        _buildEmojiTip('💰'),
-                        _buildEmojiTip('🛋️'),
-                        _buildEmojiTip('🛁'),
-                        _buildEmojiTip('🚶'),
-                        _buildEmojiTip('📍'),
-                        _buildEmojiTip('🤝'),
-                        _buildEmojiTip('🙏'),
-                      ],
-                    ),
-                  ),
-                ),
+              ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
                 child: Container(
@@ -863,23 +862,6 @@ class _ChatScreenState extends State<ChatScreen>
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      // Emoji toggle button
-                      IconButton(
-                        icon: Icon(
-                          _showEmojiPicker
-                              ? Icons.keyboard_rounded
-                              : Icons.emoji_emotions_outlined,
-                          color: _showEmojiPicker
-                              ? AppTheme.brandColor
-                              : const Color(0xFF64748B),
-                        ),
-                        onPressed: () {
-                          setState(() => _showEmojiPicker = !_showEmojiPicker);
-                          if (!_showEmojiPicker) {
-                            FocusScope.of(context).requestFocus(FocusNode());
-                          }
-                        },
-                      ),
                       // Gallery button
                       IconButton(
                         icon: const Icon(

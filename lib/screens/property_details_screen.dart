@@ -1722,22 +1722,59 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             Expanded(
               flex: 2,
               child: ElevatedButton(
-                onPressed: () {
-                  HapticFeedback.heavyImpact();
-                  // Booking logic
-                },
+                onPressed: (widget.status == 'booked' || widget.status == 'pending_approval')
+                    ? null
+                    : () {
+                        HapticFeedback.heavyImpact();
+                        
+                        final currentUserId = Supabase.instance.client.auth.currentUser?.id ?? '';
+                        if (currentUserId.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'कृपया बुकिङ गर्न लगइन गर्नुहोस् (Please log in to book)',
+                                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
+                              ),
+                              backgroundColor: Colors.redAccent,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BookingRequestScreen(
+                              propertyId: widget.id,
+                              propertyTitle: widget.title,
+                              ownerId: widget.ownerId,
+                              ownerName: widget.ownerName ?? 'Owner',
+                            ),
+                          ),
+                        );
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.brandColor,
                   foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey.shade300,
+                  disabledForegroundColor: Colors.grey.shade600,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  elevation: 4,
+                  elevation: (widget.status == 'booked' || widget.status == 'pending_approval') ? 0 : 4,
                   shadowColor: AppTheme.brandColor.withOpacity(0.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
                 child: Text(
-                  'Book Now',
+                  (widget.status == 'booked') 
+                      ? 'Booked' 
+                      : (widget.status == 'pending_approval') 
+                          ? 'Pending' 
+                          : 'Book Now',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,

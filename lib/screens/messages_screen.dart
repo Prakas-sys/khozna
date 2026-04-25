@@ -65,9 +65,82 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   ),
                   Row(
                     children: [
+                      // Search Icon
                       _buildHeaderIcon(Icons.search),
                       const SizedBox(width: 12),
-                      _buildHeaderIcon(Icons.settings_outlined),
+                      // Settings Icon with Menu
+                      PopupMenuButton<String>(
+                        offset: const Offset(0, 50),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16)),
+                        color: Colors.white,
+                        elevation: 4,
+                        child: _buildHeaderIcon(Icons.settings_outlined),
+                        onSelected: (val) {
+                          if (val == 'export') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Exporting chats to PDF...'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
+                        },
+                        itemBuilder: (_) => [
+                          PopupMenuItem(
+                            value: 'export',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.picture_as_pdf_rounded,
+                                    size: 20, color: Colors.redAccent),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Export Chats (PDF)',
+                                  style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuDivider(),
+                          PopupMenuItem(
+                            enabled: false,
+                            child: SizedBox(
+                              width: 240,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.info_outline_rounded,
+                                          size: 16, color: Colors.orange),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'Important Notice',
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13,
+                                          color: Colors.orange[800],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Messages older than 30 days are permanently deleted for privacy. Please export your chats to your phone if you need to save details.',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ],
@@ -136,11 +209,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
                               if (deletedFor.contains(currentUserId)) {
                                 return const SizedBox.shrink();
                               }
-                              final participants = List<Map<String, dynamic>>.from(chat['profiles'] ?? []);
-                              final otherUser = participants.firstWhere(
-                                (p) => p['id'] != currentUserId,
-                                orElse: () => {'full_name': 'Unknown', 'avatar_url': null},
-                              );
+                              Map<String, dynamic> otherUser;
+                              if (chat['sender'] != null) {
+                                otherUser = chat['sender'];
+                              } else {
+                                final participants = List<Map<String, dynamic>>.from(chat['profiles'] ?? []);
+                                otherUser = participants.firstWhere(
+                                  (p) => p['id'] != currentUserId,
+                                  orElse: () => {'full_name': 'Unknown', 'avatar_url': null},
+                                );
+                              }
 
                               return _buildChatTile(chat, otherUser);
                             },
@@ -163,6 +241,36 @@ class _MessagesScreenState extends State<MessagesScreen> {
         border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.2)),
       ),
       child: Icon(icon, color: AppTheme.brandColor, size: 22),
+    );
+  }
+
+  void _showDeleteChatDialog(String chatId) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Delete Conversation',
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+        content: Text(
+            'This will permanently delete this chat for you. The other person will still see it.',
+            style: GoogleFonts.plusJakartaSans(color: Colors.grey[600])),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await SupabaseService.deleteChat(chatId);
+              _loadChats();
+            },
+            child: Text('Delete', style: GoogleFonts.plusJakartaSans()),
+          ),
+        ],
+      ),
     );
   }
 
@@ -222,10 +330,55 @@ class _MessagesScreenState extends State<MessagesScreen> {
         : null;
     final unreadCount = chat['unread_count'] ?? 0;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      child: InkWell(
-        onTap: () async {
+    return Dismissible(
+      key: Key(chat['id']),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        color: Colors.redAccent,
+        margin: const EdgeInsets.only(bottom: 24),
+        child: const Icon(Icons.delete_outline, color: Colors.white, size: 28),
+      ),
+      confirmDismiss: (direction) async {
+        bool confirm = false;
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Text('Delete Conversation',
+                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
+            content: Text(
+                'Are you sure you want to delete this conversation?',
+                style: GoogleFonts.plusJakartaSans(color: Colors.grey[600])),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: Colors.grey)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, foregroundColor: Colors.white),
+                onPressed: () {
+                  confirm = true;
+                  Navigator.pop(ctx);
+                },
+                child: Text('Delete', style: GoogleFonts.plusJakartaSans()),
+              ),
+            ],
+          ),
+        );
+        return confirm;
+      },
+      onDismissed: (direction) async {
+        await SupabaseService.deleteChat(chat['id']);
+        _loadChats();
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 24),
+        child: InkWell(
+          onLongPress: () => _showDeleteChatDialog(chat['id']),
+          onTap: () async {
           await Navigator.push(
             context,
             MaterialPageRoute(
@@ -328,7 +481,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   String _formatTime(DateTime time) {
