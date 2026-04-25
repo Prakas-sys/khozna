@@ -13,6 +13,7 @@ import '../theme/app_theme.dart';
 import '../utils/formatters.dart';
 import 'favourite_button.dart';
 import 'skeleton_card.dart';
+import '../utils/app_notifiers.dart';
 
 class PropertyCard extends StatelessWidget {
   final String id;

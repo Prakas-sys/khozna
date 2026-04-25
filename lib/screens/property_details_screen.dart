@@ -821,67 +821,80 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       'water_melamchi': {
         'icon': Icons.water_drop_outlined,
         'label': 'खानेपानी',
-        'sub': 'Melamchi/Boring',
+        'sub': 'Water',
+        'color': const Color(0xFF0EA5E9),
       },
       'parking_bike': {
         'icon': Icons.pedal_bike_outlined,
         'label': 'पार्किङ',
-        'sub': 'Bike Parking',
+        'sub': 'Bike',
+        'color': const Color(0xFF64748B),
       },
       'parking_car': {
         'icon': Icons.directions_car_outlined,
         'label': 'पार्किङ',
-        'sub': 'Car Parking',
+        'sub': 'Car',
+        'color': const Color(0xFF475569),
       },
       'sunny_room': {
         'icon': Icons.wb_sunny_outlined,
-        'label': 'उज्यालो कोठा',
-        'sub': 'Sunny Room',
+        'label': 'उज्यालो',
+        'sub': 'Sunny',
+        'color': const Color(0xFFF59E0B),
       },
       'hot_water': {
         'icon': Icons.hot_tub_outlined,
         'label': 'तातो पानी',
-        'sub': 'Solar/Electric',
+        'sub': 'Hot Water',
+        'color': const Color(0xFFEF4444),
       },
       'waste_mgmt': {
         'icon': Icons.delete_outline,
-        'label': 'फोहोर व्यवस्थापन',
-        'sub': 'Waste Mgmt',
+        'label': 'फोहोर',
+        'sub': 'Waste',
+        'color': const Color(0xFF10B981),
       },
       'peaceful': {
         'icon': Icons.nature_people_outlined,
-        'label': 'शान्त वातावरण',
+        'label': 'शान्त',
         'sub': 'Peaceful',
+        'color': const Color(0xFF059669),
       },
       'water_boring': {
         'icon': Icons.waves_outlined,
         'label': 'बोरिङ',
-        'sub': 'Boring Water',
+        'sub': 'Boring',
+        'color': const Color(0xFF3B82F6),
       },
       'internet': {
         'icon': Icons.wifi_outlined,
         'label': 'इन्टरनेट',
-        'sub': 'Internet/Wifi',
+        'sub': 'Wifi',
+        'color': const Color(0xFF6366F1),
       },
       'kitchen': {
         'icon': Icons.kitchen_outlined,
         'label': 'भान्सा',
-        'sub': 'Separate Kitchen',
+        'sub': 'Kitchen',
+        'color': const Color(0xFF71717A),
       },
       'attached_bathroom': {
         'icon': Icons.bathroom_outlined,
         'label': 'बाथरुम',
-        'sub': 'Attached Bathroom',
+        'sub': 'Attached',
+        'color': const Color(0xFF06B6D4),
       },
       'security': {
         'icon': Icons.security_rounded,
         'label': 'सुरक्षा',
-        'sub': 'CCTV/Security',
+        'sub': 'Security',
+        'color': const Color(0xFF1E293B),
       },
       'power_backup': {
         'icon': Icons.battery_charging_full_rounded,
-        'label': 'बत्ती ब्याकअप',
-        'sub': 'Power Backup',
+        'label': 'बत्ती',
+        'sub': 'Backup',
+        'color': const Color(0xFFFBBF24),
       },
     };
 
@@ -890,26 +903,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     // Add standard ones
     if (widget.bedrooms != null && widget.bedrooms! > 0) {
       items.add(
-        _buildStatItem(Icons.bed_outlined, '${widget.bedrooms}', 'Bedrooms'),
+        _buildStatItem(Icons.bed_outlined, '${widget.bedrooms}', 'Beds', const Color(0xFF6366F1)),
       );
     }
     if (widget.bathrooms != null && widget.bathrooms! > 0) {
       items.add(
-        _buildStatItem(
-          Icons.bathtub_outlined,
-          '${widget.bathrooms}',
-          'Bathrooms',
-        ),
+        _buildStatItem(Icons.bathtub_outlined, '${widget.bathrooms}', 'Baths', const Color(0xFF06B6D4)),
       );
-    }
-    if (widget.floor != null &&
-        widget.floor != 'N/A' &&
-        widget.floor!.isNotEmpty) {
-      items.add(_buildStatItem(Icons.layers_outlined, widget.floor!, 'Floor'));
     }
     if (widget.area != null && widget.area!.isNotEmpty) {
       items.add(
-        _buildStatItem(Icons.square_foot_outlined, widget.area!, 'Sq. Ft'),
+        _buildStatItem(Icons.square_foot_outlined, widget.area!, 'Area', const Color(0xFF10B981)),
       );
     }
 
@@ -917,36 +921,29 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     for (var amenity in widget.amenities) {
       if (amenityData.containsKey(amenity)) {
         final data = amenityData[amenity]!;
-        items.add(_buildStatItem(data['icon'], data['label'], data['sub']));
+        items.add(_buildStatItem(data['icon'], data['label'], data['sub'], data['color']));
       }
     }
 
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(32),
         border: Border.all(
-          color: AppTheme.brandColor.withValues(alpha: 0.05),
+          color: const Color(0xFFE2E8F0),
           width: 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-          ),
-        ],
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final double itemWidth = (constraints.maxWidth - 24) / 4;
           return Wrap(
             spacing: 8,
-            runSpacing: 24,
-            alignment: WrapAlignment.center,
+            runSpacing: 20,
+            alignment: WrapAlignment.start,
             children: items.map((item) => SizedBox(
               width: itemWidth,
               child: item,
@@ -957,54 +954,42 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildStatItem(IconData icon, String value, String label) {
+  Widget _buildStatItem(IconData icon, String value, String label, Color accentColor) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: const EdgeInsets.all(14),
+          height: 56,
+          width: 56,
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20), // Premium 'Squircle' look
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                accentColor.withOpacity(0.08),
+                accentColor.withOpacity(0.18),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: AppTheme.brandColor.withValues(alpha: 0.08),
+              color: accentColor.withOpacity(0.2),
               width: 1.5,
             ),
-            boxShadow: [
-              // Complex multi-layered shadow for depth
-              BoxShadow(
-                color: AppTheme.brandColor.withValues(alpha: 0.08),
-                blurRadius: 15,
-                offset: const Offset(0, 6),
-              ),
-              BoxShadow(
-                color: Colors.white,
-                blurRadius: 0,
-                offset: const Offset(0, 0),
-              ),
-            ],
           ),
-          child: Icon(
-            icon,
-            color: AppTheme.brandColor,
-            size: 24,
-          ),
+          child: Icon(icon, color: accentColor, size: 24),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Text(
           value,
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF1A1A2E),
-            height: 1.1,
-            letterSpacing: -0.3,
+            color: const Color(0xFF1E293B),
           ),
         ),
-        const SizedBox(height: 3),
         Text(
           label,
           textAlign: TextAlign.center,
