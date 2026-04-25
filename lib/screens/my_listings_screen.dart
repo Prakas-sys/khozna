@@ -131,10 +131,17 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               color: Colors.black,
             ),
             children: [
-              const TextSpan(text: 'मेरो प्रोपर्टी '),
+              TextSpan(
+                text: 'मेरो प्रोपर्टी ',
+                style: GoogleFonts.hind(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.black,
+                ),
+              ),
               TextSpan(
                 text: '(My Listings)',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.plusJakartaSans(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey[500],
@@ -191,9 +198,9 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           children: [
             Text(
               'नयाँ थप्नुहोस्',
-              style: GoogleFonts.inter(
-                fontSize: 14, // Bigger font
-                fontWeight: FontWeight.w800,
+              style: GoogleFonts.hind(
+                fontSize: 15, // Adjusted for Hind
+                fontWeight: FontWeight.bold,
                 color: Colors.white,
                 height: 1.1,
               ),

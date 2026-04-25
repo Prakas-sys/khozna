@@ -912,10 +912,7 @@ class SupabaseService {
       // (Trigger handles last_message_text in DB)
       await _client
           .from('chats')
-          .update({
-            'updated_at': DateTime.now().toIso8601String(),
-            'deleted_for': [], // Clear deleted state so the chat reappears
-          })
+          .update({'updated_at': DateTime.now().toIso8601String()})
           .eq('id', chatId);
     } catch (e) {
       print('Error sending message: $e');
@@ -1052,28 +1049,15 @@ class SupabaseService {
     }
   }
 
-  /// Permanently delete entire chat for the current user only (soft-delete via deleted_for array)
+  /// Hard-delete an entire chat — removes all messages then the chat itself.
+  /// Both participants lose the history. Next "Message" tap starts fresh.
   static Future<void> deleteChat(String chatId) async {
-    final user = _client.auth.currentUser;
-    if (user == null) return;
     try {
-      // Fetch existing deleted_for array
-      final chat = await _client
-          .from('chats')
-          .select('deleted_for')
-          .eq('id', chatId)
-          .maybeSingle();
+      // 1. Delete all messages in the chat first (FK constraint order)
+      await _client.from('messages').delete().eq('chat_id', chatId);
 
-      final List<dynamic> existing =
-          List<dynamic>.from(chat?['deleted_for'] ?? []);
-      if (!existing.contains(user.id)) {
-        existing.add(user.id);
-      }
-
-      await _client
-          .from('chats')
-          .update({'deleted_for': existing})
-          .eq('id', chatId);
+      // 2. Delete the chat row itself
+      await _client.from('chats').delete().eq('id', chatId);
     } catch (e) {
       debugPrint('Error deleting chat: $e');
       rethrow;

@@ -80,6 +80,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   bool _isReserved = false;
   bool _isPendingApproval = false;
   bool _isBooking = false;
+  bool _userHasPendingBooking = false; // current user specifically has a pending booking
   Map<String, dynamic>? _ownerData;
 
   String get _currentUserId =>
@@ -135,6 +136,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       : widget.imageUrl,
                 ]);
     _incrementViews();
+    _checkUserBookingStatus();
   }
 
   Future<void> _incrementViews() async {
@@ -146,6 +148,27 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       );
     } catch (e) {
       debugPrint('Error incrementing views: $e');
+    }
+  }
+
+  /// Check if the current user already has a pending/confirmed booking for this property
+  Future<void> _checkUserBookingStatus() async {
+    if (widget.id.contains('demo') || _currentUserId.isEmpty) return;
+    try {
+      final result = await Supabase.instance.client
+          .from('bookings')
+          .select('id, status')
+          .eq('property_id', widget.id)
+          .eq('guest_id', _currentUserId)
+          .inFilter('status', ['pending', 'confirmed'])
+          .limit(1);
+      if (mounted) {
+        setState(() {
+          _userHasPendingBooking = result.isNotEmpty;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error checking booking status: $e');
     }
   }
 
@@ -1722,7 +1745,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             Expanded(
               flex: 2,
               child: ElevatedButton(
-                onPressed: (widget.status == 'booked' || widget.status == 'pending_approval')
+                onPressed: (widget.status == 'booked' || widget.status == 'pending_approval' || _userHasPendingBooking)
                     ? null
                     : () {
                         HapticFeedback.heavyImpact();
@@ -1755,10 +1778,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                               ownerName: widget.ownerName ?? 'Owner',
                             ),
                           ),
-                        );
+                        ).then((result) {
+                          if (result == true) {
+                            setState(() => _userHasPendingBooking = true);
+                          }
+                        });
                       },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.brandColor,
+                  backgroundColor: _userHasPendingBooking
+                      ? Colors.orange.shade400
+                      : AppTheme.brandColor,
                   foregroundColor: Colors.white,
                   disabledBackgroundColor: Colors.grey.shade300,
                   disabledForegroundColor: Colors.grey.shade600,
@@ -1769,17 +1798,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: Text(
-                  (widget.status == 'booked') 
-                      ? 'Booked' 
-                      : (widget.status == 'pending_approval') 
-                          ? 'Pending' 
-                          : 'Book Now',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (_userHasPendingBooking) ...[
+                      const Icon(Icons.hourglass_top_rounded, size: 16),
+                      const SizedBox(width: 6),
+                    ],
+                    Text(
+                      widget.status == 'booked'
+                          ? 'Booked'
+                          : _userHasPendingBooking
+                              ? 'Pending Approval'
+                              : widget.status == 'pending_approval'
+                                  ? 'Pending'
+                                  : 'Book Now',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

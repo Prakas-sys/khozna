@@ -204,11 +204,6 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             itemBuilder: (context, index) {
                               final chat = _chats[index];
                               final currentUserId = Supabase.instance.client.auth.currentUser?.id;
-                              // Skip chats deleted by the current user
-                              final deletedFor = List<dynamic>.from(chat['deleted_for'] ?? []);
-                              if (deletedFor.contains(currentUserId)) {
-                                return const SizedBox.shrink();
-                              }
                               Map<String, dynamic> otherUser;
                               if (chat['sender'] != null) {
                                 otherUser = chat['sender'];
@@ -379,109 +374,133 @@ class _MessagesScreenState extends State<MessagesScreen> {
         child: InkWell(
           onLongPress: () => _showDeleteChatDialog(chat['id']),
           onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => chat_page.ChatScreen(
-                chatId: chat['id'],
-                name: otherUser['full_name'] ?? 'User',
-                avatar: otherUser['avatar_url'] ?? '',
-                online: true,
-              ),
-            ),
-          );
-          // Refresh after returning from chat
-          _loadChats();
-        },
-        child: Row(
-          children: [
-            Stack(
-              children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: const Color(0xFFF7F7F7),
-                  backgroundImage: (otherUser['avatar_url'] != null && 
-                                  otherUser['avatar_url']!.isNotEmpty && 
-                                  !otherUser['avatar_url']!.contains('pravatar.cc'))
-                      ? NetworkImage(otherUser['avatar_url'])
-                      : null,
-                  child: (otherUser['avatar_url'] == null || 
-                          otherUser['avatar_url']!.isEmpty || 
-                          otherUser['avatar_url']!.contains('pravatar.cc'))
-                      ? Icon(Icons.person, color: Colors.grey[400], size: 28)
-                      : null,
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => chat_page.ChatScreen(
+                  chatId: chat['id'],
+                  name: otherUser['full_name'] ?? 'User',
+                  avatar: otherUser['avatar_url'] ?? '',
+                  online: true,
                 ),
+              ),
+            );
+            // Refresh after returning from chat
+            _loadChats();
+          },
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: unreadCount > 0 
+                  ? AppTheme.brandColor.withOpacity(0.03) 
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: unreadCount > 0 
+                    ? AppTheme.brandColor.withOpacity(0.1) 
+                    : const Color(0xFFE5E7EB),
+                width: 1,
+              ),
+              boxShadow: [
                 if (unreadCount > 0)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.brandColor,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 20,
-                        minHeight: 20,
-                      ),
-                      child: Text(
-                        unreadCount > 9 ? '9+' : '$unreadCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+                  BoxShadow(
+                    color: AppTheme.brandColor.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
                   ),
               ],
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        otherUser['full_name'] ?? 'User',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 16,
-                          fontWeight: unreadCount > 0 ? FontWeight.w800 : FontWeight.w700,
-                          color: const Color(0xFF222222),
+            child: Row(
+              children: [
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: const Color(0xFFF7F7F7),
+                      backgroundImage: (otherUser['avatar_url'] != null && 
+                                      otherUser['avatar_url']!.isNotEmpty && 
+                                      !otherUser['avatar_url']!.contains('pravatar.cc'))
+                          ? NetworkImage(otherUser['avatar_url'])
+                          : null,
+                      child: (otherUser['avatar_url'] == null || 
+                              otherUser['avatar_url']!.isEmpty || 
+                              otherUser['avatar_url']!.contains('pravatar.cc'))
+                          ? Icon(Icons.person, color: Colors.grey[400], size: 28)
+                          : null,
+                    ),
+                    if (unreadCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.brandColor,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 20,
+                            minHeight: 20,
+                          ),
+                          child: Text(
+                            unreadCount > 9 ? '9+' : '$unreadCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
+                  ],
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            otherUser['full_name'] ?? 'User',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 16,
+                              fontWeight: unreadCount > 0 ? FontWeight.w800 : FontWeight.w700,
+                              color: const Color(0xFF222222),
+                            ),
+                          ),
+                          Text(
+                            lastTime != null ? _formatTime(lastTime) : '',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12,
+                              color: unreadCount > 0 ? AppTheme.brandColor : const Color(0xFF717171),
+                              fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
                       Text(
-                        lastTime != null ? _formatTime(lastTime) : '',
+                        lastMessage,
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
-                          color: unreadCount > 0 ? AppTheme.brandColor : const Color(0xFF717171),
-                          fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
+                          fontSize: 14,
+                          color: unreadCount > 0 ? const Color(0xFF1A1A1A) : const Color(0xFF717171),
+                          fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    lastMessage,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
-                      color: unreadCount > 0 ? const Color(0xFF1A1A1A) : const Color(0xFF717171),
-                      fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-    ));
+    );
   }
 
   String _formatTime(DateTime time) {
