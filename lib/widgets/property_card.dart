@@ -405,7 +405,7 @@ class PropertyCard extends StatelessWidget {
                     // Action Buttons
                     Row(
                       children: [
-                        if (!isOwnerView && ownerId != SupabaseService.currentUserId) ...[
+                        if (!isOwnerView) ...[
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () async {

@@ -448,7 +448,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _isMyProperty ? null : _buildBottomActionBar(context),
+      bottomNavigationBar: _buildBottomActionBar(context),
     );
   }
 
