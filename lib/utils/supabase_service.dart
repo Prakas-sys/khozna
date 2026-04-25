@@ -878,7 +878,8 @@ class SupabaseService {
         chat['unread_count'] = unreadResponse.count;
       }
 
-      return chats;
+      // 3. Filter out chats where the other participant is invalid or null
+      return chats.where((chat) => chat['sender'] != null).toList();
     } catch (e) {
       debugPrint('Error fetching conversations: $e');
       return [];
@@ -889,6 +890,7 @@ class SupabaseService {
   static Future<String> getOrCreateChat(String otherUserId) async {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('User not logged in');
+    if (user.id == otherUserId) throw Exception('You cannot message yourself');
 
     try {
       // 1. Check if chat already exists

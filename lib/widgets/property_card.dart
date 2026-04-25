@@ -404,7 +404,7 @@ class PropertyCard extends StatelessWidget {
                     // Action Buttons
                     Row(
                       children: [
-                        if (!isOwnerView) ...[
+                        if (!isOwnerView && ownerId != SupabaseService.currentUserId) ...[
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () async {
@@ -654,7 +654,11 @@ class PropertyCard extends StatelessWidget {
               location,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(fontSize: 11.5, color: Colors.grey[600]),
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: Colors.grey[800],
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],

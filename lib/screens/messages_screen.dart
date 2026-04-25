@@ -210,16 +210,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             itemBuilder: (context, index) {
                               final chat = _chats[index];
                               final currentUserId = Supabase.instance.client.auth.currentUser?.id;
-                              Map<String, dynamic> otherUser;
-                              if (chat['sender'] != null) {
-                                otherUser = chat['sender'];
-                              } else {
-                                final participants = List<Map<String, dynamic>>.from(chat['profiles'] ?? []);
-                                otherUser = participants.firstWhere(
-                                  (p) => p['id'] != currentUserId,
-                                  orElse: () => {'full_name': 'Unknown', 'avatar_url': null},
-                                );
+                              if (chat['sender'] == null && (chat['profiles'] == null || (chat['profiles'] as List).isEmpty)) {
+                                return const SizedBox.shrink();
                               }
+
+                              final otherUser = chat['sender'] ?? (chat['profiles'] as List).firstWhere(
+                                (p) => p['id'] != currentUserId,
+                                orElse: () => null,
+                              );
+
+                              if (otherUser == null) return const SizedBox.shrink();
 
                               return _buildChatTile(chat, otherUser);
                             },
