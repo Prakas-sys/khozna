@@ -136,6 +136,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       : widget.imageUrl,
                 ]);
     _incrementViews();
+    
+    // Instant Master Memory check for booking status
+    _userHasPendingBooking = bookedPropertiesStore.value.contains(widget.id);
     _checkUserBookingStatus();
   }
 
@@ -163,9 +166,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           .inFilter('status', ['pending', 'confirmed'])
           .limit(1);
       if (mounted) {
+        final hasBooking = result.isNotEmpty;
         setState(() {
-          _userHasPendingBooking = result.isNotEmpty;
+          _userHasPendingBooking = hasBooking;
         });
+
+        // Sync back to Master Memory if mismatch
+        if (hasBooking && !bookedPropertiesStore.value.contains(widget.id)) {
+          final current = Set<String>.from(bookedPropertiesStore.value);
+          current.add(widget.id);
+          bookedPropertiesStore.value = current;
+        } else if (!hasBooking && bookedPropertiesStore.value.contains(widget.id)) {
+          final current = Set<String>.from(bookedPropertiesStore.value);
+          current.remove(widget.id);
+          bookedPropertiesStore.value = current;
+        }
       }
     } catch (e) {
       debugPrint('Error checking booking status: $e');

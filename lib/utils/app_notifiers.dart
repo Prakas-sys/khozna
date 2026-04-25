@@ -11,6 +11,11 @@ final ValueNotifier<int> notificationBadgeCount = ValueNotifier<int>(0);
 final ValueNotifier<Set<String>> savedPropertiesStore =
     ValueNotifier<Set<String>>({});
 
+/// Master Memory: A global set of IDs for houses currently booked/pending by the user.
+/// Used to instantly show "Pending" status in Property Details. 🧠✨
+final ValueNotifier<Set<String>> bookedPropertiesStore =
+    ValueNotifier<Set<String>>({});
+
 void initializeBadgeSync() {
   void updateNativeBadge() {
     final total = messageBadgeCount.value + notificationBadgeCount.value;

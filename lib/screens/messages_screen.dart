@@ -23,9 +23,15 @@ class _MessagesScreenState extends State<MessagesScreen> {
   @override
   void initState() {
     super.initState();
-    _loadChats();
-    // Clear global badge when screen is opened
-    SupabaseService.markAllMessagesAsRead();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    // Clear global badge first so the list shows 0 unread
+    await SupabaseService.markAllMessagesAsRead();
+    if (mounted) {
+      await _loadChats();
+    }
   }
 
   Future<void> _loadChats() async {

@@ -72,6 +72,31 @@ class SupabaseService {
     }
   }
 
+  /// Initial Load for Master Memory: Fetch all IDs the user has booked/pending.
+  static Future<void> fetchBookedPropertyIds() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      final response = await _client
+          .from('bookings')
+          .select('property_id')
+          .eq('guest_id', user.id)
+          .inFilter('status', ['pending', 'confirmed']);
+
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+        response,
+      );
+      final set = data.map((e) => e['property_id'].toString()).toSet();
+      bookedPropertiesStore.value = set;
+      debugPrint(
+        '--- [DATABASE] Master Memory Loaded: ${set.length} booked houses ---',
+      );
+    } catch (e) {
+      print('Error fetching booked IDs: $e');
+    }
+  }
+
   /// Toggle saving a property AND updating Master Memory instantly!
   static Future<void> toggleSaveProperty(String propertyId) async {
     final user = _client.auth.currentUser;
@@ -166,6 +191,11 @@ class SupabaseService {
         'message': message,
         'status': 'pending',
       });
+
+      // 1.5 Update Master Memory for instant UI reflection
+      final currentBooked = Set<String>.from(bookedPropertiesStore.value);
+      currentBooked.add(propertyId);
+      bookedPropertiesStore.value = currentBooked;
 
       // 2. Update property status (legacy compatibility)
       await _client

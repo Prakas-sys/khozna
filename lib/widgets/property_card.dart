@@ -204,9 +204,14 @@ class PropertyCard extends StatelessWidget {
                     left: 10,
                     child: Row(
                       children: [
-                        Builder(
-                          builder: (context) {
+                        ValueListenableBuilder<Set<String>>(
+                          valueListenable: bookedPropertiesStore,
+                          builder: (context, bookedIds, _) {
                             final isBooked = status == 'booked';
+                            final isPending = bookedIds.contains(id) || status == 'pending_approval';
+                            
+                            if (!isBooked && !isPending && status != 'available') return const SizedBox.shrink();
+
                             return Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 7,
@@ -215,7 +220,7 @@ class PropertyCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: isBooked
                                     ? Colors.redAccent
-                                    : const Color(0xFF00C853),
+                                    : (isPending ? Colors.orange : const Color(0xFF00C853)),
                                 borderRadius: BorderRadius.circular(30),
                                 boxShadow: [
                                   BoxShadow(
@@ -226,7 +231,9 @@ class PropertyCard extends StatelessWidget {
                                 ],
                               ),
                               child: Text(
-                                isBooked ? 'BOOKED' : 'FOR RENT',
+                                isBooked 
+                                    ? 'BOOKED' 
+                                    : (isPending ? 'PENDING' : 'FOR RENT'),
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontSize: 11.0,

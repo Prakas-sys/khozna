@@ -159,6 +159,15 @@ Future<void> _setupNotifications() async {
     await SupabaseService.saveDeviceToken(token);
   }
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    final currentUserId = supabase.Supabase.instance.client.auth.currentUser?.id;
+    final senderId = message.data['sender_id'];
+    
+    // 🛡️ SECURITY: Don't show notifications or increment badges for our own messages!
+    if (senderId != null && senderId == currentUserId) {
+      debugPrint('--- [PUSH] Ignoring self-sent message notification ---');
+      return;
+    }
+
     RemoteNotification? notification = message.notification;
     // Check if it's a chat message based on data payload
     final bool isChatMessage =
@@ -232,6 +241,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
     // Start global service initialization
     await _initializeServices();
     await SupabaseService.fetchSavedPropertyIds(); // Fetch Master Memory IDs
+    await SupabaseService.fetchBookedPropertyIds(); // Fetch Booking Master Memory
     initializeBadgeSync();
 
     // 🧹 AUTO-CLEAR RED BADGE ON OPEN - Temporarily disabled due to Android build incompatibility
@@ -262,6 +272,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
         );
         SupabaseService.initRealtimeListeners();
         SupabaseService.fetchSavedPropertyIds();
+        SupabaseService.fetchBookedPropertyIds();
       }
 
       if (event == supabase.AuthChangeEvent.signedOut) {
