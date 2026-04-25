@@ -352,8 +352,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            note['title'] ?? '🏠 New Booking Request',
-                            style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.black),
+                            note['title'] ?? '🏠 नयाँ बुकिङ अनुरोध (New Booking Request)',
+                            style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black),
                           ),
                           Text(
                             _formatTime(note['created_at']),
@@ -437,7 +437,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                               },
                               icon: const Icon(Icons.close_rounded, size: 16),
-                              label: Text('Reject', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
+                              label: Text('अस्वीकार (Reject)', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.red,
                                 side: const BorderSide(color: Colors.red, width: 1.5),
@@ -470,7 +470,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                               },
                               icon: const Icon(Icons.check_rounded, size: 16),
-                              label: Text('Approve', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13)),
+                              label: Text('स्वीकार (Approve)', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF22C55E),
                                 foregroundColor: Colors.white,
@@ -568,7 +568,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 48),
           child: Text(
-            'New alerts, bookings, and messages\nwill appear here in real-time.',
+            'तपाईंका नयाँ सन्देश र बुकिङहरू यहाँ देखा पर्नेछन्।\n(New alerts, bookings, and messages will appear here.)',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 15,

@@ -208,8 +208,8 @@ class SupabaseService {
       await _client.from('notifications').insert({
         'user_id': ownerId,
         'sender_id': user.id,
-        'title': '🏠 New Booking Request',
-        'message': '$name wants to rent "$propertyTitle"\nMove-in: ${moveInDate.day}/${moveInDate.month}',
+        'title': '🏠 नयाँ बुकिङ अनुरोध (New Booking Request)',
+        'message': '$name ले "$propertyTitle" भाडामा लिन चाहनुहुन्छ।\nबसाइँ सर्ने मिति: ${moveInDate.day}/${moveInDate.month}',
         'type': 'booking_request',
         'property_id': propertyId,
         'requester_id': user.id,
@@ -254,8 +254,8 @@ class SupabaseService {
       await _client.from('notifications').insert({
         'user_id': requesterId,
         'sender_id': _client.auth.currentUser?.id,
-        'title': '✅ Booking Approved!',
-        'message': '$ownerName approved your booking request for "$propertyTitle". Contact the owner to confirm move-in details.',
+        'title': '✅ बुकिङ स्वीकृत (Booking Approved!)',
+        'message': '$ownerName ले "$propertyTitle" को लागि तपाईंको बुकिङ स्वीकृत गर्नुभयो। सम्पर्क गरी बसाइँ सर्ने सल्लाह गर्नुहोस्।',
         'type': 'booking_approved',
         'property_id': propertyId,
       });
@@ -300,8 +300,8 @@ class SupabaseService {
       await _client.from('notifications').insert({
         'user_id': requesterId,
         'sender_id': _client.auth.currentUser?.id,
-        'title': '❌ Booking Not Accepted',
-        'message': 'Your booking request for "$propertyTitle" was not accepted. ${reason ?? ""}',
+        'title': '❌ बुकिङ अस्वीकृत (Booking Not Accepted)',
+        'message': '"$propertyTitle" को लागि तपाईंको बुकिङ अनुरोध स्वीकृत हुन सकेन। ${reason ?? ""}',
         'type': 'booking_rejected',
         'property_id': propertyId,
       });

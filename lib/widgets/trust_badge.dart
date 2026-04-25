@@ -23,18 +23,18 @@ class TrustBadge extends StatelessWidget {
       case 'top':
         color = const Color(0xFFFFD700); // Gold
         icon = Icons.star_rounded;
-        label = 'Top User';
+        label = 'उत्कृष्ट (Top User)';
         break;
       case 'trusted':
         color = const Color(0xFF00A3E1); // Khozna Blue
         icon = Icons.verified_rounded;
-        label = 'Trusted';
+        label = 'भरोसेमन्द (Trusted)';
         break;
       case 'new':
       default:
         color = Colors.grey[400]!;
         icon = Icons.fiber_new_rounded;
-        label = 'New';
+        label = 'नयाँ (New)';
         break;
     }
 
