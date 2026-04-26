@@ -205,6 +205,7 @@ class GlassCircle extends StatelessWidget {
   final IconData? icon;
   final Widget? child;
   final VoidCallback onTap;
+  final double size;
   final double iconSize;
   final double opacity;
   final double padding;
@@ -214,9 +215,10 @@ class GlassCircle extends StatelessWidget {
     this.icon,
     this.child,
     required this.onTap,
+    this.size = 40,
     this.iconSize = 20,
     this.opacity = 0.2,
-    this.padding = 10,
+    this.padding = 0,
   });
 
   @override
@@ -228,7 +230,9 @@ class GlassCircle extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Container(
-            padding: EdgeInsets.all(padding),
+            width: size,
+            height: size,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(opacity),
               shape: BoxShape.circle,

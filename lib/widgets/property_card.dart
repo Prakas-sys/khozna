@@ -76,113 +76,116 @@ class PropertyCard extends StatelessWidget {
                   Positioned(top: 6, right: 10, child: FavouriteButton(propertyId: property.id)),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                                                                        Expanded(child: Text(property.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A1A2E), letterSpacing: -0.5))),
-                        const SizedBox(width: 4),
-                        RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(property.price), style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.brandColor))])),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    _buildLocationAndAmenities(context),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        if (!isOwnerView) ...[
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                HapticFeedback.lightImpact();
-                                final allowed = await KycGuard.check(context);
-                                if (!allowed) return;
-                                if (context.mounted) {
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property)));
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.brandColor,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  side: BorderSide(color: Colors.white.withOpacity(0.5), width: 1.5),
-                                ),
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.directions_walk_rounded, size: 16, color: Colors.white),
-                                  const SizedBox(width: 6),
-                                  Text('Visit Now', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () async {
-                                HapticFeedback.lightImpact();
-                                final allowed = await KycGuard.check(context);
-                                if (!allowed) return;
-                                if (context.mounted) {
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => chat_page.ChatScreen(ownerId: property.ownerId, name: property.ownerName ?? 'Owner', avatar: property.ownerAvatar ?? '', online: true, isVerified: property.isOwnerVerified)));
-                                }
-                              },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppTheme.brandColor,
-                                side: const BorderSide(color: AppTheme.brandColor, width: 1.5),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      for (double i in [-0.2, 0, 0.2])
-                                        for (double j in [-0.2, 0, 0.2])
-                                          Transform.translate(
-                                            offset: Offset(i, j),
-                                            child: SvgPicture.asset(
-                                              'assets/icons/message.svg',
-                                              width: 17,
-                                              height: 17,
-                                              colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
-                                            ),
-                                          ),
-                                      SvgPicture.asset(
-                                        'assets/icons/message.svg',
-                                        width: 17,
-                                        height: 17,
-                                        colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text('Message', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.brandColor)),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ] else ...[
-                          Expanded(child: OutlinedButton.icon(onPressed: onEdit, icon: const Icon(Icons.edit_note_rounded), label: const Text('Edit'), style: OutlinedButton.styleFrom(foregroundColor: Colors.blueGrey, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))),
-                          const SizedBox(width: 8),
-                          Expanded(child: OutlinedButton.icon(onPressed: onDelete, icon: const Icon(Icons.delete_outline_rounded), label: const Text('Delete'), style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))),
+              SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 6, 12, 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                                                                          Expanded(child: Text(property.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A1A2E), letterSpacing: -0.5))),
+                          const SizedBox(width: 4),
+                          RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(property.price), style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.brandColor))])),
                         ],
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(height: 4),
+                      _buildLocationAndAmenities(context),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          if (!isOwnerView) ...[
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  HapticFeedback.lightImpact();
+                                  final allowed = await KycGuard.check(context);
+                                  if (!allowed) return;
+                                  if (context.mounted) {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property)));
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.brandColor,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    side: BorderSide(color: Colors.white.withOpacity(0.5), width: 1.5),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.directions_walk_rounded, size: 16, color: Colors.white),
+                                    const SizedBox(width: 6),
+                                    Text('Visit Now', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () async {
+                                  HapticFeedback.lightImpact();
+                                  final allowed = await KycGuard.check(context);
+                                  if (!allowed) return;
+                                  if (context.mounted) {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => chat_page.ChatScreen(ownerId: property.ownerId, name: property.ownerName ?? 'Owner', avatar: property.ownerAvatar ?? '', online: true, isVerified: property.isOwnerVerified)));
+                                  }
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.brandColor,
+                                  side: const BorderSide(color: AppTheme.brandColor, width: 1.5),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        for (double i in [-0.4, 0, 0.4])
+                                          for (double j in [-0.4, 0, 0.4])
+                                            Transform.translate(
+                                              offset: Offset(i, j),
+                                              child: SvgPicture.asset(
+                                                'assets/icons/message.svg',
+                                                width: 18,
+                                                height: 18,
+                                                colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
+                                              ),
+                                            ),
+                                        SvgPicture.asset(
+                                          'assets/icons/message.svg',
+                                          width: 18,
+                                          height: 18,
+                                          colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text('Message', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.brandColor)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ] else ...[
+                            Expanded(child: OutlinedButton.icon(onPressed: onEdit, icon: const Icon(Icons.edit_note_rounded), label: const Text('Edit'), style: OutlinedButton.styleFrom(foregroundColor: Colors.blueGrey, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))),
+                            const SizedBox(width: 8),
+                            Expanded(child: OutlinedButton.icon(onPressed: onDelete, icon: const Icon(Icons.delete_outline_rounded), label: const Text('Delete'), style: OutlinedButton.styleFrom(foregroundColor: Colors.redAccent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
