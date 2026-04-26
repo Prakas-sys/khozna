@@ -111,8 +111,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     color: Colors.transparent,
                     child: Container(
                       height: 52,
-                      clipBehavior: Clip.antiAlias,
-                      padding: const EdgeInsets.only(left: 16, right: 0),
+                      padding: const EdgeInsets.only(left: 16, right: 4),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
