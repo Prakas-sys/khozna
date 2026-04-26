@@ -973,7 +973,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 24),
         GestureDetector(
           onTap: _pickImages,
-          child: _buildMediaUploadBox(icon: Icons.add_a_photo_outlined, title: 'फोटोहरू थप्नुहोस् (Add Photos)', desc: 'कम्तिमा ३ वटा फोटो राख्नु राम्रो हुन्छ।', isBlue: false),
+          child: _buildMediaUploadBox(icon: Icons.add_a_photo_outlined, title: 'Add Photos', desc: 'Adding 3 or more photos increases your chances of a quick rental.', isBlue: false),
         ),
         if (_selectedImages.isNotEmpty) ...[
           const SizedBox(height: 16),
@@ -1004,8 +1004,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           onTap: _pickVideo,
           child: _buildMediaUploadBox(
             icon: Icons.videocam_outlined,
-            title: _selectedVideo != null ? 'भिडियो छानियो ✓' : 'भिडियो राख्नुहोस् (Upload Reel)',
-            desc: _selectedVideo != null ? 'भिडियो परिवर्तन गर्न ट्याप गर्नुहोस्' : 'भिडियोले ग्राहकलाई छिटो आकर्षित गर्छ।',
+            title: _selectedVideo != null ? 'Video Selected ✓' : 'Upload Reel',
+            desc: _selectedVideo != null ? 'Tap to change video' : 'Videos attract 3x more tenants!',
             isBlue: true,
             hasFile: _selectedVideo != null,
           ),
@@ -1033,7 +1033,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             children: [
               const Icon(Icons.verified_outlined, color: Colors.green),
               const SizedBox(width: 12),
-              Expanded(child: Text('तपाईंको विज्ञापन प्रमाणित भएपछि प्रकाशित हुनेछ।', style: GoogleFonts.mukta(color: Colors.green[800], fontSize: 14, height: 1.4, fontWeight: FontWeight.w600))),
+              Expanded(child: Text('Your listing will be published after our team verifies it.', style: GoogleFonts.inter(color: Colors.green[800], fontSize: 14, height: 1.4, fontWeight: FontWeight.w600))),
             ],
           ),
         ),
@@ -1084,7 +1084,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     setState(() => _currentStep--);
                   },
                   style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 20), side: BorderSide(color: Colors.grey.shade300, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-                  child: Text('पछाडि', style: GoogleFonts.mukta(color: const Color(0xFF4B5563), fontSize: 16, fontWeight: FontWeight.w700)),
+                  child: Text('Back', style: GoogleFonts.inter(color: const Color(0xFF4B5563), fontSize: 16, fontWeight: FontWeight.w700)),
                 ),
               ),
             if (_currentStep > 0) const SizedBox(width: 16),
@@ -1101,7 +1101,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ),
                 child: _isPublishing
                     ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                    : Text(_currentStep == 5 ? 'प्रकाशित गर्नुहोस् (Publish)' : 'अर्को भाग (Next)', textAlign: TextAlign.center, style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 17, color: Colors.white)),
+                    : Text(_currentStep == 5 ? 'Publish Listing' : 'Next', textAlign: TextAlign.center, style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 17, color: Colors.white)),
               ),
             ),
           ],

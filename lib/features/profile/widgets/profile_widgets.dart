@@ -264,10 +264,10 @@ class VerificationCard extends StatelessWidget {
               children: [
                 Text(
                   isVerified
-                      ? 'Profile Verified (प्रमाणित)'
+                      ? 'Profile Verified'
                       : (isPending 
-                          ? 'Pending KYC (प्रमाणीकरण हुँदैछ)' 
-                          : (isRejected ? 'KYC Rejected (अस्वीकृत)' : 'Verify Identity (पहिचान प्रमाणित)')),
+                          ? 'Pending Verification' 
+                          : (isRejected ? 'Verification Rejected' : 'Verify Identity')),
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -276,10 +276,10 @@ class VerificationCard extends StatelessWidget {
                 ),
                 Text(
                   isVerified
-                      ? 'तपाईंको पहिचान प्रमाणित भयो।'
+                      ? 'Your identity has been verified.'
                       : (isPending 
-                          ? 'तपाईंको कागजातहरू जाँच हुँदैछ।' 
-                          : (isRejected ? 'कागजात अस्वीकृत भयो। फेरि प्रयास गर्नुहोस्।' : 'घरभाडामा राख्न केवाईसी भेरिफाइ गर्नुहोस्। 👉')),
+                          ? 'Your documents are being reviewed.' 
+                          : (isRejected ? 'Documents rejected. Please try again.' : 'Verify KYC to list your property.')),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey[600],

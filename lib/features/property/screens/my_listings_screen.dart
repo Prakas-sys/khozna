@@ -37,7 +37,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     try {
       final response = await Supabase.instance.client
           .from('properties')
-          .select('*, property_images(image_url)')
+          .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)')
           .eq('owner_id', user!.id)
           .order('status', ascending: true)
           .order('created_at', ascending: false);
@@ -173,8 +173,34 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               child: ListView.builder(
                 padding: const EdgeInsets.all(20),
                 itemCount: _listings.length,
-                itemBuilder: (context, index) =>
-                    _buildListingCard(_listings[index]),
+                itemBuilder: (context, index) {
+                  try {
+                    return _buildListingCard(_listings[index]);
+                  } catch (e) {
+                    debugPrint('Error building listing card: $e');
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.red.withOpacity(0.2)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.red),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Error loading this listing. Please contact support.',
+                              style: GoogleFonts.inter(color: Colors.red[700], fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
               ),
             ),
       floatingActionButton: FloatingActionButton.extended(

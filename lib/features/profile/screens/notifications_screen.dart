@@ -119,12 +119,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         final String id = note['id'].toString();
                         final String type = note['type']?.toString() ?? '';
 
-                        // â”€â”€ SPECIAL: Booking Request card with Approve/Reject â”€â”€
+                        // -- SPECIAL: Booking Request card with Approve/Reject --
                         if (type == 'booking_request') {
                           return _buildBookingRequestCard(note, id, index, sender);
                         }
 
-                        // â”€â”€ Standard notification row â”€â”€
+                        // -- Standard notification row --
                         return Dismissible(
                           key: Key(id),
                           direction: DismissDirection.endToStart,
@@ -297,7 +297,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  /// Booking request notification card â€” shown ONLY to the owner
+  /// Booking request notification card — shown ONLY to the owner
   Widget _buildBookingRequestCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
     final String propertyId = note['property_id']?.toString() ?? '';
     final String requesterId = note['requester_id']?.toString() ?? note['sender_id']?.toString() ?? '';
@@ -349,7 +349,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            note['title'] ?? 'ðŸ  à¤¨à¤¯à¤¾à¤ à¤¬à¥à¤•à¤¿à¤™ à¤…à¤¨à¥à¤°à¥‹à¤§ (New Booking Request)',
+                            note['title'] ?? 'New Booking Request',
                             style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black),
                           ),
                           Text(
@@ -434,7 +434,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                               },
                               icon: const Icon(Icons.close_rounded, size: 16),
-                              label: Text('à¤…à¤¸à¥à¤µà¥€à¤•à¤¾à¤° (Reject)', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
+                              label: Text('Reject', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.red,
                                 side: const BorderSide(color: Colors.red, width: 1.5),
@@ -467,7 +467,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                               },
                               icon: const Icon(Icons.check_rounded, size: 16),
-                              label: Text('à¤¸à¥à¤µà¥€à¤•à¤¾à¤° (Approve)', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
+                              label: Text('Approve', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF22C55E),
                                 foregroundColor: Colors.white,
@@ -565,7 +565,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 48),
           child: Text(
-            'à¤¤à¤ªà¤¾à¤ˆà¤‚à¤•à¤¾ à¤¨à¤¯à¤¾à¤ à¤¸à¤¨à¥à¤¦à¥‡à¤¶ à¤° à¤¬à¥à¤•à¤¿à¤™à¤¹à¤°à¥‚ à¤¯à¤¹à¤¾à¤ à¤¦à¥‡à¤–à¤¾ à¤ªà¤°à¥à¤¨à¥‡à¤›à¤¨à¥à¥¤\n(New alerts, bookings, and messages will appear here.)',
+            'New alerts, bookings, and messages will appear here.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 15,
@@ -576,12 +576,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ),
         const SizedBox(height: 40),
-        // Optional: Ghost button to discover properties? 
       ],
     );
   }
-
-
 
   void _confirmDelete(String id, int index) async {
     final bool? confirm = await showModalBottomSheet<bool>(
@@ -773,4 +770,3 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 }
-

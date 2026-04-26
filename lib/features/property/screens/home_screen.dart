@@ -165,6 +165,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSection(int index, String title, String subtitle) {
     return HomeHorizontalSection(
+      index: index,
       title: title,
       subtitle: subtitle,
       future: _sectionFutures[index],

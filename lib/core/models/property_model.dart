@@ -90,7 +90,10 @@ class Property {
       latitude: map['latitude'] != null ? double.tryParse(map['latitude'].toString()) : null,
       longitude: map['longitude'] != null ? double.tryParse(map['longitude'].toString()) : null,
       landmark: map['landmark'] ?? '',
-      nearbyLandmarks: List<String>.from(map['nearby_landmarks'] ?? []),
+      nearbyLandmarks: (map['nearby_landmarks'] as List?)?.map((l) {
+        if (l is Map) return l['name']?.toString() ?? '';
+        return l.toString();
+      }).toList() ?? [],
     );
   }
 }

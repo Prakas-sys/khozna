@@ -188,6 +188,7 @@ class HomeSearchBar extends StatelessWidget {
 }
 
 class HomeHorizontalSection extends StatelessWidget {
+  final int index;
   final String title;
   final String subtitle;
   final Future<List<Property>> future;
@@ -195,6 +196,7 @@ class HomeHorizontalSection extends StatelessWidget {
 
   const HomeHorizontalSection({
     super.key,
+    required this.index,
     required this.title,
     required this.subtitle,
     required this.future,
@@ -223,34 +225,59 @@ class HomeHorizontalSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        FutureBuilder<List<Property>>(
-          future: future,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) return _buildSkeletonList();
-            final properties = snapshot.data ?? [];
-            if (properties.isEmpty) return snapshot.hasError ? _buildErrorState() : _buildSkeletonList();
+        ValueListenableBuilder<Map<int, List<Map<String, dynamic>>>>(
+          valueListenable: homeSectionCache,
+          builder: (context, cache, _) {
+            final cachedData = cache[index] ?? [];
+            final cachedProperties = cachedData.map((e) => Property.fromMap(e)).toList();
 
-            return SizedBox(
-              height: 285,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                physics: const BouncingScrollPhysics(),
-                itemCount: 4,
-                itemBuilder: (context, index) {
-                  if (index < properties.length) {
-                    return _buildPropertyCard(properties[index]);
-                  } else {
-                    return const Padding(padding: EdgeInsets.only(right: 16), child: SkeletonCard());
-                  }
-                },
-              ),
+            return FutureBuilder<List<Property>>(
+              future: future,
+              builder: (context, snapshot) {
+                // If we have network data, use it
+                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                  return _buildList(snapshot.data!);
+                }
+
+                // If we are waiting and have cache, show cache immediately (no skeleton)
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return cachedProperties.isNotEmpty 
+                    ? _buildList(cachedProperties) 
+                    : _buildSkeletonList();
+                }
+
+                // If network failed or returned empty
+                if (cachedProperties.isNotEmpty) {
+                  return _buildList(cachedProperties);
+                }
+
+                return snapshot.hasError ? _buildErrorState() : _buildSkeletonList();
+              },
             );
           },
         ),
       ],
     );
   }
+  Widget _buildList(List<Property> properties) {
+    return SizedBox(
+      height: 285,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
+        physics: const BouncingScrollPhysics(),
+        itemCount: properties.length > 4 ? properties.length : 4,
+        itemBuilder: (context, index) {
+          if (index < properties.length) {
+            return _buildPropertyCard(properties[index]);
+          } else {
+            return const Padding(padding: EdgeInsets.only(right: 16), child: SkeletonCard());
+          }
+        },
+      ),
+    );
+  }
+
 
   Widget _buildSkeletonList() {
     return SizedBox(
