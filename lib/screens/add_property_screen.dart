@@ -1993,10 +1993,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               Expanded(
                 flex: 1,
                 child: OutlinedButton(
-                  onPressed: () => _pageController.previousPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  ),
+                  onPressed: () {
+                    _pageController.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                    setState(() => _currentStep--);
+                  },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     side: BorderSide(color: Colors.grey.shade300, width: 2),
