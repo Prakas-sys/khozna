@@ -582,14 +582,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: 1.1,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 0.95,
           children: [
-            _categoryCard('कोठा\nRoom', Icons.bed, 'Room'),
-            _categoryCard('फ्ल्याट\nFlat', Icons.apartment, 'Flat'),
-            _categoryCard('सटर / पसल\nShop', Icons.storefront, 'Shop'),
-            _categoryCard('अन्य\nOther', Icons.more_horiz, 'Other'),
+            _categoryCard('कोठा\nRoom', CupertinoIcons.bed_double_fill, 'Room'),
+            _categoryCard('फ्ल्याट\nFlat', CupertinoIcons.house_fill, 'Flat'),
+            _categoryCard('सटर / पसल\nShop', CupertinoIcons.bag_fill, 'Shop'),
+            _categoryCard('अन्य\nOther', CupertinoIcons.ellipsis, 'Other'),
           ],
         ),
         const SizedBox(height: 24),
@@ -1650,40 +1650,124 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _categoryCard(String label, IconData icon, String value) {
     bool isSelected = _selectedCategory == value;
+    String subLabel = '';
+    if (value == 'Room') subLabel = 'Single personal space';
+    if (value == 'Flat') subLabel = 'Full private home';
+    if (value == 'Shop') subLabel = 'Commercial use';
+    if (value == 'Other') subLabel = 'Land or Hostels';
+
     return InkWell(
       onTap: () {
+        HapticFeedback.mediumImpact();
         setState(() => _selectedCategory = value);
         _titleFocusNode.requestFocus();
       },
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(24),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutQuart,
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor.withOpacity(0.05) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? Colors.white : const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? AppTheme.brandColor : Colors.grey[200]!,
-            width: 1.5,
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
+            width: isSelected ? 2 : 1.5,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.brandColor.withValues(alpha: 0.12),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  )
+                ]
+              : [],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? AppTheme.brandColor : Colors.grey[400],
-              size: 32,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.mukta(
-                fontSize: 14,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? AppTheme.brandColor : Colors.black87,
+            // Background Illustration Shape (Faded Icon)
+            Positioned(
+              right: -10,
+              bottom: -10,
+              child: Icon(
+                icon,
+                size: 80,
+                color: isSelected 
+                    ? AppTheme.brandColor.withValues(alpha: 0.08) 
+                    : Colors.grey.withValues(alpha: 0.05),
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isSelected 
+                          ? AppTheme.brandColor 
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isSelected ? AppTheme.brandColor : Colors.black)
+                              .withValues(alpha: 0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        )
+                      ],
+                    ),
+                    child: Icon(
+                      icon,
+                      color: isSelected ? Colors.white : Colors.grey[600],
+                      size: 24,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    label.split('\n')[0], // Nepali
+                    style: GoogleFonts.mukta(
+                      fontSize: 16,
+                      height: 1.1,
+                      fontWeight: FontWeight.w800,
+                      color: isSelected ? AppTheme.brandColor : const Color(0xFF1F2937),
+                    ),
+                  ),
+                  Text(
+                    label.split('\n')[1], // English
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                      color: isSelected ? AppTheme.brandColor.withValues(alpha: 0.7) : Colors.grey[500],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subLabel,
+                    style: GoogleFonts.inter(
+                      fontSize: 9,
+                      color: isSelected ? AppTheme.brandColor.withValues(alpha: 0.6) : Colors.grey[400],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: AppTheme.brandColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check, color: Colors.white, size: 10),
+                ),
+              ),
           ],
         ),
       ),
