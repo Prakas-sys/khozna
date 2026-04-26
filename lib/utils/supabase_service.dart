@@ -1075,14 +1075,14 @@ class SupabaseService {
   // DELETE & MEDIA METHODS
   // ==========================================
 
-  /// Delete a single message (only the sender can delete their own message)
+  /// Delete a single message (soft-delete so realtime stream updates instantly)
   static Future<void> deleteMessage(String messageId) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
     try {
       await _client
           .from('messages')
-          .delete()
+          .update({'is_deleted': true})
           .eq('id', messageId)
           .eq('sender_id', user.id);
     } catch (e) {
