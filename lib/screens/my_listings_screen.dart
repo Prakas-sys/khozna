@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../theme/app_theme.dart';
 import 'add_property_screen.dart';
+import 'edit_property_screen.dart';
 import '../widgets/property_card.dart';
 import '../utils/auth_guard.dart';
 
@@ -142,9 +143,9 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               TextSpan(
                 text: '(My Listings)',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[500],
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
                 ),
               ),
             ],
@@ -248,6 +249,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         description: item['description'] ?? '',
         images: finalImages,
         ownerId: item['owner_id'] ?? '',
+        status: item['status'] ?? 'available',
         amenities: List<String>.from(item['amenities'] ?? []),
         houseRules: List<String>.from(item['house_rules'] ?? []),
         latitude: item['latitude'] != null
@@ -260,11 +262,16 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         nearbyLandmarks: List<dynamic>.from(item['nearby_landmarks'] ?? []),
         isOwnerView: true,
         views: item['views'] ?? 0,
-        onEdit: () {
-          // Future Edit implementation
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Edit feature coming soon!')),
+        onEdit: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => EditPropertyScreen(property: item),
+            ),
           );
+          if (result == true) {
+            _fetchListings();
+          }
         },
         onDelete: () => _deleteListing(item['id'].toString()),
       ),

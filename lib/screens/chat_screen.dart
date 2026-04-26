@@ -795,9 +795,9 @@ class _ChatScreenState extends State<ChatScreen>
                                       children: [
                                         if (isMe) ...[
                                           Icon(
-                                            msg['is_optimistic'] == true ? Icons.access_time_rounded : Icons.done_all_rounded,
+                                            msg['is_optimistic'] == true ? Icons.access_time_rounded : (msg['is_read'] == true ? Icons.done_all_rounded : Icons.done_rounded),
                                             size: 13, 
-                                            color: msg['is_optimistic'] == true ? Colors.white70 : Colors.blue,
+                                            color: msg['is_optimistic'] == true ? Colors.grey[400] : (msg['is_read'] == true ? Colors.blue : Colors.grey[400]),
                                           ),
                                           const SizedBox(width: 4),
                                         ],

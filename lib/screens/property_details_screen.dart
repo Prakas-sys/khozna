@@ -17,6 +17,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../widgets/trust_badge.dart';
 import 'booking_request_screen.dart';
 import 'dart:ui';
+import 'package:share_plus/share_plus.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final String id;
@@ -476,6 +477,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             icon: Icons.ios_share_rounded,
             onTap: () {
               HapticFeedback.mediumImpact();
+              Share.share('Check out this amazing property on Khozna: ${widget.title} in ${widget.location} for just Rs. ${widget.price}/month! Download the app to view more details.');
             },
             iconSize: 16,
           ),
@@ -575,55 +577,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
               ),
             ),
-            // Verified Badge on Image
-            Positioned(
-              bottom: 42,
-              left: 20,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF00C853).withOpacity(0.85),
-                      borderRadius: BorderRadius.circular(100),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
-                        width: 1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.verified_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'VERIFIED',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+
             // Left Arrow
             if (_currentImageIndex > 0)
               Positioned(
@@ -702,6 +656,37 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          margin: const EdgeInsets.only(bottom: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF00C853).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: const Color(0xFF00C853).withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.verified_rounded,
+                color: Color(0xFF00C853),
+                size: 14,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'VERIFIED',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF00C853),
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ],
+          ),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -721,15 +706,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       color: AppTheme.brandColor,
                       letterSpacing: 1,
                     ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '•  Available Now',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.green[600],
                   ),
                 ),
               ],
