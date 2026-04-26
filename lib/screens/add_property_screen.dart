@@ -1,6 +1,8 @@
 import 'dart:io';
 // firebase_auth removed
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -502,9 +504,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               child: Text(
                 '${_currentStep + 1} / 6',
                 style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w900,
                   color: AppTheme.brandColor,
-                  fontSize: 13,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -576,7 +578,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     return _stepLayout(
       controller: _step1ScrollController,
       title: 'तपाईं के भाडामा दिँदै हुनुहुन्छ?',
-      subtitle: 'सुरु गरौं! (Let\'s start)',
+      subtitle: 'सुरु गरौं! (Let\'s start your listing)',
       content: [
         GridView.count(
           shrinkWrap: true,
@@ -642,8 +644,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         'पहिला बटन थिच्नुहोस्! (Click here first)',
                         style: GoogleFonts.inter(
                           color: Colors.orange[800],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                          letterSpacing: -0.2,
                         ),
                       ),
                     ],
@@ -687,33 +690,37 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               if (_latitude != null) ...[
                 Text(
                   'लोकेशन सेट भयो! ✓',
-                  style: GoogleFonts.mukta(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.green[700],
-                    fontSize: 18,
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w900,
+                    color: Colors.green[800],
+                    fontSize: 20,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 Text(
-                  '(GPS verified location detected by AI)',
+                  'GPS verified location detected by AI',
                   style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: Colors.green[600],
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.green[600]?.withValues(alpha: 0.8),
                   ),
                 ),
               ] else ...[
                 Text(
                   'लोकेशन राख्नुहोस्',
-                  style: GoogleFonts.mukta(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
-                    fontSize: 18,
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF111827),
+                    fontSize: 20,
+                    letterSpacing: -0.5,
                   ),
                 ),
                 Text(
-                  'Use GPS for 100% accuracy',
+                  'Use GPS for maximum listing trust',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[500],
                   ),
                 ),
               ],
@@ -745,9 +752,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       : _latitude != null
                           ? 'फेरि खोज्नुहोस्'
                           : 'मेरो लोकेशन पत्ता लगाउनुहोस्',
-                  style: GoogleFonts.mukta(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
                     color: Colors.white,
                   ),
                 ),
@@ -811,9 +818,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     children: [
                       Text(
                         _isDistanceVerified ? 'Verified Accuracy' : 'Low Accuracy',
-                        style: GoogleFonts.mukta(
-                          fontWeight: FontWeight.bold,
-                          color: _isDistanceVerified ? Colors.green : Colors.orange,
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 13,
+                          color: _isDistanceVerified ? Colors.green[800] : Colors.orange[800],
                         ),
                       ),
                       Text(
@@ -1018,9 +1026,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     children: [
                       Text(
                         'भाडा मिलाउन सकिन्छ',
-                        style: GoogleFonts.mukta(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          color: const Color(0xFF1F2937),
                         ),
                       ),
                       Text(
@@ -1057,9 +1066,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               if (_aiPriceSuggestion != null)
                 Text(
                   _aiPriceSuggestion!,
-                  style: GoogleFonts.mukta(
-                    fontSize: 14,
-                    color: Colors.black87,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF4B5563),
                     height: 1.5,
                   ),
                 ),
@@ -1172,10 +1182,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: GoogleFonts.mukta(
+              style: GoogleFonts.inter(
                 fontSize: 13,
-                color: isSelected ? color : Colors.black87,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: isSelected ? color : const Color(0xFF4B5563),
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                letterSpacing: -0.2,
               ),
             ),
           ],
@@ -1550,10 +1561,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.mukta(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF374151),
+              letterSpacing: -0.2,
             ),
           ),
           if (isRequired)
@@ -1580,10 +1592,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       focusNode: focusNode,
       keyboardType: keyboardType,
       maxLines: maxLines,
-      style: GoogleFonts.mukta(
+      style: GoogleFonts.inter(
         fontSize: 15,
-        color: Colors.black87,
-        fontWeight: isPrice ? FontWeight.bold : FontWeight.normal,
+        color: const Color(0xFF111827),
+        fontWeight: isPrice ? FontWeight.w900 : FontWeight.w600,
       ),
       decoration: InputDecoration(
         hintText: hint,
@@ -1625,10 +1637,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         children: [
           Text(
             title,
-            style: GoogleFonts.mukta(
+            style: GoogleFonts.inter(
               fontSize: 22,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
+              fontWeight: FontWeight.w900,
+              color: const Color(0xFF111827),
+              letterSpacing: -0.8,
               height: 1.2,
             ),
           ),
@@ -1875,10 +1888,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           const SizedBox(height: 12),
           Text(
             title,
-            style: GoogleFonts.mukta(
+            style: GoogleFonts.inter(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              fontWeight: FontWeight.w900,
+              color: const Color(0xFF111827),
+              letterSpacing: -0.5,
             ),
           ),
           const SizedBox(height: 4),
@@ -1925,10 +1939,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   ),
                   child: Text(
                     'पछाडि',
-                    style: GoogleFonts.mukta(
-                      color: Colors.grey[800],
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
+                    style: GoogleFonts.inter(
+                      color: const Color(0xFF4B5563),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
@@ -1965,10 +1979,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                             ? 'प्रकाशित गर्नुहोस् (Publish)'
                             : 'अर्को भाग (Next)',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.mukta(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16, // Reduced from 20 to prevent overflow
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
                           color: Colors.white,
+                          letterSpacing: -0.3,
                         ),
                       ),
               ),
