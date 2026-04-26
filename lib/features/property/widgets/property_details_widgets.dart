@@ -60,29 +60,31 @@ class PropertyStatItem extends StatelessWidget {
           child: Icon(icon, color: accentColor, size: 24),
         ),
         const SizedBox(height: 8),
-        Text(
-          value,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.plusJakartaSans(
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF1E293B),
+        if (value.isNotEmpty)
+          Text(
+            value,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF1E293B),
+            ),
           ),
-        ),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.inter(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: Colors.black.withOpacity(0.4),
-            letterSpacing: 0.1,
+        if (label.isNotEmpty)
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Colors.black.withOpacity(0.4),
+              letterSpacing: 0.1,
+            ),
           ),
-        ),
       ],
     );
   }

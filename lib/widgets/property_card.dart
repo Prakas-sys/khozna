@@ -204,7 +204,7 @@ class PropertyCard extends StatelessWidget {
     final combinedFeatures = [...property.amenities, ...property.houseRules];
 
     for (var feature in combinedFeatures) {
-      if (count >= 4) break;
+      if (count >= 3) break;
       IconData icon = featureIcons[feature] ?? Icons.check_circle_outline_rounded;
       String label = _getShortLabel(feature);
       
