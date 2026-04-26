@@ -4,16 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../theme/app_theme.dart';
-import '../utils/app_notifiers.dart';
-import '../utils/supabase_service.dart';
-import '../utils/security_utils.dart';
-import 'home_screen.dart';
-import 'reels_screen.dart';
-import 'messages_screen.dart';
-import 'add_property_screen.dart';
-import 'kyc_screen.dart';
-import 'profile_screen.dart';
+import 'package:khozna/core/theme/app_theme.dart';
+import 'package:khozna/core/utils/app_notifiers.dart';
+import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/core/utils/security_utils.dart';
+import 'package:khozna/features/property/screens/home_screen.dart';
+import 'package:khozna/features/property/screens/reels_screen.dart';
+import 'package:khozna/features/chat/screens/messages_screen.dart';
+import 'package:khozna/features/property/screens/add_property_screen.dart';
+import 'package:khozna/features/profile/screens/kyc_screen.dart';
+import 'package:khozna/features/profile/screens/profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

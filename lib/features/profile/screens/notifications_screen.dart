@@ -1,0 +1,778 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:khozna/core/theme/app_theme.dart';
+import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
+import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
+import 'package:khozna/features/property/screens/booking_status_screen.dart';
+import '../widgets/trust_badge.dart';
+
+class NotificationsScreen extends StatefulWidget {
+  const NotificationsScreen({super.key});
+
+  @override
+  State<NotificationsScreen> createState() => _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends State<NotificationsScreen> {
+  List<Map<String, dynamic>> _notifications = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNotifications();
+  }
+
+  Future<void> _fetchNotifications() async {
+    setState(() => _isLoading = true);
+    final data = await SupabaseService.getUserNotifications();
+    setState(() {
+      _notifications = data;
+      _isLoading = false;
+    });
+    // Mark all as read when the screen is opened/refreshed
+    await SupabaseService.markNotificationsAsRead();
+  }
+
+  String _formatTime(String? timestamp) {
+    if (timestamp == null) return '';
+    try {
+      final date = DateTime.parse(timestamp);
+      final now = DateTime.now();
+      final diff = now.difference(date);
+
+      if (diff.inMinutes < 1) return 'Just now';
+      if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+      if (diff.inHours < 24) return '${diff.inHours}h ago';
+      return '${diff.inDays}d ago';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(
+          'Notifications',
+          style: GoogleFonts.inter(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: Colors.black,
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          if (_notifications.isNotEmpty)
+            IconButton(
+              icon: const Icon(
+                Icons.delete_sweep_outlined,
+                color: Colors.red,
+                size: 24,
+              ),
+              tooltip: 'Clear All',
+              onPressed: _confirmClearAll,
+            ),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: AppTheme.brandColor,
+                strokeWidth: 2,
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _fetchNotifications,
+              color: AppTheme.brandColor,
+              child: _notifications.isEmpty
+                  ? SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * 0.75,
+                        alignment: Alignment.center,
+                        child: _buildEmptyStateContent(),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _notifications.length,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 16,
+                      ),
+                      itemBuilder: (context, index) {
+                        final note = _notifications[index];
+                        final sender = note['sender'];
+                        final String id = note['id'].toString();
+                        final String type = note['type']?.toString() ?? '';
+
+                        // ── SPECIAL: Booking Request card with Approve/Reject ──
+                        if (type == 'booking_request') {
+                          return _buildBookingRequestCard(note, id, index, sender);
+                        }
+
+                        // ── Standard notification row ──
+                        return Dismissible(
+                          key: Key(id),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (_) async {
+                            if (index < _notifications.length) {
+                              setState(() => _notifications.removeAt(index));
+                              await SupabaseService.deleteNotification(id);
+                            }
+                          },
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            color: Colors.red.shade50,
+                            child: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                              size: 24,
+                            ),
+                          ),
+                          child: InkWell(
+                            onTap: () async {
+                              final type = note['type']?.toString() ?? '';
+                              if (type == 'booking_approved' || type == 'booking_rejected') {
+                                final propertyId = note['property_id'];
+                                if (propertyId != null) {
+                                  // Fetch latest booking for this guest and property
+                                  final bookings = await SupabaseService.getMyBookings();
+                                  final booking = bookings.firstWhere(
+                                    (b) => b['property_id'] == propertyId,
+                                    orElse: () => {},
+                                  );
+                                  
+                                  if (booking.isNotEmpty && mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => BookingStatusScreen(booking: booking),
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      if (sender != null) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => OwnerProfileScreen(
+                                              ownerId: sender['id']?.toString() ?? '',
+                                              name:
+                                                  sender['full_name'] ??
+                                                  'Khozna User',
+                                              avatar:
+                                                  sender['avatar_url'] ??
+                                                  'https://via.placeholder.com/150',
+                                              location: 'Kathmandu, Nepal',
+                                              totalListings: 0,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: Stack(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 26,
+                                          backgroundColor: Colors.grey[100],
+                                          backgroundImage:
+                                              sender != null &&
+                                                  sender['avatar_url'] != null
+                                              ? NetworkImage(sender['avatar_url'])
+                                              : null,
+                                          child:
+                                              sender == null ||
+                                                  sender['avatar_url'] == null
+                                              ? Icon(
+                                                  Icons.person,
+                                                  color: Colors.grey[400],
+                                                  size: 28,
+                                                )
+                                              : null,
+                                        ),
+                                        Positioned(
+                                          bottom: 0,
+                                          right: 0,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(3),
+                                            decoration: BoxDecoration(
+                                              color: _getTypeColor(note['type']),
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            child: Icon(
+                                              _getTypeIcon(note['type']),
+                                              size: 10,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        RichText(
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          text: TextSpan(
+                                            style: GoogleFonts.inter(
+                                              fontSize: 14,
+                                              color: Colors.black,
+                                              height: 1.3,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text: sender != null
+                                                    ? sender['full_name'] + ' '
+                                                    : '',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text:
+                                                    note['message'] ??
+                                                    note['title'] ??
+                                                    '',
+                                              ),
+                                              TextSpan(
+                                                text:
+                                                    '  ' +
+                                                    _formatTime(note['created_at']),
+                                                style: TextStyle(
+                                                  color: Colors.grey[400],
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => _confirmDelete(id, index),
+                                    icon: Icon(
+                                      Icons.delete_outline,
+                                      color: Colors.red.withOpacity(0.3),
+                                      size: 18,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+    );
+  }
+
+  /// Booking request notification card — shown ONLY to the owner
+  Widget _buildBookingRequestCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
+    final String propertyId = note['property_id']?.toString() ?? '';
+    final String requesterId = note['requester_id']?.toString() ?? note['sender_id']?.toString() ?? '';
+    // Extract property title from message: "$name wants to rent "$title""  
+    final String message = note['message']?.toString() ?? '';
+    final RegExp titleRegex = RegExp(r'wants to rent "(.+)"');
+    final match = titleRegex.firstMatch(message);
+    final String propertyTitle = match?.group(1) ?? 'this property';
+    bool _acting = false;
+
+    return StatefulBuilder(
+      builder: (context, setCardState) {
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFF00A3E1).withOpacity(0.15)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00A3E1).withOpacity(0.06),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00A3E1).withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.home_rounded, color: Color(0xFF00A3E1), size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            note['title'] ?? '🏠 नयाँ बुकिङ अनुरोध (New Booking Request)',
+                            style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black),
+                          ),
+                          Text(
+                            _formatTime(note['created_at']),
+                            style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[400]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Body: requester info
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 22,
+                          backgroundColor: Colors.grey[100],
+                          backgroundImage: sender != null && sender['avatar_url'] != null
+                              ? NetworkImage(sender['avatar_url']) : null,
+                          child: sender == null || sender['avatar_url'] == null
+                              ? Icon(Icons.person, color: Colors.grey[400], size: 24) : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                message,
+                                style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[700], height: 1.4),
+                              ),
+                              if (sender != null) ...[
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    TrustBadge(badge: sender['trust_badge'] ?? 'new', fontSize: 10),
+                                    const SizedBox(width: 8),
+                                    if (sender['is_verified'] == true)
+                                      const Icon(Icons.verified, size: 14, color: Colors.blue),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              // Action buttons
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: _acting
+                    ? const Center(child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ))
+                    : Row(
+                        children: [
+                          // REJECT
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                setCardState(() => _acting = true);
+                                try {
+                                  await SupabaseService.rejectBooking(
+                                    propertyId: propertyId,
+                                    propertyTitle: propertyTitle,
+                                    requesterId: requesterId,
+                                    notificationId: id,
+                                  );
+                                  if (mounted) setState(() => _notifications.removeAt(index));
+                                } catch (_) {
+                                  setCardState(() => _acting = false);
+                                }
+                              },
+                              icon: const Icon(Icons.close_rounded, size: 16),
+                              label: Text('अस्वीकार (Reject)', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.red,
+                                side: const BorderSide(color: Colors.red, width: 1.5),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // APPROVE
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () async {
+                                setCardState(() => _acting = true);
+                                final ownerProfile = await SupabaseService.getUserProfile(
+                                  SupabaseService.currentUserId,
+                                );
+                                final ownerName = ownerProfile?['full_name'] ?? 'The owner';
+                                try {
+                                  await SupabaseService.approveBooking(
+                                    propertyId: propertyId,
+                                    propertyTitle: propertyTitle,
+                                    requesterId: requesterId,
+                                    ownerName: ownerName,
+                                    notificationId: id,
+                                  );
+                                  if (mounted) setState(() => _notifications.removeAt(index));
+                                } catch (_) {
+                                  setCardState(() => _acting = false);
+                                }
+                              },
+                              icon: const Icon(Icons.check_rounded, size: 16),
+                              label: Text('स्वीकार (Approve)', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF22C55E),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyStateContent() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+            ),
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+            ),
+            const Icon(
+              Icons.notifications_off_outlined,
+              size: 50,
+              color: AppTheme.brandColor,
+            ),
+            // Floating decorative icons
+            Positioned(
+              top: 10,
+              right: 15,
+              child: Transform.rotate(
+                angle: 0.4,
+                child: Icon(
+                  Icons.favorite_rounded,
+                  size: 20,
+                  color: Colors.red.withValues(alpha: 0.4),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 20,
+              left: 10,
+              child: Transform.rotate(
+                angle: -0.3,
+                child: Icon(
+                  Icons.chat_bubble_rounded,
+                  size: 18,
+                  color: AppTheme.brandColor.withValues(alpha: 0.4),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 40,
+              left: 0,
+              child: Icon(
+                Icons.home_work_rounded,
+                size: 16,
+                color: Colors.orange.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 32),
+        Text(
+          'Your Inbox is Quiet',
+          style: GoogleFonts.inter(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: Colors.black,
+            letterSpacing: -0.8,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 48),
+          child: Text(
+            'तपाईंका नयाँ सन्देश र बुकिङहरू यहाँ देखा पर्नेछन्।\n(New alerts, bookings, and messages will appear here.)',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              color: Colors.grey[500],
+              height: 1.5,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        const SizedBox(height: 40),
+        // Optional: Ghost button to discover properties? 
+      ],
+    );
+  }
+
+
+
+  void _confirmDelete(String id, int index) async {
+    final bool? confirm = await showModalBottomSheet<bool>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Remove notification?',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'This will permanently delete this alert from your feed.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(color: Colors.grey),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text(
+                      'Cancel',
+                      style: GoogleFonts.inter(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Delete',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+
+    if (confirm == true) {
+      final String targetId = id;
+      if (index < _notifications.length) {
+        setState(() => _notifications.removeAt(index));
+        await SupabaseService.deleteNotification(targetId);
+      }
+    }
+  }
+
+  void _confirmClearAll() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Clear all notifications?',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'This will permanently delete all your notifications.',
+          style: GoogleFonts.inter(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: Text(
+              'Clear All',
+              style: GoogleFonts.inter(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() {
+        _notifications.clear();
+      });
+      await SupabaseService.deleteAllNotifications();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All notifications cleared')),
+      );
+    }
+  }
+
+  IconData _getTypeIcon(String? type) {
+    switch (type) {
+      case 'love_alert':
+        return Icons.favorite_rounded;
+      case 'booking_alert':
+      case 'saved_booking_alert':
+        return Icons.home_work_rounded;
+      case 'booking_request':
+        return Icons.pending_actions_rounded;
+      case 'booking_approved':
+        return Icons.check_circle_rounded;
+      case 'booking_rejected':
+        return Icons.cancel_rounded;
+      case 'message':
+        return Icons.chat_bubble_rounded;
+      case 'booking':
+      case 'kyc_update':
+      case 'kyc_alert':
+        return Icons.verified_user_rounded;
+      case 'report_alert':
+        return Icons.flag_rounded;
+      case 'security':
+        return Icons.security_rounded;
+      default:
+        return Icons.notifications_rounded;
+    }
+  }
+
+  Color _getTypeColor(String? type) {
+    switch (type) {
+      case 'love_alert':
+        return Colors.red;
+      case 'booking_alert':
+      case 'saved_booking_alert':
+        return Colors.orange;
+      case 'booking_request':
+        return const Color(0xFF00A3E1);
+      case 'booking_approved':
+        return const Color(0xFF22C55E);
+      case 'booking_rejected':
+        return Colors.red;
+      case 'message':
+        return AppTheme.brandColor;
+      case 'booking':
+      case 'kyc_update':
+        return Colors.green;
+      case 'kyc_alert':
+        return Colors.orange;
+      case 'report_alert':
+        return Colors.red;
+      case 'security':
+        return Colors.black;
+      default:
+        return Colors.grey;
+    }
+  }
+}

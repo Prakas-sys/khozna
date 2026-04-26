@@ -1,0 +1,262 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:khozna/core/theme/app_theme.dart';
+import 'package:khozna/core/utils/khozna_ai_service.dart';
+
+class AiChatScreen extends StatefulWidget {
+  const AiChatScreen({super.key});
+
+  @override
+  State<AiChatScreen> createState() => _AiChatScreenState();
+}
+
+class _AiChatScreenState extends State<AiChatScreen> {
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final List<Map<String, dynamic>> _messages = [
+    {
+      'text':
+          'नमस्ते! म खोज्न (Khozna) को स्मार्ट असिस्टेन्ट हुँ।\nतपाईंलाई कस्तो कोठा वा फ्ल्याट चाहिएको छ? नेपालीमै लेखेर वा बोलेर भन्न सक्नुहुन्छ।\n\n(Hello! I am Khozna AI. Tell me what kind of room you are looking for!)',
+      'isMe': false,
+    },
+  ];
+
+  final KhoznaAiService _aiService = KhoznaAiService();
+  bool _isTyping = false;
+
+  void _sendMessage() async {
+    if (_messageController.text.trim().isEmpty) return;
+
+    final userMessage = _messageController.text.trim();
+    setState(() {
+      _messages.add({'text': userMessage, 'isMe': true});
+      _messageController.clear();
+      _isTyping = true;
+    });
+
+    _scrollToBottom();
+
+    try {
+      final response = await _aiService.getChatbotResponse(userMessage);
+      if (mounted) {
+        setState(() {
+          _messages.add({'text': response, 'isMe': false});
+          _isTyping = false;
+        });
+        _scrollToBottom();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _messages.add({
+            'text':
+                'माफ गर्नुहोस्, केही प्राविधिक समस्या आयो। फेरि प्रयास गर्नुहोला। (Error: ${e.toString().split(':').last})',
+            'isMe': false,
+          });
+          _isTyping = false;
+        });
+        _scrollToBottom();
+      }
+    }
+  }
+
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          'AI मद्दत (AI Help)',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        centerTitle: true,
+        elevation: 1,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                final msg = _messages[index];
+                return _ChatBubble(message: msg['text'], isMe: msg['isMe']);
+              },
+            ),
+          ),
+          if (_isTyping)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppTheme.brandColor,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Text(
+                    'AI जवाफ लेख्दै छ...',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          _buildInputArea(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmojiTip(String emoji) {
+    return GestureDetector(
+      onTap: () {
+        final text = _messageController.text;
+        _messageController.text = text + emoji;
+        _messageController.selection = TextSelection.fromPosition(
+          TextPosition(offset: _messageController.text.length),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        margin: const EdgeInsets.only(right: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Text(emoji, style: const TextStyle(fontSize: 16)),
+      ),
+    );
+  }
+
+  Widget _buildInputArea() {
+    return SafeArea(
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Removed emoji tips for a simpler "Old Man" friendly UI
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(50), // Premium pill shape
+                      border: Border.all(color: Colors.grey.shade300, width: 1.2),
+                    ),
+                    child: TextField(
+                      controller: _messageController,
+                      style: GoogleFonts.inter(fontSize: 15, color: Colors.black87),
+                      decoration: InputDecoration(
+                        hintText: 'यहाँ लेख्नुहोस् (Type here...)',
+                        hintStyle: GoogleFonts.inter(color: Colors.grey.shade500),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 14,
+                        ),
+                      ),
+                      onSubmitted: (_) => _sendMessage(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: _sendMessage,
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.brandColor.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.send_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatBubble extends StatelessWidget {
+  final String message;
+  final bool isMe;
+
+  const _ChatBubble({required this.message, required this.isMe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        ),
+        decoration: BoxDecoration(
+          color: isMe ? AppTheme.brandColor : Colors.grey[100],
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isMe ? 16 : 4),
+            bottomRight: Radius.circular(isMe ? 4 : 16),
+          ),
+        ),
+        child: Text(
+          message,
+          style: GoogleFonts.inter(
+            color: isMe ? Colors.white : Colors.black87,
+            fontSize: 15,
+            height: 1.4,
+          ),
+        ),
+      ),
+    );
+  }
+}

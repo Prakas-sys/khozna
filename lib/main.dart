@@ -10,13 +10,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'theme/app_theme.dart';
-import 'utils/supabase_service.dart';
-import 'utils/security_utils.dart';
-import 'utils/app_notifiers.dart';
-import 'screens/main_screen.dart';
-import 'screens/location_permission_screen.dart';
-import 'screens/login_screen.dart';
+import 'core/theme/app_theme.dart';
+import 'package:khozna/core/utils/supabase_service.dart';
+import 'core/security/security_utils.dart';
+import 'core/utils/app_notifiers.dart';
+import 'package:khozna/screens/main_screen.dart';
+import 'core/guards/location_permission_screen.dart';
+import 'features/auth/screens/login_screen.dart';
 // import 'screens/splash_screen.dart'; // Removed
 
 // Local Notifications Plugin
