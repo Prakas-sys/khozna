@@ -140,49 +140,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── USER CONTEXT CARD ──
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFF3F4F6)),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: const Color(0xFFE5E7EB),
-                    backgroundImage: _userProfile?['avatar_url'] != null
-                        ? NetworkImage(_userProfile!['avatar_url'])
-                        : null,
-                    child: _userProfile?['avatar_url'] == null
-                        ? const Icon(Icons.person_rounded, color: Colors.white)
-                        : null,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _userProfile?['full_name'] ?? 'तपाईंको प्रोफाइल (Loading...)',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
-                            color: const Color(0xFF111827),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        TrustBadge(badge: _userProfile?['trust_badge'] ?? 'new'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
-            const SizedBox(height: 32),
 
             // ── MOVE-IN DATE ──
             _buildSectionHeader('बस्न सुरु गर्ने मिति', 'Planned Move-in Date'),
