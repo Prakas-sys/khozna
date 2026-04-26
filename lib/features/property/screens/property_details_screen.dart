@@ -420,16 +420,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ),
         ),
-lendMode.srcIn),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 8),
-                const Text("Message Owner"),
-              ],
-            ),
-          ),
-        ),      ]),
+      ]),
     );
   }
 
