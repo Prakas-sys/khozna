@@ -127,41 +127,41 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                         ],
                       ),
-                      child: Row(
-                        children: [
-                                const Icon(
-                                  CupertinoIcons.search,
-                                  color: Colors.black54,
-                                  size: 26,
-                                ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              autofocus: widget.initialQuery == null,
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                color: Colors.black87,
-                              ),
-                              cursorColor: AppTheme.brandColor,
-                              decoration: InputDecoration(
-                                hintText: 'Search properties',
-                                hintStyle: GoogleFonts.inter(
-                                  color: Colors.grey[400],
-                                  fontSize: 16,
-                                ),
-                                border: InputBorder.none,
-                                enabledBorder: InputBorder.none,
-                                focusedBorder: InputBorder.none,
-                                contentPadding: EdgeInsets.zero,
-                              ),
-                              onChanged: (val) => setState(() {}),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              CupertinoIcons.search,
+                              color: Colors.black54,
+                              size: 26,
                             ),
-                          ),
-                          if (_searchController.text.isNotEmpty)
-                            Material(
-                              color: Colors.transparent,
-                              child: InkWell(
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                autofocus: widget.initialQuery == null,
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                ),
+                                cursorColor: AppTheme.brandColor,
+                                decoration: InputDecoration(
+                                  hintText: 'Search properties',
+                                  hintStyle: GoogleFonts.inter(
+                                    color: Colors.grey[400],
+                                    fontSize: 16,
+                                  ),
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                onChanged: (val) => setState(() {}),
+                              ),
+                            ),
+                            if (_searchController.text.isNotEmpty)
+                              InkWell(
                                 borderRadius: BorderRadius.circular(30),
                                 onTap: () => setState(() => _searchController.clear()),
                                 child: Padding(
@@ -169,8 +169,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                   child: Icon(Icons.cancel, size: 20, color: Colors.grey[400]),
                                 ),
                               ),
-                            ),
-                        ],
+                            if (_searchController.text.isEmpty)
+                              const SizedBox(width: 16),
+                          ],
+                        ),
                       ),
                     ),
                   ),
