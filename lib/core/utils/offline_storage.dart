@@ -48,4 +48,13 @@ class OfflineStorage {
     }
     return {};
   }
+  /// Clear the home section cache
+  static Future<void> clearHomeCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_homeCacheKey);
+    } catch (e) {
+      print('Error clearing home cache: $e');
+    }
+  }
 }

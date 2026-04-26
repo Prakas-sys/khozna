@@ -127,6 +127,8 @@ class HomeScreenState extends State<HomeScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           HapticFeedback.mediumImpact();
+          await OfflineStorage.clearHomeCache();
+          homeSectionCache.value = {};
           await _getCurrentLocation();
           setState(() => _initializeFutures());
           await Future.wait(_sectionFutures);

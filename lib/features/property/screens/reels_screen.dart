@@ -80,13 +80,18 @@ class _ReelsScreenState extends State<ReelsScreen> {
                 )
               : Stack(
         children: [
-          PageView.builder(
-            controller: _pageController,
-            scrollDirection: Axis.vertical,
-            itemCount: reels.length,
-            itemBuilder: (context, index) {
-              return _buildReelItem(reels[index]);
-            },
+          RefreshIndicator(
+            onRefresh: _fetchReels,
+            color: AppTheme.brandColor,
+            backgroundColor: Colors.white,
+            child: PageView.builder(
+              controller: _pageController,
+              scrollDirection: Axis.vertical,
+              itemCount: reels.length,
+              itemBuilder: (context, index) {
+                return _buildReelItem(reels[index]);
+              },
+            ),
           ),
           // Top Toggle (Photo/Video)
           Positioned(
