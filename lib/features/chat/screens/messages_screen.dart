@@ -28,21 +28,27 @@ class _MessagesScreenState extends State<MessagesScreen> {
   }
 
   Future<void> _initData() async {
-    // Clear global badge first so the list shows 0 unread
-    await SupabaseService.markAllMessagesAsRead();
-    if (mounted) {
-      await _loadChats();
-    }
+    _loadChats();
+    // Mark messages as read in background so it doesn't block loading the list
+    SupabaseService.markAllMessagesAsRead().catchError((e) => debugPrint('Error marking read: $e'));
   }
 
   Future<void> _loadChats() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
-    final data = await SupabaseService.getConversations();
-    if (mounted) {
-      setState(() {
-        _chats = data;
-        _isLoading = false;
-      });
+    try {
+      final data = await SupabaseService.getConversations();
+      if (mounted) {
+        setState(() {
+          _chats = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading chats: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -54,12 +60,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // â”€â”€ BRANDED HEADER â”€â”€
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     'Messages',
@@ -72,24 +76,18 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   ),
                   Row(
                     children: [
-                      // Search Icon
                       _buildHeaderIcon(Icons.search),
                       const SizedBox(width: 12),
-                      // Settings Icon with Menu
                       PopupMenuButton<String>(
                         offset: const Offset(0, 50),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         color: Colors.white,
                         elevation: 4,
                         child: _buildHeaderIcon(Icons.settings_outlined),
                         onSelected: (val) {
                           if (val == 'export') {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Exporting chats to PDF...'),
-                                duration: Duration(seconds: 2),
-                              ),
+                              const SnackBar(content: Text('Exporting chats to PDF...')),
                             );
                           }
                         },
@@ -98,52 +96,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             value: 'export',
                             child: Row(
                               children: [
-                                const Icon(Icons.picture_as_pdf_rounded,
-                                    size: 20, color: Colors.redAccent),
+                                const Icon(Icons.picture_as_pdf_rounded, size: 20, color: Colors.redAccent),
                                 const SizedBox(width: 12),
-                                Text(
-                                  'Export Chats (PDF)',
-                                  style: GoogleFonts.inter(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14),
-                                ),
+                                Text('Export Chats (PDF)', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
                               ],
-                            ),
-                          ),
-                          const PopupMenuDivider(),
-                          PopupMenuItem(
-                            enabled: false,
-                            child: SizedBox(
-                              width: 240,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.info_outline_rounded,
-                                          size: 16, color: Colors.orange),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        'Important Notice',
-                                        style: GoogleFonts.inter(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 13,
-                                          color: Colors.orange[800],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Messages older than 30 days are permanently deleted for privacy. Please export your chats to your phone if you need to save details.',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                      height: 1.4,
-                                    ),
-                                  ),
-                                ],
-                              ),
                             ),
                           ),
                         ],
@@ -153,10 +109,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 24),
-
-            // â”€â”€ FILTER TABS (AIRBNB STYLE WITH BRAND COLOR) â”€â”€
             SizedBox(
               height: 48,
               child: ListView.builder(
@@ -170,16 +123,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     onTap: () => setState(() => _selectedTab = i),
                     child: Container(
                       margin: const EdgeInsets.only(right: 12),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                       decoration: BoxDecoration(
                         color: selected ? AppTheme.brandColor : const Color(0xFFF9FAFB),
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: selected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
-                        ),
+                        border: Border.all(color: selected ? AppTheme.brandColor : const Color(0xFFE5E7EB)),
                       ),
                       child: Text(
                         label,
@@ -194,24 +142,19 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 },
               ),
             ),
-
             const SizedBox(height: 12),
-
-            // â”€â”€ CHAT LIST â”€â”€
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
                   : _chats.isEmpty
                       ? _buildEmptyState()
                       : RefreshIndicator(
                           onRefresh: _loadChats,
+                          color: AppTheme.brandColor,
                           child: ListView.builder(
                             itemCount: _chats.length,
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                            itemBuilder: (context, index) {
-                              final chat = _chats[index];
-                              return _buildChatTile(chat);
-                            },
+                            itemBuilder: (context, index) => _buildChatTile(_chats[index]),
                           ),
                         ),
             ),
@@ -226,41 +169,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: AppTheme.brandColor.withValues(alpha: 0.1),
+        color: AppTheme.brandColor.withOpacity(0.1),
         shape: BoxShape.circle,
-        border: Border.all(color: AppTheme.brandColor.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTheme.brandColor.withOpacity(0.2)),
       ),
       child: Icon(icon, color: AppTheme.brandColor, size: 22),
-    );
-  }
-
-  void _showDeleteChatDialog(String chatId) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Delete Conversation',
-            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
-        content: Text(
-            'This will permanently delete this chat for you. The other person will still see it.',
-            style: GoogleFonts.plusJakartaSans(color: Colors.grey[600])),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await SupabaseService.deleteChat(chatId);
-              _loadChats();
-            },
-            child: Text('Delete', style: GoogleFonts.plusJakartaSans()),
-          ),
-        ],
-      ),
     );
   }
 
@@ -274,38 +187,27 @@ class _MessagesScreenState extends State<MessagesScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.brandColor.withValues(alpha: 0.08),
+                color: AppTheme.brandColor.withOpacity(0.08),
                 shape: BoxShape.circle,
               ),
               child: SvgPicture.asset(
                 'assets/icons/message.svg',
                 width: 64,
                 height: 64,
-                colorFilter: const ColorFilter.mode(
-                  AppTheme.brandColor,
-                  BlendMode.srcIn,
-                ),
+                colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
               ),
             ),
             const SizedBox(height: 24),
             Text(
               'No Messages Yet',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF111827),
-              ),
+              style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 12),
             Text(
               'When you connect with property owners, your conversations will appear here.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 15,
-                color: const Color(0xFF6B7280),
-                height: 1.5,
-              ),
+              style: GoogleFonts.plusJakartaSans(fontSize: 15, color: const Color(0xFF6B7280), height: 1.5),
             ),
           ],
         ),
@@ -315,195 +217,83 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   Widget _buildChatTile(ChatConversation chat) {
     final lastMessage = chat.lastMessage ?? 'No messages yet';
-    final lastTime = chat.lastMessageTime;
     final unreadCount = chat.unreadCount;
 
-    return Dismissible(
-      key: Key(chat.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 24),
-        color: Colors.redAccent,
-        margin: const EdgeInsets.only(bottom: 24),
-        child: const Icon(Icons.delete_outline, color: Colors.white, size: 28),
-      ),
-      confirmDismiss: (direction) async {
-        bool confirm = false;
-        await showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            title: Text('Delete Conversation',
-                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold)),
-            content: Text(
-                'Are you sure you want to delete this conversation?',
-                style: GoogleFonts.plusJakartaSans(color: Colors.grey[600])),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text('Cancel', style: GoogleFonts.plusJakartaSans(color: Colors.grey)),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      child: InkWell(
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => chat_page.ChatScreen(
+                chatId: chat.id,
+                name: chat.otherUserName,
+                avatar: chat.otherUserAvatar,
+                online: true,
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, foregroundColor: Colors.white),
-                onPressed: () {
-                  confirm = true;
-                  Navigator.pop(ctx);
-                },
-                child: Text('Delete', style: GoogleFonts.plusJakartaSans()),
-              ),
-            ],
-          ),
-        );
-        return confirm;
-      },
-      onDismissed: (direction) async {
-        await SupabaseService.deleteChat(chat.id);
-        _loadChats();
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 24),
-        child: InkWell(
-          onLongPress: () => _showDeleteChatDialog(chat.id),
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => chat_page.ChatScreen(
-                  chatId: chat.id,
-                  name: chat.otherUserName,
-                  avatar: chat.otherUserAvatar,
-                  online: true,
-                ),
-              ),
-            );
-            // Refresh after returning from chat
-            _loadChats();
-          },
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: unreadCount > 0 
-                  ? AppTheme.brandColor.withOpacity(0.03) 
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: unreadCount > 0 
-                    ? AppTheme.brandColor.withOpacity(0.1) 
-                    : const Color(0xFFE5E7EB),
-                width: 1,
-              ),
-              boxShadow: [
-                if (unreadCount > 0)
-                  BoxShadow(
-                    color: AppTheme.brandColor.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-              ],
             ),
-            child: Row(
-              children: [
-                Stack(
+          );
+          _loadChats();
+        },
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: unreadCount > 0 ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: unreadCount > 0 ? AppTheme.brandColor.withOpacity(0.1) : const Color(0xFFE5E7EB),
+            ),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: const Color(0xFFF7F7F7),
+                backgroundImage: chat.otherUserAvatar.isNotEmpty ? CachedNetworkImageProvider(chat.otherUserAvatar) : null,
+                child: chat.otherUserAvatar.isEmpty ? const Icon(Icons.person, color: Colors.grey) : null,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: const Color(0xFFF7F7F7),
-                      backgroundImage: (chat.otherUserAvatar.isNotEmpty && 
-                                      !chat.otherUserAvatar.contains('pravatar.cc'))
-                          ? CachedNetworkImageProvider(chat.otherUserAvatar)
-                          : null,
-                      child: (chat.otherUserAvatar.isEmpty || 
-                              chat.otherUserAvatar.contains('pravatar.cc'))
-                          ? Icon(Icons.person, color: Colors.grey[400], size: 28)
-                          : null,
-                    ),
-                    if (unreadCount > 0)
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: AppTheme.brandColor,
-                            shape: BoxShape.circle,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 20,
-                            minHeight: 20,
-                          ),
-                          child: Text(
-                            unreadCount > 9 ? '9+' : '$unreadCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          chat.otherUserName,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 16,
+                            fontWeight: unreadCount > 0 ? FontWeight.w800 : FontWeight.w700,
                           ),
                         ),
+                        if (unreadCount > 0)
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(color: AppTheme.brandColor, shape: BoxShape.circle),
+                            child: Text('$unreadCount', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      lastMessage,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        color: unreadCount > 0 ? Colors.black : Colors.grey,
+                        fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            chat.otherUserName,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: unreadCount > 0 ? FontWeight.w800 : FontWeight.w700,
-                              color: const Color(0xFF222222),
-                            ),
-                          ),
-                          Text(
-                            _formatTime(lastTime),
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
-                              color: unreadCount > 0 ? AppTheme.brandColor : const Color(0xFF717171),
-                              fontWeight: unreadCount > 0 ? FontWeight.bold : FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        lastMessage,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14,
-                          color: unreadCount > 0 ? const Color(0xFF1A1A1A) : const Color(0xFF717171),
-                          fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
-
-  String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    if (now.difference(time).inDays == 0) {
-      return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
-    } else if (now.difference(time).inDays < 7) {
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      return days[time.weekday - 1];
-    } else {
-      return '${time.day}/${time.month}';
-    }
-  }
 }
-

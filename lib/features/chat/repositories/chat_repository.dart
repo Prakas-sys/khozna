@@ -9,13 +9,55 @@ class ChatRepository {
     final user = _client.auth.currentUser;
     if (user == null) return [];
 
+    // 1. Fetch chats
     final response = await _client
         .from('chats')
-        .select('*, user1:user1_id(full_name, avatar_url), user2:user2_id(full_name, avatar_url)')
+        .select('*')
         .or('user1_id.eq.${user.id},user2_id.eq.${user.id}')
         .order('updated_at', ascending: false);
 
-    return (response as List).map((e) => ChatConversation.fromMap(e, user.id)).toList();
+    final List chatsData = response as List;
+    if (chatsData.isEmpty) return [];
+
+    // 2. Identify all "other" user IDs to fetch profiles in bulk
+    final Set<String> otherUserIds = {};
+    for (var chat in chatsData) {
+      final u1 = chat['user1_id']?.toString();
+      final u2 = chat['user2_id']?.toString();
+      if (u1 != null && u1 != user.id) otherUserIds.add(u1);
+      else if (u2 != null && u2 != user.id) otherUserIds.add(u2);
+    }
+
+    // 3. Fetch profiles
+    Map<String, dynamic> profiles = {};
+    if (otherUserIds.isNotEmpty) {
+      final profilesResponse = await _client
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .inFilter('id', otherUserIds.toList());
+      
+      for (var p in (profilesResponse as List)) {
+        profiles[p['id']] = p;
+      }
+    }
+
+    // 4. Map to models
+    return chatsData.map((e) {
+      final u1 = e['user1_id']?.toString();
+      final u2 = e['user2_id']?.toString();
+      final otherId = (u1 != user.id) ? u1 : u2;
+      final profile = profiles[otherId];
+      
+      return ChatConversation(
+        id: e['id'],
+        otherUserId: otherId ?? '',
+        otherUserName: profile?['full_name'] ?? 'Khozna User',
+        otherUserAvatar: profile?['avatar_url'] ?? '',
+        lastMessage: e['last_message_text'],
+        lastMessageTime: DateTime.parse(e['updated_at'] ?? DateTime.now().toIso8601String()).toLocal(),
+        unreadCount: 0, // In a real app, calculate this or fetch from view
+      );
+    }).toList();
   }
 
   static Future<String> getOrCreateChat(String otherUserId) async {
@@ -39,6 +81,7 @@ class ChatRepository {
     final newChat = await _client.from('chats').insert({
       'user1_id': u1,
       'user2_id': u2,
+      'participants': [u1, u2],
     }).select('id').single();
 
     return newChat['id'];
