@@ -278,7 +278,7 @@ class _ChatScreenState extends State<ChatScreen> {
       child: SafeArea(
         child: Row(children: [
           IconButton(icon: const Icon(Icons.image_outlined, color: AppTheme.brandColor), onPressed: _pickAndSendImage),
-          Expanded(child: Container(padding: const EdgeInsets.symmetric(horizontal: 16), decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(24)), child: TextField(controller: _messageController, decoration: const InputDecoration(hintText: 'Type a message...', border: InputBorder.none), onSubmitted: (_) => _sendMessage()))),
+          Expanded(child: Container(padding: const EdgeInsets.symmetric(horizontal: 16), decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppTheme.brandColor, width: 1.5), borderRadius: BorderRadius.circular(24)), child: TextField(controller: _messageController, decoration: const InputDecoration(hintText: 'Type a message...', border: InputBorder.none), onSubmitted: (_) => _sendMessage()))),
           const SizedBox(width: 8),
           CircleAvatar(backgroundColor: AppTheme.brandColor, child: IconButton(icon: const Icon(Icons.send, color: Colors.white, size: 18), onPressed: () => _sendMessage())),
         ]),

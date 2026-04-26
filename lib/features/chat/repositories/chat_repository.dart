@@ -41,23 +41,35 @@ class ChatRepository {
       }
     }
 
-    // 4. Map to models
-    return chatsData.map((e) {
+    // 4. Map to models and deduplicate by other user
+    final Map<String, ChatConversation> uniqueChats = {};
+    for (var e in chatsData) {
       final u1 = e['user1_id']?.toString();
       final u2 = e['user2_id']?.toString();
       final otherId = (u1 != user.id) ? u1 : u2;
-      final profile = profiles[otherId];
+      if (otherId == null) continue;
       
-      return ChatConversation(
+      final profile = profiles[otherId];
+      final chatTime = DateTime.parse(e['updated_at'] ?? DateTime.now().toIso8601String()).toLocal();
+      
+      final chat = ChatConversation(
         id: e['id'],
-        otherUserId: otherId ?? '',
+        otherUserId: otherId,
         otherUserName: profile?['full_name'] ?? 'Khozna User',
         otherUserAvatar: profile?['avatar_url'] ?? '',
         lastMessage: e['last_message_text'],
-        lastMessageTime: DateTime.parse(e['updated_at'] ?? DateTime.now().toIso8601String()).toLocal(),
+        lastMessageTime: chatTime,
         unreadCount: 0, // In a real app, calculate this or fetch from view
       );
-    }).toList();
+      
+      if (!uniqueChats.containsKey(otherId) || chatTime.isAfter(uniqueChats[otherId]!.lastMessageTime)) {
+        uniqueChats[otherId] = chat;
+      }
+    }
+    
+    final sortedList = uniqueChats.values.toList();
+    sortedList.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+    return sortedList;
   }
 
   static Future<String> getOrCreateChat(String otherUserId) async {
