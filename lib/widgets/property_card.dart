@@ -149,30 +149,21 @@ class PropertyCard extends StatelessWidget {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        for (double i in [-0.4, 0, 0.4])
-                                          for (double j in [-0.4, 0, 0.4])
-                                            Transform.translate(
-                                              offset: Offset(i, j),
-                                              child: SvgPicture.asset(
-                                                'assets/icons/message.svg',
-                                                width: 18,
-                                                height: 18,
-                                                colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
-                                              ),
-                                            ),
-                                        SvgPicture.asset(
-                                          'assets/icons/message.svg',
-                                          width: 18,
-                                          height: 18,
-                                          colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
-                                        ),
-                                      ],
+                                    ShaderMask(
+                                      shaderCallback: (bounds) => const LinearGradient(
+                                        colors: [AppTheme.brandColor, Color(0xFF005A7A)],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ).createShader(bounds),
+                                      child: SvgPicture.asset(
+                                        'assets/icons/message.svg',
+                                        width: 18,
+                                        height: 18,
+                                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                      ),
                                     ),
                                     const SizedBox(width: 6),
-                                    Text('Message', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.brandColor)),
+                                    Text('Message', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: AppTheme.brandColor)),
                                   ],
                                 ),
                               ),
@@ -213,7 +204,7 @@ class PropertyCard extends StatelessWidget {
     final combinedFeatures = [...property.amenities, ...property.houseRules];
 
     for (var feature in combinedFeatures) {
-      if (count >= 2) break;
+      if (count >= 4) break;
       if (featureIcons.containsKey(feature)) {
         amenityItems.add(const SizedBox(width: 10));
         amenityItems.add(_amenityIcon(featureIcons[feature]!, _getShortLabel(feature)));

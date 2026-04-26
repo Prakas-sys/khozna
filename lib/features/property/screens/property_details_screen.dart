@@ -264,14 +264,59 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildAmenityGrid() {
     final List<Widget> items = [];
-    if (widget.property.bedrooms > 0) items.add(PropertyStatItem(icon: Icons.bed_outlined, value: '${widget.property.bedrooms}', label: 'Beds', accentColor: AppTheme.brandColor));
-    if (widget.property.bathrooms > 0) items.add(PropertyStatItem(icon: Icons.bathtub_outlined, value: '${widget.property.bathrooms}', label: 'Baths', accentColor: Colors.cyan));
-    items.add(PropertyStatItem(icon: Icons.square_foot_outlined, value: widget.property.area, label: 'Area', accentColor: Colors.green));
     
+    // Core Stats (Show only if valid)
+    if (widget.property.bedrooms > 0) {
+      items.add(PropertyStatItem(icon: Icons.bed_outlined, value: '${widget.property.bedrooms}', label: 'Beds', accentColor: AppTheme.brandColor));
+    }
+    if (widget.property.bathrooms > 0) {
+      items.add(PropertyStatItem(icon: Icons.bathtub_outlined, value: '${widget.property.bathrooms}', label: 'Baths', accentColor: Colors.cyan));
+    }
+    if (widget.property.area != '0' && widget.property.area.isNotEmpty) {
+      items.add(PropertyStatItem(icon: Icons.square_foot_outlined, value: widget.property.area, label: 'Area', accentColor: Colors.green));
+    }
+    if (widget.property.floor != 'N/A' && widget.property.floor.isNotEmpty) {
+      items.add(PropertyStatItem(icon: Icons.layers_outlined, value: widget.property.floor, label: 'Floor', accentColor: Colors.orange));
+    }
+
+    // Dynamic Amenities Mapping
+    final Map<String, (IconData, String, Color)> amenityMap = {
+      'wifi': (Icons.wifi, 'Wifi', Colors.blue),
+      'parking': (Icons.directions_car_filled_outlined, 'Parking', Colors.indigo),
+      'water_melamchi': (Icons.water_drop_outlined, 'Water', Colors.lightBlue),
+      'sunny_area': (Icons.wb_sunny_outlined, 'Sunny', Colors.amber),
+      'cctv': (Icons.videocam_outlined, 'CCTV', Colors.redAccent),
+      'balcony': (Icons.balcony_outlined, 'Balcony', Colors.teal),
+      'hot_water': (Icons.hot_tub_outlined, 'Hot Water', Colors.orangeAccent),
+      'attached_bathroom': (Icons.bathroom_outlined, 'Bath', Colors.cyan),
+      'family_only': (Icons.family_restroom_outlined, 'Family', Colors.purple),
+    };
+
+    final combinedFeatures = {...widget.property.amenities, ...widget.property.houseRules};
+    for (var feature in combinedFeatures) {
+      if (amenityMap.containsKey(feature)) {
+        final data = amenityMap[feature]!;
+        items.add(PropertyStatItem(
+          icon: data.$1,
+          value: 'Yes',
+          label: data.$2,
+          accentColor: data.$3,
+        ));
+      }
+    }
+
+    if (items.isEmpty) return const SizedBox.shrink();
+
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
       decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFE2E8F0))),
-      child: Wrap(spacing: 8, runSpacing: 20, children: items.map((e) => SizedBox(width: 80, child: e)).toList()),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 20,
+        alignment: WrapAlignment.center,
+        children: items.map((e) => SizedBox(width: 80, child: e)).toList(),
+      ),
     );
   }
 
@@ -356,25 +401,26 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    for (double i in [-0.2, 0, 0.2])
-                      for (double j in [-0.2, 0, 0.2])
-                        Transform.translate(
-                          offset: Offset(i, j),
-                          child: SvgPicture.asset(
-                            'assets/icons/message.svg',
-                            width: 16,
-                            height: 16,
-                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                          ),
-                        ),
-                    SvgPicture.asset(
-                      'assets/icons/message.svg',
-                      width: 16,
-                      height: 16,
-                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [Colors.white, Color(0xFFE0E0E0)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ).createShader(bounds),
+                  child: SvgPicture.asset(
+                    'assets/icons/message.svg',
+                    width: 18,
+                    height: 18,
+                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text("Message Owner", style: GoogleFonts.inter(fontWeight: FontWeight.w800)),
+              ],
+            ),
+          ),
+        ),
+lendMode.srcIn),
                     ),
                   ],
                 ),
