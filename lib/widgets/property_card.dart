@@ -93,7 +93,7 @@ class PropertyCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       _buildLocationAndAmenities(context),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 6),
                       Row(
                         children: [
                           if (!isOwnerView) ...[
