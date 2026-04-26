@@ -1778,49 +1778,69 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     bool isSelected = _selectedAmenities.contains(value);
     return InkWell(
       onTap: () {
+        HapticFeedback.lightImpact();
         _toggleAmenity(value);
-        if (!isSelected) {
-          Feedback.forTap(context);
-        }
       },
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutBack,
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? Colors.white : const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? AppTheme.brandColor : Colors.grey[400]!,
-            width: isSelected ? 3 : 2,
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
+            width: isSelected ? 2 : 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppTheme.brandColor.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    color: AppTheme.brandColor.withValues(alpha: 0.1),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
                   )
                 ]
               : [],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            Icon(
-              icon,
-              color: isSelected ? Colors.white : Colors.grey[600],
-              size: 36,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.mukta(
-                fontSize: 14,
-                color: isSelected ? Colors.white : Colors.black87,
-                fontWeight: FontWeight.w600,
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isSelected 
+                          ? AppTheme.brandColor.withValues(alpha: 0.1) 
+                          : Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      icon,
+                      color: isSelected ? AppTheme.brandColor : Colors.grey[400],
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.mukta(
+                      fontSize: 13,
+                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                      color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
+                    ),
+                  ),
+                ],
               ),
             ),
+            if (isSelected)
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Icon(Icons.check_circle, color: AppTheme.brandColor, size: 16),
+              ),
           ],
         ),
       ),
