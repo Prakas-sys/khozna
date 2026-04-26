@@ -451,11 +451,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         scrolledUnderElevation: 0,
         title: Text(
           'प्रोपर्टी राख्नुहोस्',
-          style: GoogleFonts.mukta(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
+          style: GoogleFonts.hind(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
             color: const Color(0xFF111827),
-            height: 1.1,
           ),
         ),
         centerTitle: true,
@@ -1609,9 +1608,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.mukta(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
+            style: GoogleFonts.hind(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
               color: const Color(0xFF374151),
             ),
           ),
@@ -1684,11 +1683,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         children: [
           Text(
             title,
-            style: GoogleFonts.mukta(
+            style: GoogleFonts.hind(
               fontSize: 22,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
               color: const Color(0xFF111827),
-              height: 1.2,
             ),
           ),
           const SizedBox(height: 4),
