@@ -491,7 +491,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(0),
         child: Container(
-          height: 32,
+          height: 12,
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(
@@ -656,63 +656,60 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          margin: const EdgeInsets.only(bottom: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF00C853).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: const Color(0xFF00C853).withOpacity(0.3),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.verified_rounded,
-                color: Color(0xFF00C853),
-                size: 14,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'VERIFIED',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF00C853),
-                  letterSpacing: 1.0,
-                ),
-              ),
-            ],
-          ),
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(6),
+            // Category Badge (ROOM, FLAT, etc.)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                widget.category.toUpperCase(),
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.brandColor,
+                  letterSpacing: 1,
+                ),
+              ),
+            ),
+            // Verified Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00C853).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: const Color(0xFF00C853).withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.verified_rounded,
+                    color: Color(0xFF00C853),
+                    size: 14,
                   ),
-                  child: Text(
-                    widget.category.toUpperCase(),
+                  const SizedBox(width: 4),
+                  Text(
+                    'VERIFIED',
                     style: GoogleFonts.inter(
                       fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.brandColor,
-                      letterSpacing: 1,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF00C853),
+                      letterSpacing: 1.0,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
