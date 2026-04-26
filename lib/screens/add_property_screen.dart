@@ -449,25 +449,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Column(
-          children: [
-            Text(
-              'प्रोपर्टी राख्नुहोस्',
-              style: GoogleFonts.mukta(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            Text(
-              'Step ${_currentStep + 1} of 6',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[500],
-              ),
-            ),
-          ],
+        title: Text(
+          'प्रोपर्टी राख्नुहोस्',
+          style: GoogleFonts.mukta(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF111827),
+            height: 1.1,
+          ),
         ),
         centerTitle: true,
         leadingWidth: 64,
@@ -492,21 +481,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(20),
+                color: AppTheme.brandColor.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: AppTheme.brandColor.withOpacity(0.25),
-                  width: 1.2,
+                  color: AppTheme.brandColor.withOpacity(0.15),
+                  width: 1,
                 ),
               ),
               child: Text(
                 '${_currentStep + 1} / 6',
                 style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w800,
                   color: AppTheme.brandColor,
-                  fontSize: 14,
+                  fontSize: 12,
                 ),
               ),
             ),
@@ -597,7 +586,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 24),
         _buildLabel('विज्ञापनको नाम (Title)', true),
         _buildTextField(
-          'उदा: सानेपामा राम्रो २ कोठा खाली छ',
+          'e.g. 2 BHK Modern Apartment',
           controller: _titleController,
           focusNode: _titleFocusNode,
         ),
