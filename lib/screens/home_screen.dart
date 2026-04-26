@@ -200,30 +200,34 @@ class HomeScreenState extends State<HomeScreen> {
                 .gte('longitude', _currentPosition!.longitude - 0.1)
                 .lte('longitude', _currentPosition!.longitude + 0.1);
           }
-          query = query.order('created_at', ascending: false);
+          query = query.order('status', ascending: true).order('created_at', ascending: false);
           break;
         case 1: // Recent Listings (Formerly Verified)
           query = query
+              .order('status', ascending: true)
               .order('created_at', ascending: false);
           break;
         case 2: // Student Housing (Room < 7k)
           query = query
               .eq('category', 'Room')
               .lt('price', 7000)
+              .order('status', ascending: true)
               .order('price', ascending: true);
           break;
         case 3: // Family Flats (Flat)
           query = query
               .eq('category', 'Flat')
+              .order('status', ascending: true)
               .order('created_at', ascending: false);
           break;
         case 4: // Premium Collections
           query = query
               .or('is_premium.eq.true,price.gt.20000')
+              .order('status', ascending: true)
               .order('price', ascending: false);
           break;
         default:
-          query = query.order('created_at', ascending: false);
+          query = query.order('status', ascending: true).order('created_at', ascending: false);
       }
 
       final data = await query.limit(6);

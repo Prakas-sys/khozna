@@ -38,6 +38,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           .from('properties')
           .select('*, property_images(image_url)')
           .eq('owner_id', user!.id)
+          .order('status', ascending: true)
           .order('created_at', ascending: false);
 
       if (mounted) {
