@@ -1711,7 +1711,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     if (value == 'Room') subLabel = 'Single personal space';
     if (value == 'Flat') subLabel = 'Full private home';
     if (value == 'Shop') subLabel = 'Commercial use';
-    if (value == 'Other') subLabel = 'Land or Hostels';
+    if (value == 'Other') subLabel = 'Hostel or Hotels';
 
     return InkWell(
       onTap: () {
