@@ -11,7 +11,7 @@ class DetailSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: GoogleFonts.inter(
+                  style: GoogleFonts.inter(
         fontSize: 19,
         fontWeight: FontWeight.bold,
         color: AppTheme.primaryTextColor,
@@ -65,7 +65,7 @@ class PropertyStatItem extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.plusJakartaSans(
             fontSize: 13,
             fontWeight: FontWeight.w800,
             color: const Color(0xFF1E293B),
@@ -76,7 +76,7 @@ class PropertyStatItem extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.inter(
+                              style: GoogleFonts.inter(
             fontSize: 10,
             fontWeight: FontWeight.w600,
             color: Colors.black.withOpacity(0.4),
@@ -113,11 +113,11 @@ class LocationInfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+                                                style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
               ),
               Text(
                 value,
-                style: GoogleFonts.inter(
+                                                style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                   color: AppTheme.primaryTextColor,

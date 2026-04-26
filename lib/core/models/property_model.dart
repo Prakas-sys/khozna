@@ -85,11 +85,11 @@ class Property {
       ownerName: ownerProfile?['full_name'] ?? 'Khozna User',
       ownerAvatar: ownerProfile?['avatar_url'] ?? '',
       isOwnerVerified: ownerProfile?['kyc_status'] == 'verified',
-      amenities: List<String>.from(map['amenities'] ?? []),
-      houseRules: List<String>.from(map['house_rules'] ?? []),
+      amenities: (map['amenities'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      houseRules: (map['house_rules'] as List?)?.map((e) => e.toString()).toList() ?? [],
       latitude: map['latitude'] != null ? double.tryParse(map['latitude'].toString()) : null,
       longitude: map['longitude'] != null ? double.tryParse(map['longitude'].toString()) : null,
-      landmark: map['landmark'] ?? '',
+      landmark: map['landmark']?.toString() ?? '',
       nearbyLandmarks: (map['nearby_landmarks'] as List?)?.map((l) {
         if (l is Map) return l['name']?.toString() ?? '';
         return l.toString();

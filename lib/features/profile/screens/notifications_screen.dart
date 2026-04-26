@@ -60,9 +60,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
-          'Notifications',
-          style: GoogleFonts.inter(
-            fontSize: 18,
+          'सूचनाहरू',
+          style: GoogleFonts.mukta(
+            fontSize: 20,
             fontWeight: FontWeight.w800,
             color: Colors.black,
             letterSpacing: -0.5,
@@ -553,8 +553,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         const SizedBox(height: 32),
         Text(
-          'Your Inbox is Quiet',
-          style: GoogleFonts.inter(
+          'कुनै नयाँ सूचना छैन',
+          style: GoogleFonts.mukta(
             fontSize: 22,
             fontWeight: FontWeight.w800,
             color: Colors.black,
@@ -565,11 +565,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 48),
           child: Text(
-            'New alerts, bookings, and messages will appear here.',
+            'तपाईंका नयाँ सन्देश र बुकिङहरू यहाँ देखा पर्नेछन्।',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              color: Colors.grey[500],
+            style: GoogleFonts.mukta(
+              fontSize: 16,
+              color: Colors.grey[600],
               height: 1.5,
               fontWeight: FontWeight.w500,
             ),

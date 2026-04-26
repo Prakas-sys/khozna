@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
@@ -50,7 +51,7 @@ class PropertyCard extends StatelessWidget {
               Stack(
                 children: [
                   SizedBox(
-                    height: 175,
+                    height: 170,
                     width: double.infinity,
                     child: Hero(
                       tag: property.id,
@@ -76,33 +77,104 @@ class PropertyCard extends StatelessWidget {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(child: Text(property.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A1A2E), letterSpacing: -0.5))),
+                                                                        Expanded(child: Text(property.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A1A2E), letterSpacing: -0.5))),
                         const SizedBox(width: 4),
                         RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(property.price), style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.brandColor))])),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 14),
-                        const SizedBox(width: 4),
-                        Expanded(child: Text(property.location, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600], fontWeight: FontWeight.w500))),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
+                    _buildLocationAndAmenities(context),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
                         if (!isOwnerView) ...[
-                          Expanded(child: ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property))), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))), child: Text('Visit Now', style: GoogleFonts.inter(fontWeight: FontWeight.bold)))),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                HapticFeedback.lightImpact();
+                                final allowed = await KycGuard.check(context);
+                                if (!allowed) return;
+                                if (context.mounted) {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property)));
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.brandColor,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                  side: BorderSide(color: Colors.white.withOpacity(0.5), width: 1.5),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.directions_walk_rounded, size: 16, color: Colors.white),
+                                  const SizedBox(width: 6),
+                                  Text('Visit Now', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+                                ],
+                              ),
+                            ),
+                          ),
                           const SizedBox(width: 8),
-                          Expanded(child: OutlinedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => chat_page.ChatScreen(ownerId: property.ownerId, name: property.ownerName ?? 'Owner', avatar: property.ownerAvatar ?? '', online: true, isVerified: property.isOwnerVerified))), style: OutlinedButton.styleFrom(foregroundColor: AppTheme.brandColor, side: const BorderSide(color: AppTheme.brandColor), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))), child: Text('Message', style: GoogleFonts.inter(fontWeight: FontWeight.bold)))),
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () async {
+                                HapticFeedback.lightImpact();
+                                final allowed = await KycGuard.check(context);
+                                if (!allowed) return;
+                                if (context.mounted) {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => chat_page.ChatScreen(ownerId: property.ownerId, name: property.ownerName ?? 'Owner', avatar: property.ownerAvatar ?? '', online: true, isVerified: property.isOwnerVerified)));
+                                }
+                              },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppTheme.brandColor,
+                                side: const BorderSide(color: AppTheme.brandColor, width: 1.5),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      for (double i in [-0.2, 0, 0.2])
+                                        for (double j in [-0.2, 0, 0.2])
+                                          Transform.translate(
+                                            offset: Offset(i, j),
+                                            child: SvgPicture.asset(
+                                              'assets/icons/message.svg',
+                                              width: 17,
+                                              height: 17,
+                                              colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
+                                            ),
+                                          ),
+                                      SvgPicture.asset(
+                                        'assets/icons/message.svg',
+                                        width: 17,
+                                        height: 17,
+                                        colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text('Message', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.brandColor)),
+                                ],
+                              ),
+                            ),
+                          ),
                         ] else ...[
                           Expanded(child: OutlinedButton.icon(onPressed: onEdit, icon: const Icon(Icons.edit_note_rounded), label: const Text('Edit'), style: OutlinedButton.styleFrom(foregroundColor: Colors.blueGrey, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))),
                           const SizedBox(width: 8),
@@ -118,5 +190,77 @@ class PropertyCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildLocationAndAmenities(BuildContext context) {
+    final Map<String, IconData> featureIcons = {
+      'water_melamchi': Icons.water_drop_outlined,
+      'sunny_area': Icons.wb_sunny_outlined,
+      'parking': Icons.directions_car_filled_outlined,
+      'wifi': Icons.wifi,
+      'cctv': Icons.videocam_outlined,
+      'balcony': Icons.balcony_outlined,
+      'hot_water': Icons.hot_tub_outlined,
+      'attached_bathroom': Icons.bathroom_outlined,
+      'family_only': Icons.family_restroom_outlined,
+    };
+
+    List<Widget> amenityItems = [];
+    int count = 0;
+    final combinedFeatures = [...property.amenities, ...property.houseRules];
+
+    for (var feature in combinedFeatures) {
+      if (count >= 2) break;
+      if (featureIcons.containsKey(feature)) {
+        amenityItems.add(const SizedBox(width: 10));
+        amenityItems.add(_amenityIcon(featureIcons[feature]!, _getShortLabel(feature)));
+        count++;
+      }
+    }
+
+    return Row(
+      children: [
+        const Icon(Icons.place_outlined, color: AppTheme.brandColor, size: 14),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            property.location,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600], fontWeight: FontWeight.w500),
+          ),
+        ),
+        if (amenityItems.isNotEmpty) Row(mainAxisSize: MainAxisSize.min, children: amenityItems),
+      ],
+    );
+  }
+
+  Widget _amenityIcon(IconData icon, String label) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: AppTheme.brandColor, size: 14),
+        const SizedBox(height: 1),
+        Text(
+          label,
+          style: GoogleFonts.inter(fontSize: 8, color: Colors.grey[700], fontWeight: FontWeight.w500),
+        ),
+      ],
+    );
+  }
+
+  String _getShortLabel(String key) {
+    switch (key) {
+      case 'water_melamchi': return 'Water';
+      case 'sunny_area': return 'Sunny';
+      case 'parking': return 'Parking';
+      case 'wifi': return 'Wifi';
+      case 'cctv': return 'CCTV';
+      case 'balcony': return 'Balcony';
+      case 'hot_water': return 'Hot Water';
+      case 'attached_bathroom': return 'Bath';
+      case 'family_only': return 'Family';
+      default: return '';
+    }
   }
 }

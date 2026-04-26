@@ -62,11 +62,11 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
           'Delete Property?',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
+                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         content: Text(
           'This will permanently delete your property listing from Khozna. This action cannot be undone.',
-          style: GoogleFonts.inter(
+                    style: GoogleFonts.outfit(
             fontSize: 14,
             color: Colors.grey[600],
             height: 1.5,
@@ -77,10 +77,10 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: Text(
               'Cancel',
-              style: GoogleFonts.inter(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.bold,
-              ),
+                              style: GoogleFonts.outfit(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.bold,
+                ),
             ),
           ),
           ElevatedButton(
@@ -95,7 +95,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             ),
             child: Text(
               'Permanently Delete',
-              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                            style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -128,7 +128,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       appBar: AppBar(
         title: RichText(
           text: TextSpan(
-            style: GoogleFonts.inter(
+                        style: GoogleFonts.outfit(
               fontWeight: FontWeight.bold,
               fontSize: 17,
               color: Colors.black,
@@ -144,7 +144,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               ),
               TextSpan(
                 text: '(My Listings)',
-                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.outfit(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey[700],
@@ -193,7 +193,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                           Expanded(
                             child: Text(
                               'Error loading this listing. Please contact support.',
-                              style: GoogleFonts.inter(color: Colors.red[700], fontSize: 13),
+                                                            style: GoogleFonts.outfit(color: Colors.red[700], fontSize: 13),
                             ),
                           ),
                         ],
@@ -236,7 +236,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             ),
             Text(
               'Add New Listing', // More descriptive
-              style: GoogleFonts.inter(
+                            style: GoogleFonts.outfit(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
                 color: Colors.white.withOpacity(0.9),
@@ -293,13 +293,13 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           const SizedBox(height: 24),
           Text(
             'No active listings',
-            style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
             'Your property listings will appear here\nonce you publish them.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(color: Colors.grey, height: 1.5),
+                        style: GoogleFonts.outfit(color: Colors.grey, height: 1.5),
           ),
         ],
       ),

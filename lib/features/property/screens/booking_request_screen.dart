@@ -127,7 +127,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
         ),
         title: Text(
           'बुकिङ अनुरोध (Request Booking)',
-          style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.outfit(
             color: const Color(0xFF222222),
             fontWeight: FontWeight.w800,
             fontSize: 18,
@@ -169,7 +169,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                     Expanded(
                       child: Text(
                         '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                        style: GoogleFonts.plusJakartaSans(
+                                                style: GoogleFonts.outfit(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
                           color: const Color(0xFF111827),
@@ -248,7 +248,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                     ),
                     child: Text(
                       p['label']!,
-                      style: GoogleFonts.plusJakartaSans(
+                                            style: GoogleFonts.outfit(
                         fontSize: 14,
                         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                         color: isSelected ? Colors.white : const Color(0xFF4B5563),
@@ -267,10 +267,10 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             TextField(
               controller: _messageController,
               maxLines: 3,
-              style: GoogleFonts.plusJakartaSans(fontSize: 15),
+                            style: GoogleFonts.outfit(fontSize: 15),
               decoration: InputDecoration(
                 hintText: 'आफ्नो बारेमा केही लेख्नुहोस्...',
-                hintStyle: GoogleFonts.plusJakartaSans(fontSize: 14, color: const Color(0xFF9CA3AF)),
+                                hintStyle: GoogleFonts.outfit(fontSize: 14, color: const Color(0xFF9CA3AF)),
                 filled: true,
                 fillColor: const Color(0xFFF9FAFB),
                 contentPadding: const EdgeInsets.all(20),
@@ -306,7 +306,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                     ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 3)
                     : Text(
                         'अनुरोध पठाउनुहोस् (Send Request)',
-                        style: GoogleFonts.plusJakartaSans(
+                                                style: GoogleFonts.outfit(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.5,
@@ -318,7 +318,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             Center(
               child: Text(
                 'घरबेटीले ४८ घण्टा भित्र जवाफ दिनेछन्',
-                style: GoogleFonts.plusJakartaSans(
+                                style: GoogleFonts.outfit(
                   color: const Color(0xFF9CA3AF),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -338,7 +338,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
       children: [
         Text(
           nepali,
-          style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.outfit(
             fontSize: 16,
             fontWeight: FontWeight.w800,
             color: const Color(0xFF111827),
@@ -346,7 +346,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
         ),
         Text(
           english,
-          style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.outfit(
             fontSize: 11,
             fontWeight: FontWeight.w600,
             color: const Color(0xFF6B7280),
@@ -375,7 +375,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF6B7280)),
           items: items,
           onChanged: onChanged,
-          style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.outfit(
             fontSize: 15,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF111827),

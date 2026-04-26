@@ -162,7 +162,7 @@ class ProfileHeader extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: fullName ?? (isOwner ? 'Owner' : 'Guest'),
-                        style: GoogleFonts.inter(
+                                                style: GoogleFonts.inter(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -268,7 +268,7 @@ class VerificationCard extends StatelessWidget {
                       : (isPending 
                           ? 'Pending Verification' 
                           : (isRejected ? 'Verification Rejected' : 'Verify Identity')),
-                  style: GoogleFonts.inter(
+                                    style: GoogleFonts.inter(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                     color: Colors.black87,
@@ -280,7 +280,7 @@ class VerificationCard extends StatelessWidget {
                       : (isPending 
                           ? 'Your documents are being reviewed.' 
                           : (isRejected ? 'Documents rejected. Please try again.' : 'Verify KYC to list your property.')),
-                  style: GoogleFonts.inter(
+                                    style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w500,
@@ -313,7 +313,7 @@ class VerificationCard extends StatelessWidget {
                 ),
                 child: Text(
                   isRejected ? 'Retry  ➔' : 'Verify  ➔',
-                  style: GoogleFonts.inter(
+                                    style: GoogleFonts.inter(
                     color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
@@ -455,7 +455,7 @@ class PostPropertyCard extends StatelessWidget {
                           children: [
                             Text(
                               'Ready to Rent?',
-                              style: GoogleFonts.plusJakartaSans(
+                                                            style: GoogleFonts.inter(
                                 color: const Color(0xFF002C40),
                                 fontSize: 20,
                                 fontWeight: FontWeight.w900,
@@ -464,7 +464,7 @@ class PostPropertyCard extends StatelessWidget {
                             ),
                             Text(
                               'List your property easily',
-                              style: GoogleFonts.plusJakartaSans(
+                                                            style: GoogleFonts.inter(
                                 color: const Color(0xFF002C40).withOpacity(0.7),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
@@ -493,7 +493,7 @@ class PostPropertyCard extends StatelessWidget {
                       ),
                       child: Text(
                         'Post Your Property',
-                        style: GoogleFonts.plusJakartaSans(
+                                                style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.4,
@@ -530,7 +530,7 @@ class ProfileMenuSection extends StatelessWidget {
           padding: const EdgeInsets.only(left: 12, bottom: 12),
           child: Text(
             title.toUpperCase(),
-            style: GoogleFonts.inter(
+                        style: GoogleFonts.inter(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: Colors.black38,
@@ -594,7 +594,7 @@ class ProfileMenuItem extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: GoogleFonts.inter(
+                style: GoogleFonts.inter(
           fontSize: 15,
           fontWeight: FontWeight.w500,
           color: const Color(0xFF1E1E1E),
@@ -603,7 +603,7 @@ class ProfileMenuItem extends StatelessWidget {
       ),
       subtitle: Text(
         subtitle,
-        style: GoogleFonts.inter(
+                style: GoogleFonts.inter(
           fontSize: 12,
           color: Colors.grey[500],
           fontWeight: FontWeight.w500,

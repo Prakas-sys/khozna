@@ -115,14 +115,14 @@ class HomeHeroSection extends StatelessWidget {
           FittedBox(
             child: Text(
               'Find your Next Home',
-              style: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: Colors.black),
+                                          style: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: Colors.black),
             ),
           ),
           const SizedBox(height: 2),
           FittedBox(
             child: Text(
               'No middleman',
-              style: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: AppTheme.brandColor),
+                                          style: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: AppTheme.brandColor),
             ),
           ),
         ],
@@ -158,7 +158,7 @@ class HomeSearchBar extends StatelessWidget {
               children: [
                 const Icon(CupertinoIcons.search, color: AppTheme.brandColor, size: 26),
                 const SizedBox(width: 14),
-                Expanded(child: Text('Search properties', style: GoogleFonts.inter(color: Colors.grey[400], fontSize: 16))),
+                                                Expanded(child: Text('Search properties', style: GoogleFonts.inter(color: Colors.grey[400], fontSize: 16))),
                 Padding(
                   padding: const EdgeInsets.only(right: 4),
                   child: InkWell(
@@ -210,7 +210,7 @@ class HomeHorizontalSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                                    Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
             Transform.translate(
               offset: const Offset(0, -4),
               child: InkWell(

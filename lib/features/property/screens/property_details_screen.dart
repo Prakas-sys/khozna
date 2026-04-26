@@ -197,6 +197,40 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
               ),
             ),
+            if (displayImages.length > 1) ...[
+              Positioned(
+                left: 10,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: GlassCircle(
+                    icon: Icons.chevron_left_rounded,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                    },
+                    iconSize: 24,
+                    size: 36,
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 10,
+                top: 0,
+                bottom: 0,
+                child: Center(
+                  child: GlassCircle(
+                    icon: Icons.chevron_right_rounded,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                    },
+                    iconSize: 24,
+                    size: 36,
+                  ),
+                ),
+              ),
+            ],
             Positioned(bottom: 42, left: 0, right: 0, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(displayImages.length, (index) => AnimatedContainer(duration: const Duration(milliseconds: 300), margin: const EdgeInsets.symmetric(horizontal: 3), height: 5, width: _currentImageIndex == index ? 22 : 5, decoration: BoxDecoration(color: _currentImageIndex == index ? Colors.white : Colors.white.withOpacity(0.3), borderRadius: BorderRadius.circular(10)))))),
           ],
         ),
@@ -214,7 +248,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ]),
         const SizedBox(height: 8),
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(child: Text(widget.property.title, style: GoogleFonts.plusJakartaSans(fontSize: 26, fontWeight: FontWeight.w900, color: const Color(0xFF1A1A2E), height: 1.1, letterSpacing: -1.0))),
+                                        Expanded(child: Text(widget.property.title, style: GoogleFonts.plusJakartaSans(fontSize: 26, fontWeight: FontWeight.w900, color: const Color(0xFF1A1A2E), height: 1.1, letterSpacing: -1.0))),
           const SizedBox(width: 16),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.price), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
@@ -297,8 +331,58 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ])),
         ]),
         const SizedBox(height: 20),
-        SizedBox(width: double.infinity, child: ElevatedButton.icon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => chat_page.ChatScreen(ownerId: widget.property.ownerId, name: name, avatar: avatar, isVerified: isVerified, online: true))), icon: const Icon(Icons.chat_bubble_outline), label: const Text("Message Owner"), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))))),
-      ]),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => chat_page.ChatScreen(
+                  ownerId: widget.property.ownerId,
+                  name: name,
+                  avatar: avatar,
+                  isVerified: isVerified,
+                  online: true,
+                ),
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.brandColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    for (double i in [-0.2, 0, 0.2])
+                      for (double j in [-0.2, 0, 0.2])
+                        Transform.translate(
+                          offset: Offset(i, j),
+                          child: SvgPicture.asset(
+                            'assets/icons/message.svg',
+                            width: 16,
+                            height: 16,
+                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                          ),
+                        ),
+                    SvgPicture.asset(
+                      'assets/icons/message.svg',
+                      width: 16,
+                      height: 16,
+                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 8),
+                const Text("Message Owner"),
+              ],
+            ),
+          ),
+        ),      ]),
     );
   }
 

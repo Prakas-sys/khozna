@@ -139,7 +139,7 @@ class HomeScreenState extends State<HomeScreen> {
             children: [
               const SizedBox(height: 32),
               const HomeHeroSection(),
-              const SizedBox(height: 42),
+                            const SizedBox(height: 24),
               HomeSearchBar(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
                 onVoiceResult: (text) {
@@ -147,7 +147,7 @@ class HomeScreenState extends State<HomeScreen> {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => SearchScreen(initialQuery: text)));
                 },
               ),
-              const SizedBox(height: 48),
+                            const SizedBox(height: 32),
               _buildSection(0, 'Near You', 'Properties in your current area'),
               const SizedBox(height: 18),
               _buildSection(2, 'Student Specials', 'Budget rooms near colleges'),
