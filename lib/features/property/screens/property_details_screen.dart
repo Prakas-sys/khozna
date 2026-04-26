@@ -157,12 +157,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       automaticallyImplyLeading: false,
       leading: Center(
         child: GlassCircle(
-          icon: Icons.arrow_back_ios_new_rounded,
+          icon: Icons.arrow_back_rounded,
           onTap: () {
             HapticFeedback.lightImpact();
             Navigator.pop(context);
           },
-          iconSize: 18,
+          iconSize: 22,
         ),
       ),
       actions: [
