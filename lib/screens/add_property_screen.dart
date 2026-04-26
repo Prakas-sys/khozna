@@ -586,7 +586,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 24),
         _buildLabel('विज्ञापनको नाम (Title)', true),
         _buildTextField(
-          'e.g. 2 BHK Modern Apartment',
+          'e.g. Add single Apartment',
           controller: _titleController,
           focusNode: _titleFocusNode,
         ),
