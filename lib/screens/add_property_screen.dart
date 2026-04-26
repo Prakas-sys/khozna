@@ -881,35 +881,47 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   Widget _quickPriceChip(String label, String value) {
-    return ActionChip(
-      label: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: '₹ ',
-              style: GoogleFonts.inter(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            TextSpan(
-              text: label,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: Colors.grey[100],
-      side: BorderSide.none,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      onPressed: () {
+    bool isSelected = _priceController.text == value;
+    return InkWell(
+      onTap: () {
+        HapticFeedback.selectionClick();
         setState(() => _priceController.text = value);
       },
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.brandColor : const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
+            width: 1.5,
+          ),
+        ),
+        child: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: '₹ ',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: isSelected ? Colors.white : const Color(0xFF111827),
+                ),
+              ),
+              TextSpan(
+                text: label,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: isSelected ? Colors.white : const Color(0xFF374151),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -998,28 +1010,38 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 32),
         // Negotiable Premium Card
         GestureDetector(
-          onTap: () => setState(() => _isNegotiable = !_isNegotiable),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            setState(() => _isNegotiable = !_isNegotiable);
+          },
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
               color: _isNegotiable
-                  ? AppTheme.brandColor.withOpacity(0.05)
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(16),
+                  ? AppTheme.brandColor.withValues(alpha: 0.05)
+                  : const Color(0xFFF9FAFB),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: _isNegotiable ? AppTheme.brandColor : Colors.grey[200]!,
-                width: 1.5,
+                color: _isNegotiable ? AppTheme.brandColor : const Color(0xFFE5E7EB),
+                width: 2,
               ),
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.handshake_rounded, 
-                  color: _isNegotiable ? AppTheme.brandColor : Colors.grey,
-                  size: 22,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: _isNegotiable ? AppTheme.brandColor : Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.handshake_rounded, 
+                    color: _isNegotiable ? Colors.white : Colors.grey[400],
+                    size: 20,
+                  ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1027,16 +1049,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       Text(
                         'भाडा मिलाउन सकिन्छ',
                         style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w900,
                           fontSize: 14,
-                          color: const Color(0xFF1F2937),
+                          color: const Color(0xFF111827),
+                          letterSpacing: -0.3,
                         ),
                       ),
                       Text(
                         'Price is Negotiable',
                         style: GoogleFonts.inter(
                           fontSize: 11,
-                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[500],
                         ),
                       ),
                     ],
@@ -1044,7 +1068,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ),
                 Switch.adaptive(
                   value: _isNegotiable,
-                  onChanged: (v) => setState(() => _isNegotiable = v),
+                  onChanged: (v) {
+                    HapticFeedback.lightImpact();
+                    setState(() => _isNegotiable = v);
+                  },
                   activeColor: AppTheme.brandColor,
                 ),
               ],
@@ -1156,39 +1183,75 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     
     return InkWell(
       onTap: () {
+        HapticFeedback.lightImpact();
         if (isAmenity) _toggleAmenity(value); else _toggleRule(value);
-        Feedback.forTap(context);
       },
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(20),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutBack,
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.05) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? Colors.white : const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? color : Colors.grey[200]!,
-            width: 1.5,
+            color: isSelected ? color : const Color(0xFFE5E7EB),
+            width: isSelected ? 2 : 1.5,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.12),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  )
+                ]
+              : [],
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            Icon(
-              icon,
-              color: isSelected ? color : Colors.grey[400],
-              size: 24,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: isSelected ? color : const Color(0xFF4B5563),
-                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-                letterSpacing: -0.2,
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isSelected ? color : Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isSelected ? color : Colors.black).withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        )
+                      ],
+                    ),
+                    child: Icon(
+                      icon,
+                      color: isSelected ? Colors.white : Colors.grey[400],
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: isSelected ? color : const Color(0xFF4B5563),
+                      fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ],
               ),
             ),
+            if (isSelected)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Icon(Icons.check_circle, color: color, size: 18),
+              ),
           ],
         ),
       ),
@@ -1741,11 +1804,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   const Spacer(),
                   Text(
                     label.split('\n')[0], // Nepali
-                    style: GoogleFonts.mukta(
-                      fontSize: 16,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
                       height: 1.1,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w900,
                       color: isSelected ? AppTheme.brandColor : const Color(0xFF1F2937),
+                      letterSpacing: -0.3,
                     ),
                   ),
                   Text(
@@ -1839,10 +1903,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   Text(
                     label,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.mukta(
-                      fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
                       color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
+                      letterSpacing: -0.2,
                     ),
                   ),
                 ],
@@ -1867,42 +1932,66 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     required bool isBlue,
     bool hasFile = false,
   }) {
+    Color activeColor = isBlue ? Colors.blue : AppTheme.brandColor;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
       decoration: BoxDecoration(
-        color: hasFile ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: hasFile ? activeColor.withValues(alpha: 0.05) : const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: hasFile ? AppTheme.brandColor : Colors.grey[200]!,
-          width: 1.5,
+          color: hasFile ? activeColor : const Color(0xFFE5E7EB),
+          width: 2,
         ),
+        boxShadow: hasFile ? [
+          BoxShadow(
+            color: activeColor.withValues(alpha: 0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          )
+        ] : [],
       ),
       child: Column(
         children: [
-          Icon(
-            hasFile ? Icons.check_circle_rounded : icon,
-            color: hasFile ? AppTheme.brandColor : Colors.grey[300],
-            size: 36,
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: hasFile ? activeColor : Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: (hasFile ? activeColor : Colors.black).withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                )
+              ],
+            ),
+            child: Icon(
+              hasFile ? Icons.check_rounded : icon,
+              color: hasFile ? Colors.white : Colors.grey[400],
+              size: 32,
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           Text(
             title,
+            textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 18,
+              fontSize: 17,
               fontWeight: FontWeight.w900,
               color: const Color(0xFF111827),
               letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             desc,
+            textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 13,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
               color: Colors.grey[500],
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -2105,10 +2194,11 @@ class _PropertySuccessScreenState extends State<_PropertySuccessScreen>
                 // TITLE
                 Text(
                   'प्रकाशित भयो! 🎉',
-                  style: GoogleFonts.mukta(
-                    fontSize: 30,
+                  style: GoogleFonts.inter(
+                    fontSize: 26,
                     fontWeight: FontWeight.w900,
-                    color: Colors.black87,
+                    color: const Color(0xFF111827),
+                    letterSpacing: -0.5,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -2206,10 +2296,11 @@ class _PropertySuccessScreenState extends State<_PropertySuccessScreen>
                     ),
                     child: Text(
                       'गृहपृष्ठमा जानुहोस् (Go Home)',
-                      style: GoogleFonts.mukta(
+                      style: GoogleFonts.inter(
                         color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.3,
                       ),
                     ),
                   ),
@@ -2233,10 +2324,11 @@ class _PropertySuccessScreenState extends State<_PropertySuccessScreen>
                     ),
                     child: Text(
                       'View My Listings',
-                      style: GoogleFonts.mukta(
-                        color: Colors.grey[700],
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                      style: GoogleFonts.inter(
+                        color: const Color(0xFF4B5563),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
                       ),
                     ),
                   ),
