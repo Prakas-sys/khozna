@@ -800,6 +800,36 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         'sub': 'Water',
         'color': const Color(0xFF0EA5E9),
       },
+      'water_24_7': {
+        'icon': Icons.water_drop_rounded,
+        'label': '२४ सै घण्टा पानी',
+        'sub': '24/7 Water',
+        'color': const Color(0xFF0EA5E9),
+      },
+      'ac': {
+        'icon': Icons.ac_unit_rounded,
+        'label': 'एसी (AC)',
+        'sub': 'AC',
+        'color': Colors.lightBlue,
+      },
+      'balcony': {
+        'icon': Icons.balcony_rounded,
+        'label': 'बालकोनी',
+        'sub': 'Balcony',
+        'color': Colors.green,
+      },
+      'furnished': {
+        'icon': Icons.chair_rounded,
+        'label': 'फर्निचर',
+        'sub': 'Furnished',
+        'color': Colors.brown,
+      },
+      'elevator': {
+        'icon': Icons.elevator_rounded,
+        'label': 'लिफ्ट',
+        'sub': 'Elevator',
+        'color': Colors.deepPurple,
+      },
       'parking_bike': {
         'icon': Icons.pedal_bike_outlined,
         'label': 'पार्किङ',
