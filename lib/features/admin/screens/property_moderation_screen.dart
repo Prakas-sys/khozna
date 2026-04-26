@@ -1,3 +1,4 @@
+﻿import 'package:khozna/widgets/khozna_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
@@ -22,7 +23,7 @@ class _PropertyModerationScreenState extends State<PropertyModerationScreen> {
 
   void _refresh() {
     setState(() {
-      _propertiesFuture = PropertyRepository.getAdminProperties();
+      _propertiesFuture = PropertyRepository.getAllPropertiesForAdmin();
     });
   }
 
@@ -53,13 +54,13 @@ class _PropertyModerationScreenState extends State<PropertyModerationScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.network(p.imageUrl, width: 100, height: 100, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Container(color: Colors.grey[200], child: const Icon(Icons.image_not_supported)))),
+                      ClipRRect(borderRadius: BorderRadius.circular(12), child: KhoznaImage(imageUrl: p.imageUrl, width: 100, height: 100, fit: BoxFit.cover)),
                       const SizedBox(width: 16),
                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Text(p.title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
                         Text(p.location, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
                         const SizedBox(height: 4),
-                        Text('रू ${p.price}', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
+                        Text('à¤°à¥‚ ${p.price}', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
                         const SizedBox(height: 8),
                         Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: _getStatusColor(p.status).withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: Text(p.status.toUpperCase(), style: TextStyle(color: _getStatusColor(p.status), fontSize: 10, fontWeight: FontWeight.bold))),
                       ])),
@@ -119,3 +120,4 @@ class _PropertyModerationScreenState extends State<PropertyModerationScreen> {
     );
   }
 }
+

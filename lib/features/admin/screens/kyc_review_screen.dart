@@ -1,8 +1,9 @@
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/features/admin/repositories/admin_repository.dart';
 import 'package:khozna/core/models/admin_model.dart';
-import 'package:khozna/core/utils/security_utils.dart';
+import 'package:khozna/core/security/security_utils.dart';
 
 class KycReviewScreen extends StatefulWidget {
   const KycReviewScreen({super.key});
@@ -84,7 +85,7 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
 
   Widget _buildThumb(String label, String url) {
     return Column(children: [
-      Container(width: 80, height: 60, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8), image: url.isNotEmpty ? DecorationImage(image: NetworkImage(url), fit: BoxFit.cover) : null), child: url.isEmpty ? const Icon(Icons.image_not_supported) : null),
+      Container(width: 80, height: 60, decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8), image: url.isNotEmpty ? DecorationImage(image: CachedNetworkImageProvider(url), fit: BoxFit.cover) : null), child: url.isEmpty ? const Icon(Icons.image_not_supported) : null),
       Text(label, style: const TextStyle(fontSize: 10)),
     ]);
   }
@@ -124,3 +125,4 @@ class _KycReviewScreenState extends State<KycReviewScreen> {
     }
   }
 }
+

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
-import '../widgets/trust_badge.dart';
+import 'package:khozna/core/models/user_model.dart';
+import 'package:khozna/widgets/trust_badge.dart';
 
 class BookingRequestScreen extends StatefulWidget {
   final String propertyId;
@@ -29,7 +30,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
   String _purpose = 'work';
   final TextEditingController _messageController = TextEditingController();
   bool _isSubmitting = false;
-  Map<String, dynamic>? _userProfile;
+  UserModel? _userProfile;
 
   final List<Map<String, String>> _purposes = [
     {'value': 'student', 'label': 'Student / Studying'},

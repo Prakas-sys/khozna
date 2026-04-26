@@ -13,7 +13,7 @@ class SavedPropertiesScreen extends StatefulWidget {
 }
 
 class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
-  List<Map<String, dynamic>> _savedProperties = [];
+  List<Property> _savedProperties = [];
   bool _isLoading = true;
 
   @override
@@ -68,11 +68,7 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                       ),
                       itemCount: _savedProperties.length,
                       itemBuilder: (context, index) {
-                        final savedItem = _savedProperties[index];
-                        final pMap = savedItem['properties'];
-                        if (pMap == null) return const SizedBox.shrink();
-
-                        final property = Property.fromMap(pMap);
+                        final property = _savedProperties[index];
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 24),

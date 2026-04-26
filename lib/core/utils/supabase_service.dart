@@ -1,11 +1,16 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/features/auth/repositories/auth_repository.dart';
 import 'package:khozna/features/profile/repositories/user_repository.dart';
+import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/features/property/repositories/property_repository.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/profile/repositories/notification_repository.dart';
 import 'package:khozna/features/admin/repositories/admin_repository.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
+import 'package:khozna/core/models/admin_model.dart';
+import 'package:khozna/core/models/chat_model.dart';
+import 'package:khozna/core/models/booking_model.dart';
+import 'package:khozna/core/models/property_model.dart';
 
 /// Legacy wrapper for Supabase services. 
 /// NOTE: Direct use of specialized repositories is preferred for new code.
@@ -13,13 +18,13 @@ class SupabaseService {
   static String get currentUserId => AuthRepository.currentUserId;
 
   // Profile / User
-  static Future<Map<String, dynamic>?> getUserProfile(String userId) => UserRepository.getUserProfile(userId);
+  static Future<UserModel?> getUserProfile(String userId) => UserRepository.getUserProfile(userId);
   static Future<void> syncUserWithSupabase(User user) => AuthRepository.syncUserWithSupabase(user);
-  static Future<List<Map<String, dynamic>>> getAllUsers() => UserRepository.getAllUsers();
-  static Future<List<Map<String, dynamic>>> searchUsers(String query) => UserRepository.searchUsers(query);
+  static Future<List<UserModel>> getAllUsers() => UserRepository.getAllUsers();
+  static Future<List<UserModel>> searchUsers(String query) => UserRepository.searchUsers(query);
   static Future<void> deleteUserPermanently(String userId) => UserRepository.deleteUserPermanently(userId);
   static Future<void> reportUser(String userId, String reporterId, String reason) => UserRepository.reportUser(userId, reporterId, reason);
-  static Future<List<Map<String, dynamic>>> getUserReports() => UserRepository.getUserReports();
+  static Future<List<UserReportModel>> getUserReports() => UserRepository.getUserReports();
   static Future<void> deleteReport(String reportId) => UserRepository.deleteReport(reportId);
 
   // Property
@@ -93,8 +98,8 @@ class SupabaseService {
   static Future<List<BookingModel>> getBookingRequestsForOwner() => BookingRepository.getBookingRequestsForOwner();
 
   // Admin
-  static Future<Map<String, int>> getOwnerStats() => AdminRepository.getAdminStats();
-  static Future<List<Map<String, dynamic>>> getPendingKycs() => AdminRepository.getPendingKycs();
+  static Future<AdminStatsModel> getOwnerStats() => AdminRepository.getAdminStats();
+  static Future<List<KycVerificationModel>> getPendingKycs() => AdminRepository.getPendingKycs();
   static Future<void> updateKycStatus(String kycId, String userId, String status, {String? reason}) => AdminRepository.updateKycStatus(kycId, userId, status, reason: reason);
   static Future<void> deleteKycPermanently(String kycId) => AdminRepository.deleteKycPermanently(kycId);
   static void listenToOwnerAlerts(Function onNewEvent) => AdminRepository.listenToAdminAlerts(onNewEvent);
@@ -114,9 +119,9 @@ class SupabaseService {
   static Future<void> fetchUnreadNotificationCount() => NotificationRepository.fetchUnreadNotificationCount();
 
   // Chat
-  static Future<List<Map<String, dynamic>>> getConversations() => ChatRepository.getConversations();
+  static Future<List<ChatConversation>> getConversations() => ChatRepository.getConversations();
   static Future<String> getOrCreateChat(String otherUserId) => ChatRepository.getOrCreateChat(otherUserId);
-  static Stream<List<Map<String, dynamic>>> getMessagesStream(String chatId) => ChatRepository.getMessagesStream(chatId);
+  static Stream<List<ChatMessage>> getMessagesStream(String chatId) => ChatRepository.getMessagesStream(chatId);
   static Future<void> sendMessage(String chatId, String text) => ChatRepository.sendMessage(chatId, text);
   static Future<void> markChatAsRead(String chatId) => ChatRepository.markChatAsRead(chatId);
   static Future<void> fetchUnreadMessageCount() => ChatRepository.fetchUnreadMessageCount();

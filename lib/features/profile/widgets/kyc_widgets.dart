@@ -1,3 +1,4 @@
+﻿import 'package:khozna/widgets/khozna_image.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -55,10 +56,6 @@ class KycStepButton extends StatelessWidget {
     );
   }
 }
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:khozna/core/theme/app_theme.dart';
 
 class DashRectPainter extends CustomPainter {
   final Color color;
@@ -290,7 +287,7 @@ class KycTextField extends StatelessWidget {
           prefixIcon: providerLogo != null
               ? Padding(
                   padding: const EdgeInsets.all(14.0),
-                  child: Image.network(providerLogo!, width: 22, height: 22),
+                  child: KhoznaImage(imageUrl: providerLogo!, width: 22, height: 22),
                 )
               : Icon(
                   icon,
@@ -351,3 +348,4 @@ class KycTextField extends StatelessWidget {
     );
   }
 }
+

@@ -8,7 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
-import 'package:khozna/core/utils/cloudinary_service.dart';
+import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import '../widgets/chat_widgets.dart';
@@ -79,9 +79,9 @@ class _ChatScreenState extends State<ChatScreen> {
     final profile = await SupabaseService.getUserProfile(widget.ownerId);
     if (profile != null && mounted) {
       setState(() {
-        _displayName = profile['full_name'] ?? _displayName;
-        _displayAvatar = profile['avatar_url'] ?? _displayAvatar;
-        _displayPhone = profile['phone_number'] ?? _displayPhone;
+        _displayName = profile.fullName;
+        _displayAvatar = profile.avatarUrl ?? _displayAvatar;
+        _displayPhone = profile.phoneNumber ?? _displayPhone;
       });
     }
   }

@@ -1,3 +1,4 @@
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +18,8 @@ import 'package:khozna/features/profile/screens/edit_profile_screen.dart';
 import 'package:khozna/features/property/screens/add_property_screen.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
-import 'package:khozna/core/utils/cloudinary_service.dart';
-import 'package:khozna/core/utils/auth_guard.dart';
+import 'package:khozna/core/services/cloudinary_service.dart';
+import 'package:khozna/core/guards/auth_guard.dart';
 import 'package:khozna/features/profile/widgets/profile_widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -440,7 +441,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundImage: _avatarUrl != null ? NetworkImage(_avatarUrl!) : null,
+                    backgroundImage: _avatarUrl != null ? CachedNetworkImageProvider(_avatarUrl!) : null,
                     child: _avatarUrl == null ? const Icon(Icons.person) : null,
                   ),
                   const SizedBox(width: 12),
@@ -486,3 +487,4 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 }
+

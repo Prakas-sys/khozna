@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:khozna/features/TO_BE_FIXED/login_screen.dart';
-import 'package:khozna/features/TO_BE_FIXED/kyc_screen.dart';
+import 'package:khozna/features/auth/screens/login_screen.dart';
+import 'package:khozna/features/profile/screens/kyc_screen.dart';
 
 class AuthGuard {
   static final supabase = Supabase.instance.client;

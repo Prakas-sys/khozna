@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/features/TO_BE_FIXED/login_screen.dart';
+import 'package:khozna/features/auth/screens/login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

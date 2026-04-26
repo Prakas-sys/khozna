@@ -100,7 +100,28 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     super.dispose();
   }
 
+  void _toggleAmenity(String amenity) {
+    setState(() {
+      if (_selectedAmenities.contains(amenity)) {
+        _selectedAmenities.remove(amenity);
+      } else {
+        _selectedAmenities.add(amenity);
+      }
+    });
+  }
+
+  void _toggleRule(String rule) {
+    setState(() {
+      if (_selectedRules.contains(rule)) {
+        _selectedRules.remove(rule);
+      } else {
+        _selectedRules.add(rule);
+      }
+    });
+  }
+
   Future<void> _pickImages() async {
+
     final List<XFile> images = await _picker.pickMultiImage(
       imageQuality: 70,
       maxWidth: 1920,

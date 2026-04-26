@@ -1,8 +1,9 @@
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/utils/kyc_ai_analyser.dart';
+import 'package:khozna/core/services/kyc_ai_analyser.dart';
 import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/models/admin_model.dart';
 import 'package:khozna/features/profile/repositories/user_repository.dart';
@@ -177,7 +178,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))]),
                   child: Row(
                     children: [
-                      CircleAvatar(radius: 24, backgroundColor: AppTheme.brandColor.withOpacity(0.1), backgroundImage: (user.avatarUrl != null && user.avatarUrl!.isNotEmpty) ? NetworkImage(user.avatarUrl!) : null, child: (user.avatarUrl == null || user.avatarUrl!.isEmpty) ? Text(user.fullName[0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor)) : null),
+                      CircleAvatar(radius: 24, backgroundColor: AppTheme.brandColor.withOpacity(0.1), backgroundImage: (user.avatarUrl != null && user.avatarUrl!.isNotEmpty) ? CachedNetworkImageProvider(user.avatarUrl!) : null, child: (user.avatarUrl == null || user.avatarUrl!.isEmpty) ? Text(user.fullName[0].toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.brandColor)) : null),
                       const SizedBox(width: 12),
                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(user.fullName, style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 15)), const SizedBox(height: 2), Text(user.phoneNumber ?? 'No Phone', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]))])),
                       AdminStatusBadge(status: user.kycStatus),
@@ -279,7 +280,7 @@ class _KycDetailSheetState extends State<_KycDetailSheet> {
                     const SizedBox(height: 12),
                     Row(children: [AdminDocImage(url: kyc.frontImageUrl, label: 'Front ID'), const SizedBox(width: 8), AdminDocImage(url: kyc.backImageUrl, label: 'Back ID'), const SizedBox(width: 8), AdminDocImage(url: kyc.selfieImageUrl, label: 'Selfie')]),
                     const SizedBox(height: 24),
-                    if (_aiResult == null && !_isAnalysing) SizedBox(width: double.infinity, height: 52, child: ElevatedButton.icon(onPressed: _runAiAnalysis, icon: const Text('🤖', style: TextStyle(fontSize: 20)), label: Text('Analyse with AI', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 15)), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))))),
+                    if (_aiResult == null && !_isAnalysing) SizedBox(width: double.infinity, height: 52, child: ElevatedButton.icon(onPressed: _runAiAnalysis, icon: const Text('ðŸ¤–', style: TextStyle(fontSize: 20)), label: Text('Analyse with AI', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 15)), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))))),
                     if (_isAnalysing) const Center(child: CircularProgressIndicator()),
                     if (_aiResult != null) AiResultCard(result: _aiResult!),
                     const SizedBox(height: 40),
@@ -293,3 +294,4 @@ class _KycDetailSheetState extends State<_KycDetailSheet> {
     );
   }
 }
+

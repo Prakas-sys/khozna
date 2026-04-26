@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/utils/khozna_ai_service.dart';
+import 'package:khozna/core/services/khozna_ai_service.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});

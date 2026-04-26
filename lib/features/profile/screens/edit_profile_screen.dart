@@ -1,10 +1,11 @@
+import 'package:khozna/widgets/khozna_image.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/utils/cloudinary_service.dart';
+import 'package:khozna/core/services/cloudinary_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -174,10 +175,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         child: _imageFile != null
                             ? Image.file(_imageFile!, fit: BoxFit.cover)
                             : (_avatarUrl != null && _avatarUrl!.isNotEmpty)
-                            ? Image.network(
+                            ? KhoznaImage(imageUrl: 
                                 _avatarUrl!,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Icon(
+                                errorWidget: Icon(
                                   Icons.person_rounded,
                                   size: 50,
                                   color: AppTheme.brandColor.withOpacity(0.5),
@@ -368,3 +369,4 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 }
+

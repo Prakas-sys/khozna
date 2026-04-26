@@ -1,7 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:khozna/widgets/khozna_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/core/models/admin_model.dart';
 
 class KycModerationScreen extends StatefulWidget {
   const KycModerationScreen({super.key});
@@ -11,7 +14,7 @@ class KycModerationScreen extends StatefulWidget {
 }
 
 class _KycModerationScreenState extends State<KycModerationScreen> {
-  late Future<List<Map<String, dynamic>>> _pendingKycFuture;
+  late Future<List<KycVerificationModel>> _pendingKycFuture;
 
   @override
   void initState() {
@@ -43,7 +46,7 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
           ),
         ],
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<KycVerificationModel>>(
         future: _pendingKycFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -93,7 +96,7 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
     );
   }
 
-  Widget _buildKycCard(Map<String, dynamic> request) {
+  Widget _buildKycCard(KycVerificationModel request) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -126,14 +129,14 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        request['full_name'] ?? 'Unknown User',
+                        request.fullName,
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
                       ),
                       Text(
-                        'ID: ${request['citizenship_number'] ?? 'N/A'}',
+                        'ID: ${request.citizenshipNumber}',
                         style: GoogleFonts.inter(
                           color: Colors.grey[600],
                           fontSize: 12,
@@ -188,11 +191,11 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    _buildImagePreview('Front', request['front_image_url']),
+                    _buildImagePreview('Front', request.frontImageUrl),
                     const SizedBox(width: 12),
-                    _buildImagePreview('Back', request['back_image_url']),
+                    _buildImagePreview('Back', request.backImageUrl),
                     const SizedBox(width: 12),
-                    _buildImagePreview('Selfie', request['selfie_image_url']),
+                    _buildImagePreview('Selfie', request.selfieImageUrl),
                   ],
                 ),
               ],
@@ -269,7 +272,7 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
                 border: Border.all(color: Colors.grey.shade300),
                 image: (url != null && url.isNotEmpty)
                     ? DecorationImage(
-                        image: NetworkImage(url),
+                        image: CachedNetworkImageProvider(url),
                         fit: BoxFit.cover,
                       )
                     : null,
@@ -314,19 +317,11 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
               boundaryMargin: const EdgeInsets.all(20),
               minScale: 0.5,
               maxScale: 4.0,
-              child: Image.network(
+              child: KhoznaImage(imageUrl: 
                 url,
                 fit: BoxFit.contain,
                 width: double.infinity,
                 height: double.infinity,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: AppTheme.brandColor,
-                    ),
-                  );
-                },
               ),
             ),
           ),
@@ -335,7 +330,7 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
     );
   }
 
-  Future<void> _confirmDeletePermanently(Map<String, dynamic> request) async {
+  Future<void> _confirmDeletePermanently(KycVerificationModel request) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -359,7 +354,7 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
 
     if (confirmed == true) {
       try {
-        await SupabaseService.deleteKycPermanently(request['id']);
+        await SupabaseService.deleteKycPermanently(request.id);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -380,7 +375,7 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
   }
 
   Future<void> _handleAction(
-    Map<String, dynamic> request, {
+    KycVerificationModel request, {
     required bool isApprove,
   }) async {
     final confirmed = await showDialog<bool>(
@@ -415,8 +410,8 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
       try {
         if (isApprove) {
           await SupabaseService.updateKycStatus(
-            request['id'],
-            request['user_id'],
+            request.id,
+            request.userId,
             'verified',
           );
 
@@ -466,8 +461,8 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
           }
         } else {
           await SupabaseService.updateKycStatus(
-            request['id'],
-            request['user_id'],
+            request.id,
+            request.userId,
             'rejected',
             reason: 'Documents invalid.',
           );
@@ -490,3 +485,5 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
     }
   }
 }
+
+

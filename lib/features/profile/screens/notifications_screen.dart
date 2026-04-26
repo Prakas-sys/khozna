@@ -1,3 +1,4 @@
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
@@ -5,7 +6,7 @@ import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
-import '../widgets/trust_badge.dart';
+import 'package:khozna/widgets/trust_badge.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -119,12 +120,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         final String id = note['id'].toString();
                         final String type = note['type']?.toString() ?? '';
 
-                        // ── SPECIAL: Booking Request card with Approve/Reject ──
+                        // â”€â”€ SPECIAL: Booking Request card with Approve/Reject â”€â”€
                         if (type == 'booking_request') {
                           return _buildBookingRequestCard(note, id, index, sender);
                         }
 
-                        // ── Standard notification row ──
+                        // â”€â”€ Standard notification row â”€â”€
                         return Dismissible(
                           key: Key(id),
                           direction: DismissDirection.endToStart,
@@ -152,12 +153,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 if (propertyId != null) {
                                   // Fetch latest booking for this guest and property
                                   final bookings = await SupabaseService.getMyBookings();
-                                  final booking = bookings.firstWhere(
-                                    (b) => b['property_id'] == propertyId,
-                                    orElse: () => {},
-                                  );
+                                  final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
                                   
-                                  if (booking.isNotEmpty && mounted) {
+                                  if (filtered.isNotEmpty && mounted) {
+                                    final booking = filtered.first;
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -202,7 +201,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                           backgroundImage:
                                               sender != null &&
                                                   sender['avatar_url'] != null
-                                              ? NetworkImage(sender['avatar_url'])
+                                              ? CachedNetworkImageProvider(sender['avatar_url'])
                                               : null,
                                           child:
                                               sender == null ||
@@ -300,7 +299,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  /// Booking request notification card — shown ONLY to the owner
+  /// Booking request notification card â€” shown ONLY to the owner
   Widget _buildBookingRequestCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
     final String propertyId = note['property_id']?.toString() ?? '';
     final String requesterId = note['requester_id']?.toString() ?? note['sender_id']?.toString() ?? '';
@@ -352,7 +351,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            note['title'] ?? '🏠 नयाँ बुकिङ अनुरोध (New Booking Request)',
+                            note['title'] ?? 'ðŸ  à¤¨à¤¯à¤¾à¤ à¤¬à¥à¤•à¤¿à¤™ à¤…à¤¨à¥à¤°à¥‹à¤§ (New Booking Request)',
                             style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black),
                           ),
                           Text(
@@ -377,7 +376,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           radius: 22,
                           backgroundColor: Colors.grey[100],
                           backgroundImage: sender != null && sender['avatar_url'] != null
-                              ? NetworkImage(sender['avatar_url']) : null,
+                              ? CachedNetworkImageProvider(sender['avatar_url']) : null,
                           child: sender == null || sender['avatar_url'] == null
                               ? Icon(Icons.person, color: Colors.grey[400], size: 24) : null,
                         ),
@@ -437,7 +436,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                               },
                               icon: const Icon(Icons.close_rounded, size: 16),
-                              label: Text('अस्वीकार (Reject)', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
+                              label: Text('à¤…à¤¸à¥à¤µà¥€à¤•à¤¾à¤° (Reject)', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.red,
                                 side: const BorderSide(color: Colors.red, width: 1.5),
@@ -455,7 +454,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 final ownerProfile = await SupabaseService.getUserProfile(
                                   SupabaseService.currentUserId,
                                 );
-                                final ownerName = ownerProfile?['full_name'] ?? 'The owner';
+                                final ownerName = ownerProfile?.fullName ?? 'The owner';
                                 try {
                                   await SupabaseService.approveBooking(
                                     propertyId: propertyId,
@@ -470,7 +469,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                               },
                               icon: const Icon(Icons.check_rounded, size: 16),
-                              label: Text('स्वीकार (Approve)', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
+                              label: Text('à¤¸à¥à¤µà¥€à¤•à¤¾à¤° (Approve)', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF22C55E),
                                 foregroundColor: Colors.white,
@@ -568,7 +567,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 48),
           child: Text(
-            'तपाईंका नयाँ सन्देश र बुकिङहरू यहाँ देखा पर्नेछन्।\n(New alerts, bookings, and messages will appear here.)',
+            'à¤¤à¤ªà¤¾à¤ˆà¤‚à¤•à¤¾ à¤¨à¤¯à¤¾à¤ à¤¸à¤¨à¥à¤¦à¥‡à¤¶ à¤° à¤¬à¥à¤•à¤¿à¤™à¤¹à¤°à¥‚ à¤¯à¤¹à¤¾à¤ à¤¦à¥‡à¤–à¤¾ à¤ªà¤°à¥à¤¨à¥‡à¤›à¤¨à¥à¥¤\n(New alerts, bookings, and messages will appear here.)',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 15,
@@ -776,3 +775,4 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 }
+

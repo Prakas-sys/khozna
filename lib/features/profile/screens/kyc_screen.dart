@@ -8,8 +8,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/utils/security_utils.dart';
-import 'package:khozna/core/utils/cloudinary_service.dart';
+import 'package:khozna/core/security/security_utils.dart';
+import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/features/profile/widgets/kyc_widgets.dart';
 
 class KycScreen extends StatefulWidget {
@@ -468,7 +468,6 @@ class _KycScreenState extends State<KycScreen> {
         const KycSectionHeader(title: 'Citizenship Front (नागरिकताको अगाडि)'),
         const SizedBox(height: 12),
         PhotoUploadBox(
-          type: 'front',
           title: 'Upload Front',
           subtitle: 'PNG, JPG (max. 5MB)',
           image: _frontImage,
@@ -478,7 +477,6 @@ class _KycScreenState extends State<KycScreen> {
         const KycSectionHeader(title: 'Citizenship Back (नागरिकताको पछाडि)'),
         const SizedBox(height: 12),
         PhotoUploadBox(
-          type: 'back',
           title: 'Upload Back',
           subtitle: 'PNG, JPG (max. 5MB)',
           image: _backImage,
@@ -488,7 +486,6 @@ class _KycScreenState extends State<KycScreen> {
         const KycSectionHeader(title: 'Your Selfie (तपाईंको अनुहारको सेल्फी)'),
         const SizedBox(height: 12),
         PhotoUploadBox(
-          type: 'selfie',
           title: 'Upload Selfie',
           subtitle: 'A clear photo of your face',
           image: _selfieImage,

@@ -9,7 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/utils/security_utils.dart';
+import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/screens/main_screen.dart';
 import 'package:khozna/features/auth/screens/register_screen.dart';
 import 'package:khozna/features/auth/screens/verify_phone_screen.dart';

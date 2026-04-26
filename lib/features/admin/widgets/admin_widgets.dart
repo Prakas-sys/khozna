@@ -1,3 +1,4 @@
+import 'package:khozna/widgets/khozna_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -93,12 +94,12 @@ class AdminDocImage extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
+              child: KhoznaImage(imageUrl: 
                 url!,
                 height: 100,
                 width: double.infinity,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorWidget: Container(
                   height: 100,
                   color: Colors.grey[200],
                   child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
@@ -139,10 +140,10 @@ class FullScreenImageViewer extends StatelessWidget {
           panEnabled: true,
           minScale: 0.5,
           maxScale: 6.0,
-          child: Image.network(
+          child: KhoznaImage(imageUrl: 
             url,
             fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 60),
+            errorWidget: const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 60),
           ),
         ),
       ),
@@ -168,22 +169,22 @@ class AiResultCard extends StatelessWidget {
       case 'PASS':
         verdictColor = Colors.green;
         verdictIcon = Icons.verified_rounded;
-        verdictLabel = 'PASS — Safe to Approve';
+        verdictLabel = 'PASS â€” Safe to Approve';
         break;
       case 'FAIL':
         verdictColor = Colors.red;
         verdictIcon = Icons.dangerous_rounded;
-        verdictLabel = 'FAIL — Likely Fake';
+        verdictLabel = 'FAIL â€” Likely Fake';
         break;
       case 'ERROR':
         verdictColor = Colors.grey;
         verdictIcon = Icons.error_outline_rounded;
-        verdictLabel = 'ERROR — Try again';
+        verdictLabel = 'ERROR â€” Try again';
         break;
       default:
         verdictColor = Colors.orange;
         verdictIcon = Icons.help_rounded;
-        verdictLabel = 'UNCERTAIN — Review manually';
+        verdictLabel = 'UNCERTAIN â€” Review manually';
     }
 
     return Container(
@@ -231,7 +232,7 @@ class AiResultCard extends StatelessWidget {
           Text('Verification Checks',
               style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13, color: Colors.grey[700])),
           const SizedBox(height: 10),
-          _CheckRow(label: 'Genuine Nepali नागरिकता Card', value: result['is_genuine_nepali_id'] == true),
+          _CheckRow(label: 'Genuine Nepali à¤¨à¤¾à¤—à¤°à¤¿à¤•à¤¤à¤¾ Card', value: result['is_genuine_nepali_id'] == true),
           _CheckRow(label: 'Name Matches Document', value: result['name_match'] == true),
           _CheckRow(label: 'ID Number Matches', value: result['id_number_match'] == true),
           _CheckRow(label: 'Real Human Face in Selfie', value: result['human_face_in_selfie'] == true),
@@ -262,7 +263,7 @@ class AiResultCard extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('• ', style: TextStyle(fontSize: 12, color: Colors.red)),
+                        const Text('â€¢ ', style: TextStyle(fontSize: 12, color: Colors.red)),
                         Expanded(child: Text(f, style: GoogleFonts.inter(fontSize: 12, color: Colors.red[800]))),
                       ],
                     ),
@@ -322,3 +323,4 @@ class _CheckRow extends StatelessWidget {
     );
   }
 }
+

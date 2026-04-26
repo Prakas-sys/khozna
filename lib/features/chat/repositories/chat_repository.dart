@@ -84,10 +84,21 @@ class ChatRepository {
     if (user == null) return;
     final response = await _client
         .from('messages')
-        .select('id', count: CountOption.exact)
+        .select()
+        .eq('is_read', false)
+        .neq('sender_id', user.id)
+        .count(CountOption.exact);
+    messageBadgeCount.value = response.count;
+  }
+
+  static Future<void> markAllMessagesAsRead() async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    await _client
+        .from('messages')
+        .update({'is_read': true})
         .eq('is_read', false)
         .neq('sender_id', user.id);
-    unreadMessageCount.value = response.count;
   }
 
   static Future<void> deleteMessage(String messageId, String chatId) async {

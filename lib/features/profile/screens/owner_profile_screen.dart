@@ -1,3 +1,4 @@
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -52,7 +53,7 @@ class OwnerProfileScreen extends StatelessWidget {
                 radius: 60,
                 backgroundColor: Colors.grey[100],
                 backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
-                    ? NetworkImage(avatar)
+                    ? CachedNetworkImageProvider(avatar)
                     : null,
                 child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
                     ? Icon(Icons.person, size: 60, color: Colors.grey[400])
@@ -357,3 +358,4 @@ class OwnerProfileScreen extends StatelessWidget {
     );
   }
 }
+

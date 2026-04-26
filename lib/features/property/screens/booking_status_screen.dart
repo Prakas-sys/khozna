@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/core/models/booking_model.dart';
 import 'package:intl/intl.dart';
@@ -21,7 +22,7 @@ class BookingStatusScreen extends StatefulWidget {
 class _BookingStatusScreenState extends State<BookingStatusScreen> {
   late BookingModel _booking;
   bool _isLoading = false;
-  Map<String, dynamic>? _ownerProfile;
+  UserModel? _ownerProfile;
 
   @override
   void initState() {
@@ -110,7 +111,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         const SizedBox(width: 16),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(_booking.propertyTitle, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text('Owner: ${_ownerProfile?['full_name'] ?? 'Loading...'}', style: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 14)),
+          Text('Owner: ${_ownerProfile?.fullName ?? 'Loading...'}', style: GoogleFonts.outfit(color: Colors.grey[600], fontSize: 14)),
         ])),
       ]),
     );
@@ -144,9 +145,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('Contact Information', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
-        Row(children: [const Icon(Icons.phone, size: 18, color: Colors.green), const SizedBox(width: 12), Text(_ownerProfile?['phone_number'] ?? 'N/A')]),
+        Row(children: [const Icon(Icons.phone, size: 18, color: Colors.green), const SizedBox(width: 12), Text(_ownerProfile?.phoneNumber ?? 'N/A')]),
         const SizedBox(height: 16),
-        SizedBox(width: double.infinity, child: ElevatedButton.icon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => chat_page.ChatScreen(ownerId: _booking.ownerId, name: _ownerProfile?['full_name'] ?? 'Owner', avatar: _ownerProfile?['avatar_url'] ?? ''))), icon: const Icon(Icons.chat), label: const Text('Message Owner'), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white))),
+        SizedBox(width: double.infinity, child: ElevatedButton.icon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => chat_page.ChatScreen(ownerId: _booking.ownerId, name: _ownerProfile?.fullName ?? 'Owner', avatar: _ownerProfile?.avatarUrl ?? '', online: true))), icon: const Icon(Icons.chat), label: const Text('Message Owner'), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white))),
       ]),
     );
   }

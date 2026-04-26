@@ -1,9 +1,11 @@
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 
 class MessagesScreen extends StatefulWidget {
@@ -17,7 +19,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   int _selectedTab = 0;
   final List<String> _tabs = ['All', 'Unread', 'Groups'];
 
-  List<Map<String, dynamic>> _chats = [];
+  List<ChatConversation> _chats = [];
   bool _isLoading = true;
 
   @override
@@ -53,7 +55,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── BRANDED HEADER ──
+            // â”€â”€ BRANDED HEADER â”€â”€
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
               child: Row(
@@ -155,7 +157,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
             const SizedBox(height: 24),
 
-            // ── FILTER TABS (AIRBNB STYLE WITH BRAND COLOR) ──
+            // â”€â”€ FILTER TABS (AIRBNB STYLE WITH BRAND COLOR) â”€â”€
             SizedBox(
               height: 48,
               child: ListView.builder(
@@ -196,7 +198,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
             const SizedBox(height: 12),
 
-            // ── CHAT LIST ──
+            // â”€â”€ CHAT LIST â”€â”€
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -209,19 +211,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                             itemBuilder: (context, index) {
                               final chat = _chats[index];
-                              final currentUserId = Supabase.instance.client.auth.currentUser?.id;
-                              if (chat['sender'] == null && (chat['profiles'] == null || (chat['profiles'] as List).isEmpty)) {
-                                return const SizedBox.shrink();
-                              }
-
-                              final otherUser = chat['sender'] ?? (chat['profiles'] as List).firstWhere(
-                                (p) => p['id'] != currentUserId,
-                                orElse: () => null,
-                              );
-
-                              if (otherUser == null) return const SizedBox.shrink();
-
-                              return _buildChatTile(chat, otherUser);
+                              return _buildChatTile(chat);
                             },
                           ),
                         ),
@@ -324,15 +314,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
     );
   }
 
-  Widget _buildChatTile(Map<String, dynamic> chat, Map<String, dynamic> otherUser) {
-    final lastMessage = chat['last_message_text'] ?? 'No messages yet';
-    final lastTime = chat['last_message_time'] != null 
-        ? DateTime.parse(chat['last_message_time']).toLocal() 
-        : null;
-    final unreadCount = chat['unread_count'] ?? 0;
+  Widget _buildChatTile(ChatConversation chat) {
+    final lastMessage = chat.lastMessage ?? 'No messages yet';
+    final lastTime = chat.lastMessageTime;
+    final unreadCount = chat.unreadCount;
 
     return Dismissible(
-      key: Key(chat['id']),
+      key: Key(chat.id),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
@@ -372,21 +360,21 @@ class _MessagesScreenState extends State<MessagesScreen> {
         return confirm;
       },
       onDismissed: (direction) async {
-        await SupabaseService.deleteChat(chat['id']);
+        await SupabaseService.deleteChat(chat.id);
         _loadChats();
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 24),
         child: InkWell(
-          onLongPress: () => _showDeleteChatDialog(chat['id']),
+          onLongPress: () => _showDeleteChatDialog(chat.id),
           onTap: () async {
             await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => chat_page.ChatScreen(
-                  chatId: chat['id'],
-                  name: otherUser['full_name'] ?? 'User',
-                  avatar: otherUser['avatar_url'] ?? '',
+                  chatId: chat.id,
+                  name: chat.otherUserName,
+                  avatar: chat.otherUserAvatar,
                   online: true,
                 ),
               ),
@@ -423,14 +411,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     CircleAvatar(
                       radius: 28,
                       backgroundColor: const Color(0xFFF7F7F7),
-                      backgroundImage: (otherUser['avatar_url'] != null && 
-                                      otherUser['avatar_url']!.isNotEmpty && 
-                                      !otherUser['avatar_url']!.contains('pravatar.cc'))
-                          ? NetworkImage(otherUser['avatar_url'])
+                      backgroundImage: (chat.otherUserAvatar.isNotEmpty && 
+                                      !chat.otherUserAvatar.contains('pravatar.cc'))
+                          ? CachedNetworkImageProvider(chat.otherUserAvatar)
                           : null,
-                      child: (otherUser['avatar_url'] == null || 
-                              otherUser['avatar_url']!.isEmpty || 
-                              otherUser['avatar_url']!.contains('pravatar.cc'))
+                      child: (chat.otherUserAvatar.isEmpty || 
+                              chat.otherUserAvatar.contains('pravatar.cc'))
                           ? Icon(Icons.person, color: Colors.grey[400], size: 28)
                           : null,
                     ),
@@ -470,7 +456,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            otherUser['full_name'] ?? 'User',
+                            chat.otherUserName,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: unreadCount > 0 ? FontWeight.w800 : FontWeight.w700,
@@ -521,3 +507,4 @@ class _MessagesScreenState extends State<MessagesScreen> {
     }
   }
 }
+

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/utils/security_utils.dart';
+import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/screens/main_screen.dart';
 

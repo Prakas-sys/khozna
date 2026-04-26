@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/features/TO_BE_FIXED/kyc_screen.dart';
+import 'package:khozna/features/profile/screens/kyc_screen.dart';
 
 /// Checks if the current user has completed KYC.
 /// If not, shows a premium bottom sheet prompting them to verify.

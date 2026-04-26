@@ -1,3 +1,4 @@
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/features/profile/repositories/user_repository.dart';
@@ -45,10 +46,10 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(children: [
-                      CircleAvatar(radius: 18, backgroundImage: report.reportedAvatarUrl != null ? NetworkImage(report.reportedAvatarUrl!) : null, child: report.reportedAvatarUrl == null ? const Icon(Icons.person) : null),
+                      CircleAvatar(radius: 18, backgroundImage: report.reportedUserAvatar != null ? CachedNetworkImageProvider(report.reportedUserAvatar!) : null, child: report.reportedUserAvatar == null ? const Icon(Icons.person) : null),
                       const SizedBox(width: 12),
                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(report.reportedName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text(report.reportedUserName, style: const TextStyle(fontWeight: FontWeight.bold)),
                         Text('Reported by: ${report.reporterName}', style: TextStyle(color: Colors.grey[600], fontSize: 11)),
                       ])),
                       IconButton(onPressed: () => _deleteReport(report.id), icon: const Icon(Icons.delete_outline, color: Colors.grey)),
@@ -72,3 +73,4 @@ class _UserReportsScreenState extends State<UserReportsScreen> {
     } catch (_) {}
   }
 }
+
