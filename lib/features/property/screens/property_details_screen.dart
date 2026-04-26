@@ -10,9 +10,7 @@ import 'package:khozna/core/utils/formatters.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:khozna/widgets/trust_badge.dart';
 import 'package:khozna/features/property/screens/booking_request_screen.dart';
-import 'dart:ui';
 import 'package:share_plus/share_plus.dart';
 import 'package:khozna/features/property/widgets/property_details_widgets.dart';
 import 'package:khozna/widgets/khozna_image.dart';
@@ -233,7 +231,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final List<Widget> items = [];
     if (widget.property.bedrooms > 0) items.add(PropertyStatItem(icon: Icons.bed_outlined, value: '${widget.property.bedrooms}', label: 'Beds', accentColor: AppTheme.brandColor));
     if (widget.property.bathrooms > 0) items.add(PropertyStatItem(icon: Icons.bathtub_outlined, value: '${widget.property.bathrooms}', label: 'Baths', accentColor: Colors.cyan));
-    if (widget.property.area != null) items.add(PropertyStatItem(icon: Icons.square_foot_outlined, value: widget.property.area!, label: 'Area', accentColor: Colors.green));
+    items.add(PropertyStatItem(icon: Icons.square_foot_outlined, value: widget.property.area, label: 'Area', accentColor: Colors.green));
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
@@ -309,9 +307,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
       decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, -5))]),
       child: SafeArea(child: Row(children: [
-        Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), child: const Text('Back'), style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))))),
+        Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('Back'))),
         const SizedBox(width: 12),
-        Expanded(flex: 2, child: ElevatedButton(onPressed: (widget.property.status == 'booked' || _userHasPendingBooking) ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => BookingRequestScreen(propertyId: widget.property.id, propertyTitle: widget.property.title, ownerId: widget.property.ownerId, ownerName: widget.property.ownerName ?? 'Owner'))).then((v) => v == true ? setState(() => _userHasPendingBooking = true) : null), child: Text(widget.property.status == 'booked' ? 'Booked' : (_userHasPendingBooking ? 'Pending Approval' : 'Book Now')), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))))),
+        Expanded(flex: 2, child: ElevatedButton(onPressed: (widget.property.status == 'booked' || _userHasPendingBooking) ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => BookingRequestScreen(propertyId: widget.property.id, propertyTitle: widget.property.title, ownerId: widget.property.ownerId, ownerName: widget.property.ownerName ?? 'Owner'))).then((v) => v == true ? setState(() => _userHasPendingBooking = true) : null), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: Text(widget.property.status == 'booked' ? 'Booked' : (_userHasPendingBooking ? 'Pending Approval' : 'Book Now')))),
       ])),
     );
   }

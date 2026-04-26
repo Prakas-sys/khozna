@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/models/user_model.dart';
-import 'package:khozna/widgets/trust_badge.dart';
 
 class BookingRequestScreen extends StatefulWidget {
   final String propertyId;

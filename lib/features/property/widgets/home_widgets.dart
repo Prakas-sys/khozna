@@ -7,8 +7,6 @@ import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/widgets/property_card.dart';
 import 'package:khozna/widgets/skeleton_card.dart';
 import 'package:khozna/widgets/voice_search_overlay.dart';
-import 'package:khozna/features/property/screens/search_screen.dart';
-import 'package:khozna/features/property/screens/filter_results_screen.dart';
 
 class HomeHeader extends StatelessWidget {
   final String locationName;
@@ -261,7 +259,7 @@ class HomeHorizontalSection extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: 3,
-        itemBuilder: (_, __) => const Padding(padding: EdgeInsets.only(right: 16), child: SkeletonCard()),
+        itemBuilder: (_, _) => const Padding(padding: EdgeInsets.only(right: 16), child: SkeletonCard()),
       ),
     );
   }

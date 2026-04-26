@@ -1,10 +1,9 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
-import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/widgets/trust_badge.dart';
 
@@ -267,8 +266,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                               ),
                                               TextSpan(
                                                 text:
-                                                    '  ' +
-                                                    _formatTime(note['created_at']),
+                                                    '  ${_formatTime(note['created_at'])}',
                                                 style: TextStyle(
                                                   color: Colors.grey[400],
                                                   fontSize: 12,
@@ -308,7 +306,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final RegExp titleRegex = RegExp(r'wants to rent "(.+)"');
     final match = titleRegex.firstMatch(message);
     final String propertyTitle = match?.group(1) ?? 'this property';
-    bool _acting = false;
+    bool acting = false;
 
     return StatefulBuilder(
       builder: (context, setCardState) {
@@ -411,7 +409,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               // Action buttons
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: _acting
+                child: acting
                     ? const Center(child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 8),
                         child: CircularProgressIndicator(strokeWidth: 2),
@@ -422,7 +420,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: () async {
-                                setCardState(() => _acting = true);
+                                setCardState(() => acting = true);
                                 try {
                                   await SupabaseService.rejectBooking(
                                     propertyId: propertyId,
@@ -432,7 +430,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   );
                                   if (mounted) setState(() => _notifications.removeAt(index));
                                 } catch (_) {
-                                  setCardState(() => _acting = false);
+                                  setCardState(() => acting = false);
                                 }
                               },
                               icon: const Icon(Icons.close_rounded, size: 16),
@@ -450,7 +448,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           Expanded(
                             child: ElevatedButton.icon(
                               onPressed: () async {
-                                setCardState(() => _acting = true);
+                                setCardState(() => acting = true);
                                 final ownerProfile = await SupabaseService.getUserProfile(
                                   SupabaseService.currentUserId,
                                 );
@@ -465,7 +463,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   );
                                   if (mounted) setState(() => _notifications.removeAt(index));
                                 } catch (_) {
-                                  setCardState(() => _acting = false);
+                                  setCardState(() => acting = false);
                                 }
                               },
                               icon: const Icon(Icons.check_rounded, size: 16),

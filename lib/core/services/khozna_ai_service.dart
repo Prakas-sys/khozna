@@ -113,7 +113,7 @@ class KhoznaAiService {
           .eq('status', 'available')
           .limit(20);
 
-      if (response != null && (response as List).isNotEmpty) {
+      if ((response as List).isNotEmpty) {
         liveContext = "Here is the CURRENT LIVE INVENTORY on Khozna. Use this exact data to answer the user if relevant:\n";
         for (var p in response) {
           liveContext += "- ${p['category']} in ${p['location_area']} for Rs. ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";

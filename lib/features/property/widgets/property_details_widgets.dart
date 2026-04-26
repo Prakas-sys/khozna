@@ -1,9 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/utils/formatters.dart';
 
 class DetailSectionTitle extends StatelessWidget {
   final String title;

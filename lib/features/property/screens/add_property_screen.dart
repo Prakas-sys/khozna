@@ -9,7 +9,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:confetti/confetti.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
 import 'package:khozna/features/property/widgets/add_property_widgets.dart';
 import 'package:khozna/features/property/repositories/property_repository.dart';
@@ -61,7 +60,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   // Media State
   File? _selectedVideo;
-  bool _isUploadingVideo = false;
+  final bool _isUploadingVideo = false;
 
   // Smart Check Radius State
   double _distanceFromLandmark = 0.0;

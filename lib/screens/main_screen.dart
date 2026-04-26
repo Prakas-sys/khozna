@@ -7,7 +7,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
-import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/features/property/screens/home_screen.dart';
 import 'package:khozna/features/property/screens/reels_screen.dart';
 import 'package:khozna/features/chat/screens/messages_screen.dart';

@@ -477,10 +477,11 @@ class _KycModerationScreenState extends State<KycModerationScreen> {
           }
         }
       } catch (e) {
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        }
       }
     }
   }

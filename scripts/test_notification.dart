@@ -16,7 +16,7 @@ void main() async {
   
   try {
     final res = await supabase.from('notifications').select('*, sender:sender_id(full_name, avatar_url)');
-    print('Fetched: ${res}');
+    print('Fetched: $res');
   } catch (e) {
     print('Error: $e');
   }

@@ -1,4 +1,4 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
@@ -104,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             .eq('owner_id', user!.id)
             .limit(1);
 
-        if (mounted && response != null && (response as List).isNotEmpty) {
+        if (mounted && (response as List).isNotEmpty) {
           setState(() {
             _isOwner = true;
           });
@@ -144,10 +144,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           }
         }
       } catch (e) {
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text('Failed to update photo: $e')));
+        }
       } finally {
         if (mounted) setState(() => _isUploading = false);
       }

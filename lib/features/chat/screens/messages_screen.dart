@@ -1,8 +1,7 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/models/chat_model.dart';
@@ -464,7 +463,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             ),
                           ),
                           Text(
-                            lastTime != null ? _formatTime(lastTime) : '',
+                            _formatTime(lastTime),
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 12,
                               color: unreadCount > 0 ? AppTheme.brandColor : const Color(0xFF717171),
