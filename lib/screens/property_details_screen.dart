@@ -283,7 +283,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         slivers: [
           _buildSliverCarousel(),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // VERIFIED BADGE & TITLE
@@ -1798,8 +1798,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   disabledBackgroundColor: Colors.grey.shade300,
                   disabledForegroundColor: Colors.grey.shade600,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  elevation: (widget.status == 'booked' || widget.status == 'pending_approval') ? 0 : 4,
-                  shadowColor: AppTheme.brandColor.withOpacity(0.4),
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

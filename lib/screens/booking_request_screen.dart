@@ -338,8 +338,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.brandColor,
                   foregroundColor: Colors.white,
-                  elevation: 8,
-                  shadowColor: AppTheme.brandColor.withOpacity(0.4),
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
