@@ -401,7 +401,9 @@ class _ChatScreenState extends State<ChatScreen>
                 backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () async {
               Navigator.pop(ctx);
-              await SupabaseService.deleteMessage(messageId);
+              if (_activeChatId != null) {
+                await SupabaseService.deleteMessage(messageId, _activeChatId!);
+              }
             },
             child: Text('Delete', style: GoogleFonts.inter()),
           ),

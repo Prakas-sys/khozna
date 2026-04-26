@@ -1076,15 +1076,34 @@ class SupabaseService {
   // ==========================================
 
   /// Delete a single message (soft-delete so realtime stream updates instantly)
-  static Future<void> deleteMessage(String messageId) async {
+  static Future<void> deleteMessage(String messageId, String chatId) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
     try {
+      // 1. Soft delete the message
       await _client
           .from('messages')
           .update({'is_deleted': true})
           .eq('id', messageId)
           .eq('sender_id', user.id);
+
+      // 2. Find the new latest message to update chat preview
+      final lastMsg = await _client
+          .from('messages')
+          .select('text, image_url, created_at')
+          .eq('chat_id', chatId)
+          .eq('is_deleted', false)
+          .order('created_at', ascending: false)
+          .limit(1)
+          .maybeSingle();
+
+      // 3. Update the chat record for the list view
+      await _client.from('chats').update({
+        'last_message_text': lastMsg != null 
+            ? (lastMsg['text'] ?? '📷 Photo') 
+            : 'Message deleted',
+        'last_message_time': lastMsg != null ? lastMsg['created_at'] : DateTime.now().toIso8601String(),
+      }).eq('id', chatId);
     } catch (e) {
       debugPrint('Error deleting message: $e');
       rethrow;
