@@ -215,6 +215,16 @@ class SupabaseService {
         'requester_id': user.id,
       });
 
+      // 4. Send chat message to owner if message is provided
+      if (message.trim().isNotEmpty) {
+        try {
+          final chatId = await getOrCreateChat(ownerId);
+          await sendMessage(chatId, '🏠 Booking Request for "$propertyTitle":\n\n$message');
+        } catch (chatError) {
+          print('Failed to send booking chat message: $chatError');
+        }
+      }
+
       // Note: badge count only increments for the RECIPIENT (owner), not the sender (guest)
     } catch (e) {
       print('Booking Request Error: $e');
