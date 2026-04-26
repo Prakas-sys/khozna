@@ -111,7 +111,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     color: Colors.transparent,
                     child: Container(
                       height: 52,
-                      padding: const EdgeInsets.only(left: 16, right: 8),
+                      clipBehavior: Clip.antiAlias,
+                      padding: const EdgeInsets.only(left: 16, right: 0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
@@ -159,9 +160,16 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                           ),
                           if (_searchController.text.isNotEmpty)
-                            IconButton(
-                              icon: Icon(Icons.cancel, size: 20, color: Colors.grey[400]),
-                              onPressed: () => setState(() => _searchController.clear()),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(30),
+                                onTap: () => setState(() => _searchController.clear()),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                                  child: Icon(Icons.cancel, size: 20, color: Colors.grey[400]),
+                                ),
+                              ),
                             ),
                         ],
                       ),
@@ -220,7 +228,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _isAiSearching ? 'AI is finding matches...' : 'Smart AI Search',
+                                _isAiSearching ? 'AI ले खोज्दैछ...' : 'AI को साथ खोज्नुहोस्',
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w800,
                                   color: Colors.black87,
@@ -229,7 +237,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Find perfect rooms in one tap',
+                                'एक ट्यापमा मनपर्ने कोठा भेट्टाउनुहोस्',
                                 style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 12),
                               ),
                             ],
@@ -268,7 +276,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             const Icon(Icons.info_outline_rounded, color: Colors.black54, size: 20),
                             const SizedBox(width: 10),
                             Text(
-                              'Smart Suggestion',
+                              'AI सुझाव',
                               style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black87),
                             ),
                             const Spacer(),
@@ -505,7 +513,7 @@ class _SearchScreenState extends State<SearchScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         icon: const Icon(Icons.support_agent, color: Colors.white),
         label: Text(
-          'AI Assistant',
+          'AI सहायक',
           style: GoogleFonts.inter(fontWeight: FontWeight.w800, color: Colors.white),
         ),
       ),
