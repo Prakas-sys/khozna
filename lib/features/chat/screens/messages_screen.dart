@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/models/chat_model.dart';
+import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 
 class MessagesScreen extends StatefulWidget {
