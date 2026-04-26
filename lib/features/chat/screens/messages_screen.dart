@@ -236,6 +236,27 @@ class _MessagesScreenState extends State<MessagesScreen> {
           );
           _loadChats();
         },
+        onLongPress: () {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('Delete Conversation'),
+              content: const Text('Are you sure you want to permanently delete this entire chat?'),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    await ChatRepository.deleteChat(chat.id);
+                    _loadChats();
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  child: const Text('Delete'),
+                ),
+              ],
+            ),
+          );
+        },
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(

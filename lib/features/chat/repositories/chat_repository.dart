@@ -157,7 +157,7 @@ class ChatRepository {
   }
 
   static Future<void> deleteMessage(String messageId, String chatId) async {
-    await _client.from('messages').update({'is_deleted': true}).eq('id', messageId);
+    await _client.from('messages').delete().eq('id', messageId);
   }
 
   static Future<void> deleteChat(String chatId) async {
