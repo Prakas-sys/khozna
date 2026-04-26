@@ -302,6 +302,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           label: data.$2,
           accentColor: data.$3,
         ));
+      } else {
+        String formatted = feature.replaceAll('_', ' ');
+        if (formatted.isNotEmpty) {
+          formatted = formatted[0].toUpperCase() + formatted.substring(1);
+          items.add(PropertyStatItem(
+            icon: Icons.check_circle_outline_rounded,
+            value: 'Yes',
+            label: formatted,
+            accentColor: AppTheme.brandColor,
+          ));
+        }
       }
     }
 

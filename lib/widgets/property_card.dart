@@ -205,11 +205,12 @@ class PropertyCard extends StatelessWidget {
 
     for (var feature in combinedFeatures) {
       if (count >= 4) break;
-      if (featureIcons.containsKey(feature)) {
-        amenityItems.add(const SizedBox(width: 10));
-        amenityItems.add(_amenityIcon(featureIcons[feature]!, _getShortLabel(feature)));
-        count++;
-      }
+      IconData icon = featureIcons[feature] ?? Icons.check_circle_outline_rounded;
+      String label = _getShortLabel(feature);
+      
+      amenityItems.add(const SizedBox(width: 10));
+      amenityItems.add(_amenityIcon(icon, label));
+      count++;
     }
 
     return Row(
@@ -254,7 +255,11 @@ class PropertyCard extends StatelessWidget {
       case 'hot_water': return 'Hot Water';
       case 'attached_bathroom': return 'Bath';
       case 'family_only': return 'Family';
-      default: return '';
+      default: 
+        // Fallback: capitalize first letter and replace underscores
+        if (key.isEmpty) return '';
+        String formatted = key.replaceAll('_', ' ');
+        return formatted[0].toUpperCase() + formatted.substring(1);
     }
   }
 }
