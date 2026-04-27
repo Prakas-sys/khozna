@@ -69,18 +69,17 @@ class HomeScreenState extends State<HomeScreen> {
       String macro = '';
       String rawDisplayName = '';
       
-      String nativeContext = '';
+      geo.Placemark? nativePlace;
       try {
         List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(position.latitude, position.longitude);
         if (placemarks.isNotEmpty) {
-          geo.Placemark place = placemarks.first;
-          nativeContext = place.toString();
-          macro = place.locality ?? place.subAdministrativeArea ?? '';
-          micro = (place.subLocality ?? place.street ?? place.name ?? '').replaceAll('Road', '').replaceAll('Street', '').trim();
+          nativePlace = placemarks.first;
+          macro = nativePlace.locality ?? nativePlace.subAdministrativeArea ?? '';
+          micro = (nativePlace.subLocality ?? nativePlace.thoroughfare ?? nativePlace.name ?? '').replaceAll('Road', '').replaceAll('Street', '').trim();
         }
       } catch (_) {}
 
-      // Get raw data from Nominatim
+      // Get raw data from Nominatim for additional context
       final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1');
       final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0'});
       if (response.statusCode == 200) {
@@ -88,19 +87,21 @@ class HomeScreenState extends State<HomeScreen> {
         rawDisplayName = data['display_name'] ?? '';
         final address = data['address'];
         if (address != null && (micro.isEmpty || macro.isEmpty)) {
-          micro = address['suburb'] ?? address['neighbourhood'] ?? address['hamlet'] ?? address['quarter'] ?? address['village'] ?? address['residential'] ?? address['road'] ?? '';
-          macro = address['city'] ?? address['town'] ?? address['municipality'] ?? address['city_district'] ?? address['county'] ?? '';
+          final osmMicro = address['suburb'] ?? address['neighbourhood'] ?? address['hamlet'] ?? address['quarter'] ?? address['village'] ?? address['residential'] ?? address['road'] ?? '';
+          final osmMacro = address['city'] ?? address['town'] ?? address['municipality'] ?? address['city_district'] ?? address['county'] ?? '';
+          if (micro.isEmpty) micro = osmMicro;
+          if (macro.isEmpty) macro = osmMacro;
         }
       }
 
-      // USE PROMPT API (Khozna AI) with more context to avoid "Sanga" hallucinations
+      // If we have a very specific native subLocality, we use it as a "Strong Lead" for the AI
       String area = '';
       try {
         debugPrint("Location Debug - Lat: ${position.latitude}, Lng: ${position.longitude}");
         final aiPolished = await _aiService.refineLocationWithAI(
           lat: position.latitude,
           lng: position.longitude,
-          rawAddress: "Native: $nativeContext, OSM: $rawDisplayName",
+          rawAddress: "Native Specific: $micro, Native City: $macro, Full OSM: $rawDisplayName",
         );
         debugPrint("AI Location Response: $aiPolished");
         
@@ -111,7 +112,7 @@ class HomeScreenState extends State<HomeScreen> {
         debugPrint("AI Location refinement failed: $e");
       }
 
-      // Fallback to manual logic if AI fails
+      // Fallback/Cleanup
       if (area.isEmpty) {
         String clean(String s) => s.replaceAll('Municipality', '').replaceAll('Nagarpalika', '').replaceAll('Mahanagarpalika', '').trim();
         micro = clean(micro);
