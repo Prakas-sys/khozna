@@ -460,7 +460,7 @@ class _MainScreenState extends State<MainScreen> {
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
               height: 3.0,
-              width: isSelected ? 32 : 0,
+              width: isSelected ? 45 : 0,
               decoration: BoxDecoration(
                 color: isSelected ? AppTheme.brandColor : Colors.transparent,
                 borderRadius: const BorderRadius.vertical(

@@ -69,10 +69,12 @@ class HomeScreenState extends State<HomeScreen> {
       String macro = '';
       String rawDisplayName = '';
       
+      String nativeContext = '';
       try {
         List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(position.latitude, position.longitude);
         if (placemarks.isNotEmpty) {
           geo.Placemark place = placemarks.first;
+          nativeContext = place.toString();
           macro = place.locality ?? place.subAdministrativeArea ?? '';
           micro = (place.subLocality ?? place.street ?? place.name ?? '').replaceAll('Road', '').replaceAll('Street', '').trim();
         }
@@ -86,32 +88,21 @@ class HomeScreenState extends State<HomeScreen> {
         rawDisplayName = data['display_name'] ?? '';
         final address = data['address'];
         if (address != null && (micro.isEmpty || macro.isEmpty)) {
-          // Highly specific local area detection for Nepal
-          micro = address['suburb'] ?? 
-                  address['neighbourhood'] ?? 
-                  address['hamlet'] ?? 
-                  address['quarter'] ?? 
-                  address['village'] ?? 
-                  address['residential'] ?? 
-                  address['road'] ?? '';
-          
-          macro = address['city'] ?? 
-                  address['town'] ?? 
-                  address['municipality'] ?? 
-                  address['city_district'] ?? 
-                  address['county'] ?? '';
+          micro = address['suburb'] ?? address['neighbourhood'] ?? address['hamlet'] ?? address['quarter'] ?? address['village'] ?? address['residential'] ?? address['road'] ?? '';
+          macro = address['city'] ?? address['town'] ?? address['municipality'] ?? address['city_district'] ?? address['county'] ?? '';
         }
       }
 
-      // USE PROMPT API (Khozna AI) to refine the location!
-      // This fixes cases like "Sanga" vs "Kirtipur"
+      // USE PROMPT API (Khozna AI) with more context to avoid "Sanga" hallucinations
       String area = '';
       try {
+        debugPrint("Location Debug - Lat: ${position.latitude}, Lng: ${position.longitude}");
         final aiPolished = await _aiService.refineLocationWithAI(
           lat: position.latitude,
           lng: position.longitude,
-          rawAddress: rawDisplayName.isNotEmpty ? rawDisplayName : '$micro, $macro',
+          rawAddress: "Native: $nativeContext, OSM: $rawDisplayName",
         );
+        debugPrint("AI Location Response: $aiPolished");
         
         if (aiPolished.isNotEmpty && aiPolished.contains(',')) {
           area = aiPolished;
@@ -179,31 +170,34 @@ class HomeScreenState extends State<HomeScreen> {
           await Future.wait(_sectionFutures);
         },
         color: AppTheme.brandColor,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              const SizedBox(height: 32),
-              const HomeHeroSection(),
-                            const SizedBox(height: 24),
-              HomeSearchBar(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
-                onVoiceResult: (text) {
-                  Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => SearchScreen(initialQuery: text)));
-                },
-              ),
-                            const SizedBox(height: 32),
-              _buildSection(0, 'Near You', 'Properties in your current area'),
-              const SizedBox(height: 18),
-              _buildSection(2, 'Student Specials', 'Budget rooms near colleges'),
-              const SizedBox(height: 18),
-              _buildSection(3, 'Family Flats', 'Spacious homes for everyone'),
-              const SizedBox(height: 18),
-              _buildSection(4, 'Premium Collections', 'Luxurious & Executive stays'),
-              const SizedBox(height: 24),
-            ],
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              children: [
+                const SizedBox(height: 32),
+                const HomeHeroSection(),
+                const SizedBox(height: 24),
+                HomeSearchBar(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
+                  onVoiceResult: (text) {
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => SearchScreen(initialQuery: text)));
+                  },
+                ),
+                const SizedBox(height: 32),
+                _buildSection(0, 'Near You', 'Properties in your current area'),
+                const SizedBox(height: 18),
+                _buildSection(2, 'Student Specials', 'Budget rooms near colleges'),
+                const SizedBox(height: 18),
+                _buildSection(3, 'Family Flats', 'Spacious homes for everyone'),
+                const SizedBox(height: 18),
+                _buildSection(4, 'Premium Collections', 'Luxurious & Executive stays'),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),

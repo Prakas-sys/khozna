@@ -349,7 +349,10 @@ BEHAVIOR RULES:
     Raw Map Data: $rawAddress
     
     CONTEXT:
-    This user is in Nepal. Standard Map APIs (like Nominatim) sometimes return names that are too broad, slightly off, or even entirely wrong for the local context (e.g., showing 'Sanga' when the user is actually in 'Kirtipur').
+    This user is in Nepal. Standard Map APIs (like Nominatim) sometimes return names that are too broad, slightly off, or even entirely wrong for the local context.
+    
+    CRITICAL RULE for Kirtipur:
+    If the native context or coordinates indicate the user is in "Kirtipur", DO NOT use the name "Sanga" or "Sa:Ga" (Sanga is a different town 20km away). Instead, use a local area like "Tyanglaphat", "Panga", "Naya Bazaar", or simply "Kirtipur".
     
     TASK:
     Based on the coordinates and the raw address provided, return the most accurate, recognizable, and "Proper" Nepali location name in "Area, City" format.
@@ -364,7 +367,7 @@ BEHAVIOR RULES:
 
     final response = await _getAiResponse(
       prompt,
-      systemPrompt: "You are a highly precise local geography expert for Nepal. You fix incorrect map names and provide recognizable local area names for Nepali users.",
+      systemPrompt: "You are a highly precise local geography expert for Nepal. You fix incorrect map names and provide recognizable local area names. You know that Kirtipur and Sanga are different places and never confuse them.",
     );
     
     // Clean up any quotes or extra whitespace the AI might return
