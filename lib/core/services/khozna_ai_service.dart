@@ -349,28 +349,31 @@ BEHAVIOR RULES:
     Raw Map Data: $rawAddress
     
     CONTEXT:
-    This user is in Nepal. Standard Map APIs often fail to provide the specific "Tole" or "Neighborhood" name (like 'Khasibazar' or 'Jhamsikhel'), returning only broad city names like 'Kirtipur' or 'Lalitpur'.
+    This user is in Nepal. Standard Map APIs often return broad names. Your job is to find the precise "Neighborhood, City".
+    
+    IMPORTANT:
+    If "Native Specific" is provided (e.g., "Khasibazar"), TRUST IT. That is the exact Tole/Neighborhood from the user's phone GPS. Do NOT change it to a nearby area like "Tyanglaphat" unless "Native Specific" is empty or a house number.
+    
+    NEIGHBORHOOD GUIDE for Kirtipur:
+    - If near 27.67, 85.27: It is usually "Khasibazar".
+    - If near 27.68, 85.28: It is usually "Tyanglaphat".
+    - "Panga", "Naya Bazaar", "Chobhar" are also common.
     
     TASK:
-    Based on the coordinates and the raw address provided, your goal is to find the most specific local neighborhood name (Tole/Bazar) and the city.
-    
-    CRITICAL RULES:
-    1. AVOID REDUNDANCY: Do NOT return names like "Kirtipur, Kirtipur" or "Kathmandu, Kathmandu".
-    2. BE SPECIFIC: Try to find the exact neighborhood (e.g., "Khasibazar", "Tyanglaphat", "Panga", "Maitidevi", "Baneshwor").
-    3. FORMAT: Return exactly as "Neighborhood, City" (e.g., "Khasibazar, Kirtipur").
-    4. NO HALLUCINATIONS: Do not mention "Sanga" if the coordinates are in Kirtipur.
+    Return exactly as "Neighborhood, City".
+    1. AVOID REDUNDANCY: No "Kirtipur, Kirtipur".
+    2. BE REAL: Use the actual street-level name if provided in raw data.
     
     EXAMPLES:
     - "Khasibazar, Kirtipur"
     - "Jhamsikhel, Lalitpur"
-    - "Maitidevi, Kathmandu"
     
-    Return ONLY the polished "Neighborhood, City" string. ABSOLUTELY NO EXPLANATION.
+    Return ONLY the polished "Neighborhood, City" string. NO EXPLANATION.
     """;
 
     final response = await _getAiResponse(
       prompt,
-      systemPrompt: "You are a world-class Nepali geography expert. You know every single Tole and Bazar in Kathmandu Valley. You provide the most precise neighborhood name for any given coordinates.",
+      systemPrompt: "You are a Nepali geography expert. You always prioritize the 'Native Specific' neighborhood name provided in the input over generic city names. You never confuse Khasibazar with Tyanglaphat.",
     );
     
     // Clean up any quotes or extra whitespace the AI might return
