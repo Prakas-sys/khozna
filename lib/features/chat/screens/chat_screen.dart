@@ -182,6 +182,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
+          ChatBanner(controller: _bannerScrollController),
           Expanded(
             child: _activeChatId == null
                 ? const Center(child: Text('Start a conversation'))
@@ -273,7 +274,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildInputArea() {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 8, 10, 24),
-      color: Colors.transparent, // Background handled by outer color or theme
+      color: Colors.transparent, 
       child: SafeArea(
         top: false,
         child: Row(
@@ -295,11 +296,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.emoji_emotions_outlined, color: Color(0xFF6B7280)),
-                      onPressed: () {}, // Optional: Emoji picker
-                    ),
+                    const SizedBox(width: 16), // Padding instead of emoji icon
                     Expanded(
                       child: TextField(
                         controller: _messageController,
@@ -310,13 +307,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           hintText: 'Message...',
                           hintStyle: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 16),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.attach_file_rounded, color: Color(0xFF6B7280)),
-                      onPressed: () {}, // Optional: File picker
+                      onPressed: () {}, 
                     ),
                     IconButton(
                       icon: const Icon(Icons.camera_alt_rounded, color: Color(0xFF6B7280)),
