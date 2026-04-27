@@ -122,8 +122,20 @@ class HomeScreenState extends State<HomeScreen> {
 
         if (micro.isNotEmpty && macro.isNotEmpty && micro.toLowerCase() != macro.toLowerCase()) {
           area = '$micro, $macro';
+        } else if (macro.isNotEmpty) {
+          area = macro;
+        } else if (micro.isNotEmpty) {
+          area = micro;
         } else {
-          area = macro.isNotEmpty ? macro : (micro.isNotEmpty ? micro : 'Kathmandu, Nepal');
+          area = 'Kathmandu, Nepal';
+        }
+      }
+
+      // Final redundancy check: If "Kirtipur, Kirtipur", just show "Kirtipur"
+      if (area.contains(',')) {
+        List<String> parts = area.split(',').map((e) => e.trim()).toList();
+        if (parts.length >= 2 && parts[0].toLowerCase() == parts[1].toLowerCase()) {
+          area = parts[0];
         }
       }
 

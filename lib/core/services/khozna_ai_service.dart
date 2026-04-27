@@ -349,25 +349,28 @@ BEHAVIOR RULES:
     Raw Map Data: $rawAddress
     
     CONTEXT:
-    This user is in Nepal. Standard Map APIs (like Nominatim) sometimes return names that are too broad, slightly off, or even entirely wrong for the local context.
-    
-    CRITICAL RULE for Kirtipur:
-    If the native context or coordinates indicate the user is in "Kirtipur", DO NOT use the name "Sanga" or "Sa:Ga" (Sanga is a different town 20km away). Instead, use a local area like "Tyanglaphat", "Panga", "Naya Bazaar", or simply "Kirtipur".
+    This user is in Nepal. Standard Map APIs often fail to provide the specific "Tole" or "Neighborhood" name (like 'Khasibazar' or 'Jhamsikhel'), returning only broad city names like 'Kirtipur' or 'Lalitpur'.
     
     TASK:
-    Based on the coordinates and the raw address provided, return the most accurate, recognizable, and "Proper" Nepali location name in "Area, City" format.
+    Based on the coordinates and the raw address provided, your goal is to find the most specific local neighborhood name (Tole/Bazar) and the city.
+    
+    CRITICAL RULES:
+    1. AVOID REDUNDANCY: Do NOT return names like "Kirtipur, Kirtipur" or "Kathmandu, Kathmandu".
+    2. BE SPECIFIC: Try to find the exact neighborhood (e.g., "Khasibazar", "Tyanglaphat", "Panga", "Maitidevi", "Baneshwor").
+    3. FORMAT: Return exactly as "Neighborhood, City" (e.g., "Khasibazar, Kirtipur").
+    4. NO HALLUCINATIONS: Do not mention "Sanga" if the coordinates are in Kirtipur.
     
     EXAMPLES:
-    - "Tyanglaphat, Kirtipur"
-    - "New Baneshwor, Kathmandu"
+    - "Khasibazar, Kirtipur"
     - "Jhamsikhel, Lalitpur"
+    - "Maitidevi, Kathmandu"
     
-    Return ONLY the polished "Area, City" string. ABSOLUTELY NO EXPLANATION or Preamble.
+    Return ONLY the polished "Neighborhood, City" string. ABSOLUTELY NO EXPLANATION.
     """;
 
     final response = await _getAiResponse(
       prompt,
-      systemPrompt: "You are a highly precise local geography expert for Nepal. You fix incorrect map names and provide recognizable local area names. You know that Kirtipur and Sanga are different places and never confuse them.",
+      systemPrompt: "You are a world-class Nepali geography expert. You know every single Tole and Bazar in Kathmandu Valley. You provide the most precise neighborhood name for any given coordinates.",
     );
     
     // Clean up any quotes or extra whitespace the AI might return
