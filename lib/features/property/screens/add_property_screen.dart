@@ -605,36 +605,44 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               children: [
                 if (_latitude != null) ...[
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                     child: LinearProgressIndicator(
                       value: (1.0 - (_distanceFromLandmark / 1000).clamp(0.0, 1.0)),
-                      minHeight: 10,
+                      minHeight: 12,
                       backgroundColor: Colors.grey[100],
                       color: _isDistanceVerified ? Colors.green : Colors.orange,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        _isDistanceVerified ? 'Verified Accuracy' : 'Low Accuracy',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 13,
-                          color: _isDistanceVerified ? Colors.green[800] : Colors.orange[800],
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: (_isDistanceVerified ? Colors.green : Colors.orange).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _isDistanceVerified ? 'Verified Accuracy ✓' : 'Accuracy Low ⚠',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 12,
+                            color: _isDistanceVerified ? Colors.green[800] : Colors.orange[800],
+                          ),
                         ),
                       ),
                       Text(
                         '${_distanceFromLandmark.toStringAsFixed(0)}m away',
                         style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
                           color: Colors.grey[600],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                 ],
                 SizedBox(
                   width: double.infinity,
@@ -642,6 +650,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     onPressed: (_isAnalyzingLocation || _latitude == null)
                         ? null
                         : () async {
+                            HapticFeedback.mediumImpact();
                             setState(() => _isAnalyzingLocation = true);
                             try {
                               List<geo.Location> locations = await geo.locationFromAddress(
@@ -665,13 +674,17 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                             }
                           },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.brandColor.withOpacity(0.1),
-                      foregroundColor: AppTheme.brandColor,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      backgroundColor: AppTheme.brandColor,
+                      foregroundColor: Colors.white,
+                      elevation: 2,
+                      shadowColor: AppTheme.brandColor.withOpacity(0.3),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                    child: const Text('Start Smart Check'),
+                    child: Text(
+                      'Start Smart Verification',
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 14),
+                    ),
                   ),
                 ),
               ],
@@ -698,15 +711,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              QuickPriceChip(label: '५,०००', value: '5000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
+              QuickPriceChip(label: '5,000', value: '5000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
               const SizedBox(width: 8),
-              QuickPriceChip(label: '८,०००', value: '8000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
+              QuickPriceChip(label: '8,000', value: '8000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
               const SizedBox(width: 8),
-              QuickPriceChip(label: '१२,०००', value: '12000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
+              QuickPriceChip(label: '12,000', value: '12000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
               const SizedBox(width: 8),
-              QuickPriceChip(label: '१५,०००', value: '15000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
+              QuickPriceChip(label: '15,000', value: '15000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
               const SizedBox(width: 8),
-              QuickPriceChip(label: '२५,०००', value: '25000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
+              QuickPriceChip(label: '25,000', value: '25000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
             ],
           ),
         ),
@@ -754,47 +767,89 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           ],
         ),
         const SizedBox(height: 32),
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            setState(() => _isNegotiable = !_isNegotiable);
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            decoration: BoxDecoration(
-              color: _isNegotiable ? AppTheme.brandColor.withOpacity(0.05) : const Color(0xFFF9FAFB),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: _isNegotiable ? AppTheme.brandColor : const Color(0xFFE5E7EB), width: 2),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(color: _isNegotiable ? AppTheme.brandColor : Colors.white, shape: BoxShape.circle),
-                  child: Icon(Icons.handshake_rounded, color: _isNegotiable ? Colors.white : Colors.grey[400], size: 20),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('भाडा मिलाउन सकिन्छ', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 16, color: const Color(0xFF111827))),
-                      Text('Price is Negotiable', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.grey[500])),
-                    ],
+        StatefulBuilder(
+          builder: (context, setInternalState) {
+            return GestureDetector(
+              onTapDown: (_) => HapticFeedback.selectionClick(),
+              onTap: () {
+                HapticFeedback.mediumImpact();
+                setState(() => _isNegotiable = !_isNegotiable);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                decoration: BoxDecoration(
+                  color: _isNegotiable ? AppTheme.brandColor.withOpacity(0.04) : Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: _isNegotiable ? AppTheme.brandColor : Colors.grey.shade200,
+                    width: _isNegotiable ? 2.5 : 1.5,
                   ),
+                  boxShadow: _isNegotiable ? [
+                    BoxShadow(
+                      color: AppTheme.brandColor.withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    )
+                  ] : [],
                 ),
-                Switch.adaptive(
-                  value: _isNegotiable,
-                  onChanged: (v) {
-                    HapticFeedback.lightImpact();
-                    setState(() => _isNegotiable = v);
-                  },
-                  activeColor: AppTheme.brandColor,
+                child: Row(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: _isNegotiable ? AppTheme.brandColor : Colors.grey.shade100,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.handshake_rounded,
+                        color: _isNegotiable ? Colors.white : Colors.grey[400],
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'भाडा मिलाउन सकिन्छ',
+                            style: GoogleFonts.mukta(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 17,
+                              color: const Color(0xFF111827),
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          Text(
+                            'Price is Negotiable',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[600],
+                              letterSpacing: -0.1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Transform.scale(
+                      scale: 0.9,
+                      child: Switch.adaptive(
+                        value: _isNegotiable,
+                        onChanged: (v) {
+                          HapticFeedback.mediumImpact();
+                          setState(() => _isNegotiable = v);
+                        },
+                        activeColor: AppTheme.brandColor,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          }
         ),
         const SizedBox(height: 32),
         PremiumFeatureCard(
@@ -927,29 +982,32 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       content: [
         PremiumFeatureCard(
           icon: Icons.auto_awesome_rounded,
-          title: 'AI Description Writer',
-          subtitle: 'Professional text using your provided info',
+          title: 'Khozna AI Copywriter',
+          subtitle: 'Generate professional description in one tap',
           isLoading: _isGeneratingDescription,
           accentColor: AppTheme.brandColor,
           child: Column(
             children: [
               TextField(
                 controller: _descriptionController,
-                maxLines: 4,
-                style: GoogleFonts.mukta(fontSize: 14, color: Colors.black87),
+                maxLines: 5,
+                style: GoogleFonts.mukta(fontSize: 15, color: Colors.black87, height: 1.5),
                 decoration: InputDecoration(
                   hintText: 'Describe your property or tap Generate...',
+                  hintStyle: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400]),
                   filled: true,
                   fillColor: Colors.grey[50],
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[200]!)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[200]!)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.grey[200]!)),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.grey[200]!)),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5)),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: _isGeneratingDescription ? null : () async {
+                    HapticFeedback.mediumImpact();
                     setState(() => _isGeneratingDescription = true);
                     final desc = await _aiService.generateDescription(
                       title: _titleController.text,
@@ -963,14 +1021,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       _isGeneratingDescription = false;
                     });
                   },
-                  icon: const Icon(Icons.flash_on_rounded, size: 16),
-                  label: const Text('Generate with AI'),
+                  icon: const Icon(Icons.flash_on_rounded, size: 18),
+                  label: Text(
+                    'Generate Irresistible Text',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 14),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandColor.withOpacity(0.1),
-                    foregroundColor: AppTheme.brandColor,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    backgroundColor: AppTheme.brandColor,
+                    foregroundColor: Colors.white,
+                    elevation: 2,
+                    shadowColor: AppTheme.brandColor.withOpacity(0.3),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                 ),
               ),
@@ -1050,26 +1112,69 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _buildMediaUploadBox({required IconData icon, required String title, required String desc, required bool isBlue, bool hasFile = false}) {
     Color activeColor = isBlue ? Colors.blue : AppTheme.brandColor;
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
       decoration: BoxDecoration(
-        color: hasFile ? activeColor.withOpacity(0.05) : const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: hasFile ? activeColor : const Color(0xFFE5E7EB), width: 2),
-        boxShadow: hasFile ? [BoxShadow(color: activeColor.withOpacity(0.1), blurRadius: 15, offset: const Offset(0, 8))] : [],
+        color: hasFile ? activeColor.withOpacity(0.04) : const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: hasFile ? activeColor : const Color(0xFFE5E7EB),
+          width: hasFile ? 2.5 : 1.5,
+        ),
+        boxShadow: hasFile ? [
+          BoxShadow(
+            color: activeColor.withOpacity(0.12),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          )
+        ] : [],
       ),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: hasFile ? activeColor : Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: (hasFile ? activeColor : Colors.black).withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))]),
-            child: Icon(hasFile ? Icons.check_rounded : icon, color: hasFile ? Colors.white : Colors.grey[400], size: 32),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: hasFile ? activeColor : Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: (hasFile ? activeColor : Colors.black).withOpacity(0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                )
+              ],
+            ),
+            child: Icon(
+              hasFile ? Icons.check_rounded : icon,
+              color: hasFile ? Colors.white : Colors.grey[400],
+              size: 34,
+            ),
           ),
-          const SizedBox(height: 20),
-          Text(title, textAlign: TextAlign.center, style: GoogleFonts.mukta(fontSize: 17, fontWeight: FontWeight.w700, color: const Color(0xFF111827))),
-          const SizedBox(height: 6),
-          Text(desc, textAlign: TextAlign.center, style: GoogleFonts.mukta(fontSize: 12, fontWeight: FontWeight.w500, color: Colors.grey[500])),
+          const SizedBox(height: 24),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.mukta(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF111827),
+              letterSpacing: -0.2,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            desc,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.mukta(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+              height: 1.4,
+            ),
+          ),
         ],
       ),
     );

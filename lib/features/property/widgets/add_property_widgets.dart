@@ -616,63 +616,124 @@ class AmenitiesGrid extends StatelessWidget {
         crossAxisCount: 3,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 1.1,
+        childAspectRatio: 1.05,
       ),
       itemBuilder: (context, index) {
         final key = icons.keys.elementAt(index);
         final isSelected = selectedItems.contains(key);
-        return GestureDetector(
-          onTap: () => onToggle(key),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            decoration: BoxDecoration(
-              color: isSelected ? AppTheme.brandColor : Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
-                width: 1.5,
-              ),
-              boxShadow: isSelected ? [
-                BoxShadow(
-                  color: AppTheme.brandColor.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                )
-              ] : [],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  icons[key],
-                  color: isSelected ? Colors.white : Colors.grey[600],
-                  size: 24,
-                ),
-                const SizedBox(height: 6),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    labels[key] ?? '',
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.hind(
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                      color: isSelected ? Colors.white : const Color(0xFF4B5563),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        return AmenityCard(
+          label: labels[key] ?? '',
+          icon: icons[key]!,
+          isSelected: isSelected,
+          onToggle: () => onToggle(key),
         );
       },
     );
   }
 }
 
-class QuickPriceChip extends StatelessWidget {
+class AmenityCard extends StatefulWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onToggle;
+
+  const AmenityCard({
+    super.key,
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onToggle,
+  });
+
+  @override
+  State<AmenityCard> createState() => _AmenityCardState();
+}
+
+class _AmenityCardState extends State<AmenityCard> with SingleTickerProviderStateMixin {
+  late AnimationController _pressController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.94).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) => _pressController.forward(),
+      onTapUp: (_) => _pressController.reverse(),
+      onTapCancel: () => _pressController.reverse(),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        widget.onToggle();
+      },
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          decoration: BoxDecoration(
+            color: widget.isSelected ? AppTheme.brandColor : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: widget.isSelected ? AppTheme.brandColor : Colors.grey.shade200,
+              width: 1.5,
+            ),
+            boxShadow: widget.isSelected ? [
+              BoxShadow(
+                color: AppTheme.brandColor.withOpacity(0.24),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              )
+            ] : [],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                widget.icon,
+                color: widget.isSelected ? Colors.white : Colors.grey[600],
+                size: 26,
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  widget.label,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.hind(
+                    fontSize: 11,
+                    fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w600,
+                    color: widget.isSelected ? Colors.white : const Color(0xFF4B5563),
+                    height: 1.1,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class QuickPriceChip extends StatefulWidget {
   final String label;
   final String value;
   final String currentValue;
@@ -687,45 +748,83 @@ class QuickPriceChip extends StatelessWidget {
   });
 
   @override
+  State<QuickPriceChip> createState() => _QuickPriceChipState();
+}
+
+class _QuickPriceChipState extends State<QuickPriceChip> with SingleTickerProviderStateMixin {
+  late AnimationController _pressController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.94).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isSelected = currentValue == value;
-    return InkWell(
+    final isSelected = widget.currentValue == widget.value;
+    return GestureDetector(
+      onTapDown: (_) => _pressController.forward(),
+      onTapUp: (_) => _pressController.reverse(),
+      onTapCancel: () => _pressController.reverse(),
       onTap: () {
         HapticFeedback.selectionClick();
-        onTap(value);
+        widget.onTap(widget.value);
       },
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor : const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
-            width: 1.5,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFF9FAFB),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
+              width: 1.5,
+            ),
+            boxShadow: isSelected ? [
+              BoxShadow(
+                color: AppTheme.brandColor.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              )
+            ] : [],
           ),
-        ),
-        child: RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: '₹ ',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w900,
-                  color: isSelected ? Colors.white : const Color(0xFF111827),
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Rs ',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w900,
+                    color: isSelected ? Colors.white : const Color(0xFF111827),
+                  ),
                 ),
-              ),
-              TextSpan(
-                text: label,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  color: isSelected ? Colors.white : const Color(0xFF374151),
+                TextSpan(
+                  text: widget.label,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? Colors.white : const Color(0xFF374151),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
