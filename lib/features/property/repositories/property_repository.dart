@@ -21,6 +21,10 @@ class PropertyRepository {
           .from('properties')
           .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)');
 
+      if (index != 5) {
+        query = query.eq('status', 'available');
+      }
+
       switch (index) {
         case 0: // Near You
           if (lat != null && lng != null) {
@@ -39,6 +43,9 @@ class PropertyRepository {
           break;
         case 4: // Premium
           query = query.or('is_premium.eq.true,price.gt.20000');
+          break;
+        case 5: // Booked Section (Auto-deletes in 6 days)
+          query = query.eq('status', 'booked');
           break;
       }
 
@@ -208,7 +215,15 @@ class PropertyRepository {
       debugPrint("AI Landmarks Error: $e");
     }
 
-    // 4. Database Insert
+    // 4. Algorithm: Auto-categorize based on keywords
+    final studentKeywords = ['student', 'college', 'university', 'tuition', 'hostel', 'p.g.', 'pg', 'library', 'campus', 'विद्यार्थी', 'कलेज', 'अध्ययन'];
+    final premiumKeywords = ['premium', 'luxury', 'modern', 'deluxe', 'fully furnished', 'modular', 'brand new', 'विलासी', 'आधुनिक', 'भिआइपी', 'vip'];
+    
+    final fullText = (title + description).toLowerCase();
+    final bool autoStudent = studentKeywords.any((k) => fullText.contains(k));
+    final bool autoPremium = premiumKeywords.any((k) => fullText.contains(k)) || price >= 18000;
+
+    // 5. Database Insert
     final response = await _client.from('properties').insert({
       'owner_id': user.id,
       'title': title,
@@ -231,7 +246,8 @@ class PropertyRepository {
       'status': 'available',
       'is_verified': true,
       'nearby_landmarks': nearbyLandmarks,
-      'is_premium': price >= 15000.0,
+      'is_premium': autoPremium,
+      'is_student_friendly': autoStudent,
     }).select('id').single();
 
     final String propertyId = response['id'];

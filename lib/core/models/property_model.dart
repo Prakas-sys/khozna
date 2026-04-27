@@ -22,6 +22,7 @@ class Property {
   final double? longitude;
   final String landmark;
   final List<String> nearbyLandmarks;
+  final bool isStudentFriendly;
 
   Property({
     required this.id,
@@ -47,6 +48,7 @@ class Property {
     this.longitude,
     this.landmark = '',
     this.nearbyLandmarks = const [],
+    this.isStudentFriendly = false,
   });
 
   /// First image URL, or a sensible fallback placeholder.
@@ -94,6 +96,7 @@ class Property {
         if (l is Map) return l['name']?.toString() ?? '';
         return l.toString();
       }).toList() ?? [],
+      isStudentFriendly: map['is_student_friendly'] ?? false,
     );
   }
 }
