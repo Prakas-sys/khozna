@@ -199,6 +199,11 @@ class PropertyCard extends StatelessWidget {
       if (key.contains('bath')) return Icons.bathroom_outlined;
       if (key.contains('family')) return Icons.family_restroom_outlined;
       if (key.contains('kitchen')) return Icons.kitchen_outlined;
+      if (key.contains('ac') || key.contains('air cond')) return Icons.ac_unit_rounded;
+      if (key.contains('furnish')) return Icons.chair_rounded;
+      if (key.contains('gym') || key.contains('fitness')) return Icons.fitness_center_rounded;
+      if (key.contains('pool')) return Icons.pool_rounded;
+      if (key.contains('lift') || key.contains('elevat')) return Icons.elevator_rounded;
       return Icons.check_circle_outline_rounded;
     }
 
@@ -259,6 +264,11 @@ class PropertyCard extends StatelessWidget {
     if (k.contains('bath')) return 'Bath';
     if (k.contains('family')) return 'Family';
     if (k.contains('kitchen')) return 'Kitchen';
+    if (k.contains('ac') || k.contains('air cond')) return 'AC';
+    if (k.contains('furnish')) return 'Furnished';
+    if (k.contains('gym')) return 'Gym';
+    if (k.contains('pool')) return 'Pool';
+    if (k.contains('lift')) return 'Lift';
     
     if (key.isEmpty) return '';
     String formatted = key.replaceAll('_', ' ');

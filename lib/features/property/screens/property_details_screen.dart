@@ -292,6 +292,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       if (k.contains('bath')) return (Icons.bathroom_outlined, 'Bath', Colors.cyan);
       if (k.contains('family')) return (Icons.family_restroom_outlined, 'Family', Colors.purple);
       if (k.contains('kitchen')) return (Icons.kitchen_outlined, 'Kitchen', Colors.orange);
+      if (k.contains('ac') || k.contains('air cond')) return (Icons.ac_unit_rounded, 'AC', Colors.blueGrey);
+      if (k.contains('furnish')) return (Icons.chair_rounded, 'Furnished', Colors.brown);
+      if (k.contains('gym') || k.contains('fitness')) return (Icons.fitness_center_rounded, 'Gym', Colors.blueGrey);
+      if (k.contains('pool')) return (Icons.pool_rounded, 'Pool', Colors.blue);
+      if (k.contains('lift') || k.contains('elevat')) return (Icons.elevator_rounded, 'Lift', Colors.grey);
       
       String formatted = feature.replaceAll('_', ' ');
       if (formatted.isNotEmpty) {
