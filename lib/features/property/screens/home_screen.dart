@@ -69,34 +69,42 @@ class HomeScreenState extends State<HomeScreen> {
         if (placemarks.isNotEmpty) {
           geo.Placemark place = placemarks.first;
           macro = place.locality ?? place.subAdministrativeArea ?? '';
-          micro = (place.street ?? place.name ?? place.subLocality ?? '').replaceAll('Road', '').replaceAll('Street', '').trim();
+          micro = (place.subLocality ?? place.street ?? place.name ?? '').replaceAll('Road', '').replaceAll('Street', '').trim();
         }
       } catch (_) {}
 
-      if (micro.isEmpty || micro == macro) {
+      // Try Nominatim for more precision in Nepal
+      if (micro.isEmpty || micro == macro || macro.isEmpty) {
         final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1');
         final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0'});
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
-          final displayName = data['display_name']?.toString() ?? '';
-          if (displayName.isNotEmpty) {
-            List<String> parts = displayName.split(',').map((e) => e.trim()).toList();
-            if (parts.isNotEmpty) {
-              micro = parts[0];
-              if (parts.length > 1 && macro.isEmpty) macro = parts[1];
-            }
+          final address = data['address'];
+          if (address != null) {
+            micro = address['suburb'] ?? address['neighbourhood'] ?? address['village'] ?? address['road'] ?? '';
+            macro = address['city'] ?? address['town'] ?? address['municipality'] ?? '';
           }
         }
       }
 
-      // Filter out Plus Codes (e.g., "M7GG+Q6") which often appear in place.name or place.street
+      // Cleanup
+      String clean(String s) => s.replaceAll('Municipality', '').replaceAll('Nagarpalika', '').replaceAll('Mahanagarpalika', '').trim();
+      micro = clean(micro);
+      macro = clean(macro);
+
+      // Filter out Plus Codes
       bool isPlusCode(String s) => s.contains('+') && s.length <= 12;
-      
       if (isPlusCode(micro)) micro = '';
       if (isPlusCode(macro)) macro = '';
 
-      String area = (micro.isNotEmpty && macro.isNotEmpty && micro.toLowerCase() != macro.toLowerCase()) ? '$macro, $micro' : (macro.isNotEmpty ? macro : micro);
-      if (area.trim().isEmpty) area = 'Kathmandu, Nepal';
+      // Format: "Precise Area, City"
+      String area = '';
+      if (micro.isNotEmpty && macro.isNotEmpty && micro.toLowerCase() != macro.toLowerCase()) {
+        area = '$micro, $macro';
+      } else {
+        area = macro.isNotEmpty ? macro : (micro.isNotEmpty ? micro : 'Kathmandu, Nepal');
+      }
+
       if (mounted) setState(() => _currentLocationName = area);
     } catch (e) {
       debugPrint("Error fetching area name: $e");

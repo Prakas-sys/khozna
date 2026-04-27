@@ -7,6 +7,7 @@ import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
+import 'package:intl/intl.dart';
 
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
@@ -223,9 +224,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
   Widget _buildChatTile(ChatConversation chat) {
     final lastMessage = chat.lastMessage ?? 'No messages yet';
     final unreadCount = chat.unreadCount;
+    final timeStr = _formatLastMessageTime(chat.lastMessageTime);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 2),
       child: InkWell(
         onTap: () async {
           await Navigator.push(
@@ -242,52 +244,19 @@ class _MessagesScreenState extends State<MessagesScreen> {
           _loadChats();
         },
         onLongPress: () {
-          showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text('Delete Conversation'),
-              content: const Text('Are you sure you want to permanently delete this entire chat?'),
-              actions: [
-                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-                ElevatedButton(
-                  onPressed: () async {
-                    Navigator.pop(ctx);
-                    await ChatRepository.deleteChat(chat.id);
-                    _loadChats();
-                  },
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  child: const Text('Delete'),
-                ),
-              ],
-            ),
-          );
+          _showDeleteConfirm(chat);
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: unreadCount > 0 ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: unreadCount > 0 ? AppTheme.brandColor.withOpacity(0.1) : Colors.black.withOpacity(0.04),
-              width: 0.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 20,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
           child: Row(
             children: [
               CircleAvatar(
-                radius: 24,
-                backgroundColor: const Color(0xFFF7F7F7),
+                radius: 28,
+                backgroundColor: const Color(0xFFF0F2F5),
                 backgroundImage: chat.otherUserAvatar.isNotEmpty ? CachedNetworkImageProvider(chat.otherUserAvatar) : null,
-                child: chat.otherUserAvatar.isEmpty ? const Icon(Icons.person, color: Colors.grey) : null,
+                child: chat.otherUserAvatar.isEmpty ? const Icon(Icons.person, color: Colors.grey, size: 30) : null,
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,27 +269,55 @@ class _MessagesScreenState extends State<MessagesScreen> {
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A1A),
+                            color: const Color(0xFF111B21),
+                          ),
+                        ),
+                        Text(
+                          timeStr,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: unreadCount > 0 ? AppTheme.brandColor : const Color(0xFF667781),
+                            fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            lastMessage,
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: const Color(0xFF667781),
+                              fontWeight: unreadCount > 0 ? FontWeight.w500 : FontWeight.w400,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (unreadCount > 0)
                           Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(color: AppTheme.brandColor, shape: BoxShape.circle),
-                            child: Text('$unreadCount', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                            margin: const EdgeInsets.only(left: 8),
+                            padding: const EdgeInsets.all(7),
+                            decoration: const BoxDecoration(
+                              color: AppTheme.brandColor,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
+                            child: Center(
+                              child: Text(
+                                '$unreadCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           ),
                       ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      lastMessage,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: unreadCount > 0 ? Colors.black87 : const Color(0xFF666666),
-                        fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -328,6 +325,43 @@ class _MessagesScreenState extends State<MessagesScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  String _formatLastMessageTime(DateTime time) {
+    final now = DateTime.now();
+    final diff = now.difference(time);
+
+    if (diff.inDays == 0 && now.day == time.day) {
+      return DateFormat('h:mm a').format(time);
+    } else if (diff.inDays == 1 || (diff.inDays == 0 && now.day != time.day)) {
+      return 'Yesterday';
+    } else if (diff.inDays < 7) {
+      return DateFormat('EEEE').format(time);
+    } else {
+      return DateFormat('MM/dd/yy').format(time);
+    }
+  }
+
+  void _showDeleteConfirm(ChatConversation chat) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Conversation'),
+        content: const Text('Are you sure you want to delete this entire chat?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await ChatRepository.deleteChat(chat.id);
+              _loadChats();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
       ),
     );
   }
