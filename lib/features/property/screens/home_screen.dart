@@ -15,6 +15,8 @@ import 'package:khozna/features/property/screens/search_screen.dart';
 import 'package:khozna/features/property/screens/filter_results_screen.dart';
 import '../widgets/home_widgets.dart';
 
+import 'package:khozna/core/services/khozna_ai_service.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -26,6 +28,7 @@ class HomeScreenState extends State<HomeScreen> {
   final List<Future<List<Property>>> _sectionFutures = List.generate(5, (index) => Future.value(<Property>[]));
   Position? _currentPosition;
   String _currentLocationName = "Kathmandu, Nepal";
+  final KhoznaAiService _aiService = KhoznaAiService();
 
   @override
   void initState() {
@@ -64,6 +67,8 @@ class HomeScreenState extends State<HomeScreen> {
     try {
       String micro = '';
       String macro = '';
+      String rawDisplayName = '';
+      
       try {
         List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(position.latitude, position.longitude);
         if (placemarks.isNotEmpty) {
@@ -73,48 +78,62 @@ class HomeScreenState extends State<HomeScreen> {
         }
       } catch (_) {}
 
-      // Try Nominatim for more precision in Nepal
-      if (micro.isEmpty || micro == macro || macro.isEmpty) {
-        final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1');
-        final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0'});
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
-          final address = data['address'];
-          if (address != null) {
-            // Highly specific local area detection for Nepal
-            micro = address['suburb'] ?? 
-                    address['neighbourhood'] ?? 
-                    address['hamlet'] ?? 
-                    address['quarter'] ?? 
-                    address['village'] ?? 
-                    address['residential'] ?? 
-                    address['road'] ?? '';
-            
-            macro = address['city'] ?? 
-                    address['town'] ?? 
-                    address['municipality'] ?? 
-                    address['city_district'] ?? 
-                    address['county'] ?? '';
-          }
+      // Get raw data from Nominatim
+      final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1');
+      final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0'});
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        rawDisplayName = data['display_name'] ?? '';
+        final address = data['address'];
+        if (address != null && (micro.isEmpty || macro.isEmpty)) {
+          // Highly specific local area detection for Nepal
+          micro = address['suburb'] ?? 
+                  address['neighbourhood'] ?? 
+                  address['hamlet'] ?? 
+                  address['quarter'] ?? 
+                  address['village'] ?? 
+                  address['residential'] ?? 
+                  address['road'] ?? '';
+          
+          macro = address['city'] ?? 
+                  address['town'] ?? 
+                  address['municipality'] ?? 
+                  address['city_district'] ?? 
+                  address['county'] ?? '';
         }
       }
 
-      // Cleanup
-      String clean(String s) => s.replaceAll('Municipality', '').replaceAll('Nagarpalika', '').replaceAll('Mahanagarpalika', '').trim();
-      micro = clean(micro);
-      macro = clean(macro);
-
-      // Filter out Plus Codes
-      bool isPlusCode(String s) => s.contains('+') && s.length <= 12;
-      if (isPlusCode(micro)) micro = '';
-      if (isPlusCode(macro)) macro = '';
-
-      // Format: "Precise Area, City"
+      // USE PROMPT API (Khozna AI) to refine the location!
+      // This fixes cases like "Sanga" vs "Kirtipur"
       String area = '';
-      if (micro.isNotEmpty && macro.isNotEmpty && micro.toLowerCase() != macro.toLowerCase()) {
-        area = '$micro, $macro';
-      } else {
-        area = macro.isNotEmpty ? macro : (micro.isNotEmpty ? micro : 'Kathmandu, Nepal');
+      try {
+        final aiPolished = await _aiService.refineLocationWithAI(
+          lat: position.latitude,
+          lng: position.longitude,
+          rawAddress: rawDisplayName.isNotEmpty ? rawDisplayName : '$micro, $macro',
+        );
+        
+        if (aiPolished.isNotEmpty && aiPolished.contains(',')) {
+          area = aiPolished;
+        }
+      } catch (e) {
+        debugPrint("AI Location refinement failed: $e");
+      }
+
+      // Fallback to manual logic if AI fails
+      if (area.isEmpty) {
+        String clean(String s) => s.replaceAll('Municipality', '').replaceAll('Nagarpalika', '').replaceAll('Mahanagarpalika', '').trim();
+        micro = clean(micro);
+        macro = clean(macro);
+        bool isPlusCode(String s) => s.contains('+') && s.length <= 12;
+        if (isPlusCode(micro)) micro = '';
+        if (isPlusCode(macro)) macro = '';
+
+        if (micro.isNotEmpty && macro.isNotEmpty && micro.toLowerCase() != macro.toLowerCase()) {
+          area = '$micro, $macro';
+        } else {
+          area = macro.isNotEmpty ? macro : (micro.isNotEmpty ? micro : 'Kathmandu, Nepal');
+        }
       }
 
       if (mounted) setState(() => _currentLocationName = area);

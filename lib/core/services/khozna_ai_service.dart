@@ -338,5 +338,37 @@ BEHAVIOR RULES:
       return [];
     }
   }
+  /// 8. AI Location Refinement (Fixes incorrect/broad map names)
+  Future<String> refineLocationWithAI({
+    required double lat,
+    required double lng,
+    required String rawAddress,
+  }) async {
+    final String prompt = """
+    Coordinates: $lat, $lng
+    Raw Map Data: $rawAddress
+    
+    CONTEXT:
+    This user is in Nepal. Standard Map APIs (like Nominatim) sometimes return names that are too broad, slightly off, or even entirely wrong for the local context (e.g., showing 'Sanga' when the user is actually in 'Kirtipur').
+    
+    TASK:
+    Based on the coordinates and the raw address provided, return the most accurate, recognizable, and "Proper" Nepali location name in "Area, City" format.
+    
+    EXAMPLES:
+    - "Tyanglaphat, Kirtipur"
+    - "New Baneshwor, Kathmandu"
+    - "Jhamsikhel, Lalitpur"
+    
+    Return ONLY the polished "Area, City" string. ABSOLUTELY NO EXPLANATION or Preamble.
+    """;
+
+    final response = await _getAiResponse(
+      prompt,
+      systemPrompt: "You are a highly precise local geography expert for Nepal. You fix incorrect map names and provide recognizable local area names for Nepali users.",
+    );
+    
+    // Clean up any quotes or extra whitespace the AI might return
+    return response.replaceAll('"', '').replaceAll("'", "").trim();
+  }
 }
 
