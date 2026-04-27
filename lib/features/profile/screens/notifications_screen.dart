@@ -241,8 +241,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         RichText(
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
                                           text: TextSpan(
                                             style: GoogleFonts.inter(
                                               fontSize: 14,
