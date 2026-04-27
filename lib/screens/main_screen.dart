@@ -459,8 +459,8 @@ class _MainScreenState extends State<MainScreen> {
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
-              height: 3.2,
-              width: isSelected ? 48 : 0,
+              height: 3.0,
+              width: isSelected ? 32 : 0,
               decoration: BoxDecoration(
                 color: isSelected ? AppTheme.brandColor : Colors.transparent,
                 borderRadius: const BorderRadius.vertical(
@@ -479,72 +479,16 @@ class _MainScreenState extends State<MainScreen> {
                 children: [
                   // Icon
                   AnimatedScale(
-                    scale: isSelected ? 1.15 : 1.0,
+                    scale: isSelected ? 1.05 : 1.0,
                     duration: const Duration(milliseconds: 200),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        if (isSelected) ...[
-                          // Pseudo-stroke to make the icon bolder when active
-                          Transform.translate(
-                            offset: const Offset(0.5, 0),
-                            child: SvgPicture.asset(
-                              iconPath,
-                              width: 24,
-                              height: 24,
-                              colorFilter: ColorFilter.mode(
-                                activeColor,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                          Transform.translate(
-                            offset: const Offset(-0.5, 0),
-                            child: SvgPicture.asset(
-                              iconPath,
-                              width: 24,
-                              height: 24,
-                              colorFilter: ColorFilter.mode(
-                                activeColor,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                          Transform.translate(
-                            offset: const Offset(0, 0.5),
-                            child: SvgPicture.asset(
-                              iconPath,
-                              width: 24,
-                              height: 24,
-                              colorFilter: ColorFilter.mode(
-                                activeColor,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                          Transform.translate(
-                            offset: const Offset(0, -0.5),
-                            child: SvgPicture.asset(
-                              iconPath,
-                              width: 24,
-                              height: 24,
-                              colorFilter: ColorFilter.mode(
-                                activeColor,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                        ],
-                        SvgPicture.asset(
-                          iconPath,
-                          width: 24,
-                          height: 24,
-                          colorFilter: ColorFilter.mode(
-                            isSelected ? activeColor : inactiveColor,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ],
+                    child: SvgPicture.asset(
+                      iconPath,
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        isSelected ? activeColor : inactiveColor,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                   // Premium red badge

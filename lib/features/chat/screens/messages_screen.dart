@@ -123,58 +123,29 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   return GestureDetector(
                     onTap: () => setState(() => _selectedTab = i),
                     child: Container(
-                      margin: const EdgeInsets.only(right: 12),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: selected ? AppTheme.brandColor : const Color(0xFFF9FAFB),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: selected ? AppTheme.brandColor : const Color(0xFFE5E7EB)),
-                      ),
-                      child: Text(
-                        label,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14,
-                          fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                          color: selected ? Colors.white : const Color(0xFF4B5563),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+            child: Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: selected ? AppTheme.brandColor.withOpacity(0.12) : Colors.transparent,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: selected ? AppTheme.brandColor.withOpacity(0.2) : const Color(0xFFE5E7EB),
+                  width: selected ? 1.0 : 0.5,
+                ),
+              ),
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: selected ? AppTheme.brandColor : const Color(0xFF4B5563),
+                ),
               ),
             ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
-                  : _chats.isEmpty
-                      ? _buildEmptyState()
-                      : RefreshIndicator(
-                          onRefresh: _loadChats,
-                          color: AppTheme.brandColor,
-                          child: ListView.builder(
-                            itemCount: _chats.length,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                            itemBuilder: (context, index) => _buildChatTile(_chats[index]),
-                          ),
-                        ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
-    );
-  }
-
-  Widget _buildHeaderIcon(IconData icon) {
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        color: AppTheme.brandColor.withOpacity(0.1),
-        shape: BoxShape.circle,
-        border: Border.all(color: AppTheme.brandColor.withOpacity(0.2)),
-      ),
-      child: Icon(icon, color: AppTheme.brandColor, size: 22),
     );
   }
 
@@ -208,7 +179,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
             Text(
               'When you connect with property owners, your conversations will appear here.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(fontSize: 15, color: const Color(0xFF6B7280), height: 1.5),
+              style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF666666), height: 1.5),
             ),
           ],
         ),
@@ -221,7 +192,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
     final unreadCount = chat.unreadCount;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: 8),
       child: InkWell(
         onTap: () async {
           await Navigator.push(
@@ -259,18 +230,26 @@ class _MessagesScreenState extends State<MessagesScreen> {
           );
         },
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: unreadCount > 0 ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: unreadCount > 0 ? AppTheme.brandColor.withOpacity(0.1) : const Color(0xFFE5E7EB),
+              color: unreadCount > 0 ? AppTheme.brandColor.withOpacity(0.1) : Colors.black.withOpacity(0.04),
+              width: 0.5,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Row(
             children: [
               CircleAvatar(
-                radius: 28,
+                radius: 24,
                 backgroundColor: const Color(0xFFF7F7F7),
                 backgroundImage: chat.otherUserAvatar.isNotEmpty ? CachedNetworkImageProvider(chat.otherUserAvatar) : null,
                 child: chat.otherUserAvatar.isEmpty ? const Icon(Icons.person, color: Colors.grey) : null,
@@ -285,9 +264,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       children: [
                         Text(
                           chat.otherUserName,
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
-                            fontWeight: unreadCount > 0 ? FontWeight.w800 : FontWeight.w700,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1A1A1A),
                           ),
                         ),
                         if (unreadCount > 0)
@@ -301,9 +281,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     const SizedBox(height: 4),
                     Text(
                       lastMessage,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
-                        color: unreadCount > 0 ? Colors.black : Colors.grey,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: unreadCount > 0 ? Colors.black87 : const Color(0xFF666666),
                         fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
                       ),
                       maxLines: 1,
