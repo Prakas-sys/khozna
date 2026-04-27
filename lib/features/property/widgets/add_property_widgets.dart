@@ -181,8 +181,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      elevation: 4,
-                      shadowColor: AppTheme.brandColor.withOpacity(0.4),
+                      elevation: 0,
                     ),
                     child: Text(
                       'गृहपृष्ठमा जानुहोस् (Go Home)',

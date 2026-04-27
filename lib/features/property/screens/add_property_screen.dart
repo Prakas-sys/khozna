@@ -676,8 +676,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.brandColor,
                       foregroundColor: Colors.white,
-                      elevation: 2,
-                      shadowColor: AppTheme.brandColor.withOpacity(0.3),
+                      elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
@@ -1029,8 +1028,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.brandColor,
                     foregroundColor: Colors.white,
-                    elevation: 2,
-                    shadowColor: AppTheme.brandColor.withOpacity(0.3),
+                    elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
@@ -1210,8 +1208,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 22),
                   backgroundColor: _currentStep == 5 ? Colors.green : AppTheme.brandColor,
-                  elevation: 4,
-                  shadowColor: (_currentStep == 5 ? Colors.green : AppTheme.brandColor).withOpacity(0.4),
+                  elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
                 child: _isPublishing
