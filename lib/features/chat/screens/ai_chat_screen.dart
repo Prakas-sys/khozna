@@ -99,27 +99,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
               },
             ),
           ),
-          if (_isTyping)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 12,
-                    height: 12,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppTheme.brandColor,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    'AI जवाफ लेख्दै छ...',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
+
           _buildInputArea(),
         ],
       ),
@@ -171,9 +151,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(50), // Premium pill shape
-                      border: Border.all(color: Colors.grey.shade300, width: 1.2),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: AppTheme.brandColor, width: 1.5),
                     ),
                     child: TextField(
                       controller: _messageController,

@@ -298,8 +298,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         final data = amenityMap[feature]!;
         items.add(PropertyStatItem(
           icon: data.$1,
-          value: data.$2,
-          label: '',
+          value: '',
+          label: data.$2,
           accentColor: data.$3,
         ));
       } else {
@@ -308,8 +308,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           formatted = formatted[0].toUpperCase() + formatted.substring(1);
           items.add(PropertyStatItem(
             icon: Icons.check_circle_outline_rounded,
-            value: formatted,
-            label: '',
+            value: '',
+            label: formatted,
             accentColor: AppTheme.brandColor,
           ));
         }

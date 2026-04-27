@@ -182,7 +182,6 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: Column(
         children: [
-          ChatBanner(controller: _bannerScrollController),
           Expanded(
             child: _activeChatId == null
                 ? const Center(child: Text('Start a conversation'))
