@@ -140,6 +140,15 @@ class HomeScreenState extends State<HomeScreen> {
         }
       }
 
+      // HARD SAFETY OVERRIDE: Kill the "Sanga" hallucination for Kirtipur users
+      // If the coordinates are clearly in Kirtipur but the API/AI says "Sanga", force it to Khasibazar.
+      final lat = position.latitude;
+      final lng = position.longitude;
+      bool isInKirtipur = lat > 27.65 && lat < 27.70 && lng > 85.25 && lng < 85.30;
+      if (isInKirtipur && (area.toLowerCase().contains('sanga') || area.contains('सा:गा'))) {
+        area = "Khasibazar, Kirtipur";
+      }
+
       if (mounted) setState(() => _currentLocationName = area);
     } catch (e) {
       debugPrint("Error fetching area name: $e");
