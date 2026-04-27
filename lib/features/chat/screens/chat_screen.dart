@@ -272,15 +272,66 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildInputArea() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFEEEEEE)))),
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            offset: const Offset(0, -4),
+            blurRadius: 10,
+          ),
+        ],
+      ),
       child: SafeArea(
-        child: Row(children: [
-          IconButton(icon: const Icon(Icons.image_outlined, color: AppTheme.brandColor), onPressed: _pickAndSendImage),
-          Expanded(child: Container(padding: const EdgeInsets.symmetric(horizontal: 16), decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppTheme.brandColor, width: 1.5), borderRadius: BorderRadius.circular(24)), child: TextField(controller: _messageController, decoration: const InputDecoration(hintText: 'Type a message...', border: InputBorder.none), onSubmitted: (_) => _sendMessage()))),
-          const SizedBox(width: 8),
-          CircleAvatar(backgroundColor: AppTheme.brandColor, child: IconButton(icon: const Icon(Icons.send, color: Colors.white, size: 18), onPressed: () => _sendMessage())),
-        ]),
+        top: false,
+        child: Row(
+          children: [
+            const SizedBox(width: 4),
+            IconButton(
+              icon: const Icon(Icons.image_outlined, color: Color(0xFF6B7280)),
+              onPressed: _pickAndSendImage,
+              visualDensity: VisualDensity.compact,
+            ),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: 48,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                ),
+                child: TextField(
+                  controller: _messageController,
+                  style: GoogleFonts.inter(fontSize: 15),
+                  decoration: InputDecoration(
+                    hintText: 'Type a message...',
+                    hintStyle: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 15),
+                    border: InputBorder.none,
+                    isDense: false,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onSubmitted: (_) => _sendMessage(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () => _sendMessage(),
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                  color: AppTheme.brandColor,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+              ),
+            ),
+            const SizedBox(width: 4),
+          ],
+        ),
       ),
     );
   }
