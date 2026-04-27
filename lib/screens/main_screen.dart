@@ -477,18 +477,41 @@ class _MainScreenState extends State<MainScreen> {
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: [
-                  // Icon
+                  // Icon with simulated stroke for "bold" look when selected
                   AnimatedScale(
                     scale: isSelected ? 1.05 : 1.0,
                     duration: const Duration(milliseconds: 200),
-                    child: SvgPicture.asset(
-                      iconPath,
-                      width: 24,
-                      height: 24,
-                      colorFilter: ColorFilter.mode(
-                        isSelected ? activeColor : inactiveColor,
-                        BlendMode.srcIn,
-                      ),
+                    child: Stack(
+                      children: [
+                        if (isSelected) ...[
+                          // Simulated stroke layers (offsets to thicken the SVG lines)
+                          for (double i = -0.4; i <= 0.4; i += 0.4)
+                            for (double j = -0.4; j <= 0.4; j += 0.4)
+                              if (i != 0 || j != 0)
+                                Transform.translate(
+                                  offset: Offset(i, j),
+                                  child: SvgPicture.asset(
+                                    iconPath,
+                                    width: 24,
+                                    height: 24,
+                                    colorFilter: ColorFilter.mode(
+                                      activeColor,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                ),
+                        ],
+                        // Main Icon Layer
+                        SvgPicture.asset(
+                          iconPath,
+                          width: 24,
+                          height: 24,
+                          colorFilter: ColorFilter.mode(
+                            isSelected ? activeColor : inactiveColor,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   // Premium red badge

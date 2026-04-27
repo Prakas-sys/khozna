@@ -81,8 +81,20 @@ class HomeScreenState extends State<HomeScreen> {
           final data = jsonDecode(response.body);
           final address = data['address'];
           if (address != null) {
-            micro = address['suburb'] ?? address['neighbourhood'] ?? address['village'] ?? address['road'] ?? '';
-            macro = address['city'] ?? address['town'] ?? address['municipality'] ?? '';
+            // Highly specific local area detection for Nepal
+            micro = address['suburb'] ?? 
+                    address['neighbourhood'] ?? 
+                    address['hamlet'] ?? 
+                    address['quarter'] ?? 
+                    address['village'] ?? 
+                    address['residential'] ?? 
+                    address['road'] ?? '';
+            
+            macro = address['city'] ?? 
+                    address['town'] ?? 
+                    address['municipality'] ?? 
+                    address['city_district'] ?? 
+                    address['county'] ?? '';
           }
         }
       }
