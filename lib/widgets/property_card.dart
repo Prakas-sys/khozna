@@ -189,9 +189,11 @@ class PropertyCard extends StatelessWidget {
   Widget _buildLocationAndAmenities(BuildContext context) {
     final Map<String, IconData> featureIcons = {
       'water_melamchi': Icons.water_drop_outlined,
+      'water 24 7': Icons.water_drop_outlined,
       'sunny_area': Icons.wb_sunny_outlined,
       'parking': Icons.directions_car_filled_outlined,
       'wifi': Icons.wifi,
+      'internet': Icons.wifi,
       'cctv': Icons.videocam_outlined,
       'balcony': Icons.balcony_outlined,
       'hot_water': Icons.hot_tub_outlined,
@@ -205,8 +207,8 @@ class PropertyCard extends StatelessWidget {
 
     for (var feature in combinedFeatures) {
       if (count >= 2) break;
-      IconData icon = featureIcons[feature] ?? Icons.check_circle_outline_rounded;
-      String label = _getShortLabel(feature);
+      IconData icon = featureIcons[feature.toLowerCase()] ?? Icons.check_circle_outline_rounded;
+      String label = _getShortLabel(feature.toLowerCase());
       
       amenityItems.add(const SizedBox(width: 10));
       amenityItems.add(_amenityIcon(icon, label));
@@ -247,9 +249,11 @@ class PropertyCard extends StatelessWidget {
   String _getShortLabel(String key) {
     switch (key) {
       case 'water_melamchi': return 'Water';
+      case 'water 24 7': return 'Water 24/7';
       case 'sunny_area': return 'Sunny';
       case 'parking': return 'Parking';
       case 'wifi': return 'Wifi';
+      case 'internet': return 'Internet';
       case 'cctv': return 'CCTV';
       case 'balcony': return 'Balcony';
       case 'hot_water': return 'Hot Water';

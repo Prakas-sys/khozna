@@ -282,8 +282,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     // Dynamic Amenities Mapping
     final Map<String, (IconData, String, Color)> amenityMap = {
       'wifi': (Icons.wifi, 'Wifi', Colors.blue),
+      'internet': (Icons.wifi, 'Internet', Colors.blue),
       'parking': (Icons.directions_car_filled_outlined, 'Parking', Colors.indigo),
       'water_melamchi': (Icons.water_drop_outlined, 'Water', Colors.lightBlue),
+      'water 24 7': (Icons.water_drop_outlined, 'Water 24/7', Colors.lightBlue),
       'sunny_area': (Icons.wb_sunny_outlined, 'Sunny', Colors.amber),
       'cctv': (Icons.videocam_outlined, 'CCTV', Colors.redAccent),
       'balcony': (Icons.balcony_outlined, 'Balcony', Colors.teal),
@@ -294,8 +296,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
     final combinedFeatures = {...widget.property.amenities, ...widget.property.houseRules};
     for (var feature in combinedFeatures) {
-      if (amenityMap.containsKey(feature)) {
-        final data = amenityMap[feature]!;
+      final String normalizedFeature = feature.toLowerCase();
+      if (amenityMap.containsKey(normalizedFeature)) {
+        final data = amenityMap[normalizedFeature]!;
         items.add(PropertyStatItem(
           icon: data.$1,
           value: '',

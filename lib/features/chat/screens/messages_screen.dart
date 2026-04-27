@@ -123,28 +123,47 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   return GestureDetector(
                     onTap: () => setState(() => _selectedTab = i),
                     child: Container(
-            child: Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: selected ? AppTheme.brandColor.withOpacity(0.12) : Colors.transparent,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: selected ? AppTheme.brandColor.withOpacity(0.2) : const Color(0xFFE5E7EB),
-                  width: selected ? 1.0 : 0.5,
-                ),
-              ),
-              child: Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                  color: selected ? AppTheme.brandColor : const Color(0xFF4B5563),
-                ),
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: selected ? AppTheme.brandColor.withOpacity(0.12) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: selected ? AppTheme.brandColor.withOpacity(0.2) : const Color(0xFFE5E7EB),
+                          width: selected ? 1.0 : 0.5,
+                        ),
+                      ),
+                      child: Text(
+                        label,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                          color: selected ? AppTheme.brandColor : const Color(0xFF4B5563),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
-          );
-        },
+            const SizedBox(height: 12),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
+                  : _chats.isEmpty
+                      ? _buildEmptyState()
+                      : RefreshIndicator(
+                          onRefresh: _loadChats,
+                          color: AppTheme.brandColor,
+                          child: ListView.builder(
+                            itemCount: _chats.length,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            itemBuilder: (context, index) => _buildChatTile(_chats[index]),
+                          ),
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }
