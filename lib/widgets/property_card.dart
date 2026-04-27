@@ -187,19 +187,20 @@ class PropertyCard extends StatelessWidget {
   }
 
   Widget _buildLocationAndAmenities(BuildContext context) {
-    final Map<String, IconData> featureIcons = {
-      'water_melamchi': Icons.water_drop_outlined,
-      'water 24 7': Icons.water_drop_outlined,
-      'sunny_area': Icons.wb_sunny_outlined,
-      'parking': Icons.directions_car_filled_outlined,
-      'wifi': Icons.wifi,
-      'internet': Icons.wifi,
-      'cctv': Icons.videocam_outlined,
-      'balcony': Icons.balcony_outlined,
-      'hot_water': Icons.hot_tub_outlined,
-      'attached_bathroom': Icons.bathroom_outlined,
-      'family_only': Icons.family_restroom_outlined,
-    };
+    IconData _getIcon(String k) {
+      final key = k.toLowerCase().trim();
+      if (key.contains('wifi') || key.contains('internet')) return Icons.wifi;
+      if (key.contains('water')) return Icons.water_drop_outlined;
+      if (key.contains('parking')) return Icons.directions_car_filled_outlined;
+      if (key.contains('sunny')) return Icons.wb_sunny_outlined;
+      if (key.contains('cctv') || key.contains('security')) return Icons.videocam_outlined;
+      if (key.contains('balcony')) return Icons.balcony_outlined;
+      if (key.contains('hot water')) return Icons.hot_tub_outlined;
+      if (key.contains('bath')) return Icons.bathroom_outlined;
+      if (key.contains('family')) return Icons.family_restroom_outlined;
+      if (key.contains('kitchen')) return Icons.kitchen_outlined;
+      return Icons.check_circle_outline_rounded;
+    }
 
     List<Widget> amenityItems = [];
     int count = 0;
@@ -207,8 +208,8 @@ class PropertyCard extends StatelessWidget {
 
     for (var feature in combinedFeatures) {
       if (count >= 2) break;
-      IconData icon = featureIcons[feature.toLowerCase()] ?? Icons.check_circle_outline_rounded;
-      String label = _getShortLabel(feature.toLowerCase());
+      IconData icon = _getIcon(feature);
+      String label = _getShortLabel(feature.toLowerCase().trim());
       
       amenityItems.add(const SizedBox(width: 10));
       amenityItems.add(_amenityIcon(icon, label));
@@ -247,23 +248,20 @@ class PropertyCard extends StatelessWidget {
   }
 
   String _getShortLabel(String key) {
-    switch (key) {
-      case 'water_melamchi': return 'Water';
-      case 'water 24 7': return 'Water 24/7';
-      case 'sunny_area': return 'Sunny';
-      case 'parking': return 'Parking';
-      case 'wifi': return 'Wifi';
-      case 'internet': return 'Internet';
-      case 'cctv': return 'CCTV';
-      case 'balcony': return 'Balcony';
-      case 'hot_water': return 'Hot Water';
-      case 'attached_bathroom': return 'Bath';
-      case 'family_only': return 'Family';
-      default: 
-        // Fallback: capitalize first letter and replace underscores
-        if (key.isEmpty) return '';
-        String formatted = key.replaceAll('_', ' ');
-        return formatted[0].toUpperCase() + formatted.substring(1);
-    }
+    final k = key.toLowerCase().trim();
+    if (k.contains('water')) return 'Water';
+    if (k.contains('wifi') || k.contains('internet')) return 'Internet';
+    if (k.contains('parking')) return 'Parking';
+    if (k.contains('sunny')) return 'Sunny';
+    if (k.contains('cctv')) return 'CCTV';
+    if (k.contains('balcony')) return 'Balcony';
+    if (k.contains('hot water')) return 'Hot Water';
+    if (k.contains('bath')) return 'Bath';
+    if (k.contains('family')) return 'Family';
+    if (k.contains('kitchen')) return 'Kitchen';
+    
+    if (key.isEmpty) return '';
+    String formatted = key.replaceAll('_', ' ');
+    return formatted[0].toUpperCase() + formatted.substring(1);
   }
 }

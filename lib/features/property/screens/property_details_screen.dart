@@ -279,44 +279,36 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       items.add(PropertyStatItem(icon: Icons.layers_outlined, value: widget.property.floor, label: 'Floor', accentColor: Colors.orange));
     }
 
-    // Dynamic Amenities Mapping
-    final Map<String, (IconData, String, Color)> amenityMap = {
-      'wifi': (Icons.wifi, 'Wifi', Colors.blue),
-      'internet': (Icons.wifi, 'Internet', Colors.blue),
-      'parking': (Icons.directions_car_filled_outlined, 'Parking', Colors.indigo),
-      'water_melamchi': (Icons.water_drop_outlined, 'Water', Colors.lightBlue),
-      'water 24 7': (Icons.water_drop_outlined, 'Water 24/7', Colors.lightBlue),
-      'sunny_area': (Icons.wb_sunny_outlined, 'Sunny', Colors.amber),
-      'cctv': (Icons.videocam_outlined, 'CCTV', Colors.redAccent),
-      'balcony': (Icons.balcony_outlined, 'Balcony', Colors.teal),
-      'hot_water': (Icons.hot_tub_outlined, 'Hot Water', Colors.orangeAccent),
-      'attached_bathroom': (Icons.bathroom_outlined, 'Bath', Colors.cyan),
-      'family_only': (Icons.family_restroom_outlined, 'Family', Colors.purple),
-    };
+    // Fuzzy Matching for Amenities
+    (IconData, String, Color) _getAmenityData(String feature) {
+      final k = feature.toLowerCase().trim();
+      if (k.contains('water')) return (Icons.water_drop_outlined, 'Water', Colors.lightBlue);
+      if (k.contains('wifi') || k.contains('internet')) return (Icons.wifi, 'Internet', Colors.blue);
+      if (k.contains('parking')) return (Icons.directions_car_filled_outlined, 'Parking', Colors.indigo);
+      if (k.contains('sunny')) return (Icons.wb_sunny_outlined, 'Sunny', Colors.amber);
+      if (k.contains('cctv') || k.contains('security')) return (Icons.videocam_outlined, 'CCTV', Colors.redAccent);
+      if (k.contains('balcony')) return (Icons.balcony_outlined, 'Balcony', Colors.teal);
+      if (k.contains('hot water')) return (Icons.hot_tub_outlined, 'Hot Water', Colors.orangeAccent);
+      if (k.contains('bath')) return (Icons.bathroom_outlined, 'Bath', Colors.cyan);
+      if (k.contains('family')) return (Icons.family_restroom_outlined, 'Family', Colors.purple);
+      if (k.contains('kitchen')) return (Icons.kitchen_outlined, 'Kitchen', Colors.orange);
+      
+      String formatted = feature.replaceAll('_', ' ');
+      if (formatted.isNotEmpty) {
+        formatted = formatted[0].toUpperCase() + formatted.substring(1);
+      }
+      return (Icons.check_circle_outline_rounded, formatted, AppTheme.brandColor);
+    }
 
     final combinedFeatures = {...widget.property.amenities, ...widget.property.houseRules};
     for (var feature in combinedFeatures) {
-      final String normalizedFeature = feature.toLowerCase();
-      if (amenityMap.containsKey(normalizedFeature)) {
-        final data = amenityMap[normalizedFeature]!;
-        items.add(PropertyStatItem(
-          icon: data.$1,
-          value: '',
-          label: data.$2,
-          accentColor: data.$3,
-        ));
-      } else {
-        String formatted = feature.replaceAll('_', ' ');
-        if (formatted.isNotEmpty) {
-          formatted = formatted[0].toUpperCase() + formatted.substring(1);
-          items.add(PropertyStatItem(
-            icon: Icons.check_circle_outline_rounded,
-            value: '',
-            label: formatted,
-            accentColor: AppTheme.brandColor,
-          ));
-        }
-      }
+      final data = _getAmenityData(feature);
+      items.add(PropertyStatItem(
+        icon: data.$1,
+        value: '',
+        label: data.$2,
+        accentColor: data.$3,
+      ));
     }
 
     if (items.isEmpty) return const SizedBox.shrink();
