@@ -149,6 +149,19 @@ class _MessagesScreenState extends State<MessagesScreen> {
     );
   }
 
+  Widget _buildHeaderIcon(IconData icon) {
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: AppTheme.brandColor.withOpacity(0.1),
+        shape: BoxShape.circle,
+        border: Border.all(color: AppTheme.brandColor.withOpacity(0.2)),
+      ),
+      child: Icon(icon, color: AppTheme.brandColor, size: 22),
+    );
+  }
+
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
