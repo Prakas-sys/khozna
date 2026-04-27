@@ -266,7 +266,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
   }
 }
 
-class CategoryCard extends StatelessWidget {
+class CategoryCard extends StatefulWidget {
   final String label;
   final IconData icon;
   final String value;
@@ -283,50 +283,92 @@ class CategoryCard extends StatelessWidget {
   });
 
   @override
+  State<CategoryCard> createState() => _CategoryCardState();
+}
+
+class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderStateMixin {
+  late AnimationController _pressController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isSelected = selectedValue == value;
+    final isSelected = widget.selectedValue == widget.value;
     return GestureDetector(
+      onTapDown: (_) => _pressController.forward(),
+      onTapUp: (_) => _pressController.reverse(),
+      onTapCancel: () => _pressController.reverse(),
       onTap: () {
-        HapticFeedback.selectionClick();
-        onSelect(value);
+        HapticFeedback.mediumImpact();
+        widget.onSelect(widget.value);
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor.withOpacity(0.05) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
-            width: isSelected ? 2 : 1.5,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.brandColor.withOpacity(0.04) : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
+              width: isSelected ? 2.5 : 1.5,
+            ),
+            boxShadow: isSelected ? [
+              BoxShadow(
+                color: AppTheme.brandColor.withOpacity(0.12),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              )
+            ] : [],
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isSelected ? AppTheme.brandColor : Colors.grey.shade50,
-                shape: BoxShape.circle,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppTheme.brandColor.withOpacity(0.12) : Colors.grey.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  widget.icon,
+                  color: isSelected ? AppTheme.brandColor : Colors.grey[500],
+                  size: 26,
+                ),
               ),
-              child: Icon(
-                icon,
-                color: isSelected ? Colors.white : Colors.grey[600],
-                size: 24,
+              const SizedBox(height: 14),
+              Text(
+                widget.label,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.hind(
+                  fontSize: 15,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
+                  height: 1.1,
+                  letterSpacing: -0.2,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.hind(
-                fontSize: 15,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
-                height: 1.2,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

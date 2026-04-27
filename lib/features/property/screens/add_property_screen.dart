@@ -394,15 +394,22 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: SizedBox(
                 height: 14,
-                child: LinearProgressIndicator(
-                  value: (_currentStep + 1) / 6,
-                  backgroundColor: Colors.grey[100],
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.brandColor),
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0, end: (_currentStep + 1) / 6),
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOutCubic,
+                  builder: (context, value, child) {
+                    return LinearProgressIndicator(
+                      value: value,
+                      backgroundColor: Colors.grey[200],
+                      valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.brandColor),
+                    );
+                  },
                 ),
               ),
             ),
@@ -470,8 +477,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               onSelect: (v) => setState(() => _selectedCategory = v),
             ),
             CategoryCard(
-              label: 'सटर / पसल\nShop',
-              icon: CupertinoIcons.bag_fill,
+              label: 'सटर / पसल\nCommercial',
+              icon: Icons.storefront_rounded,
               value: 'Shop',
               selectedValue: _selectedCategory,
               onSelect: (v) => setState(() => _selectedCategory = v),
@@ -488,7 +495,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 24),
         PropertyFormField(
           label: 'विज्ञापनको नाम (Title)',
-          hint: 'e.g. Add single Apartment',
+          hint: 'e.g. Cozy 2-bedroom flat',
           controller: _titleController,
           focusNode: _titleFocusNode,
           isRequired: true,
@@ -1091,17 +1098,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             Expanded(
               flex: 2,
               child: ElevatedButton(
-                onPressed: _currentStep == 5 ? (_isPublishing ? null : _publishProperty) : _nextStep,
+                onPressed: _currentStep == 5 ? (_isPublishing ? null : _publishProperty) : () {
+                  HapticFeedback.lightImpact();
+                  _nextStep();
+                },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 22),
                   backgroundColor: _currentStep == 5 ? Colors.green : AppTheme.brandColor,
-                  elevation: 2,
-                  shadowColor: Colors.black.withOpacity(0.3),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 4,
+                  shadowColor: (_currentStep == 5 ? Colors.green : AppTheme.brandColor).withOpacity(0.4),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
                 child: _isPublishing
                     ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                    : Text(_currentStep == 5 ? 'Publish Listing' : 'Next', textAlign: TextAlign.center, style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 17, color: Colors.white)),
+                    : Text(_currentStep == 5 ? 'Publish Listing' : 'Next Step', textAlign: TextAlign.center, style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 17, color: Colors.white)),
               ),
             ),
           ],
