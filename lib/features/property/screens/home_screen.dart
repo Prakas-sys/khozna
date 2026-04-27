@@ -89,6 +89,12 @@ class HomeScreenState extends State<HomeScreen> {
         }
       }
 
+      // Filter out Plus Codes (e.g., "M7GG+Q6") which often appear in place.name or place.street
+      bool isPlusCode(String s) => s.contains('+') && s.length <= 12;
+      
+      if (isPlusCode(micro)) micro = '';
+      if (isPlusCode(macro)) macro = '';
+
       String area = (micro.isNotEmpty && macro.isNotEmpty && micro.toLowerCase() != macro.toLowerCase()) ? '$macro, $micro' : (macro.isNotEmpty ? macro : micro);
       if (area.trim().isEmpty) area = 'Kathmandu, Nepal';
       if (mounted) setState(() => _currentLocationName = area);
