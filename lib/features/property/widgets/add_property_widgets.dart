@@ -69,101 +69,161 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                   child: Container(
                     width: 120,
                     height: 120,
+                    padding: const EdgeInsets.all(28),
                     decoration: BoxDecoration(
+                      color: Colors.green.shade50,
                       shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [Colors.green.shade400, Colors.green.shade600],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.green.withOpacity(0.4),
-                          blurRadius: 30,
-                          offset: const Offset(0, 12),
-                        ),
-                      ],
                     ),
-                    child: const Icon(
-                      Icons.check_rounded,
-                      color: Colors.white,
-                      size: 70,
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0x334CAF50),
+                            blurRadius: 40,
+                            offset: Offset(0, 15),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        color: Colors.white,
+                        size: 64,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 28),
+                ),
+                const SizedBox(height: 32),
                 Text(
                   'प्रकाशित भयो! 🎉',
                   style: GoogleFonts.mukta(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
                     color: const Color(0xFF111827),
+                    height: 1.1,
+                    letterSpacing: -0.5,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 10),
                 Text(
-                  'Your property is now live on Khozna',
+                  'Your property is now officially live on Khozna',
                   style: GoogleFonts.inter(
-                    fontSize: 14,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
                     color: Colors.grey[600],
+                    letterSpacing: -0.2,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 36),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.grey.shade200),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(color: Colors.grey.shade100, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.03),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      )
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Listing Summary',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: Colors.grey[500],
-                          letterSpacing: 1.1,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'LISTING SUMMARY',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 11,
+                              color: Colors.grey[400],
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'PLATINUM',
+                              style: GoogleFonts.inter(
+                                color: Colors.blue[700],
+                                fontWeight: FontWeight.w900,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      _detailRow(Icons.home_outlined, 'Title', widget.title.isEmpty ? 'My Property' : widget.title),
-                      _detailRow(Icons.location_on_outlined, 'Location', widget.area),
-                      if (widget.landmark.isNotEmpty)
-                        _detailRow(Icons.place_outlined, 'Landmark', widget.landmark),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Divider(height: 1),
+                      ),
+                      _detailRow(Icons.home_filled, 'Title', widget.title.isEmpty ? 'My Property' : widget.title),
+                      const SizedBox(height: 14),
+                      _detailRow(Icons.location_on_rounded, 'Location', widget.area),
+                      if (widget.landmark.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        _detailRow(Icons.place_rounded, 'Landmark', widget.landmark),
+                      ],
+                      const SizedBox(height: 14),
                       _detailRow(
-                        Icons.currency_rupee,
+                        Icons.payments_rounded,
                         'Monthly Rent',
-                        widget.price.isEmpty ? 'Not specified' : '₹ ${widget.price}/mo',
+                        widget.price.isEmpty ? 'Not specified' : 'Rs ${widget.price} / month',
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                    gradient: LinearGradient(
+                      colors: [Colors.green.shade50, Colors.white],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.green.withOpacity(0.2), width: 1.5),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.verified, color: Colors.green, size: 18),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Listing is Live & Verified',
-                        style: GoogleFonts.inter(
-                          color: Colors.green[700],
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
+                      const Icon(Icons.verified_user_rounded, color: Colors.green, size: 22),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Listing is Live & Verified',
+                            style: GoogleFonts.inter(
+                              color: Colors.green[800],
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                            ),
+                          ),
+                          Text(
+                            'Ready to receive inquiries',
+                            style: GoogleFonts.inter(
+                              color: Colors.green[600],
+                              fontWeight: FontWeight.w500,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -171,43 +231,47 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                 const SizedBox(height: 36),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: () {
                       Navigator.popUntil(context, (route) => route.isFirst);
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.brandColor,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
+                    icon: const Icon(Icons.home_rounded, size: 20),
+                    label: Text(
                       'गृहपृष्ठमा जानुहोस् (Go Home)',
                       style: GoogleFonts.mukta(
                         color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.brandColor,
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton.icon(
+                    onPressed: () {
+                      // Share logic would go here
+                    },
+                    icon: const Icon(Icons.ios_share_rounded, size: 18),
+                    label: Text(
+                      'Share Listing',
+                      style: GoogleFonts.inter(
+                        color: AppTheme.brandColor,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.popUntil(context, (route) => route.isFirst);
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(color: Colors.grey.shade300, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Text(
                       'View My Listings',
                       style: GoogleFonts.inter(
                         color: const Color(0xFF4B5563),
