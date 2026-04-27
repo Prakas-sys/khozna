@@ -273,7 +273,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildInputArea() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 8, 10, 24),
+      padding: const EdgeInsets.fromLTRB(0, 8, 10, 24),
       color: Colors.transparent, 
       child: SafeArea(
         top: false,
@@ -284,7 +284,10 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(28),
+                    bottomRight: Radius.circular(28),
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
@@ -292,11 +295,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       offset: const Offset(0, 2),
                     ),
                   ],
+                  border: Border.all(color: Colors.grey.shade200, width: 1),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const SizedBox(width: 16), // Padding instead of emoji icon
+                    const SizedBox(width: 26), // Maintained original text position (10 + 16)
                     Expanded(
                       child: TextField(
                         controller: _messageController,
