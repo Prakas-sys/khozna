@@ -14,6 +14,7 @@ class ChatRepository {
         .from('chats')
         .select('*')
         .or('user1_id.eq.${user.id},user2_id.eq.${user.id}')
+        .not('deleted_for', 'cs', '{"${user.id}"}')
         .order('updated_at', ascending: false);
 
     final List chatsData = response as List;
@@ -88,12 +89,20 @@ class ChatRepository {
         .eq('user2_id', u2)
         .maybeSingle();
 
-    if (response != null) return response['id'];
+    if (response != null) {
+      // If the chat was deleted for this user, restore it
+      await _client.rpc('clear_chat_deletion', params: {
+        'p_chat_id': response['id'],
+        'p_user_id': user.id
+      });
+      return response['id'];
+    }
 
     final newChat = await _client.from('chats').insert({
       'user1_id': u1,
       'user2_id': u2,
       'participants': [u1, u2],
+      'deleted_for': [],
     }).select('id').single();
 
     return newChat['id'];
@@ -109,18 +118,36 @@ class ChatRepository {
   }
 
   static Future<void> sendMessage(String chatId, String text) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    
     await _client.from('messages').insert({
       'chat_id': chatId,
-      'sender_id': _client.auth.currentUser?.id,
+      'sender_id': user.id,
       'text': text,
+    });
+
+    // Clear deletion status for both if a new message is sent (so it reappears for both)
+    // Or just for the sender if you want to be more specific. Usually, if I send a message, I expect to see the chat.
+    await _client.rpc('clear_chat_deletion', params: {
+      'p_chat_id': chatId,
+      'p_user_id': user.id
     });
   }
 
   static Future<void> sendImageMessage(String chatId, String imageUrl) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
     await _client.from('messages').insert({
       'chat_id': chatId,
-      'sender_id': _client.auth.currentUser?.id,
+      'sender_id': user.id,
       'image_url': imageUrl,
+    });
+
+    await _client.rpc('clear_chat_deletion', params: {
+      'p_chat_id': chatId,
+      'p_user_id': user.id
     });
   }
 
@@ -161,8 +188,13 @@ class ChatRepository {
   }
 
   static Future<void> deleteChat(String chatId) async {
-    // In a real app, this might just hide it for one user
-    await _client.from('messages').delete().eq('chat_id', chatId);
-    await _client.from('chats').delete().eq('id', chatId);
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    // Use RPC to add user to deleted_for array safely
+    await _client.rpc('mark_chat_as_deleted_for_user', params: {
+      'p_chat_id': chatId,
+      'p_user_id': user.id
+    });
   }
 }

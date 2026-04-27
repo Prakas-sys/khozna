@@ -207,7 +207,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                   ),
           ),
-          if (widget.ownerId.isNotEmpty) QuickReplyBar(replies: _quickReplies, onReplySelected: _sendMessage),
+          // if (widget.ownerId.isNotEmpty) QuickReplyBar(replies: _quickReplies, onReplySelected: _sendMessage),
           _buildInputArea(),
         ],
       ),
@@ -272,64 +272,74 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildInputArea() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            offset: const Offset(0, -4),
-            blurRadius: 10,
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 24),
+      color: Colors.transparent, // Background handled by outer color or theme
       child: SafeArea(
         top: false,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            const SizedBox(width: 4),
-            IconButton(
-              icon: const Icon(Icons.image_outlined, color: Color(0xFF6B7280)),
-              onPressed: _pickAndSendImage,
-              visualDensity: VisualDensity.compact,
-            ),
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(28),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: TextField(
-                  controller: _messageController,
-                  style: GoogleFonts.inter(fontSize: 15),
-                  decoration: InputDecoration(
-                    hintText: 'Type a message...',
-                    hintStyle: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 15),
-                    border: InputBorder.none,
-                    isDense: false,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  onSubmitted: (_) => _sendMessage(),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.emoji_emotions_outlined, color: Color(0xFF6B7280)),
+                      onPressed: () {}, // Optional: Emoji picker
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        minLines: 1,
+                        maxLines: 5,
+                        style: GoogleFonts.inter(fontSize: 16),
+                        decoration: InputDecoration(
+                          hintText: 'Message...',
+                          hintStyle: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 16),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.attach_file_rounded, color: Color(0xFF6B7280)),
+                      onPressed: () {}, // Optional: File picker
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.camera_alt_rounded, color: Color(0xFF6B7280)),
+                      onPressed: _pickAndSendImage,
+                    ),
+                    const SizedBox(width: 4),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 8),
             GestureDetector(
               onTap: () => _sendMessage(),
               child: Container(
-                width: 44,
-                height: 44,
+                width: 52,
+                height: 52,
                 decoration: const BoxDecoration(
                   color: AppTheme.brandColor,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                child: const Icon(Icons.send_rounded, color: Colors.white, size: 24),
               ),
             ),
-            const SizedBox(width: 4),
           ],
         ),
       ),
