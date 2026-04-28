@@ -357,7 +357,7 @@ class PostPropertyCard extends StatelessWidget {
           children: [
             // Left content column
             Positioned(
-              left: 20,
+              left: 24,
               top: 0,
               bottom: 0,
               right: 140,
@@ -365,33 +365,40 @@ class PostPropertyCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.roofing_rounded,
-                    color: AppTheme.brandColor,
-                    size: 26,
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.roofing_rounded,
+                      color: AppTheme.brandColor,
+                      size: 22,
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Text(
                     'Ready to\nRent Out?',
                     style: GoogleFonts.inter(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
+                      letterSpacing: -0.8,
                       height: 1.1,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Text(
                     'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.mukta(
                       color: Colors.grey[600],
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: -0.1,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      height: 1.0,
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
@@ -401,7 +408,7 @@ class PostPropertyCard extends StatelessWidget {
                       },
                       borderRadius: BorderRadius.circular(50),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [AppTheme.brandColor, Color(0xFF0089BE)],
@@ -412,8 +419,8 @@ class PostPropertyCard extends StatelessWidget {
                           boxShadow: [
                             BoxShadow(
                               color: AppTheme.brandColor.withOpacity(0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
                             ),
                           ],
                         ),
@@ -429,7 +436,7 @@ class PostPropertyCard extends StatelessWidget {
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 8),
                             const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
                           ],
                         ),
