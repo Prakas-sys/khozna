@@ -341,73 +341,135 @@ class PostPropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      height: 175,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF007799),
-            Color(0xFF00A3E1),
-            Color(0xFFE1F5FE),
-            Color(0xFF00A3E1),
-            Color(0xFF007799),
-          ],
-          stops: [0.0, 0.2, 0.5, 0.8, 1.0],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFFE1F5FE).withOpacity(0.6),
-          width: 1.5,
-        ),
+        color: const Color(0xFFF1F9FE),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: const Color(0xFF00A3E1).withOpacity(0.25),
-            blurRadius: 25,
-            spreadRadius: -5,
+            color: const Color(0xFF00A3E1).withOpacity(0.10),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
           ),
         ],
+        border: Border.all(
+          color: Colors.white,
+          width: 2,
+        ),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(28),
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: const Alignment(0.4, -0.4),
-                    focal: const Alignment(0.2, -0.2),
-                    focalRadius: 1.2,
-                    colors: [
-                      Colors.white.withOpacity(0.4),
-                      Colors.transparent,
-                    ],
+            // Text + Button — left column, icon above title
+            Positioned(
+              left: 22,
+              top: 22,
+              bottom: 22,
+              right: 130,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Icon badge
+                  Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.home_work_rounded,
+                      color: AppTheme.brandColor,
+                      size: 20,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 10),
+
+                  // Title — full column width, no row competition
+                  Text(
+                    'Ready to Rent?',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      color: const Color(0xFF1A1A1A),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'List your property easily',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      color: Colors.grey[600],
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  // CTA button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: onPost,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.brandColor,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'Post Property',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+
+            // House — pushed to right edge, width forced to fill the space
+            Positioned(
+              right: -30,
+              bottom: 0,
+              width: 165,
+              child: Image.asset(
+                'assets/images/tiny house.png',
+                height: 170,
+                fit: BoxFit.fitHeight,
+              ),
+            ),
+
+            // Shimmer sweep
             AnimatedBuilder(
               animation: shimmerAnimation,
               builder: (context, child) {
                 return Positioned.fill(
                   child: FractionallySizedBox(
-                    widthFactor: 2.0,
+                    widthFactor: 1.5,
                     alignment: Alignment(shimmerAnimation.value, 0.0),
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          stops: const [0.35, 0.5, 0.65],
+                          stops: const [0.4, 0.5, 0.6],
                           colors: [
-                            Colors.transparent,
-                            Colors.white.withOpacity(0.25),
-                            Colors.transparent,
+                            Colors.white.withOpacity(0),
+                            Colors.white.withOpacity(0.18),
+                            Colors.white.withOpacity(0),
                           ],
                         ),
                       ),
@@ -415,94 +477,6 @@ class PostPropertyCard extends StatelessWidget {
                   ),
                 );
               },
-            ),
-            Positioned(
-              right: -15,
-              bottom: -15,
-              child: Icon(
-                Icons.home_work_rounded,
-                size: 110,
-                color: const Color(0xFF002C40).withOpacity(0.05),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF002C40).withOpacity(0.1),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFF002C40).withOpacity(0.15),
-                            width: 1,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.add_home_rounded,
-                          color: Color(0xFF002C40),
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Ready to Rent?',
-                                                            style: GoogleFonts.inter(
-                                color: const Color(0xFF002C40),
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: -0.6,
-                              ),
-                            ),
-                            Text(
-                              'List your property easily',
-                                                            style: GoogleFonts.inter(
-                                color: const Color(0xFF002C40).withOpacity(0.7),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                height: 1.1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: onPost,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF002C40),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 6,
-                        shadowColor: const Color(0xFF002C40).withOpacity(0.4),
-                      ),
-                      child: Text(
-                        'Post Your Property',
-                                                style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
