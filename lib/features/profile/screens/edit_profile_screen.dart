@@ -130,10 +130,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         scrolledUnderElevation: 0,
         title: Text(
           'Edit Profile',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
+          style: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.w800,
             fontSize: 18,
             color: Colors.black,
+            letterSpacing: -0.5,
           ),
         ),
         centerTitle: true,
@@ -165,9 +166,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.brandColor.withOpacity(0.1),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 24,
+                            offset: const Offset(0, 12),
                           ),
                         ],
                       ),
@@ -247,13 +248,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
-              height: 54,
+              height: 56,
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _updateProfile,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.brandColor,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(50),
                   ),
                   elevation: 0,
                 ),
@@ -261,8 +262,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ? const CircularProgressIndicator(color: Colors.white)
                     : Text(
                         'Save Changes',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w800,
                           fontSize: 16,
                           color: Colors.white,
                         ),
@@ -278,11 +279,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.inter(
-        fontSize: 12,
+      style: GoogleFonts.plusJakartaSans(
+        fontSize: 11,
         fontWeight: FontWeight.w800,
-        color: Colors.grey[400],
-        letterSpacing: 1.2,
+        color: const Color(0xFF94A3B8),
+        letterSpacing: 1.5,
       ),
     );
   }
@@ -297,13 +298,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          padding: const EdgeInsets.only(left: 12, bottom: 8),
           child: Text(
             label.toUpperCase(),
-            style: GoogleFonts.inter(
+            style: GoogleFonts.plusJakartaSans(
               fontSize: 10,
               fontWeight: FontWeight.w800,
-              color: Colors.grey[500],
+              color: const Color(0xFF94A3B8),
               letterSpacing: 1.0,
             ),
           ),
@@ -338,29 +339,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               vertical: 20,
             ),
             hintText: 'Enter your $label',
-            hintStyle: GoogleFonts.inter(color: Colors.grey[300], fontSize: 14),
+            hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 14),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(50),
               borderSide: BorderSide(color: Colors.grey.shade200),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(50),
               borderSide: BorderSide(
                 color: (enabled && controller.text.isNotEmpty)
-                    ? AppTheme.brandColor.withOpacity(0.4)
+                    ? AppTheme.brandColor.withOpacity(0.3)
                     : Colors.grey.shade200,
                 width: 1,
               ),
             ),
             disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(50),
               borderSide: BorderSide(color: Colors.grey.shade100),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(50),
               borderSide: const BorderSide(
                 color: AppTheme.brandColor,
-                width: 1.8,
+                width: 1.5,
               ),
             ),
           ),

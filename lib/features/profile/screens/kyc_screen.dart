@@ -302,8 +302,8 @@ class _KycScreenState extends State<KycScreen> {
                   if (mounted) Navigator.pop(context);
                 },
                 child: Text(
-                  'हुन्छ, बुझें',
-                  style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.blue),
+                  'हुन्छ, बुझें (Understood)',
+                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppTheme.brandColor),
                 ),
               ),
             ],
@@ -523,7 +523,7 @@ class _KycScreenState extends State<KycScreen> {
           disabledBackgroundColor: Colors.grey[200],
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(50),
           ),
         ),
         child: _isSubmitting
@@ -542,9 +542,10 @@ class _KycScreenState extends State<KycScreen> {
                   const SizedBox(width: 8),
                   Text(
                     'Submit Verification',
-                    style: GoogleFonts.outfit(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 16,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.2,
                     ),
                   ),
                 ],
@@ -576,10 +577,10 @@ class _KycScreenState extends State<KycScreen> {
                 Text(
                   'VERIFY IDENTITY',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    fontSize: 20,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 22,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
+                    letterSpacing: -1.0,
                     color: Colors.white,
                   ),
                 ),

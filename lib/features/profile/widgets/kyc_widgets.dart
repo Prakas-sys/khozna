@@ -1,4 +1,4 @@
-﻿import 'package:khozna/widgets/khozna_image.dart';
+import 'package:khozna/widgets/khozna_image.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -14,10 +14,11 @@ class KycSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: GoogleFonts.mukta(
-        fontSize: 18,
+      style: GoogleFonts.plusJakartaSans(
+        fontSize: 16,
         fontWeight: FontWeight.w800,
-        color: Colors.black87,
+        color: const Color(0xFF1A1A2E),
+        letterSpacing: -0.3,
       ),
     );
   }
@@ -41,15 +42,15 @@ class KycStepButton extends StatelessWidget {
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(50),
           ),
         ),
         child: Text(
           text,
-          style: GoogleFonts.outfit(
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 16,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.2,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.1,
           ),
         ),
       ),
@@ -325,23 +326,23 @@ class KycTextField extends StatelessWidget {
               : (controller.text.isNotEmpty ? Colors.blue[50]!.withOpacity(0.3) : Colors.white),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(50),
             borderSide: BorderSide(color: Colors.grey.shade200),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(50),
             borderSide: BorderSide(
               color: controller.text.isNotEmpty ? AppTheme.brandColor.withOpacity(0.3) : Colors.grey.shade200,
-              width: 1.5,
+              width: 1.2,
             ),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppTheme.brandColor, width: 2),
+            borderRadius: BorderRadius.circular(50),
+            borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+            borderRadius: BorderRadius.circular(50),
+            borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
           ),
         ),
       ),

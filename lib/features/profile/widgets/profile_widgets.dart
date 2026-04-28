@@ -62,22 +62,14 @@ class ProfileHeader extends StatelessWidget {
                   child: Stack(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.white.withOpacity(0.5),
-                              Colors.white.withOpacity(0.2),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
                           shape: BoxShape.circle,
+                          color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.12),
-                              blurRadius: 30,
-                              offset: const Offset(0, 15),
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
                             ),
                           ],
                         ),
@@ -162,10 +154,11 @@ class ProfileHeader extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: fullName ?? (isOwner ? 'Owner' : 'Guest'),
-                                                style: GoogleFonts.inter(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
                           color: Colors.white,
+                          letterSpacing: -0.5,
                         ),
                       ),
                       if (kycStatus == 'verified')
@@ -214,7 +207,7 @@ class VerificationCard extends StatelessWidget {
         : (isRejected ? Colors.red : Colors.orange);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -226,7 +219,7 @@ class VerificationCard extends StatelessWidget {
           ),
         ],
         border: Border.all(
-          color: mainColor.withOpacity(0.1),
+          color: mainColor.withOpacity(0.15),
           width: 1,
         ),
       ),
@@ -235,14 +228,7 @@ class VerificationCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  isVerified ? Colors.green.shade50 : (isRejected ? Colors.red.shade50 : Colors.orange.shade50),
-                  isVerified ? Colors.green.shade100 : (isRejected ? Colors.red.shade100 : Colors.orange.shade100),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: mainColor.withOpacity(0.12),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -251,10 +237,8 @@ class VerificationCard extends StatelessWidget {
                   : (isPending
                         ? Icons.hourglass_empty_rounded
                         : (isRejected ? Icons.error_outline_rounded : Icons.gpp_maybe_rounded)),
-              color: isVerified
-                  ? Colors.green.shade700
-                  : (isRejected ? Colors.red.shade700 : Colors.orange.shade700),
-              size: 20,
+              color: mainColor,
+              size: 22,
             ),
           ),
           const SizedBox(width: 12),
@@ -268,10 +252,11 @@ class VerificationCard extends StatelessWidget {
                       : (isPending 
                           ? 'Pending Verification' 
                           : (isRejected ? 'Verification Rejected' : 'Verify Identity')),
-                                    style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
                     color: Colors.black87,
+                    letterSpacing: -0.2,
                   ),
                 ),
                 Text(
@@ -302,21 +287,22 @@ class VerificationCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(50),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.brandColor.withOpacity(0.2),
-                      blurRadius: 10,
+                      color: AppTheme.brandColor.withOpacity(0.25),
+                      blurRadius: 12,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: Text(
-                  isRejected ? 'Retry  ➔' : 'Verify  ➔',
-                                    style: GoogleFonts.inter(
+                  isRejected ? 'Retry ➔' : 'Verify ➔',
+                  style: GoogleFonts.plusJakartaSans(
                     color: Colors.white,
                     fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
@@ -341,15 +327,22 @@ class PostPropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 175,
+      height: 148,
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F9FE),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFF1F9FE),
+            Color(0xFFE6F4FD),
+          ],
+        ),
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00A3E1).withOpacity(0.10),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
+            color: const Color(0xFF00A3E1).withOpacity(0.12),
+            blurRadius: 40,
+            offset: const Offset(0, 15),
           ),
         ],
         border: Border.all(
@@ -362,18 +355,18 @@ class PostPropertyCard extends StatelessWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // Text + Button — left column, icon above title
+            // Left content column
             Positioned(
-              left: 22,
-              top: 22,
-              bottom: 22,
-              right: 130,
+              left: 20,
+              top: 16,
+              bottom: 16,
+              right: 135,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Icon badge
                   Container(
-                    padding: const EdgeInsets.all(9),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: AppTheme.brandColor.withOpacity(0.12),
                       shape: BoxShape.circle,
@@ -385,50 +378,43 @@ class PostPropertyCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-
-                  // Title — full column width, no row competition
                   Text(
                     'Ready to Rent?',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.plusJakartaSans(
                       color: const Color(0xFF1A1A1A),
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
+                      letterSpacing: -0.8,
+                      height: 1.1,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 4),
                   Text(
                     'List your property easily',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
                       color: Colors.grey[600],
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-
-                  const Spacer(),
-
-                  // CTA button
+                  const SizedBox(height: 14),
                   SizedBox(
-                    width: double.infinity,
+                    height: 38,
                     child: ElevatedButton(
                       onPressed: onPost,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.brandColor,
                         foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(50),
                         ),
                         elevation: 0,
                       ),
                       child: Text(
                         'Post Property',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.plusJakartaSans(
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.2,
@@ -440,24 +426,24 @@ class PostPropertyCard extends StatelessWidget {
               ),
             ),
 
-            // House — pushed to right edge, width forced to fill the space
+            // House — bleeds off right edge
             Positioned(
               right: -30,
               bottom: 0,
               width: 165,
               child: Image.asset(
                 'assets/images/tiny house.png',
-                height: 170,
+                height: 158,
                 fit: BoxFit.fitHeight,
               ),
             ),
 
             // Shimmer sweep
-            AnimatedBuilder(
-              animation: shimmerAnimation,
-              builder: (context, child) {
-                return Positioned.fill(
-                  child: FractionallySizedBox(
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: shimmerAnimation,
+                builder: (context, child) {
+                  return FractionallySizedBox(
                     widthFactor: 1.5,
                     alignment: Alignment(shimmerAnimation.value, 0.0),
                     child: Container(
@@ -474,9 +460,9 @@ class PostPropertyCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -504,11 +490,11 @@ class ProfileMenuSection extends StatelessWidget {
           padding: const EdgeInsets.only(left: 12, bottom: 12),
           child: Text(
             title.toUpperCase(),
-                        style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.black38,
-              letterSpacing: 1.2,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF94A3B8),
+              letterSpacing: 1.5,
             ),
           ),
         ),
@@ -568,19 +554,19 @@ class ProfileMenuItem extends StatelessWidget {
       ),
       title: Text(
         title,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.outfit(
           fontSize: 15,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           color: const Color(0xFF1E1E1E),
-          letterSpacing: -0.3,
+          letterSpacing: -0.2,
         ),
       ),
       subtitle: Text(
         subtitle,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.outfit(
           fontSize: 12,
           color: Colors.grey[500],
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w400,
           letterSpacing: -0.1,
         ),
       ),

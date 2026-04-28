@@ -38,10 +38,11 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
       appBar: AppBar(
         title: Text(
           'सुरक्षित गरिएका (Saved)',
-          style: GoogleFonts.inter(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.primaryTextColor,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: Colors.black,
+            letterSpacing: -0.5,
           ),
         ),
         centerTitle: true,
@@ -104,10 +105,11 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
               const SizedBox(height: 20),
               Text(
                 'No saved properties',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.plusJakartaSans(
                   color: Colors.black,
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 4),

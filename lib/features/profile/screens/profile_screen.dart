@@ -355,10 +355,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       icon: const Icon(Icons.logout_rounded, color: Colors.red),
                       label: Text(
                         'Log Out From Account',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.plusJakartaSans(
                           color: Colors.red,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.3,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          letterSpacing: -0.2,
                         ),
                       ),
                       style: TextButton.styleFrom(
