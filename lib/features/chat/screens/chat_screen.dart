@@ -273,8 +273,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildInputArea() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
-      color: Colors.transparent, 
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1)),
+      ),
       child: SafeArea(
         top: false,
         child: Row(
@@ -283,36 +286,22 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(32),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 15,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                  border: Border.all(color: Colors.grey.shade200, width: 1.5),
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.grey.shade200, width: 1),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const SizedBox(width: 6),
-                    // Left side rounded button
+                    const SizedBox(width: 4),
+                    // Plus button pinned to bottom
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.add_rounded, color: Color(0xFF6B7280), size: 22),
-                          onPressed: () {},
-                          padding: EdgeInsets.zero,
-                        ),
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: IconButton(
+                        icon: const Icon(Icons.add_circle_rounded, color: AppTheme.brandColor, size: 28),
+                        onPressed: () {},
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -321,35 +310,46 @@ class _ChatScreenState extends State<ChatScreen> {
                         controller: _messageController,
                         minLines: 1,
                         maxLines: 5,
-                        style: GoogleFonts.inter(fontSize: 16),
+                        style: GoogleFonts.inter(fontSize: 15, color: Colors.black),
                         decoration: InputDecoration(
                           hintText: 'Message...',
-                          hintStyle: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 16),
+                          hintStyle: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 15),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 11),
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.camera_alt_rounded, color: Color(0xFF6B7280), size: 22),
-                      onPressed: _pickAndSendImage,
+                    // Camera button pinned to bottom
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: IconButton(
+                        icon: const Icon(Icons.camera_alt_rounded, color: Color(0xFF6B7280), size: 22),
+                        onPressed: _pickAndSendImage,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 12),
                   ],
                 ),
               ),
             ),
-            const SizedBox(width: 10),
-            GestureDetector(
-              onTap: () => _sendMessage(),
-              child: Container(
-                width: 54,
-                height: 54,
-                decoration: const BoxDecoration(
-                  color: AppTheme.brandColor,
-                  shape: BoxShape.circle,
+            const SizedBox(width: 8),
+            // Send button pinned to bottom
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: GestureDetector(
+                onTap: () => _sendMessage(),
+                child: Container(
+                  width: 46,
+                  height: 46,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.brandColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
                 ),
-                child: const Icon(Icons.send_rounded, color: Colors.white, size: 26),
               ),
             ),
           ],
