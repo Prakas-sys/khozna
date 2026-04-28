@@ -294,7 +294,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     const SizedBox(width: 4),
-                    // Plus button pinned to bottom
                     Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: IconButton(
@@ -315,12 +314,17 @@ class _ChatScreenState extends State<ChatScreen> {
                           hintText: 'Message...',
                           hintStyle: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 15),
                           border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          errorBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
                           isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 11),
+                          fillColor: Colors.transparent,
+                          filled: true,
                         ),
                       ),
                     ),
-                    // Camera button pinned to bottom
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: IconButton(
@@ -336,14 +340,13 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            // Send button pinned to bottom
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
               child: GestureDetector(
                 onTap: () => _sendMessage(),
                 child: Container(
-                  width: 46,
-                  height: 46,
+                  width: 48,
+                  height: 48,
                   decoration: const BoxDecoration(
                     color: AppTheme.brandColor,
                     shape: BoxShape.circle,
