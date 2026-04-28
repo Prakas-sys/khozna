@@ -156,24 +156,52 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       pinned: true,
       automaticallyImplyLeading: false,
       leading: Center(
-        child: GlassCircle(
-          icon: Icons.arrow_back_rounded,
+        child: GestureDetector(
           onTap: () {
             HapticFeedback.lightImpact();
             Navigator.pop(context);
           },
-          iconSize: 22,
+          child: Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 22),
+          ),
         ),
       ),
       actions: [
         Center(
-          child: GlassCircle(
-            icon: Icons.ios_share_rounded,
+          child: GestureDetector(
             onTap: () {
               HapticFeedback.lightImpact();
               Share.share('Check out ${widget.property.title} on Khozna!');
             },
-            iconSize: 16,
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.ios_share_rounded, color: Color(0xFF1E293B), size: 18),
+            ),
           ),
         ),
         const SizedBox(width: 8),
