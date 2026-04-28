@@ -314,12 +314,10 @@ class VerificationCard extends StatelessWidget {
 }
 
 class PostPropertyCard extends StatelessWidget {
-  final Animation<double> shimmerAnimation;
   final VoidCallback onPost;
 
   const PostPropertyCard({
     super.key,
-    required this.shimmerAnimation,
     required this.onPost,
   });
 
@@ -424,33 +422,6 @@ class PostPropertyCard extends StatelessWidget {
               child: Image.asset(
                 'assets/images/tiny house.png',
                 fit: BoxFit.fitHeight,
-              ),
-            ),
-
-            // Shimmer sweep
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: shimmerAnimation,
-                builder: (context, child) {
-                  return FractionallySizedBox(
-                    widthFactor: 1.5,
-                    alignment: Alignment(shimmerAnimation.value, 0.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: const [0.4, 0.5, 0.6],
-                          colors: [
-                            Colors.white.withOpacity(0),
-                            Colors.white.withOpacity(0.18),
-                            Colors.white.withOpacity(0),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
               ),
             ),
           ],
