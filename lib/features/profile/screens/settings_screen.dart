@@ -147,7 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   onPressed: () {
                     Navigator.pop(context);
-                    _showdeleteAccount();
+                    _deleteAccount();
                   },
                   child: Text('Yes, Delete Everything', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 15)),
                 ),

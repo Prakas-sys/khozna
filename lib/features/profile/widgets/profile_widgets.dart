@@ -327,7 +327,7 @@ class PostPropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 148,
+      height: 160,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -358,66 +358,80 @@ class PostPropertyCard extends StatelessWidget {
             // Left content column
             Positioned(
               left: 20,
-              top: 16,
-              bottom: 16,
-              right: 135,
+              top: 0,
+              bottom: 0,
+              right: 140,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withOpacity(0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.home_work_rounded,
-                      color: AppTheme.brandColor,
-                      size: 20,
-                    ),
+                  const Icon(
+                    Icons.roofing_rounded,
+                    color: AppTheme.brandColor,
+                    size: 26,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   Text(
-                    'Ready to Rent?',
+                    'Ready to\nRent Out?',
                     style: GoogleFonts.plusJakartaSans(
                       color: const Color(0xFF1A1A1A),
-                      fontSize: 18,
+                      fontSize: 22,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: -0.8,
-                      height: 1.1,
+                      letterSpacing: -1.2,
+                      height: 1.0,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
-                    'List your property easily',
+                    'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
                     style: GoogleFonts.inter(
                       color: Colors.grey[600],
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
                     ),
                   ),
                   const SizedBox(height: 14),
-                  SizedBox(
-                    height: 38,
-                    child: ElevatedButton(
-                      onPressed: onPost,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.brandColor,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        shape: RoundedRectangleBorder(
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        onPost();
+                      },
+                      borderRadius: BorderRadius.circular(50),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppTheme.brandColor, Color(0xFF0089BE)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           borderRadius: BorderRadius.circular(50),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.brandColor.withOpacity(0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        'Post Property',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.2,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Post Now',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
+                          ],
                         ),
                       ),
                     ),
@@ -433,7 +447,7 @@ class PostPropertyCard extends StatelessWidget {
               width: 165,
               child: Image.asset(
                 'assets/images/tiny house.png',
-                height: 158,
+                height: 168,
                 fit: BoxFit.fitHeight,
               ),
             ),
