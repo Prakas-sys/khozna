@@ -208,11 +208,8 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
                   if (!_isLoading && _kycStatus == 'verified') ...[
                     PostPropertyCard(
-                      shimmerAnimation: _shimmerAnimation,
                       onPost: () async {
                         HapticFeedback.mediumImpact();
-                        if (!await AuthGuard.checkKyc(context)) return;
-                        if (!mounted) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
