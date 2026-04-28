@@ -65,7 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Delete Account?',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: Colors.redAccent, fontSize: 18),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w800, color: Colors.redAccent, fontSize: 18),
           textAlign: TextAlign.center,
         ),
         content: Text(
@@ -93,7 +93,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Navigator.pop(context);
                     _showFinalConfirmation();
                   },
-                  child: Text('Continue to Delete', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 15)),
+                  child: Text('Continue to Delete', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 15)),
                 ),
                 const SizedBox(height: 8),
                 TextButton(
@@ -121,7 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Last Warning',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: Colors.redAccent, fontSize: 18),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w800, color: Colors.redAccent, fontSize: 18),
           textAlign: TextAlign.center,
         ),
         content: Text(
@@ -149,7 +149,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Navigator.pop(context);
                     _deleteAccount();
                   },
-                  child: Text('Yes, Delete Everything', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 15)),
+                  child: Text('Yes, Delete Everything', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 15)),
                 ),
                 const SizedBox(height: 8),
                 TextButton(
@@ -175,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: Text(
           'Settings',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.5),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.5),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -219,7 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             title: Text(
               'Delete Account',
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.inter(
                 color: Colors.red,
                 fontWeight: FontWeight.w800,
                 fontSize: 15,
@@ -253,7 +253,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.only(bottom: 16),
       child: Text(
         title.toUpperCase(),
-        style: GoogleFonts.plusJakartaSans(
+        style: GoogleFonts.inter(
           fontSize: 11,
           fontWeight: FontWeight.w800,
           color: const Color(0xFF94A3B8),
