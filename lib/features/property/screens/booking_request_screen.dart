@@ -254,7 +254,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> with Single
                   subtitle: 'Date & Duration',
                   children: [
                     _buildInputCard(
-                      label: 'बस्न सुरु गर्ने मिति (Move-in Date)',
+                      labelNep: 'बस्न सुरु गर्ने मिति',
+                      labelEng: 'Move-in Date',
                       value: '${_selectedDate.day} ${_getMonthName(_selectedDate.month)}, ${_selectedDate.year}',
                       icon: Icons.calendar_today_rounded,
                       onTap: () => _selectDate(context),
@@ -264,7 +265,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> with Single
                       children: [
                         Expanded(
                           child: _buildInputCard(
-                            label: 'अवधि (Duration)',
+                            labelNep: 'अवधि',
+                            labelEng: 'Duration',
                             value: '$_durationMonths महिना',
                             icon: Icons.timer_outlined,
                             onTap: _showDurationPicker,
@@ -273,7 +275,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> with Single
                         const SizedBox(width: 12),
                         Expanded(
                           child: _buildInputCard(
-                            label: 'संख्या (Guests)',
+                            labelNep: 'संख्या',
+                            labelEng: 'Guests',
                             value: '$_guestCount जना',
                             icon: Icons.group_outlined,
                             onTap: _showGuestPicker,
@@ -362,11 +365,17 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> with Single
     );
   }
 
-  Widget _buildInputCard({required String label, required String value, required IconData icon, required VoidCallback onTap}) {
+  Widget _buildInputCard({
+    required String labelNep,
+    required String labelEng,
+    required String value,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -381,18 +390,36 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> with Single
               decoration: BoxDecoration(color: const Color(0xFFF0F9FF), borderRadius: BorderRadius.circular(14)),
               child: Icon(icon, color: const Color(0xFF0EA5E9), size: 20),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: const Color(0xFF94A3B8))),
-                  const SizedBox(height: 2),
-                  Text(value, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B))),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: labelNep,
+                          style: GoogleFonts.mukta(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF94A3B8), height: 1.0),
+                        ),
+                        TextSpan(
+                          text: ' ($labelEng)',
+                          style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w500, color: const Color(0xFFCBD5E1), height: 1.0),
+                        ),
+                      ],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: GoogleFonts.mukta(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF1E293B), height: 1.1),
+                  ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1), size: 24),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1), size: 20),
           ],
         ),
       ),
