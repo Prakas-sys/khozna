@@ -265,7 +265,7 @@ class VerificationCard extends StatelessWidget {
                       : (isPending 
                           ? 'Your documents are being reviewed.' 
                           : (isRejected ? 'Documents rejected. Please try again.' : 'Verify KYC to list your property.')),
-                                    style: GoogleFonts.inter(
+                                    style: GoogleFonts.outfit(
                     fontSize: 11,
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w500,
@@ -373,21 +373,22 @@ class PostPropertyCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Ready to\nRent Out?',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.outfit(
                       color: const Color(0xFF1A1A1A),
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: -0.8,
+                      letterSpacing: -0.5,
                       height: 1.1,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.outfit(
                       color: Colors.grey[600],
                       fontSize: 11,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: -0.1,
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -421,7 +422,7 @@ class PostPropertyCard extends StatelessWidget {
                           children: [
                             Text(
                               'Post Now',
-                              style: GoogleFonts.plusJakartaSans(
+                              style: GoogleFonts.outfit(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.2,
@@ -503,7 +504,7 @@ class ProfileMenuSection extends StatelessWidget {
           padding: const EdgeInsets.only(left: 12, bottom: 12),
           child: Text(
             title.toUpperCase(),
-            style: GoogleFonts.inter(
+            style: GoogleFonts.outfit(
               fontSize: 11,
               fontWeight: FontWeight.w800,
               color: const Color(0xFF94A3B8),
