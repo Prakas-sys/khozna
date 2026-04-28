@@ -375,10 +375,10 @@ class PostPropertyCard extends StatelessWidget {
                     'Ready to\nRent Out?',
                     style: GoogleFonts.plusJakartaSans(
                       color: const Color(0xFF1A1A1A),
-                      fontSize: 22,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: -1.2,
-                      height: 1.0,
+                      letterSpacing: -0.8,
+                      height: 1.1,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -386,9 +386,8 @@ class PostPropertyCard extends StatelessWidget {
                     'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
                     style: GoogleFonts.inter(
                       color: Colors.grey[600],
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      letterSpacing: -0.2,
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -423,10 +422,10 @@ class PostPropertyCard extends StatelessWidget {
                             Text(
                               'Post Now',
                               style: GoogleFonts.plusJakartaSans(
-                                color: Colors.white,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 0.2,
+                                color: Colors.white,
                               ),
                             ),
                             const SizedBox(width: 6),
