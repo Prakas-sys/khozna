@@ -327,62 +327,41 @@ class PostPropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 160,
+      height: 180,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFFF1F9FE),
-            Color(0xFFE6F4FD),
+            Color(0xFF00A3E1),
+            Color(0xFF0077A8),
           ],
         ),
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00A3E1).withOpacity(0.12),
-            blurRadius: 40,
+            color: const Color(0xFF00A3E1).withOpacity(0.25),
+            blurRadius: 30,
             offset: const Offset(0, 15),
           ),
         ],
-        border: Border.all(
-          color: Colors.white,
-          width: 2,
-        ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
         child: Stack(
-          clipBehavior: Clip.none,
           children: [
-            // Left content column
-            Positioned(
-              left: 24,
-              top: 0,
-              bottom: 0,
-              right: 140,
+            // Text Content
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.roofing_rounded,
-                      color: AppTheme.brandColor,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
                   Text(
                     'Ready to\nRent Out?',
                     style: GoogleFonts.inter(
-                      color: const Color(0xFF1A1A1A),
-                      fontSize: 20,
+                      color: Colors.white,
+                      fontSize: 22,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.8,
                       height: 1.1,
@@ -392,13 +371,13 @@ class PostPropertyCard extends StatelessWidget {
                   Text(
                     'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
                     style: GoogleFonts.mukta(
-                      color: Colors.grey[600],
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      height: 1.0,
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
@@ -408,37 +387,26 @@ class PostPropertyCard extends StatelessWidget {
                       },
                       borderRadius: BorderRadius.circular(50),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppTheme.brandColor, Color(0xFF0089BE)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(50),
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.brandColor.withOpacity(0.3),
-                              blurRadius: 15,
-                              offset: const Offset(0, 8),
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Post Now',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.2,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward_rounded, size: 14, color: Colors.white),
-                          ],
+                        child: Text(
+                          'Post Now',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFF0077A8),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.1,
+                          ),
                         ),
                       ),
                     ),
@@ -449,12 +417,12 @@ class PostPropertyCard extends StatelessWidget {
 
             // House — bleeds off right edge
             Positioned(
-              right: -30,
+              right: -25,
               bottom: 0,
-              width: 165,
+              top: 0,
+              width: 170,
               child: Image.asset(
                 'assets/images/tiny house.png',
-                height: 168,
                 fit: BoxFit.fitHeight,
               ),
             ),
