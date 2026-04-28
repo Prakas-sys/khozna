@@ -68,7 +68,7 @@ class ChatRepository {
       }
     }
     
-    final sortedList = uniqueChats.values.toList();
+    final sortedList = uniqueChats.values.where((chat) => chat.otherUserName != 'Khozna User').toList();
     sortedList.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
     return sortedList;
   }
