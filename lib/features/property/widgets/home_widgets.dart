@@ -114,7 +114,7 @@ class HomeHeroSection extends StatelessWidget {
         children: [
           FittedBox(
             child: Text(
-              'Find your Next Home',
+              'Find Your Next Home',
                                           style: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: Colors.black),
             ),
           ),

@@ -10,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'core/security/security_utils.dart';
@@ -27,11 +28,19 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // 🔥 RED BADGE IN BACKGROUND - Temporarily disabled due to Android build incompatibility
-  if (message.notification != null) {
-    debugPrint(
-      "Background notification received: ${message.notification?.title}",
-    );
+  
+  // Try to update badge count in background
+  try {
+    final bool isChatMessage = message.data['table'] == 'messages' || message.data['type'] == 'chat';
+    if (await FlutterAppBadger.isAppBadgeSupported()) {
+       // Since we don't have the full state in the background isolate, 
+       // we can at least ensure a badge is shown if a notification arrives.
+       // Ideally we would fetch the actual count from Supabase here.
+       // For now, let's just increment or set to 1 to ensure visibility.
+       FlutterAppBadger.updateBadgeCount(1); 
+    }
+  } catch (e) {
+    debugPrint("Error updating badge in background: $e");
   }
 }
 
@@ -243,10 +252,16 @@ class _KhoznaAppState extends State<KhoznaApp> {
     await SupabaseService.fetchSavedPropertyIds(); // Fetch Master Memory IDs
     await SupabaseService.fetchBookedPropertyIds(); // Fetch Booking Master Memory
     initializeBadgeSync();
+    
+    // Initial fetch of unread counts to populate badges immediately
+    SupabaseService.fetchUnreadMessageCount();
+    SupabaseService.fetchUnreadNotificationCount();
 
-    // 🧹 AUTO-CLEAR RED BADGE ON OPEN - Temporarily disabled due to Android build incompatibility
-    debugPrint("Auto-clearing badges on app open");
-    notificationBadgeCount.value = 0; // Reset internal counter
+    // 🧹 AUTO-CLEAR RED BADGE ON OPEN - Reset internal counters only if needed
+    debugPrint("Initializing badges on app open");
+    // We don't want to force reset to 0 here because it might clear the launcher badge 
+    // before the fetchUnread... calls complete. 
+    // Instead, we let the fetch calls update the values.
 
     // Listen for Auth State changes to update internal state and initialize services
     supabase.Supabase.instance.client.auth.onAuthStateChange.listen((data) {

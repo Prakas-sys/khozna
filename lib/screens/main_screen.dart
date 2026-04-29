@@ -178,9 +178,12 @@ class _MainScreenState extends State<MainScreen> {
     const Color activeColor = AppTheme.brandColor;
     const Color inactiveColor = Color(0xFF717171);
 
-    return ValueListenableBuilder<int>(
-      valueListenable: messageBadgeCount,
-      builder: (context, badgeCount, _) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([messageBadgeCount, notificationBadgeCount]),
+      builder: (context, _) {
+        final mBadge = messageBadgeCount.value;
+        final nBadge = notificationBadgeCount.value;
+
         return PopScope(
           canPop: false,
           onPopInvokedWithResult: (didPop, result) {
@@ -415,7 +418,7 @@ class _MainScreenState extends State<MainScreen> {
                       'assets/icons/message.svg',
                       activeColor,
                       inactiveColor,
-                      badgeCount,
+                      mBadge,
                     ),
                     _buildNavItem(
                       3,
@@ -423,7 +426,7 @@ class _MainScreenState extends State<MainScreen> {
                       'assets/icons/profile.svg',
                       activeColor,
                       inactiveColor,
-                      0,
+                      nBadge,
                     ),
                   ],
                 ),
