@@ -13,7 +13,7 @@ class ChatRepository {
     final response = await _client
         .from('chats')
         .select('*')
-        .or('participant_one.eq.${user.id},participant_two.eq.${user.id}')
+        .or('user1_id.eq.${user.id},user2_id.eq.${user.id}')
         .order('updated_at', ascending: false);
 
     final List chatsData = response as List;
@@ -37,8 +37,8 @@ class ChatRepository {
     // 2. Identify all "other" user IDs to fetch profiles in bulk
     final Set<String> otherUserIds = {};
     for (var chat in chatsData) {
-      final u1 = chat['participant_one']?.toString();
-      final u2 = chat['participant_two']?.toString();
+      final u1 = chat['user1_id']?.toString();
+      final u2 = chat['user2_id']?.toString();
       if (u1 != null && u1 != user.id) otherUserIds.add(u1);
       else if (u2 != null && u2 != user.id) otherUserIds.add(u2);
     }
@@ -59,8 +59,8 @@ class ChatRepository {
     // 4. Map to models and deduplicate by other user
     final Map<String, ChatConversation> uniqueChats = {};
     for (var e in chatsData) {
-      final u1 = e['participant_one']?.toString();
-      final u2 = e['participant_two']?.toString();
+      final u1 = e['user1_id']?.toString();
+      final u2 = e['user2_id']?.toString();
       final otherId = (u1 != user.id) ? u1 : u2;
       if (otherId == null) continue;
       
@@ -99,8 +99,8 @@ class ChatRepository {
     final response = await _client
         .from('chats')
         .select('id')
-        .eq('participant_one', u1)
-        .eq('participant_two', u2)
+        .eq('user1_id', u1)
+        .eq('user2_id', u2)
         .maybeSingle();
 
     if (response != null) {
@@ -108,8 +108,9 @@ class ChatRepository {
     }
 
     final newChat = await _client.from('chats').insert({
-      'participant_one': u1,
-      'participant_two': u2,
+      'user1_id': u1,
+      'user2_id': u2,
+      'participants': [u1, u2],
     }).select('id').single();
 
     return newChat['id'];
