@@ -31,8 +31,6 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   Future<void> _initData() async {
     _loadChats();
-    // Mark messages as read in background so it doesn't block loading the list
-    SupabaseService.markAllMessagesAsRead().catchError((e) => debugPrint('Error marking read: $e'));
   }
 
   Future<void> _loadChats() async {

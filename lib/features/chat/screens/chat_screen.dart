@@ -70,7 +70,11 @@ class _ChatScreenState extends State<ChatScreen> {
     _displayPhone = widget.phone;
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _startBannerAnimation());
-    if (_activeChatId == null && widget.ownerId.isNotEmpty) _initializeChat();
+    if (_activeChatId == null && widget.ownerId.isNotEmpty) {
+      _initializeChat();
+    } else if (_activeChatId != null) {
+      ChatRepository.markChatAsRead(_activeChatId!);
+    }
     if (_displayName == 'Khozna User' && widget.ownerId.isNotEmpty) _loadOwnerProfile();
   }
 

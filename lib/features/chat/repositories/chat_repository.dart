@@ -20,6 +20,21 @@ class ChatRepository {
     final List chatsData = response as List;
     if (chatsData.isEmpty) return [];
 
+    // 1.5 Fetch unread counts
+    final unreadResponse = await _client
+        .from('messages')
+        .select('chat_id')
+        .eq('is_read', false)
+        .neq('sender_id', user.id);
+        
+    final Map<String, int> unreadCounts = {};
+    for (var row in (unreadResponse as List)) {
+      final cId = row['chat_id']?.toString();
+      if (cId != null) {
+        unreadCounts[cId] = (unreadCounts[cId] ?? 0) + 1;
+      }
+    }
+
     // 2. Identify all "other" user IDs to fetch profiles in bulk
     final Set<String> otherUserIds = {};
     for (var chat in chatsData) {
@@ -60,7 +75,7 @@ class ChatRepository {
         otherUserAvatar: profile?['avatar_url'] ?? '',
         lastMessage: e['last_message_text'],
         lastMessageTime: chatTime,
-        unreadCount: 0, // In a real app, calculate this or fetch from view
+        unreadCount: unreadCounts[e['id']?.toString()] ?? 0,
       );
       
       if (!uniqueChats.containsKey(otherId) || chatTime.isAfter(uniqueChats[otherId]!.lastMessageTime)) {
