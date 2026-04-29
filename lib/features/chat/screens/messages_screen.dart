@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
@@ -35,7 +36,18 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   Future<void> _loadChats() async {
     if (!mounted) return;
-    setState(() => _isLoading = true);
+    
+    // 1. Instant rendering from cache if available
+    if (chatListCache.value != null && _chats.isEmpty) {
+      setState(() {
+        _chats = chatListCache.value!;
+        _isLoading = false;
+      });
+    } else if (_chats.isEmpty) {
+      setState(() => _isLoading = true);
+    }
+    
+    // 2. Fetch fresh data
     try {
       final data = await SupabaseService.getConversations();
       if (mounted) {
@@ -43,6 +55,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
           _chats = data;
           _isLoading = false;
         });
+        chatListCache.value = data; // Update cache
       }
     } catch (e) {
       debugPrint('Error loading chats: $e');

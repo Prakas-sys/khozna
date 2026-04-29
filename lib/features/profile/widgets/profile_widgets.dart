@@ -120,27 +120,28 @@ class ProfileHeader extends StatelessWidget {
                         ),
                       ),
                       Positioned(
-                        bottom: 4,
-                        right: 4,
+                        bottom: 0,
+                        right: 0,
                         child: GestureDetector(
                           onTap: onPickImage,
                           child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
-                              boxShadow: [
+                              border: Border.all(color: Colors.grey[100]!, width: 2),
+                              boxShadow: const [
                                 BoxShadow(
                                   color: Colors.black12,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 3),
                                 ),
                               ],
                             ),
                             child: const Icon(
                               Icons.camera_alt_rounded,
                               color: AppTheme.brandColor,
-                              size: 18,
+                              size: 16,
                             ),
                           ),
                         ),

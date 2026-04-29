@@ -20,6 +20,7 @@ import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
+import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/profile/widgets/profile_widgets.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -56,6 +57,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOutSine),
     );
     _checkOwnerStatus();
+    
+    if (profileCache.value != null) {
+      final cache = profileCache.value!;
+      _avatarUrl = cache['avatar_url'];
+      _kycStatus = cache['kyc_status'] ?? 'not_started';
+      _isOwner = cache['is_owner'] ?? false;
+      _isLoading = false;
+    }
+    
     _loadProfile();
   }
 
@@ -78,7 +88,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           setState(() {
             _avatarUrl = profile['avatar_url'];
             _kycStatus = profile['kyc_status'] ?? 'not_started';
-            _isOwner = profile['is_owner'] ?? false;
+            
+            // We also keep owner status if it was already true, or use the db value.
+            _isOwner = _isOwner || (profile['is_owner'] ?? false);
+            
+            profileCache.value = {
+              'avatar_url': _avatarUrl,
+              'kyc_status': _kycStatus,
+              'is_owner': _isOwner,
+            };
           });
         }
       } catch (e) {
@@ -381,12 +399,20 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+        contentPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
         title: Text('Log Out', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18)),
-        content: Text('Are you sure you want to log out of Khozna?', style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14)),
+        content: Text('Are you sure you want to log out?', style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
@@ -404,7 +430,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: Text('Log Out', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
           ),

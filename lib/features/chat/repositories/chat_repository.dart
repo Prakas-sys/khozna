@@ -13,8 +13,7 @@ class ChatRepository {
     final response = await _client
         .from('chats')
         .select('*')
-        .or('user1_id.eq.${user.id},user2_id.eq.${user.id}')
-        .not('deleted_for', 'cs', '{"${user.id}"}')
+        .or('participant_one.eq.${user.id},participant_two.eq.${user.id}')
         .order('updated_at', ascending: false);
 
     final List chatsData = response as List;
@@ -38,8 +37,8 @@ class ChatRepository {
     // 2. Identify all "other" user IDs to fetch profiles in bulk
     final Set<String> otherUserIds = {};
     for (var chat in chatsData) {
-      final u1 = chat['user1_id']?.toString();
-      final u2 = chat['user2_id']?.toString();
+      final u1 = chat['participant_one']?.toString();
+      final u2 = chat['participant_two']?.toString();
       if (u1 != null && u1 != user.id) otherUserIds.add(u1);
       else if (u2 != null && u2 != user.id) otherUserIds.add(u2);
     }
@@ -60,8 +59,8 @@ class ChatRepository {
     // 4. Map to models and deduplicate by other user
     final Map<String, ChatConversation> uniqueChats = {};
     for (var e in chatsData) {
-      final u1 = e['user1_id']?.toString();
-      final u2 = e['user2_id']?.toString();
+      final u1 = e['participant_one']?.toString();
+      final u2 = e['participant_two']?.toString();
       final otherId = (u1 != user.id) ? u1 : u2;
       if (otherId == null) continue;
       
@@ -100,24 +99,17 @@ class ChatRepository {
     final response = await _client
         .from('chats')
         .select('id')
-        .eq('user1_id', u1)
-        .eq('user2_id', u2)
+        .eq('participant_one', u1)
+        .eq('participant_two', u2)
         .maybeSingle();
 
     if (response != null) {
-      // If the chat was deleted for this user, restore it
-      await _client.rpc('clear_chat_deletion', params: {
-        'p_chat_id': response['id'],
-        'p_user_id': user.id
-      });
       return response['id'];
     }
 
     final newChat = await _client.from('chats').insert({
-      'user1_id': u1,
-      'user2_id': u2,
-      'participants': [u1, u2],
-      'deleted_for': [],
+      'participant_one': u1,
+      'participant_two': u2,
     }).select('id').single();
 
     return newChat['id'];
@@ -141,13 +133,6 @@ class ChatRepository {
       'sender_id': user.id,
       'text': text,
     });
-
-    // Clear deletion status for both if a new message is sent (so it reappears for both)
-    // Or just for the sender if you want to be more specific. Usually, if I send a message, I expect to see the chat.
-    await _client.rpc('clear_chat_deletion', params: {
-      'p_chat_id': chatId,
-      'p_user_id': user.id
-    });
   }
 
   static Future<void> sendImageMessage(String chatId, String imageUrl) async {
@@ -158,11 +143,6 @@ class ChatRepository {
       'chat_id': chatId,
       'sender_id': user.id,
       'image_url': imageUrl,
-    });
-
-    await _client.rpc('clear_chat_deletion', params: {
-      'p_chat_id': chatId,
-      'p_user_id': user.id
     });
   }
 
@@ -206,10 +186,7 @@ class ChatRepository {
     final user = _client.auth.currentUser;
     if (user == null) return;
 
-    // Use RPC to add user to deleted_for array safely
-    await _client.rpc('mark_chat_as_deleted_for_user', params: {
-      'p_chat_id': chatId,
-      'p_user_id': user.id
-    });
+    // Perform a real hard delete from Supabase as requested
+    await _client.from('chats').delete().eq('id', chatId);
   }
 }
