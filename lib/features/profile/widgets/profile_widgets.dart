@@ -326,7 +326,7 @@ class PostPropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 180,
+      height: 140,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -351,32 +351,32 @@ class PostPropertyCard extends StatelessWidget {
           children: [
             // Text Content
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Ready to\nRent Out?',
+                    'Ready to Rent Out?',
                     style: GoogleFonts.inter(
                       color: Colors.white,
-                      fontSize: 22,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: -0.8,
+                      letterSpacing: -0.5,
                       height: 1.1,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Text(
                     'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
                     style: GoogleFonts.mukta(
                       color: Colors.white.withOpacity(0.9),
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                       height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 14),
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
@@ -386,7 +386,7 @@ class PostPropertyCard extends StatelessWidget {
                       },
                       borderRadius: BorderRadius.circular(50),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(50),
@@ -402,7 +402,7 @@ class PostPropertyCard extends StatelessWidget {
                           'Post Now',
                           style: GoogleFonts.inter(
                             color: const Color(0xFF0077A8),
-                            fontSize: 14,
+                            fontSize: 13,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 0.1,
                           ),
@@ -416,10 +416,10 @@ class PostPropertyCard extends StatelessWidget {
 
             // House — bleeds off right edge
             Positioned(
-              right: -25,
-              bottom: 0,
-              top: 0,
-              width: 170,
+              right: -20,
+              bottom: -5,
+              top: 10,
+              width: 140,
               child: Image.asset(
                 'assets/images/tiny house.png',
                 fit: BoxFit.fitHeight,

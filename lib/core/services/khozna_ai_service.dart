@@ -104,9 +104,10 @@ class KhoznaAiService {
   }
 
   /// 4. AI Chatbot
-  Future<String> getChatbotResponse(String message) async {
+  Future<Map<String, dynamic>> getChatbotResponse(String message) async {
     // 1. Fetch live context from the database
     String liveContext = "Currently, there are no active listings on Khozna.";
+    List<dynamic> foundProperties = [];
     try {
       // We try to find properties matching words in the message
       // and also include some general available properties
@@ -125,6 +126,7 @@ class KhoznaAiService {
       final response = await query.limit(15);
 
       if ((response as List).isNotEmpty) {
+        foundProperties = response;
         liveContext = "Here is the CURRENT LIVE INVENTORY on Khozna relevant to the query. Use this exact data to answer the user:\n";
         for (var p in response) {
           liveContext += "- ${p['category']} in ${p['area_name']} for Rs. ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
@@ -170,7 +172,11 @@ BEHAVIOR RULES:
 4. Keep responses SHORT and DIRECT (maximum 3 sentences).
 5. Format: Nepali sentence followed by English in parentheses.
 """;
-    return _getAiResponse(message, systemPrompt: systemPrompt);
+    final aiText = await _getAiResponse(message, systemPrompt: systemPrompt);
+    return {
+      'text': aiText,
+      'properties': foundProperties,
+    };
   }
 
   /// 5. AI Description Generator

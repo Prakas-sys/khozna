@@ -312,7 +312,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       final k = feature.toLowerCase().trim();
       if (k.contains('water')) return (Icons.water_drop_outlined, 'Water', Colors.lightBlue);
       if (k.contains('wifi') || k.contains('internet')) return (Icons.wifi, 'Internet', Colors.blue);
-      if (k.contains('parking')) return (Icons.directions_car_filled_outlined, 'Parking', Colors.indigo);
+      if (k.contains('bike')) return (Icons.motorcycle_rounded, 'Bike Parking', Colors.blueGrey);
+      if (k.contains('car')) return (Icons.directions_car_filled_rounded, 'Car Parking', Colors.indigo);
+      if (k.contains('parking')) return (Icons.local_parking_rounded, 'Parking', Colors.indigo);
       if (k.contains('sunny')) return (Icons.wb_sunny_outlined, 'Sunny', Colors.amber);
       if (k.contains('cctv') || k.contains('security')) return (Icons.videocam_outlined, 'CCTV', Colors.redAccent);
       if (k.contains('balcony')) return (Icons.balcony_outlined, 'Balcony', Colors.teal);

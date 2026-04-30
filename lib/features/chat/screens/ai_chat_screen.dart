@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
+import 'package:khozna/features/property/screens/filter_results_screen.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
@@ -40,7 +41,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
       final response = await _aiService.getChatbotResponse(userMessage);
       if (mounted) {
         setState(() {
-          _messages.add({'text': response, 'isMe': false});
+          _messages.add({
+            'text': response['text'],
+            'isMe': false,
+            'properties': response['properties'],
+            'query': userMessage,
+          });
           _isTyping = false;
         });
         _scrollToBottom();
@@ -95,7 +101,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final msg = _messages[index];
-                return _ChatBubble(message: msg['text'], isMe: msg['isMe']);
+                return _ChatBubble(
+                  message: msg['text'],
+                  isMe: msg['isMe'],
+                  properties: msg['properties'],
+                  query: msg['query'],
+                );
               },
             ),
           ),
@@ -206,8 +217,10 @@ class _AiChatScreenState extends State<AiChatScreen> {
 class _ChatBubble extends StatelessWidget {
   final String message;
   final bool isMe;
+  final List<dynamic>? properties;
+  final String? query;
 
-  const _ChatBubble({required this.message, required this.isMe});
+  const _ChatBubble({required this.message, required this.isMe, this.properties, this.query});
 
   @override
   Widget build(BuildContext context) {
@@ -228,13 +241,46 @@ class _ChatBubble extends StatelessWidget {
             bottomRight: Radius.circular(isMe ? 4 : 16),
           ),
         ),
-        child: Text(
-          message,
-          style: GoogleFonts.inter(
-            color: isMe ? Colors.white : Colors.black87,
-            fontSize: 15,
-            height: 1.4,
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              message,
+              style: GoogleFonts.inter(
+                color: isMe ? Colors.white : Colors.black87,
+                fontSize: 15,
+                height: 1.4,
+              ),
+            ),
+            if (properties != null && properties!.isNotEmpty && !isMe)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FilterResultsScreen(
+                          location: query ?? '',
+                          priceRange: 'Up to ₹ 15000',
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.visibility, size: 16, color: Colors.white),
+                  label: Text(
+                    'View ${properties!.length} Property${properties!.length > 1 ? "s" : ""}',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 13),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.brandColor,
+                    minimumSize: const Size(double.infinity, 36),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
