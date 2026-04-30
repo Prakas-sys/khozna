@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UserCheck, ShieldAlert,
-  Settings, LogOut, Building2,
+  Settings, LogOut,
   Search, Globe
 } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { KycReview } from './KycReview';
-import { PropertyModeration } from './PropertyModeration';
 import { UserManagement } from './UserManagement';
 import { Reports } from './Reports';
 import { Login } from './Login';
@@ -20,7 +19,6 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
   const links = [
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={18} /> },
     { name: 'Verifications', path: '/kyc', icon: <UserCheck size={18} /> },
-    { name: 'Properties', path: '/properties', icon: <Building2 size={18} /> },
     { name: 'Users', path: '/users', icon: <Users size={18} /> },
     { name: 'Safety', path: '/reports', icon: <ShieldAlert size={18} /> },
     { name: 'Settings', path: '/settings', icon: <Settings size={18} /> },
@@ -63,7 +61,6 @@ const Header = () => {
     switch (location.pathname) {
       case '/': return [{ name: 'Overview', path: '/', icon: <LayoutDashboard size={14} /> }];
       case '/kyc': return [{ name: 'Verifications', path: '/kyc' }];
-      case '/properties': return [{ name: 'Properties', path: '/properties' }];
       case '/users': return [{ name: 'Directory', path: '/users' }];
       case '/reports': return [{ name: 'Safety', path: '/reports' }];
       default: return [{ name: 'Console', path: location.pathname }];
@@ -109,40 +106,30 @@ const Header = () => {
 
 // ─── Enterprise Dashboard Home ───────────────────────────────────────────────────
 const DashboardHome = () => {
-  const [stats, setStats] = useState({ users: 0, kyc: 0, properties: 0, reports: 0 });
+  const [stats, setStats] = useState({ users: 0, kyc: 0, reports: 0 });
   const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [u, k, p, r, latestP, latestK] = await Promise.all([
+        const [u, k, r, latestK] = await Promise.all([
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('kyc_verifications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-          supabase.from('properties').select('*', { count: 'exact', head: true }),
           supabase.from('user_reports').select('*', { count: 'exact', head: true }),
-          supabase.from('properties').select('*').order('created_at', { ascending: false }).limit(2),
-          supabase.from('kyc_verifications').select('*').order('updated_at', { ascending: false }).limit(2),
+          supabase.from('kyc_verifications').select('*').order('updated_at', { ascending: false }).limit(5),
         ]);
         
         setStats({ 
           users: u.count || 0, 
           kyc: k.count || 0, 
-          properties: p.count || 0,
           reports: r.count || 0
         });
 
         const combined = [
-          ...(latestP.data || []).map(item => ({ 
-            user: 'Agent', 
-            action: `New Property: ${item.title || 'Untitled'}`, 
-            time: new Date(item.created_at).toLocaleDateString(), 
-            type: 'Property', 
-            color: 'text-blue-500' 
-          })),
           ...(latestK.data || []).map(item => ({ 
             user: 'System', 
-            action: `KYC Status: ${item.status}`, 
+            action: `KYC Status Update: ${item.status}`, 
             time: new Date(item.updated_at).toLocaleDateString(), 
             type: 'KYC', 
             color: 'text-green-500' 
@@ -166,11 +153,10 @@ const DashboardHome = () => {
         <p className="text-[#64748B] text-sm font-medium">Real-time status and operational data for Khozna.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         {[
           { title: 'Total Users', val: stats.users, label: 'Registered Profiles', color: 'text-blue-600', icon: <Users size={20} /> },
           { title: 'Verifications', val: stats.kyc, label: 'Pending Review', color: 'text-orange-600', icon: <UserCheck size={20} /> },
-          { title: 'Properties', val: stats.properties, label: 'Active Listings', color: 'text-emerald-600', icon: <Building2 size={20} /> },
           { title: 'Safety', val: stats.reports, label: 'Unresolved Flags', color: 'text-rose-600', icon: <ShieldAlert size={20} /> },
         ].map((s, i) => (
           <div key={i} className="card-pro p-6">
@@ -186,8 +172,7 @@ const DashboardHome = () => {
 
       <div className="card-pro overflow-hidden">
         <div className="px-8 py-6 border-b border-[#E2E8F0] flex items-center justify-between bg-white">
-          <h3 className="text-sm font-bold text-[#0F172A]">Recent Platform Activity</h3>
-          <Link to="/properties" className="text-[11px] font-bold text-[#2563EB] hover:underline">View All Activity</Link>
+          <h3 className="text-sm font-bold text-[#0F172A]">Recent Safety & Security Activity</h3>
         </div>
         <div className="bg-white">
           {activities.length > 0 ? (
@@ -196,7 +181,7 @@ const DashboardHome = () => {
                 <div key={i} className="px-8 py-5 flex items-center justify-between hover:bg-[#F8FAFC] transition-colors">
                   <div className="flex items-center gap-4">
                     <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400">
-                      {log.type === 'Property' ? <Building2 size={16} /> : log.type === 'KYC' ? <UserCheck size={16} /> : <ShieldAlert size={16} />}
+                      {log.type === 'KYC' ? <UserCheck size={16} /> : <ShieldAlert size={16} />}
                     </div>
                     <div>
                       <p className="text-[13px] font-semibold text-[#0F172A]">{log.action}</p>
@@ -211,7 +196,7 @@ const DashboardHome = () => {
             </div>
           ) : (
             <div className="py-20 text-center">
-               <p className="text-[#94A3B8] text-[12px] font-medium">No recent activity detected</p>
+               <p className="text-[#94A3B8] text-[12px] font-medium">No recent security activity detected</p>
             </div>
           )}
         </div>
@@ -235,7 +220,6 @@ const App = () => {
           <Routes>
             <Route path="/" element={<DashboardHome />} />
             <Route path="/kyc" element={<KycReview />} />
-            <Route path="/properties" element={<PropertyModeration />} />
             <Route path="/users" element={<UserManagement />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={
