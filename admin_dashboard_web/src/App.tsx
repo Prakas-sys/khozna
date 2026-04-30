@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, UserCheck, ShieldAlert, CheckSquare,
+  LayoutDashboard, Users, UserCheck, ShieldAlert,
   Settings, LogOut, Activity, Bell, TrendingUp, Building2,
-  Search, Globe, ChevronRight, PieChart, Wallet
+  Search, Globe, Wallet, Filter
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import { KycReview } from './KycReview';
 import { PropertyModeration } from './PropertyModeration';
@@ -167,14 +167,14 @@ const DashboardHome = () => {
 
             <div className="grid grid-cols-2 gap-6">
               {[
-                { title: 'Earnings', val: '$950', trend: '+7%', color: 'text-blue-600', bg: 'bg-blue-50' },
-                { title: 'Expenses', val: '$700', trend: '-5%', color: 'text-red-600', bg: 'bg-red-50' },
-                { title: 'Income', val: '$1050', trend: '+10%', color: 'text-green-600', bg: 'bg-green-50' },
-                { title: 'Revenue', val: '$850', trend: '+8%', color: 'text-indigo-600', bg: 'bg-indigo-50' },
+                { title: 'KYC Reviews', val: stats.kyc, trend: '+7%', color: 'text-blue-600', bg: 'bg-blue-50' },
+                { title: 'Properties', val: stats.properties, trend: '-5%', color: 'text-red-600', bg: 'bg-red-50' },
+                { title: 'Identities', val: stats.users, trend: '+10%', color: 'text-green-600', bg: 'bg-green-50' },
+                { title: 'Secured', val: stats.bookings, trend: '+8%', color: 'text-indigo-600', bg: 'bg-indigo-50' },
               ].map((s, i) => (
                 <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="card-platinum p-5 rounded-3xl">
                   <p className="text-[10px] font-bold text-[#A1A1A1] uppercase tracking-widest mb-3">{s.title}</p>
-                  <p className="text-xl font-extrabold text-[#1A1A1A] mb-2">{s.val}</p>
+                  <p className="text-xl font-extrabold text-[#1A1A1A] mb-2">{loading ? '—' : s.val}</p>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.bg} ${s.color}`}>{s.trend}</span>
                 </motion.div>
               ))}
