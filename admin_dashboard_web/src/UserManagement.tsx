@@ -170,26 +170,21 @@ export const UserManagement = () => {
           )}
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-12 p-10 bg-[#FBFBF9] border border-[#E8E6E1] rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden"
-        >
-          <div className="flex items-center gap-6 relative z-10">
-            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border border-[#E8E6E1] shadow-sm">
-              <Shield size={32} className="text-[#2563EB]" />
+        <div className="mt-12 p-8 bg-white border border-[#E2E8F0] rounded-xl flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="w-12 h-12 bg-[#F8FAFC] rounded-lg flex items-center justify-center border border-[#E2E8F0]">
+              <Shield size={24} className="text-[#2563EB]" />
             </div>
             <div>
-              <p className="text-xl font-extrabold text-[#1A1A1A] tracking-tight mb-1">User & Privacy Policy</p>
-              <p className="text-sm text-[#666666] font-medium max-w-md">Deletions are permanent. Ensure you are following platform governance guidelines before removal.</p>
+              <p className="text-lg font-bold text-[#0F172A] tracking-tight mb-1">User & Privacy Policy</p>
+              <p className="text-sm text-[#64748B] font-medium max-w-md">Deletions are permanent. Ensure you are following platform governance guidelines before removal.</p>
             </div>
           </div>
 
-          <button className="px-8 py-4 bg-white text-[#1A1A1A] border border-[#E8E6E1] rounded-2xl font-bold text-xs uppercase tracking-wider hover:bg-[#FBFBF9] transition-all shadow-sm">
+          <button className="h-10 px-6 bg-[#F8FAFC] text-[#0F172A] border border-[#E2E8F0] rounded-lg font-bold text-[12px] hover:bg-white transition-all shadow-sm">
              Review Governance
           </button>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

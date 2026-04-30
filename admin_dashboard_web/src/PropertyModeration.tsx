@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { CheckCircle2, Trash2, Loader2, MapPin, Building2, Filter, RefreshCcw, Tag } from 'lucide-react';
+import { CheckCircle2, Trash2, Loader2, MapPin, Building2, Filter, RefreshCcw } from 'lucide-react';
 
 export const PropertyModeration = () => {
   const [properties, setProperties] = useState<any[]>([]);
