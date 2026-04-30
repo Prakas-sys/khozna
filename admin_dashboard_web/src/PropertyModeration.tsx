@@ -73,31 +73,24 @@ export const PropertyModeration = () => {
 
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#FBFBF9]">
-      <div className="max-w-[1600px] mx-auto px-10 py-12">
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8"
-        >
+    <div className="flex-1 overflow-y-auto bg-[#F8FAFC]">
+      <div className="max-w-[1400px] mx-auto px-12 py-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div>
-            <div className="flex items-center gap-4 mb-3">
-              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Property Management</h2>
-              <span className="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-full">
-                {properties.length} Total Properties
-              </span>
-            </div>
-            <p className="text-[#666666] text-sm font-medium">Review and manage property listings submitted by agents.</p>
+            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-2">Property Management</h2>
+            <p className="text-[#64748B] text-sm font-medium">Review and moderate listings from across the platform.</p>
           </div>
           
-          <div className="flex items-center gap-4">
-             <button onClick={fetchProperties} className="h-11 px-6 bg-white border border-[#E8E6E1] rounded-2xl hover:bg-[#FBFBF9] flex items-center gap-2.5 font-bold transition-all text-xs text-[#666666] group">
-               <RefreshCcw size={16} className={`group-hover:rotate-180 transition-transform duration-700 ${loading ? 'animate-spin' : ''}`} /> 
-               Reload Feed
+          <div className="flex items-center gap-3">
+             <button onClick={fetchProperties} className="h-10 px-4 bg-white border border-[#E2E8F0] rounded-lg hover:bg-gray-50 flex items-center gap-2 text-[12px] font-bold text-[#475569] transition-all shadow-sm">
+               <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} /> 
+               Refresh
              </button>
-             <button className="w-11 h-11 flex items-center justify-center bg-white border border-[#E8E6E1] rounded-xl text-[#666666] hover:bg-[#FBFBF9] transition-all">
-              <Filter size={18} />
-            </button>
+             <button className="h-10 px-4 bg-white border border-[#E2E8F0] rounded-lg hover:bg-gray-50 flex items-center gap-2 text-[12px] font-bold text-[#475569] transition-all shadow-sm">
+               <Filter size={14} /> Filter
+             </button>
+          </div>
+        </div>
           </div>
         </motion.div>
 
@@ -153,39 +146,44 @@ export const PropertyModeration = () => {
                           <span>{p.area_name}, {p.city}</span>
                         </div>
                         <div className="flex items-center gap-2.5 text-[#666666] font-bold text-[10px] uppercase tracking-wider">
-                          <Building2 size={14} className="text-[#2563EB]/40" />
-                          <span>Listed by: <span className="text-[#1A1A1A]">{p.profiles?.full_name || 'Anonymous User'}</span></span>
-                        </div>
+                  <div className="p-6 flex-1 flex flex-col">
+                    <h3 className="text-lg font-bold text-[#0F172A] mb-2 truncate">{p.title || 'No Title'}</h3>
+                    <div className="flex items-center gap-2 text-[#64748B] mb-4">
+                      <MapPin size={14} />
+                      <span className="text-[12px] font-medium truncate">{p.area_name || 'Unknown Location'}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                        <p className="text-[10px] font-bold text-[#94A3B8] uppercase mb-1">Price</p>
+                        <p className="text-sm font-bold text-[#0F172A]">NPR {p.price?.toLocaleString() || 'N/A'}</p>
                       </div>
-                      
-                      <div className="mt-6 flex items-center gap-1.5">
-                        <Tag size={12} className="text-[#2563EB]" />
-                        <span className="text-2xl font-extrabold text-[#1A1A1A] tracking-tight">रू {p.price.toLocaleString()}</span>
-                        <span className="text-[10px] font-bold text-[#A1A1A1] uppercase tracking-wider ml-1">Total Value</span>
+                      <div className="p-3 bg-[#F8FAFC] rounded-lg border border-[#E2E8F0]">
+                        <p className="text-[10px] font-bold text-[#94A3B8] uppercase mb-1">Agent</p>
+                        <p className="text-sm font-bold text-[#0F172A] truncate">{p.profiles?.full_name || 'System'}</p>
                       </div>
                     </div>
-                    
-                    <div className="flex gap-4 mt-8">
-                      {p.status !== 'available' && (
+
+                    <div className="mt-auto flex gap-3 pt-4 border-t border-[#E2E8F0]">
+                      {p.status === 'pending' && (
                         <button 
                           onClick={() => handleApprove(p.id)}
                           disabled={processingId === p.id}
-                          className="flex-1 h-12 bg-[#2563EB] text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 hover:bg-[#1E40AF] active:scale-95 transition-all disabled:opacity-50 text-xs"
+                          className="flex-1 h-10 bg-[#2563EB] text-white rounded-lg text-[12px] font-bold hover:bg-[#1D4ED8] transition-colors flex items-center justify-center gap-2"
                         >
-                          {processingId === p.id ? <Loader2 className="animate-spin" size={16} /> : <><CheckCircle2 size={16} /> Approve</>}
+                          {processingId === p.id ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Approve
                         </button>
                       )}
-                      
                       <button 
                         onClick={() => handleDelete(p.id)}
                         disabled={processingId === p.id}
-                        className="w-12 h-12 bg-white border border-[#E8E6E1] text-[#A1A1A1] hover:text-[#EF4444] hover:bg-[#FFF1F1] rounded-2xl flex items-center justify-center transition-all disabled:opacity-50"
+                        className="h-10 px-4 bg-white border border-[#E2E8F0] text-[#EF4444] rounded-lg text-[12px] font-bold hover:bg-[#FEF2F2] hover:border-[#FCA5A5] transition-all flex items-center justify-center"
                       >
-                        {processingId === p.id ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </AnimatePresence>
           </div>

@@ -94,36 +94,27 @@ export const Login = ({ onPinSuccess }: { onPinSuccess: () => void }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBFBF9] flex items-center justify-center p-8 selection:bg-[#2563EB]/10 relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#2563EB]/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-blue-400/5 rounded-full blur-[120px]" />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-[480px] bg-white rounded-[3rem] p-12 shadow-2xl border border-[#E8E6E1] relative z-10"
-      >
-        {/* Header */}
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-8 selection:bg-[#2563EB]/10">
+      <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <div className="w-16 h-16 rounded-[1.5rem] bg-[#2563EB] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-500/20">
-            <Shield size={32} className="text-white" />
+          <div className="w-12 h-12 bg-[#2563EB] rounded-lg flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <Globe size={24} className="text-white" />
           </div>
-          <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight mb-2">Khozna Core</h2>
-          <p className="text-[#666666] text-sm font-medium">Administrative Security Gateway</p>
+          <h1 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-2">Khozna Admin</h1>
+          <p className="text-sm font-medium text-[#64748B]">Platform Management Console</p>
         </div>
 
-        <AnimatePresence mode="wait">
+        <div className="card-pro p-10 bg-white border border-[#E2E8F0] rounded-xl shadow-sm">
           {!session ? (
-            <motion.div
-              key="login"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-4"
-            >
+            <div className="space-y-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-[#F1F5F9] rounded-full flex items-center justify-center mx-auto mb-4 text-[#2563EB]">
+                  <Lock size={20} />
+                </div>
+                <h2 className="text-lg font-bold text-[#0F172A]">Secure Entry</h2>
+                <p className="text-xs font-medium text-[#64748B] mt-1">Authenticate with your Google admin account.</p>
+              </div>
+
               <button
                 onClick={handleGoogleLogin}
                 disabled={checkingAuth}

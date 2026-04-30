@@ -46,28 +46,19 @@ export const Reports = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#FBFBF9]">
-      <div className="max-w-[1200px] mx-auto px-10 py-12">
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8"
-        >
+    <div className="flex-1 overflow-y-auto bg-[#F8FAFC]">
+      <div className="max-w-[1200px] mx-auto px-12 py-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div>
-            <div className="flex items-center gap-4 mb-3">
-              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Safety Center</h2>
-              <span className="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-wider rounded-full border border-red-100">
-                {reports.length} Open Reports
-              </span>
-            </div>
-            <p className="text-[#666666] text-sm font-medium">Managing community flags, listing violations, and user feedback.</p>
+            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-2">Safety Center</h2>
+            <p className="text-[#64748B] text-sm font-medium">Manage community flags and safety reports.</p>
           </div>
           
-          <button onClick={fetchReports} className="h-11 px-6 bg-white border border-[#E8E6E1] rounded-2xl hover:bg-[#FBFBF9] flex items-center gap-2.5 font-bold transition-all text-xs text-[#666666] group">
-             <RefreshCcw size={16} className={`group-hover:rotate-180 transition-transform duration-700 ${loading ? 'animate-spin' : ''}`} /> 
-             Refresh Reports
+          <button onClick={fetchReports} className="h-10 px-4 bg-white border border-[#E2E8F0] rounded-lg hover:bg-gray-50 flex items-center gap-2 text-[12px] font-bold text-[#475569] transition-all shadow-sm">
+             <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} /> 
+             Refresh
           </button>
-        </motion.div>
+        </div>
 
         {loading ? (
           <div className="flex flex-col justify-center items-center py-40 gap-4">
@@ -75,48 +66,21 @@ export const Reports = () => {
             <p className="text-[#A1A1A1] text-xs font-bold uppercase tracking-widest">Checking reports</p>
           </div>
         ) : reports.length === 0 ? (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-40 rounded-[2.5rem] bg-white border border-[#E8E6E1] border-dashed"
-          >
-            <div className="w-20 h-20 bg-green-50 text-green-500 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 border border-green-100">
-              <ShieldCheck size={36} />
+          <div className="text-center py-32 rounded-xl bg-white border border-[#E2E8F0] border-dashed">
+            <div className="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-lg flex items-center justify-center mx-auto mb-4 border border-emerald-100">
+              <ShieldCheck size={28} />
             </div>
-            <h3 className="text-[#1A1A1A] text-xl font-extrabold mb-2">Platform Clear</h3>
-            <p className="text-[#666666] text-sm font-medium">No community reports or flags detected in the current queue.</p>
-          </motion.div>
+            <h3 className="text-[#0F172A] text-lg font-bold mb-1">Queue Clear</h3>
+            <p className="text-[#64748B] text-sm font-medium">No community reports or flags pending review.</p>
+          </div>
         ) : (
           <div className="space-y-6">
             <AnimatePresence mode="popLayout">
-              {reports.map((report, idx) => (
-                <motion.div 
+              {reports.map((report) => (
+                <div 
                   key={report.id} 
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ delay: idx * 0.05 }}
-                  className="card-platinum p-8 rounded-[2.5rem] relative overflow-hidden group bg-white border border-[#E8E6E1]"
+                  className="card-pro p-6 bg-white border border-[#E2E8F0] rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-6"
                 >
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 rounded-2xl bg-[#F4F2EE] overflow-hidden border border-[#E8E6E1]">
-                        <img src={report.reported?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${report.reported?.full_name}`} className="w-full h-full object-cover" alt="" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="font-extrabold text-[#1A1A1A] text-lg tracking-tight leading-none">{report.reported?.full_name}</p>
-                          <span className="px-2 py-0.5 bg-red-50 text-red-600 text-[9px] font-bold uppercase tracking-wider rounded border border-red-100">Reported</span>
-                        </div>
-                        <p className="text-[10px] text-[#A1A1A1] font-bold font-mono uppercase tracking-widest">{report.reported_user_id.split('-')[0]}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                      <div className="flex items-center gap-2 text-[#666666] font-bold text-[10px] uppercase tracking-wider bg-[#FBFBF9] px-3 py-2 rounded-xl border border-[#E8E6E1]">
-                        <Clock size={12} className="text-[#A1A1A1]" /> {new Date(report.created_at).toLocaleDateString()}
-                      </div>
                       <div className="flex items-center gap-2 text-[#A1A1A1] font-bold text-[10px] uppercase tracking-wider">
                         <User size={12} /> Reported by <span className="text-[#1A1A1A]">{report.reporter?.full_name}</span>
                       </div>

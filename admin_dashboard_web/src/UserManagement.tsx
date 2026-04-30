@@ -81,125 +81,92 @@ export const UserManagement = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#FBFBF9]">
-      <div className="max-w-[1400px] mx-auto px-10 py-12">
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8"
-        >
+    <div className="flex-1 overflow-y-auto bg-[#F8FAFC]">
+      <div className="max-w-[1400px] mx-auto px-12 py-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
           <div>
-            <div className="flex items-center gap-4 mb-3">
-              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">User Directory</h2>
-              <span className="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-full">
-                {users.length} Active Users
-              </span>
-            </div>
-            <p className="text-[#666666] text-sm font-medium">Managing platform users, agent profiles, and access levels.</p>
+            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-2">User Directory</h2>
+            <p className="text-[#64748B] text-sm font-medium">Manage and audit platform user profiles.</p>
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="relative group">
-              <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A1A1A1] group-focus-within:text-[#2563EB] transition-colors" />
-              <input
-                type="text"
-                placeholder="Find users..."
+            <div className="relative">
+              <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+              <input 
+                type="text" 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-72 bg-white border border-[#E8E6E1] rounded-2xl py-2.5 pl-12 pr-4 focus:outline-none focus:ring-4 focus:ring-[#2563EB]/5 focus:border-[#2563EB] font-semibold text-sm transition-all"
+                placeholder="Search users..." 
+                className="w-72 h-10 bg-white border border-[#E2E8F0] rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-[#2563EB] font-medium text-[12px] transition-all"
               />
             </div>
-            <button className="w-11 h-11 flex items-center justify-center bg-white border border-[#E8E6E1] rounded-xl text-[#666666] hover:bg-[#FBFBF9] transition-all">
-              <Filter size={18} />
+            <button className="h-10 px-4 bg-white border border-[#E2E8F0] rounded-lg hover:bg-gray-50 flex items-center gap-2 text-[12px] font-bold text-[#475569] transition-all shadow-sm">
+              <Filter size={14} /> Filter
             </button>
           </div>
-        </motion.div>
+        </div>
 
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card-platinum rounded-[2.5rem] overflow-hidden"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {loading ? (
-            <div className="flex flex-col justify-center items-center py-40 gap-4">
+            <div className="col-span-full flex flex-col justify-center items-center py-40 gap-4">
               <Loader2 className="animate-spin text-[#2563EB]" size={32} />
               <p className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Querying user database</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-[#F4F2EE]">
-                    <th className="text-left py-6 px-8 text-[10px] font-bold text-[#A1A1A1] uppercase tracking-[0.2em]">Profile</th>
-                    <th className="text-left py-6 px-8 text-[10px] font-bold text-[#A1A1A1] uppercase tracking-[0.2em]">Contact</th>
-                    <th className="text-left py-6 px-8 text-[10px] font-bold text-[#A1A1A1] uppercase tracking-[0.2em]">Security</th>
-                    <th className="text-left py-6 px-8 text-[10px] font-bold text-[#A1A1A1] uppercase tracking-[0.2em]">Activity</th>
-                    <th className="text-right py-6 px-8 text-[10px] font-bold text-[#A1A1A1] uppercase tracking-[0.2em]">Ops</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#F1F5F9]">
-                  <AnimatePresence mode="popLayout">
-                    {users.map((user, idx) => (
-                      <motion.tr 
-                        key={user.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.03 }}
-                        className="border-b border-[#F4F2EE] last:border-0 group hover:bg-[#FBFBF9] transition-all"
-                      >
-                        <td className="py-6 px-8">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-2xl bg-[#F4F2EE] overflow-hidden border border-[#E8E6E1]">
-                              {user.avatar_url ? (
-                                <img src={user.avatar_url} className="w-full h-full object-cover" alt="" />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-[#E8E6E1]">
-                                  <User size={20} className="text-[#A1A1A1]" />
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <p className="font-bold text-[#1A1A1A] group-hover:text-[#2563EB] transition-colors">{user.full_name || 'Anonymous'}</p>
-                              <p className="text-[10px] text-[#A1A1A1] font-bold font-mono truncate w-32">{user.id}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-6 px-8">
-                          <div className="flex flex-col gap-1.5">
-                            <div className="flex items-center gap-2 text-xs font-bold text-[#1A1A1A]">
-                              <Mail size={12} className="text-[#A1A1A1]" /> {user.email || 'No email'}
-                            </div>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-[#666666]">
-                              <Phone size={12} className="text-[#A1A1A1]" /> {user.phone_number || 'N/A'}
-                            </div>
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-[#666666]">
-                              <Calendar size={12} className="text-[#A1A1A1]" /> Since {new Date(user.created_at).toLocaleDateString()}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-6 px-8">
-                          {getStatusBadge(user.kyc_status || 'verified')}
-                        </td>
-                        <td className="py-6 px-8">
-                          <div className="flex items-center gap-2 text-[10px] font-bold text-[#666666]">
-                            <Shield size={12} className="text-[#10B981]" /> Verified Account
-                          </div>
-                        </td>
-                        <td className="py-6 px-8 text-right">
-                          <button 
-                            onClick={() => handleDelete(user.id)}
-                            disabled={processingId === user.id}
-                            className="w-10 h-10 rounded-xl flex items-center justify-center text-[#A1A1A1] hover:text-[#EF4444] hover:bg-[#FFF1F1] transition-all ml-auto"
-                          >
-                            {processingId === user.id ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
-                          </button>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </AnimatePresence>
-                </tbody>
-              </table>
-            </div>
+            <AnimatePresence mode="popLayout">
+              {users.map((user) => (
+                <div 
+                  key={user.id}
+                  className="card-pro p-6 bg-white flex flex-col group border border-[#E2E8F0] rounded-xl"
+                >
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center overflow-hidden">
+                        {user.avatar_url ? (
+                          <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <User size={24} className="text-[#94A3B8]" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-[#0F172A]">{user.full_name || 'No Name'}</h3>
+                        <p className="text-[11px] font-medium text-[#64748B]">{user.email || 'No Email'}</p>
+                      </div>
+                    </div>
+                    {getStatusBadge(user.status)}
+                  </div>
+
+                  <div className="space-y-3 mb-6 flex-1">
+                    <div className="flex items-center gap-3 text-[#64748B]">
+                      <Phone size={14} className="text-[#94A3B8]" />
+                      <span className="text-[12px] font-medium">{user.phone_number || 'No Phone'}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-[#64748B]">
+                      <Calendar size={14} className="text-[#94A3B8]" />
+                      <span className="text-[12px] font-medium">Joined {new Date(user.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-[#64748B]">
+                      <Shield size={14} className="text-[#94A3B8]" />
+                      <span className="text-[12px] font-medium capitalize">{user.role || 'User'}</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-[#E2E8F0] flex gap-2">
+                    <button 
+                      onClick={() => handleDelete(user.id)}
+                      disabled={processingId === user.id}
+                      className="flex-1 h-9 bg-white border border-[#E2E8F0] text-[#EF4444] rounded-lg text-[11px] font-bold hover:bg-[#FEF2F2] hover:border-[#FCA5A5] transition-all flex items-center justify-center gap-2"
+                    >
+                      {processingId === user.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />} Delete Profile
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </AnimatePresence>
           )}
         </motion.div>
 

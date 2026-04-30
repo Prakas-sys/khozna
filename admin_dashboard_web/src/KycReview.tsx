@@ -61,7 +61,7 @@ const Lightbox = ({
         <img
           src={img.url}
           alt={img.label}
-          className="w-full h-full object-contain rounded-[2rem] shadow-2xl"
+          className="w-full h-full object-contain rounded-lg shadow-2xl"
           style={{ maxHeight: '80vh' }}
         />
       </motion.div>
@@ -207,32 +207,31 @@ const KycCard = ({ kyc, onUpdate, processingId }: {
             <button 
               onClick={() => onUpdate(kyc.id, kyc.user_id, 'verified')}
               disabled={processingId === kyc.id}
-              className="px-8 h-14 bg-[#10B981] text-white font-bold rounded-2xl flex items-center gap-3 shadow-lg shadow-green-500/20 hover:bg-[#059669] transition-all disabled:opacity-50"
+              className="h-10 px-6 bg-[#2563EB] text-white rounded-lg text-[12px] font-bold hover:bg-[#1D4ED8] transition-colors flex items-center gap-2"
             >
-              {processingId === kyc.id ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={20} />} Approve Access
+              {processingId === kyc.id ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />} Approve
             </button>
             <button 
               onClick={() => setShowReject(true)}
-              disabled={processingId === kyc.id}
-              className="px-8 h-14 bg-white border border-[#E8E6E1] text-[#666666] font-bold rounded-2xl flex items-center gap-3 hover:bg-[#FBFBF9] transition-all disabled:opacity-50"
+              className="h-10 px-4 bg-white border border-[#E2E8F0] text-[#EF4444] rounded-lg text-[12px] font-bold hover:bg-[#FEF2F2] hover:border-[#FCA5A5] transition-all"
             >
-              <XCircle size={20} className="text-[#EF4444]" /> Flag Submission
+              Reject
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {images.map((img, i) => (
             <div 
               key={i} 
               onClick={() => setLightbox({ open: true, idx: i })}
-              className="group relative h-48 rounded-[2rem] overflow-hidden bg-[#F4F2EE] border border-[#E8E6E1] cursor-pointer"
+              className="group relative aspect-video bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] overflow-hidden cursor-zoom-in"
             >
-              <img src={img.url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={img.label} />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
-                <span className="text-white text-[10px] font-bold uppercase tracking-widest bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">View {img.label}</span>
+              <img src={img.url} className="w-full h-full object-cover" alt={img.label} />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+              <div className="absolute bottom-3 left-3 px-2 py-1 bg-white/90 rounded text-[9px] font-bold text-[#0F172A] uppercase shadow-sm">
+                {img.label}
               </div>
-              <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-md rounded-lg text-[9px] font-bold uppercase tracking-wider text-[#1A1A1A]">{img.label}</div>
             </div>
           ))}
         </div>
@@ -307,15 +306,6 @@ export const KycReview = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#FBFBF9]">
-      <div className="max-w-[1400px] mx-auto px-10 py-12">
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8"
-        >
-          <div>
-            <div className="flex items-center gap-4 mb-3">
               <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Verification Hub</h2>
               <span className="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-full">
                 {kycs.filter(k => k.status === 'pending').length} Pending
