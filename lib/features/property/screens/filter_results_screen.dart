@@ -59,7 +59,8 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
 
     // Filter by location if it's a real location
     if (isLocationSearch) {
-      query = query.ilike('area_name', '%${widget.location}%') as dynamic;
+      final searchVal = widget.location.trim();
+      query = query.or('area_name.ilike.%$searchVal%,title.ilike.%$searchVal%,category.ilike.%$searchVal%') as dynamic;
     }
 
     // Filter by price if a valid number was found
@@ -209,6 +210,8 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   }
 
                   final properties = snapshot.data ?? [];
+                  final priceStr = widget.priceRange.replaceAll(RegExp(r'[^0-9]'), '');
+                  final priceInt = int.tryParse(priceStr);
 
                   if (properties.isEmpty) {
                     return Center(
@@ -230,9 +233,15 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Be the first to post a property!',
-                            style: GoogleFonts.inter(color: Colors.grey[500]),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: Text(
+                              priceInt != null && priceInt > 0
+                                  ? 'Try increasing your budget or changing the location to see more results.'
+                                  : 'Be the first to post a property in this area!',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(color: Colors.grey[500]),
+                            ),
                           ),
                         ],
                       ),

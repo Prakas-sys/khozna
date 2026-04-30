@@ -17,7 +17,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  double _priceValue = 5000;
+  double _priceValue = 15000;
   final List<String> _recentSearches = [
     'Baluwatar',
     '2BHK Sanepa',
@@ -30,6 +30,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final KhoznaAiService _aiService = KhoznaAiService();
   bool _isAiSearching = false;
   String? _aiSearchResult;
+  List<Map<String, dynamic>>? _aiFoundProperties;
 
   @override
   void initState() {
@@ -41,6 +42,20 @@ class _SearchScreenState extends State<SearchScreen> {
       if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
         setState(() {
           _searchController.text = widget.initialQuery!;
+        });
+        // Auto-trigger search
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FilterResultsScreen(
+                  location: widget.initialQuery!,
+                  priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                ),
+              ),
+            );
+          }
         });
         return;
       }
@@ -155,6 +170,19 @@ class _SearchScreenState extends State<SearchScreen> {
                                   contentPadding: EdgeInsets.zero,
                                 ),
                                 onChanged: (val) => setState(() {}),
+                                onSubmitted: (val) {
+                                  if (val.isNotEmpty) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => FilterResultsScreen(
+                                          location: val,
+                                          priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
                               ),
                             ),
                             if (_searchController.text.isNotEmpty)
@@ -289,6 +317,36 @@ class _SearchScreenState extends State<SearchScreen> {
                           _aiSearchResult!,
                           style: GoogleFonts.inter(fontSize: 14, height: 1.5, color: Colors.black87),
                         ),
+                        if (_aiFoundProperties != null && _aiFoundProperties!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FilterResultsScreen(
+                                      location: _searchController.text,
+                                      priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.visibility, size: 18, color: Colors.white),
+                              label: Text(
+                                'View ${_aiFoundProperties!.length} Result${_aiFoundProperties!.length > 1 ? "s" : ""}',
+                                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.brandColor,
+                                minimumSize: const Size(double.infinity, 44),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -430,7 +488,22 @@ class _SearchScreenState extends State<SearchScreen> {
                   spacing: 10,
                   runSpacing: 10,
                   children: _recentSearches
-                      .map((search) => _buildRecentTag(search))
+                      .map((search) => InkWell(
+                        onTap: () {
+                          setState(() => _searchController.text = search);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FilterResultsScreen(
+                                location: search,
+                                priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                              ),
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(30),
+                        child: _buildRecentTag(search),
+                      ))
                       .toList(),
                 ),
                 const SizedBox(height: 40),
@@ -462,6 +535,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 _buildAreaItem('Sanepa, Lalitpur', '320+ Listings'),
                 _buildAreaItem('Baneshwor, Kathmandu', '580+ Listings'),
                 _buildAreaItem('Jhamsikhel, Lalitpur', '210+ Listings'),
+                _buildAreaItem('Kirtipur, Kathmandu', '120+ Listings'),
                 const SizedBox(height: 80), // Prevent collision with FAB
               ],
             ),
@@ -477,6 +551,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => FilterResultsScreen(
+                    location: _searchController.text.isEmpty ? 'Verified Listings' : _searchController.text,
                     priceRange: 'Up to ₹ ${_priceValue.toInt()}',
                   ),
                 ),
@@ -579,7 +654,18 @@ class _SearchScreenState extends State<SearchScreen> {
           size: 14,
           color: Colors.grey.shade400,
         ),
-        onTap: () {},
+        onTap: () {
+          setState(() => _searchController.text = title.split(',')[0]);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FilterResultsScreen(
+                location: title.split(',')[0],
+                priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -628,6 +714,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
       setState(() {
         _aiSearchResult = result;
+        _aiFoundProperties = properties;
         _isAiSearching = false;
       });
     } catch (e) {

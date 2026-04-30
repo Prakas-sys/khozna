@@ -98,7 +98,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                 const SizedBox(height: 32),
                 Text(
                   'प्रकाशित भयो! 🎉',
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.inter(
                     fontSize: 32,
                     fontWeight: FontWeight.w900,
                     color: const Color(0xFF111827),
@@ -237,7 +237,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                     icon: const Icon(Icons.home_rounded, size: 20),
                     label: Text(
                       'गृहपृष्ठमा जानुहोस् (Go Home)',
-                      style: GoogleFonts.mukta(
+                      style: GoogleFonts.inter(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
@@ -282,30 +282,37 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
 
   Widget _detailRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icon, size: 18, color: AppTheme.brandColor),
-          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 20, color: AppTheme.brandColor),
+          ),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.inter(
                     fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: Colors.grey[500],
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: GoogleFonts.mukta(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
                     color: const Color(0xFF1F2937),
                   ),
                 ),
