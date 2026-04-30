@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
-import { CheckCircle2, Trash2, Loader2, MapPin, Building2, ExternalLink, Filter, RefreshCcw } from 'lucide-react';
+import { CheckCircle2, Trash2, Loader2, MapPin, Building2, ExternalLink, Filter, RefreshCcw, Tag } from 'lucide-react';
 
 export const PropertyModeration = () => {
   const [properties, setProperties] = useState<any[]>([]);
