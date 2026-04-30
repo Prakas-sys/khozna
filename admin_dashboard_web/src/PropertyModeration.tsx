@@ -71,18 +71,6 @@ export const PropertyModeration = () => {
     return 'https://via.placeholder.com/300?text=No+Image';
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'available': 
-        return <div className="px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-green-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-green-500" />Active Listing</div>;
-      case 'booked': 
-        return <div className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-blue-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-blue-500" />Secured</div>;
-      case 'rejected': 
-        return <div className="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-red-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-red-500" />Flagged</div>;
-      default: 
-        return <div className="px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-amber-100 flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />In Review</div>;
-    }
-  };
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#FBFBF9]">
