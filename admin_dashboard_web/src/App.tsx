@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UserCheck, ShieldAlert,
-  Settings, LogOut, Bell, Building2,
-  Search, Globe, ChevronRight
+  Settings, LogOut, Building2,
+  Search, Globe
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import { KycReview } from './KycReview';
 import { PropertyModeration } from './PropertyModeration';
@@ -13,7 +12,7 @@ import { UserManagement } from './UserManagement';
 import { Reports } from './Reports';
 import { Login } from './Login';
 
-// ─── Business Sidebar ──────────────────────────────────────────────────────────
+// ─── Minimalist Sidebar ──────────────────────────────────────────────────────────
 const Sidebar = ({ onLock }: { onLock: () => void }) => {
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
@@ -57,7 +56,7 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
   );
 };
 
-// ─── Business Header ─────────────────────────────────────────────────────────────
+// ─── Minimalist Header ─────────────────────────────────────────────────────────────
 const Header = () => {
   const location = useLocation();
   const getSubNavLinks = (): { name: string; path: string; icon?: React.ReactNode }[] => {
@@ -94,17 +93,13 @@ const Header = () => {
           />
         </div>
 
-            <span className="absolute top-3.5 right-3.5 w-2 h-2 bg-[#EF4444] rounded-full border-2 border-white" />
-          </button>
-
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-[#1A1A1A] text-xs font-black tracking-tight">Prakash</p>
-               <p className="text-[#2563EB] text-[9px] font-black uppercase tracking-[0.2em]">Platform Admin</p>
-            </div>
-            <div className="w-12 h-12 rounded-2xl overflow-hidden bg-[#F4F2EE] border border-[#E8E6E1]/80 shadow-md">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" className="w-full h-full object-cover" alt="Admin" />
-            </div>
+        <div className="flex items-center gap-4 pl-6 border-l border-[#E2E8F0]">
+          <div className="text-right">
+            <p className="text-[12px] font-bold text-[#0F172A]">Prakash</p>
+            <p className="text-[10px] font-medium text-[#64748B]">Platform Admin</p>
+          </div>
+          <div className="w-9 h-9 rounded-full bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center overflow-hidden">
+             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Prakash" alt="Avatar" className="w-full h-full object-cover" />
           </div>
         </div>
       </div>
