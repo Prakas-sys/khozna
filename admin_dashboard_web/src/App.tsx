@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UserCheck, ShieldAlert,
-  Settings, LogOut, Bell, TrendingUp, Building2,
-  Search, Globe, ChevronRight,
-  Play, BarChart3, ArrowUpRight
+  Settings, LogOut, Bell, Building2,
+  Search, Globe, ChevronRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from './lib/supabase';
@@ -172,7 +171,7 @@ const DashboardHome = () => {
       </div>
 
       <div className="grid grid-cols-12 gap-8">
-        {/* Main Section */}
+        <div className="col-span-12 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             {[
               { title: 'Total Users', val: stats.users, label: 'Registered Profiles', icon: <Users size={24} />, color: 'text-blue-600', bg: 'bg-blue-50', path: '/users' },
