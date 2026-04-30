@@ -78,63 +78,63 @@ class _ReelsScreenState extends State<ReelsScreen> {
                   ),
                 )
               : Stack(
-        children: [
-          RefreshIndicator(
-            onRefresh: _fetchReels,
-            color: AppTheme.brandColor,
-            backgroundColor: Colors.white,
-            child: PageView.builder(
-              controller: _pageController,
-              scrollDirection: Axis.vertical,
-              itemCount: reels.length,
-              itemBuilder: (context, index) {
-                return _buildReelItem(reels[index]);
-              },
-            ),
-          ),
-          // Top Toggle (Photo/Video)
-          Positioned(
-            top: 10,
-            left: 0,
-            right: 0,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: Colors.white.withOpacity(0.15)),
+                    RefreshIndicator(
+                      onRefresh: _fetchReels,
+                      color: AppTheme.brandColor,
+                      backgroundColor: Colors.white,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        scrollDirection: Axis.vertical,
+                        itemCount: reels.length,
+                        itemBuilder: (context, index) {
+                          return _buildReelItem(reels[index]);
+                        },
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _buildSegmentButton(
-                            title: 'Photo',
-                            icon: Icons.image_rounded,
-                            isSelected: isImageView,
-                            onTap: () => setState(() => isImageView = true),
+                    ),
+                    // Top Toggle (Photos/Videos)
+                    Positioned(
+                      top: 10,
+                      left: 0,
+                      right: 0,
+                      child: SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(color: Colors.white.withOpacity(0.15)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _buildSegmentButton(
+                                      title: 'Photos',
+                                      icon: Icons.image_rounded,
+                                      isSelected: isImageView,
+                                      onTap: () => setState(() => isImageView = true),
+                                    ),
+                                    _buildSegmentButton(
+                                      title: 'Videos',
+                                      icon: Icons.play_circle_fill,
+                                      isSelected: !isImageView,
+                                      onTap: () => setState(() => isImageView = false),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          _buildSegmentButton(
-                            title: 'Video',
-                            icon: Icons.play_circle_fill,
-                            isSelected: !isImageView,
-                            onTap: () => setState(() => isImageView = false),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -158,11 +158,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: isSelected ? Colors.black87 : Colors.white70,
-            ),
+            Icon(icon, size: 16, color: isSelected ? Colors.black87 : Colors.white70),
             const SizedBox(width: 6),
             Text(
               title,
@@ -179,64 +175,46 @@ class _ReelsScreenState extends State<ReelsScreen> {
   }
 
   Widget _buildReelItem(Property property) {
+    final List<String> allImages = property.images.isNotEmpty
+        ? property.images
+        : (property.imageUrl.isNotEmpty ? [property.imageUrl] : []);
+
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Content (Image)
-        property.imageUrl.isNotEmpty
-            ? KhoznaImage(
-                imageUrl: property.imageUrl,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              )
-            : Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.grey[900],
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.home_work_rounded, size: 80, color: Colors.white24),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No photo available',
-                        style: GoogleFonts.inter(color: Colors.white38, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+        // BACKGROUND CONTENT
+        isImageView
+            ? _buildImageCarousel(allImages)
+            : _buildVideoPlaceholder(property),
 
-        // Gradient
+        // Gradient overlay
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withOpacity(0.4),
+                Colors.black.withOpacity(0.5),
                 Colors.transparent,
                 Colors.transparent,
-                Colors.black.withOpacity(0.8),
+                Colors.black.withOpacity(0.85),
               ],
-              stops: const [0.0, 0.2, 0.6, 1.0],
+              stops: const [0.0, 0.2, 0.55, 1.0],
             ),
           ),
         ),
 
-        // Slim, High-End Bottom Glass Box
+        // Bottom info overlay
         Positioned(
           left: 12,
           right: 12,
-          bottom: 95, // Clears navbar + adds luxury padding
+          bottom: 95,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Owner Header
+              // Owner row
               Padding(
-                padding: const EdgeInsets.only(left: 8, bottom: 12),
+                padding: const EdgeInsets.only(left: 4, bottom: 10),
                 child: Row(
                   children: [
                     GestureDetector(
@@ -248,7 +226,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                             name: property.ownerName,
                             avatar: property.ownerAvatar,
                             location: property.location,
-                            totalListings: 1, // Placeholder
+                            totalListings: 1,
                           ),
                         ),
                       ),
@@ -256,16 +234,16 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 1.5),
+                          border: Border.all(color: AppTheme.brandColor, width: 2),
                         ),
                         child: CircleAvatar(
-                          radius: 18,
+                          radius: 20,
                           backgroundColor: Colors.grey[200],
                           child: ClipOval(
                             child: KhoznaImage(
                               imageUrl: property.ownerAvatar,
-                              width: 36,
-                              height: 36,
+                              width: 40,
+                              height: 40,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -273,31 +251,64 @@ class _ReelsScreenState extends State<ReelsScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Row(
-                      children: [
-                        Text(
-                          property.ownerName,
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                property.ownerName.isNotEmpty ? property.ownerName : 'Owner',
+                                style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  shadows: [const Shadow(color: Colors.black54, blurRadius: 6)],
+                                ),
+                              ),
+                              if (property.isOwnerVerified) ...[
+                                const SizedBox(width: 4),
+                                const Icon(Icons.verified, color: AppTheme.brandColor, size: 14),
+                              ],
+                            ],
                           ),
-                        ),
-                        if (property.isOwnerVerified) ...[
-                          const SizedBox(width: 4),
-                          const Icon(
-                            Icons.verified,
-                            color: AppTheme.brandColor,
-                            size: 12,
+                          Text(
+                            property.category.toUpperCase(),
+                            style: GoogleFonts.inter(
+                              color: Colors.white60,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ],
-                      ],
+                      ),
                     ),
+                    // Image count badge (Photos mode only)
+                    if (isImageView && allImages.length > 1)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white24),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.photo_library_rounded, color: Colors.white70, size: 12),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${allImages.length}',
+                              style: GoogleFonts.inter(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
 
-              // THE MAIN COMPACT GLASS BOX
+              // Main glass info card
               ClipRRect(
                 borderRadius: BorderRadius.circular(28),
                 child: BackdropFilter(
@@ -324,51 +335,51 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 18,
+                                  fontSize: 17,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  const Icon(
-                                    Icons.location_on,
-                                    color: AppTheme.brandColor,
-                                    size: 14,
-                                  ),
-                                  const SizedBox(width: 6),
+                                  const Icon(Icons.location_on, color: AppTheme.brandColor, size: 13),
+                                  const SizedBox(width: 4),
                                   Flexible(
                                     child: Text(
                                       property.location,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.inter(
-                                        color: Colors.white70,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: GoogleFonts.inter(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500),
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  if (property.bedrooms > 0) ...[
+                                    const Icon(Icons.bed_outlined, color: Colors.white54, size: 13),
+                                    const SizedBox(width: 3),
+                                    Text('${property.bedrooms}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 11)),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  if (property.bathrooms > 0) ...[
+                                    const Icon(Icons.bathtub_outlined, color: Colors.white54, size: 13),
+                                    const SizedBox(width: 3),
+                                    Text('${property.bathrooms}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 11)),
+                                  ],
+                                ],
+                              ),
+                              const SizedBox(height: 4),
                               RichText(
                                 text: TextSpan(
                                   children: [
                                     TextSpan(
                                       text: '₹ ',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w900,
-                                        color: AppTheme.brandColor,
-                                      ),
+                                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w900, color: AppTheme.brandColor),
                                     ),
                                     TextSpan(
-                                      text: '${property.price} /month',
-                                      style: GoogleFonts.inter(
-                                        color: AppTheme.brandColor,
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 16,
-                                      ),
+                                      text: '${property.price} /mo',
+                                      style: GoogleFonts.inter(color: AppTheme.brandColor, fontWeight: FontWeight.w900, fontSize: 15),
                                     ),
                                   ],
                                 ),
@@ -381,84 +392,51 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Visit Button
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.lightImpact();
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => PropertyDetailsScreen(property: property),
-                                  ),
-                                );
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property)));
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
+                                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.directions_walk_rounded, color: Colors.black, size: 18),
+                                    const Icon(Icons.directions_walk_rounded, color: Colors.black, size: 16),
                                     const SizedBox(width: 6),
-                                    Text(
-                                      'VISIT',
-                                      style: GoogleFonts.inter(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 11,
-                                      ),
-                                    ),
+                                    Text('VISIT', style: GoogleFonts.inter(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 11)),
                                   ],
                                 ),
                               ),
                             ),
                             const SizedBox(height: 8),
-                            // CHAT BUTTON
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.mediumImpact();
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => chat_page.ChatScreen(
-                                      ownerId: property.ownerId,
-                                      name: property.ownerName,
-                                      avatar: property.ownerAvatar,
-                                      online: true,
-                                    ),
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (_) => chat_page.ChatScreen(
+                                    ownerId: property.ownerId,
+                                    name: property.ownerName,
+                                    avatar: property.ownerAvatar,
+                                    online: true,
                                   ),
-                                );
+                                ));
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.brandColor,
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
+                                decoration: BoxDecoration(color: AppTheme.brandColor, borderRadius: BorderRadius.circular(30)),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     SvgPicture.asset(
                                       'assets/icons/message.svg',
-                                      width: 16,
-                                      height: 16,
-                                      colorFilter: const ColorFilter.mode(
-                                        Colors.white,
-                                        BlendMode.srcIn,
-                                      ),
+                                      width: 14,
+                                      height: 14,
+                                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'CHAT',
-                                      style: GoogleFonts.inter(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 11,
-                                      ),
-                                    ),
+                                    const SizedBox(width: 6),
+                                    Text('CHAT', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 11)),
                                   ],
                                 ),
                               ),
@@ -471,6 +449,127 @@ class _ReelsScreenState extends State<ReelsScreen> {
                 ),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImageCarousel(List<String> images) {
+    if (images.isEmpty) {
+      return Container(
+        color: Colors.grey[900],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.home_work_rounded, size: 80, color: Colors.white24),
+              const SizedBox(height: 16),
+              Text('No photos available', style: GoogleFonts.inter(color: Colors.white38, fontSize: 14)),
+            ],
+          ),
+        ),
+      );
+    }
+    if (images.length == 1) {
+      return KhoznaImage(imageUrl: images[0], width: double.infinity, height: double.infinity, fit: BoxFit.cover);
+    }
+    return _MultiImageCarousel(images: images);
+  }
+
+  Widget _buildVideoPlaceholder(Property property) {
+    return Container(
+      color: const Color(0xFF0A0A0A),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (property.imageUrl.isNotEmpty)
+            Opacity(
+              opacity: 0.3,
+              child: KhoznaImage(
+                imageUrl: property.imageUrl,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white24),
+                  ),
+                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 56),
+                ),
+                const SizedBox(height: 16),
+                Text('Video Coming Soon', style: GoogleFonts.inter(color: Colors.white60, fontSize: 14, fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Horizontal image carousel for multiple property photos
+class _MultiImageCarousel extends StatefulWidget {
+  final List<String> images;
+  const _MultiImageCarousel({required this.images});
+
+  @override
+  State<_MultiImageCarousel> createState() => _MultiImageCarouselState();
+}
+
+class _MultiImageCarouselState extends State<_MultiImageCarousel> {
+  final PageController _ctrl = PageController();
+  int _current = 0;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        PageView.builder(
+          controller: _ctrl,
+          scrollDirection: Axis.horizontal,
+          itemCount: widget.images.length,
+          onPageChanged: (i) => setState(() => _current = i),
+          itemBuilder: (context, i) => KhoznaImage(
+            imageUrl: widget.images[i],
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+          ),
+        ),
+        // Vertical dot indicators on right side
+        Positioned(
+          top: 120,
+          right: 16,
+          child: Column(
+            children: List.generate(widget.images.length, (i) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                margin: const EdgeInsets.symmetric(vertical: 3),
+                width: 5,
+                height: _current == i ? 20 : 5,
+                decoration: BoxDecoration(
+                  color: _current == i ? Colors.white : Colors.white38,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              );
+            }),
           ),
         ),
       ],
