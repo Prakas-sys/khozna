@@ -70,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         content: Text(
           'This will permanently delete your profile, properties, messages, and all other data. This action cannot be undone.',
-          style: GoogleFonts.outfit(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w400),
+          style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w400),
           textAlign: TextAlign.center,
         ),
         actionsAlignment: MainAxisAlignment.center,
@@ -126,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         content: Text(
           'Are you 100% sure?\nAll your listed properties and earnings history will be lost forever.',
-          style: GoogleFonts.outfit(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w400),
+          style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w400),
           textAlign: TextAlign.center,
         ),
         actionsAlignment: MainAxisAlignment.center,
@@ -175,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: Text(
           'Settings',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.5),
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.5),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -228,7 +228,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             subtitle: Text(
               'This action cannot be undone.',
-              style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.grey[600]),
+              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.grey[600]),
             ),
             onTap: _isDeleting ? null : _showDeleteConfirmation,
             trailing: _isDeleting 
@@ -253,7 +253,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.only(bottom: 16),
       child: Text(
         title.toUpperCase(),
-        style: GoogleFonts.inter(
+        style: GoogleFonts.plusJakartaSans(
           fontSize: 11,
           fontWeight: FontWeight.w800,
           color: const Color(0xFF94A3B8),
@@ -271,10 +271,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 15)),
+      title: Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15)),
       subtitle: Text(
         desc,
-        style: GoogleFonts.outfit(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w400),
+        style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w400),
       ),
       trailing: Switch(
         value: value,
@@ -289,11 +289,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       contentPadding: EdgeInsets.zero,
       title: Text(
         'Language',
-        style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 15),
+        style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
       ),
       subtitle: Text(
         _language,
-        style: GoogleFonts.outfit(
+        style: GoogleFonts.inter(
           fontSize: 12,
           color: AppTheme.brandColor,
           fontWeight: FontWeight.bold,
@@ -350,7 +350,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         child: Icon(icon, color: Colors.black, size: 20),
       ),
-      title: Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.w600, fontSize: 15)),
+      title: Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15)),
       trailing: const Icon(
         Icons.arrow_forward_ios,
         size: 14,

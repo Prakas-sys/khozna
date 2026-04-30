@@ -286,14 +286,14 @@ class _KycScreenState extends State<KycScreen> {
                 Expanded(
                   child: Text(
                     'कागजातहरू बुझाइयो', 
-                    style: GoogleFonts.outfit(fontWeight: FontWeight.w800, fontSize: 18)
+                    style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18)
                   ),
                 ),
               ],
             ),
             content: Text(
               'तपाइँको कागजातहरू सफलतापूर्वक बुझाइएको छ! हाम्रो टोलीले आगामी ४८ घण्टा भित्र यी कागजातहरू प्रमाणीकरण गर्नेछ।\n\nप्रक्रिया पूरा भएपछि तपाइँलाई मोबाइलमा सूचना (Notification) पठाइनेछ।',
-              style: GoogleFonts.outfit(height: 1.5),
+              style: GoogleFonts.inter(height: 1.5),
             ),
             actions: [
               TextButton(
@@ -499,7 +499,7 @@ class _KycScreenState extends State<KycScreen> {
             icon: Icon(Icons.arrow_back_rounded, size: 16, color: Colors.grey[600]),
             label: Text(
               'Back to Details (विवरण सच्याउनुहोस्)',
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.inter(
                 color: Colors.grey[600],
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
@@ -705,7 +705,7 @@ class _KycScreenState extends State<KycScreen> {
                     children: [
                       Text(
                         isVerified ? 'GPS Verified' : 'Tap to Verify Location',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800,
                           fontSize: 16,
                           color: isVerified ? Colors.green[800] : Colors.black87,
@@ -716,7 +716,7 @@ class _KycScreenState extends State<KycScreen> {
                         isVerified
                             ? '${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}'
                             : 'Required for security (लोकेसन दिनुहोस्)',
-                        style: GoogleFonts.outfit(
+                        style: GoogleFonts.inter(
                           fontSize: 13,
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
@@ -745,7 +745,7 @@ class _KycScreenState extends State<KycScreen> {
                         const SizedBox(width: 4),
                         Text(
                           'Tap',
-                          style: GoogleFonts.outfit(
+                          style: GoogleFonts.inter(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
