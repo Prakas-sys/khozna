@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import {
   LayoutDashboard, Users, UserCheck, ShieldAlert,
   Settings, LogOut, Bell, TrendingUp, Building2,
-  Search, Globe, Wallet, ChevronRight,
-  Play, BarChart3, PieChart, ArrowUpRight
+  Search, Globe, ChevronRight,
+  Play, BarChart3, ArrowUpRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from './lib/supabase';
