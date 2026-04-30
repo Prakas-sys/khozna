@@ -981,8 +981,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       content: [
         PremiumFeatureCard(
           icon: Icons.auto_awesome_rounded,
-          title: 'Khozna AI Copywriter',
-          subtitle: 'Generate professional description in one tap',
+          title: 'आकर्षक विवरण (AI Copywriter)',
+          subtitle: 'एकै क्लिकमा राम्रो विवरण लेख्नुहोस्',
           isLoading: _isGeneratingDescription,
           accentColor: AppTheme.brandColor,
           child: Column(
@@ -992,7 +992,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 maxLines: 5,
                 style: GoogleFonts.mukta(fontSize: 15, color: Colors.black87, height: 1.5),
                 decoration: InputDecoration(
-                  hintText: 'Describe your property or tap Generate...',
+                  hintText: 'आफ्नो प्रोपर्टीको बारेमा लेख्नुहोस् वा तल क्लिक गर्नुहोस्...',
                   hintStyle: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400]),
                   filled: true,
                   fillColor: Colors.grey[50],
@@ -1013,7 +1013,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       category: _selectedCategory ?? 'Room',
                       area: _areaController.text,
                       landmark: _landmarkController.text,
-                      amenities: _selectedAmenities,
+                      price: _priceController.text,
+                      bedrooms: _bedroomsController.text,
+                      bathrooms: _bathroomsController.text,
+                      floor: _floorController.text,
+                      sqft: _sqftController.text,
+                      isNegotiable: _isNegotiable,
+                      amenities: [..._selectedAmenities, ..._selectedRules],
                     );
                     setState(() {
                       _descriptionController.text = desc;
@@ -1022,7 +1028,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   },
                   icon: const Icon(Icons.flash_on_rounded, size: 18),
                   label: Text(
-                    'Generate Irresistible Text',
+                    'यहाँ क्लिक गर्नुहोस् (Auto Generate)',
                     style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 14),
                   ),
                   style: ElevatedButton.styleFrom(

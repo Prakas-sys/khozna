@@ -185,6 +185,12 @@ BEHAVIOR RULES:
     required String category,
     required String area,
     required String landmark,
+    required String price,
+    required String bedrooms,
+    required String bathrooms,
+    required String floor,
+    required String sqft,
+    required bool isNegotiable,
     required List<String> amenities,
   }) async {
     final String prompt =
@@ -194,15 +200,18 @@ BEHAVIOR RULES:
     - Title: $title
     - Category: $category
     - Location: $area, near $landmark
+    - Rent: Rs. $price per month (Negotiable: ${isNegotiable ? 'Yes' : 'No'})
+    - Size: ${bedrooms.isNotEmpty ? '$bedrooms Bedrooms' : ''}, ${bathrooms.isNotEmpty ? '$bathrooms Bathrooms' : ''}, Floor: $floor, Area: $sqft sq.ft
     - Amenities: ${amenities.join(', ')}
     
     The description should:
     1. Have a catchy opening line.
     2. Highlight the benefits of the location and nearby places (hospitals, schools, markets).
-    3. Mention it's a great opportunity for tenants.
-    4. Be around 3-4 sentences long.
-    5. MUST be written ONLY in Nepali (Devanagari) or a natural Nepali/English mix. 
-    6. ABSOLUTELY NO Hindi words. If you are unsure whether a word is Nepali or Hindi, write it in English instead.
+    3. Mention the rent and key features so tenants know exactly what they are getting.
+    4. Mention it's a great opportunity for tenants.
+    5. Be around 3-4 sentences long.
+    6. MUST be written ONLY in Nepali (Devanagari) or a natural Nepali/English mix. 
+    7. ABSOLUTELY NO Hindi words. If you are unsure whether a word is Nepali or Hindi, write it in English instead.
     """;
 
     return _getAiResponse(
