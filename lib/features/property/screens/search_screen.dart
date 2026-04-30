@@ -600,12 +600,22 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     try {
-      // 1. Fetch properties for context (limiting to 10 for free tier efficiency)
+      // 1. Fetch properties for context 
+      // We try to find properties that match the user's search query keywords
+      final queryText = _searchController.text.trim();
       final supabase = Supabase.instance.client;
-      final List<dynamic> propertiesData = await supabase
+      
+      var query = supabase
           .from('properties')
           .select('id, title, price, area_name, category')
-          .limit(10);
+          .eq('status', 'available');
+
+      // Simple keyword matching for better context
+      if (queryText.isNotEmpty) {
+        query = query.or('area_name.ilike.%$queryText%,title.ilike.%$queryText%,category.ilike.%$queryText%');
+      }
+
+      final List<dynamic> propertiesData = await query.limit(20);
 
       final List<Map<String, dynamic>> properties = propertiesData
           .cast<Map<String, dynamic>>();

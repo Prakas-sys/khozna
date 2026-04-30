@@ -63,7 +63,7 @@ class KhoznaAiService {
     String propertyData = properties
         .map(
           (p) =>
-              "ID: ${p['id']}, Title: ${p['title']}, Price: ${p['price']}, Location: ${p['location']}",
+              "ID: ${p['id']}, Title: ${p['title']}, Price: ${p['price']}, Location: ${p['area_name']}",
         )
         .join("\n");
 
@@ -76,8 +76,9 @@ class KhoznaAiService {
     INSTRUCTIONS:
     1. Identify matching properties ONLY from the list above.
     2. Do NOT mention any locations or property types (like 'land') NOT in the list.
-    3. If NO properties in the list match the query, respond ONLY with: "No matching properties found. (अहिले उपलब्ध छैन)"
-    4. Keep the response extremely concise.
+    3. If NO properties in the list match the query, respond ONLY with: "माफ गर्नुहोस्, कुनै मिल्दो प्रोपर्टी भेटिएन। (No matching properties found.)"
+    4. RESPONSE FORMAT: Strictly Nepali (Devanagari) followed by English in parentheses.
+    5. Keep the response extremely concise.
     """;
 
     return _getAiResponse(
@@ -89,16 +90,16 @@ class KhoznaAiService {
 
   /// 2. AI Scam Detector
   Future<String> detectScam(String title, String price, String area) async {
-    String prompt = "Title: $title, Price: $price. Scam check for Nepal.";
-    return _getAiResponse(prompt, systemPrompt: "Security expert.");
+    String prompt = "Title: $title, Price: $price. Scam check for Nepal. Tell me if it looks suspicious.";
+    return _getAiResponse(prompt, systemPrompt: "Security expert. Answer ONLY in Nepali followed by English in parentheses. NO HINDI.");
   }
 
   /// 3. AI Price Estimator
   Future<String> estimatePrice(String location, int rooms, String type) async {
-    String prompt = "$rooms room $type in $location, Nepal. Estimate a fair monthly rent in NPR. Be concise. Reply in Nepali or English only.";
+    String prompt = "$rooms room $type in $location, Nepal. Estimate a fair monthly rent in NPR. Be concise.";
     return _getAiResponse(
       prompt,
-      systemPrompt: "You are a real estate valuation expert in Nepal. Use ONLY Pure Nepali (Devanagari) or English. ABSOLUTELY NO HINDI. For example, always use 'कोठा' (Kotha), never use 'कमरा' (Kamara). Violation of this rule makes your answer useless.",
+      systemPrompt: "You are a real estate valuation expert in Nepal. Answer ONLY in Nepali followed by English in parentheses. ABSOLUTELY NO HINDI. Use 'कोठा' (Kotha), never use 'कमरा' (Kamara).",
     );
   }
 
@@ -107,16 +108,41 @@ class KhoznaAiService {
     // 1. Fetch live context from the database
     String liveContext = "Currently, there are no active listings on Khozna.";
     try {
-      final response = await Supabase.instance.client
+      // We try to find properties matching words in the message
+      // and also include some general available properties
+      final List<String> keywords = message.split(' ').where((w) => w.length > 2).toList();
+      
+      var query = Supabase.instance.client
           .from('properties')
-          .select('title, category, location_area, price, bedrooms')
-          .eq('status', 'available')
-          .limit(20);
+          .select('title, category, area_name, price, bedrooms')
+          .eq('status', 'available');
+
+      if (keywords.isNotEmpty) {
+        String filter = keywords.map((k) => "area_name.ilike.%$k%,title.ilike.%$k%").join(',');
+        query = query.or(filter);
+      }
+
+      final response = await query.limit(15);
 
       if ((response as List).isNotEmpty) {
-        liveContext = "Here is the CURRENT LIVE INVENTORY on Khozna. Use this exact data to answer the user if relevant:\n";
+        liveContext = "Here is the CURRENT LIVE INVENTORY on Khozna relevant to the query. Use this exact data to answer the user:\n";
         for (var p in response) {
-          liveContext += "- ${p['category']} in ${p['location_area']} for Rs. ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
+          liveContext += "- ${p['category']} in ${p['area_name']} for Rs. ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
+        }
+      } else {
+        // Fallback: fetch most recent available if no keyword match
+        final fallback = await Supabase.instance.client
+            .from('properties')
+            .select('title, category, area_name, price, bedrooms')
+            .eq('status', 'available')
+            .order('created_at', ascending: false)
+            .limit(5);
+        
+        if ((fallback as List).isNotEmpty) {
+           liveContext = "No direct match found for the specific query, but here are some overall available properties on Khozna:\n";
+           for (var p in fallback) {
+             liveContext += "- ${p['category']} in ${p['area_name']} for Rs. ${p['price']}/mo. Title: ${p['title']}\n";
+           }
         }
       }
     } catch (e) {
@@ -128,23 +154,21 @@ You are Khozna AI — the official assistant for Khozna, Nepal's premier propert
 
 CRITICAL LANGUAGE RULE: 
 You MUST use ONLY Pure Nepali (Devanagari) and English. 
-You are STRICTLY FORBIDDEN from using ANY Hindi words, grammar, or sentence structures. (e.g., NEVER use 'आपलाई', use 'तपाईंलाई'. NEVER use 'कमरा', use 'कोठा'. NEVER use 'मकान', use 'घर').
-Format: Provide the response in pure Nepali, followed by an English translation in parentheses.
+You are STRICTLY FORBIDDEN from using ANY Hindi words, grammar, or sentence structures.
 
-REAL DATABASE CONTEXT (CRITICAL):
+REAL DATABASE CONTEXT (GROUND TRUTH):
 $liveContext
 
-RESPONSE STRUCTURE (FOLLOW EXACTLY):
-1. Greeting: A brief, warm Nepali greeting (e.g., "नमस्ते!").
-2. Direct Answer: Immediately address the user's request using the REAL DATABASE CONTEXT above. 
-   - If they ask for a room in a specific location and we have it in the context, tell them the exact price and location we have!
-   - If we DON'T have a match in the context, say: "माफ गर्नुहोस्, अहिले [Location] मा [Property Type] उपलब्ध छैन। (Sorry, we don't have [Property Type] in [Location] right now.)"
-3. Availability Check: 
-   - If they ask about buying land, hotels, or jobs, say NO exactly like this: "माफ गर्नुहोस्, यो सुविधा अहिले Khozna मा उपलब्ध छैन। (Sorry, this feature is not available on Khozna right now.)"
-
 BEHAVIOR RULES:
-- Base EVERYTHING strictly on the REAL DATABASE CONTEXT. Do NOT invent properties, prices, or locations.
-- Keep responses SHORT and DIRECT (maximum 3-4 sentences).
+1. If the user asks for a property (room, flat, apartment) in a specific location:
+   - Check the REAL DATABASE CONTEXT above.
+   - If a match exists, provide details (Price, Location, Title).
+   - If NO match exists in the context, say: "माफ गर्नुहोस्, अहिले तपाईंले खोज्नुभएको ठाउँमा कोठा उपलब्ध छैन। (Sorry, we don't have a match for your request in our database right now.)"
+2. If the user is just greeting or asking general questions about Khozna:
+   - Answer warmly and explain that Khozna helps people find rooms and flats in Nepal easily.
+3. ABSOLUTELY NO HALLUCINATION. Do NOT invent properties that are not in the context.
+4. Keep responses SHORT and DIRECT (maximum 3 sentences).
+5. Format: Nepali sentence followed by English in parentheses.
 """;
     return _getAiResponse(message, systemPrompt: systemPrompt);
   }
