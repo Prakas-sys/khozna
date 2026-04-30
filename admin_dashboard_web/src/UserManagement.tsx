@@ -62,7 +62,7 @@ export const UserManagement = () => {
       case 'pending':
         return (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-amber-100">
-             Audit Required
+             Pending Review
           </div>
         );
       case 'rejected':
@@ -90,12 +90,12 @@ export const UserManagement = () => {
         >
           <div>
             <div className="flex items-center gap-4 mb-3">
-              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">User Registry</h2>
+              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">User Directory</h2>
               <span className="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-full">
-                {users.length} Identities
+                {users.length} Active Users
               </span>
             </div>
-            <p className="text-[#666666] text-sm font-medium">Managing the platform identity layer and administrative access controls.</p>
+            <p className="text-[#666666] text-sm font-medium">Managing platform users, agent profiles, and access levels.</p>
           </div>
           
           <div className="flex items-center gap-4">
@@ -123,7 +123,7 @@ export const UserManagement = () => {
           {loading ? (
             <div className="flex flex-col justify-center items-center py-40 gap-4">
               <Loader2 className="animate-spin text-[#2563EB]" size={32} />
-              <p className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Querying identity layer</p>
+              <p className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Querying user database</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -182,7 +182,7 @@ export const UserManagement = () => {
                         </td>
                         <td className="py-6 px-8">
                           <div className="flex items-center gap-2 text-[10px] font-bold text-[#666666]">
-                            <Shield size={12} className="text-[#10B981]" /> High Trust
+                            <Shield size={12} className="text-[#10B981]" /> Verified Account
                           </div>
                         </td>
                         <td className="py-6 px-8 text-right">
@@ -214,8 +214,8 @@ export const UserManagement = () => {
               <Shield size={32} className="text-[#2563EB]" />
             </div>
             <div>
-              <p className="text-xl font-extrabold text-[#1A1A1A] tracking-tight mb-1">Security & Data Policy</p>
-              <p className="text-sm text-[#666666] font-medium max-w-md">Identity deletions are permanent and synchronized across all nodes. Proceed with caution.</p>
+              <p className="text-xl font-extrabold text-[#1A1A1A] tracking-tight mb-1">User & Privacy Policy</p>
+              <p className="text-sm text-[#666666] font-medium max-w-md">Deletions are permanent. Ensure you are following platform governance guidelines before removal.</p>
             </div>
           </div>
 

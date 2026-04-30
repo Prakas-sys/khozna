@@ -316,12 +316,12 @@ export const KycReview = () => {
         >
           <div>
             <div className="flex items-center gap-4 mb-3">
-              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">KYC Operations</h2>
+              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Verification Hub</h2>
               <span className="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-full">
                 {kycs.filter(k => k.status === 'pending').length} Pending
               </span>
             </div>
-            <p className="text-[#666666] text-sm font-medium">Verify citizen identities and biometric credentials for platform security.</p>
+            <p className="text-[#666666] text-sm font-medium">Verify user profiles and document validity for platform trust.</p>
           </div>
           
           <div className="flex items-center gap-4">

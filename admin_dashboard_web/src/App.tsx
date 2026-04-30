@@ -70,7 +70,7 @@ const Header = () => {
   const location = useLocation();
   const getSubNavLinks = (): { name: string; path: string; icon?: React.ReactNode }[] => {
     switch (location.pathname) {
-      case '/': return [{ name: 'Executive Summary', path: '/', icon: <BarChart3 size={14} /> }, { name: 'Performance', path: '/perf', icon: <TrendingUp size={14} /> }];
+      case '/': return [{ name: 'Dashboard Overview', path: '/', icon: <LayoutDashboard size={14} /> }, { name: 'Platform Insights', path: '/perf', icon: <TrendingUp size={14} /> }];
       case '/kyc': return [{ name: 'KYC Queue', path: '/kyc' }, { name: 'Approved', path: '/approved' }];
       default: return [{ name: 'Management Console', path: location.pathname }];
     }
@@ -94,7 +94,7 @@ const Header = () => {
           <Search size={16} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#A1A1A1] group-focus-within:text-[#2563EB] transition-colors" />
           <input
             type="text"
-            placeholder="Search enterprise data..."
+            placeholder="Search platform data..."
             className="w-80 bg-white border border-[#E8E6E1]/80 rounded-2xl py-3 pl-14 pr-6 focus:outline-none focus:ring-8 focus:ring-[#2563EB]/5 focus:border-[#2563EB] font-bold text-[11px] transition-all shadow-sm"
           />
         </div>
@@ -107,8 +107,8 @@ const Header = () => {
 
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-[#1A1A1A] text-xs font-black tracking-tight">Atiqur Rahman</p>
-              <p className="text-[#2563EB] text-[9px] font-black uppercase tracking-[0.2em]">Managing Director</p>
+              <p className="text-[#1A1A1A] text-xs font-black tracking-tight">Prakash</p>
+               <p className="text-[#2563EB] text-[9px] font-black uppercase tracking-[0.2em]">Platform Admin</p>
             </div>
             <div className="w-12 h-12 rounded-2xl overflow-hidden bg-[#F4F2EE] border border-[#E8E6E1]/80 shadow-md">
               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" className="w-full h-full object-cover" alt="Admin" />
@@ -122,7 +122,7 @@ const Header = () => {
 
 // ─── Enterprise Dashboard Home ───────────────────────────────────────────────────
 const DashboardHome = () => {
-  const [stats, setStats] = useState({ users: 0, kyc: 0, properties: 0, revenue: 876654 });
+  const [stats, setStats] = useState({ users: 0, kyc: 0, properties: 0, engagement: 12450 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -137,7 +137,8 @@ const DashboardHome = () => {
           ...prev, 
           users: u.count || 0, 
           kyc: k.count || 0, 
-          properties: p.count || 0 
+          properties: p.count || 0,
+          engagement: Math.floor(Math.random() * 5000) + 10000 // Mocking engagement growth
         }));
       } catch (e) {
         console.error("Stats fetch failed:", e);
@@ -155,17 +156,17 @@ const DashboardHome = () => {
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-[2px] bg-[#2563EB]" />
-            <p className="text-[10px] font-black text-[#2563EB] uppercase tracking-[0.3em]">Business Intelligence Center</p>
+            <p className="text-[10px] font-black text-[#2563EB] uppercase tracking-[0.3em]">Platform Intelligence Center</p>
           </div>
           <h2 className="text-5xl font-black text-[#1A1A1A] tracking-tighter leading-none mb-4">
-            Khozna <span className="text-[#2563EB]">Enterprise</span>
+            Khozna <span className="text-[#2563EB]">Platform</span>
           </h2>
           <p className="text-[#666666] text-sm font-semibold max-w-lg leading-relaxed">System performance is optimal. High user engagement detected in the Kathmandu Valley region.</p>
         </motion.div>
 
         <div className="flex gap-4">
            <button className="h-14 px-8 bg-[#1A1A1A] text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-black/10 flex items-center gap-3">
-             <PieChart size={18} /> Financial Reports
+             <BarChart3 size={18} /> Platform Analytics
            </button>
         </div>
       </div>
@@ -183,22 +184,22 @@ const DashboardHome = () => {
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#2563EB]/20 rounded-full -mr-32 -mt-32 blur-[80px]" />
               <div className="z-10">
                 <div className="flex items-center justify-between mb-12">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Estimated Gross Revenue</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Active Platform Engagement</p>
                   <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
-                    <Wallet size={20} className="text-[#2563EB]" />
+                    <TrendingUp size={20} className="text-[#2563EB]" />
                   </div>
                 </div>
                 <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-2xl font-bold opacity-50">NPR</span>
-                  <p className="text-6xl font-black tracking-tighter">{stats.revenue.toLocaleString()}</p>
+                  <span className="text-2xl font-bold opacity-50">#</span>
+                  <p className="text-6xl font-black tracking-tighter">{stats.engagement.toLocaleString()}</p>
                 </div>
                 <div className="flex items-center gap-3 text-[10px] font-black bg-white/10 w-fit px-4 py-1.5 rounded-full border border-white/20 uppercase tracking-widest">
-                  <ArrowUpRight size={12} className="text-green-400" /> +12.4% vs Last Month
+                  <ArrowUpRight size={12} className="text-green-400" /> +18.2% Growth Streak
                 </div>
               </div>
               <div className="z-10 pt-12 flex justify-between items-center border-t border-white/10">
-                 <p className="text-[9px] font-bold uppercase tracking-[0.3em]">Next Payout: May 15, 2026</p>
-                 <button className="text-[10px] font-black text-[#2563EB] hover:underline uppercase tracking-widest">View Ledger</button>
+                 <p className="text-[9px] font-bold uppercase tracking-[0.3em]">Next Market Review: May 15, 2026</p>
+                 <button className="text-[10px] font-black text-[#2563EB] hover:underline uppercase tracking-widest">View Engagement</button>
               </div>
             </motion.div>
 
@@ -228,14 +229,14 @@ const DashboardHome = () => {
           <div className="card-pro p-10">
             <div className="flex items-center justify-between mb-10">
               <div>
-                <h3 className="text-xl font-black text-[#1A1A1A] tracking-tight">Recent Business Activity</h3>
-                <p className="text-[#A1A1A1] text-xs font-semibold">Live updates from platform operations</p>
+                <h3 className="text-xl font-black text-[#1A1A1A] tracking-tight">Recent Platform Activity</h3>
+                <p className="text-[#A1A1A1] text-xs font-semibold">Live updates from Khozna operations</p>
               </div>
               <button className="px-5 py-2.5 bg-white border border-[#E8E6E1] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#F4F2EE] transition-all">View All</button>
             </div>
             <div className="space-y-2">
               {[
-                { user: 'Atiqur Rahman', action: 'Approved 4 New Properties', time: '2m ago', type: 'Property', color: 'text-blue-500' },
+                { user: 'Prakash', action: 'Approved 4 New Properties', time: '2m ago', type: 'Property', color: 'text-blue-500' },
                 { user: 'System', action: 'KYC Verification Completed for Sunil K.', time: '15m ago', type: 'KYC', color: 'text-green-500' },
                 { user: 'Safety', action: 'Flagged Report in Bagmati District', time: '1h ago', type: 'Safety', color: 'text-red-500' },
               ].map((log, i) => (
@@ -262,7 +263,7 @@ const DashboardHome = () => {
         <div className="col-span-12 lg:col-span-4 space-y-8">
           <div className="card-pro p-10">
              <div className="flex items-center justify-between mb-12">
-               <h3 className="text-xl font-black text-[#1A1A1A] tracking-tight">Market Health</h3>
+               <h3 className="text-xl font-black text-[#1A1A1A] tracking-tight">Platform Health</h3>
                <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20">
                  <TrendingUp size={14} className="text-green-500" />
                </div>
@@ -291,7 +292,7 @@ const DashboardHome = () => {
              </div>
 
              <div className="mt-12 p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100">
-                <p className="text-xs font-bold text-[#2563EB] mb-1">Business Insight</p>
+                <p className="text-xs font-bold text-[#2563EB] mb-1">Growth Insight</p>
                 <p className="text-[#1E40AF] text-[11px] font-semibold leading-relaxed">Listings with Reels have 4.5x higher engagement. Encourage agents to upload more videos.</p>
              </div>
           </div>

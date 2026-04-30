@@ -55,24 +55,24 @@ export const Reports = () => {
         >
           <div>
             <div className="flex items-center gap-4 mb-3">
-              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Threat Monitor</h2>
+              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Safety Center</h2>
               <span className="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-wider rounded-full border border-red-100">
-                {reports.length} Active Issues
+                {reports.length} Open Reports
               </span>
             </div>
-            <p className="text-[#666666] text-sm font-medium">Managing community flags, behavioral violations, and security reports.</p>
+            <p className="text-[#666666] text-sm font-medium">Managing community flags, listing violations, and user feedback.</p>
           </div>
           
           <button onClick={fetchReports} className="h-11 px-6 bg-white border border-[#E8E6E1] rounded-2xl hover:bg-[#FBFBF9] flex items-center gap-2.5 font-bold transition-all text-xs text-[#666666] group">
              <RefreshCcw size={16} className={`group-hover:rotate-180 transition-transform duration-700 ${loading ? 'animate-spin' : ''}`} /> 
-             Refresh Intel
+             Refresh Reports
           </button>
         </motion.div>
 
         {loading ? (
           <div className="flex flex-col justify-center items-center py-40 gap-4">
             <Loader2 className="animate-spin text-[#2563EB]" size={32} />
-            <p className="text-[#A1A1A1] text-xs font-bold uppercase tracking-widest">Scanning network</p>
+            <p className="text-[#A1A1A1] text-xs font-bold uppercase tracking-widest">Checking reports</p>
           </div>
         ) : reports.length === 0 ? (
           <motion.div 
@@ -83,8 +83,8 @@ export const Reports = () => {
             <div className="w-20 h-20 bg-green-50 text-green-500 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 border border-green-100">
               <ShieldCheck size={36} />
             </div>
-            <h3 className="text-[#1A1A1A] text-xl font-extrabold mb-2">Platform Secure</h3>
-            <p className="text-[#666666] text-sm font-medium">No critical threats or user reports detected in the current cycle.</p>
+            <h3 className="text-[#1A1A1A] text-xl font-extrabold mb-2">Platform Clear</h3>
+            <p className="text-[#666666] text-sm font-medium">No community reports or flags detected in the current queue.</p>
           </motion.div>
         ) : (
           <div className="space-y-6">
@@ -107,7 +107,7 @@ export const Reports = () => {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <p className="font-extrabold text-[#1A1A1A] text-lg tracking-tight leading-none">{report.reported?.full_name}</p>
-                          <span className="px-2 py-0.5 bg-red-50 text-red-600 text-[9px] font-bold uppercase tracking-wider rounded border border-red-100">Target</span>
+                          <span className="px-2 py-0.5 bg-red-50 text-red-600 text-[9px] font-bold uppercase tracking-wider rounded border border-red-100">Reported</span>
                         </div>
                         <p className="text-[10px] text-[#A1A1A1] font-bold font-mono uppercase tracking-widest">{report.reported_user_id.split('-')[0]}</p>
                       </div>
@@ -133,7 +133,7 @@ export const Reports = () => {
 
                   <div className="mt-8 p-6 bg-red-50/50 text-[#991B1B] rounded-2xl border border-red-100 relative">
                     <div className="flex items-center gap-2 text-[10px] font-bold text-red-500 uppercase tracking-wider mb-2">
-                      <ShieldAlert size={14} /> Reported Violation
+                      <ShieldAlert size={14} /> Reported Issue
                     </div>
                     <p className="font-medium text-sm leading-relaxed opacity-90">"{report.reason || 'No violation narrative provided.'}"</p>
                   </div>
