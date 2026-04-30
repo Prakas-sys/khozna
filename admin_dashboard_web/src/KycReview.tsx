@@ -306,21 +306,26 @@ export const KycReview = () => {
   };
 
   return (
-              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Verification Hub</h2>
-              <span className="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-full">
+    <div className="flex-1 overflow-y-auto bg-[#F8FAFC]">
+      <div className="max-w-[1400px] mx-auto px-12 py-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight">Verification Hub</h2>
+              <span className="px-2 py-0.5 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-md">
                 {kycs.filter(k => k.status === 'pending').length} Pending
               </span>
             </div>
-            <p className="text-[#666666] text-sm font-medium">Verify user profiles and document validity for platform trust.</p>
+            <p className="text-[#64748B] text-sm font-medium">Verify user profiles and document validity.</p>
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="flex p-1 bg-white border border-[#E8E6E1] rounded-2xl">
+            <div className="flex p-1 bg-white border border-[#E2E8F0] rounded-lg">
               {(['pending', 'all'] as const).map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${filter === f ? 'bg-[#2563EB] text-white' : 'text-[#666666] hover:text-[#1A1A1A]'}`}
+                  className={`px-4 py-1.5 rounded-md text-[11px] font-bold transition-all ${filter === f ? 'bg-[#F1F5F9] text-[#2563EB] border border-[#E2E8F0]' : 'text-[#64748B] hover:text-[#0F172A]'}`}
                 >
                   {f.charAt(0).toUpperCase() + f.slice(1)}
                 </button>
@@ -328,28 +333,28 @@ export const KycReview = () => {
             </div>
             <button
               onClick={fetchKycs}
-              className="w-11 h-11 rounded-xl flex items-center justify-center bg-white border border-[#E8E6E1] text-[#666666] hover:bg-[#FBFBF9] transition-all"
+              className="w-10 h-10 rounded-lg flex items-center justify-center bg-white border border-[#E2E8F0] text-[#64748B] hover:bg-gray-50 transition-all shadow-sm"
             >
-              <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
+              <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
             </button>
           </div>
-        </motion.div>
+        </div>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-40 gap-4">
             <Loader2 className="animate-spin text-[#2563EB]" size={32} />
-            <p className="text-[#A1A1A1] text-xs font-bold uppercase tracking-widest">Fetching records</p>
+            <p className="text-[#94A3B8] text-[11px] font-bold uppercase tracking-widest">Querying database...</p>
           </div>
         ) : kycs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-40 rounded-[2.5rem] bg-white border border-[#E8E6E1] border-dashed">
-            <div className="w-20 h-20 rounded-[2rem] bg-blue-50 flex items-center justify-center mb-6">
-              <ShieldCheck size={40} className="text-[#2563EB]/40" />
+          <div className="flex flex-col items-center justify-center py-32 rounded-xl bg-white border border-[#E2E8F0] border-dashed">
+            <div className="w-16 h-16 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center mb-4">
+              <ShieldCheck size={28} className="text-[#94A3B8]" />
             </div>
-            <h3 className="text-[#1A1A1A] text-xl font-extrabold mb-2">No Pending Tasks</h3>
-            <p className="text-[#666666] text-sm font-medium">All identification records have been processed.</p>
+            <h3 className="text-[#0F172A] text-lg font-bold mb-1">Queue Clear</h3>
+            <p className="text-[#64748B] text-sm font-medium">No identification records pending review.</p>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-6">
             <AnimatePresence mode="popLayout">
               {kycs.map(kyc => (
                 <KycCard

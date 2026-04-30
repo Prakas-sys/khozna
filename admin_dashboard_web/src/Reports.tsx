@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import { ShieldAlert, Loader2, RefreshCcw, User, Clock, ShieldCheck } from 'lucide-react';
 
@@ -74,34 +74,40 @@ export const Reports = () => {
             <p className="text-[#64748B] text-sm font-medium">No community reports or flags pending review.</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <AnimatePresence mode="popLayout">
               {reports.map((report) => (
                 <div 
                   key={report.id} 
                   className="card-pro p-6 bg-white border border-[#E2E8F0] rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-6"
                 >
-                      <div className="flex items-center gap-2 text-[#A1A1A1] font-bold text-[10px] uppercase tracking-wider">
-                        <User size={12} /> Reported by <span className="text-[#1A1A1A]">{report.reporter?.full_name}</span>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500">
+                      <ShieldAlert size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-[#0F172A] mb-1">{report.reason || 'Safety Report'}</h3>
+                      <div className="flex items-center gap-3 text-[11px] font-medium text-[#64748B]">
+                        <span className="flex items-center gap-1"><User size={12} /> Reporter: {report.reporter?.full_name || 'System'}</span>
+                        <span className="flex items-center gap-1"><Clock size={12} /> {new Date(report.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
-                    
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="px-4 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg">
+                      <p className="text-[10px] font-bold text-[#94A3B8] uppercase">Reported User</p>
+                      <p className="text-[12px] font-bold text-[#0F172A]">{report.reported?.full_name || 'N/A'}</p>
+                    </div>
                     <button 
                       onClick={() => handleDelete(report.id)}
                       disabled={processingId === report.id}
-                      className="h-11 px-6 bg-white border border-[#E8E6E1] text-[#666666] font-bold rounded-xl hover:bg-[#FBFBF9] transition-all disabled:opacity-50 active:scale-95 text-xs"
+                      className="h-10 px-4 bg-white border border-[#E2E8F0] text-[#EF4444] rounded-lg text-[12px] font-bold hover:bg-[#FEF2F2] hover:border-[#FCA5A5] transition-all flex items-center justify-center gap-2"
                     >
-                      {processingId === report.id ? <Loader2 size={16} className="animate-spin" /> : 'Dismiss Case'}
+                      {processingId === report.id ? <Loader2 size={14} className="animate-spin" /> : 'Resolve'}
                     </button>
                   </div>
-
-                  <div className="mt-8 p-6 bg-red-50/50 text-[#991B1B] rounded-2xl border border-red-100 relative">
-                    <div className="flex items-center gap-2 text-[10px] font-bold text-red-500 uppercase tracking-wider mb-2">
-                      <ShieldAlert size={14} /> Reported Issue
-                    </div>
-                    <p className="font-medium text-sm leading-relaxed opacity-90">"{report.reason || 'No violation narrative provided.'}"</p>
-                  </div>
-                </motion.div>
+                </div>
               ))}
             </AnimatePresence>
           </div>
