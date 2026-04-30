@@ -36,8 +36,8 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
             <Globe size={20} className="text-white" />
           </div>
           <div>
-            <p className="text-[#0F172A] font-bold text-lg tracking-tight">Khozna</p>
-            <p className="text-[#64748B] text-[10px] font-bold uppercase tracking-[0.1em]">Admin Core</p>
+            <p className="text-[#1A1A1A] font-extrabold text-lg tracking-tight">Khozna</p>
+            <p className="text-[#666666] text-[10px] font-bold uppercase tracking-[0.1em]">Admin Core</p>
           </div>
         </div>
 
@@ -49,9 +49,9 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
               <div className={`relative flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 text-sm font-semibold ${
                 isActive(link.path)
                   ? 'bg-[#2563EB]/5 text-[#2563EB]'
-                  : 'text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
+                  : 'text-[#666666] hover:bg-[#F4F2EE] hover:text-[#1A1A1A]'
               }`}>
-                <span className={isActive(link.path) ? 'text-[#2563EB]' : 'text-[#94A3B8] group-hover:text-[#64748B]'}>
+                <span className={isActive(link.path) ? 'text-[#2563EB]' : 'text-[#A1A1A1] group-hover:text-[#666666]'}>
                   {link.icon}
                 </span>
                 <span>{link.name}</span>
@@ -67,10 +67,10 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
         </nav>
 
         {/* Bottom Section */}
-        <div className="pt-6 border-t border-[#F1F5F9]">
+        <div className="pt-6 border-t border-[#F4F2EE]">
           <button
             onClick={onLock}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[#EF4444] hover:bg-[#FEF2F2] font-bold transition-all text-sm group"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[#EF4444] hover:bg-[#FFF1F1] font-bold transition-all text-sm group"
           >
             <LogOut size={18} className="opacity-70 group-hover:opacity-100" />
             Sign Out
@@ -86,33 +86,33 @@ const Header = ({ title, notificationCount }: { title: string; notificationCount
   const [showNotif, setShowNotif] = useState(false);
 
   return (
-    <header className="h-20 px-10 flex items-center justify-between bg-white/80 backdrop-blur-md z-20 sticky top-0 border-b border-[#F1F5F9] flex-shrink-0">
+    <header className="h-20 px-10 flex items-center justify-between bg-white/80 backdrop-blur-md z-20 sticky top-0 border-b border-[#E8E6E1] flex-shrink-0">
       <div className="flex items-center gap-4">
-        <h1 className="text-xl font-bold text-[#0F172A] tracking-tight">{title}</h1>
+        <h1 className="text-xl font-bold text-[#1A1A1A] tracking-tight">{title}</h1>
       </div>
 
       <div className="flex items-center gap-4">
         {/* Search */}
         <div className="relative group hidden md:block">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-[#2563EB] transition-colors" />
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A1A1A1] group-focus-within:text-[#2563EB] transition-colors" />
           <input
             type="text"
             placeholder="Search anything..."
-            className="w-64 bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl pl-11 pr-4 py-2.5 text-sm outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/5 transition-all"
+            className="w-80 bg-[#FBFBF9] border border-[#E8E6E1] rounded-2xl py-2.5 pl-12 pr-4 focus:outline-none focus:ring-4 focus:ring-[#2563EB]/5 focus:border-[#2563EB] font-semibold text-sm transition-all"
           />
         </div>
 
-        <div className="w-px h-8 bg-[#F1F5F9]" />
+        <div className="w-px h-8 bg-[#F4F2EE]" />
 
         {/* Notifications */}
         <div className="relative">
           <button
             onClick={() => setShowNotif(!showNotif)}
-            className="w-11 h-11 rounded-2xl flex items-center justify-center text-[#64748B] hover:bg-[#F1F5F9] transition-all relative border border-[#E2E8F0]"
+            className="relative w-11 h-11 flex items-center justify-center bg-white border border-[#E8E6E1] rounded-xl text-[#666666] hover:bg-[#FBFBF9] transition-all"
           >
-            <Bell size={18} />
+            <Bell size={20} />
             {notificationCount > 0 && (
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#EF4444] rounded-full border-2 border-white" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-[#EF4444] rounded-full border-2 border-white" />
             )}
           </button>
 
@@ -122,14 +122,14 @@ const Header = ({ title, notificationCount }: { title: string; notificationCount
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute right-0 top-14 w-80 bg-white rounded-3xl p-6 shadow-2xl shadow-black/5 z-50 border border-[#E2E8F0]"
+                className="absolute top-full right-0 mt-3 w-80 card-platinum rounded-2xl p-6 shadow-xl z-50 border border-[#E8E6E1]"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-bold text-[#0F172A]">Notifications</h4>
-                  <span className="text-[10px] font-bold text-[#2563EB] uppercase tracking-wider">{notificationCount} New</span>
+                  <h4 className="text-xs font-bold text-[#1A1A1A] uppercase tracking-wider">Alerts</h4>
+                  <span className="text-[10px] font-bold text-[#2563EB] bg-[#2563EB]/5 px-2 py-1 rounded-md">{notificationCount} New</span>
                 </div>
                 {notificationCount === 0 ? (
-                  <p className="text-[#94A3B8] text-xs text-center py-8">No new notifications</p>
+                  <p className="text-[#A1A1A1] text-xs text-center py-8">No new notifications</p>
                 ) : (
                   <div className="space-y-3">
                     <Link
@@ -153,13 +153,13 @@ const Header = ({ title, notificationCount }: { title: string; notificationCount
         </div>
 
         {/* Profile */}
-        <div className="flex items-center gap-3 pl-4 border-l border-[#F1F5F9]">
-          <div className="w-10 h-10 rounded-2xl overflow-hidden bg-[#F1F5F9] border border-[#E2E8F0]">
+        <div className="flex items-center gap-3 pl-4 border-l border-[#F4F2EE]">
+          <div className="w-10 h-10 rounded-2xl overflow-hidden bg-[#F4F2EE] border border-[#E8E6E1]">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" className="w-full h-full object-cover" alt="Admin" />
           </div>
           <div className="hidden lg:block">
-            <p className="text-[#0F172A] text-sm font-bold">Master Ops</p>
-            <p className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-wider">Super Admin</p>
+            <p className="text-[#1A1A1A] text-sm font-extrabold">Master Ops</p>
+            <p className="text-[#A1A1A1] text-[10px] font-bold uppercase tracking-wider">Super Admin</p>
           </div>
         </div>
       </div>
@@ -209,7 +209,7 @@ const DashboardHome = () => {
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#F8FAFC]">
+    <div className="flex-1 overflow-y-auto bg-[#FBFBF9]">
       <div className="max-w-[1600px] mx-auto px-10 py-12">
         
         {/* Welcome Header */}
@@ -222,8 +222,8 @@ const DashboardHome = () => {
               <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse" />
               <p className="text-[10px] font-bold text-[#2563EB] uppercase tracking-[0.2em]">Platform Overview</p>
             </div>
-            <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">Good morning, <span className="text-[#2563EB]">Master Ops!</span></h2>
-            <p className="text-[#64748B] text-sm font-medium mt-1">Here's what's happening with Khozna today.</p>
+            <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Good morning, <span className="text-[#2563EB]">Master Ops!</span></h2>
+            <p className="text-[#666666] text-sm font-medium mt-1">Here's what's happening with Khozna today.</p>
           </motion.div>
         </div>
 
@@ -241,17 +241,17 @@ const DashboardHome = () => {
                   <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${s.bg} ${s.color}`}>
                     {s.icon}
                   </div>
-                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#F8FAFC] text-[10px] font-bold text-[#10B981]">
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#FBFBF9] text-[10px] font-bold text-[#10B981]">
                     <TrendingUp size={12} />
                     {s.trend}
                   </div>
                 </div>
                 <div>
-                  <p className="text-4xl font-extrabold text-[#0F172A] mb-1">
+                  <p className="text-4xl font-extrabold text-[#1A1A1A] mb-1">
                     {loading ? '—' : s.value}
                   </p>
-                  <p className="text-[#64748B] text-sm font-bold">{s.title}</p>
-                  <p className="text-[#94A3B8] text-xs mt-1">{s.label}</p>
+                  <p className="text-[#666666] text-sm font-bold">{s.title}</p>
+                  <p className="text-[#A1A1A1] text-xs mt-1">{s.label}</p>
                 </div>
               </Link>
             </motion.div>
@@ -265,18 +265,18 @@ const DashboardHome = () => {
             <div className="card-platinum p-8 rounded-3xl h-[400px] flex flex-col">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-lg font-bold text-[#0F172A]">Listing Performance</h3>
-                  <p className="text-[#64748B] text-xs">Total views and bookings over time</p>
+                  <h3 className="text-lg font-bold text-[#1A1A1A]">Listing Performance</h3>
+                  <p className="text-[#666666] text-xs">Total views and bookings over time</p>
                 </div>
                 <div className="flex gap-2">
                   <button className="px-4 py-2 text-xs font-bold text-[#2563EB] bg-[#2563EB]/5 rounded-xl">Weekly</button>
-                  <button className="px-4 py-2 text-xs font-bold text-[#64748B] hover:bg-[#F8FAFC] rounded-xl transition-all">Monthly</button>
+                  <button className="px-4 py-2 text-xs font-bold text-[#666666] hover:bg-[#FBFBF9] rounded-xl transition-all">Monthly</button>
                 </div>
               </div>
-              <div className="flex-1 bg-[#F8FAFC] rounded-2xl border border-dashed border-[#E2E8F0] flex items-center justify-center">
+              <div className="flex-1 bg-[#FBFBF9] rounded-2xl border border-dashed border-[#E8E6E1] flex items-center justify-center">
                 <div className="text-center">
-                  <Activity size={32} className="text-[#CBD5E1] mx-auto mb-3" />
-                  <p className="text-[#94A3B8] text-sm font-medium">Activity data visualization coming soon</p>
+                  <Activity size={32} className="text-[#A1A1A1] mx-auto mb-3" />
+                  <p className="text-[#A1A1A1] text-sm font-medium">Activity data visualization coming soon</p>
                 </div>
               </div>
             </div>
@@ -286,7 +286,7 @@ const DashboardHome = () => {
           <div className="col-span-12 lg:col-span-4">
             <div className="card-platinum p-8 rounded-3xl h-full">
               <div className="flex items-center justify-between mb-8">
-                <h3 className="text-lg font-bold text-[#0F172A]">Recent Activity</h3>
+                <h3 className="text-lg font-bold text-[#1A1A1A]">Recent Activity</h3>
                 <span className="text-[10px] font-bold text-[#2563EB] uppercase tracking-wider">Live Stream</span>
               </div>
               <div className="space-y-6">
@@ -299,20 +299,20 @@ const DashboardHome = () => {
                   <div key={idx} className="flex gap-5 group cursor-pointer relative">
                     <div className="relative flex flex-col items-center">
                       <div className={`w-2.5 h-2.5 rounded-full ${item.color} z-10`} />
-                      {idx < 3 && <div className="absolute top-2.5 w-[1px] h-[calc(100%+1.5rem)] bg-[#E2E8F0]" />}
+                      {idx < 3 && <div className="absolute top-2.5 w-[1px] h-[calc(100%+1.5rem)] bg-[#E8E6E1]" />}
                     </div>
                     <div className="flex-1 pb-1">
-                      <p className="text-sm font-bold text-[#0F172A] group-hover:text-[#2563EB] transition-colors leading-none mb-1.5">{item.action}</p>
+                      <p className="text-sm font-bold text-[#1A1A1A] group-hover:text-[#2563EB] transition-colors leading-none mb-1.5">{item.action}</p>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider">{item.user}</span>
-                        <span className="w-1 h-1 rounded-full bg-[#E2E8F0]" />
-                        <span className="text-[10px] font-medium text-[#94A3B8]">{item.time}</span>
+                        <span className="text-[10px] font-bold text-[#A1A1A1] uppercase tracking-wider">{item.user}</span>
+                        <span className="w-1 h-1 rounded-full bg-[#E8E6E1]" />
+                        <span className="text-[10px] font-medium text-[#A1A1A1]">{item.time}</span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <button className="w-full mt-8 py-3 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] text-[#64748B] text-xs font-bold hover:bg-[#F1F5F9] transition-all">
+              <button className="w-full mt-8 py-3 rounded-2xl bg-[#FBFBF9] border border-[#E8E6E1] text-[#666666] text-xs font-bold hover:bg-[#F4F2EE] transition-all">
                 View All Activity
               </button>
             </div>

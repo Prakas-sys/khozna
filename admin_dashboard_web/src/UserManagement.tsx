@@ -73,7 +73,7 @@ export const UserManagement = () => {
         );
       default:
         return (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#F8FAFC] text-[#64748B] rounded-lg text-[10px] font-bold uppercase tracking-wider border border-[#E2E8F0]">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FBFBF9] text-[#666666] rounded-lg text-[10px] font-bold uppercase tracking-wider border border-[#E8E6E1]">
             Standard
           </div>
         );
@@ -81,7 +81,7 @@ export const UserManagement = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto bg-[#FBFBF9]">
       <div className="max-w-[1400px] mx-auto px-10 py-12">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -90,26 +90,26 @@ export const UserManagement = () => {
         >
           <div>
             <div className="flex items-center gap-4 mb-3">
-              <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">User Registry</h2>
+              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">User Registry</h2>
               <span className="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-full">
                 {users.length} Identities
               </span>
             </div>
-            <p className="text-[#64748B] text-sm font-medium">Managing the platform identity layer and administrative access controls.</p>
+            <p className="text-[#666666] text-sm font-medium">Managing the platform identity layer and administrative access controls.</p>
           </div>
           
           <div className="flex items-center gap-4">
             <div className="relative group">
-              <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-[#2563EB] transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search database..." 
+              <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A1A1A1] group-focus-within:text-[#2563EB] transition-colors" />
+              <input
+                type="text"
+                placeholder="Find users..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full md:w-80 bg-white border border-[#E2E8F0] rounded-2xl py-3 pl-12 pr-4 focus:outline-none focus:ring-4 focus:ring-[#2563EB]/5 focus:border-[#2563EB] font-bold text-sm shadow-sm transition-all text-[#0F172A] placeholder-[#94A3B8]"
+                className="w-72 bg-white border border-[#E8E6E1] rounded-2xl py-2.5 pl-12 pr-4 focus:outline-none focus:ring-4 focus:ring-[#2563EB]/5 focus:border-[#2563EB] font-semibold text-sm transition-all"
               />
             </div>
-            <button className="w-12 h-12 flex items-center justify-center bg-white border border-[#E2E8F0] rounded-2xl text-[#64748B] hover:bg-[#F8FAFC] transition-all">
+            <button className="w-11 h-11 flex items-center justify-center bg-white border border-[#E8E6E1] rounded-xl text-[#666666] hover:bg-[#FBFBF9] transition-all">
               <Filter size={18} />
             </button>
           </div>
@@ -127,70 +127,72 @@ export const UserManagement = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
+              <table className="w-full">
                 <thead>
-                  <tr className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8] bg-[#F8FAFC] border-b border-[#E2E8F0]">
-                    <th className="px-10 py-6">Identity</th>
-                    <th className="px-8 py-6">Contact Matrix</th>
-                    <th className="px-8 py-6">Compliance</th>
-                    <th className="px-10 py-6 text-right">Actions</th>
+                  <tr className="border-b border-[#F4F2EE]">
+                    <th className="text-left py-6 px-8 text-[10px] font-bold text-[#A1A1A1] uppercase tracking-[0.2em]">Profile</th>
+                    <th className="text-left py-6 px-8 text-[10px] font-bold text-[#A1A1A1] uppercase tracking-[0.2em]">Contact</th>
+                    <th className="text-left py-6 px-8 text-[10px] font-bold text-[#A1A1A1] uppercase tracking-[0.2em]">Security</th>
+                    <th className="text-left py-6 px-8 text-[10px] font-bold text-[#A1A1A1] uppercase tracking-[0.2em]">Activity</th>
+                    <th className="text-right py-6 px-8 text-[10px] font-bold text-[#A1A1A1] uppercase tracking-[0.2em]">Ops</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#F1F5F9]">
                   <AnimatePresence mode="popLayout">
                     {users.map((user, idx) => (
                       <motion.tr 
-                        key={user.id} 
-                        layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ delay: idx * 0.02 }}
-                        className="group hover:bg-[#F8FAFC] transition-colors"
+                        key={user.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.03 }}
+                        className="border-b border-[#F4F2EE] last:border-0 group hover:bg-[#FBFBF9] transition-all"
                       >
-                        <td className="px-10 py-6">
-                          <div className="flex items-center gap-5">
-                            <div className="relative">
-                              <div className="w-14 h-14 rounded-2xl bg-[#F1F5F9] overflow-hidden border-2 border-white shadow-sm flex items-center justify-center">
-                                {user.avatar_url ? (
-                                  <img src={user.avatar_url} className="w-full h-full object-cover" alt="" />
-                                ) : (
-                                  <User size={24} className="text-[#2563EB]/40" />
-                                )}
-                              </div>
-                              <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${user.kyc_status === 'verified' ? 'bg-green-500' : 'bg-[#CBD5E1]'}`} />
+                        <td className="py-6 px-8">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-[#F4F2EE] overflow-hidden border border-[#E8E6E1]">
+                              {user.avatar_url ? (
+                                <img src={user.avatar_url} className="w-full h-full object-cover" alt="" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-[#E8E6E1]">
+                                  <User size={20} className="text-[#A1A1A1]" />
+                                </div>
+                              )}
                             </div>
                             <div>
-                              <p className="font-extrabold text-[#0F172A] tracking-tight text-base mb-1">{user.full_name || 'Anonymous User'}</p>
-                              <div className="flex items-center gap-2 text-[#94A3B8] font-bold text-[10px] uppercase tracking-wider">
-                                <Mail size={12} className="opacity-60" /> {user.email || 'No Email Linked'}
-                              </div>
+                              <p className="font-bold text-[#1A1A1A] group-hover:text-[#2563EB] transition-colors">{user.full_name || 'Anonymous'}</p>
+                              <p className="text-[10px] text-[#A1A1A1] font-bold font-mono truncate w-32">{user.id}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-8 py-6">
-                          <div className="space-y-1.5">
-                            <div className="flex items-center gap-2 text-[#0F172A] font-bold text-xs">
-                               <Phone size={12} className="text-[#2563EB]/60" /> {user.phone_number || 'No Phone'}
+                        <td className="py-6 px-8">
+                          <div className="flex flex-col gap-1.5">
+                            <div className="flex items-center gap-2 text-xs font-bold text-[#1A1A1A]">
+                              <Mail size={12} className="text-[#A1A1A1]" /> {user.email || 'No email'}
                             </div>
-                            <div className="flex items-center gap-2 text-[#94A3B8] font-bold text-[10px] uppercase tracking-wider">
-                               <Calendar size={12} className="opacity-60" /> {new Date(user.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-[#666666]">
+                              <Phone size={12} className="text-[#A1A1A1]" /> {user.phone_number || 'N/A'}
+                            </div>
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-[#666666]">
+                              <Calendar size={12} className="text-[#A1A1A1]" /> Since {new Date(user.created_at).toLocaleDateString()}
                             </div>
                           </div>
                         </td>
-                        <td className="px-8 py-6">
-                          {getStatusBadge(user.kyc_status)}
+                        <td className="py-6 px-8">
+                          {getStatusBadge(user.kyc_status || 'verified')}
                         </td>
-                        <td className="px-10 py-6 text-right">
-                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                            <button 
-                              onClick={() => handleDelete(user.id)}
-                              disabled={processingId === user.id}
-                              className="w-10 h-10 flex items-center justify-center text-[#94A3B8] hover:text-[#EF4444] bg-white border border-[#E2E8F0] hover:bg-red-50 hover:border-red-100 rounded-xl transition-all disabled:opacity-50"
-                            >
-                              {processingId === user.id ? <Loader2 size={16} className="animate-spin text-[#2563EB]" /> : <Trash2 size={18} />}
-                            </button>
+                        <td className="py-6 px-8">
+                          <div className="flex items-center gap-2 text-[10px] font-bold text-[#666666]">
+                            <Shield size={12} className="text-[#10B981]" /> High Trust
                           </div>
+                        </td>
+                        <td className="py-6 px-8 text-right">
+                          <button 
+                            onClick={() => handleDelete(user.id)}
+                            disabled={processingId === user.id}
+                            className="w-10 h-10 rounded-xl flex items-center justify-center text-[#A1A1A1] hover:text-[#EF4444] hover:bg-[#FFF1F1] transition-all ml-auto"
+                          >
+                            {processingId === user.id ? <Loader2 className="animate-spin" size={16} /> : <Trash2 size={16} />}
+                          </button>
                         </td>
                       </motion.tr>
                     ))}

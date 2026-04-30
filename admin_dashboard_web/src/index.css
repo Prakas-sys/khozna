@@ -1,16 +1,16 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @theme {
   --color-brand: #2563EB;
   --color-brand-dark: #1E40AF;
   --color-brand-light: #EFF6FF;
   --color-surface: #FFFFFF;
-  --color-bg: #F8FAFC;
-  --color-border: #E2E8F0;
-  --color-text-main: #0F172A;
-  --color-text-soft: #64748B;
-  --color-text-muted: #94A3B8;
+  --color-bg: #FBFBF9;
+  --color-border: #E8E6E1;
+  --color-text-main: #1A1A1A;
+  --color-text-soft: #666666;
+  --color-text-muted: #A1A1A1;
 }
 
 @layer base {
@@ -20,8 +20,8 @@
     -moz-osx-font-smoothing: grayscale;
   }
   body {
-    @apply bg-[#F8FAFC] antialiased text-[#0F172A];
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    @apply bg-[#FBFBF9] antialiased text-[#1A1A1A];
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
   ::-webkit-scrollbar {
@@ -31,56 +31,55 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.03);
     border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(37, 99, 235, 0.2);
+    background: rgba(37, 99, 235, 0.1);
   }
 }
 
 /* ── Minimalist Sidebar ───────────────────────────────────────── */
 .sidebar-clean {
   background: #FFFFFF;
-  border-right: 1px solid #E2E8F0;
+  border-right: 1px solid #E8E6E1;
 }
 
 /* ── Platinum Cards ──────────────────────────────────────────── */
 .card-platinum {
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  border: 1px solid #E8E6E1;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-platinum:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  border-color: #CBD5E1;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.03), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+  border-color: #D6D3CD;
 }
 
 /* ── Glass Elements ──────────────────────────────────────────── */
 .glass-light {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(232, 230, 225, 0.5);
 }
 
 /* ── Buttons ─────────────────────────────────────────────────── */
 .btn-primary {
   @apply bg-[#2563EB] text-white font-semibold rounded-xl px-5 py-2.5 transition-all active:scale-[0.98];
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
 .btn-primary:hover {
   @apply bg-[#1E40AF];
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
 /* ── Inputs ─────────────────────────────────────────────────── */
 .input-minimal {
-  @apply bg-white border border-[#E2E8F0] rounded-xl px-4 py-2.5 transition-all outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/5;
+  @apply bg-white border border-[#E8E6E1] rounded-xl px-4 py-2.5 transition-all outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/5;
 }
 
 /* ── Animations ─────────────────────────────────────────────── */

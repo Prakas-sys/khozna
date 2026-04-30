@@ -46,7 +46,7 @@ export const Reports = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto bg-[#FBFBF9]">
       <div className="max-w-[1200px] mx-auto px-10 py-12">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -55,15 +55,15 @@ export const Reports = () => {
         >
           <div>
             <div className="flex items-center gap-4 mb-3">
-              <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">Threat Monitor</h2>
+              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Threat Monitor</h2>
               <span className="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-wider rounded-full border border-red-100">
                 {reports.length} Active Issues
               </span>
             </div>
-            <p className="text-[#64748B] text-sm font-medium">Managing community flags, behavioral violations, and security reports.</p>
+            <p className="text-[#666666] text-sm font-medium">Managing community flags, behavioral violations, and security reports.</p>
           </div>
           
-          <button onClick={fetchReports} className="h-11 px-6 bg-white border border-[#E2E8F0] rounded-2xl hover:bg-[#F8FAFC] flex items-center gap-2.5 font-bold transition-all text-xs text-[#64748B] group">
+          <button onClick={fetchReports} className="h-11 px-6 bg-white border border-[#E8E6E1] rounded-2xl hover:bg-[#FBFBF9] flex items-center gap-2.5 font-bold transition-all text-xs text-[#666666] group">
              <RefreshCcw size={16} className={`group-hover:rotate-180 transition-transform duration-700 ${loading ? 'animate-spin' : ''}`} /> 
              Refresh Intel
           </button>
@@ -72,19 +72,19 @@ export const Reports = () => {
         {loading ? (
           <div className="flex flex-col justify-center items-center py-40 gap-4">
             <Loader2 className="animate-spin text-[#2563EB]" size={32} />
-            <p className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Scanning network</p>
+            <p className="text-[#A1A1A1] text-xs font-bold uppercase tracking-widest">Scanning network</p>
           </div>
         ) : reports.length === 0 ? (
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-40 rounded-[2.5rem] bg-white border border-[#E2E8F0] border-dashed"
+            className="text-center py-40 rounded-[2.5rem] bg-white border border-[#E8E6E1] border-dashed"
           >
             <div className="w-20 h-20 bg-green-50 text-green-500 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 border border-green-100">
               <ShieldCheck size={36} />
             </div>
-            <h3 className="text-[#0F172A] text-xl font-extrabold mb-2">Platform Secure</h3>
-            <p className="text-[#64748B] text-sm font-medium">No critical threats or user reports detected in the current cycle.</p>
+            <h3 className="text-[#1A1A1A] text-xl font-extrabold mb-2">Platform Secure</h3>
+            <p className="text-[#666666] text-sm font-medium">No critical threats or user reports detected in the current cycle.</p>
           </motion.div>
         ) : (
           <div className="space-y-6">
@@ -97,34 +97,29 @@ export const Reports = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ delay: idx * 0.05 }}
-                  className="card-platinum p-8 rounded-[2.5rem] relative overflow-hidden group"
+                  className="card-platinum p-8 rounded-[2.5rem] relative overflow-hidden group bg-white border border-[#E8E6E1]"
                 >
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div className="flex items-center gap-6 flex-1">
-                      <div className="relative">
-                        <div className="w-16 h-16 rounded-2xl bg-[#F1F5F9] border-2 border-white shadow-sm flex items-center justify-center overflow-hidden">
-                          {report.reported?.avatar_url ? (
-                            <img src={report.reported.avatar_url} className="w-full h-full object-cover" alt=""/>
-                          ) : (
-                            <User size={24} className="text-[#94A3B8]" />
-                          )}
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                          <AlertTriangle size={10} className="text-white" />
-                        </div>
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 rounded-2xl bg-[#F4F2EE] overflow-hidden border border-[#E8E6E1]">
+                        <img src={report.reported?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${report.reported?.full_name}`} className="w-full h-full object-cover" alt="" />
                       </div>
                       <div>
-                        <h3 className="font-extrabold text-[#0F172A] text-xl tracking-tight mb-1">Subject: {report.reported?.full_name || 'Anonymous User'}</h3>
-                        <div className="flex flex-wrap items-center gap-4">
-                          <div className="flex items-center gap-2 text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
-                             <User size={12} className="text-[#2563EB]/40" /> Reported by: <span className="text-[#0F172A]">{report.reporter?.full_name || 'Anonymous'}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-[10px] font-bold text-[#64748B] uppercase tracking-wider">
-                             <Clock size={12} className="text-[#2563EB]/40" /> {new Date(report.created_at).toLocaleDateString()} at {new Date(report.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-extrabold text-[#1A1A1A] text-lg tracking-tight leading-none">{report.reported?.full_name}</p>
+                          <span className="px-2 py-0.5 bg-red-50 text-red-600 text-[9px] font-bold uppercase tracking-wider rounded border border-red-100">Target</span>
                         </div>
+                        <p className="text-[10px] text-[#A1A1A1] font-bold font-mono uppercase tracking-widest">{report.reported_user_id.split('-')[0]}</p>
                       </div>
                     </div>
+
+                    <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-2 text-[#666666] font-bold text-[10px] uppercase tracking-wider bg-[#FBFBF9] px-3 py-2 rounded-xl border border-[#E8E6E1]">
+                        <Clock size={12} className="text-[#A1A1A1]" /> {new Date(report.created_at).toLocaleDateString()}
+                      </div>
+                      <div className="flex items-center gap-2 text-[#A1A1A1] font-bold text-[10px] uppercase tracking-wider">
+                        <User size={12} /> Reported by <span className="text-[#1A1A1A]">{report.reporter?.full_name}</span>
+                      </div>
                     
                     <button 
                       onClick={() => handleDelete(report.id)}
