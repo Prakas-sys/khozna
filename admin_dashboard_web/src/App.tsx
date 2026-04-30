@@ -122,24 +122,24 @@ const Header = () => {
 
 // ─── Enterprise Dashboard Home ───────────────────────────────────────────────────
 const DashboardHome = () => {
-  const [stats, setStats] = useState({ users: 0, kyc: 0, properties: 0, engagement: 12450 });
+  const [stats, setStats] = useState({ users: 0, kyc: 0, properties: 0, reports: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [u, k, p] = await Promise.all([
+        const [u, k, p, r] = await Promise.all([
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('kyc_verifications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
           supabase.from('properties').select('*', { count: 'exact', head: true }),
+          supabase.from('user_reports').select('*', { count: 'exact', head: true }),
         ]);
-        setStats(prev => ({ 
-          ...prev, 
+        setStats({ 
           users: u.count || 0, 
           kyc: k.count || 0, 
           properties: p.count || 0,
-          engagement: Math.floor(Math.random() * 5000) + 10000 // Mocking engagement growth
-        }));
+          reports: r.count || 0
+        });
       } catch (e) {
         console.error("Stats fetch failed:", e);
       } finally {
@@ -165,64 +165,37 @@ const DashboardHome = () => {
         </motion.div>
 
         <div className="flex gap-4">
-           <button className="h-14 px-8 bg-[#1A1A1A] text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-black/10 flex items-center gap-3">
-             <BarChart3 size={18} /> Platform Analytics
-           </button>
+           <Link to="/settings" className="h-14 px-8 bg-[#1A1A1A] text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-black/10 flex items-center gap-3">
+             <Settings size={18} /> Platform Settings
+           </Link>
         </div>
       </div>
 
       <div className="grid grid-cols-12 gap-8">
         {/* Main Section */}
-        <div className="col-span-12 lg:col-span-8 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-            {/* Revenue Card */}
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.98 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              className="col-span-1 md:col-span-3 card-pro p-10 bg-gradient-to-br from-[#1A1A1A] to-[#333333] text-white relative overflow-hidden flex flex-col justify-between"
-            >
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#2563EB]/20 rounded-full -mr-32 -mt-32 blur-[80px]" />
-              <div className="z-10">
-                <div className="flex items-center justify-between mb-12">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Active Platform Engagement</p>
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
-                    <TrendingUp size={20} className="text-[#2563EB]" />
-                  </div>
-                </div>
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-2xl font-bold opacity-50">#</span>
-                  <p className="text-6xl font-black tracking-tighter">{stats.engagement.toLocaleString()}</p>
-                </div>
-                <div className="flex items-center gap-3 text-[10px] font-black bg-white/10 w-fit px-4 py-1.5 rounded-full border border-white/20 uppercase tracking-widest">
-                  <ArrowUpRight size={12} className="text-green-400" /> +18.2% Growth Streak
-                </div>
-              </div>
-              <div className="z-10 pt-12 flex justify-between items-center border-t border-white/10">
-                 <p className="text-[9px] font-bold uppercase tracking-[0.3em]">Next Market Review: May 15, 2026</p>
-                 <button className="text-[10px] font-black text-[#2563EB] hover:underline uppercase tracking-widest">View Engagement</button>
-              </div>
-            </motion.div>
-
-            {/* Quick Stats */}
-            <div className="col-span-1 md:col-span-2 grid grid-rows-2 gap-8">
-              {[
-                { title: 'Properties', val: stats.properties, label: 'Active Listings', icon: <Building2 size={20} />, color: 'text-blue-600', bg: 'bg-blue-50' },
-                { title: 'Verifications', val: stats.kyc, label: 'Pending Audits', icon: <UserCheck size={20} />, color: 'text-amber-600', bg: 'bg-amber-50' },
-              ].map((s, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="card-pro p-8 flex flex-col justify-between">
-                  <div className="flex items-center justify-between">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${s.bg} ${s.color}`}>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            {[
+              { title: 'Total Users', val: stats.users, label: 'Registered Profiles', icon: <Users size={24} />, color: 'text-blue-600', bg: 'bg-blue-50', path: '/users' },
+              { title: 'Verifications', val: stats.kyc, label: 'Pending Review', icon: <UserCheck size={24} />, color: 'text-amber-600', bg: 'bg-amber-50', path: '/kyc' },
+              { title: 'Active Listings', val: stats.properties, label: 'Property Inventory', icon: <Building2 size={24} />, color: 'text-green-600', bg: 'bg-green-50', path: '/properties' },
+              { title: 'Safety Reports', val: stats.reports, label: 'User Flags', icon: <ShieldAlert size={24} />, color: 'text-red-600', bg: 'bg-red-50', path: '/reports' },
+            ].map((s, i) => (
+              <Link key={i} to={s.path}>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="card-pro p-8 h-full flex flex-col justify-between hover:border-[#2563EB] transition-all group">
+                  <div className="flex items-center justify-between mb-8">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${s.bg} ${s.color}`}>
                       {s.icon}
                     </div>
-                    <ChevronRight size={16} className="text-[#E8E6E1]" />
+                    <ChevronRight size={18} className="text-[#E8E6E1] group-hover:text-[#2563EB] transition-colors" />
                   </div>
                   <div>
-                    <p className="text-3xl font-black text-[#1A1A1A] mb-1">{loading ? '—' : s.val}</p>
-                    <p className="text-[10px] font-black text-[#666666] uppercase tracking-widest">{s.label}</p>
+                    <p className="text-4xl font-black text-[#1A1A1A] mb-2">{loading ? '—' : s.val}</p>
+                    <p className="text-[10px] font-black text-[#666666] uppercase tracking-widest">{s.title}</p>
+                    <p className="text-[9px] font-bold text-[#A1A1A1] uppercase tracking-[0.1em] mt-1">{s.label}</p>
                   </div>
                 </motion.div>
-              ))}
-            </div>
+              </Link>
+            ))}
           </div>
 
           {/* Activity Feed */}
@@ -232,7 +205,7 @@ const DashboardHome = () => {
                 <h3 className="text-xl font-black text-[#1A1A1A] tracking-tight">Recent Platform Activity</h3>
                 <p className="text-[#A1A1A1] text-xs font-semibold">Live updates from Khozna operations</p>
               </div>
-              <button className="px-5 py-2.5 bg-white border border-[#E8E6E1] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#F4F2EE] transition-all">View All</button>
+              <Link to="/properties" className="px-5 py-2.5 bg-white border border-[#E8E6E1] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#FBFBF9] transition-all">View All</Link>
             </div>
             <div className="space-y-2">
               {[
@@ -256,67 +229,6 @@ const DashboardHome = () => {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-
-        {/* Right Insights */}
-        <div className="col-span-12 lg:col-span-4 space-y-8">
-          <div className="card-pro p-10">
-             <div className="flex items-center justify-between mb-12">
-               <h3 className="text-xl font-black text-[#1A1A1A] tracking-tight">Platform Health</h3>
-               <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20">
-                 <TrendingUp size={14} className="text-green-500" />
-               </div>
-             </div>
-
-             <div className="space-y-6">
-                <div>
-                  <div className="flex justify-between items-end mb-2">
-                    <p className="text-[10px] font-black text-[#666666] uppercase tracking-widest">User Engagement</p>
-                    <p className="text-sm font-black">94%</p>
-                  </div>
-                  <div className="h-2 w-full bg-[#F4F2EE] rounded-full overflow-hidden">
-                    <motion.div initial={{ width: 0 }} animate={{ width: '94%' }} className="h-full bg-[#2563EB]" />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex justify-between items-end mb-2">
-                    <p className="text-[10px] font-black text-[#666666] uppercase tracking-widest">Property Conversion</p>
-                    <p className="text-sm font-black">68%</p>
-                  </div>
-                  <div className="h-2 w-full bg-[#F4F2EE] rounded-full overflow-hidden">
-                    <motion.div initial={{ width: 0 }} animate={{ width: '68%' }} className="h-full bg-amber-500" />
-                  </div>
-                </div>
-             </div>
-
-             <div className="mt-12 p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100">
-                <p className="text-xs font-bold text-[#2563EB] mb-1">Growth Insight</p>
-                <p className="text-[#1E40AF] text-[11px] font-semibold leading-relaxed">Listings with Reels have 4.5x higher engagement. Encourage agents to upload more videos.</p>
-             </div>
-          </div>
-
-          {/* Reels Center */}
-          <div className="card-pro p-10 bg-[#2563EB] text-white relative overflow-hidden">
-             <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-8">
-                   <Play size={20} fill="currentColor" />
-                   <h3 className="text-xl font-black tracking-tighter">Reels Center</h3>
-                </div>
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Views</p>
-                    <p className="text-lg font-black">1.2M</p>
-                  </div>
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Engagement</p>
-                    <p className="text-lg font-black">12.5%</p>
-                  </div>
-                  <button className="w-full py-4 bg-white text-[#2563EB] rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:bg-blue-50 transition-all">Manage Content</button>
-                </div>
-             </div>
-             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
           </div>
         </div>
       </div>
