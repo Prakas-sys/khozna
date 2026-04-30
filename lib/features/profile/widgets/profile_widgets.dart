@@ -339,9 +339,9 @@ class PostPropertyCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00A3E1).withOpacity(0.25),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
+            color: const Color(0xFF00A3E1).withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
