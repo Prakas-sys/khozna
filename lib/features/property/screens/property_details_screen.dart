@@ -154,29 +154,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       expandedHeight: 380,
       backgroundColor: Colors.white,
       pinned: true,
-      leadingWidth: 72,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 16),
+      automaticallyImplyLeading: false,
+      leading: Center(
         child: GestureDetector(
           onTap: () {
             HapticFeedback.lightImpact();
             Navigator.pop(context);
           },
           child: Container(
-            width: 40,
-            height: 40,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
-                  blurRadius: 8,
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 22),
+            child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 20),
           ),
         ),
       ),
