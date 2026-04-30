@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UserCheck, ShieldAlert,
@@ -68,7 +68,7 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
 // ─── Business Header ─────────────────────────────────────────────────────────────
 const Header = () => {
   const location = useLocation();
-  const getSubNavLinks = () => {
+  const getSubNavLinks = (): { name: string; path: string; icon?: React.ReactNode }[] => {
     switch (location.pathname) {
       case '/': return [{ name: 'Executive Summary', path: '/', icon: <BarChart3 size={14} /> }, { name: 'Performance', path: '/perf', icon: <TrendingUp size={14} /> }];
       case '/kyc': return [{ name: 'KYC Queue', path: '/kyc' }, { name: 'Approved', path: '/approved' }];
