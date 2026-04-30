@@ -36,7 +36,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
           .from('properties')
           .select('*, profiles:owner_id(full_name, avatar_url, is_verified, kyc_status)')
           .eq('status', 'available')
-          .not('images', 'is', null)
           .order('created_at', ascending: false)
           .limit(20);
 
@@ -184,12 +183,31 @@ class _ReelsScreenState extends State<ReelsScreen> {
       fit: StackFit.expand,
       children: [
         // Content (Image)
-        KhoznaImage(
-          imageUrl: property.imageUrl,
-          width: double.infinity,
-          height: double.infinity,
-          fit: BoxFit.cover,
-        ),
+        property.imageUrl.isNotEmpty
+            ? KhoznaImage(
+                imageUrl: property.imageUrl,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              )
+            : Container(
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.grey[900],
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.home_work_rounded, size: 80, color: Colors.white24),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No photo available',
+                        style: GoogleFonts.inter(color: Colors.white38, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
         // Gradient
         Container(

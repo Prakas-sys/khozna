@@ -360,9 +360,9 @@ class PostPropertyCard extends StatelessWidget {
                     'Ready to Rent Out?',
                     style: GoogleFonts.inter(
                       color: Colors.white,
-                      fontSize: 18,
+                      fontSize: 21,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
+                      letterSpacing: -0.8,
                       height: 1.1,
                     ),
                   ),
@@ -416,13 +416,13 @@ class PostPropertyCard extends StatelessWidget {
 
             // House — bleeds off right edge
             Positioned(
-              right: -20,
-              bottom: -5,
-              top: 10,
-              width: 140,
+              right: -15,
+              bottom: -15,
+              top: -10,
+              width: 175,
               child: Image.asset(
                 'assets/images/tiny house.png',
-                fit: BoxFit.fitHeight,
+                fit: BoxFit.contain,
               ),
             ),
           ],
