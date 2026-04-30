@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import {
-  XCircle, Trash2, Loader2, Zap, ShieldCheck, ShieldAlert,
+  XCircle, Trash2, Loader2, Zap, ShieldCheck,
   Phone, CreditCard, RefreshCcw, ZoomIn, X, ChevronLeft, ChevronRight,
-  Clock, Calendar, User, Eye, ArrowRight
+  Clock, User
 } from 'lucide-react';
 
 // ─── Lightbox ────────────────────────────────────────────────────────────────

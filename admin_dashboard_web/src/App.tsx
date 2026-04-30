@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UserCheck, ShieldAlert, CheckSquare,
-  Settings, LogOut, Loader2, Activity, Bell, TrendingUp, Building2, Zap,
-  ChevronRight, Search, Globe
+  Settings, LogOut, Activity, Bell, TrendingUp, Building2,
+  Search, Globe
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
