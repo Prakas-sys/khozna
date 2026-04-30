@@ -35,9 +35,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
       final data = await Supabase.instance.client
           .from('properties')
           .select('*, profiles:owner_id(full_name, avatar_url, is_verified, kyc_status)')
-          .eq('status', 'available')
+          .inFilter('status', ['available', 'booked', 'pending_approval', 'pending'])
           .order('created_at', ascending: false)
-          .limit(20);
+          .limit(30);
 
       if (mounted) {
         setState(() {
@@ -46,7 +46,24 @@ class _ReelsScreenState extends State<ReelsScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+      debugPrint('ReelsScreen fetch error: $e');
+      // Fallback: fetch without any filter
+      try {
+        final data = await Supabase.instance.client
+            .from('properties')
+            .select('*, profiles:owner_id(full_name, avatar_url, is_verified, kyc_status)')
+            .order('created_at', ascending: false)
+            .limit(30);
+        if (mounted) {
+          setState(() {
+            reels = (data as List).map((p) => Property.fromMap(p)).toList();
+            _isLoading = false;
+          });
+        }
+      } catch (e2) {
+        debugPrint('ReelsScreen fallback error: $e2');
+        if (mounted) setState(() => _isLoading = false);
+      }
     }
   }
 
