@@ -82,12 +82,12 @@ export const PropertyModeration = () => {
         >
           <div>
             <div className="flex items-center gap-4 mb-3">
-              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Property Control</h2>
+              <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight">Property Management</h2>
               <span className="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-full">
-                {properties.length} Inventory Items
+                {properties.length} Total Properties
               </span>
             </div>
-            <p className="text-[#666666] text-sm font-medium">Reviewing global real estate submissions for compliance and data integrity.</p>
+            <p className="text-[#666666] text-sm font-medium">Review and manage property listings submitted by agents.</p>
           </div>
           
           <div className="flex items-center gap-4">
@@ -104,15 +104,16 @@ export const PropertyModeration = () => {
         {loading ? (
           <div className="flex flex-col justify-center items-center py-40 gap-4">
             <Loader2 className="animate-spin text-[#2563EB]" size={32} />
-            <p className="text-[#A1A1A1] text-xs font-bold uppercase tracking-widest">Scanning inventory</p>
+            <p className="text-[#A1A1A1] text-xs font-bold uppercase tracking-widest">Loading properties</p>
+            <p className="text-[#A1A1A1] text-xs font-bold uppercase tracking-widest">Loading</p>
           </div>
         ) : properties.length === 0 ? (
           <div className="text-center py-40 rounded-[2.5rem] bg-white border border-[#E2E8F0] border-dashed">
              <div className="w-20 h-20 rounded-[2rem] bg-blue-50 flex items-center justify-center mx-auto mb-6">
                 <Building2 size={36} className="text-[#2563EB]/40" />
              </div>
-             <h3 className="text-[#0F172A] text-xl font-extrabold mb-2">Inventory Clean</h3>
-             <p className="text-[#64748B] text-sm font-medium">No assets awaiting moderation at this time.</p>
+              <h3 className="text-[#0F172A] text-xl font-extrabold mb-2">No Listings</h3>
+              <p className="text-[#64748B] text-sm font-medium">There are no property listings to display right now.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
