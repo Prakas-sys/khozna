@@ -5,15 +5,26 @@
   --color-brand: #2563EB;
   --color-brand-dark: #1E40AF;
   --color-brand-light: #EFF6FF;
-  --color-surface: #FFFFFF;
+  --color-gold: #D4AF37;
+  
   --color-bg: #FBFBF9;
+  --color-surface: #FFFFFF;
   --color-border: #E8E6E1;
+  
   --color-text-main: #1A1A1A;
   --color-text-soft: #666666;
   --color-text-muted: #A1A1A1;
   
-  --shadow-platinum: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
-  --shadow-hover: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+  /* Pro-Level Shadows */
+  --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 20px 50px -15px rgba(0, 0, 0, 0.06);
+  --shadow-brand: 0 15px 35px -10px rgba(37, 99, 235, 0.2);
+  
+  /* Radii */
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  --radius-3xl: 2.5rem;
 }
 
 @layer base {
@@ -26,50 +37,36 @@
     @apply bg-[#FBFBF9] antialiased text-[#1A1A1A];
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #E8E6E1;
-    border-radius: 10px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #D1D1D1;
-  }
 }
 
 @layer components {
-  .card-platinum {
-    @apply bg-white border border-[#E8E6E1] shadow-[var(--shadow-platinum)] transition-all duration-500 hover:shadow-[var(--shadow-hover)] hover:-translate-y-1;
-  }
-
-  .sidebar-clean {
-    @apply bg-white border-r border-[#E8E6E1];
+  .card-pro {
+    @apply bg-white border border-[#E8E6E1]/60 shadow-[var(--shadow-md)] rounded-[var(--radius-3xl)] transition-all duration-500 hover:shadow-[var(--shadow-lg)] hover:-translate-y-1;
   }
 
   .nav-pill {
-    @apply px-5 py-2 rounded-full text-xs font-bold transition-all duration-300;
+    @apply px-6 py-2.5 rounded-full text-xs font-bold transition-all duration-300 flex items-center gap-2;
   }
   
   .nav-pill-active {
-    @apply bg-[#2563EB] text-white shadow-lg shadow-blue-500/20;
+    @apply bg-[#2563EB] text-white shadow-[var(--shadow-brand)];
   }
   
   .nav-pill-inactive {
     @apply text-[#666666] hover:bg-[#F4F2EE] hover:text-[#1A1A1A];
   }
+
+  .sidebar-icon {
+    @apply w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-300 relative group;
+  }
 }
 
-/* Animations */
-.fade-in {
-  animation: fadeIn 0.6s ease-out forwards;
+/* Khozna Vault Patterns */
+.bg-vault-grid {
+  background-image: radial-gradient(rgba(37, 99, 235, 0.05) 1px, transparent 0);
+  background-size: 32px 32px;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+.glass-header {
+  @apply bg-[#FBFBF9]/80 backdrop-blur-xl border-b border-[#E8E6E1]/40;
 }
