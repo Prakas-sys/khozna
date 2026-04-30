@@ -368,10 +368,10 @@ class PostPropertyCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
+                    'आफ्नो घर वा कोठा भाडामा राख्नुहोस्',
                     style: GoogleFonts.mukta(
                       color: Colors.white.withOpacity(0.9),
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w500,
                       height: 1.2,
                     ),
@@ -416,10 +416,10 @@ class PostPropertyCard extends StatelessWidget {
 
             // House — bleeds off right edge
             Positioned(
-              right: -15,
-              bottom: -15,
-              top: -10,
-              width: 175,
+              right: -75,
+              bottom: -35,
+              top: -30,
+              width: 270,
               child: Image.asset(
                 'assets/images/tiny house.png',
                 fit: BoxFit.contain,
