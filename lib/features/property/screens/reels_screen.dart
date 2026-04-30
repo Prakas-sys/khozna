@@ -32,28 +32,34 @@ class _ReelsScreenState extends State<ReelsScreen> {
 
   Future<void> _fetchReels() async {
     try {
+      debugPrint('ReelsScreen: Starting fetch...');
       final data = await Supabase.instance.client
           .from('properties')
-          .select('*, profiles:owner_id(full_name, avatar_url, is_verified, kyc_status)')
-          .inFilter('status', ['available', 'booked', 'pending_approval', 'pending'])
+          .select('*, profiles:owner_id(full_name, avatar_url, kyc_status)')
           .order('created_at', ascending: false)
           .limit(30);
 
+      debugPrint('ReelsScreen: Fetched ${data.length} items');
+      
       if (mounted) {
         setState(() {
           reels = (data as List).map((p) => Property.fromMap(p)).toList();
           _isLoading = false;
         });
+        debugPrint('ReelsScreen: Mapped ${reels.length} properties');
       }
     } catch (e) {
       debugPrint('ReelsScreen fetch error: $e');
-      // Fallback: fetch without any filter
+      // Fallback: fetch without join to ensure we at least show something
       try {
         final data = await Supabase.instance.client
             .from('properties')
-            .select('*, profiles:owner_id(full_name, avatar_url, is_verified, kyc_status)')
+            .select('*')
             .order('created_at', ascending: false)
             .limit(30);
+        
+        debugPrint('ReelsScreen fallback: Fetched ${data.length} items');
+
         if (mounted) {
           setState(() {
             reels = (data as List).map((p) => Property.fromMap(p)).toList();
