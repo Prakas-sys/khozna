@@ -207,19 +207,19 @@ export const UserManagement = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="mt-12 p-10 bg-[#F8FAFC] border border-[#E2E8F0] rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden"
+          className="mt-12 p-10 bg-[#FBFBF9] border border-[#E8E6E1] rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden"
         >
           <div className="flex items-center gap-6 relative z-10">
-            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border border-[#E2E8F0] shadow-sm">
+            <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border border-[#E8E6E1] shadow-sm">
               <Shield size={32} className="text-[#2563EB]" />
             </div>
             <div>
-              <p className="text-xl font-extrabold text-[#0F172A] tracking-tight mb-1">Security & Data Policy</p>
-              <p className="text-sm text-[#64748B] font-medium max-w-md">Identity deletions are permanent and synchronized across all nodes. Proceed with caution.</p>
+              <p className="text-xl font-extrabold text-[#1A1A1A] tracking-tight mb-1">Security & Data Policy</p>
+              <p className="text-sm text-[#666666] font-medium max-w-md">Identity deletions are permanent and synchronized across all nodes. Proceed with caution.</p>
             </div>
           </div>
 
-          <button className="px-8 py-4 bg-white text-[#0F172A] border border-[#E2E8F0] rounded-2xl font-bold text-xs uppercase tracking-wider hover:bg-[#F8FAFC] transition-all shadow-sm">
+          <button className="px-8 py-4 bg-white text-[#1A1A1A] border border-[#E8E6E1] rounded-2xl font-bold text-xs uppercase tracking-wider hover:bg-[#FBFBF9] transition-all shadow-sm">
              Review Governance
           </button>
         </motion.div>

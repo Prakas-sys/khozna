@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import {
-  XCircle, Trash2, Loader2, Zap, ShieldCheck,
-  Phone, CreditCard, RefreshCcw, ZoomIn, X, ChevronLeft, ChevronRight,
-  Clock, User
+  XCircle, Loader2, ShieldCheck,
+  RefreshCcw, X, ChevronLeft, ChevronRight,
+  User
 } from 'lucide-react';
 
 // ─── Lightbox ────────────────────────────────────────────────────────────────
@@ -120,8 +120,8 @@ const RejectionModal = ({ onConfirm, onCancel }: { onConfirm: (r: string) => voi
             <XCircle size={24} className="text-red-500" />
           </div>
           <div>
-            <h3 className="text-[#0F172A] font-extrabold text-lg tracking-tight">Reject Submission</h3>
-            <p className="text-[#64748B] text-sm font-medium">Select or type a rejection reason</p>
+            <h3 className="text-[#1A1A1A] font-extrabold text-lg tracking-tight">Reject Submission</h3>
+            <p className="text-[#666666] text-sm font-medium">Select or type a rejection reason</p>
           </div>
         </div>
 
@@ -147,7 +147,7 @@ const RejectionModal = ({ onConfirm, onCancel }: { onConfirm: (r: string) => voi
         <div className="flex gap-4">
           <button
             onClick={onCancel}
-            className="flex-1 py-4 rounded-2xl bg-[#F8FAFC] text-[#64748B] text-xs font-bold hover:bg-[#F1F5F9] transition-all"
+            className="flex-1 py-4 rounded-2xl bg-[#FBFBF9] text-[#666666] text-xs font-bold hover:bg-[#F4F2EE] transition-all"
           >
             Cancel
           </button>
@@ -165,7 +165,7 @@ const RejectionModal = ({ onConfirm, onCancel }: { onConfirm: (r: string) => voi
 };
 
 // ─── KYC Card ────────────────────────────────────────────────────────────────
-const KycCard = ({ kyc, onUpdate, onDelete, processingId }: {
+const KycCard = ({ kyc, onUpdate, processingId }: {
   kyc: any;
   onUpdate: (id: string, userId: string, status: 'verified' | 'rejected', reason?: string) => void;
   onDelete: (id: string) => void;
@@ -180,8 +180,6 @@ const KycCard = ({ kyc, onUpdate, onDelete, processingId }: {
     { label: 'Live Selfie', url: kyc.selfie_image_url },
   ].filter(i => !!i.url);
 
-  const isProcessing = processingId === kyc.id;
-
   return (
     <>
       <motion.div
@@ -189,14 +187,54 @@ const KycCard = ({ kyc, onUpdate, onDelete, processingId }: {
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, x: 60, scale: 0.96 }}
-        className="card-platinum rounded-[2.5rem] overflow-hidden p-10"
+        className="card-platinum rounded-[2.5rem] overflow-hidden p-10 bg-white border border-[#E8E6E1]"
       >
-        <div className="flex items-start justify-between mb-10">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-[1.25rem] bg-[#F1F5F9] flex items-center justify-center border border-[#E2E8F0]">
-              <User size={28} className="text-[#2563EB]" />
+            <div className="w-20 h-20 rounded-[2rem] bg-[#F4F2EE] flex items-center justify-center border border-[#E8E6E1]">
+              <User size={32} className="text-[#A1A1A1]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h3 className="text-2xl font-extrabold text-[#1A1A1A] tracking-tight">{kyc.full_name}</h3>
+                <span className="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-full">Manual Review</span>
+              </div>
+              <p className="text-[10px] text-[#A1A1A1] font-bold font-mono uppercase tracking-widest">{kyc.user_id}</p>
             </div>
           </div>
+
+          <div className="flex gap-4">
+            <button 
+              onClick={() => onUpdate(kyc.id, kyc.user_id, 'verified')}
+              disabled={processingId === kyc.id}
+              className="px-8 h-14 bg-[#10B981] text-white font-bold rounded-2xl flex items-center gap-3 shadow-lg shadow-green-500/20 hover:bg-[#059669] transition-all disabled:opacity-50"
+            >
+              {processingId === kyc.id ? <Loader2 size={18} className="animate-spin" /> : <ShieldCheck size={20} />} Approve Access
+            </button>
+            <button 
+              onClick={() => setShowReject(true)}
+              disabled={processingId === kyc.id}
+              className="px-8 h-14 bg-white border border-[#E8E6E1] text-[#666666] font-bold rounded-2xl flex items-center gap-3 hover:bg-[#FBFBF9] transition-all disabled:opacity-50"
+            >
+              <XCircle size={20} className="text-[#EF4444]" /> Flag Submission
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+          {images.map((img, i) => (
+            <div 
+              key={i} 
+              onClick={() => setLightbox({ open: true, idx: i })}
+              className="group relative h-48 rounded-[2rem] overflow-hidden bg-[#F4F2EE] border border-[#E8E6E1] cursor-pointer"
+            >
+              <img src={img.url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={img.label} />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+                <span className="text-white text-[10px] font-bold uppercase tracking-widest bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30">View {img.label}</span>
+              </div>
+              <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-md rounded-lg text-[9px] font-bold uppercase tracking-wider text-[#1A1A1A]">{img.label}</div>
+            </div>
+          ))}
         </div>
       </motion.div>
 
@@ -287,12 +325,12 @@ export const KycReview = () => {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="flex p-1 bg-white border border-[#E2E8F0] rounded-2xl">
+            <div className="flex p-1 bg-white border border-[#E8E6E1] rounded-2xl">
               {(['pending', 'all'] as const).map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${filter === f ? 'bg-[#2563EB] text-white' : 'text-[#64748B] hover:text-[#0F172A]'}`}
+                  className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${filter === f ? 'bg-[#2563EB] text-white' : 'text-[#666666] hover:text-[#1A1A1A]'}`}
                 >
                   {f.charAt(0).toUpperCase() + f.slice(1)}
                 </button>
@@ -300,25 +338,25 @@ export const KycReview = () => {
             </div>
             <button
               onClick={fetchKycs}
-              className="w-11 h-11 rounded-2xl flex items-center justify-center bg-white border border-[#E2E8F0] text-[#64748B] hover:bg-[#F8FAFC] transition-all"
+              className="w-11 h-11 rounded-xl flex items-center justify-center bg-white border border-[#E8E6E1] text-[#666666] hover:bg-[#FBFBF9] transition-all"
             >
-              <RefreshCcw size={18} />
+              <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-40 gap-4">
             <Loader2 className="animate-spin text-[#2563EB]" size={32} />
-            <p className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Fetching records</p>
+            <p className="text-[#A1A1A1] text-xs font-bold uppercase tracking-widest">Fetching records</p>
           </div>
         ) : kycs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-40 rounded-[2.5rem] bg-white border border-[#E2E8F0] border-dashed">
+          <div className="flex flex-col items-center justify-center py-40 rounded-[2.5rem] bg-white border border-[#E8E6E1] border-dashed">
             <div className="w-20 h-20 rounded-[2rem] bg-blue-50 flex items-center justify-center mb-6">
               <ShieldCheck size={40} className="text-[#2563EB]/40" />
             </div>
-            <h3 className="text-[#0F172A] text-xl font-extrabold mb-2">No Pending Tasks</h3>
-            <p className="text-[#64748B] text-sm font-medium">All identification records have been processed.</p>
+            <h3 className="text-[#1A1A1A] text-xl font-extrabold mb-2">No Pending Tasks</h3>
+            <p className="text-[#666666] text-sm font-medium">All identification records have been processed.</p>
           </div>
         ) : (
           <div className="space-y-8">

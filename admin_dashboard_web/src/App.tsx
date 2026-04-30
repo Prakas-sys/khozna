@@ -349,7 +349,7 @@ const App = () => {
 
   return (
     <Router>
-      <div className="flex h-screen bg-[#F8FAFC] font-sans overflow-hidden text-[#0F172A]">
+      <div className="flex h-screen bg-[#FBFBF9] font-sans overflow-hidden text-[#1A1A1A]">
         <Sidebar onLock={() => setIsUnlocked(false)} />
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <Routes>
@@ -361,13 +361,13 @@ const App = () => {
             <Route path="/settings" element={
               <>
                 <Header title="Settings" notificationCount={notificationCount} />
-                <div className="flex-1 flex items-center justify-center bg-[#F8FAFC]">
+                <div className="flex-1 flex items-center justify-center bg-[#FBFBF9]">
                   <div className="text-center max-w-sm">
-                    <div className="w-20 h-20 rounded-[2.5rem] bg-white border border-[#E2E8F0] shadow-sm flex items-center justify-center mx-auto mb-6">
+                    <div className="w-20 h-20 rounded-[2.5rem] bg-white border border-[#E8E6E1] shadow-sm flex items-center justify-center mx-auto mb-6">
                       <Settings size={32} className="text-[#2563EB]" />
                     </div>
-                    <h2 className="text-[#0F172A] text-xl font-extrabold mb-2 tracking-tight">System Configuration</h2>
-                    <p className="text-[#64748B] text-sm font-medium leading-relaxed">Platform settings are being migrated to the new Platinum core architecture.</p>
+                    <h2 className="text-[#1A1A1A] text-xl font-extrabold mb-2 tracking-tight">System Configuration</h2>
+                    <p className="text-[#666666] text-sm font-medium leading-relaxed">Platform settings are being migrated to the new Platinum core architecture.</p>
                   </div>
                 </div>
               </>

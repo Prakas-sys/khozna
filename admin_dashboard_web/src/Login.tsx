@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
-import { Shield, Loader2, ArrowRight, Lock, UserCheck, Smartphone, AlertTriangle } from 'lucide-react';
+import { Shield, Loader2, Lock, UserCheck, Smartphone, AlertTriangle, Globe } from 'lucide-react';
 
 export const Login = ({ onPinSuccess }: { onPinSuccess: () => void }) => {
   const [session, setSession] = useState<any>(null);
@@ -101,48 +101,29 @@ export const Login = ({ onPinSuccess }: { onPinSuccess: () => void }) => {
         <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-blue-400/5 rounded-full blur-[120px]" />
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-xl relative z-10"
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-[480px] bg-white rounded-[3rem] p-12 shadow-2xl border border-[#E8E6E1] relative z-10"
       >
-        <div className="flex flex-col items-center mb-12">
-          <motion.img 
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            src="/logo.png" 
-            alt="Khozna" 
-            className="h-14 mb-8 object-contain" 
-          />
-          <div className="flex items-center gap-4">
-            <div className="h-[1px] w-8 bg-[#E2E8F0]" />
-            <p className="text-[#2563EB] font-bold tracking-[0.3em] text-[10px] uppercase">Nexus Command Center</p>
-            <div className="h-[1px] w-8 bg-[#E2E8F0]" />
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="w-16 h-16 rounded-[1.5rem] bg-[#2563EB] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-500/20">
+            <Shield size={32} className="text-white" />
           </div>
+          <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight mb-2">Khozna Core</h2>
+          <p className="text-[#666666] text-sm font-medium">Administrative Security Gateway</p>
         </div>
 
-      <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-[480px] bg-white rounded-[3rem] p-12 shadow-2xl border border-[#E8E6E1] relative z-10"
-        >
-          {/* Header */}
-          <div className="text-center mb-10">
-            <div className="w-16 h-16 rounded-[1.5rem] bg-[#2563EB] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-500/20">
-              <Shield size={32} className="text-white" />
-            </div>
-            <h2 className="text-3xl font-extrabold text-[#1A1A1A] tracking-tight mb-2">Khozna Core</h2>
-            <p className="text-[#666666] text-sm font-medium">Administrative Security Gateway</p>
-          </div>
-            <AnimatePresence mode="wait">
-              {!session ? (
-                <motion.div 
-                  key="login"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                >
-                  <div className="space-y-4">
+        <AnimatePresence mode="wait">
+          {!session ? (
+            <motion.div
+              key="login"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-4"
+            >
               <button
                 onClick={handleGoogleLogin}
                 disabled={checkingAuth}
@@ -155,7 +136,7 @@ export const Login = ({ onPinSuccess }: { onPinSuccess: () => void }) => {
                   </>
                 )}
               </button>
-              
+
               <div className="grid grid-cols-2 gap-3 mt-8">
                 <div className="p-4 bg-[#FBFBF9] rounded-2xl border border-[#E8E6E1]">
                   <UserCheck size={18} className="text-[#2563EB] mb-2" />
@@ -168,40 +149,65 @@ export const Login = ({ onPinSuccess }: { onPinSuccess: () => void }) => {
                   <p className="text-[9px] text-[#A1A1A1] font-medium leading-tight mt-1">Multi-factor Master PIN validation required.</p>
                 </div>
               </div>
-            </div>
-                </motion.div>
-              ) : (
-                <motion.div 
-                  key="pin"
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex flex-col"
-                >
-                  <div className="text-center mb-10 space-y-2">
-                    <h2 className="text-2xl font-extrabold text-[#0F172A] tracking-tight uppercase">MFA Authorization</h2>
-                    <p className="text-[#64748B] font-medium text-xs flex items-center justify-center gap-2">
-                      <Smartphone size={14} className="text-[#2563EB]" /> Secure PIN Verification Required
-                    </p>
-                  </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="pin"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              className="flex flex-col"
+            >
+              <div className="text-center mb-10 space-y-2">
+                <h2 className="text-2xl font-extrabold text-[#1A1A1A] tracking-tight uppercase">MFA Authorization</h2>
+                <p className="text-[#666666] font-medium text-xs flex items-center justify-center gap-2">
+                  <Smartphone size={14} className="text-[#2563EB]" /> Secure PIN Verification Required
+                </p>
+              </div>
 
-                    className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-[0.25em] hover:text-[#0F172A] transition-all py-3 px-6 rounded-xl"
-                  >
-                    Terminate Session
-                  </button>
+              <div className="flex justify-between gap-3 mb-10">
+                {pin.map((digit, i) => (
+                  <input
+                    key={i}
+                    id={`pin-${i}`}
+                    type="password"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handlePinChange(i, e.target.value)}
+                    className={`w-full aspect-square text-center text-xl font-bold rounded-2xl border-2 transition-all outline-none focus:ring-4 focus:ring-blue-500/10 ${
+                      pinError ? 'border-red-400 bg-red-50' : 'border-[#E8E6E1] bg-[#FBFBF9] focus:border-[#2563EB] text-[#1A1A1A]'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {pinError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center justify-center gap-2 text-red-500 text-xs font-bold mb-6"
+                >
+                  <AlertTriangle size={14} /> Master PIN Mismatch
                 </motion.div>
               )}
-            </AnimatePresence>
-          </div>
-          
-          <div className="bg-[#F8FAFC] border-t border-[#E2E8F0] p-8 text-center">
-            <p className="text-[9px] text-[#94A3B8] font-bold tracking-[0.3em] uppercase leading-relaxed">
-              System Core: Khozna-v6.0.0-Platinum <br /> 
-              Restricted Administrative Domain
-            </p>
-          </div>
-        </div>
+
+              <div className="pt-6 border-t border-[#F4F2EE] flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full overflow-hidden border border-[#E8E6E1]">
+                    <img src={session.user?.user_metadata?.avatar_url} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-[#A1A1A1] uppercase tracking-wider">Session Identified</p>
+                    <p className="text-xs font-bold text-[#1A1A1A]">{session.user?.email}</p>
+                  </div>
+                </div>
+                <button onClick={handleSignOut} className="text-[10px] font-extrabold text-[#EF4444] uppercase tracking-widest hover:underline">Switch</button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
-      
+
       <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }

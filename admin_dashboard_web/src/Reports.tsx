@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
-import { ShieldAlert, Loader2, RefreshCcw, User, Clock, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { ShieldAlert, Loader2, RefreshCcw, User, Clock, ShieldCheck } from 'lucide-react';
 
 export const Reports = () => {
   const [reports, setReports] = useState<any[]>([]);
@@ -120,11 +120,12 @@ export const Reports = () => {
                       <div className="flex items-center gap-2 text-[#A1A1A1] font-bold text-[10px] uppercase tracking-wider">
                         <User size={12} /> Reported by <span className="text-[#1A1A1A]">{report.reporter?.full_name}</span>
                       </div>
+                    </div>
                     
                     <button 
                       onClick={() => handleDelete(report.id)}
                       disabled={processingId === report.id}
-                      className="h-11 px-6 bg-white border border-[#E2E8F0] text-[#64748B] font-bold rounded-2xl hover:bg-green-50 hover:text-green-600 hover:border-green-100 transition-all disabled:opacity-50 active:scale-95 text-xs shadow-sm"
+                      className="h-11 px-6 bg-white border border-[#E8E6E1] text-[#666666] font-bold rounded-xl hover:bg-[#FBFBF9] transition-all disabled:opacity-50 active:scale-95 text-xs"
                     >
                       {processingId === report.id ? <Loader2 size={16} className="animate-spin" /> : 'Dismiss Case'}
                     </button>
