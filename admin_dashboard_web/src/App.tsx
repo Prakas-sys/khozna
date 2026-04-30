@@ -69,8 +69,11 @@ const Header = () => {
   const location = useLocation();
   const getSubNavLinks = (): { name: string; path: string; icon?: React.ReactNode }[] => {
     switch (location.pathname) {
-      case '/': return [{ name: 'Dashboard Overview', path: '/', icon: <LayoutDashboard size={14} /> }, { name: 'Platform Insights', path: '/perf', icon: <TrendingUp size={14} /> }];
-      case '/kyc': return [{ name: 'KYC Queue', path: '/kyc' }, { name: 'Approved', path: '/approved' }];
+      case '/': return [{ name: 'Dashboard Overview', path: '/', icon: <LayoutDashboard size={14} /> }];
+      case '/kyc': return [{ name: 'Verification Queue', path: '/kyc' }];
+      case '/properties': return [{ name: 'Property Management', path: '/properties' }];
+      case '/users': return [{ name: 'User Directory', path: '/users' }];
+      case '/reports': return [{ name: 'Safety Center', path: '/reports' }];
       default: return [{ name: 'Management Console', path: location.pathname }];
     }
   };
