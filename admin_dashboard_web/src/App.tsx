@@ -125,23 +125,46 @@ const Header = () => {
 // ─── Enterprise Dashboard Home ───────────────────────────────────────────────────
 const DashboardHome = () => {
   const [stats, setStats] = useState({ users: 0, kyc: 0, properties: 0, reports: 0 });
+  const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [u, k, p, r] = await Promise.all([
+        const [u, k, p, r, latestP, latestK] = await Promise.all([
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('kyc_verifications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
           supabase.from('properties').select('*', { count: 'exact', head: true }),
           supabase.from('user_reports').select('*', { count: 'exact', head: true }),
+          supabase.from('properties').select('*').order('created_at', { ascending: false }).limit(2),
+          supabase.from('kyc_verifications').select('*').order('updated_at', { ascending: false }).limit(2),
         ]);
+        
         setStats({ 
           users: u.count || 0, 
           kyc: k.count || 0, 
           properties: p.count || 0,
           reports: r.count || 0
         });
+
+        const combined = [
+          ...(latestP.data || []).map(item => ({ 
+            user: 'Agent', 
+            action: `New Property: ${item.title || 'Untitled'}`, 
+            time: new Date(item.created_at).toLocaleDateString(), 
+            type: 'Property', 
+            color: 'text-blue-500' 
+          })),
+          ...(latestK.data || []).map(item => ({ 
+            user: 'System', 
+            action: `KYC Status: ${item.status}`, 
+            time: new Date(item.updated_at).toLocaleDateString(), 
+            type: 'KYC', 
+            color: 'text-green-500' 
+          }))
+        ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 5);
+
+        setActivities(combined);
       } catch (e) {
         console.error("Stats fetch failed:", e);
       } finally {
@@ -210,26 +233,28 @@ const DashboardHome = () => {
               <Link to="/properties" className="px-5 py-2.5 bg-white border border-[#E8E6E1] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#FBFBF9] transition-all">View All</Link>
             </div>
             <div className="space-y-2">
-              {[
-                { user: 'Prakash', action: 'Approved 4 New Properties', time: '2m ago', type: 'Property', color: 'text-blue-500' },
-                { user: 'System', action: 'KYC Verification Completed for Sunil K.', time: '15m ago', type: 'KYC', color: 'text-green-500' },
-                { user: 'Safety', action: 'Flagged Report in Bagmati District', time: '1h ago', type: 'Safety', color: 'text-red-500' },
-              ].map((log, i) => (
-                <div key={i} className="flex items-center justify-between p-5 rounded-2xl hover:bg-[#FBFBF9] transition-all border border-transparent hover:border-[#E8E6E1]/40 group">
-                  <div className="flex items-center gap-5">
-                    <div className="w-10 h-10 rounded-xl bg-[#F4F2EE] flex items-center justify-center text-[#1A1A1A]">
-                      {log.type === 'Property' ? <Building2 size={18} /> : log.type === 'KYC' ? <UserCheck size={18} /> : <ShieldAlert size={18} />}
+              {activities.length > 0 ? (
+                activities.map((log, i) => (
+                  <div key={i} className="flex items-center justify-between p-5 rounded-2xl hover:bg-[#FBFBF9] transition-all border border-transparent hover:border-[#E8E6E1]/40 group">
+                    <div className="flex items-center gap-5">
+                      <div className="w-10 h-10 rounded-xl bg-[#F4F2EE] flex items-center justify-center text-[#1A1A1A]">
+                        {log.type === 'Property' ? <Building2 size={18} /> : log.type === 'KYC' ? <UserCheck size={18} /> : <ShieldAlert size={18} />}
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-[#1A1A1A] mb-1">{log.action}</p>
+                        <p className="text-[10px] font-bold text-[#A1A1A1] uppercase tracking-widest">{log.user} · {log.time}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs font-black text-[#1A1A1A] mb-1">{log.action}</p>
-                      <p className="text-[10px] font-bold text-[#A1A1A1] uppercase tracking-widest">{log.user} · {log.time}</p>
+                    <div className={`text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full bg-[#F4F2EE] ${log.color}`}>
+                      {log.type}
                     </div>
                   </div>
-                  <div className={`text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full bg-[#F4F2EE] ${log.color}`}>
-                    {log.type}
-                  </div>
+                ))
+              ) : (
+                <div className="py-20 text-center">
+                   <p className="text-[#A1A1A1] text-[10px] font-black uppercase tracking-widest">No recent activity detected</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
