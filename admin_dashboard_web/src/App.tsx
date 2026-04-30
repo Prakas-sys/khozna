@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UserCheck, ShieldAlert, CheckSquare,
-  Settings, LogOut, Loader2, Activity, Bell, TrendingUp, Building2, Zap
+  Settings, LogOut, Loader2, Activity, Bell, TrendingUp, Building2, Zap,
+  ChevronRight, Search, Globe
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
@@ -18,90 +19,60 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
   const isActive = (path: string) => location.pathname === path;
 
   const links = [
-    { name: 'Command Center', path: '/', icon: <LayoutDashboard size={16} /> },
-    { name: 'KYC Verification', path: '/kyc', icon: <UserCheck size={16} /> },
-    { name: 'Properties', path: '/properties', icon: <Building2 size={16} /> },
-    { name: 'Users', path: '/users', icon: <Users size={16} /> },
-    { name: 'Reports', path: '/reports', icon: <ShieldAlert size={16} /> },
-    { name: 'Settings', path: '/settings', icon: <Settings size={16} /> },
+    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={18} /> },
+    { name: 'KYC Review', path: '/kyc', icon: <UserCheck size={18} /> },
+    { name: 'Properties', path: '/properties', icon: <Building2 size={18} /> },
+    { name: 'User Directory', path: '/users', icon: <Users size={18} /> },
+    { name: 'Reports', path: '/reports', icon: <ShieldAlert size={18} /> },
+    { name: 'Settings', path: '/settings', icon: <Settings size={18} /> },
   ];
 
   return (
-    <div className="w-64 h-full sidebar-gradient flex flex-col justify-between relative overflow-hidden flex-shrink-0">
-      {/* Subtle noise texture */}
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNjUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsdGVyPSJ1cmwoI25vaXNlKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==')]" />
-
-      <div className="relative z-10 flex flex-col h-full p-6">
+    <div className="w-72 h-full sidebar-clean flex flex-col justify-between flex-shrink-0 z-30">
+      <div className="flex flex-col h-full py-8 px-6">
         {/* Logo */}
-        <div className="flex items-center gap-3 mb-10 px-2">
-          <div className="w-8 h-8 rounded-xl bg-[#00A3E1] flex items-center justify-center shadow-lg shadow-[#00A3E1]/30 flex-shrink-0">
-            <img src="/logo.png" alt="K" className="h-5 object-contain brightness-0 invert" onError={e => (e.currentTarget.style.display = 'none')} />
+        <div className="flex items-center gap-3 mb-12 px-2">
+          <div className="w-10 h-10 rounded-2xl bg-[#2563EB] flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <Globe size={20} className="text-white" />
           </div>
           <div>
-            <p className="text-white font-black text-sm tracking-tight">Khozna</p>
-            <p className="text-white/25 text-[10px] font-bold uppercase tracking-[0.2em]">Admin Core</p>
+            <p className="text-[#0F172A] font-bold text-lg tracking-tight">Khozna</p>
+            <p className="text-[#64748B] text-[10px] font-bold uppercase tracking-[0.1em]">Admin Core</p>
           </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex flex-col gap-0.5 flex-1">
-          <p className="text-[10px] font-black text-white/15 uppercase tracking-[0.25em] mb-3 px-3">Navigation</p>
+        <nav className="flex flex-col gap-1.5 flex-1">
+          <p className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-[0.15em] mb-4 px-3">Main Menu</p>
           {links.map(link => (
             <Link key={link.name} to={link.path} className="relative group">
-              {isActive(link.path) && (
-                <motion.div
-                  layoutId="activeNav"
-                  className="absolute inset-0 bg-[#00A3E1]/10 border border-[#00A3E1]/20 rounded-xl"
-                  transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
-                />
-              )}
-              <div className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm font-semibold ${
+              <div className={`relative flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 text-sm font-semibold ${
                 isActive(link.path)
-                  ? 'text-white'
-                  : 'text-white/30 hover:text-white/70 hover:bg-white/[0.04]'
+                  ? 'bg-[#2563EB]/5 text-[#2563EB]'
+                  : 'text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]'
               }`}>
-                <span className={isActive(link.path) ? 'text-[#00A3E1]' : ''}>{link.icon}</span>
+                <span className={isActive(link.path) ? 'text-[#2563EB]' : 'text-[#94A3B8] group-hover:text-[#64748B]'}>
+                  {link.icon}
+                </span>
                 <span>{link.name}</span>
                 {isActive(link.path) && (
-                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#00A3E1] pulse-brand" />
+                  <motion.div
+                    layoutId="activeIndicator"
+                    className="ml-auto w-1.5 h-1.5 rounded-full bg-[#2563EB]"
+                  />
                 )}
               </div>
             </Link>
           ))}
         </nav>
 
-        {/* Bottom */}
-        <div className="space-y-4">
-          {/* System status */}
-          <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[10px] font-black text-white/20 uppercase tracking-widest">System</p>
-              <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                <span className="text-[10px] font-black text-green-400">Online</span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-[10px]">
-                <span className="text-white/20 font-semibold">Uptime</span>
-                <span className="text-white/40 font-black">99.9%</span>
-              </div>
-              <div className="h-1 bg-white/[0.05] rounded-full overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: '99%' }}
-                  transition={{ duration: 1.5, delay: 0.5 }}
-                  className="h-full bg-gradient-to-r from-[#00A3E1] to-[#0079B1] rounded-full"
-                />
-              </div>
-            </div>
-          </div>
-
+        {/* Bottom Section */}
+        <div className="pt-6 border-t border-[#F1F5F9]">
           <button
             onClick={onLock}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400/40 hover:text-red-400 hover:bg-red-500/[0.06] font-bold transition-all text-xs group border border-transparent hover:border-red-500/10"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[#EF4444] hover:bg-[#FEF2F2] font-bold transition-all text-sm group"
           >
-            <LogOut size={15} className="opacity-60 group-hover:opacity-100" />
+            <LogOut size={18} className="opacity-70 group-hover:opacity-100" />
             Sign Out
           </button>
         </div>
@@ -115,89 +86,80 @@ const Header = ({ title, notificationCount }: { title: string; notificationCount
   const [showNotif, setShowNotif] = useState(false);
 
   return (
-    <header className="h-16 px-8 flex items-center justify-between border-b border-white/[0.05] bg-[#0C0E14]/80 backdrop-blur-2xl z-20 sticky top-0 flex-shrink-0">
-      <div>
-        <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mb-0.5">Admin Dashboard</p>
-        <h1 className="text-base font-black text-white tracking-tight">{title}</h1>
+    <header className="h-20 px-10 flex items-center justify-between bg-white/80 backdrop-blur-md z-20 sticky top-0 border-b border-[#F1F5F9] flex-shrink-0">
+      <div className="flex items-center gap-4">
+        <h1 className="text-xl font-bold text-[#0F172A] tracking-tight">{title}</h1>
       </div>
 
-      <div className="flex items-center gap-3">
-        {/* Activity */}
-        <button className="w-9 h-9 rounded-xl flex items-center justify-center text-white/25 hover:text-white/70 hover:bg-white/[0.05] transition-all">
-          <Activity size={16} />
-        </button>
+      <div className="flex items-center gap-4">
+        {/* Search */}
+        <div className="relative group hidden md:block">
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8] group-focus-within:text-[#2563EB] transition-colors" />
+          <input
+            type="text"
+            placeholder="Search anything..."
+            className="w-64 bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl pl-11 pr-4 py-2.5 text-sm outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/5 transition-all"
+          />
+        </div>
+
+        <div className="w-px h-8 bg-[#F1F5F9]" />
 
         {/* Notifications */}
         <div className="relative">
           <button
             onClick={() => setShowNotif(!showNotif)}
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-white/25 hover:text-white/70 hover:bg-white/[0.05] transition-all relative"
+            className="w-11 h-11 rounded-2xl flex items-center justify-center text-[#64748B] hover:bg-[#F1F5F9] transition-all relative border border-[#E2E8F0]"
           >
-            <Bell size={16} />
+            <Bell size={18} />
             {notificationCount > 0 && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#00A3E1] text-white text-[9px] font-black rounded-full flex items-center justify-center shadow-lg shadow-[#00A3E1]/40"
-              >
-                {notificationCount}
-              </motion.span>
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#EF4444] rounded-full border-2 border-white" />
             )}
           </button>
 
           <AnimatePresence>
             {showNotif && (
               <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                className="absolute right-0 top-12 w-72 glass-pro rounded-2xl p-5 shadow-2xl shadow-black/40 z-50 border border-white/[0.06]"
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute right-0 top-14 w-80 bg-white rounded-3xl p-6 shadow-2xl shadow-black/5 z-50 border border-[#E2E8F0]"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-xs font-black text-white uppercase tracking-widest">Alerts</h4>
-                  {notificationCount > 0 && (
-                    <span className="px-2 py-0.5 bg-[#00A3E1]/10 text-[#00A3E1] text-[9px] font-black rounded-full uppercase">
-                      {notificationCount} Active
-                    </span>
-                  )}
+                  <h4 className="text-sm font-bold text-[#0F172A]">Notifications</h4>
+                  <span className="text-[10px] font-bold text-[#2563EB] uppercase tracking-wider">{notificationCount} New</span>
                 </div>
                 {notificationCount === 0 ? (
-                  <p className="text-white/25 text-xs text-center py-4 font-medium">All clear. No pending alerts.</p>
+                  <p className="text-[#94A3B8] text-xs text-center py-8">No new notifications</p>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Link
                       to="/kyc"
                       onClick={() => setShowNotif(false)}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] transition-all"
+                      className="flex items-center gap-4 p-3 rounded-2xl hover:bg-[#F8FAFC] transition-all border border-transparent hover:border-[#F1F5F9]"
                     >
-                      <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                        <UserCheck size={13} className="text-amber-400" />
+                      <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                        <UserCheck size={18} className="text-amber-500" />
                       </div>
-                      <div>
-                        <p className="text-white/70 text-xs font-bold">KYC Reviews Pending</p>
-                        <p className="text-white/25 text-[10px] font-semibold">Awaiting authorization</p>
+                      <div className="flex-1">
+                        <p className="text-[#0F172A] text-xs font-bold">Pending KYC Review</p>
+                        <p className="text-[#94A3B8] text-[10px]">Verify new platform members</p>
                       </div>
                     </Link>
                   </div>
                 )}
-                <button onClick={() => setShowNotif(false)} className="w-full mt-4 py-2.5 bg-white/[0.04] text-white/30 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/[0.08] transition-all">
-                  Dismiss
-                </button>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        <div className="w-px h-6 bg-white/[0.06]" />
-
         {/* Profile */}
-        <div className="flex items-center gap-3 px-3 py-1.5 rounded-xl hover:bg-white/[0.04] transition-all cursor-pointer">
-          <div className="w-8 h-8 rounded-xl overflow-hidden border border-white/10">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=KhoznaAdmin" className="w-full h-full object-cover" alt="Admin" />
+        <div className="flex items-center gap-3 pl-4 border-l border-[#F1F5F9]">
+          <div className="w-10 h-10 rounded-2xl overflow-hidden bg-[#F1F5F9] border border-[#E2E8F0]">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin" className="w-full h-full object-cover" alt="Admin" />
           </div>
-          <div>
-            <p className="text-white text-xs font-black">Master Ops</p>
-            <p className="text-white/25 text-[10px] font-semibold">Administrator</p>
+          <div className="hidden lg:block">
+            <p className="text-[#0F172A] text-sm font-bold">Master Ops</p>
+            <p className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-wider">Super Admin</p>
           </div>
         </div>
       </div>
@@ -229,168 +191,129 @@ const DashboardHome = () => {
 
   const statCards = [
     {
-      title: 'KYC Pending', value: stats.kyc, label: 'Awaiting review', icon: <UserCheck size={20} />,
-      color: 'text-amber-400', bg: 'bg-amber-500/5', border: 'border-amber-500/10', path: '/kyc',
-      badge: stats.kyc > 0 ? 'Action Required' : null, badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+      title: 'KYC Reviews', value: stats.kyc, label: 'Pending approval', icon: <UserCheck size={24} />,
+      color: 'text-amber-600', bg: 'bg-amber-50', path: '/kyc', trend: '+12%'
     },
     {
-      title: 'Total Listings', value: stats.properties, label: 'Active properties', icon: <Building2 size={20} />,
-      color: 'text-[#00A3E1]', bg: 'bg-[#00A3E1]/5', border: 'border-[#00A3E1]/10', path: '/properties',
-      badge: null, badgeColor: '',
+      title: 'Properties', value: stats.properties, label: 'Active listings', icon: <Building2 size={24} />,
+      color: 'text-blue-600', bg: 'bg-blue-50', path: '/properties', trend: '+5%'
     },
     {
-      title: 'Registered Users', value: stats.users, label: 'Platform members', icon: <Users size={20} />,
-      color: 'text-indigo-400', bg: 'bg-indigo-500/5', border: 'border-indigo-500/10', path: '/users',
-      badge: null, badgeColor: '',
+      title: 'Total Users', value: stats.users, label: 'Registered members', icon: <Users size={24} />,
+      color: 'text-indigo-600', bg: 'bg-indigo-50', path: '/users', trend: '+18%'
     },
     {
-      title: 'Active Bookings', value: stats.bookings, label: 'Booked properties', icon: <CheckSquare size={20} />,
-      color: 'text-emerald-400', bg: 'bg-emerald-500/5', border: 'border-emerald-500/10', path: '/reports',
-      badge: null, badgeColor: '',
+      title: 'Bookings', value: stats.bookings, label: 'Completed stays', icon: <CheckSquare size={24} />,
+      color: 'text-emerald-600', bg: 'bg-emerald-50', path: '/reports', trend: '+2%'
     },
-  ];
-
-  const events = [
-    { action: 'KYC Validated', user: 'AI Autopilot', time: '2m ago', dot: 'bg-green-400' },
-    { action: 'New property listed', user: 'System', time: '18m ago', dot: 'bg-[#00A3E1]' },
-    { action: 'Auth protocols updated', user: 'Master Ops', time: '1h ago', dot: 'bg-amber-400' },
-    { action: 'Report flagged #1022', user: 'Operator', time: '3h ago', dot: 'bg-red-400' },
-    { action: 'Database sync complete', user: 'System', time: '5h ago', dot: 'bg-white/20' },
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#0C0E14]">
-      <div className="max-w-[1400px] mx-auto px-8 py-10">
-
-        {/* Hero card */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative rounded-3xl overflow-hidden bg-[#14161E] border border-white/[0.06] p-10 mb-8 shadow-2xl shadow-black/40"
-        >
-          {/* Background glow */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#00A3E1]/8 rounded-full -mr-48 -mt-48 blur-[80px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/5 rounded-full -ml-32 -mb-32 blur-[60px] pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="px-3 py-1 rounded-full bg-[#00A3E1]/10 border border-[#00A3E1]/20 text-[#00A3E1] text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5">
-                  <Zap size={10} fill="currentColor" />
-                  Live System
-                </div>
-                <span className="text-white/20 text-[11px] font-semibold">
-                  {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                </span>
-              </div>
-              <h2 className="text-4xl font-black text-white tracking-tight leading-[1.1] mb-3">
-                Command <span className="text-[#00A3E1]">Center</span>
-              </h2>
-              <p className="text-white/30 text-sm font-medium max-w-md leading-relaxed">
-                Real-time oversight of identity verification, property listings, and user management across the Khozna platform.
-              </p>
+    <div className="flex-1 overflow-y-auto bg-[#F8FAFC]">
+      <div className="max-w-[1600px] mx-auto px-10 py-12">
+        
+        {/* Welcome Header */}
+        <div className="mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse" />
+              <p className="text-[10px] font-bold text-[#2563EB] uppercase tracking-[0.2em]">Platform Overview</p>
             </div>
+            <h2 className="text-3xl font-extrabold text-[#0F172A] tracking-tight">Good morning, <span className="text-[#2563EB]">Master Ops!</span></h2>
+            <p className="text-[#64748B] text-sm font-medium mt-1">Here's what's happening with Khozna today.</p>
+          </motion.div>
+        </div>
 
-            {loading ? (
-              <Loader2 className="animate-spin text-white/20 flex-shrink-0" size={24} />
-            ) : (
-              <div className="flex items-center gap-6 flex-shrink-0">
-                <div className="text-right">
-                  <p className="text-4xl font-black text-white">{stats.users}</p>
-                  <p className="text-white/30 text-xs font-bold uppercase tracking-wider mt-1">Total Users</p>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {statCards.map((s, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+            >
+              <Link to={s.path} className="card-platinum group block p-8 rounded-3xl h-full">
+                <div className="flex items-start justify-between mb-6">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${s.bg} ${s.color}`}>
+                    {s.icon}
+                  </div>
+                  <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#F8FAFC] text-[10px] font-bold text-[#10B981]">
+                    <TrendingUp size={12} />
+                    {s.trend}
+                  </div>
                 </div>
-                <div className="w-px h-12 bg-white/[0.06]" />
-                <div className="text-right">
-                  <p className="text-4xl font-black text-white">{stats.properties}</p>
-                  <p className="text-white/30 text-xs font-bold uppercase tracking-wider mt-1">Properties</p>
+                <div>
+                  <p className="text-4xl font-extrabold text-[#0F172A] mb-1">
+                    {loading ? '—' : s.value}
+                  </p>
+                  <p className="text-[#64748B] text-sm font-bold">{s.title}</p>
+                  <p className="text-[#94A3B8] text-xs mt-1">{s.label}</p>
                 </div>
-              </div>
-            )}
-          </div>
-        </motion.div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
 
-        {/* Main grid */}
+        {/* Secondary Grid */}
         <div className="grid grid-cols-12 gap-6">
-          {/* Stat cards */}
-          <div className="col-span-12 lg:col-span-8 space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-[11px] font-black text-white/30 uppercase tracking-[0.25em] flex items-center gap-3">
-                <TrendingUp size={12} className="text-[#00A3E1]" />
-                Platform Metrics
-              </h3>
-              {loading && <Loader2 className="animate-spin text-[#00A3E1]/40" size={14} strokeWidth={3} />}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {statCards.map((s, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08 }}
-                >
-                  <Link
-                    to={s.path}
-                    className={`block p-6 rounded-2xl border ${s.border} ${s.bg} hover:scale-[1.02] active:scale-[0.99] transition-all group relative overflow-hidden`}
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.bg} border ${s.border} ${s.color}`}>
-                        {s.icon}
-                      </div>
-                      {s.badge && (
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${s.badgeColor}`}>
-                          {s.badge}
-                        </span>
-                      )}
-                    </div>
-                    <p className={`text-3xl font-black ${s.color} mb-1`}>
-                      {loading ? '—' : s.value}
-                    </p>
-                    <p className="text-white/50 text-xs font-black uppercase tracking-wider">{s.title}</p>
-                    <p className="text-white/20 text-[10px] font-semibold mt-0.5">{s.label}</p>
-                  </Link>
-                </motion.div>
-              ))}
+          {/* Main Chart Area (Placeholder) */}
+          <div className="col-span-12 lg:col-span-8">
+            <div className="card-platinum p-8 rounded-3xl h-[400px] flex flex-col">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h3 className="text-lg font-bold text-[#0F172A]">Listing Performance</h3>
+                  <p className="text-[#64748B] text-xs">Total views and bookings over time</p>
+                </div>
+                <div className="flex gap-2">
+                  <button className="px-4 py-2 text-xs font-bold text-[#2563EB] bg-[#2563EB]/5 rounded-xl">Weekly</button>
+                  <button className="px-4 py-2 text-xs font-bold text-[#64748B] hover:bg-[#F8FAFC] rounded-xl transition-all">Monthly</button>
+                </div>
+              </div>
+              <div className="flex-1 bg-[#F8FAFC] rounded-2xl border border-dashed border-[#E2E8F0] flex items-center justify-center">
+                <div className="text-center">
+                  <Activity size={32} className="text-[#CBD5E1] mx-auto mb-3" />
+                  <p className="text-[#94A3B8] text-sm font-medium">Activity data visualization coming soon</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Activity feed */}
+          {/* Activity Feed */}
           <div className="col-span-12 lg:col-span-4">
-            <div className="h-full rounded-2xl bg-[#14161E] border border-white/[0.05] p-6 flex flex-col">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-[11px] font-black text-white/30 uppercase tracking-[0.25em] flex items-center gap-2">
-                  <Activity size={12} className="text-[#00A3E1]" />
-                  Activity Feed
-                </h3>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-[10px] font-black text-green-400">Live</span>
-                </div>
+            <div className="card-platinum p-8 rounded-3xl h-full">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-lg font-bold text-[#0F172A]">Recent Activity</h3>
+                <span className="text-[10px] font-bold text-[#2563EB] uppercase tracking-wider">Live Stream</span>
               </div>
-
-              <div className="flex-1 space-y-5">
-                {events.map((e, i) => (
-                  <div key={i} className="flex gap-3">
-                    <div className="relative flex-shrink-0 mt-1">
-                      <div className={`w-2 h-2 rounded-full ${e.dot}`} />
-                      {i < events.length - 1 && (
-                        <div className="absolute top-3 left-[3px] w-[1px] h-8 bg-white/[0.05]" />
-                      )}
+              <div className="space-y-6">
+                {[
+                  { user: 'AI Autopilot', action: 'KYC Validated', time: '2m ago', color: 'bg-green-500' },
+                  { user: 'System', action: 'New property listed', time: '18m ago', color: 'bg-[#2563EB]' },
+                  { user: 'Master Ops', action: 'Settings modified', time: '1h ago', color: 'bg-amber-500' },
+                  { user: 'Operator', action: 'Report flagged #1022', time: '3h ago', color: 'bg-red-500' },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex gap-5 group cursor-pointer relative">
+                    <div className="relative flex flex-col items-center">
+                      <div className={`w-2.5 h-2.5 rounded-full ${item.color} z-10`} />
+                      {idx < 3 && <div className="absolute top-2.5 w-[1px] h-[calc(100%+1.5rem)] bg-[#E2E8F0]" />}
                     </div>
-                    <div>
-                      <p className="text-white/60 text-xs font-semibold">{e.action}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] font-black text-white/20 uppercase tracking-wider">{e.user}</span>
-                        <span className="text-white/10 text-[10px]">·</span>
-                        <span className="text-[10px] text-white/15 font-medium">{e.time}</span>
+                    <div className="flex-1 pb-1">
+                      <p className="text-sm font-bold text-[#0F172A] group-hover:text-[#2563EB] transition-colors leading-none mb-1.5">{item.action}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider">{item.user}</span>
+                        <span className="w-1 h-1 rounded-full bg-[#E2E8F0]" />
+                        <span className="text-[10px] font-medium text-[#94A3B8]">{item.time}</span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-
-              <button className="w-full mt-6 py-3 rounded-xl bg-white/[0.03] border border-white/[0.05] text-white/25 text-[10px] font-black uppercase tracking-widest hover:bg-white/[0.06] hover:text-white/50 transition-all">
-                View All Events
+              <button className="w-full mt-8 py-3 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] text-[#64748B] text-xs font-bold hover:bg-[#F1F5F9] transition-all">
+                View All Activity
               </button>
             </div>
           </div>
@@ -426,25 +349,25 @@ const App = () => {
 
   return (
     <Router>
-      <div className="flex h-screen bg-[#0C0E14] font-sans overflow-hidden">
+      <div className="flex h-screen bg-[#F8FAFC] font-sans overflow-hidden text-[#0F172A]">
         <Sidebar onLock={() => setIsUnlocked(false)} />
         <div className="flex-1 flex flex-col h-screen overflow-hidden">
           <Routes>
-            <Route path="/" element={<><Header title="Command Center" notificationCount={notificationCount} /><DashboardHome /></>} />
+            <Route path="/" element={<><Header title="Dashboard" notificationCount={notificationCount} /><DashboardHome /></>} />
             <Route path="/kyc" element={<><Header title="KYC Verification" notificationCount={notificationCount} /><KycReview /></>} />
             <Route path="/properties" element={<><Header title="Property Moderation" notificationCount={notificationCount} /><PropertyModeration /></>} />
-            <Route path="/users" element={<><Header title="User Management" notificationCount={notificationCount} /><UserManagement /></>} />
-            <Route path="/reports" element={<><Header title="Community Reports" notificationCount={notificationCount} /><Reports /></>} />
+            <Route path="/users" element={<><Header title="User Directory" notificationCount={notificationCount} /><UserManagement /></>} />
+            <Route path="/reports" element={<><Header title="Community Safety" notificationCount={notificationCount} /><Reports /></>} />
             <Route path="/settings" element={
               <>
-                <Header title="Platform Settings" notificationCount={notificationCount} />
-                <div className="flex-1 flex items-center justify-center bg-[#0C0E14]">
-                  <div className="text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center mx-auto mb-4">
-                      <Settings size={28} className="text-white/20" />
+                <Header title="Settings" notificationCount={notificationCount} />
+                <div className="flex-1 flex items-center justify-center bg-[#F8FAFC]">
+                  <div className="text-center max-w-sm">
+                    <div className="w-20 h-20 rounded-[2.5rem] bg-white border border-[#E2E8F0] shadow-sm flex items-center justify-center mx-auto mb-6">
+                      <Settings size={32} className="text-[#2563EB]" />
                     </div>
-                    <h2 className="text-white text-lg font-black mb-2">Settings</h2>
-                    <p className="text-white/25 text-sm font-medium">Coming soon</p>
+                    <h2 className="text-[#0F172A] text-xl font-extrabold mb-2 tracking-tight">System Configuration</h2>
+                    <p className="text-[#64748B] text-sm font-medium leading-relaxed">Platform settings are being migrated to the new Platinum core architecture.</p>
                   </div>
                 </div>
               </>
