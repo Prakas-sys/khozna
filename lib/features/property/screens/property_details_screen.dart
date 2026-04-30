@@ -154,23 +154,24 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       expandedHeight: 380,
       backgroundColor: Colors.white,
       pinned: true,
-      automaticallyImplyLeading: false,
-      leading: Center(
+      leadingWidth: 72,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 16),
         child: GestureDetector(
           onTap: () {
             HapticFeedback.lightImpact();
             Navigator.pop(context);
           },
           child: Container(
-            width: 42,
-            height: 42,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -469,11 +470,46 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
       decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, -5))]),
-      child: SafeArea(child: Row(children: [
-        Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(context), style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: const Text('Back'))),
-        const SizedBox(width: 12),
-        Expanded(flex: 2, child: ElevatedButton(onPressed: (widget.property.status == 'booked' || _userHasPendingBooking) ? null : () => Navigator.push(context, MaterialPageRoute(builder: (_) => BookingRequestScreen(propertyId: widget.property.id, propertyTitle: widget.property.title, ownerId: widget.property.ownerId, ownerName: widget.property.ownerName ?? 'Owner'))).then((v) => v == true ? setState(() => _userHasPendingBooking = true) : null), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))), child: Text(widget.property.status == 'booked' ? 'Booked' : (_userHasPendingBooking ? 'Pending Approval' : 'Book Now')))),
-      ])),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: (widget.property.status == 'booked' || _userHasPendingBooking) 
+                  ? null 
+                  : () => Navigator.push(
+                      context, 
+                      MaterialPageRoute(
+                        builder: (_) => BookingRequestScreen(
+                          propertyId: widget.property.id, 
+                          propertyTitle: widget.property.title, 
+                          ownerId: widget.property.ownerId, 
+                          ownerName: widget.property.ownerName ?? 'Owner'
+                        )
+                      )
+                    ).then((v) => v == true ? setState(() => _userHasPendingBooking = true) : null), 
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor, 
+                  foregroundColor: Colors.white, 
+                  padding: const EdgeInsets.symmetric(vertical: 18), 
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))
+                ), 
+                child: Text(
+                  widget.property.status == 'booked' 
+                    ? 'BOOKED' 
+                    : (_userHasPendingBooking ? 'PENDING APPROVAL' : 'BOOK NOW'),
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
+                )
+              )
+            ),
+          ]
+        )
+      ),
     );
   }
 }
