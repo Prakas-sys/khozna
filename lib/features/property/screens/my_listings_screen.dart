@@ -77,25 +77,31 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: Text(
               'Cancel',
-                              style: GoogleFonts.outfit(
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.bold,
-                ),
+              style: GoogleFonts.plusJakartaSans(
+                color: const Color(0xFF64748B),
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
             ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: const Color(0xFFEF4444),
               foregroundColor: Colors.white,
               elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(50),
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
             child: Text(
-              'Permanently Delete',
-              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 13),
+              'Delete Forever',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800,
+                fontSize: 14,
+                color: Colors.white,
+              ),
             ),
           ),
         ],

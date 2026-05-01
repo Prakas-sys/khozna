@@ -71,17 +71,17 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                     height: 120,
                     padding: const EdgeInsets.all(28),
                     decoration: BoxDecoration(
-                      color: Colors.green.shade50,
+                      color: AppTheme.brandColor.withOpacity(0.08),
                       shape: BoxShape.circle,
                     ),
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: const BoxDecoration(
-                        color: Colors.green,
+                        color: AppTheme.brandColor,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Color(0x334CAF50),
+                            color: Color(0x333B82F6),
                             blurRadius: 40,
                             offset: Offset(0, 15),
                           ),
@@ -149,21 +149,6 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                               letterSpacing: 1.5,
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              'PLATINUM',
-                              style: GoogleFonts.inter(
-                                color: Colors.blue[700],
-                                fontWeight: FontWeight.w900,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       const Padding(
@@ -191,17 +176,17 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.green.shade50, Colors.white],
+                      colors: [AppTheme.brandColor.withOpacity(0.05), Colors.white],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.green.withOpacity(0.2), width: 1.5),
+                    border: Border.all(color: AppTheme.brandColor.withOpacity(0.2), width: 1.5),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.verified_user_rounded, color: Colors.green, size: 22),
+                      const Icon(Icons.verified_user_rounded, color: AppTheme.brandColor, size: 22),
                       const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,7 +194,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                           Text(
                             'Listing is Live & Verified',
                             style: GoogleFonts.inter(
-                              color: Colors.green[800],
+                              color: AppTheme.brandColor,
                               fontWeight: FontWeight.w800,
                               fontSize: 14,
                             ),
@@ -217,7 +202,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                           Text(
                             'Ready to receive inquiries',
                             style: GoogleFonts.inter(
-                              color: Colors.green[600],
+                              color: AppTheme.brandColor.withOpacity(0.7),
                               fontWeight: FontWeight.w500,
                               fontSize: 11,
                             ),

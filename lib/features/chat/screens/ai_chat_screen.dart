@@ -84,7 +84,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
-          'AI मद्दत (AI Help)',
+          'AI सहायता (AI Help)',
           style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         centerTitle: true,
@@ -160,26 +160,28 @@ class _AiChatScreenState extends State<AiChatScreen> {
             Row(
               children: [
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: AppTheme.brandColor, width: 1.5),
-                    ),
-                    child: TextField(
-                      controller: _messageController,
-                      style: GoogleFonts.inter(fontSize: 15, color: Colors.black87),
-                      decoration: InputDecoration(
-                        hintText: 'यहाँ लेख्नुहोस् (Type here...)',
-                        hintStyle: GoogleFonts.inter(color: Colors.grey.shade500),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 14,
-                        ),
+                  child: TextField(
+                    controller: _messageController,
+                    style: GoogleFonts.inter(fontSize: 15, color: Colors.black87),
+                    decoration: InputDecoration(
+                      hintText: 'यहाँ लेख्नुहोस् (Type here...)',
+                      hintStyle: GoogleFonts.inter(color: Colors.grey.shade500),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 14,
                       ),
-                      onSubmitted: (_) => _sendMessage(),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                        borderSide: BorderSide(color: AppTheme.brandColor, width: 1.5),
+                      ),
                     ),
+                    onSubmitted: (_) => _sendMessage(),
                   ),
                 ),
                 const SizedBox(width: 10),
