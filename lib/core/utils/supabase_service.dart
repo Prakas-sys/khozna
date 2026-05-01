@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/features/auth/repositories/auth_repository.dart';
 import 'package:khozna/features/profile/repositories/user_repository.dart';
@@ -111,6 +112,16 @@ class SupabaseService {
   static Future<void> signInWithFacebook() => AuthRepository.signInWithFacebook();
 
   // Notifications
+  static Future<List<Property>> getAllProperties() async {
+    try {
+      final response = await Supabase.instance.client.from('properties').select().order('created_at', ascending: false);
+      return (response as List).map((p) => Property.fromMap(p)).toList();
+    } catch (e) {
+      debugPrint('Error fetching all properties: $e');
+      return [];
+    }
+  }
+
   static void initRealtimeListeners({Function? onOwnerEvent}) => NotificationRepository.initRealtimeListeners();
   static Future<void> saveDeviceToken(String token) => NotificationRepository.saveDeviceToken(token);
   static Future<List<Map<String, dynamic>>> getUserNotifications() => NotificationRepository.getUserNotifications();
