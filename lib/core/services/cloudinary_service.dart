@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path/path.dart' as path;
+import 'package:khozna/core/security/app_logger.dart';
 
 class CloudinaryService {
   static final String cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
@@ -41,11 +42,11 @@ class CloudinaryService {
         final jsonMap = jsonDecode(responseString);
         return jsonMap['secure_url'];
       } else {
-        print('Cloudinary Upload Failed: ${response.statusCode}');
+        AppLogger.logApiError(endpoint: 'cloudinary/uploadImage', error: 'Upload failed with status: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Cloudinary Error: $e');
+      AppLogger.logApiError(endpoint: 'cloudinary/uploadImage', error: e.toString());
       return null;
     }
   }
@@ -90,11 +91,11 @@ class CloudinaryService {
 
         return imageUrl;
       } else {
-        print('Cloudinary Upload Failed: ${response.statusCode}');
+        AppLogger.logApiError(endpoint: 'cloudinary/uploadPropertyImage', error: 'Upload failed with status: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Cloudinary Error: $e');
+      AppLogger.logApiError(endpoint: 'cloudinary/uploadPropertyImage', error: e.toString());
       return null;
     }
   }
@@ -126,11 +127,11 @@ class CloudinaryService {
         final jsonMap = jsonDecode(responseString);
         return jsonMap['secure_url'];
       } else {
-        print('Cloudinary Video Upload Failed: ${response.statusCode}');
+        AppLogger.logApiError(endpoint: 'cloudinary/uploadVideo', error: 'Upload failed with status: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Cloudinary Video Error: $e');
+      AppLogger.logApiError(endpoint: 'cloudinary/uploadVideo', error: e.toString());
       return null;
     }
   }
