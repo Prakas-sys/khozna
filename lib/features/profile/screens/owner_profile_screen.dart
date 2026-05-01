@@ -100,10 +100,11 @@ class OwnerProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  location,
-                  style: GoogleFonts.inter(
+                  'प्रमाणित प्रयोगकर्ता · $location',
+                  style: GoogleFonts.mukta(
                     color: Colors.grey[600],
                     fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -121,7 +122,7 @@ class OwnerProfileScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatItem('Listings', totalListings.toString()),
+                  _buildStatItem('सूचीहरू (Listings)', totalListings.toString()),
                 ],
               ),
             ),
@@ -170,24 +171,24 @@ class OwnerProfileScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isVerified ? 'KYC Verified' : 'KYC Pending',
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                          isVerified ? 'KYC Verified · पहिचान प्रमाणित' : 'पहिचान प्रमाणित हुन बाँकी छ · Verification Pending',
+                          style: GoogleFonts.mukta(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                             color: isVerified
-                                ? Colors.green[800]
+                                ? Colors.green[700]
                                 : Colors.orange[800],
                           ),
                         ),
                         Text(
                           isVerified
-                              ? 'Identity is fully verified and trusted.'
-                              : '${totalListings > 0 ? 'Owner' : 'User'} is in the process of verification.',
-                          style: GoogleFonts.inter(
+                              ? 'पहिचान पूर्ण रूपमा प्रमाणित र भरोसायोग्य छ।'
+                              : '${totalListings > 0 ? 'घरबेटी' : 'प्रयोगकर्ता'}को पहिचान प्रमाणित हुने प्रक्रियामा छ।',
+                          style: GoogleFonts.mukta(
                             fontSize: 12,
                             color: isVerified
-                                ? Colors.green[700]
-                                : Colors.orange[700],
+                                ? Colors.green[600]
+                                : Colors.orange[600],
                           ),
                         ),
                       ],
@@ -227,7 +228,7 @@ class OwnerProfileScreen extends StatelessWidget {
                       elevation: 0,
                     ),
                     child: Text(
-                      'Message ${totalListings > 0 ? 'Owner' : 'User'}',
+                      '${totalListings > 0 ? 'घरबेटी' : 'प्रयोगकर्ता'}लाई म्यासेज गर्नुहोस्',
                       style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -259,7 +260,7 @@ class OwnerProfileScreen extends StatelessWidget {
                 size: 18,
               ),
               label: Text(
-                'Report this ${totalListings > 0 ? 'Owner' : 'User'}',
+                'रिपोर्ट गर्नुहोस् (Report)',
                 style: GoogleFonts.inter(
                   color: Colors.red,
                   fontSize: 13,

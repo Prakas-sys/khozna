@@ -186,10 +186,10 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                             ),
                           ),
                           Text(
-                            '$_voteCount ${_voteCount == 1 ? 'person' : 'people'} voted this user trusted',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: Colors.grey[400],
+                            '$_voteCount जनाले यो प्रयोगकर्तालाई विश्वास गरेका छन्',
+                            style: GoogleFonts.mukta(
+                              fontSize: 13,
+                              color: Colors.grey[600],
                             ),
                           ),
                         ],
@@ -257,8 +257,8 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        _hasVoted ? 'Voted!' : 'Vote',
-                                        style: GoogleFonts.inter(
+                                        _hasVoted ? 'भरोसा गरियो' : 'भरोसा दिनुहोस्',
+                                        style: GoogleFonts.mukta(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,
                                           color: _hasVoted
@@ -283,9 +283,9 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          'Your\nTrust Score',
+                          'तपाईंको\nभरोसा स्कोर',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.mukta(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.brandColor,
