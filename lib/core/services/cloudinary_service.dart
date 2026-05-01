@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:path/path.dart' as path;
 
 class CloudinaryService {
   static final String cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
@@ -15,6 +16,15 @@ class CloudinaryService {
 
   /// Uploads any image to Cloudinary and returns the URL.
   static Future<String?> uploadImage(File imageFile) async {
+    // 🔐 Strict File Validation
+    final fileSize = await imageFile.length();
+    if (fileSize > 5 * 1024 * 1024) throw Exception('Image exceeds 5MB limit');
+    
+    final ext = path.extension(imageFile.path).toLowerCase();
+    if (!['.jpg', '.jpeg', '.png', '.webp'].contains(ext)) {
+      throw Exception('Invalid image format. Only JPG, PNG, WEBP allowed.');
+    }
+
     final url = Uri.parse(
       'https://api.cloudinary.com/v1_1/$cloudName/image/upload',
     );
@@ -45,6 +55,15 @@ class CloudinaryService {
     File imageFile,
     String propertyId,
   ) async {
+    // 🔐 Strict File Validation
+    final fileSize = await imageFile.length();
+    if (fileSize > 5 * 1024 * 1024) throw Exception('Image exceeds 5MB limit');
+    
+    final ext = path.extension(imageFile.path).toLowerCase();
+    if (!['.jpg', '.jpeg', '.png', '.webp'].contains(ext)) {
+      throw Exception('Invalid image format. Only JPG, PNG, WEBP allowed.');
+    }
+
     final url = Uri.parse(
       'https://api.cloudinary.com/v1_1/$cloudName/image/upload',
     );
@@ -82,6 +101,15 @@ class CloudinaryService {
 
   /// Uploads a video to Cloudinary and returns the URL.
   static Future<String?> uploadVideo(File videoFile) async {
+    // 🔐 Strict File Validation
+    final fileSize = await videoFile.length();
+    if (fileSize > 50 * 1024 * 1024) throw Exception('Video exceeds 50MB limit');
+    
+    final ext = path.extension(videoFile.path).toLowerCase();
+    if (!['.mp4', '.mov'].contains(ext)) {
+      throw Exception('Invalid video format. Only MP4 and MOV allowed.');
+    }
+
     final url = Uri.parse(
       'https://api.cloudinary.com/v1_1/$cloudName/video/upload',
     );

@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/core/models/booking_model.dart';
+import 'package:khozna/core/security/security_utils.dart';
 
 class BookingRepository {
   static final _client = Supabase.instance.client;
@@ -47,6 +48,10 @@ class BookingRepository {
     if (user == null) return;
 
     try {
+      // 🔐 Sanitize inputs to prevent injection attacks
+      final cleanPurpose = SecurityUtils.sanitizeInput(purpose);
+      final cleanMessage = SecurityUtils.sanitizeInput(message, maxLength: 1000);
+
       await _client.from('bookings').insert({
         'property_id': propertyId,
         'guest_id': user.id,
@@ -55,8 +60,8 @@ class BookingRepository {
         'move_in_date': moveInDate.toIso8601String(),
         'duration_months': durationMonths,
         'guests_count': guestCount,
-        'purpose': purpose,
-        'message': message,
+        'purpose': cleanPurpose,
+        'message': cleanMessage,
         'status': 'pending',
       });
 
@@ -148,11 +153,13 @@ class BookingRepository {
           .update({'status': 'available'})
           .eq('id', propertyId);
 
+      final cleanReason = reason != null ? SecurityUtils.sanitizeInput(reason) : 'Owner declined the request.';
+
       await _client
           .from('bookings')
           .update({
             'status': 'rejected',
-            'reject_reason': reason ?? 'Owner declined the request.',
+            'reject_reason': cleanReason,
           })
           .eq('property_id', propertyId)
           .eq('guest_id', requesterId)

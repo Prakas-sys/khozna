@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
+import 'package:khozna/core/security/security_utils.dart';
 
 class EditPropertyScreen extends StatefulWidget {
   final Map<String, dynamic> property;
@@ -46,10 +47,14 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
 
     setState(() => _isLoading = true);
     try {
+      // 🔐 Sanitize edits to prevent injection or script execution
+      final cleanTitle = SecurityUtils.sanitizeInput(_titleController.text);
+      final cleanDescription = SecurityUtils.sanitizeInput(_descriptionController.text, maxLength: 1000);
+
       await Supabase.instance.client.from('properties').update({
-        'title': _titleController.text,
+        'title': cleanTitle,
         'price': double.tryParse(_priceController.text) ?? 0.0,
-        'description': _descriptionController.text,
+        'description': cleanDescription,
         'status': _status,
       }).eq('id', widget.property['id']);
 

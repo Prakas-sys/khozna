@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/models/user_model.dart';
+import 'package:khozna/core/security/security_utils.dart';
 
 class UserRepository {
   static final _client = Supabase.instance.client;
@@ -44,10 +45,11 @@ class UserRepository {
   }
 
   static Future<void> reportUser(String userId, String reporterId, String reason) async {
+    final cleanReason = SecurityUtils.sanitizeInput(reason, maxLength: 500);
     await _client.from('user_reports').insert({
       'reported_user_id': userId,
       'reporter_id': reporterId,
-      'reason': reason,
+      'reason': cleanReason,
     });
   }
 

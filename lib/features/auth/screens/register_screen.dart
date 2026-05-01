@@ -66,10 +66,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
     setState(() => _isLoading = true);
     try {
+      final cleanName = SecurityUtils.sanitizeInput(_nameController.text);
+
       final response = await Supabase.instance.client.auth.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
-        data: {'full_name': _nameController.text.trim()},
+        data: {'full_name': cleanName},
       );
 
       if (response.user != null) {

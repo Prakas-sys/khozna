@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/security/app_logger.dart';
+import 'package:khozna/core/security/security_utils.dart';
 
 class ChatRepository {
   static final _client = Supabase.instance.client;
@@ -131,10 +132,14 @@ class ChatRepository {
     final user = _client.auth.currentUser;
     if (user == null) return;
     
+    // 🔐 Prevent XSS and Injection in messages
+    final cleanText = SecurityUtils.sanitizeInput(text, maxLength: 2000);
+    if (cleanText.isEmpty) return;
+
     await _client.from('messages').insert({
       'chat_id': chatId,
       'sender_id': user.id,
-      'text': text,
+      'text': cleanText,
     });
   }
 
