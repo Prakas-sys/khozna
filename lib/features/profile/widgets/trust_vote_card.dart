@@ -309,22 +309,22 @@ class _TrustVoteCardState extends State<TrustVoteCard>
     final Color trustColor;
     final double trustProgress;
 
-    if (_voteCount < 150) {
+    if (_voteCount == 0) {
       trustLabel = 'नयाँ सदस्य · New Member';
       trustColor = Colors.grey;
-      trustProgress = (_voteCount / 150).clamp(0.0, 1.0);
-    } else if (_voteCount < 400) {
+      trustProgress = 0.05;
+    } else if (_voteCount < 5) {
       trustLabel = 'उदाउँदो · Rising';
       trustColor = Colors.orange;
-      trustProgress = (_voteCount / 400).clamp(0.0, 1.0);
-    } else if (_voteCount < 700) {
+      trustProgress = _voteCount / 10;
+    } else if (_voteCount < 15) {
       trustLabel = 'भरोसायोग्य · Trustworthy';
       trustColor = Colors.green;
-      trustProgress = (_voteCount / 700).clamp(0.0, 1.0);
-    } else if (_voteCount < 950) {
+      trustProgress = _voteCount / 20;
+    } else if (_voteCount < 30) {
       trustLabel = 'समुदाय प्रिय · Community Favourite';
       trustColor = AppTheme.brandColor;
-      trustProgress = (_voteCount / 950).clamp(0.0, 1.0);
+      trustProgress = _voteCount / 40;
     } else {
       trustLabel = '⭐ खोज्ना भरोसेमान · Khozna Trusted';
       trustColor = const Color(0xFFFFD700);
