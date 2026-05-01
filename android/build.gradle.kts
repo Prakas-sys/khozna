@@ -13,18 +13,33 @@ subprojects {
     layout.buildDirectory.set(projectBuildDir)
     project.evaluationDependsOn(":app")
 
-    // Auto-fix namespace for old Flutter plugins that don't declare it (e.g. flutter_app_badger)
-    fun fixNamespace() {
+    // Auto-fix namespace and SDK for old Flutter plugins
+    fun fixPlugin() {
         val androidExt = extensions.findByName("android") as? com.android.build.gradle.BaseExtension
-        if (androidExt != null && androidExt.namespace == null) {
-            androidExt.namespace = "com.${project.name.replace("-", "_").replace(".", "_")}"
+        if (androidExt != null) {
+            // Fix Namespace
+            if (androidExt.namespace == null) {
+                androidExt.namespace = "com.${project.name.replace("-", "_").replace(".", "_")}"
+            }
+            // Fix SDK Version (Force 34 for lStar compatibility)
+            if (androidExt.compileSdkVersion == null || androidExt.compileSdkVersion!!.contains("31") || androidExt.compileSdkVersion!!.contains("30")) {
+                androidExt.compileSdkVersion(34)
+            }
         }
     }
 
     if (project.state.executed) {
-        fixNamespace()
+        fixPlugin()
     } else {
-        afterEvaluate { fixNamespace() }
+        afterEvaluate { fixPlugin() }
+    }
+
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "androidx.core" && (requested.name == "core-ktx" || requested.name == "core")) {
+                useVersion("1.13.1")
+            }
+        }
     }
 }
 

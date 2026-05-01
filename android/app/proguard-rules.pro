@@ -14,6 +14,10 @@
 # Firebase Common
 -keep class com.google.firebase.** { *; }
 
+# Firebase Crashlytics
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends com.google.firebase.crashlytics.CustomKeysAndValues { *; }
+
 # Google Play Services
 -keep class com.google.android.gms.** { *; }
 

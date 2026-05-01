@@ -8,6 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:firebase_core/firebase_core.dart';
 // firebase_auth import removed
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
@@ -76,7 +78,19 @@ void main() async {
   // Initialize Firebase earlier to establish stable channel
   try {
     await Firebase.initializeApp();
-    debugPrint('--- FIREBASE CORE READY ---');
+    
+    // 📈 Pass all unfiltered errors from the framework to Crashlytics.
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+    
+    // Pass all errors within the platform (e.g. native crashes)
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+
+    debugPrint('--- FIREBASE CORE & OBSERVABILITY READY ---');
   } catch (e) {
     debugPrint('--- FIREBASE INIT ERROR: $e ---');
   }
