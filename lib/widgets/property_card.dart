@@ -327,24 +327,10 @@ class PropertyCard extends StatelessWidget {
                         if (!isOwnerView) ...[
                           Expanded(
                             child: Container(
-                              padding: const EdgeInsets.all(2), // Thin glass border thickness
+                              padding: const EdgeInsets.all(2), // Thin border thickness
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.white.withOpacity(0.8),
-                                    Colors.white.withOpacity(0.2),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                color: AppTheme.brandColor.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(30),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppTheme.brandColor.withOpacity(0.2),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
                               ),
                               child: Container(
                                 decoration: BoxDecoration(
