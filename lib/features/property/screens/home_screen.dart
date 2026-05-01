@@ -219,7 +219,7 @@ class HomeScreenState extends State<HomeScreen> {
                 _buildSection(3, 'Family Friendly', 'Spacious homes for everyone'),
                 const SizedBox(height: 18),
                 _buildSection(4, 'Premium Selection', 'Luxurious & Executive stays'),
-                const SizedBox(height: 32),
+                const SizedBox(height: 120), // Added significant extra space so the bottom section isn't cut off by the menu
               ],
             ),
           ),
