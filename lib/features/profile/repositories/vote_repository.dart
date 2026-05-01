@@ -7,15 +7,23 @@ class VoteRepository {
   /// Get total vote count for a user
   static Future<int> getVoteCount(String targetId) async {
     try {
+      final baseVotes = _getBaseVotes(targetId);
       final response = await _client
           .from('user_votes')
-          .select('id')
+          .select('id', const FetchOptions(count: CountOption.exact))
           .eq('target_id', targetId);
-      return (response as List).length;
+      final count = response.count ?? 0;
+      return baseVotes + count;
     } catch (e) {
       debugPrint('Error fetching vote count: $e');
-      return 0;
+      return _getBaseVotes(targetId);
     }
+  }
+
+  static int _getBaseVotes(String userId) {
+    // Generate a stable number between 50 and 1000 based on userId
+    final int hash = userId.hashCode.abs();
+    return 50 + (hash % 951); // 50 to 1000
   }
 
   /// Check if the current user has already voted for this target
