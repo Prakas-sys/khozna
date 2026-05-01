@@ -102,11 +102,38 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Property Details',
+          style: GoogleFonts.inter(
+            color: Colors.black,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [
+          FavouriteButton(propertyId: widget.property.id),
+          IconButton(
+            icon: const Icon(Icons.share_outlined, color: Colors.black, size: 22),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              Share.share('Check out ${widget.property.title} on Khozna!');
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: CustomScrollView(
         slivers: [
-          _buildSliverCarousel(),
+          _buildImageSection(),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
             sliver: SliverList(
@@ -149,124 +176,104 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildSliverCarousel() {
-    return SliverAppBar(
-      expandedHeight: 380,
-      backgroundColor: Colors.white,
-      pinned: true,
-      automaticallyImplyLeading: false,
-      leading: Center(
-        child: GestureDetector(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            Navigator.pop(context);
-          },
-          child: Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+  Widget _buildImageSection() {
+    return SliverToBoxAdapter(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 380,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (index) => setState(() => _currentImageIndex = index),
+                  itemCount: displayImages.length,
+                  itemBuilder: (context, index) => Hero(
+                    tag: widget.property.id + (index == 0 ? '' : index.toString()),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: KhoznaImage(
+                          imageUrl: displayImages[index],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ],
-            ),
-            child: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 20),
-          ),
-        ),
-      ),
-      actions: [
-        Center(
-          child: GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              Share.share('Check out ${widget.property.title} on Khozna!');
-            },
-            child: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+                if (displayImages.length > 1) ...[
+                  Positioned(
+                    left: 24,
+                    top: 0,
+                    bottom: 0,
+                    child: Center(
+                      child: GlassCircle(
+                        icon: Icons.chevron_left_rounded,
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                        },
+                        iconSize: 24,
+                        size: 36,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 24,
+                    top: 0,
+                    bottom: 0,
+                    child: Center(
+                      child: GlassCircle(
+                        icon: Icons.chevron_right_rounded,
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                        },
+                        iconSize: 24,
+                        size: 36,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 24,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        displayImages.length,
+                        (index) => Container(
+                          width: _currentImageIndex == index ? 24 : 8,
+                          height: 8,
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: _currentImageIndex == index ? Colors.white : Colors.white.withOpacity(0.5),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
-              ),
-              child: const Icon(Icons.ios_share_rounded, color: Color(0xFF1E293B), size: 18),
+              ],
             ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Center(
-          child: FavouriteButton(propertyId: widget.property.id),
-        ),
-        const SizedBox(width: 16),
-      ],
-      flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            PageView.builder(
-              controller: _pageController,
-              onPageChanged: (index) => setState(() => _currentImageIndex = index),
-              itemCount: displayImages.length,
-              itemBuilder: (context, index) => Hero(
-                tag: widget.property.id + (index == 0 ? '' : index.toString()),
-                child: KhoznaImage(
-                  imageUrl: displayImages[index],
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            if (displayImages.length > 1) ...[
-              Positioned(
-                left: 10,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: GlassCircle(
-                    icon: Icons.chevron_left_rounded,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                    },
-                    iconSize: 24,
-                    size: 36,
-                  ),
-                ),
-              ),
-              Positioned(
-                right: 10,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: GlassCircle(
-                    icon: Icons.chevron_right_rounded,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                    },
-                    iconSize: 24,
-                    size: 36,
-                  ),
-                ),
-              ),
-            ],
-            Positioned(bottom: 42, left: 0, right: 0, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: List.generate(displayImages.length, (index) => AnimatedContainer(duration: const Duration(milliseconds: 300), margin: const EdgeInsets.symmetric(horizontal: 3), height: 5, width: _currentImageIndex == index ? 22 : 5, decoration: BoxDecoration(color: _currentImageIndex == index ? Colors.white : Colors.white.withOpacity(0.3), borderRadius: BorderRadius.circular(10)))))),
-          ],
-        ),
+        ],
       ),
     );
   }
-
   Widget _buildHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
