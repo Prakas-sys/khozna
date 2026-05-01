@@ -36,8 +36,11 @@ class PropertyRepository {
                 .lte('longitude', lng + 0.1);
           }
           break;
+        case 1: // Special Offers / Hot Deals
+          query = query.or('description.ilike.%offer%,description.ilike.%discount%,title.ilike.%offer%,is_negotiable.eq.true');
+          break;
         case 2: // Student Housing
-          query = query.eq('category', 'Room').lt('price', 7000);
+          query = query.eq('is_student_friendly', true).lt('price', 9000);
           break;
         case 3: // Family Flats
           query = query.eq('category', 'Flat');
