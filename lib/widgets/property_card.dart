@@ -510,21 +510,31 @@ class PropertyCard extends StatelessWidget {
     // Top priority icons for the card
     final Map<String, IconData> featureIcons = {
       // Amenities
+      'water_24_7': Icons.water_drop_outlined,
+      'water_boring': Icons.waves_outlined,
       'water_melamchi': Icons.water_drop_outlined,
+      'ac': Icons.ac_unit_outlined,
+      'internet': Icons.wifi_outlined,
+      'sunny_room': Icons.wb_sunny_outlined,
+      'balcony': Icons.balcony_outlined,
+      'kitchen': Icons.kitchen_outlined,
+      'furnished': Icons.chair_outlined,
+      'hot_water': Icons.hot_tub_outlined,
       'parking_bike': Icons.pedal_bike_outlined,
       'parking_car': Icons.directions_car_outlined,
-      'sunny_room': Icons.wb_sunny_outlined,
-      'hot_water': Icons.hot_tub_outlined,
+      'security': Icons.security_outlined,
+      'elevator': Icons.elevator_outlined,
+      'power_backup': Icons.electric_bolt_outlined,
       'waste_mgmt': Icons.delete_outline,
       'peaceful': Icons.nature_people_outlined,
-      'internet': Icons.wifi_outlined,
-      'kitchen': Icons.kitchen_outlined,
       'attached_bathroom': Icons.bathroom_outlined,
       // House Rules
       'family_only': Icons.family_restroom_outlined,
       'boys_allowed': Icons.man,
       'girls_allowed': Icons.woman,
       'pets_allowed': Icons.pets,
+      'smoking_allowed': Icons.smoke_free,
+      'alcohol_allowed': Icons.local_bar,
     };
 
     List<Widget> items = [];
@@ -598,10 +608,23 @@ class PropertyCard extends StatelessWidget {
 
   String _getShortLabel(String key) {
     switch (key) {
+      case 'water_24_7':
       case 'water_melamchi':
         return 'Water';
       case 'water_boring':
         return 'Boring';
+      case 'ac':
+        return 'AC';
+      case 'balcony':
+        return 'Balcony';
+      case 'furnished':
+        return 'Furnished';
+      case 'security':
+        return 'Security';
+      case 'elevator':
+        return 'Elevator';
+      case 'power_backup':
+        return 'Power';
       case 'parking_bike':
         return 'Bike';
       case 'parking_car':
@@ -618,6 +641,8 @@ class PropertyCard extends StatelessWidget {
         return 'Wifi';
       case 'kitchen':
         return 'Kitchen';
+      case 'attached_bathroom':
+        return 'Bath';
       case 'family_only':
         return 'Family';
       case 'boys_allowed':
@@ -626,6 +651,10 @@ class PropertyCard extends StatelessWidget {
         return 'Girls';
       case 'pets_allowed':
         return 'Pets';
+      case 'smoking_allowed':
+        return 'Smoking';
+      case 'alcohol_allowed':
+        return 'Alcohol';
       default:
         return '';
     }
