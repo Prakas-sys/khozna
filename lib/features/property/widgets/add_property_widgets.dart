@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 
@@ -67,150 +68,103 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                 ScaleTransition(
                   scale: _scaleAnim,
                   child: Container(
-                    width: 140,
-                    height: 140,
+                    width: 120,
+                    height: 120,
                     decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withOpacity(0.08),
                       shape: BoxShape.circle,
-                    ),
-                    alignment: Alignment.center,
-                    child: Container(
-                      width: 90,
-                      height: 90,
-                      decoration: const BoxDecoration(
-                        color: AppTheme.brandColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0x403B82F6),
-                            blurRadius: 30,
-                            offset: Offset(0, 10),
-                          ),
-                        ],
+                      gradient: LinearGradient(
+                        colors: [Colors.green.shade400, Colors.green.shade600],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.check_rounded,
-                          color: Colors.white,
-                          size: 52,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.green.withOpacity(0.4),
+                          blurRadius: 30,
+                          offset: const Offset(0, 12),
                         ),
-                      ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: 70,
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
                 Text(
                   'प्रकाशित भयो! 🎉',
-                  style: GoogleFonts.inter(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
+                  style: GoogleFonts.mukta(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w700,
                     color: const Color(0xFF111827),
-                    height: 1.1,
-                    letterSpacing: -0.5,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 6),
                 Text(
-                  'Your property is now officially live on Khozna',
+                  'Your property is now live on Khozna',
                   style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
                     color: Colors.grey[600],
-                    letterSpacing: -0.2,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 36),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: Colors.grey.shade100, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      )
-                    ],
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'LISTING SUMMARY',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 11,
-                              color: Colors.grey[400],
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        'Listing Summary',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: Colors.grey[500],
+                          letterSpacing: 1.1,
+                        ),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: Divider(height: 1),
-                      ),
-                      _detailRow(Icons.home_filled, 'Title', widget.title.isEmpty ? 'My Property' : widget.title),
-                      const SizedBox(height: 14),
-                      _detailRow(Icons.location_on_rounded, 'Location', widget.area),
-                      if (widget.landmark.isNotEmpty) ...[
-                        const SizedBox(height: 14),
-                        _detailRow(Icons.place_rounded, 'Landmark', widget.landmark),
-                      ],
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 16),
+                      _detailRow(Icons.home_outlined, 'Title', widget.title.isEmpty ? 'My Property' : widget.title),
+                      _detailRow(Icons.location_on_outlined, 'Location', widget.area),
+                      if (widget.landmark.isNotEmpty)
+                        _detailRow(Icons.place_outlined, 'Landmark', widget.landmark),
                       _detailRow(
-                        Icons.payments_rounded,
+                        Icons.currency_rupee,
                         'Monthly Rent',
-                        widget.price.isEmpty ? 'Not specified' : 'Rs ${widget.price} / month',
+                        widget.price.isEmpty ? 'Not specified' : '₹ ${widget.price}/mo',
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppTheme.brandColor.withOpacity(0.05), Colors.white],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppTheme.brandColor.withOpacity(0.2), width: 1.5),
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.withOpacity(0.3)),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.verified_user_rounded, color: AppTheme.brandColor, size: 22),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Listing is Live & Verified',
-                            style: GoogleFonts.inter(
-                              color: AppTheme.brandColor,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            'Ready to receive inquiries',
-                            style: GoogleFonts.inter(
-                              color: AppTheme.brandColor.withOpacity(0.7),
-                              fontWeight: FontWeight.w500,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
+                      const Icon(Icons.verified, color: Colors.green, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Listing is Live & Verified',
+                        style: GoogleFonts.inter(
+                          color: Colors.green[700],
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -218,43 +172,50 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                 const SizedBox(height: 36),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
+                  child: ElevatedButton(
                     onPressed: () {
                       Navigator.popUntil(context, (route) => route.isFirst);
                     },
-                    icon: const Icon(Icons.home_rounded, size: 20),
-                    label: Text(
-                      'गृहपृष्ठमा जानुहोस् (Go Home)',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.brandColor,
-                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      padding: const EdgeInsets.symmetric(vertical: 18),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      elevation: 0,
+                      elevation: 4,
+                      shadowColor: AppTheme.brandColor.withOpacity(0.4),
+                    ),
+                    child: Text(
+                      'गृहपृष्ठमा जानुहोस् (Go Home)',
+                      style: GoogleFonts.mukta(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
-                  child: TextButton.icon(
+                  child: OutlinedButton(
                     onPressed: () {
-                      // Share logic would go here
+                      Navigator.popUntil(context, (route) => route.isFirst);
                     },
-                    icon: const Icon(Icons.ios_share_rounded, size: 18),
-                    label: Text(
-                      'Share Listing',
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      'View My Listings',
                       style: GoogleFonts.inter(
-                        color: AppTheme.brandColor,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF4B5563),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
                       ),
                     ),
                   ),
@@ -270,37 +231,30 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
 
   Widget _detailRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 14),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppTheme.brandColor.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, size: 20, color: AppTheme.brandColor),
-          ),
-          const SizedBox(width: 16),
+          Icon(icon, size: 18, color: AppTheme.brandColor),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.mukta(
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: Colors.grey[500],
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.mukta(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                     color: const Color(0xFF1F2937),
                   ),
                 ),
@@ -313,7 +267,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
   }
 }
 
-class CategoryCard extends StatefulWidget {
+class CategoryCard extends StatelessWidget {
   final String label;
   final IconData icon;
   final String value;
@@ -330,92 +284,50 @@ class CategoryCard extends StatefulWidget {
   });
 
   @override
-  State<CategoryCard> createState() => _CategoryCardState();
-}
-
-class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderStateMixin {
-  late AnimationController _pressController;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _pressController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
-      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pressController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isSelected = widget.selectedValue == widget.value;
+    final isSelected = selectedValue == value;
     return GestureDetector(
-      onTapDown: (_) => _pressController.forward(),
-      onTapUp: (_) => _pressController.reverse(),
-      onTapCancel: () => _pressController.reverse(),
       onTap: () {
-        HapticFeedback.mediumImpact();
-        widget.onSelect(widget.value);
+        HapticFeedback.selectionClick();
+        onSelect(value);
       },
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOutCubic,
-          decoration: BoxDecoration(
-            color: isSelected ? AppTheme.brandColor.withOpacity(0.04) : Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
-              width: isSelected ? 2.5 : 1.5,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.brandColor.withOpacity(0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
+            width: isSelected ? 2 : 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isSelected ? AppTheme.brandColor : Colors.grey.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: isSelected ? Colors.white : Colors.grey[600],
+                size: 24,
+              ),
             ),
-            boxShadow: isSelected ? [
-              BoxShadow(
-                color: AppTheme.brandColor.withOpacity(0.12),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              )
-            ] : [],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: isSelected ? AppTheme.brandColor.withOpacity(0.12) : Colors.grey.shade50,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  widget.icon,
-                  color: isSelected ? AppTheme.brandColor : Colors.grey[500],
-                  size: 26,
-                ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.hind(
+                fontSize: 15,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
+                height: 1.2,
               ),
-              const SizedBox(height: 14),
-              Text(
-                widget.label,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.hind(
-                  fontSize: 15,
-                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                  color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
-                  height: 1.1,
-                  letterSpacing: -0.2,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -663,124 +575,63 @@ class AmenitiesGrid extends StatelessWidget {
         crossAxisCount: 3,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 1.05,
+        childAspectRatio: 1.1,
       ),
       itemBuilder: (context, index) {
         final key = icons.keys.elementAt(index);
         final isSelected = selectedItems.contains(key);
-        return AmenityCard(
-          label: labels[key] ?? '',
-          icon: icons[key]!,
-          isSelected: isSelected,
-          onToggle: () => onToggle(key),
+        return GestureDetector(
+          onTap: () => onToggle(key),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              color: isSelected ? AppTheme.brandColor : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
+                width: 1.5,
+              ),
+              boxShadow: isSelected ? [
+                BoxShadow(
+                  color: AppTheme.brandColor.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                )
+              ] : [],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icons[key],
+                  color: isSelected ? Colors.white : Colors.grey[600],
+                  size: 24,
+                ),
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    labels[key] ?? '',
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.hind(
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                      color: isSelected ? Colors.white : const Color(0xFF4B5563),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
   }
 }
 
-class AmenityCard extends StatefulWidget {
-  final String label;
-  final IconData icon;
-  final bool isSelected;
-  final VoidCallback onToggle;
-
-  const AmenityCard({
-    super.key,
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.onToggle,
-  });
-
-  @override
-  State<AmenityCard> createState() => _AmenityCardState();
-}
-
-class _AmenityCardState extends State<AmenityCard> with SingleTickerProviderStateMixin {
-  late AnimationController _pressController;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _pressController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.94).animate(
-      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pressController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _pressController.forward(),
-      onTapUp: (_) => _pressController.reverse(),
-      onTapCancel: () => _pressController.reverse(),
-      onTap: () {
-        HapticFeedback.lightImpact();
-        widget.onToggle();
-      },
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          decoration: BoxDecoration(
-            color: widget.isSelected ? AppTheme.brandColor : Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: widget.isSelected ? AppTheme.brandColor : Colors.grey.shade200,
-              width: 1.5,
-            ),
-            boxShadow: widget.isSelected ? [
-              BoxShadow(
-                color: AppTheme.brandColor.withOpacity(0.24),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              )
-            ] : [],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                widget.icon,
-                color: widget.isSelected ? Colors.white : Colors.grey[600],
-                size: 26,
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text(
-                  widget.label,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.hind(
-                    fontSize: 11,
-                    fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w600,
-                    color: widget.isSelected ? Colors.white : const Color(0xFF4B5563),
-                    height: 1.1,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class QuickPriceChip extends StatefulWidget {
+class QuickPriceChip extends StatelessWidget {
   final String label;
   final String value;
   final String currentValue;
@@ -795,83 +646,45 @@ class QuickPriceChip extends StatefulWidget {
   });
 
   @override
-  State<QuickPriceChip> createState() => _QuickPriceChipState();
-}
-
-class _QuickPriceChipState extends State<QuickPriceChip> with SingleTickerProviderStateMixin {
-  late AnimationController _pressController;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _pressController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.94).animate(
-      CurvedAnimation(parent: _pressController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pressController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final isSelected = widget.currentValue == widget.value;
-    return GestureDetector(
-      onTapDown: (_) => _pressController.forward(),
-      onTapUp: (_) => _pressController.reverse(),
-      onTapCancel: () => _pressController.reverse(),
+    final isSelected = currentValue == value;
+    return InkWell(
       onTap: () {
         HapticFeedback.selectionClick();
-        widget.onTap(widget.value);
+        onTap(value);
       },
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? AppTheme.brandColor : const Color(0xFFF9FAFB),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
-              width: 1.5,
-            ),
-            boxShadow: isSelected ? [
-              BoxShadow(
-                color: AppTheme.brandColor.withOpacity(0.2),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              )
-            ] : [],
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.brandColor : const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
+            width: 1.5,
           ),
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: 'Rs ',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    color: isSelected ? Colors.white : const Color(0xFF111827),
-                  ),
+        ),
+        child: RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: '₹ ',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: isSelected ? Colors.white : const Color(0xFF111827),
                 ),
-                TextSpan(
-                  text: widget.label,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: isSelected ? Colors.white : const Color(0xFF374151),
-                  ),
+              ),
+              TextSpan(
+                text: label,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: isSelected ? Colors.white : const Color(0xFF374151),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

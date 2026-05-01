@@ -7,6 +7,8 @@ import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/widgets/property_card.dart';
 import 'package:khozna/widgets/skeleton_card.dart';
 import 'package:khozna/widgets/voice_search_overlay.dart';
+import 'package:khozna/features/property/screens/search_screen.dart';
+import 'package:khozna/features/property/screens/filter_results_screen.dart';
 
 class HomeHeader extends StatelessWidget {
   final String locationName;
@@ -114,15 +116,15 @@ class HomeHeroSection extends StatelessWidget {
         children: [
           FittedBox(
             child: Text(
-              'Find Your Next Home',
-                                          style: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: Colors.black),
+              'Find your Next Home',
+              style: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: Colors.black),
             ),
           ),
           const SizedBox(height: 2),
           FittedBox(
             child: Text(
-              'No Middleman',
-                                          style: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: AppTheme.brandColor),
+              'No middleman',
+              style: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.w800, letterSpacing: -1.0, color: AppTheme.brandColor),
             ),
           ),
         ],
@@ -158,7 +160,7 @@ class HomeSearchBar extends StatelessWidget {
               children: [
                 const Icon(CupertinoIcons.search, color: AppTheme.brandColor, size: 26),
                 const SizedBox(width: 14),
-                                                Expanded(child: Text('Search properties', style: GoogleFonts.inter(color: Colors.grey[400], fontSize: 16))),
+                Expanded(child: Text('Search properties', style: GoogleFonts.inter(color: Colors.grey[400], fontSize: 16))),
                 Padding(
                   padding: const EdgeInsets.only(right: 4),
                   child: InkWell(
@@ -188,7 +190,6 @@ class HomeSearchBar extends StatelessWidget {
 }
 
 class HomeHorizontalSection extends StatelessWidget {
-  final int index;
   final String title;
   final String subtitle;
   final Future<List<Property>> future;
@@ -196,7 +197,6 @@ class HomeHorizontalSection extends StatelessWidget {
 
   const HomeHorizontalSection({
     super.key,
-    required this.index,
     required this.title,
     required this.subtitle,
     required this.future,
@@ -210,7 +210,7 @@ class HomeHorizontalSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-                                    Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+            Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
             Transform.translate(
               offset: const Offset(0, -4),
               child: InkWell(
@@ -225,68 +225,43 @@ class HomeHorizontalSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        ValueListenableBuilder<Map<int, List<Map<String, dynamic>>>>(
-          valueListenable: homeSectionCache,
-          builder: (context, cache, _) {
-            final cachedData = cache[index] ?? [];
-            final cachedProperties = cachedData.map((e) => Property.fromMap(e)).toList();
+        FutureBuilder<List<Property>>(
+          future: future,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) return _buildSkeletonList();
+            final properties = snapshot.data ?? [];
+            if (properties.isEmpty) return snapshot.hasError ? _buildErrorState() : _buildSkeletonList();
 
-            return FutureBuilder<List<Property>>(
-              future: future,
-              builder: (context, snapshot) {
-                // If we have network data, use it
-                if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                  return _buildList(snapshot.data!);
-                }
-
-                // If we are waiting and have cache, show cache immediately (no skeleton)
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return cachedProperties.isNotEmpty 
-                    ? _buildList(cachedProperties) 
-                    : _buildSkeletonList();
-                }
-
-                // If network failed or returned empty
-                if (cachedProperties.isNotEmpty) {
-                  return _buildList(cachedProperties);
-                }
-
-                return snapshot.hasError ? _buildErrorState() : _buildSkeletonList();
-              },
+            return SizedBox(
+              height: 285,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                physics: const BouncingScrollPhysics(),
+                itemCount: 4,
+                itemBuilder: (context, index) {
+                  if (index < properties.length) {
+                    return _buildPropertyCard(properties[index]);
+                  } else {
+                    return const Padding(padding: EdgeInsets.only(right: 16), child: SkeletonCard());
+                  }
+                },
+              ),
             );
           },
         ),
       ],
     );
   }
-  Widget _buildList(List<Property> properties) {
-    return SizedBox(
-      height: 310,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.none,
-        physics: const BouncingScrollPhysics(),
-        itemCount: properties.length > 4 ? properties.length : 4,
-        itemBuilder: (context, index) {
-          if (index < properties.length) {
-            return _buildPropertyCard(properties[index]);
-          } else {
-            return const Padding(padding: EdgeInsets.only(right: 16), child: SkeletonCard());
-          }
-        },
-      ),
-    );
-  }
-
 
   Widget _buildSkeletonList() {
     return SizedBox(
-      height: 310,
+      height: 285,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: 3,
-        itemBuilder: (_, _) => const Padding(padding: EdgeInsets.only(right: 16), child: SkeletonCard()),
+        itemBuilder: (_, __) => const Padding(padding: EdgeInsets.only(right: 16), child: SkeletonCard()),
       ),
     );
   }

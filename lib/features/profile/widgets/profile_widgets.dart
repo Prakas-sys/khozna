@@ -62,14 +62,22 @@ class ProfileHeader extends StatelessWidget {
                   child: Stack(
                     children: [
                       Container(
+                        padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.white.withOpacity(0.5),
+                              Colors.white.withOpacity(0.2),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
                           shape: BoxShape.circle,
-                          color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
+                              color: Colors.black.withOpacity(0.12),
+                              blurRadius: 30,
+                              offset: const Offset(0, 15),
                             ),
                           ],
                         ),
@@ -120,28 +128,27 @@ class ProfileHeader extends StatelessWidget {
                         ),
                       ),
                       Positioned(
-                        bottom: 0,
-                        right: 0,
+                        bottom: 4,
+                        right: 4,
                         child: GestureDetector(
                           onTap: onPickImage,
                           child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
+                            padding: const EdgeInsets.all(8),
+                            decoration: const BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey[100]!, width: 2),
-                              boxShadow: const [
+                              boxShadow: [
                                 BoxShadow(
                                   color: Colors.black12,
-                                  blurRadius: 8,
-                                  offset: Offset(0, 3),
+                                  blurRadius: 10,
+                                  offset: Offset(0, 4),
                                 ),
                               ],
                             ),
                             child: const Icon(
                               Icons.camera_alt_rounded,
                               color: AppTheme.brandColor,
-                              size: 16,
+                              size: 18,
                             ),
                           ),
                         ),
@@ -156,10 +163,9 @@ class ProfileHeader extends StatelessWidget {
                       TextSpan(
                         text: fullName ?? (isOwner ? 'Owner' : 'Guest'),
                         style: GoogleFonts.inter(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          letterSpacing: -0.5,
                         ),
                       ),
                       if (kycStatus == 'verified')
@@ -208,7 +214,7 @@ class VerificationCard extends StatelessWidget {
         : (isRejected ? Colors.red : Colors.orange);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -220,7 +226,7 @@ class VerificationCard extends StatelessWidget {
           ),
         ],
         border: Border.all(
-          color: mainColor.withOpacity(0.15),
+          color: mainColor.withOpacity(0.1),
           width: 1,
         ),
       ),
@@ -229,7 +235,14 @@ class VerificationCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: mainColor.withOpacity(0.12),
+              gradient: LinearGradient(
+                colors: [
+                  isVerified ? Colors.green.shade50 : (isRejected ? Colors.red.shade50 : Colors.orange.shade50),
+                  isVerified ? Colors.green.shade100 : (isRejected ? Colors.red.shade100 : Colors.orange.shade100),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -238,8 +251,10 @@ class VerificationCard extends StatelessWidget {
                   : (isPending
                         ? Icons.hourglass_empty_rounded
                         : (isRejected ? Icons.error_outline_rounded : Icons.gpp_maybe_rounded)),
-              color: mainColor,
-              size: 22,
+              color: isVerified
+                  ? Colors.green.shade700
+                  : (isRejected ? Colors.red.shade700 : Colors.orange.shade700),
+              size: 20,
             ),
           ),
           const SizedBox(width: 12),
@@ -249,24 +264,23 @@ class VerificationCard extends StatelessWidget {
               children: [
                 Text(
                   isVerified
-                      ? 'Profile Verified'
+                      ? 'Profile Verified (प्रमाणित)'
                       : (isPending 
-                          ? 'Pending Verification' 
-                          : (isRejected ? 'Verification Rejected' : 'Verify Identity')),
+                          ? 'Pending KYC (प्रमाणीकरण हुँदैछ)' 
+                          : (isRejected ? 'KYC Rejected (अस्वीकृत)' : 'Verify Identity (पहिचान प्रमाणित)')),
                   style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
                     color: Colors.black87,
-                    letterSpacing: -0.2,
                   ),
                 ),
                 Text(
                   isVerified
-                      ? 'Your identity has been verified.'
+                      ? 'तपाईंको पहिचान प्रमाणित भयो।'
                       : (isPending 
-                          ? 'Your documents are being reviewed.' 
-                          : (isRejected ? 'Documents rejected. Please try again.' : 'Verify KYC to list your property.')),
-                                    style: GoogleFonts.inter(
+                          ? 'तपाईंको कागजातहरू जाँच हुँदैछ।' 
+                          : (isRejected ? 'कागजात अस्वीकृत भयो। फेरि प्रयास गर्नुहोस्।' : 'घरभाडामा राख्न केवाईसी भेरिफाइ गर्नुहोस्। 👉')),
+                  style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w500,
@@ -288,22 +302,21 @@ class VerificationCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor,
-                  borderRadius: BorderRadius.circular(50),
+                  borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.brandColor.withOpacity(0.25),
-                      blurRadius: 12,
+                      color: AppTheme.brandColor.withOpacity(0.2),
+                      blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: Text(
-                  isRejected ? 'Retry ➔' : 'Verify ➔',
+                  isRejected ? 'Retry  ➔' : 'Verify  ➔',
                   style: GoogleFonts.inter(
                     color: Colors.white,
                     fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -315,10 +328,12 @@ class VerificationCard extends StatelessWidget {
 }
 
 class PostPropertyCard extends StatelessWidget {
+  final Animation<double> shimmerAnimation;
   final VoidCallback onPost;
 
   const PostPropertyCard({
     super.key,
+    required this.shimmerAnimation,
     required this.onPost,
   });
 
@@ -326,103 +341,167 @@ class PostPropertyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 140,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
+          colors: [
+            Color(0xFF007799),
+            Color(0xFF00A3E1),
+            Color(0xFFE1F5FE),
+            Color(0xFF00A3E1),
+            Color(0xFF007799),
+          ],
+          stops: [0.0, 0.2, 0.5, 0.8, 1.0],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF00A3E1),
-            Color(0xFF0077A8),
-          ],
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: const Color(0xFFE1F5FE).withOpacity(0.6),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00A3E1).withOpacity(0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: const Color(0xFF00A3E1).withOpacity(0.25),
+            blurRadius: 25,
+            spreadRadius: -5,
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            // Text Content
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(0.4, -0.4),
+                    focal: const Alignment(0.2, -0.2),
+                    focalRadius: 1.2,
+                    colors: [
+                      Colors.white.withOpacity(0.4),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            AnimatedBuilder(
+              animation: shimmerAnimation,
+              builder: (context, child) {
+                return Positioned.fill(
+                  child: FractionallySizedBox(
+                    widthFactor: 2.0,
+                    alignment: Alignment(shimmerAnimation.value, 0.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: const [0.35, 0.5, 0.65],
+                          colors: [
+                            Colors.transparent,
+                            Colors.white.withOpacity(0.25),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            Positioned(
+              right: -15,
+              bottom: -15,
+              child: Icon(
+                Icons.home_work_rounded,
+                size: 110,
+                color: const Color(0xFF002C40).withOpacity(0.05),
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Ready to Rent Out?',
-                    style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontSize: 21,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.8,
-                      height: 1.1,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'आफ्नो घर वा कोठा भाडामा राख्नुहोस्',
-                    style: GoogleFonts.mukta(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        onPost();
-                      },
-                      borderRadius: BorderRadius.circular(50),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(50),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                          color: const Color(0xFF002C40).withOpacity(0.1),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFF002C40).withOpacity(0.15),
+                            width: 1,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.add_home_rounded,
+                          color: Color(0xFF002C40),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Ready to Rent?',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: const Color(0xFF002C40),
+                                fontSize: 20,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.6,
+                              ),
+                            ),
+                            Text(
+                              'List your property easily',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: const Color(0xFF002C40).withOpacity(0.7),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                height: 1.1,
+                              ),
                             ),
                           ],
                         ),
-                        child: Text(
-                          'Post Now',
-                          style: GoogleFonts.inter(
-                            color: const Color(0xFF0077A8),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.1,
-                          ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: onPost,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF002C40),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 6,
+                        shadowColor: const Color(0xFF002C40).withOpacity(0.4),
+                      ),
+                      child: Text(
+                        'Post Your Property',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4,
                         ),
                       ),
                     ),
                   ),
                 ],
-              ),
-            ),
-
-            // House — bleeds off right edge
-            Positioned(
-              right: -75,
-              bottom: -35,
-              top: -30,
-              width: 270,
-              child: Image.asset(
-                'assets/images/tiny house.png',
-                fit: BoxFit.contain,
               ),
             ),
           ],
@@ -452,10 +531,10 @@ class ProfileMenuSection extends StatelessWidget {
           child: Text(
             title.toUpperCase(),
             style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              color: const Color(0xFF94A3B8),
-              letterSpacing: 1.5,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.black38,
+              letterSpacing: 1.2,
             ),
           ),
         ),
@@ -515,19 +594,19 @@ class ProfileMenuItem extends StatelessWidget {
       ),
       title: Text(
         title,
-                style: GoogleFonts.inter(
+        style: GoogleFonts.inter(
           fontSize: 15,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w500,
           color: const Color(0xFF1E1E1E),
-          letterSpacing: -0.2,
+          letterSpacing: -0.3,
         ),
       ),
       subtitle: Text(
         subtitle,
-                style: GoogleFonts.inter(
+        style: GoogleFonts.inter(
           fontSize: 12,
           color: Colors.grey[500],
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w500,
           letterSpacing: -0.1,
         ),
       ),
