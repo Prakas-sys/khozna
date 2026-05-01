@@ -5,6 +5,7 @@ import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
+import 'package:khozna/core/security/security_utils.dart';
 import 'dart:io';
 
 class PropertyRepository {
@@ -184,10 +185,16 @@ class PropertyRepository {
     final user = _client.auth.currentUser;
     if (user == null) throw 'User not authenticated';
 
-    // 1. AI Scam Check
+    // 1. Sanitization (Defense Layer)
+    final cleanTitle = SecurityUtils.sanitizeInput(title);
+    final cleanArea = SecurityUtils.sanitizeInput(areaName);
+    final cleanLandmark = SecurityUtils.sanitizeInput(landmark);
+    final cleanDescription = SecurityUtils.sanitizeInput(description, maxLength: 1000);
+
+    // 2. AI Scam Check
     final aiService = KhoznaAiService();
     try {
-      final scamResult = await aiService.detectScam(title, price.toString(), areaName);
+      final scamResult = await aiService.detectScam(cleanTitle, price.toString(), cleanArea);
       if (scamResult.toLowerCase().contains("scam")) {
         debugPrint("AI SCAM WARNING: $scamResult");
       }
@@ -195,7 +202,7 @@ class PropertyRepository {
       debugPrint("AI Scam Check Error: $e");
     }
 
-    // 2. Parallel Media Uploads
+    // 3. Parallel Media Uploads
     String? videoUrl;
     if (videoFile != null) {
       videoUrl = await CloudinaryService.uploadVideo(videoFile);
@@ -207,29 +214,29 @@ class PropertyRepository {
 
     if (uploadedUrls.isEmpty) throw 'Failed to upload any images.';
 
-    // 3. AI Landmark Detection
+    // 4. AI Landmark Detection
     List<Map<String, dynamic>> nearbyLandmarks = [];
     try {
-      nearbyLandmarks = await aiService.getNearbyLandmarks(areaName, landmark);
+      nearbyLandmarks = await aiService.getNearbyLandmarks(cleanArea, cleanLandmark);
     } catch (e) {
       debugPrint("AI Landmarks Error: $e");
     }
 
-    // 4. Algorithm: Auto-categorize based on keywords
+    // 5. Algorithm: Auto-categorize based on keywords
     final studentKeywords = ['student', 'college', 'university', 'tuition', 'hostel', 'p.g.', 'pg', 'library', 'campus', 'विद्यार्थी', 'कलेज', 'अध्ययन'];
     final premiumKeywords = ['premium', 'luxury', 'modern', 'deluxe', 'fully furnished', 'modular', 'brand new', 'विलासी', 'आधुनिक', 'भिआइपी', 'vip'];
     
-    final fullText = (title + description).toLowerCase();
+    final fullText = (cleanTitle + cleanDescription).toLowerCase();
     final bool autoStudent = studentKeywords.any((k) => fullText.contains(k));
     final bool autoPremium = premiumKeywords.any((k) => fullText.contains(k)) || price >= 18000;
 
-    // 5. Database Insert
+    // 6. Database Insert
     final response = await _client.from('properties').insert({
       'owner_id': user.id,
-      'title': title,
+      'title': cleanTitle,
       'category': category,
-      'area_name': areaName,
-      'landmark': landmark,
+      'area_name': cleanArea,
+      'landmark': cleanLandmark,
       'price': price,
       'bedrooms': bedrooms,
       'bathrooms': bathrooms,
@@ -239,7 +246,7 @@ class PropertyRepository {
       'amenities': amenities,
       'house_rules': houseRules,
       'images': uploadedUrls,
-      'description': description,
+      'description': cleanDescription,
       'latitude': latitude,
       'longitude': longitude,
       'video_url': videoUrl,

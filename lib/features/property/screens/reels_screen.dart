@@ -397,8 +397,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 text: TextSpan(
                                   children: [
                                     TextSpan(
-                                      text: '₹ ',
-                                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w900, color: AppTheme.brandColor),
+                                      text: 'Rs. ',
+                                      style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w900, color: AppTheme.brandColor),
                                     ),
                                     TextSpan(
                                       text: '${property.price} /mo',

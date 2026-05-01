@@ -262,7 +262,7 @@ class _ChatBubble extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (context) => FilterResultsScreen(
                           location: query ?? '',
-                          priceRange: 'Up to ₹ 15000',
+                          priceRange: 'Up to Rs. 15000',
                         ),
                       ),
                     );

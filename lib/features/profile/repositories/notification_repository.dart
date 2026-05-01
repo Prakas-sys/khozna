@@ -94,8 +94,13 @@ class NotificationRepository {
 
   /// Delete a specific notification
   static Future<void> deleteNotification(String id) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
     try {
-      await _client.from('notifications').delete().eq('id', id);
+      await _client.from('notifications')
+          .delete()
+          .eq('id', id)
+          .eq('user_id', user.id); // 🔐 IDOR Protection
     } catch (e) {
       debugPrint('Error deleting notification: $e');
     }

@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/features/profile/screens/kyc_screen.dart';
+import 'package:khozna/core/security/security_utils.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -36,7 +37,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
+    SecurityUtils.setSecure(true); // 🔐 Screen Shield: blocks screenshots on profile data
     _loadUserData();
+  }
+
+  @override
+  void dispose() {
+    SecurityUtils.setSecure(false);
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserData() async {
@@ -163,7 +174,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await Supabase.instance.client.auth.updateUser(
           UserAttributes(
             data: {
-              'full_name': _fullNameController.text.trim(),
+              'full_name': SecurityUtils.sanitizeInput(_fullNameController.text),
               'avatar_url': newImageUrl,
             },
           ),
@@ -172,7 +183,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await Supabase.instance.client
             .from('profiles')
             .update({
-              'full_name': _fullNameController.text.trim(),
+              'full_name': SecurityUtils.sanitizeInput(_fullNameController.text),
               'avatar_url': newImageUrl,
             })
             .eq('id', user!.id);

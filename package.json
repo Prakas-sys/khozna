@@ -3,5 +3,8 @@
   "private": true,
   "scripts": {
     "build": "npm install --prefix admin_dashboard_web && npm run build --prefix admin_dashboard_web"
+  },
+  "dependencies": {
+    "pg": "^8.20.0"
   }
 }

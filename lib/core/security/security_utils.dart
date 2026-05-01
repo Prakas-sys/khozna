@@ -22,21 +22,29 @@ class SecurityUtils {
     }
   }
 
-  /// 2. Root/Jailbreak Detection (The "Mr. Robot" Defense)
-  /// Checks if the device is rooted or jailbroken to prevent running in compromised environments.
-  static Future<bool> isDeviceCompromised() async {
+  /// 2. Root/Jailbreak & Integrity Detection (The "Anti-Hacker" Defense)
+  /// Checks if the device is rooted, an emulator, or using mock locations.
+  static Future<SecurityStatus> getDeviceStatus() async {
     try {
-      // SafeDevice checks multiple factors: rooted, real device, mock location
-      bool isRooted = await SafeDevice.isJailBroken;
-      bool isRealDevice = await SafeDevice.isRealDevice;
+      final bool isRooted = await SafeDevice.isJailBroken;
+      final bool isRealDevice = await SafeDevice.isRealDevice;
+      final bool isMockLocation = await SafeDevice.isMockLocation;
 
-      // We consider the device compromised if it's rooted OR it's an emulator (optional)
-      // For now, only block rooted/jailbroken devices.
-      return isRooted;
-    } catch (e) {
-      // If detection fails, assume safe to avoid blocking legitimate users due to errors.
-      return false;
+      if (isRooted) return SecurityStatus.rooted;
+      if (!isRealDevice) return SecurityStatus.emulator;
+      if (isMockLocation) return SecurityStatus.mockLocation;
+      
+      return SecurityStatus.safe;
+    } catch (_) {
+      // Fail open in case of detection errors to avoid blocking real users
+      return SecurityStatus.safe;
     }
+  }
+
+  /// Legacy method for compatibility
+  static Future<bool> isDeviceCompromised() async {
+    final status = await getDeviceStatus();
+    return status != SecurityStatus.safe;
   }
 
   /// 3. Secure Storage Methods (The "Vault")
@@ -91,3 +99,5 @@ class SecurityUtils {
     return RegExp(r'^(97|98)\d{8}$').hasMatch(phone.trim());
   }
 }
+
+enum SecurityStatus { safe, rooted, emulator, mockLocation }

@@ -88,7 +88,7 @@ class PropertyCard extends StatelessWidget {
                         children: [
                                                                           Expanded(child: Text(property.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1A1A2E), letterSpacing: -0.5))),
                           const SizedBox(width: 4),
-                          RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(property.price), style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.brandColor))])),
+                          RichText(text: TextSpan(children: [TextSpan(text: 'Rs. ', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(property.price), style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.brandColor))])),
                         ],
                       ),
                       const SizedBox(height: 4),

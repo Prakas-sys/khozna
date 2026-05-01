@@ -22,6 +22,7 @@ async function run() {
           avatar_url TEXT,
           kyc_status TEXT DEFAULT 'not_started',
           is_owner BOOLEAN DEFAULT false,
+          is_admin BOOLEAN DEFAULT false,
           fcm_token TEXT,
           created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -116,26 +117,117 @@ async function run() {
       ALTER TABLE public.chats ENABLE ROW LEVEL SECURITY;
       ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
 
-      DROP POLICY IF EXISTS "Allow all access profiles" ON public.profiles;
-      CREATE POLICY "Allow all access profiles" ON public.profiles FOR ALL USING (true);
+      -- RLS POLICIES
       
-      DROP POLICY IF EXISTS "Allow all access properties" ON public.properties;
-      CREATE POLICY "Allow all access properties" ON public.properties FOR ALL USING (true);
-      
-      DROP POLICY IF EXISTS "Allow all access saved" ON public.saved_properties;
-      CREATE POLICY "Allow all access saved" ON public.saved_properties FOR ALL USING (true);
-      
-      DROP POLICY IF EXISTS "Allow all access kyc" ON public.kyc_verifications;
-      CREATE POLICY "Allow all access kyc" ON public.kyc_verifications FOR ALL USING (true);
-      
-      DROP POLICY IF EXISTS "Allow all access notif" ON public.notifications;
-      CREATE POLICY "Allow all access notif" ON public.notifications FOR ALL USING (true);
-      
-      DROP POLICY IF EXISTS "Allow all access chats" ON public.chats;
-      CREATE POLICY "Allow all access chats" ON public.chats FOR ALL USING (true);
-      
-      DROP POLICY IF EXISTS "Allow all access msgs" ON public.messages;
-      CREATE POLICY "Allow all access msgs" ON public.messages FOR ALL USING (true);
+      -- PROFILES: Everyone can view, but only owner or admin can update
+      DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON public.profiles;
+      CREATE POLICY "Public profiles are viewable by everyone" ON public.profiles
+        FOR SELECT USING (true);
+
+      DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+      CREATE POLICY "Users can update own profile" ON public.profiles
+        FOR UPDATE USING (
+          auth.uid()::text = id OR 
+          (SELECT is_admin FROM public.profiles WHERE id = auth.uid()::text) = true
+        );
+
+      -- PROPERTIES: Everyone can view, only owners or admins can manage
+      DROP POLICY IF EXISTS "Properties are viewable by everyone" ON public.properties;
+      CREATE POLICY "Properties are viewable by everyone" ON public.properties
+        FOR SELECT USING (true);
+
+      DROP POLICY IF EXISTS "Owners can insert properties" ON public.properties;
+      CREATE POLICY "Owners can insert properties" ON public.properties
+        FOR INSERT WITH CHECK (auth.uid()::text = owner_id);
+
+      DROP POLICY IF EXISTS "Owners can update own properties" ON public.properties;
+      CREATE POLICY "Owners can update own properties" ON public.properties
+        FOR UPDATE USING (
+          auth.uid()::text = owner_id OR 
+          (SELECT is_admin FROM public.profiles WHERE id = auth.uid()::text) = true
+        );
+
+      DROP POLICY IF EXISTS "Owners can delete own properties" ON public.properties;
+      CREATE POLICY "Owners can delete own properties" ON public.properties
+        FOR DELETE USING (
+          auth.uid()::text = owner_id OR 
+          (SELECT is_admin FROM public.profiles WHERE id = auth.uid()::text) = true
+        );
+
+      -- SAVED PROPERTIES: Only owners can manage their favorites
+      DROP POLICY IF EXISTS "Users can manage own favorites" ON public.saved_properties;
+      CREATE POLICY "Users can manage own favorites" ON public.saved_properties
+        FOR ALL USING (auth.uid()::text = user_id);
+
+      -- KYC: Only owner can manage, admins can view/update
+      DROP POLICY IF EXISTS "Users can manage own KYC" ON public.kyc_verifications;
+      CREATE POLICY "Users can manage own KYC" ON public.kyc_verifications
+        FOR ALL USING (
+          auth.uid()::text = user_id OR 
+          (SELECT is_admin FROM public.profiles WHERE id = auth.uid()::text) = true
+        );
+
+      -- NOTIFICATIONS: Only owner can see/update their notifications
+      DROP POLICY IF EXISTS "Users can manage own notifications" ON public.notifications;
+      CREATE POLICY "Users can manage own notifications" ON public.notifications
+        FOR ALL USING (auth.uid()::text = user_id);
+
+      -- CHATS: Users can only see/delete chats they are part of, admins can see/delete all
+      DROP POLICY IF EXISTS "Users can view their own chats" ON public.chats;
+      CREATE POLICY "Users can view their own chats" ON public.chats
+        FOR SELECT USING (
+          auth.uid()::text = participant_one OR 
+          auth.uid()::text = participant_two OR
+          (SELECT is_admin FROM public.profiles WHERE id = auth.uid()::text) = true
+        );
+
+      DROP POLICY IF EXISTS "Users can delete their own chats" ON public.chats;
+      CREATE POLICY "Users can delete their own chats" ON public.chats
+        FOR DELETE USING (
+          auth.uid()::text = participant_one OR 
+          auth.uid()::text = participant_two OR
+          (SELECT is_admin FROM public.profiles WHERE id = auth.uid()::text) = true
+        );
+
+      -- MESSAGES: Users can only see/send messages in their chats
+      DROP POLICY IF EXISTS "Users can view messages in their chats" ON public.messages;
+      CREATE POLICY "Users can view messages in their chats" ON public.messages
+        FOR SELECT USING (
+          (SELECT is_admin FROM public.profiles WHERE id = auth.uid()::text) = true OR
+          EXISTS (
+            SELECT 1 FROM public.chats 
+            WHERE chats.id = messages.chat_id 
+            AND (chats.participant_one = auth.uid()::text OR chats.participant_two = auth.uid()::text)
+          )
+        );
+
+      DROP POLICY IF EXISTS "Users can send messages to their chats" ON public.messages;
+      CREATE POLICY "Users can send messages to their chats" ON public.messages
+        FOR INSERT WITH CHECK (
+          auth.uid()::text = sender_id AND
+          EXISTS (
+            SELECT 1 FROM public.chats 
+            WHERE chats.id = messages.chat_id 
+            AND (chats.participant_one = auth.uid()::text OR chats.participant_two = auth.uid()::text)
+          )
+        );
+
+      DROP POLICY IF EXISTS "Users can update messages in their chats" ON public.messages;
+      CREATE POLICY "Users can update messages in their chats" ON public.messages
+        FOR UPDATE USING (
+          EXISTS (
+            SELECT 1 FROM public.chats 
+            WHERE chats.id = messages.chat_id 
+            AND (chats.participant_one = auth.uid()::text OR chats.participant_two = auth.uid()::text)
+          )
+        );
+
+      DROP POLICY IF EXISTS "Users can delete their own messages" ON public.messages;
+      CREATE POLICY "Users can delete their own messages" ON public.messages
+        FOR DELETE USING (
+          auth.uid()::text = sender_id OR
+          (SELECT is_admin FROM public.profiles WHERE id = auth.uid()::text) = true
+        );
 
       -- Sync function
       CREATE OR REPLACE FUNCTION public.sync_firebase_user(

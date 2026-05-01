@@ -72,7 +72,32 @@ class AdminRepository {
 
   static void listenToAdminAlerts(Function onNewEvent) {
     final user = _client.auth.currentUser;
-    if (user == null || user.email != 'khoznaapp@gmail.com') return;
-    _client.channel('admin-updates').onPostgresChanges(event: PostgresChangeEvent.insert, schema: 'public', table: 'kyc_verifications', callback: (_) { notificationBadgeCount.value++; onNewEvent(); }).onPostgresChanges(event: PostgresChangeEvent.insert, schema: 'public', table: 'user_reports', callback: (_) { notificationBadgeCount.value++; onNewEvent(); }).subscribe();
+    if (user == null) return;
+    
+    // We fetch the profile to check the is_admin flag we added
+    _client.from('profiles').select('is_admin').eq('id', user.id).single().then((profile) {
+      if (profile['is_admin'] != true) return;
+      
+      _client.channel('admin-updates')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert, 
+          schema: 'public', 
+          table: 'kyc_verifications', 
+          callback: (_) { 
+            notificationBadgeCount.value++; 
+            onNewEvent(); 
+          }
+        )
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert, 
+          schema: 'public', 
+          table: 'user_reports', 
+          callback: (_) { 
+            notificationBadgeCount.value++; 
+            onNewEvent(); 
+          }
+        )
+        .subscribe();
+    });
   }
 }

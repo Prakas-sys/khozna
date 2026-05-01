@@ -45,7 +45,7 @@ class _KycScreenState extends State<KycScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(false);
+    SecurityUtils.setSecure(true); // 🔐 Screen Shield: blocks screenshots on KYC documents
     _loadInitialData();
   }
 
@@ -246,10 +246,10 @@ class _KycScreenState extends State<KycScreen> {
 
       await supabase.Supabase.instance.client.from('kyc_verifications').insert({
         'user_id': user.id,
-        'full_name': _nameController.text.trim(),
-        'email': _emailController.text.trim(),
-        'phone_number': _phoneController.text.trim(),
-        'citizenship_number': _citizenshipController.text.trim(),
+        'full_name': SecurityUtils.sanitizeInput(_nameController.text),
+        'email': SecurityUtils.sanitizeInput(_emailController.text),
+        'phone_number': SecurityUtils.sanitizeInput(_phoneController.text),
+        'citizenship_number': SecurityUtils.sanitizeInput(_citizenshipController.text),
         'front_image_url': frontUrl,
         'back_image_url': backUrl,
         'selfie_image_url': selfieUrl,
@@ -263,7 +263,7 @@ class _KycScreenState extends State<KycScreen> {
       await supabase.Supabase.instance.client
           .from('profiles')
           .update({
-            'full_name': _nameController.text.trim(),
+            'full_name': SecurityUtils.sanitizeInput(_nameController.text),
             'kyc_status': 'pending',
             'email_verified': _isEmailVerified,
             'phone_verified': _isPhoneVerified,

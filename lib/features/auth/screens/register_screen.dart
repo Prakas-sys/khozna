@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/screens/main_screen.dart';
 import 'package:khozna/core/theme/app_theme.dart';
+import 'package:khozna/core/security/security_utils.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -25,7 +26,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    SecurityUtils.setSecure(true); // 🔐 Screen Shield: blocks screenshots on register
+  }
+
+  @override
   void dispose() {
+    SecurityUtils.setSecure(false);
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();

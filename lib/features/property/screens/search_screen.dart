@@ -177,7 +177,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       MaterialPageRoute(
                                         builder: (context) => FilterResultsScreen(
                                           location: val,
-                                          priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                                          priceRange: 'Up to Rs. ${_priceValue.toInt()}',
                                         ),
                                       ),
                                     );
@@ -452,9 +452,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: '₹ ',
+                              text: 'Rs. ',
                               style: GoogleFonts.inter(
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w900,
                                 color: AppTheme.brandColor,
                               ),
