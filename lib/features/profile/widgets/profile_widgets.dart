@@ -344,53 +344,26 @@ class PostPropertyCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF007799),
+            Color(0xFF0077AA),
             Color(0xFF00A3E1),
-            Color(0xFFE1F5FE),
-            Color(0xFF00A3E1),
-            Color(0xFF007799),
           ],
-          stops: [0.0, 0.2, 0.5, 0.8, 1.0],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
         ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: const Color(0xFFE1F5FE).withOpacity(0.6),
-          width: 1.5,
-        ),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 15,
+            color: const Color(0xFF0077AA).withOpacity(0.3),
+            blurRadius: 16,
             offset: const Offset(0, 8),
-          ),
-          BoxShadow(
-            color: const Color(0xFF00A3E1).withOpacity(0.25),
-            blurRadius: 25,
-            spreadRadius: -5,
           ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: const Alignment(0.4, -0.4),
-                    focal: const Alignment(0.2, -0.2),
-                    focalRadius: 1.2,
-                    colors: [
-                      Colors.white.withOpacity(0.4),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Shimmer sweep
             AnimatedBuilder(
               animation: shimmerAnimation,
               builder: (context, child) {
@@ -406,7 +379,7 @@ class PostPropertyCard extends StatelessWidget {
                           stops: const [0.35, 0.5, 0.65],
                           colors: [
                             Colors.transparent,
-                            Colors.white.withOpacity(0.25),
+                            Colors.white.withOpacity(0.15),
                             Colors.transparent,
                           ],
                         ),
@@ -416,87 +389,64 @@ class PostPropertyCard extends StatelessWidget {
                 );
               },
             ),
+            // 3D house image (Large and positioned at the bottom right)
             Positioned(
-              right: -15,
-              bottom: -15,
-              child: Icon(
-                Icons.home_work_rounded,
-                size: 110,
-                color: const Color(0xFF002C40).withOpacity(0.05),
+              right: -20,
+              bottom: -20,
+              child: Image.asset(
+                'assets/images/tiny house.png',
+                width: 200,
+                height: 200,
+                fit: BoxFit.contain,
               ),
             ),
+            // Main content row
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22.0, vertical: 24.0),
+              padding: const EdgeInsets.fromLTRB(22, 24, 70, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF002C40).withOpacity(0.1),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFF002C40).withOpacity(0.15),
-                            width: 1,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.add_home_rounded,
-                          color: Color(0xFF002C40),
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Ready to Rent?',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: const Color(0xFF002C40),
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: -0.6,
-                              ),
-                            ),
-                            Text(
-                              'List your property easily',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: const Color(0xFF002C40).withOpacity(0.7),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                height: 1.1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  Text(
+                    'Ready to Rent Out?',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
                   ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: onPost,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF002C40),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 6,
-                        shadowColor: const Color(0xFF002C40).withOpacity(0.4),
+                  const SizedBox(height: 6),
+                  Text(
+                    'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  GestureDetector(
+                    onTap: onPost,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.12),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: Text(
-                        'Post Your Property',
+                        'Post Now',
                         style: GoogleFonts.plusJakartaSans(
+                          color: const Color(0xFF0077AA),
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 0.4,
                         ),
                       ),
                     ),
@@ -510,6 +460,7 @@ class PostPropertyCard extends StatelessWidget {
     );
   }
 }
+
 
 class ProfileMenuSection extends StatelessWidget {
   final String title;
