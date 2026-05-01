@@ -67,30 +67,33 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                 ScaleTransition(
                   scale: _scaleAnim,
                   child: Container(
-                    width: 120,
-                    height: 120,
-                    padding: const EdgeInsets.all(28),
+                    width: 140,
+                    height: 140,
                     decoration: BoxDecoration(
                       color: AppTheme.brandColor.withOpacity(0.08),
                       shape: BoxShape.circle,
                     ),
+                    alignment: Alignment.center,
                     child: Container(
-                      padding: const EdgeInsets.all(20),
+                      width: 90,
+                      height: 90,
                       decoration: const BoxDecoration(
                         color: AppTheme.brandColor,
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Color(0x333B82F6),
-                            blurRadius: 40,
-                            offset: Offset(0, 15),
+                            color: Color(0x403B82F6),
+                            blurRadius: 30,
+                            offset: Offset(0, 10),
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.check_rounded,
-                        color: Colors.white,
-                        size: 64,
+                      child: const Center(
+                        child: Icon(
+                          Icons.check_rounded,
+                          color: Colors.white,
+                          size: 52,
+                        ),
                       ),
                     ),
                   ),

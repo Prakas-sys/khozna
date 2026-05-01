@@ -12,7 +12,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
+// flutter_app_badger removed due to build issues
 import 'core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'core/security/security_utils.dart';
@@ -31,19 +31,9 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   
-  // Try to update badge count in background
-  try {
-    final bool isChatMessage = message.data['table'] == 'messages' || message.data['type'] == 'chat';
-    if (await FlutterAppBadger.isAppBadgeSupported()) {
-       // Since we don't have the full state in the background isolate, 
-       // we can at least ensure a badge is shown if a notification arrives.
-       // Ideally we would fetch the actual count from Supabase here.
-       // For now, let's just increment or set to 1 to ensure visibility.
-       FlutterAppBadger.updateBadgeCount(1); 
-    }
-  } catch (e) {
-    debugPrint("Error updating badge in background: $e");
-  }
+  // Badge count logic removed due to plugin issues
+  // We rely on in-app badges for now
+  debugPrint("Background message received: ${message.messageId}");
 }
 
 void main() async {
