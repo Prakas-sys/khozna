@@ -1,7 +1,7 @@
 val newBuildDir = File(rootProject.projectDir, "../build")
 rootProject.layout.buildDirectory.set(newBuildDir)
 
-rootProject.extra.set("kotlin_version", "2.1.0")
+rootProject.extra.set("kotlin_version", "2.3.0")
 
 allprojects {
     repositories {
@@ -36,9 +36,9 @@ subprojects {
         resolutionStrategy {
             force("androidx.core:core:1.13.1")
             force("androidx.core:core-ktx:1.13.1")
-            force("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
-            force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0")
-            force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0")
+            force("org.jetbrains.kotlin:kotlin-stdlib:2.3.0")
+            force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.3.0")
+            force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.3.0")
         }
     }
 }
