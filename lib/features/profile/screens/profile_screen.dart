@@ -22,6 +22,7 @@ import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/profile/widgets/profile_widgets.dart';
+import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isVerified;
@@ -237,6 +238,12 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         );
                       },
                     ),
+                    const SizedBox(height: 20),
+                    if (user != null)
+                      TrustVoteCard(
+                        targetUserId: user!.id,
+                        targetName: user?.userMetadata?['full_name'] ?? 'You',
+                      ),
                     const SizedBox(height: 24),
                   ],
 

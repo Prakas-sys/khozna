@@ -26,6 +26,7 @@ The database is optimized for Firebase Auth synchronization using `TEXT` based I
 - `notifications`: System and booking alerts.
 - `chats`: Conversation threads between users/owners.
 - `messages`: Individual chat messages.
+- `user_votes`: Community trust votes between users (voter_id → target_id, unique per pair).
 
 ## Security Standards
 - **Screen Shield:** `SecurityUtils.setSecure(true)` used on sensitive screens (Login, OTP, KYC) to prevent screenshots/recordings.

@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
+import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
 
 class OwnerProfileScreen extends StatelessWidget {
   final String ownerId; // New: ownerId required for reporting
@@ -36,7 +37,7 @@ class OwnerProfileScreen extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Owner Profile',
+          totalListings > 0 ? 'Owner Profile' : 'User Profile',
           style: GoogleFonts.inter(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -127,7 +128,15 @@ class OwnerProfileScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
+
+            // Trust Vote Card
+            TrustVoteCard(
+              targetUserId: ownerId,
+              targetName: name,
+            ),
+
+            const SizedBox(height: 24),
 
             // KYC Status Card
             Container(
@@ -175,7 +184,7 @@ class OwnerProfileScreen extends StatelessWidget {
                         Text(
                           isVerified
                               ? 'Identity is fully verified and trusted.'
-                              : 'Owner is in the process of verification.',
+                              : '${totalListings > 0 ? 'Owner' : 'User'} is in the process of verification.',
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: isVerified
@@ -220,7 +229,7 @@ class OwnerProfileScreen extends StatelessWidget {
                       elevation: 0,
                     ),
                     child: Text(
-                      'Message Owner',
+                      'Message ${totalListings > 0 ? 'Owner' : 'User'}',
                       style: GoogleFonts.inter(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -252,7 +261,7 @@ class OwnerProfileScreen extends StatelessWidget {
                 size: 18,
               ),
               label: Text(
-                'Report this Owner',
+                'Report this ${totalListings > 0 ? 'Owner' : 'User'}',
                 style: GoogleFonts.inter(
                   color: Colors.red,
                   fontSize: 13,

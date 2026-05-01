@@ -1,0 +1,375 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:khozna/core/theme/app_theme.dart';
+import 'package:khozna/features/profile/repositories/vote_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class TrustVoteCard extends StatefulWidget {
+  final String targetUserId;
+  final String targetName;
+
+  const TrustVoteCard({
+    super.key,
+    required this.targetUserId,
+    required this.targetName,
+  });
+
+  @override
+  State<TrustVoteCard> createState() => _TrustVoteCardState();
+}
+
+class _TrustVoteCardState extends State<TrustVoteCard>
+    with SingleTickerProviderStateMixin {
+  bool _hasVoted = false;
+  int _voteCount = 0;
+  bool _isLoading = true;
+  bool _isVoting = false;
+  late AnimationController _animController;
+  late Animation<double> _scaleAnim;
+
+  final String? _currentUserId =
+      Supabase.instance.client.auth.currentUser?.id;
+
+  bool get _isOwnProfile => _currentUserId == widget.targetUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _scaleAnim = Tween<double>(begin: 1.0, end: 1.3).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.elasticOut),
+    );
+    _loadVoteData();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadVoteData() async {
+    final count = await VoteRepository.getVoteCount(widget.targetUserId);
+    final voted = await VoteRepository.hasVoted(widget.targetUserId);
+    if (mounted) {
+      setState(() {
+        _voteCount = count;
+        _hasVoted = voted;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _handleVote() async {
+    if (_isVoting || _isOwnProfile) return;
+    setState(() => _isVoting = true);
+    HapticFeedback.mediumImpact();
+
+    final result = await VoteRepository.toggleVote(
+      widget.targetUserId,
+      _voteCount,
+      _hasVoted,
+    );
+
+    if (mounted) {
+      setState(() {
+        _hasVoted = result.hasVoted;
+        _voteCount = result.count;
+        _isVoting = false;
+      });
+      if (result.hasVoted) {
+        _animController.forward().then((_) => _animController.reverse());
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: _hasVoted
+              ? [
+                  AppTheme.brandColor.withOpacity(0.08),
+                  AppTheme.brandColor.withOpacity(0.03),
+                ]
+              : [
+                  Colors.grey.shade50,
+                  Colors.white,
+                ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: _hasVoted
+              ? AppTheme.brandColor.withOpacity(0.3)
+              : Colors.grey.shade200,
+          width: _hasVoted ? 1.5 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: _hasVoted
+                ? AppTheme.brandColor.withOpacity(0.08)
+                : Colors.black.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: _isLoading
+          ? const Center(
+              child: SizedBox(
+                height: 24,
+                width: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppTheme.brandColor,
+                ),
+              ),
+            )
+          : Column(
+              children: [
+                Row(
+                  children: [
+                    // Vote count display
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.how_to_vote_rounded,
+                                color: AppTheme.brandColor,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Community Trust',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '$_voteCount ',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 28,
+                                    color: AppTheme.brandColor,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: _voteCount == 1
+                                      ? 'जनाले भरोसा गरेका छन्'
+                                      : 'जनाले भरोसा गरेका छन्',
+                                  style: GoogleFonts.mukta(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            '$_voteCount ${_voteCount == 1 ? 'person' : 'people'} voted this user trusted',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Vote Button
+                    if (!_isOwnProfile) ...[
+                      const SizedBox(width: 16),
+                      GestureDetector(
+                        onTap: _handleVote,
+                        child: AnimatedBuilder(
+                          animation: _scaleAnim,
+                          builder: (context, child) => Transform.scale(
+                            scale: _scaleAnim.value,
+                            child: child,
+                          ),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _hasVoted
+                                  ? AppTheme.brandColor
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: AppTheme.brandColor,
+                                width: 1.5,
+                              ),
+                              boxShadow: _hasVoted
+                                  ? [
+                                      BoxShadow(
+                                        color: AppTheme.brandColor
+                                            .withOpacity(0.3),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
+                                      )
+                                    ]
+                                  : [],
+                            ),
+                            child: _isVoting
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: _hasVoted
+                                          ? Colors.white
+                                          : AppTheme.brandColor,
+                                    ),
+                                  )
+                                : Column(
+                                    children: [
+                                      Icon(
+                                        _hasVoted
+                                            ? Icons.thumb_up_rounded
+                                            : Icons.thumb_up_alt_outlined,
+                                        color: _hasVoted
+                                            ? Colors.white
+                                            : AppTheme.brandColor,
+                                        size: 22,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _hasVoted ? 'Voted!' : 'Vote',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: _hasVoted
+                                              ? Colors.white
+                                              : AppTheme.brandColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      // Own profile — show "Your Votes" indicator
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          'Your\nTrust Score',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.brandColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+
+                // Trust level bar
+                const SizedBox(height: 16),
+                _buildTrustBar(),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildTrustBar() {
+    final String trustLabel;
+    final Color trustColor;
+    final double trustProgress;
+
+    if (_voteCount == 0) {
+      trustLabel = 'नयाँ सदस्य · New Member';
+      trustColor = Colors.grey;
+      trustProgress = 0.05;
+    } else if (_voteCount < 5) {
+      trustLabel = 'उदाउँदो · Rising';
+      trustColor = Colors.orange;
+      trustProgress = _voteCount / 10;
+    } else if (_voteCount < 15) {
+      trustLabel = 'भरोसायोग्य · Trustworthy';
+      trustColor = Colors.green;
+      trustProgress = _voteCount / 20;
+    } else if (_voteCount < 30) {
+      trustLabel = 'समुदाय प्रिय · Community Favourite';
+      trustColor = AppTheme.brandColor;
+      trustProgress = _voteCount / 40;
+    } else {
+      trustLabel = '⭐ खोज्ना भरोसेमान · Khozna Trusted';
+      trustColor = const Color(0xFFFFD700);
+      trustProgress = 1.0;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              trustLabel,
+              style: GoogleFonts.mukta(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: trustColor,
+              ),
+            ),
+            Text(
+              '$_voteCount votes',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: Colors.grey[400],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: trustProgress.clamp(0.0, 1.0)),
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, _) => LinearProgressIndicator(
+              value: value,
+              minHeight: 8,
+              backgroundColor: Colors.grey.shade100,
+              valueColor: AlwaysStoppedAnimation<Color>(trustColor),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -10,6 +10,7 @@ import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
+import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import '../widgets/chat_widgets.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class ChatScreen extends StatefulWidget {
   final String phone;
   final String ownerId;
   final bool isVerified;
+  final bool isOwner;
 
   const ChatScreen({
     super.key,
@@ -30,6 +32,7 @@ class ChatScreen extends StatefulWidget {
     this.phone = "+977 9801234567",
     this.ownerId = '',
     this.isVerified = false,
+    this.isOwner = false,
   });
 
   @override
@@ -49,6 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late String _displayName;
   late String _displayAvatar;
   late String _displayPhone;
+  late bool _isOwner;
 
   final List<String> _quickReplies = [
     'हजुर, कोठा अझै खाली छ!',
@@ -68,14 +72,15 @@ class _ChatScreenState extends State<ChatScreen> {
     _displayName = widget.name;
     _displayAvatar = widget.avatar;
     _displayPhone = widget.phone;
+    _isOwner = widget.isOwner;
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _startBannerAnimation());
-    if (_activeChatId == null && widget.ownerId.isNotEmpty) {
-      _initializeChat();
+    if (widget.ownerId.isNotEmpty) {
+      _loadOwnerProfile();
+      if (_activeChatId == null) _initializeChat();
     } else if (_activeChatId != null) {
       ChatRepository.markChatAsRead(_activeChatId!);
     }
-    if (_displayName == 'Khozna User' && widget.ownerId.isNotEmpty) _loadOwnerProfile();
   }
 
   Future<void> _loadOwnerProfile() async {
@@ -85,6 +90,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _displayName = profile.fullName;
         _displayAvatar = profile.avatarUrl ?? _displayAvatar;
         _displayPhone = profile.phoneNumber ?? _displayPhone;
+        _isOwner = profile.isOwner;
       });
     }
   }
@@ -246,12 +252,29 @@ class _ChatScreenState extends State<ChatScreen> {
             CircleAvatar(radius: 50, backgroundImage: (_displayAvatar.isNotEmpty && !_displayAvatar.contains('pravatar.cc')) ? CachedNetworkImageProvider(_displayAvatar) : null, child: (_displayAvatar.isEmpty || _displayAvatar.contains('pravatar.cc')) ? Icon(Icons.person, size: 50, color: Colors.grey[400]) : null),
             const SizedBox(height: 16),
             Text(_displayName, style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.bold)),
-            Text('Property Owner', style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600])),
+            Text(
+              _isOwner ? 'Property Owner' : 'Guest',
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+            ),
             const SizedBox(height: 30),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               _buildActionCircle(Icons.call_rounded, 'Call', Colors.green, _startCall),
               const SizedBox(width: 32),
-              _buildActionCircle(Icons.person_rounded, 'Profile', Colors.blue, () {}),
+              _buildActionCircle(Icons.person_rounded, 'Profile', Colors.blue, () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => OwnerProfileScreen(
+                      ownerId: widget.ownerId,
+                      name: _displayName,
+                      avatar: _displayAvatar,
+                      location: 'Khozna User',
+                      totalListings: _isOwner ? 1 : 0,
+                    ),
+                  ),
+                );
+              }),
               const SizedBox(width: 32),
               _buildActionCircle(Icons.report_problem_rounded, 'Report', Colors.red, () {}),
             ]),

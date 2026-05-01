@@ -5,6 +5,7 @@ class UserModel {
   final String? phoneNumber;
   final String kycStatus;
   final bool isVerified;
+  final bool isOwner;
   final DateTime createdAt;
 
   UserModel({
@@ -14,6 +15,7 @@ class UserModel {
     this.phoneNumber,
     this.kycStatus = 'unverified',
     this.isVerified = false,
+    this.isOwner = false,
     required this.createdAt,
   });
 
@@ -25,6 +27,7 @@ class UserModel {
       phoneNumber: map['phone_number'],
       kycStatus: map['kyc_status'] ?? 'unverified',
       isVerified: map['kyc_status'] == 'verified',
+      isOwner: map['is_owner'] ?? false,
       createdAt: DateTime.parse(map['created_at'] ?? DateTime.now().toIso8601String()),
     );
   }

@@ -7,6 +7,7 @@ import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/profile/repositories/notification_repository.dart';
 import 'package:khozna/features/admin/repositories/admin_repository.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
+import 'package:khozna/features/profile/repositories/vote_repository.dart';
 import 'package:khozna/core/models/admin_model.dart';
 import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/core/models/booking_model.dart';
@@ -129,4 +130,10 @@ class SupabaseService {
   static Future<void> deleteMessage(String messageId, String chatId) => ChatRepository.deleteMessage(messageId, chatId);
   static Future<void> deleteChat(String chatId) => ChatRepository.deleteChat(chatId);
   static Future<void> sendImageMessage(String chatId, String imageUrl) => ChatRepository.sendImageMessage(chatId, imageUrl);
+
+  // Trust Votes
+  static Future<int> getVoteCount(String targetId) => VoteRepository.getVoteCount(targetId);
+  static Future<bool> hasVoted(String targetId) => VoteRepository.hasVoted(targetId);
+  static Future<bool> castVote(String targetId) => VoteRepository.castVote(targetId);
+  static Future<bool> removeVote(String targetId) => VoteRepository.removeVote(targetId);
 }
