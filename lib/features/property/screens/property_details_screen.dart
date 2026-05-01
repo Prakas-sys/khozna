@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -13,6 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:khozna/features/property/screens/booking_request_screen.dart';
+import 'package:khozna/features/property/screens/discovery_map_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:khozna/features/property/widgets/property_details_widgets.dart';
 import 'package:khozna/widgets/khozna_image.dart';
@@ -88,8 +90,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Future<void> _openMap() async {
     if (_hasLocation) {
-      final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${widget.property.latitude},${widget.property.longitude}');
-      try { await launchUrl(url, mode: LaunchMode.externalApplication); } catch (e) { await launchUrl(url, mode: LaunchMode.inAppBrowserView); }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => DiscoveryMapScreen(
+            initialCenter: LatLng(widget.property.latitude!, widget.property.longitude!),
+          ),
+        ),
+      );
     }
   }
 

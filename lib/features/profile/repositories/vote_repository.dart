@@ -10,9 +10,9 @@ class VoteRepository {
       final baseVotes = _getBaseVotes(targetId);
       final response = await _client
           .from('user_votes')
-          .select('id', const FetchOptions(count: CountOption.exact))
+          .select('id')
           .eq('target_id', targetId);
-      final count = response.count ?? 0;
+      final count = (response as List).length;
       return baseVotes + count;
     } catch (e) {
       debugPrint('Error fetching vote count: $e');

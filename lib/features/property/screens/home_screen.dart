@@ -13,6 +13,7 @@ import 'package:khozna/features/property/repositories/property_repository.dart';
 import 'package:khozna/features/profile/screens/notifications_screen.dart';
 import 'package:khozna/features/property/screens/search_screen.dart';
 import 'package:khozna/features/property/screens/filter_results_screen.dart';
+import 'package:khozna/features/property/screens/discovery_map_screen.dart';
 import '../widgets/home_widgets.dart';
 
 import 'package:khozna/core/services/khozna_ai_service.dart';
@@ -225,6 +226,28 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 80), // Position above bottom bar
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            HapticFeedback.heavyImpact();
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()));
+          },
+          backgroundColor: AppTheme.brandColor,
+          elevation: 8,
+          highlightElevation: 12,
+          icon: const Icon(Icons.map_rounded, color: Colors.white, size: 20),
+          label: Text(
+            'नक्सा हेर्नुहोस् (View Map)',
+            style: GoogleFonts.mukta(
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -240,16 +263,9 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleLocationTap() async {
     HapticFeedback.lightImpact();
-    if (_currentPosition != null) {
-      final lat = _currentPosition!.latitude;
-      final lng = _currentPosition!.longitude;
-      final label = Uri.encodeComponent(_currentLocationName);
-      final gMapsUri = Uri.parse('geo:$lat,$lng?q=$lat,$lng($label)');
-      if (await canLaunchUrl(gMapsUri)) {
-        await launchUrl(gMapsUri);
-      } else {
-        await launchUrl(Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng'), mode: LaunchMode.externalApplication);
-      }
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()),
+    );
   }
 }
