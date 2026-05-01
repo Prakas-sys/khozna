@@ -391,12 +391,12 @@ class PostPropertyCard extends StatelessWidget {
             ),
             // 3D house image (Large and positioned at the bottom right)
             Positioned(
-              right: -20,
-              bottom: -20,
+              right: -45,
+              bottom: -30,
               child: Image.asset(
                 'assets/images/tiny house.png',
-                width: 200,
-                height: 200,
+                width: 260,
+                height: 260,
                 fit: BoxFit.contain,
               ),
             ),
