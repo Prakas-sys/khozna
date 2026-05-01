@@ -320,7 +320,7 @@ class PropertyCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2), // Reduced for tighter look
                     _buildAmenityItems(),
-                    const SizedBox(height: 7), // Pushed buttons lower into the available card space
+                    const SizedBox(height: 4), // Reduced to compensate for glass border thickness
                     // Action Buttons
                     Row(
                       children: [
@@ -341,7 +341,7 @@ class PropertyCard extends StatelessWidget {
                                 boxShadow: [
                                   BoxShadow(
                                     color: AppTheme.brandColor.withOpacity(0.2),
-                                    blurRadius: 12,
+                                    blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
                                 ],
@@ -371,7 +371,7 @@ class PropertyCard extends StatelessWidget {
                                     backgroundColor: AppTheme.brandColor,
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
+                                      vertical: 6,
                                     ),
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
