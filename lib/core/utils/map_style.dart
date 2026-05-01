@@ -157,7 +157,10 @@ class KhoznaMapStyle {
     "elementType": "geometry.fill",
     "stylers": [
       {
-        "color": "#d2e3fc"
+        "color": "#3b82f6"
+      },
+      {
+        "opacity": 0.2
       }
     ]
   },
@@ -312,7 +315,7 @@ class KhoznaMapStyle {
     "elementType": "geometry",
     "stylers": [
       {
-        "color": "#17263c"
+        "color": "#1a3a6b"
       }
     ]
   },
