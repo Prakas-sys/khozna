@@ -496,7 +496,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               width: 140,
               height: 140,
               decoration: BoxDecoration(
-                color: AppTheme.brandColor.withValues(alpha: 0.05),
+                color: AppTheme.brandColor.withOpacity(0.05),
                 shape: BoxShape.circle,
               ),
             ),
@@ -504,7 +504,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               width: 100,
               height: 100,
               decoration: BoxDecoration(
-                color: AppTheme.brandColor.withValues(alpha: 0.1),
+                color: AppTheme.brandColor.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -522,7 +522,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 child: Icon(
                   Icons.favorite_rounded,
                   size: 20,
-                  color: Colors.red.withValues(alpha: 0.4),
+                  color: Colors.red.withOpacity(0.4),
                 ),
               ),
             ),
@@ -534,7 +534,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 child: Icon(
                   Icons.chat_bubble_rounded,
                   size: 18,
-                  color: AppTheme.brandColor.withValues(alpha: 0.4),
+                  color: AppTheme.brandColor.withOpacity(0.4),
                 ),
               ),
             ),
@@ -544,7 +544,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               child: Icon(
                 Icons.home_work_rounded,
                 size: 16,
-                color: Colors.orange.withValues(alpha: 0.4),
+                color: Colors.orange.withOpacity(0.4),
               ),
             ),
           ],

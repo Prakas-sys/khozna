@@ -38,7 +38,7 @@ class _SkeletonCardState extends State<SkeletonCard>
         border: Border.all(color: const Color(0xFFF2F2F2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),

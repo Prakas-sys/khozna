@@ -55,7 +55,7 @@ class _FavouriteButtonState extends State<FavouriteButton> {
               boxShadow: isLiked
                   ? [
                       BoxShadow(
-                        color: const Color(0xFFFF385C).withValues(alpha: 0.15),
+                        color: const Color(0xFFFF385C).withOpacity(0.15),
                         blurRadius: 10,
                         spreadRadius: 1,
                       ),

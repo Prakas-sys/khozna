@@ -194,6 +194,7 @@ class HomeHorizontalSection extends StatelessWidget {
   final String subtitle;
   final Future<List<Property>> future;
   final Function(String, String) onViewAll;
+  final int? index;
 
   const HomeHorizontalSection({
     super.key,
@@ -201,6 +202,7 @@ class HomeHorizontalSection extends StatelessWidget {
     required this.subtitle,
     required this.future,
     required this.onViewAll,
+    this.index,
   });
 
   @override

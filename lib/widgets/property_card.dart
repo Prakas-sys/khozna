@@ -5,80 +5,59 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:khozna/screens/chat_screen.dart' as chat_page;
-import 'package:khozna/screens/property_details_screen.dart';
-import 'package:khozna/utils/supabase_service.dart';
-import 'package:khozna/utils/kyc_guard.dart';
-import '../theme/app_theme.dart';
-import '../utils/formatters.dart';
+import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
+import 'package:khozna/features/property/screens/property_details_screen.dart';
+import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/core/guards/kyc_guard.dart';
+import 'package:khozna/core/theme/app_theme.dart';
+import 'package:khozna/core/utils/formatters.dart';
 import 'favourite_button.dart';
 import 'skeleton_card.dart';
-import '../utils/app_notifiers.dart';
+import 'package:khozna/core/utils/app_notifiers.dart';
+import 'package:khozna/core/models/property_model.dart';
 
 class PropertyCard extends StatelessWidget {
-  final String id;
-  final String imageUrl;
-  final String title;
-  final String location;
-  final String price;
-  final int bedrooms;
-  final int bathrooms;
-  final String area;
-  final String floor;
-  final String description;
-  final List<String> images;
-  final String ownerId;
-  final String status;
-  final List<String> amenities;
-  final List<String> houseRules;
-  final String? ownerName;
-  final String? ownerAvatar;
-  final bool? isOwnerVerified;
+  final Property property;
   final bool isOwnerView;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final int views;
   final double? width;
-  final List<Map<String, dynamic>>
-  rawImages; // Added to pass full image objects if needed
-  final double? latitude;
-  final double? longitude;
-  final String landmark;
-  final List<dynamic> nearbyLandmarks;
-  final String category;
 
   const PropertyCard({
     super.key,
-    required this.id,
-    required this.imageUrl,
-    required this.title,
-    required this.location,
-    required this.price,
-    this.bedrooms = 0,
-    this.bathrooms = 0,
-    this.area = '0',
-    this.floor = 'N/A',
-    this.description = '',
-    this.images = const [],
-    this.ownerId = '',
-    this.status = 'available',
-    this.ownerName,
-    this.ownerAvatar,
-    this.isOwnerVerified,
-    this.amenities = const [],
-    this.houseRules = const [],
+    required this.property,
     this.isOwnerView = false,
     this.onEdit,
     this.onDelete,
     this.views = 0,
     this.width,
-    this.rawImages = const [],
-    this.latitude,
-    this.longitude,
-    this.landmark = '',
-    this.nearbyLandmarks = const [],
-    this.category = 'Room',
   });
+
+  // Getters to bridge the original design code with the Property model
+  String get id => property.id;
+  String get title => property.title;
+  String get location => property.location;
+  String get price => property.price;
+  int get bedrooms => property.bedrooms;
+  int get bathrooms => property.bathrooms;
+  String get area => property.area;
+  String get floor => property.floor;
+  String get description => property.description;
+  String get ownerId => property.ownerId;
+  String get ownerName => property.ownerName ?? 'Khozna User';
+  String get ownerAvatar => property.ownerAvatar ?? '';
+  bool get isOwnerVerified => property.isOwnerVerified ?? false;
+  String get status => property.status;
+  List<String> get amenities => property.amenities;
+  List<String> get houseRules => property.houseRules;
+  String get imageUrl => property.imageUrl;
+  List<String> get images => property.images;
+  String get category => property.category;
+  String get landmark => property.landmark;
+  double? get latitude => property.latitude;
+  double? get longitude => property.longitude;
+  List<dynamic> get nearbyLandmarks => property.nearbyLandmarks;
 
   @override
   Widget build(BuildContext context) {
@@ -94,26 +73,7 @@ class PropertyCard extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => PropertyDetailsScreen(
-                      id: id,
-                      imageUrl: imageUrl,
-                      images: images,
-                      title: title,
-                      location: location,
-                      price: price,
-                      bedrooms: bedrooms,
-                      bathrooms: bathrooms,
-                      area: area,
-                      floor: floor,
-                      description: description,
-                      ownerId: ownerId,
-                      status: status,
-                      amenities: amenities,
-                      houseRules: houseRules,
-                      latitude: latitude,
-                      longitude: longitude,
-                      landmark: landmark,
-                      nearbyLandmarks: nearbyLandmarks,
-                      category: category,
+                      property: property,
                     ),
                   ),
                 );
@@ -127,7 +87,7 @@ class PropertyCard extends StatelessWidget {
           border: Border.all(color: const Color(0xFFF2F2F2)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -181,7 +141,7 @@ class PropertyCard extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.home_rounded,
-                                color: AppTheme.brandColor.withValues(alpha: 0.1),
+                                color: AppTheme.brandColor.withOpacity(0.1),
                                 size: 54,
                               ),
                               const SizedBox(height: 8),
@@ -265,10 +225,10 @@ class PropertyCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.6),
+                          color: Colors.black.withOpacity(0.6),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: Colors.white.withOpacity(0.2),
                           ),
                         ),
                         child: Row(
@@ -376,25 +336,7 @@ class PropertyCard extends StatelessWidget {
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => PropertyDetailsScreen(
-                                        id: id,
-                                        imageUrl: imageUrl,
-                                        images: images,
-                                        title: title,
-                                        location: location,
-                                        price: price,
-                                        bedrooms: bedrooms,
-                                        bathrooms: bathrooms,
-                                        area: area,
-                                        floor: floor,
-                                        description: description,
-                                        ownerId: ownerId,
-                                        status: status,
-                                        amenities: amenities,
-                                        houseRules: houseRules,
-                                        latitude: latitude,
-                                        longitude: longitude,
-                                        landmark: landmark,
-                                        nearbyLandmarks: nearbyLandmarks,
+                                        property: property,
                                       ),
                                     ),
                                   );

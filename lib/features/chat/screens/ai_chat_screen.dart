@@ -147,7 +147,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -194,7 +194,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.brandColor.withValues(alpha: 0.3),
+                          color: AppTheme.brandColor.withOpacity(0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),

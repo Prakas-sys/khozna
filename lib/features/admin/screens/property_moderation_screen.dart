@@ -1,4 +1,4 @@
-﻿import 'package:khozna/widgets/khozna_image.dart';
+import 'package:khozna/widgets/khozna_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
@@ -60,7 +60,7 @@ class _PropertyModerationScreenState extends State<PropertyModerationScreen> {
                         Text(p.title, style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
                         Text(p.location, style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
                         const SizedBox(height: 4),
-                        Text('à¤°à¥‚ ${p.price}', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
+                        Text('रू ${p.price}', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
                         const SizedBox(height: 8),
                         Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: _getStatusColor(p.status).withOpacity(0.1), borderRadius: BorderRadius.circular(4)), child: Text(p.status.toUpperCase(), style: TextStyle(color: _getStatusColor(p.status), fontSize: 10, fontWeight: FontWeight.bold))),
                       ])),

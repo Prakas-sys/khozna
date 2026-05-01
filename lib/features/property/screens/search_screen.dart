@@ -133,7 +133,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: Colors.black.withOpacity(0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -369,7 +369,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     border: Border.all(color: Colors.grey.shade100, width: 1.2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
+                        color: Colors.black.withOpacity(0.03),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -628,7 +628,7 @@ class _SearchScreenState extends State<SearchScreen> {
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppTheme.brandColor.withValues(alpha: 0.08),
+            color: AppTheme.brandColor.withOpacity(0.08),
             shape: BoxShape.circle,
           ),
           child: const Icon(

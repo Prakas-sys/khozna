@@ -1,4 +1,4 @@
-﻿import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -134,13 +134,13 @@ class OwnerProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: isVerified
-                    ? Colors.green.withValues(alpha: 0.05)
-                    : Colors.orange.withValues(alpha: 0.05),
+                    ? Colors.green.withOpacity(0.05)
+                    : Colors.orange.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isVerified
-                      ? Colors.green.withValues(alpha: 0.1)
-                      : Colors.orange.withValues(alpha: 0.1),
+                      ? Colors.green.withOpacity(0.1)
+                      : Colors.orange.withOpacity(0.1),
                 ),
               ),
               child: Row(

@@ -110,10 +110,10 @@ class _VoiceSearchOverlayState extends State<VoiceSearchOverlay>
             child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.brandColor.withValues(alpha: 0.1),
+                color: AppTheme.brandColor.withOpacity(0.1),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppTheme.brandColor.withValues(alpha: 0.1),
+                  color: AppTheme.brandColor.withOpacity(0.1),
                   width: 2,
                 ),
               ),

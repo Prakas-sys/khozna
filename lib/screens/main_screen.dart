@@ -206,13 +206,13 @@ class _MainScreenState extends State<MainScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: _currentIndex == 1 
-                        ? Colors.black.withValues(alpha: 0.8) 
-                        : Colors.white.withValues(alpha: 0.85),
+                        ? Colors.black.withOpacity(0.8) 
+                        : Colors.white.withOpacity(0.85),
                     border: Border(
                       top: BorderSide(
                         color: _currentIndex == 1 
-                            ? Colors.white.withValues(alpha: 0.1) 
-                            : Colors.grey.withValues(alpha: 0.2), 
+                            ? Colors.white.withOpacity(0.1) 
+                            : Colors.grey.withOpacity(0.2), 
                         width: 1.0
                       ),
                     ),

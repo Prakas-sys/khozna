@@ -208,7 +208,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
+                color: Colors.red.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
