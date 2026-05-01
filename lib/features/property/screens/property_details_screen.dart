@@ -7,6 +7,7 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
+import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/core/utils/formatters.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
@@ -409,21 +410,40 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 20, offset: const Offset(0, 10))]),
       child: Column(children: [
-        Row(children: [
-          ClipOval(
-            child: KhoznaImage(
-              imageUrl: avatar,
-              width: 60,
-              height: 60,
-              errorWidget: Container(color: Colors.grey[100], child: const Icon(Icons.person, color: Colors.grey)),
+        InkWell(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OwnerProfileScreen(
+                  ownerId: widget.property.ownerId,
+                  name: name,
+                  avatar: avatar,
+                  isVerified: isVerified,
+                  location: widget.property.location,
+                  totalListings: 1, // At least this one
+                ),
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Row(children: [
+            ClipOval(
+              child: KhoznaImage(
+                imageUrl: avatar,
+                width: 60,
+                height: 60,
+                errorWidget: Container(color: Colors.grey[100], child: const Icon(Icons.person, color: Colors.grey)),
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [Text(name, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)), if (isVerified) const Icon(Icons.verified, size: 18, color: Colors.green)]),
-            Text('Verified Owner', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
-          ])),
-        ]),
+            const SizedBox(width: 16),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [Text(name, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)), if (isVerified) const Icon(Icons.verified, size: 18, color: Colors.green)]),
+              Text('Verified Owner', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
+            ])),
+          ]),
+        ),
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
