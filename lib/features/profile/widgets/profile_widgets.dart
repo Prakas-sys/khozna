@@ -419,9 +419,9 @@ class PostPropertyCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
-                    style: TextStyle(
+                    style: GoogleFonts.mukta(
                       color: Colors.white.withOpacity(0.9),
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
