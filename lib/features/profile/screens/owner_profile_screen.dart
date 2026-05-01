@@ -122,8 +122,6 @@ class OwnerProfileScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildStatItem('Listings', totalListings.toString()),
-                  _buildStatItem('Experience', '2 Years'),
-                  _buildStatItem('Rating', '4.9'),
                 ],
               ),
             ),
