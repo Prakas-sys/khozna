@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/security/security_utils.dart';
+import 'package:khozna/core/security/app_logger.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/screens/main_screen.dart';
 
@@ -142,6 +143,8 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
         // Sync with Supabase (using our internal profile table)
         await SupabaseService.syncUserWithSupabase(response.user!);
 
+        AppLogger.logAuthAttempt(method: 'OTP Verify', success: true, userId: response.user!.id);
+        
         if (mounted) {
           // Take user to home screen
           Navigator.pushAndRemoveUntil(
@@ -152,6 +155,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
         }
       }
     } catch (e) {
+      AppLogger.logAuthAttempt(method: 'OTP Verify', success: false, error: e.toString());
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

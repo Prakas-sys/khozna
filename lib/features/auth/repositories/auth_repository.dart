@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:khozna/core/security/app_logger.dart';
 
 class AuthRepository {
   static final _client = Supabase.instance.client;
@@ -24,7 +25,7 @@ class AuthRepository {
         'avatar_url': avatar,
       }, onConflict: 'id');
     } catch (e) {
-      debugPrint('Sync Error: $e');
+      AppLogger.logApiError(endpoint: 'syncUserWithSupabase', error: e.toString(), context: 'Syncing user profile');
     }
   }
 
@@ -39,8 +40,9 @@ class AuthRepository {
         idToken: idToken,
         accessToken: accessToken,
       );
+      AppLogger.logAuthAttempt(method: 'Google SignIn Native', success: true, userId: currentUserId);
     } catch (e) {
-      debugPrint('Supabase Native Google Sign-In Error: $e');
+      AppLogger.logAuthAttempt(method: 'Google SignIn Native', success: false, error: e.toString());
       rethrow;
     }
   }
@@ -52,8 +54,9 @@ class AuthRepository {
         OAuthProvider.google,
         redirectTo: 'com.khozna.khozna://login-callback/',
       );
+      AppLogger.logAuthAttempt(method: 'Google SignIn Web', success: true, userId: currentUserId);
     } catch (e) {
-      debugPrint('Supabase Google Sign-In Error: $e');
+      AppLogger.logAuthAttempt(method: 'Google SignIn Web', success: false, error: e.toString());
       rethrow;
     }
   }

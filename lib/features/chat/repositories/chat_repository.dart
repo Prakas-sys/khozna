@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
+import 'package:khozna/core/security/app_logger.dart';
 
 class ChatRepository {
   static final _client = Supabase.instance.client;
@@ -197,7 +198,7 @@ class ChatRepository {
     final chat = await _client.from('chats').select('participant_one, participant_two').eq('id', chatId).maybeSingle();
     if (chat == null) return;
     if (chat['participant_one'] != user.id && chat['participant_two'] != user.id) {
-       debugPrint("SECURITY BLOCKED: Unauthorized chat delete attempt.");
+       AppLogger.logSuspiciousActivity(event: 'IDOR_BLOCKED', details: 'Unauthorized chat delete attempt on $chatId');
        return; 
     }
 
