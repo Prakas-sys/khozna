@@ -235,7 +235,8 @@ class HomeHorizontalSection extends StatelessWidget {
             if (properties.isEmpty) return snapshot.hasError ? _buildErrorState() : _buildSkeletonList();
 
             return SizedBox(
-              height: 290, // Increased slightly to accommodate your original tight padding without overflow
+              height: 290,
+              child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
                 physics: const BouncingScrollPhysics(),

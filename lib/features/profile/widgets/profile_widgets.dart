@@ -417,12 +417,13 @@ class PostPropertyCard extends StatelessWidget {
               },
             ),
             Positioned(
-              right: -15,
-              bottom: -15,
-              child: Icon(
-                Icons.home_work_rounded,
-                size: 110,
-                color: const Color(0xFF002C40).withOpacity(0.05),
+              right: -10,
+              bottom: -10,
+              child: Image.asset(
+                'assets/images/tiny house.png',
+                width: 130,
+                height: 130,
+                fit: BoxFit.contain,
               ),
             ),
             Padding(
