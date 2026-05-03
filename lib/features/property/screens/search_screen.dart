@@ -351,15 +351,15 @@ class _SearchScreenState extends State<SearchScreen> {
                                   ),
                                 ],
                               ),
-                              // ENLARGED RECTANGULAR MAP BUTTON
+                              // ENLARGED PILL MAP BUTTON
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 20,
-                                  vertical: 14,
+                                  vertical: 12,
                                 ),
                                 decoration: BoxDecoration(
                                   color: AppTheme.brandColor,
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
                                       color: AppTheme.brandColor.withOpacity(
@@ -540,7 +540,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       const SizedBox(height: 16),
                       // Horizontal Property Scroll
                       SizedBox(
-                        height: 310,
+                        height: 300,
                         child: _isLoadingNearby
                             ? const Center(
                                 child: CircularProgressIndicator(
@@ -556,6 +556,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   return Container(
                                     width: 280,
                                     margin: const EdgeInsets.only(right: 16),
+                                    alignment: Alignment.topCenter,
                                     child: PropertyCard(property: p),
                                   );
                                 },
