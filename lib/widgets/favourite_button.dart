@@ -50,17 +50,8 @@ class _FavouriteButtonState extends State<FavouriteButton> {
           },
           child: Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              boxShadow: isLiked
-                  ? [
-                      BoxShadow(
-                        color: const Color(0xFFFF385C).withOpacity(0.15),
-                        blurRadius: 10,
-                        spreadRadius: 1,
-                      ),
-                    ]
-                  : [],
             ),
             child: SvgPicture.string(
               '''
