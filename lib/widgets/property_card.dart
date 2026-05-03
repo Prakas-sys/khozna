@@ -327,7 +327,7 @@ class PropertyCard extends StatelessWidget {
                         if (!isOwnerView) ...[
                           Expanded(
                             child: Container(
-                              padding: const EdgeInsets.all(2), // Thin border thickness
+                              padding: const EdgeInsets.all(1), // Thin border thickness
                               decoration: BoxDecoration(
                                 color: AppTheme.brandColor.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(30),
@@ -414,7 +414,7 @@ class PropertyCard extends StatelessWidget {
                                 foregroundColor: AppTheme.brandColor,
                                 side: const BorderSide(
                                   color: AppTheme.brandColor,
-                                  width: 1.5,
+                                  width: 1.0,
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 8,

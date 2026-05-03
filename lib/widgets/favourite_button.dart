@@ -65,9 +65,9 @@ class _FavouriteButtonState extends State<FavouriteButton> {
                         ),
                         const SizedBox(width: 16),
                         Text(
-                          'Save to wishlist',
+                          'Save Property (सेभ गर्नुहोस्)',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.w800,
                             color: Colors.black,
                           ),
@@ -76,9 +76,9 @@ class _FavouriteButtonState extends State<FavouriteButton> {
                     ),
                     const SizedBox(height: 32),
                     Text(
-                      'Create wishlist',
+                      'Name your List (लिस्टको नाम दिनुहोस्)',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 22,
+                        fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: Colors.black87,
                         letterSpacing: -0.5,
@@ -91,8 +91,8 @@ class _FavouriteButtonState extends State<FavouriteButton> {
                       maxLength: 50,
                       onChanged: (val) => setState(() {}),
                       decoration: InputDecoration(
-                        hintText: 'Name',
-                        hintStyle: GoogleFonts.mukta(color: Colors.grey[500], fontSize: 16),
+                        hintText: 'List Name (जस्तै: मनपरेका घरहरू)',
+                        hintStyle: GoogleFonts.mukta(color: Colors.grey[400], fontSize: 16),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: Colors.grey[400]!),
@@ -164,7 +164,7 @@ class _FavouriteButtonState extends State<FavouriteButton> {
                             ),
                           ),
                           child: Text(
-                            'Create',
+                            'Save',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
