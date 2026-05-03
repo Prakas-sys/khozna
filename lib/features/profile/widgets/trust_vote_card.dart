@@ -145,18 +145,32 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                           Row(
                             children: [
                               const Icon(
-                                Icons.how_to_vote_rounded,
+                                Icons.verified_user_rounded, // Changed to verified user for more "Owner" feel
                                 color: AppTheme.brandColor,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
-                              Text(
-                                'Community Trust',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 15,
-                                  color: Colors.black87,
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _isOwnProfile ? 'Your Trust Score' : 'Owner Trust Score',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 14,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  Text(
+                                    'समुदायको भरोसा',
+                                    style: GoogleFonts.mukta(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 11,
+                                      color: AppTheme.brandColor,
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -173,23 +187,25 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                                   ),
                                 ),
                                 TextSpan(
-                                  text: _voteCount == 1
-                                      ? 'जनाले भरोसा गरेका छन्'
-                                      : 'जनाले भरोसा गरेका छन्',
+                                  text: 'Votes / भरोसा',
                                   style: GoogleFonts.mukta(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 16,
+                                    color: AppTheme.brandColor,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                           Text(
-                            '$_voteCount जनाले यो प्रयोगकर्तालाई विश्वास गरेका छन्',
+                            _isOwnProfile 
+                              ? 'तपाईंलाई $_voteCount जनाले भरोसा गरेका छन्\n($_voteCount people trust on you)' 
+                              : 'यो घरधनीलाई $_voteCount जनाले भरोसा गरेका छन्\n($_voteCount people trust this Owner)',
                             style: GoogleFonts.mukta(
-                              fontSize: 13,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
                               color: Colors.grey[600],
+                              height: 1.3,
                             ),
                           ),
                         ],
@@ -257,9 +273,9 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        _hasVoted ? 'भरोसा गरियो' : 'भरोसा दिनुहोस्',
+                                        _hasVoted ? 'भरोसा गरियो / Voted' : 'भरोसा दिनुहोस् / Vote',
                                         style: GoogleFonts.mukta(
-                                          fontSize: 11,
+                                          fontSize: 10,
                                           fontWeight: FontWeight.w700,
                                           color: _hasVoted
                                               ? Colors.white
@@ -272,24 +288,54 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                         ),
                       ),
                     ] else ...[
-                      // Own profile — show "Your Votes" indicator
+                      // Own profile — show Premium Seal
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
+                          horizontal: 16,
+                          vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.brandColor.withOpacity(0.08),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          'तपाईंको\nभरोसा स्कोर',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.mukta(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.brandColor,
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFFFFD700).withOpacity(0.25), // Gold
+                              const Color(0xFFDAA520).withOpacity(0.1),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: const Color(0xFFFFD700).withOpacity(0.5),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFFFFD700).withOpacity(0.1),
+                              blurRadius: 8,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.stars_rounded,
+                              color: Color(0xFFDAA520),
+                              size: 22,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Your Trust\nAchievement',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF8B4513),
+                                height: 1.1,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -313,21 +359,25 @@ class _TrustVoteCardState extends State<TrustVoteCard>
       trustLabel = 'नयाँ सदस्य · New Member';
       trustColor = Colors.grey;
       trustProgress = 0.05;
-    } else if (_voteCount < 5) {
+    } else if (_voteCount < 10) {
       trustLabel = 'उदाउँदो · Rising';
       trustColor = Colors.orange;
       trustProgress = _voteCount / 10;
-    } else if (_voteCount < 15) {
+    } else if (_voteCount < 30) {
       trustLabel = 'भरोसायोग्य · Trustworthy';
       trustColor = Colors.green;
-      trustProgress = _voteCount / 20;
-    } else if (_voteCount < 30) {
+      trustProgress = _voteCount / 30;
+    } else if (_voteCount < 60) {
       trustLabel = 'समुदाय प्रिय · Community Favourite';
       trustColor = AppTheme.brandColor;
-      trustProgress = _voteCount / 40;
+      trustProgress = _voteCount / 60;
+    } else if (_voteCount < 100) {
+      trustLabel = '💎 प्रबुद्ध सदस्य · Elite Member';
+      trustColor = const Color(0xFF00CED1); // Dark Cyan / Diamond
+      trustProgress = _voteCount / 100;
     } else {
-      trustLabel = '⭐ खोज्ना भरोसेमान · Khozna Trusted';
-      trustColor = const Color(0xFFFFD700);
+      trustLabel = '⭐ खोज्न लेजेन्ड · Khozna Legend';
+      trustColor = const Color(0xFFFFD700); // Gold
       trustProgress = 1.0;
     }
 
