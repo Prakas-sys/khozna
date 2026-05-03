@@ -187,8 +187,8 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                                   ),
                                 ),
                                 TextSpan(
-                                  text: 'Votes / भरोसा',
-                                  style: GoogleFonts.mukta(
+                                  text: 'Votes',
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 16,
                                     color: AppTheme.brandColor,
@@ -226,8 +226,8 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 14,
+                              horizontal: 14,
+                              vertical: 10,
                             ),
                             decoration: BoxDecoration(
                               color: _hasVoted
@@ -264,19 +264,19 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                                     children: [
                                       Icon(
                                         _hasVoted
-                                            ? Icons.thumb_up_rounded
-                                            : Icons.thumb_up_alt_outlined,
+                                            ? Icons.stars_rounded
+                                            : Icons.stars_outlined,
                                         color: _hasVoted
                                             ? Colors.white
                                             : AppTheme.brandColor,
-                                        size: 22,
+                                        size: 24,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        _hasVoted ? 'भरोसा गरियो / Voted' : 'भरोसा दिनुहोस् / Vote',
-                                        style: GoogleFonts.mukta(
+                                        _hasVoted ? 'Voted' : 'Vote',
+                                        style: GoogleFonts.plusJakartaSans(
                                           fontSize: 10,
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w800,
                                           color: _hasVoted
                                               ? Colors.white
                                               : AppTheme.brandColor,
