@@ -403,7 +403,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
-          ?suffixIcon,
+          if (suffixIcon != null) suffixIcon,
         ],
       ),
     );
