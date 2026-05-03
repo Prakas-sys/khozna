@@ -419,7 +419,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   children: [
                                     const Icon(Icons.directions_walk_rounded, color: Colors.black, size: 16),
                                     const SizedBox(width: 6),
-                                    Text('VISIT NOW', style: GoogleFonts.plusJakartaSans(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
+                                    Text('VISIT', style: GoogleFonts.plusJakartaSans(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
                                   ],
                                 ),
                               ),
