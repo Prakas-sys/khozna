@@ -10,6 +10,8 @@ import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/property/screens/property_details_screen.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+
 class DiscoveryMapScreen extends StatefulWidget {
   final LatLng? initialCenter;
   const DiscoveryMapScreen({super.key, this.initialCenter});
@@ -48,7 +50,6 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
           _userLocation = LatLng(position.latitude, position.longitude);
           _initialPosition = _userLocation!;
         });
-        // Move map if it's already built
         _mapController.move(_initialPosition, 13.0);
       }
     } catch (e) {
@@ -67,15 +68,28 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             .where((p) => p.latitude != null && p.longitude != null)
             .map((p) => Marker(
                   point: LatLng(p.latitude!, p.longitude!),
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                   child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => _navigateToDetails(p),
-                    child: const Icon(
-                      Icons.location_on,
-                      color: AppTheme.brandColor,
-                      size: 40,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
+                        ],
+                        border: Border.all(color: AppTheme.brandColor, width: 2),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.home_rounded,
+                          color: AppTheme.brandColor,
+                          size: 24,
+                        ),
+                      ),
                     ),
                   ),
                 ))
@@ -86,11 +100,9 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
   }
 
   Future<void> _getRoute(LatLng destination) async {
-    // If we don't have user location yet, default to Kathmandu center for demo
     final start = _userLocation ?? const LatLng(27.7172, 85.3240);
     
     try {
-      // Use HTTPS to prevent Android cleartext traffic blocking
       final url = 'https://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${destination.longitude},${destination.latitude}?geometries=geojson';
       final response = await http.get(Uri.parse(url));
       
@@ -105,17 +117,13 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             )).toList();
           });
           
-          // Fit the map to show the entire route (like inDrive)
           if (_routePoints.length > 1) {
             try {
               final bounds = LatLngBounds.fromPoints(_routePoints);
-              
-              // Use a manual zoom calculation instead of fitCamera to prevent Infinity/NaN crashes
               double latDiff = (bounds.northEast.latitude - bounds.southWest.latitude).abs();
               double lonDiff = (bounds.northEast.longitude - bounds.southWest.longitude).abs();
               double maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
               
-              // Simple heuristic for zoom level
               double zoom = 14.0;
               if (maxDiff > 0.01) zoom = 13.0;
               if (maxDiff > 0.05) zoom = 11.5;
@@ -125,12 +133,8 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
               _mapController.move(bounds.center, zoom);
             } catch (e) {
               debugPrint('Error moving camera: $e');
-              if (_routePoints.isNotEmpty) {
-                _mapController.move(_routePoints.first, 14.0);
-              }
+              _mapController.move(_routePoints.first, 14.0);
             }
-          } else if (_routePoints.isNotEmpty) {
-            _mapController.move(_routePoints.first, 15.0);
           }
         }
       }
@@ -200,40 +204,65 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-                subdomains: const ['a', 'b', 'c', 'd'],
+                urlTemplate: 'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=xmsI10GyMKz5IT0XAIhv',
                 userAgentPackageName: 'com.khozna.khozna',
+                retinaMode: true,
               ),
               if (_routePoints.isNotEmpty)
                 PolylineLayer(
                   polylines: [
                     Polyline(
                       points: _routePoints,
-                      color: AppTheme.brandColor,
-                      strokeWidth: 4.0,
+                      color: AppTheme.brandColor.withOpacity(0.8),
+                      strokeWidth: 5.0,
                     ),
                   ],
                 ),
-              MarkerLayer(
-                markers: [
-                  ..._markers,
-                  if (_userLocation != null)
-                    Marker(
-                      point: _userLocation!,
-                      width: 20,
-                      height: 20,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 3),
-                          boxShadow: [
-                            BoxShadow(color: Colors.blue.withOpacity(0.5), blurRadius: 10, spreadRadius: 2),
-                          ],
+              MarkerClusterLayerWidget(
+                options: MarkerClusterLayerOptions(
+                  maxClusterRadius: 45,
+                  size: const Size(40, 40),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(50),
+                  maxZoom: 15,
+                  markers: [
+                    ..._markers,
+                    if (_userLocation != null)
+                      Marker(
+                        point: _userLocation!,
+                        width: 25,
+                        height: 25,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 3),
+                            boxShadow: [
+                              BoxShadow(color: Colors.blue.withOpacity(0.4), blurRadius: 12, spreadRadius: 4),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                  builder: (context, markers) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: AppTheme.brandColor,
+                        boxShadow: [
+                          BoxShadow(color: AppTheme.brandColor.withOpacity(0.3), blurRadius: 10, spreadRadius: 2),
+                        ],
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: Center(
+                        child: Text(
+                          markers.length.toString(),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           ),
