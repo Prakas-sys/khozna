@@ -136,7 +136,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             ],
           ),
           child: Text(
-            'खोज्ना नक्सा · Discovery Map',
+            'Discovery Map',
             style: GoogleFonts.mukta(
               color: Colors.black,
               fontSize: 14,

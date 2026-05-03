@@ -230,7 +230,7 @@ class HomeScreenState extends State<HomeScreen> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 50), // Position slightly above bottom bar
         child: SizedBox(
-          height: 44, // Sleek, premium compact height
+          height: 42, // Sleek, compact height
           child: ElevatedButton.icon(
             onPressed: () {
               HapticFeedback.heavyImpact();
@@ -239,17 +239,17 @@ class HomeScreenState extends State<HomeScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.brandColor,
               foregroundColor: Colors.white,
-              elevation: 6,
-              shadowColor: AppTheme.brandColor.withOpacity(0.4),
+              elevation: 0, 
+              shadowColor: Colors.transparent,
               shape: const StadiumBorder(),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 18),
             ),
-            icon: const Icon(Icons.map_rounded, color: Colors.white, size: 18), // Slightly smaller icon
+            icon: const Icon(Icons.map_rounded, color: Colors.white, size: 16), // Smaller icon
             label: Text(
               'Map',
               style: GoogleFonts.mukta(
-                fontWeight: FontWeight.w600, // Refined weight for compact text
-                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
                 color: Colors.white,
               ),
             ),
