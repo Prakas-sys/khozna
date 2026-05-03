@@ -417,9 +417,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.directions_walk_rounded, color: Colors.white, size: 16),
+                                    const Icon(Icons.directions_walk_rounded, color: Colors.black, size: 16),
                                     const SizedBox(width: 6),
-                                    Text('VISIT NOW', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
+                                    Text('VISIT NOW', style: GoogleFonts.plusJakartaSans(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
                                   ],
                                 ),
                               ),
@@ -439,7 +439,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.white.withOpacity(0.2))),
+                                decoration: BoxDecoration(color: AppTheme.brandColor, borderRadius: BorderRadius.circular(30)),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -450,7 +450,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                                     ),
                                     const SizedBox(width: 6),
-                                    Text('CHAT', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
+                                    Text('CHAT', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
                                   ],
                                 ),
                               ),
