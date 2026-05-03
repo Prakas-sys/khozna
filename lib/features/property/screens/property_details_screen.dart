@@ -161,10 +161,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           FavouriteButton(propertyId: widget.property.id),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.report_gmailerrorred_rounded, color: Colors.redAccent, size: 22),
+            icon: const Icon(Icons.share_rounded, color: Colors.black87, size: 22),
             onPressed: () {
-              HapticFeedback.heavyImpact();
-              _showReportDialog();
+              HapticFeedback.mediumImpact();
+              Share.share(
+                'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: ${KhoznaFormatter.formatCurrency(widget.property.price)}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
+              );
             },
           ),
           const SizedBox(width: 8),
@@ -207,6 +209,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ...widget.property.houseRules.map((rule) => RuleRow(icon: Icons.info_outline, title: rule)),
                   const SizedBox(height: 24),
                 ],
+                const SizedBox(height: 32),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () => _showReportDialog(),
+                    icon: const Icon(Icons.report_gmailerrorred_rounded, color: Colors.grey, size: 18),
+                    label: Text(
+                      'Report this listing',
+                      style: GoogleFonts.inter(
+                        color: Colors.grey,
+                        fontSize: 13,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
                 SizedBox(height: _isMyProperty ? 40 : 140),
               ]),
             ),
