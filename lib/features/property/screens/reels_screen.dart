@@ -358,10 +358,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 property.title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.plusJakartaSans(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 17,
+                                  fontSize: 18,
+                                  letterSpacing: -0.5,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -431,7 +432,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   children: [
                                     const Icon(Icons.directions_walk_rounded, color: Colors.black, size: 16),
                                     const SizedBox(width: 6),
-                                    Text('VISIT', style: GoogleFonts.inter(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 11)),
+                                    Text('VISIT (हेर्नुहोस्)', style: GoogleFonts.plusJakartaSans(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
                                   ],
                                 ),
                               ),
@@ -462,7 +463,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                                     ),
                                     const SizedBox(width: 6),
-                                    Text('CHAT', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 11)),
+                                    Text('CHAT (कुरा गर्नुहोस्)', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
                                   ],
                                 ),
                               ),

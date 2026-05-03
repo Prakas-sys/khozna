@@ -60,4 +60,7 @@ key.properties
 debug_logs/
 *.txt
 *.log
+hs_err_pid*
+replay_pid*
+client_secret*.json
 .vercel
