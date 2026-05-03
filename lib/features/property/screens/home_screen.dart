@@ -228,7 +228,7 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 50), // Position slightly above bottom bar
+        padding: const EdgeInsets.only(bottom: 80), // Position clearly above the bottom bar
         child: SizedBox(
           height: 42, // Sleek, compact height
           child: ElevatedButton.icon(
