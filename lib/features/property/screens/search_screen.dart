@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
@@ -75,8 +76,6 @@ class _SearchScreenState extends State<SearchScreen> {
           }
         });
         return;
-      }
-
       }
     });
 
@@ -200,7 +199,8 @@ class _SearchScreenState extends State<SearchScreen> {
                                     MaterialPageRoute(
                                       builder: (context) => FilterResultsScreen(
                                         location: val,
-                                        priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                                        priceRange:
+                                            'Up to ₹ ${_priceValue.toInt()}',
                                       ),
                                     ),
                                   );
@@ -260,7 +260,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     Icons.landscape_rounded,
                     onTap: () => _searchController.text = 'Pokhara',
                   ),
-                  
+
                   const SizedBox(height: 40),
                   // Khozna Branded Search Button
                   SizedBox(
@@ -308,391 +308,452 @@ class _SearchScreenState extends State<SearchScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // 1. Prominent Nearby Header & Map Button
-                    InkWell(
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(16),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Nearby Properties',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: -0.8,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Text(
-                                  'Find homes near you',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 13,
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            // ENLARGED RECTANGULAR MAP BUTTON
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                              decoration: BoxDecoration(
-                                color: AppTheme.brandColor,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppTheme.brandColor.withOpacity(0.3),
-                                    blurRadius: 15,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    'Map',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  const Icon(
-                                    Icons.map_rounded,
-                                    color: Colors.white,
-                                    size: 24,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Mini Map Preview
-                    Container(
-                      height: 180,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.grey.shade100, width: 2),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 15,
-                            offset: const Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(22),
-                        child: Stack(
-                          children: [
-                            FlutterMap(
-                              mapController: _miniMapController,
-                              options: MapOptions(
-                                initialCenter: _userLocation ?? const LatLng(27.7172, 85.3240),
-                                initialZoom: 14.0,
-                                interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
-                              ),
-                              children: [
-                                TileLayer(
-                                  urlTemplate: 'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=xmsI10GyMKz5IT0XAIhv',
-                                  userAgentPackageName: 'com.khozna.khozna',
-                                ),
-                                if (_userLocation != null)
-                                  MarkerLayer(
-                                    markers: [
-                                      if (_userLocation != null)
-                                        Marker(
-                                          point: _userLocation!,
-                                          width: 40,
-                                          height: 40,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: AppTheme.brandColor,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(color: Colors.white, width: 3),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: AppTheme.brandColor.withOpacity(0.4),
-                                                  blurRadius: 8,
-                                                ),
-                                              ],
-                                            ),
-                                            child: const Icon(Icons.my_location, color: Colors.white, size: 20),
-                                          ),
-                                        ),
-                                      // Airbnb-style Price Markers
-                                      ..._nearbyProperties.map((p) {
-                                        if (p.latitude == null || p.longitude == null) return Marker(point: const LatLng(0,0), child: const SizedBox());
-                                        return Marker(
-                                          point: LatLng(p.latitude!, p.longitude!),
-                                          width: 80,
-                                          height: 40,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius: BorderRadius.circular(30),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black.withOpacity(0.15),
-                                                  blurRadius: 10,
-                                                  offset: const Offset(0, 4),
-                                                ),
-                                              ],
-                                              border: Border.all(color: Colors.grey.shade100),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                '₹${(int.tryParse(p.price) ?? 0) > 999 ? '${((int.tryParse(p.price) ?? 0) / 1000).toStringAsFixed(0)}K' : p.price}',
-                                                style: GoogleFonts.plusJakartaSans(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.w800,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ],
-                                  ),
-                              ],
-                            ),
-                            Positioned.fill(
-                              child: GestureDetector(
-                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryMapScreen())),
-                                child: Container(color: Colors.transparent),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Horizontal Property Scroll
-                    SizedBox(
-                      height: 220,
-                      child: _isLoadingNearby
-                          ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
-                          : ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _nearbyProperties.length,
-                              clipBehavior: Clip.none,
-                              itemBuilder: (context, index) {
-                                final p = _nearbyProperties[index];
-                                return Container(
-                                  width: 280,
-                                  margin: const EdgeInsets.only(right: 16),
-                                  child: PropertyCard(property: p),
-                                );
-                              },
-                            ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'PRICE RANGE (भाडाको सीमा)',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black38,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: Colors.grey.shade100, width: 1.2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: '₹',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: '2K',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: '₹',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: '100K+',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: AppTheme.brandColor,
-                          inactiveTrackColor: AppTheme.brandColor.withOpacity(
-                            0.1,
-                          ),
-                          thumbColor: Colors.white,
-                          overlayColor: AppTheme.brandColor.withOpacity(0.1),
-                          thumbShape: const RoundSliderThumbShape(
-                            enabledThumbRadius: 10,
-                            elevation: 4,
-                          ),
-                          trackHeight: 4,
-                        ),
-                        child: Slider(
-                          value: _priceValue,
-                          min: 2000,
-                          max: 100000,
-                          onChanged: (val) => setState(() => _priceValue = val),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '₹',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w900,
-                                color: AppTheme.brandColor,
-                              ),
-                            ),
-                            TextSpan(
-                              text: '${PriceFormatter.format(_priceValue.toInt().toString())} / month',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontWeight: FontWeight.w900,
-                                color: AppTheme.brandColor,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'RECENTLY SEARCHED (भर्खरै खोजिएका)',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.black38,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: _recentSearches
-                      .map((search) => InkWell(
+                      InkWell(
                         onTap: () {
-                          setState(() => _searchController.text = search);
+                          HapticFeedback.mediumImpact();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => FilterResultsScreen(
-                                location: search,
-                                priceRange: 'Up to ₹ ${_priceValue.toInt()}',
-                              ),
+                              builder: (_) => const DiscoveryMapScreen(),
                             ),
                           );
                         },
-                        borderRadius: BorderRadius.circular(30),
-                        child: _buildRecentTag(search),
-                      ))
-                      .toList(),
-                ),
-                const SizedBox(height: 40),
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Popular Areas ',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                          color: Colors.black,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Nearby Properties',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.8,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Find homes near you',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              // ENLARGED RECTANGULAR MAP BUTTON
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 14,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppTheme.brandColor.withOpacity(
+                                        0.3,
+                                      ),
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Map',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    const Icon(
+                                      Icons.map_rounded,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      TextSpan(
-                        text: '(लोकप्रिय ठाउँहरू)',
-                        style: GoogleFonts.mukta(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[600],
+                      const SizedBox(height: 16),
+                      // Mini Map Preview
+                      Container(
+                        height: 180,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: Colors.grey.shade100,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(22),
+                          child: Stack(
+                            children: [
+                              FlutterMap(
+                                mapController: _miniMapController,
+                                options: MapOptions(
+                                  initialCenter:
+                                      _userLocation ??
+                                      const LatLng(27.7172, 85.3240),
+                                  initialZoom: 14.0,
+                                  interactionOptions: const InteractionOptions(
+                                    flags: InteractiveFlag.none,
+                                  ),
+                                ),
+                                children: [
+                                  TileLayer(
+                                    urlTemplate:
+                                        'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=xmsI10GyMKz5IT0XAIhv',
+                                    userAgentPackageName: 'com.khozna.khozna',
+                                  ),
+                                  if (_userLocation != null)
+                                    MarkerLayer(
+                                      markers: [
+                                        if (_userLocation != null)
+                                          Marker(
+                                            point: _userLocation!,
+                                            width: 40,
+                                            height: 40,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: AppTheme.brandColor,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 3,
+                                                ),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: AppTheme.brandColor
+                                                        .withOpacity(0.4),
+                                                    blurRadius: 8,
+                                                  ),
+                                                ],
+                                              ),
+                                              child: const Icon(
+                                                Icons.my_location,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        // Airbnb-style Price Markers
+                                        ..._nearbyProperties.map((p) {
+                                          if (p.latitude == null ||
+                                              p.longitude == null)
+                                            return Marker(
+                                              point: const LatLng(0, 0),
+                                              child: const SizedBox(),
+                                            );
+                                          return Marker(
+                                            point: LatLng(
+                                              p.latitude!,
+                                              p.longitude!,
+                                            ),
+                                            width: 100,
+                                            height: 45,
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 8,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.15),
+                                                    blurRadius: 10,
+                                                    offset: const Offset(0, 4),
+                                                  ),
+                                                ],
+                                                border: Border.all(
+                                                  color: Colors.grey.shade100,
+                                                ),
+                                              ),
+                                              child: Center(
+                                                child: Text(
+                                                  '₹${(double.tryParse(p.price) ?? 0) > 999 ? '${((double.tryParse(p.price) ?? 0) / 1000).toStringAsFixed(0)}K' : (double.tryParse(p.price)?.toInt().toString() ?? p.price)}',
+                                                  style:
+                                                      GoogleFonts.plusJakartaSans(
+                                                        color: Colors.black,
+                                                        fontWeight:
+                                                            FontWeight.w900,
+                                                        fontSize: 13,
+                                                      ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+
+                                        }).toList(),
+                                      ],
+                                    ),
+                                ],
+                              ),
+                              Positioned.fill(
+                                child: GestureDetector(
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const DiscoveryMapScreen(),
+                                    ),
+                                  ),
+                                  child: Container(color: Colors.transparent),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Horizontal Property Scroll
+                      SizedBox(
+                        height: 310,
+                        child: _isLoadingNearby
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: AppTheme.brandColor,
+                                ),
+                              )
+                            : ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: _nearbyProperties.length,
+                                clipBehavior: Clip.none,
+                                itemBuilder: (context, index) {
+                                  final p = _nearbyProperties[index];
+                                  return Container(
+                                    width: 280,
+                                    margin: const EdgeInsets.only(right: 16),
+                                    child: PropertyCard(property: p),
+                                  );
+                                },
+                              ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 16),
-                _buildAreaItem('Baluwatar, Kathmandu', '450+ Listings'),
-                _buildAreaItem('Sanepa, Lalitpur', '320+ Listings'),
-                _buildAreaItem('Baneshwor, Kathmandu', '580+ Listings'),
-                _buildAreaItem('Jhamsikhel, Lalitpur', '210+ Listings'),
-                _buildAreaItem('Kirtipur, Kathmandu', '120+ Listings'),
-                const SizedBox(height: 80), // Prevent collision with FAB
+                  const SizedBox(height: 32),
+                  Text(
+                    'PRICE RANGE (भाडाको सीमा)',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black38,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: Colors.grey.shade100,
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '₹',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '2K',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '₹',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '100K+',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            activeTrackColor: AppTheme.brandColor,
+                            inactiveTrackColor: AppTheme.brandColor.withOpacity(
+                              0.1,
+                            ),
+                            thumbColor: Colors.white,
+                            overlayColor: AppTheme.brandColor.withOpacity(0.1),
+                            thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 10,
+                              elevation: 4,
+                            ),
+                            trackHeight: 4,
+                          ),
+                          child: Slider(
+                            value: _priceValue,
+                            min: 2000,
+                            max: 100000,
+                            onChanged: (val) =>
+                                setState(() => _priceValue = val),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '₹',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppTheme.brandColor,
+                                ),
+                              ),
+                              TextSpan(
+                                text:
+                                    '${PriceFormatter.format(_priceValue.toInt().toString())} / month',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w900,
+                                  color: AppTheme.brandColor,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Text(
+                    'RECENTLY SEARCHED (भर्खरै खोजिएका)',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black38,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: _recentSearches
+                        .map(
+                          (search) => InkWell(
+                            onTap: () {
+                              setState(() => _searchController.text = search);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FilterResultsScreen(
+                                    location: search,
+                                    priceRange:
+                                        'Up to ₹ ${_priceValue.toInt()}',
+                                  ),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(30),
+                            child: _buildRecentTag(search),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  const SizedBox(height: 40),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Popular Areas ',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
+                          text: '(लोकप्रिय ठाउँहरू)',
+                          style: GoogleFonts.mukta(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildAreaItem('Baluwatar, Kathmandu', '450+ Listings'),
+                  _buildAreaItem('Sanepa, Lalitpur', '320+ Listings'),
+                  _buildAreaItem('Baneshwor, Kathmandu', '580+ Listings'),
+                  _buildAreaItem('Jhamsikhel, Lalitpur', '210+ Listings'),
+                  _buildAreaItem('Kirtipur, Kathmandu', '120+ Listings'),
+                  const SizedBox(height: 80), // Prevent collision with FAB
+                ],
               ],
             ),
           ),
@@ -707,7 +768,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => FilterResultsScreen(
-                    location: _searchController.text.isEmpty ? 'Verified Listings' : _searchController.text,
+                    location: _searchController.text.isEmpty
+                        ? 'Verified Listings'
+                        : _searchController.text,
                     priceRange: 'Up to ₹ ${_priceValue.toInt()}',
                   ),
                 ),
@@ -743,7 +806,10 @@ class _SearchScreenState extends State<SearchScreen> {
         icon: const Icon(Icons.support_agent, color: Colors.white),
         label: Text(
           'AI सहायक',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w800, color: Colors.white),
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
+          ),
         ),
       ),
     );
@@ -764,7 +830,11 @@ class _SearchScreenState extends State<SearchScreen> {
           const SizedBox(width: 8),
           Text(
             text,
-            style: GoogleFonts.plusJakartaSans(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w600),
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),
@@ -795,7 +865,10 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         title: Text(
           title,
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 14),
+          style: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.w800,
+            fontSize: 14,
+          ),
         ),
         subtitle: Text(
           count,
@@ -842,11 +915,11 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     try {
-      // 1. Fetch properties for context 
+      // 1. Fetch properties for context
       // We try to find properties that match the user's search query keywords
       final queryText = _searchController.text.trim();
       final supabase = Supabase.instance.client;
-      
+
       var query = supabase
           .from('properties')
           .select('id, title, price, area_name, category')
@@ -854,7 +927,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
       // Simple keyword matching for better context
       if (queryText.isNotEmpty) {
-        query = query.or('area_name.ilike.%$queryText%,title.ilike.%$queryText%,category.ilike.%$queryText%');
+        query = query.or(
+          'area_name.ilike.%$queryText%,title.ilike.%$queryText%,category.ilike.%$queryText%',
+        );
       }
 
       final List<dynamic> propertiesData = await query.limit(20);
@@ -881,6 +956,8 @@ class _SearchScreenState extends State<SearchScreen> {
         ).showSnackBar(SnackBar(content: Text('AI Search failed: $e')));
       }
     }
+  }
+
   Widget _buildCategoryIcon(String label, IconData icon) {
     bool isActive = _activeCategory == label;
     return GestureDetector(
@@ -918,7 +995,12 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildSuggestedItem(String title, String subtitle, IconData icon, {VoidCallback? onTap}) {
+  Widget _buildSuggestedItem(
+    String title,
+    String subtitle,
+    IconData icon, {
+    VoidCallback? onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
