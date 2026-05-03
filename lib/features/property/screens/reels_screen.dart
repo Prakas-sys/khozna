@@ -36,7 +36,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
       debugPrint('ReelsScreen: Starting fetch...');
       final data = await Supabase.instance.client
           .from('properties')
-          .select('*, profiles:owner_id(full_name, avatar_url, kyc_status)')
+          .select('id, owner_id, title, area_name, price, images, video_url, category, status, bedrooms, bathrooms, profiles:owner_id(full_name, avatar_url, kyc_status)')
           .order('created_at', ascending: false)
           .limit(30);
 
@@ -382,21 +382,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 ],
                               ),
                               const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  if (property.bedrooms > 0) ...[
-                                    const Icon(Icons.bed_outlined, color: Colors.white54, size: 13),
-                                    const SizedBox(width: 3),
-                                    Text('${property.bedrooms}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 11)),
-                                    const SizedBox(width: 8),
-                                  ],
-                                  if (property.bathrooms > 0) ...[
-                                    const Icon(Icons.bathtub_outlined, color: Colors.white54, size: 13),
-                                    const SizedBox(width: 3),
-                                    Text('${property.bathrooms}', style: GoogleFonts.inter(color: Colors.white54, fontSize: 11)),
-                                  ],
-                                ],
-                              ),
+                              // Amenities removed as requested
                               const SizedBox(height: 4),
                               RichText(
                                 text: TextSpan(
@@ -431,9 +417,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.directions_walk_rounded, color: Colors.black, size: 16),
+                                    const Icon(Icons.directions_walk_rounded, color: Colors.white, size: 16),
                                     const SizedBox(width: 6),
-                                    Text('VISIT (हेर्नुहोस्)', style: GoogleFonts.plusJakartaSans(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
+                                    Text('VISIT NOW', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
                                   ],
                                 ),
                               ),
@@ -453,7 +439,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                decoration: BoxDecoration(color: AppTheme.brandColor, borderRadius: BorderRadius.circular(30)),
+                                decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(30), border: Border.all(color: Colors.white.withOpacity(0.2))),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -464,7 +450,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                                     ),
                                     const SizedBox(width: 6),
-                                    Text('CHAT (कुरा गर्नुहोस्)', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
+                                    Text('CHAT', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
                                   ],
                                 ),
                               ),
