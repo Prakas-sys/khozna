@@ -228,15 +228,16 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 80), // Position above bottom bar
+        padding: const EdgeInsets.only(bottom: 50), // Position slightly above bottom bar
         child: FloatingActionButton.extended(
           onPressed: () {
             HapticFeedback.heavyImpact();
             Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()));
           },
           backgroundColor: AppTheme.brandColor,
-          elevation: 8,
-          highlightElevation: 12,
+          elevation: 6, // Slightly softer elevation
+          highlightElevation: 10,
+          shape: const StadiumBorder(), // Standard pill-shape for map UI
           icon: const Icon(Icons.map_rounded, color: Colors.white, size: 20),
           label: Text(
             'नक्सा हेर्नुहोस् (View Map)',
