@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -22,6 +24,8 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
   List<Property> _properties = [];
   bool _isLoading = true;
   LatLng _initialPosition = const LatLng(27.7172, 85.3240); // Kathmandu default
+  LatLng? _userLocation;
+  List<LatLng> _routePoints = [];
 
   @override
   void initState() {
@@ -41,7 +45,8 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
       
       if (mounted) {
         setState(() {
-          _initialPosition = LatLng(position.latitude, position.longitude);
+          _userLocation = LatLng(position.latitude, position.longitude);
+          _initialPosition = _userLocation!;
         });
         // Move map if it's already built
         _mapController.move(_initialPosition, 13.0);
@@ -76,6 +81,23 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             .toList();
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _getRoute(LatLng destination) async {
+    if (_userLocation == null) return;
+    try {
+      final url = 'http://router.project-osrm.org/route/v1/driving/${_userLocation!.longitude},${_userLocation!.latitude};${destination.longitude},${destination.latitude}?geometries=geojson';
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final coordinates = data['routes'][0]['geometry']['coordinates'] as List;
+        setState(() {
+          _routePoints = coordinates.map((c) => LatLng(c[1], c[0])).toList();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error getting route: $e');
     }
   }
 
@@ -138,11 +160,40 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.khozna.khozna',
               ),
+              if (_routePoints.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: _routePoints,
+                      color: AppTheme.brandColor,
+                      strokeWidth: 4.0,
+                    ),
+                  ],
+                ),
               MarkerLayer(
-                markers: _markers,
+                markers: [
+                  ..._markers,
+                  if (_userLocation != null)
+                    Marker(
+                      point: _userLocation!,
+                      width: 20,
+                      height: 20,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                          boxShadow: [
+                            BoxShadow(color: Colors.blue.withOpacity(0.5), blurRadius: 10, spreadRadius: 2),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
@@ -166,7 +217,9 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                   final p = _properties[index];
                   return GestureDetector(
                     onTap: () {
-                      _mapController.move(LatLng(p.latitude ?? 0, p.longitude ?? 0), 15.0);
+                      final destination = LatLng(p.latitude ?? 0, p.longitude ?? 0);
+                      _mapController.move(destination, 15.0);
+                      _getRoute(destination);
                     },
                     child: Container(
                       width: 280,
@@ -242,7 +295,10 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
         backgroundColor: Colors.white,
         onPressed: () async {
           Position position = await Geolocator.getCurrentPosition();
-          _mapController.move(LatLng(position.latitude, position.longitude), 15.0);
+          setState(() {
+            _userLocation = LatLng(position.latitude, position.longitude);
+          });
+          _mapController.move(_userLocation!, 15.0);
         },
         child: const Icon(Icons.my_location, color: AppTheme.brandColor),
       ),
