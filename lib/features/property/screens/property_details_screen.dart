@@ -158,11 +158,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ),
         actions: [
           FavouriteButton(propertyId: widget.property.id),
+          const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.share_outlined, color: Colors.black, size: 22),
+            icon: const Icon(Icons.report_gmailerrorred_rounded, color: Colors.redAccent, size: 22),
             onPressed: () {
-              HapticFeedback.lightImpact();
-              Share.share('Check out ${widget.property.title} on Khozna!');
+              HapticFeedback.heavyImpact();
+              _showReportDialog();
             },
           ),
           const SizedBox(width: 8),
@@ -175,6 +176,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                _buildSafetyBanner(),
+                const SizedBox(height: 16),
                 _buildHeader(),
                 const SizedBox(height: 24),
                 const DetailSectionTitle(title: 'सुविधाहरू (Amenities)'),
@@ -434,6 +437,131 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ]),
         ),
       ),
+    );
+  }
+
+  Widget _buildSafetyBanner() {
+    final bool isVerified = _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isVerified ? Colors.blue.withOpacity(0.05) : Colors.orange.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isVerified ? Colors.blue.withOpacity(0.1) : Colors.orange.withOpacity(0.2),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(
+                isVerified ? Icons.security_rounded : Icons.warning_amber_rounded,
+                color: isVerified ? Colors.blue[700] : Colors.orange[800],
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  isVerified ? 'Khozna Safety Tip' : 'Caution: Unverified Owner',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    color: isVerified ? Colors.blue[900] : Colors.orange[900],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'ठगीबाट बच्न घर नहेरी अग्रिम पैसा नपठाउनुहोस्। (Never pay advance money before visiting the property in person.)',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: isVerified ? Colors.blue[800] : Colors.orange[900],
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showReportDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          top: 32,
+          left: 24,
+          right: 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Report Property (रिपोर्ट गर्नुहोस्)',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Why are you reporting this? (तपाईं किन रिपोर्ट गर्दै हुनुहुन्छ?)',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+            _buildReportOption('Scam or Fraud (ठगी)', Icons.money_off_rounded),
+            _buildReportOption('Wrong Information (गलत विवरण)', Icons.edit_off_rounded),
+            _buildReportOption('Owner Misbehavior (राम्रो व्यवहार छैन)', Icons.person_off_rounded),
+            _buildReportOption('Duplicate Listing (दोहोरिएको विज्ञापन)', Icons.copy_rounded),
+            const SizedBox(height: 24),
+            Text(
+              'False reports will result in a permanent ban.',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.red[400],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReportOption(String title, IconData icon) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.black87),
+      title: Text(
+        title,
+        style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+      onTap: () {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Thank you. Our team will investigate this within 24 hours.'),
+            backgroundColor: AppTheme.brandColor,
+          ),
+        );
+      },
     );
   }
 
