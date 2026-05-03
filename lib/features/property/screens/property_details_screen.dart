@@ -165,7 +165,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             onPressed: () {
               HapticFeedback.mediumImpact();
               Share.share(
-                'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: ${KhoznaFormatter.formatCurrency(widget.property.price)}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
+                'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: Rs. ${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
               );
             },
           ),
