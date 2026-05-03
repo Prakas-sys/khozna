@@ -12,7 +12,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-// flutter_app_badger removed due to build issues
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'core/security/security_utils.dart';
@@ -31,8 +31,18 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   
-  // Badge count logic removed due to plugin issues
-  // We rely on in-app badges for now
+  // Try to update badge count if data is present
+  try {
+    if (message.data.containsKey('badge')) {
+      int? badge = int.tryParse(message.data['badge'].toString());
+      if (badge != null && badge > 0) {
+        FlutterAppBadger.updateBadgeCount(badge);
+      }
+    }
+  } catch (e) {
+    debugPrint("Background badge error: $e");
+  }
+  
   debugPrint("Background message received: ${message.messageId}");
 }
 
