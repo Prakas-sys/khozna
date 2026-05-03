@@ -229,22 +229,29 @@ class HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 50), // Position slightly above bottom bar
-        child: FloatingActionButton.extended(
-          onPressed: () {
-            HapticFeedback.heavyImpact();
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()));
-          },
-          backgroundColor: AppTheme.brandColor,
-          elevation: 6, // Slightly softer elevation
-          highlightElevation: 10,
-          shape: const StadiumBorder(), // Standard pill-shape for map UI
-          icon: const Icon(Icons.map_rounded, color: Colors.white, size: 20),
-          label: Text(
-            'नक्सा हेर्नुहोस् (View Map)',
-            style: GoogleFonts.mukta(
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
-              color: Colors.white,
+        child: SizedBox(
+          height: 44, // Sleek, premium compact height
+          child: ElevatedButton.icon(
+            onPressed: () {
+              HapticFeedback.heavyImpact();
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()));
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.brandColor,
+              foregroundColor: Colors.white,
+              elevation: 6,
+              shadowColor: AppTheme.brandColor.withOpacity(0.4),
+              shape: const StadiumBorder(),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+            ),
+            icon: const Icon(Icons.map_rounded, color: Colors.white, size: 18), // Slightly smaller icon
+            label: Text(
+              'Map',
+              style: GoogleFonts.mukta(
+                fontWeight: FontWeight.w600, // Refined weight for compact text
+                fontSize: 14,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
