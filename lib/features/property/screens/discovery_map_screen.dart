@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
-import 'package:khozna/core/utils/map_style.dart';
 import 'package:khozna/features/property/screens/property_details_screen.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -17,8 +17,8 @@ class DiscoveryMapScreen extends StatefulWidget {
 }
 
 class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
-  GoogleMapController? _mapController;
-  Set<Marker> _markers = {};
+  final MapController _mapController = MapController();
+  List<Marker> _markers = [];
   List<Property> _properties = [];
   bool _isLoading = true;
   LatLng _initialPosition = const LatLng(27.7172, 85.3240); // Kathmandu default
@@ -28,14 +28,13 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
     super.initState();
     if (widget.initialCenter != null) {
       _initialPosition = widget.initialCenter!;
-      _isLoading = false; // We have a center, can show map
+      _isLoading = false; 
     }
     _loadUserLocationAndProperties();
   }
 
   Future<void> _loadUserLocationAndProperties() async {
     try {
-      // Get user location
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
@@ -44,6 +43,8 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
         setState(() {
           _initialPosition = LatLng(position.latitude, position.longitude);
         });
+        // Move map if it's already built
+        _mapController.move(_initialPosition, 13.0);
       }
     } catch (e) {
       debugPrint('Error getting location: $e');
@@ -60,18 +61,19 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
         _markers = _properties
             .where((p) => p.latitude != null && p.longitude != null)
             .map((p) => Marker(
-                  markerId: MarkerId(p.id),
-                  position: LatLng(p.latitude!, p.longitude!),
-                  infoWindow: InfoWindow(
-                    title: p.title,
-                    snippet: '₹${p.price}/mo',
+                  point: LatLng(p.latitude!, p.longitude!),
+                  width: 40,
+                  height: 40,
+                  child: GestureDetector(
                     onTap: () => _navigateToDetails(p),
-                  ),
-                  icon: BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueAzure,
+                    child: const Icon(
+                      Icons.location_on,
+                      color: AppTheme.brandColor,
+                      size: 40,
+                    ),
                   ),
                 ))
-            .toSet();
+            .toList();
         _isLoading = false;
       });
     }
@@ -98,8 +100,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
           child: CircleAvatar(
             backgroundColor: Colors.white,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Colors.black, size: 18),
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 18),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -129,27 +130,28 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
       ),
       body: Stack(
         children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: _initialPosition,
-              zoom: 13,
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _initialPosition,
+              initialZoom: 13.0,
             ),
-            markers: _markers,
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            zoomControlsEnabled: false,
-            mapToolbarEnabled: false,
-            onMapCreated: (controller) {
-              _mapController = controller;
-              _mapController!.setMapStyle(KhoznaMapStyle.silver);
-            },
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.khozna.khozna',
+              ),
+              MarkerLayer(
+                markers: _markers,
+              ),
+            ],
           ),
           if (_isLoading)
             const Center(
               child: CircularProgressIndicator(color: AppTheme.brandColor),
             ),
           
-          // Bottom Property Carousel (Optional but Premium)
+          // Bottom Property Carousel
           Positioned(
             bottom: 30,
             left: 0,
@@ -164,12 +166,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                   final p = _properties[index];
                   return GestureDetector(
                     onTap: () {
-                      _mapController?.animateCamera(
-                        CameraUpdate.newLatLngZoom(
-                          LatLng(p.latitude ?? 0, p.longitude ?? 0),
-                          15,
-                        ),
-                      );
+                      _mapController.move(LatLng(p.latitude ?? 0, p.longitude ?? 0), 15.0);
                     },
                     child: Container(
                       width: 280,
@@ -245,9 +242,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
         backgroundColor: Colors.white,
         onPressed: () async {
           Position position = await Geolocator.getCurrentPosition();
-          _mapController?.animateCamera(
-            CameraUpdate.newLatLng(LatLng(position.latitude, position.longitude)),
-          );
+          _mapController.move(LatLng(position.latitude, position.longitude), 15.0);
         },
         child: const Icon(Icons.my_location, color: AppTheme.brandColor),
       ),
