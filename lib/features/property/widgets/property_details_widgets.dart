@@ -40,22 +40,11 @@ class PropertyStatItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          height: 56,
-          width: 56,
+          height: 52,
+          width: 52,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                accentColor.withOpacity(0.08),
-                accentColor.withOpacity(0.18),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: accentColor.withOpacity(0.2),
-              width: 1.5,
-            ),
+            color: accentColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Icon(icon, color: accentColor, size: 24),
         ),
@@ -67,7 +56,7 @@ class PropertyStatItem extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w800,
               color: const Color(0xFF1E293B),
             ),
@@ -78,10 +67,10 @@ class PropertyStatItem extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.inter(
-              fontSize: 10,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black54,
               letterSpacing: 0.1,
             ),
           ),

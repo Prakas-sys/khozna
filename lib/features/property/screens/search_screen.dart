@@ -183,15 +183,20 @@ class _SearchScreenState extends State<SearchScreen> {
                                 fontWeight: FontWeight.w600,
                                 color: Colors.black,
                               ),
-                              decoration: InputDecoration(
-                                hintText: 'Location, Area or City',
-                                hintStyle: GoogleFonts.plusJakartaSans(
-                                  color: Colors.grey[400],
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                                decoration: InputDecoration(
+                                  hintText: 'Location, Area or City',
+                                  hintStyle: GoogleFonts.plusJakartaSans(
+                                    color: Colors.grey[400],
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  errorBorder: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
-                                border: InputBorder.none,
-                              ),
                               onSubmitted: (val) {
                                 if (val.isNotEmpty) {
                                   Navigator.push(

@@ -357,7 +357,7 @@ class PropertyCard extends StatelessWidget {
                                     backgroundColor: AppTheme.brandColor,
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
-                                      vertical: 6,
+                                      vertical: 8,
                                     ),
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
@@ -367,6 +367,7 @@ class PropertyCard extends StatelessWidget {
                                   ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       const Icon(
                                         Icons.directions_walk_rounded,
@@ -378,7 +379,6 @@ class PropertyCard extends StatelessWidget {
                                         style: GoogleFonts.plusJakartaSans(
                                           fontWeight: FontWeight.w700,
                                           fontSize: 13.5,
-                                          height: 1.1,
                                         ),
                                       ),
                                     ],
@@ -426,6 +426,7 @@ class PropertyCard extends StatelessWidget {
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   SvgPicture.asset(
                                     'assets/icons/message.svg',
@@ -442,7 +443,6 @@ class PropertyCard extends StatelessWidget {
                                     style: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13.5,
-                                      height: 1.1,
                                     ),
                                   ),
                                 ],

@@ -11,6 +11,7 @@ import 'package:khozna/features/property/screens/home_screen.dart';
 import 'package:khozna/features/property/screens/reels_screen.dart';
 import 'package:khozna/features/chat/screens/messages_screen.dart';
 import 'package:khozna/features/property/screens/add_property_screen.dart';
+import 'package:khozna/features/property/screens/post_property_intro_screen.dart';
 import 'package:khozna/features/profile/screens/kyc_screen.dart';
 import 'package:khozna/features/profile/screens/profile_screen.dart';
 
@@ -255,7 +256,7 @@ class _MainScreenState extends State<MainScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const AddPropertyScreen(),
+                                builder: (context) => const PostPropertyIntroScreen(),
                               ),
                             );
                             return;
@@ -368,7 +369,7 @@ class _MainScreenState extends State<MainScreen> {
                             final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const AddPropertyScreen(),
+                                builder: (context) => const PostPropertyIntroScreen(),
                               ),
                             );
 
