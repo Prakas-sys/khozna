@@ -67,9 +67,10 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             .where((p) => p.latitude != null && p.longitude != null)
             .map((p) => Marker(
                   point: LatLng(p.latitude!, p.longitude!),
-                  width: 40,
-                  height: 40,
+                  width: 50,
+                  height: 50,
                   child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
                     onTap: () => _navigateToDetails(p),
                     child: const Icon(
                       Icons.location_on,
@@ -87,7 +88,8 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
   Future<void> _getRoute(LatLng destination) async {
     if (_userLocation == null) return;
     try {
-      final url = 'http://router.project-osrm.org/route/v1/driving/${_userLocation!.longitude},${_userLocation!.latitude};${destination.longitude},${destination.latitude}?geometries=geojson';
+      // Use HTTPS to prevent Android cleartext traffic blocking
+      final url = 'https://router.project-osrm.org/route/v1/driving/${_userLocation!.longitude},${_userLocation!.latitude};${destination.longitude},${destination.latitude}?geometries=geojson';
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -163,6 +165,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                 urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
                 subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.khozna.khozna',
+                retinaMode: RetinaMode.isHighDensity,
               ),
               if (_routePoints.isNotEmpty)
                 PolylineLayer(
