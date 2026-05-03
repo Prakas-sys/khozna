@@ -18,7 +18,6 @@ class ChatScreen extends StatefulWidget {
   final String name;
   final String avatar;
   final bool online;
-  final String phone;
   final String ownerId;
   final bool isVerified;
   final bool isOwner;
@@ -29,7 +28,6 @@ class ChatScreen extends StatefulWidget {
     required this.name,
     required this.avatar,
     required this.online,
-    this.phone = "+977 9801234567",
     this.ownerId = '',
     this.isVerified = false,
     this.isOwner = false,
@@ -51,7 +49,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   late String _displayName;
   late String _displayAvatar;
-  late String _displayPhone;
   late bool _isOwner;
 
   final List<String> _quickReplies = [
@@ -71,7 +68,6 @@ class _ChatScreenState extends State<ChatScreen> {
     _bannerScrollController = ScrollController();
     _displayName = widget.name;
     _displayAvatar = widget.avatar;
-    _displayPhone = widget.phone;
     _isOwner = widget.isOwner;
 
     WidgetsBinding.instance.addPostFrameCallback((_) => _startBannerAnimation());
@@ -89,7 +85,7 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _displayName = profile.fullName;
         _displayAvatar = profile.avatarUrl ?? _displayAvatar;
-        _displayPhone = profile.phoneNumber ?? _displayPhone;
+        _displayAvatar = profile.avatarUrl ?? _displayAvatar;
         _isOwner = profile.isOwner;
       });
     }
@@ -176,7 +172,22 @@ class _ChatScreenState extends State<ChatScreen> {
         leading: const BackButton(color: Colors.black),
         titleSpacing: 0,
         title: InkWell(
-          onTap: _showProfileSheet,
+        onTap: () {
+          if (widget.ownerId.isNotEmpty) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => OwnerProfileScreen(
+                  ownerId: widget.ownerId,
+                  name: _displayName,
+                  avatar: _displayAvatar,
+                  location: 'Khozna User',
+                  totalListings: _isOwner ? 1 : 0,
+                ),
+              ),
+            );
+          }
+        },
           child: Row(
             children: [
               CircleAvatar(radius: 18, backgroundImage: (_displayAvatar.isNotEmpty && !_displayAvatar.contains('pravatar.cc')) ? CachedNetworkImageProvider(_displayAvatar) : null, child: (_displayAvatar.isEmpty || _displayAvatar.contains('pravatar.cc')) ? const Icon(Icons.person, size: 18) : null),
@@ -188,7 +199,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           ),
         ),
-        actions: [IconButton(icon: const Icon(Icons.call_outlined, color: Colors.black), onPressed: _startCall), const SizedBox(width: 8)],
+        actions: [const SizedBox(width: 8)],
       ),
       body: Column(
         children: [
@@ -258,8 +269,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(height: 30),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              _buildActionCircle(Icons.call_rounded, 'Call', Colors.green, _startCall),
-              const SizedBox(width: 32),
               _buildActionCircle(Icons.person_rounded, 'Profile', Colors.blue, () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -285,10 +294,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> _startCall() async {
-    final Uri uri = Uri(scheme: 'tel', path: _displayPhone);
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
+
 
   Widget _buildActionCircle(IconData icon, String label, Color color, VoidCallback onTap) {
     return Column(children: [

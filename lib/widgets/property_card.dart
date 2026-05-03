@@ -404,7 +404,6 @@ class PropertyCard extends StatelessWidget {
                                         avatar: ownerAvatar ?? '',
                                         isVerified: isOwnerVerified ?? false,
                                         online: true,
-                                        phone: '+977 9801234567',
                                       ),
                                     ),
                                   );
