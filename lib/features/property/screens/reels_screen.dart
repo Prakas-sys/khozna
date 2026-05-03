@@ -212,18 +212,20 @@ class _ReelsScreenState extends State<ReelsScreen> {
             : _buildVideoPlaceholder(property),
 
         // Gradient overlay
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withOpacity(0.5),
-                Colors.transparent,
-                Colors.transparent,
-                Colors.black.withOpacity(0.85),
-              ],
-              stops: const [0.0, 0.2, 0.55, 1.0],
+        IgnorePointer(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.black.withOpacity(0.5),
+                  Colors.transparent,
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.85),
+                ],
+                stops: const [0.0, 0.2, 0.55, 1.0],
+              ),
             ),
           ),
         ),
