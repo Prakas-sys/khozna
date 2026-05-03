@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
@@ -146,21 +147,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     // --- BRAND & TITLE ---
                     Text(
                       'KHOZNA',
-                      style: GoogleFonts.zenAntiqueSoft(
+                      style: GoogleFonts.plusJakartaSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
                         color: AppTheme.brandColor,
-                        letterSpacing: 1.5,
+                        letterSpacing: 2.0,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Join our community of\nHappy Renters.',
-                      style: GoogleFonts.zenAntiqueSoft(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1D1D1D),
-                        height: 1.2,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF1A1A2E),
+                        height: 1.1,
+                        letterSpacing: -1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'नयाँ घर खोज्नुहोस् (Find your next home)',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -287,15 +298,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     // Register Button
                     SizedBox(
                       width: double.infinity,
-                      height: 56,
+                      height: 60,
                       child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleRegister,
+                        onPressed: _isLoading 
+                          ? null 
+                          : () {
+                              HapticFeedback.mediumImpact();
+                              _handleRegister();
+                            },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.brandColor,
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(40),
+                            borderRadius: BorderRadius.circular(50),
                           ),
                         ),
                         child: _isLoading
@@ -308,10 +324,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               )
                             : Text(
-                                'Create Account',
-                                style: GoogleFonts.inter(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                'Create Account (खाता बनाउनुहोस्)',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
                       ),
@@ -337,12 +353,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(context);
+                    },
                     child: Text(
-                      'Login Here',
+                      'Login Here (स्वागत छ)',
                       style: GoogleFonts.inter(
                         color: AppTheme.brandColor,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w800,
                         fontSize: 15,
                       ),
                     ),
@@ -369,10 +388,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(40),
+        borderRadius: BorderRadius.circular(50),
         border: Border.all(
-          color: Colors.grey.withOpacity(0.6),
-          width: 1.2,
+          color: Colors.grey.withOpacity(0.2),
+          width: 1.5,
         ),
       ),
       child: Row(

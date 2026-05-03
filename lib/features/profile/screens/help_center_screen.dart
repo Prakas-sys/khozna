@@ -48,10 +48,10 @@ class HelpCenterScreen extends StatelessWidget {
             _buildSectionTitle('Direct Contact'),
             const SizedBox(height: 16),
             _buildContactItem(
-              icon: Icons.phone_rounded,
-              title: 'Call Us',
+              icon: FontAwesomeIcons.whatsapp,
+              title: 'Message on WhatsApp',
               subtitle: '9705278379',
-              onTap: () => _launchUrl('tel:9705278379'),
+              onTap: () => _launchUrl('https://wa.me/9779705278379'),
             ),
             const SizedBox(height: 12),
             _buildContactItem(
