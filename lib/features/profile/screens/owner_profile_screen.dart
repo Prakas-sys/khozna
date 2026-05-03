@@ -1,14 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class OwnerProfileScreen extends StatelessWidget {
-  final String ownerId; // New: ownerId required for reporting
+class OwnerProfileScreen extends StatefulWidget {
+  final String ownerId;
   final String name;
   final String avatar;
   final bool isVerified;
@@ -26,6 +29,60 @@ class OwnerProfileScreen extends StatelessWidget {
   });
 
   @override
+  State<OwnerProfileScreen> createState() => _OwnerProfileScreenState();
+}
+
+class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
+  String? _phone;
+  bool _isLoadingPhone = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchOwnerPhone();
+  }
+
+  Future<void> _fetchOwnerPhone() async {
+    try {
+      final data = await Supabase.instance.client
+          .from('profiles')
+          .select('phone_number')
+          .eq('id', widget.ownerId)
+          .maybeSingle();
+      
+      if (mounted) {
+        setState(() {
+          _phone = data?['phone_number'];
+          _isLoadingPhone = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingPhone = false);
+    }
+  }
+
+  Future<void> _makeCall() async {
+    if (_phone == null || _phone!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Phone number not available')),
+      );
+      return;
+    }
+
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: _phone,
+    );
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not launch dialer')),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -33,14 +90,14 @@ class OwnerProfileScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          totalListings > 0 ? 'Owner Profile' : 'User Profile',
-          style: GoogleFonts.inter(
+          widget.totalListings > 0 ? 'Owner Profile' : 'User Profile',
+          style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
             fontSize: 18,
           ),
         ),
@@ -50,15 +107,27 @@ class OwnerProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             Center(
-              child: CircleAvatar(
-                radius: 60,
-                backgroundColor: Colors.grey[100],
-                backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
-                    ? CachedNetworkImageProvider(avatar)
-                    : null,
-                child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
-                    ? Icon(Icons.person, size: 60, color: Colors.grey[400])
-                    : null,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.grey[100],
+                  backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
+                      ? CachedNetworkImageProvider(widget.avatar)
+                      : null,
+                  child: (widget.avatar.isEmpty || widget.avatar.contains('pravatar.cc'))
+                      ? Icon(Icons.person, size: 60, color: Colors.grey[400])
+                      : null,
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -66,21 +135,21 @@ class OwnerProfileScreen extends StatelessWidget {
               TextSpan(
                 children: [
                   TextSpan(
-                    text: name,
-                    style: GoogleFonts.inter(
+                    text: widget.name,
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
                       color: Colors.black,
                     ),
                   ),
-                  if (isVerified)
+                  if (widget.isVerified)
                     WidgetSpan(
                       alignment: PlaceholderAlignment.middle,
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 6),
+                        padding: const EdgeInsets.only(left: 8),
                         child: Icon(
                           Icons.verified_rounded,
-                          color: AppTheme.brandColor,
+                          color: const Color(0xFF00A3FF), // Verified Blue
                           size: 22,
                         ),
                       ),
@@ -89,19 +158,19 @@ class OwnerProfileScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(
-                  Icons.location_on_outlined,
+                  Icons.location_on_rounded,
                   color: Colors.grey,
                   size: 16,
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'प्रमाणित प्रयोगकर्ता · $location',
-                  style: GoogleFonts.mukta(
+                  'प्रमाणित प्रयोगकर्ता · ${widget.location}',
+                  style: GoogleFonts.plusJakartaSans(
                     color: Colors.grey[600],
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -113,16 +182,16 @@ class OwnerProfileScreen extends StatelessWidget {
 
             // Stats Row
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 20),
+              padding: const EdgeInsets.symmetric(vertical: 24),
               decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.grey[100]!),
+                color: const Color(0xFFF8F9FA),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.grey.shade100),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatItem('सूचीहरू (Listings)', totalListings.toString()),
+                  _buildStatItem('सूचीहरू (Listings)', widget.totalListings.toString()),
                 ],
               ),
             ),
@@ -131,8 +200,8 @@ class OwnerProfileScreen extends StatelessWidget {
 
             // Trust Vote Card
             TrustVoteCard(
-              targetUserId: ownerId,
-              targetName: name,
+              targetUserId: widget.ownerId,
+              targetName: widget.name,
             ),
 
             const SizedBox(height: 24),
@@ -141,12 +210,12 @@ class OwnerProfileScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isVerified
-                    ? Colors.green.withOpacity(0.05)
-                    : Colors.orange.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(20),
+                color: widget.isVerified
+                    ? const Color(0xFFE8F5E9)
+                    : const Color(0xFFFFF3E0),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: isVerified
+                  color: widget.isVerified
                       ? Colors.green.withOpacity(0.1)
                       : Colors.orange.withOpacity(0.1),
                 ),
@@ -156,11 +225,11 @@ class OwnerProfileScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: isVerified ? Colors.green : Colors.orange,
+                      color: widget.isVerified ? Colors.green : Colors.orange,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      isVerified ? Icons.verified_user : Icons.gpp_maybe,
+                      widget.isVerified ? Icons.verified_user : Icons.gpp_maybe,
                       color: Colors.white,
                       size: 24,
                     ),
@@ -171,24 +240,25 @@ class OwnerProfileScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isVerified ? 'KYC Verified · पहिचान प्रमाणित' : 'पहिचान प्रमाणित हुन बाँकी छ · Verification Pending',
-                          style: GoogleFonts.mukta(
+                          widget.isVerified ? 'KYC Verified · पहिचान प्रमाणित' : 'पहिचान प्रमाणित हुन बाँकी छ · Verification Pending',
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isVerified
-                                ? Colors.green[700]
-                                : Colors.orange[800],
+                            fontWeight: FontWeight.w700,
+                            color: widget.isVerified
+                                ? Colors.green[800]
+                                : Colors.orange[900],
                           ),
                         ),
                         Text(
-                          isVerified
+                          widget.isVerified
                               ? 'पहिचान पूर्ण रूपमा प्रमाणित र भरोसायोग्य छ।'
-                              : '${totalListings > 0 ? 'घरबेटी' : 'प्रयोगकर्ता'}को पहिचान प्रमाणित हुने प्रक्रियामा छ।',
+                              : '${widget.totalListings > 0 ? 'घरबेटी' : 'प्रयोगकर्ता'}को पहिचान प्रमाणित हुने प्रक्रियामा छ।',
                           style: GoogleFonts.mukta(
                             fontSize: 12,
-                            color: isVerified
-                                ? Colors.green[600]
-                                : Colors.orange[600],
+                            color: widget.isVerified
+                                ? Colors.green[700]
+                                : Colors.orange[700],
+                            height: 1.2,
                           ),
                         ),
                       ],
@@ -198,76 +268,145 @@ class OwnerProfileScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 48),
 
             // Action Buttons
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => chat_page.ChatScreen(
-                            ownerId: ownerId,
-                            name: name,
-                            avatar: avatar,
-                            online: true,
-                          ),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.brandColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppTheme.brandColor, Color(0xFF00B4DB)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
-                      elevation: 0,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.brandColor.withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    child: Text(
-                      '${totalListings > 0 ? 'घरबेटी' : 'प्रयोगकर्ता'}लाई म्यासेज गर्नुहोस्',
-                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => chat_page.ChatScreen(
+                              ownerId: widget.ownerId,
+                              name: widget.name,
+                              avatar: widget.avatar,
+                              online: true,
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/message.svg',
+                            width: 20,
+                            height: 20,
+                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'MESSAGE OWNER',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: AppTheme.brandColor),
-                  ),
-                  child: const Icon(
-                    Icons.phone_outlined,
-                    color: AppTheme.brandColor,
+                const SizedBox(width: 16),
+                InkWell(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    _makeCall();
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    height: 56,
+                    width: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.brandColor, width: 2),
+                    ),
+                    child: const Icon(
+                      Icons.phone_rounded,
+                      color: AppTheme.brandColor,
+                      size: 24,
+                    ),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 48),
 
-            // NEW: Report Button
-            TextButton.icon(
-              onPressed: () => _showReportDialog(context),
-              icon: const Icon(
-                Icons.flag_outlined,
-                color: Colors.red,
-                size: 18,
+            // Safety Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(16),
               ),
-              label: Text(
-                'रिपोर्ट गर्नुहोस् (Report)',
-                style: GoogleFonts.inter(
-                  color: Colors.red,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.gpp_maybe_rounded, color: Colors.red.shade300, size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Report Suspicious Activity',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () => _showReportDialog(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      shape: StadiumBorder(side: BorderSide(color: Colors.red.shade200)),
+                    ),
+                    child: Text(
+                      'रिपोर्ट गर्नुहोस् (Report)',
+                      style: GoogleFonts.mukta(
+                        color: Colors.red.shade700,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+            const SizedBox(height: 40),
           ],
         ),
       ),
@@ -279,9 +418,10 @@ class OwnerProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Report $name',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          'Report ${widget.name}',
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -290,7 +430,7 @@ class OwnerProfileScreen extends StatelessWidget {
               'Why are you reporting this user? Your report helps us keep Khozna safe.',
               style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600]),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             TextField(
               controller: reasonController,
               maxLines: 3,
@@ -300,8 +440,12 @@ class OwnerProfileScreen extends StatelessWidget {
                 filled: true,
                 fillColor: Colors.grey[50],
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: Colors.grey.shade200),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide(color: Colors.grey.shade200),
                 ),
               ),
             ),
@@ -310,41 +454,36 @@ class OwnerProfileScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () async {
               if (reasonController.text.trim().isEmpty) return;
-              final reporterId =
-                  Supabase.instance.client.auth.currentUser?.id ?? 'anonymous';
+              final reporterId = Supabase.instance.client.auth.currentUser?.id ?? 'anonymous';
 
               try {
                 await SupabaseService.reportUser(
-                  ownerId,
+                  widget.ownerId,
                   reporterId,
                   reasonController.text,
                 );
                 if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Report submitted. Thank you.'),
-                    ),
+                    const SnackBar(content: Text('Report submitted. Thank you.')),
                   );
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
                 }
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text(
-              'Submit Report',
-              style: TextStyle(color: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
+            child: const Text('Submit Report', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -356,14 +495,13 @@ class OwnerProfileScreen extends StatelessWidget {
       children: [
         Text(
           value,
-          style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w800),
         ),
         Text(
           label,
-          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500]),
+          style: GoogleFonts.mukta(fontSize: 13, color: Colors.grey[600], fontWeight: FontWeight.w500),
         ),
       ],
     );
   }
 }
-
