@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -9,8 +7,8 @@ import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/property/screens/property_details_screen.dart';
 import 'package:geolocator/geolocator.dart';
-
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:khozna/core/utils/map_launcher.dart';
 
 class DiscoveryMapScreen extends StatefulWidget {
   final LatLng? initialCenter;
@@ -27,7 +25,6 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
   bool _isLoading = true;
   LatLng _initialPosition = const LatLng(27.7172, 85.3240); // Kathmandu default
   LatLng? _userLocation;
-  List<LatLng> _routePoints = [];
 
   @override
   void initState() {
@@ -50,7 +47,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
           _userLocation = LatLng(position.latitude, position.longitude);
           _initialPosition = _userLocation!;
         });
-        _mapController.move(_initialPosition, 13.0);
+        _mapController.move(_initialPosition, 15.0);
       }
     } catch (e) {
       debugPrint('Error getting location: $e');
@@ -96,50 +93,6 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             .toList();
         _isLoading = false;
       });
-    }
-  }
-
-  Future<void> _getRoute(LatLng destination) async {
-    final start = _userLocation ?? const LatLng(27.7172, 85.3240);
-    
-    try {
-      final url = 'https://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${destination.longitude},${destination.latitude}?geometries=geojson';
-      final response = await http.get(Uri.parse(url));
-      
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['routes'] != null && data['routes'].isNotEmpty) {
-          final coordinates = data['routes'][0]['geometry']['coordinates'] as List;
-          setState(() {
-            _routePoints = coordinates.map((c) => LatLng(
-              (c[1] as num).toDouble(), 
-              (c[0] as num).toDouble()
-            )).toList();
-          });
-          
-          if (_routePoints.length > 1) {
-            try {
-              final bounds = LatLngBounds.fromPoints(_routePoints);
-              double latDiff = (bounds.northEast.latitude - bounds.southWest.latitude).abs();
-              double lonDiff = (bounds.northEast.longitude - bounds.southWest.longitude).abs();
-              double maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
-              
-              double zoom = 14.0;
-              if (maxDiff > 0.01) zoom = 13.0;
-              if (maxDiff > 0.05) zoom = 11.5;
-              if (maxDiff > 0.1) zoom = 10.0;
-              if (maxDiff > 0.5) zoom = 8.0;
-
-              _mapController.move(bounds.center, zoom);
-            } catch (e) {
-              debugPrint('Error moving camera: $e');
-              _mapController.move(_routePoints.first, 14.0);
-            }
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint('Error getting route: $e');
     }
   }
 
@@ -198,7 +151,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: _initialPosition,
-              initialZoom: 13.0,
+              initialZoom: 15.0,
               minZoom: 3.0,
               maxZoom: 18.0,
             ),
@@ -208,16 +161,6 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                 userAgentPackageName: 'com.khozna.khozna',
                 retinaMode: true,
               ),
-              if (_routePoints.isNotEmpty)
-                PolylineLayer(
-                  polylines: [
-                    Polyline(
-                      points: _routePoints,
-                      color: AppTheme.brandColor.withOpacity(0.8),
-                      strokeWidth: 5.0,
-                    ),
-                  ],
-                ),
               MarkerClusterLayerWidget(
                 options: MarkerClusterLayerOptions(
                   maxClusterRadius: 45,
@@ -277,42 +220,41 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             left: 0,
             right: 0,
             child: SizedBox(
-              height: 120,
+              height: 140,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _properties.take(5).length,
+                itemCount: _properties.length,
                 itemBuilder: (context, index) {
                   final p = _properties[index];
                   return GestureDetector(
                     onTap: () {
                       final destination = LatLng(p.latitude ?? 0, p.longitude ?? 0);
-                      _mapController.move(destination, 15.0);
-                      _getRoute(destination);
+                      _mapController.move(destination, 15.5);
                     },
                     child: Container(
-                      width: 280,
+                      width: 300,
                       margin: const EdgeInsets.only(right: 12),
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
                           ),
                         ],
                       ),
                       child: Row(
                         children: [
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                             child: Image.network(
                               p.imageUrl,
-                              width: 80,
-                              height: 80,
+                              width: 90,
+                              height: 90,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -332,19 +274,31 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                                   ),
                                 ),
                                 Text(
-                                  p.location,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
                                   '₹${p.price}/mo',
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.bold,
                                     color: AppTheme.brandColor,
                                     fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    if (p.latitude != null && p.longitude != null) {
+                                      MapLauncher.openMap(p.latitude!, p.longitude!, p.title);
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.brandColor,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                    minimumSize: const Size(0, 32),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                    elevation: 0,
+                                  ),
+                                  child: Text(
+                                    'Get Directions',
+                                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ],

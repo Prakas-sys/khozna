@@ -109,6 +109,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                       child: PageView.builder(
                         controller: _pageController,
                         scrollDirection: Axis.vertical,
+                        physics: const BouncingScrollPhysics(),
                         itemCount: reels.length,
                         itemBuilder: (context, index) {
                           return _buildReelItem(reels[index]);
@@ -567,6 +568,7 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
         PageView.builder(
           controller: _ctrl,
           scrollDirection: Axis.horizontal,
+          physics: const ClampingScrollPhysics(),
           itemCount: widget.images.length,
           onPageChanged: (i) => setState(() => _current = i),
           itemBuilder: (context, i) => KhoznaImage(
@@ -576,17 +578,19 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
             fit: BoxFit.cover,
           ),
         ),
-        // Vertical dot indicators on right side
+        // Horizontal dot indicators at the bottom center
         Positioned(
-          top: 120,
-          right: 16,
-          child: Column(
+          bottom: 260, // Positioned above the info card
+          left: 0,
+          right: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(widget.images.length, (i) {
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
-                margin: const EdgeInsets.symmetric(vertical: 3),
-                width: 5,
-                height: _current == i ? 20 : 5,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                width: _current == i ? 12 : 6,
+                height: 6,
                 decoration: BoxDecoration(
                   color: _current == i ? Colors.white : Colors.white38,
                   borderRadius: BorderRadius.circular(10),

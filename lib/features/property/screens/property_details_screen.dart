@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,6 +19,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:khozna/features/property/widgets/property_details_widgets.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/favourite_button.dart';
+import 'package:khozna/core/utils/map_launcher.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final Property property;
@@ -90,11 +91,38 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Future<void> _openMap() async {
     if (_hasLocation) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => DiscoveryMapScreen(
-            initialCenter: LatLng(widget.property.latitude!, widget.property.longitude!),
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        builder: (context) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.map_outlined, color: AppTheme.brandColor),
+                title: const Text('View on Khozna Map'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DiscoveryMapScreen(
+                        initialCenter: LatLng(widget.property.latitude!, widget.property.longitude!),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.navigation_outlined, color: Colors.green),
+                title: const Text('Get Directions (Google Maps)'),
+                onTap: () {
+                  Navigator.pop(context);
+                  MapLauncher.openMap(widget.property.latitude!, widget.property.longitude!, widget.property.title);
+                },
+              ),
+              const SizedBox(height: 10),
+            ],
           ),
         ),
       );
