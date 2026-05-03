@@ -10,6 +10,7 @@ import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/screens/property_details_screen.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/widgets/khozna_image.dart';
+import 'package:khozna/widgets/khozna_video_player.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
@@ -505,41 +506,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
   }
 
   Widget _buildVideoPlaceholder(Property property) {
-    return Container(
-      color: const Color(0xFF0A0A0A),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (property.imageUrl.isNotEmpty)
-            Opacity(
-              opacity: 0.3,
-              child: KhoznaImage(
-                imageUrl: property.imageUrl,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white24),
-                  ),
-                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 56),
-                ),
-                const SizedBox(height: 16),
-                Text('Video Coming Soon', style: GoogleFonts.inter(color: Colors.white60, fontSize: 14, fontWeight: FontWeight.w500)),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return KhoznaVideoPlayer(
+      videoUrl: property.videoUrl,
+      thumbnailUrl: property.imageUrl,
     );
   }
 }

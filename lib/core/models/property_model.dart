@@ -23,6 +23,7 @@ class Property {
   final String landmark;
   final List<String> nearbyLandmarks;
   final bool isStudentFriendly;
+  final String videoUrl;
 
   Property({
     required this.id,
@@ -49,6 +50,7 @@ class Property {
     this.landmark = '',
     this.nearbyLandmarks = const [],
     this.isStudentFriendly = false,
+    this.videoUrl = '',
   });
 
   /// First image URL, or a sensible fallback placeholder.
@@ -97,6 +99,7 @@ class Property {
         return l.toString();
       }).toList() ?? [],
       isStudentFriendly: map['is_student_friendly'] ?? false,
+      videoUrl: map['video_url']?.toString() ?? '',
     );
   }
 }

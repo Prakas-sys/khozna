@@ -19,6 +19,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:khozna/features/property/widgets/property_details_widgets.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/favourite_button.dart';
+import 'package:khozna/widgets/khozna_video_player.dart';
 import 'package:khozna/core/utils/map_launcher.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
@@ -228,32 +229,62 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 PageView.builder(
                   controller: _pageController,
                   onPageChanged: (index) => setState(() => _currentImageIndex = index),
-                  itemCount: displayImages.length,
-                  itemBuilder: (context, index) => Hero(
-                    tag: widget.property.id + (index == 0 ? '' : index.toString()),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
+                  itemCount: widget.property.videoUrl.isNotEmpty ? displayImages.length + 1 : displayImages.length,
+                  itemBuilder: (context, index) {
+                    // Check if this index should show a video
+                    if (index == 0 && widget.property.videoUrl.isNotEmpty) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
+                          child: KhoznaVideoPlayer(
+                            videoUrl: widget.property.videoUrl,
+                            thumbnailUrl: widget.property.imageUrl,
+                            autoPlay: false, // Don't autoplay in details
                           ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: KhoznaImage(
-                          imageUrl: displayImages[index],
-                          fit: BoxFit.cover,
+                        ),
+                      );
+                    }
+
+                    // Adjust index if video was inserted at 0
+                    final imageIndex = widget.property.videoUrl.isNotEmpty ? index - 1 : index;
+
+                    return Hero(
+                      tag: widget.property.id + (imageIndex == 0 ? '' : imageIndex.toString()),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
+                          child: KhoznaImage(
+                            imageUrl: displayImages[imageIndex],
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
-                if (displayImages.length > 1) ...[
+                if ((widget.property.videoUrl.isNotEmpty ? displayImages.length + 1 : displayImages.length) > 1) ...[
                   Positioned(
                     left: 24,
                     top: 0,
@@ -293,7 +324,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        displayImages.length,
+                        (widget.property.videoUrl.isNotEmpty ? displayImages.length + 1 : displayImages.length),
                         (index) => Container(
                           width: _currentImageIndex == index ? 24 : 8,
                           height: 8,
