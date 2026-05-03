@@ -162,7 +162,7 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                                     ),
                                   ),
                                   Text(
-                                    'समुदायको भरोसा',
+                                    'पाहुनाको भरोसा',
                                     style: GoogleFonts.mukta(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 11,
@@ -368,7 +368,7 @@ class _TrustVoteCardState extends State<TrustVoteCard>
       trustColor = Colors.green;
       trustProgress = _voteCount / 30;
     } else if (_voteCount < 60) {
-      trustLabel = 'समुदाय प्रिय · Community Favourite';
+      trustLabel = 'पाहुना प्रिय · Guest Favourite';
       trustColor = AppTheme.brandColor;
       trustProgress = _voteCount / 60;
     } else if (_voteCount < 100) {
