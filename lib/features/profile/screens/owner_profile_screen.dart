@@ -7,7 +7,6 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class OwnerProfileScreen extends StatefulWidget {
@@ -33,54 +32,12 @@ class OwnerProfileScreen extends StatefulWidget {
 }
 
 class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
-  String? _phone;
-  bool _isLoadingPhone = true;
-
   @override
   void initState() {
     super.initState();
-    _fetchOwnerPhone();
   }
 
-  Future<void> _fetchOwnerPhone() async {
-    try {
-      final data = await Supabase.instance.client
-          .from('profiles')
-          .select('phone_number')
-          .eq('id', widget.ownerId)
-          .maybeSingle();
-      
-      if (mounted) {
-        setState(() {
-          _phone = data?['phone_number'];
-          _isLoadingPhone = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _isLoadingPhone = false);
-    }
-  }
 
-  Future<void> _makeCall() async {
-    if (_phone == null || _phone!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Phone number not available')),
-      );
-      return;
-    }
-
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: _phone,
-    );
-    if (await canLaunchUrl(launchUri)) {
-      await launchUrl(launchUri);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not launch dialer')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -333,28 +290,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                InkWell(
-                  onTap: () {
-                    HapticFeedback.mediumImpact();
-                    _makeCall();
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    height: 56,
-                    width: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppTheme.brandColor, width: 2),
-                    ),
-                    child: const Icon(
-                      Icons.phone_rounded,
-                      color: AppTheme.brandColor,
-                      size: 24,
                     ),
                   ),
                 ),

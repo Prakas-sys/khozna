@@ -145,8 +145,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('Contact Information', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
-        Row(children: [const Icon(Icons.phone, size: 18, color: Colors.green), const SizedBox(width: 12), Text(_ownerProfile?.phoneNumber ?? 'N/A')]),
-        const SizedBox(height: 16),
+        const SizedBox(height: 4),
         SizedBox(width: double.infinity, child: ElevatedButton.icon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => chat_page.ChatScreen(ownerId: _booking.ownerId, name: _ownerProfile?.fullName ?? 'Owner', avatar: _ownerProfile?.avatarUrl ?? '', online: true))), icon: const Icon(Icons.chat), label: const Text('Message Owner'), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white))),
       ]),
     );
