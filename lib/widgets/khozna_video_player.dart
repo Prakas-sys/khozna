@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:khozna/core/theme/app_theme.dart';
@@ -112,17 +113,35 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          SizedBox.expand(
-            child: FittedBox(
-              fit: BoxFit.cover,
-              child: SizedBox(
-                width: _controller.value.size.width,
-                height: _controller.value.size.height,
+          // Background Blur (to fill gaps for "small ratio" videos)
+          if (_isInitialized)
+            Positioned.fill(
+              child: ImageFiltered(
+                imageFilter: ColorFilter.mode(Colors.black.withOpacity(0.4), BlendMode.darken),
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: _controller.value.size.width,
+                      height: _controller.value.size.height,
+                      child: VideoPlayer(_controller),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          // Main Video with proper Aspect Ratio
+          if (_isInitialized)
+            Center(
+              child: AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
                 child: VideoPlayer(_controller),
               ),
             ),
-          ),
-          if (!_controller.value.isPlaying)
+          
+          if (!_controller.value.isPlaying && _isInitialized)
             Container(
               decoration: BoxDecoration(
                 color: Colors.black26,
