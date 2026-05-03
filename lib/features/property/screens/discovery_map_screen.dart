@@ -86,17 +86,53 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
   }
 
   Future<void> _getRoute(LatLng destination) async {
-    if (_userLocation == null) return;
+    // If we don't have user location yet, default to Kathmandu center for demo
+    final start = _userLocation ?? const LatLng(27.7172, 85.3240);
+    
     try {
       // Use HTTPS to prevent Android cleartext traffic blocking
-      final url = 'https://router.project-osrm.org/route/v1/driving/${_userLocation!.longitude},${_userLocation!.latitude};${destination.longitude},${destination.latitude}?geometries=geojson';
+      final url = 'https://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${destination.longitude},${destination.latitude}?geometries=geojson';
       final response = await http.get(Uri.parse(url));
+      
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final coordinates = data['routes'][0]['geometry']['coordinates'] as List;
-        setState(() {
-          _routePoints = coordinates.map((c) => LatLng(c[1], c[0])).toList();
-        });
+        if (data['routes'] != null && data['routes'].isNotEmpty) {
+          final coordinates = data['routes'][0]['geometry']['coordinates'] as List;
+          setState(() {
+            _routePoints = coordinates.map((c) => LatLng(
+              (c[1] as num).toDouble(), 
+              (c[0] as num).toDouble()
+            )).toList();
+          });
+          
+          // Fit the map to show the entire route (like inDrive)
+          if (_routePoints.length > 1) {
+            try {
+              final bounds = LatLngBounds.fromPoints(_routePoints);
+              
+              // Use a manual zoom calculation instead of fitCamera to prevent Infinity/NaN crashes
+              double latDiff = (bounds.northEast.latitude - bounds.southWest.latitude).abs();
+              double lonDiff = (bounds.northEast.longitude - bounds.southWest.longitude).abs();
+              double maxDiff = latDiff > lonDiff ? latDiff : lonDiff;
+              
+              // Simple heuristic for zoom level
+              double zoom = 14.0;
+              if (maxDiff > 0.01) zoom = 13.0;
+              if (maxDiff > 0.05) zoom = 11.5;
+              if (maxDiff > 0.1) zoom = 10.0;
+              if (maxDiff > 0.5) zoom = 8.0;
+
+              _mapController.move(bounds.center, zoom);
+            } catch (e) {
+              debugPrint('Error moving camera: $e');
+              if (_routePoints.isNotEmpty) {
+                _mapController.move(_routePoints.first, 14.0);
+              }
+            }
+          } else if (_routePoints.isNotEmpty) {
+            _mapController.move(_routePoints.first, 15.0);
+          }
+        }
       }
     } catch (e) {
       debugPrint('Error getting route: $e');
@@ -159,13 +195,14 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             options: MapOptions(
               initialCenter: _initialPosition,
               initialZoom: 13.0,
+              minZoom: 3.0,
+              maxZoom: 18.0,
             ),
             children: [
               TileLayer(
                 urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
                 subdomains: const ['a', 'b', 'c', 'd'],
                 userAgentPackageName: 'com.khozna.khozna',
-                retinaMode: RetinaMode.isHighDensity,
               ),
               if (_routePoints.isNotEmpty)
                 PolylineLayer(
