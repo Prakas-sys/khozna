@@ -204,12 +204,16 @@ Future<void> _setupNotifications() async {
         // Update the global notification badge
         notificationBadgeCount.value += 1;
       }
-      _showLocalNotification(notification.title ?? '', notification.body ?? '');
+      int total = messageBadgeCount.value + notificationBadgeCount.value;
+      _showLocalNotification(notification.title ?? '', notification.body ?? '', total);
     }
   });
 }
 
-void _showLocalNotification(String title, String body) async {
+void _showLocalNotification(String title, String body, int badgeCount) async {
+  // Update native badge explicitly as well
+  FlutterAppBadger.updateBadgeCount(badgeCount);
+
   // FIX: Generate unique ID every time to prevent old ones from disappearing
   final int notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
 
@@ -220,6 +224,7 @@ void _showLocalNotification(String title, String body) async {
     importance: Importance.max,
     priority: Priority.high,
     showWhen: true,
+    number: badgeCount, // This sets the badge/number on some Android launchers
     // FIX: Enable BigText so long messages aren't cut off
     styleInformation: BigTextStyleInformation(
       body,
