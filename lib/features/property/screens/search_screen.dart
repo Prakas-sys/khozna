@@ -7,6 +7,13 @@ import 'package:khozna/core/services/khozna_ai_service.dart';
 import 'package:khozna/features/property/screens/filter_results_screen.dart';
 import 'package:khozna/features/chat/screens/ai_chat_screen.dart';
 import 'package:khozna/core/utils/formatters.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:khozna/core/models/property_model.dart';
+import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/widgets/property_card.dart';
+import 'package:khozna/features/property/screens/discovery_map_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;
@@ -31,6 +38,16 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isAiSearching = false;
   String? _aiSearchResult;
   List<Map<String, dynamic>>? _aiFoundProperties;
+
+  // Search Flow State
+  bool _showNearbySection = false;
+  String _activeCategory = 'Homes';
+
+  // Nearby State
+  List<Property> _nearbyProperties = [];
+  bool _isLoadingNearby = true;
+  LatLng? _userLocation;
+  final MapController _miniMapController = MapController();
 
   @override
   void initState() {
@@ -60,13 +77,33 @@ class _SearchScreenState extends State<SearchScreen> {
         return;
       }
 
-      final Object? args = ModalRoute.of(context)?.settings.arguments;
-      if (args is String && args.isNotEmpty) {
-        setState(() {
-          _searchController.text = args;
-        });
       }
     });
+
+    _loadNearbyData();
+  }
+
+  Future<void> _loadNearbyData() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      if (mounted) {
+        setState(() {
+          _userLocation = LatLng(position.latitude, position.longitude);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error getting location: $e');
+    }
+
+    final properties = await SupabaseService.getAllProperties();
+    if (mounted) {
+      setState(() {
+        _nearbyProperties = properties.take(5).toList();
+        _isLoadingNearby = false;
+      });
+    }
   }
 
   @override
@@ -87,275 +124,394 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top Header Section with Back Arrow
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          color: Colors.black,
-                          size: 22,
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ),
-                    Text(
-                      'Search Properties',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
+                // 1. BRANDED HEADER
+                Text(
+                  'Find your next home',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black,
+                    letterSpacing: -1.0,
+                  ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 8),
+                Text(
+                  'Search across thousands of properties',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 32),
 
-                // Full Width Standardized Search Bar
+                // 2. SEARCH BAR
                 Hero(
                   tag: 'search_bar_container',
                   child: Material(
                     color: Colors.transparent,
                     child: Container(
-                      height: 52,
-                      padding: const EdgeInsets.only(left: 16, right: 4),
+                      height: 56,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
                         border: Border.all(
                           color: Colors.grey.shade200,
-                          width: 1.2,
+                          width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 15,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            CupertinoIcons.search,
+                            color: Colors.black,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Location, Area or City',
+                                hintStyle: GoogleFonts.plusJakartaSans(
+                                  color: Colors.grey[400],
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                border: InputBorder.none,
+                              ),
+                              onSubmitted: (val) {
+                                if (val.isNotEmpty) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FilterResultsScreen(
+                                        location: val,
+                                        priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // 3. POPULAR LOCATIONS (INITIAL STATE)
+                if (!_showNearbySection) ...[
+                  Text(
+                    'Popular Locations',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black87,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildSuggestedItem(
+                    'Nearby Properties',
+                    'Find what’s around you right now',
+                    Icons.near_me_rounded,
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      setState(() => _showNearbySection = true);
+                    },
+                  ),
+                  _buildSuggestedItem(
+                    'Baluwatar',
+                    'Premium residential area',
+                    Icons.location_city_rounded,
+                    onTap: () => _searchController.text = 'Baluwatar',
+                  ),
+                  _buildSuggestedItem(
+                    'Sanepa',
+                    'Popular for flats and houses',
+                    Icons.home_work_rounded,
+                    onTap: () => _searchController.text = 'Sanepa',
+                  ),
+                  _buildSuggestedItem(
+                    'Lalitpur',
+                    'Historical and cultural hub',
+                    Icons.museum_rounded,
+                    onTap: () => _searchController.text = 'Lalitpur',
+                  ),
+                  _buildSuggestedItem(
+                    'Pokhara',
+                    'Lakefront and scenic views',
+                    Icons.landscape_rounded,
+                    onTap: () => _searchController.text = 'Pokhara',
+                  ),
+                  
+                  const SizedBox(height: 40),
+                  // Khozna Branded Search Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 58,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_searchController.text.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FilterResultsScreen(
+                                location: _searchController.text,
+                                priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.brandColor,
+                        foregroundColor: Colors.white,
+                        elevation: 4,
+                        shadowColor: AppTheme.brandColor.withOpacity(0.4),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        'Search Properties',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+
+                // 5. NEARBY SECTION (REVEALED ON TAP)
+                if (_showNearbySection) ...[
+                  const SizedBox(height: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 1. Prominent Nearby Header & Map Button
+                    InkWell(
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Nearby Properties',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -0.8,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                Text(
+                                  'Find homes near you',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            // ENLARGED RECTANGULAR MAP BUTTON
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                              decoration: BoxDecoration(
+                                color: AppTheme.brandColor,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.brandColor.withOpacity(0.3),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Map',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Icon(
+                                    Icons.map_rounded,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Mini Map Preview
+                    Container(
+                      height: 180,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.grey.shade100, width: 2),
+                        boxShadow: [
+                          BoxShadow(
                             color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(30),
-                        child: Row(
+                        borderRadius: BorderRadius.circular(22),
+                        child: Stack(
                           children: [
-                            const Icon(
-                              CupertinoIcons.search,
-                              color: Colors.black54,
-                              size: 26,
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                autofocus: widget.initialQuery == null,
-                                style: GoogleFonts.inter(
-                                  fontSize: 16,
-                                  color: Colors.black87,
+                            FlutterMap(
+                              mapController: _miniMapController,
+                              options: MapOptions(
+                                initialCenter: _userLocation ?? const LatLng(27.7172, 85.3240),
+                                initialZoom: 14.0,
+                                interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
+                              ),
+                              children: [
+                                TileLayer(
+                                  urlTemplate: 'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=xmsI10GyMKz5IT0XAIhv',
+                                  userAgentPackageName: 'com.khozna.khozna',
                                 ),
-                                cursorColor: AppTheme.brandColor,
-                                decoration: InputDecoration(
-                                  hintText: 'Search properties',
-                                  hintStyle: GoogleFonts.inter(
-                                    color: Colors.grey[400],
-                                    fontSize: 16,
-                                  ),
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  contentPadding: EdgeInsets.zero,
-                                ),
-                                onChanged: (val) => setState(() {}),
-                                onSubmitted: (val) {
-                                  if (val.isNotEmpty) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => FilterResultsScreen(
-                                          location: val,
-                                          priceRange: 'Up to Rs. ${_priceValue.toInt()}',
+                                if (_userLocation != null)
+                                  MarkerLayer(
+                                    markers: [
+                                      if (_userLocation != null)
+                                        Marker(
+                                          point: _userLocation!,
+                                          width: 40,
+                                          height: 40,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: AppTheme.brandColor,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(color: Colors.white, width: 3),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: AppTheme.brandColor.withOpacity(0.4),
+                                                  blurRadius: 8,
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(Icons.my_location, color: Colors.white, size: 20),
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  }
-                                },
-                              ),
-                            ),
-                            if (_searchController.text.isNotEmpty)
-                              InkWell(
-                                borderRadius: BorderRadius.circular(30),
-                                onTap: () => setState(() => _searchController.clear()),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                                  child: Icon(Icons.cancel, size: 20, color: Colors.grey[400]),
-                                ),
-                              ),
-                            if (_searchController.text.isEmpty)
-                              const SizedBox(width: 16),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // PREMIUM MAGIC AI SEARCH CARD
-                // SIMPLIFIED AI SEARCH SECTION
-                GestureDetector(
-                  onTap: _isAiSearching ? null : _runAiSearch,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppTheme.brandColor.withOpacity(0.05),
-                          Colors.white,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppTheme.brandColor.withOpacity(0.15),
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.brandColor.withOpacity(0.05),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        _isAiSearching
-                            ? const SizedBox(
-                                width: 22, height: 22,
-                                child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTheme.brandColor),
-                              )
-                            : Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.brandColor.withOpacity(0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor, size: 20),
-                              ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _isAiSearching ? 'AI ले खोज्दैछ...' : 'AI को साथ खोज्नुहोस्',
-                                style: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.black87,
-                                  fontSize: 15,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                'एक ट्यापमा मनपर्ने कोठा भेट्टाउनुहोस्',
-                                style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 12),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.grey.shade200),
-                          ),
-                          child: const Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.brandColor, size: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                if (_aiSearchResult != null)
-                  Container(
-                    margin: const EdgeInsets.only(top: 16),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.grey.shade200,
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.info_outline_rounded, color: Colors.black54, size: 20),
-                            const SizedBox(width: 10),
-                            Text(
-                              'AI सुझाव',
-                              style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black87),
-                            ),
-                            const Spacer(),
-                            GestureDetector(
-                                onTap: () => setState(() => _aiSearchResult = null),
-                                child: Icon(Icons.close, size: 18, color: Colors.grey[400])
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          _aiSearchResult!,
-                          style: GoogleFonts.inter(fontSize: 14, height: 1.5, color: Colors.black87),
-                        ),
-                        if (_aiFoundProperties != null && _aiFoundProperties!.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FilterResultsScreen(
-                                      location: _searchController.text,
-                                      priceRange: 'Up to ₹ ${_priceValue.toInt()}',
-                                    ),
+                                      // Airbnb-style Price Markers
+                                      ..._nearbyProperties.map((p) {
+                                        if (p.latitude == null || p.longitude == null) return Marker(point: const LatLng(0,0), child: const SizedBox());
+                                        return Marker(
+                                          point: LatLng(p.latitude!, p.longitude!),
+                                          width: 80,
+                                          height: 40,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(30),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withOpacity(0.15),
+                                                  blurRadius: 10,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                              border: Border.all(color: Colors.grey.shade100),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                '₹${(int.tryParse(p.price) ?? 0) > 999 ? '${((int.tryParse(p.price) ?? 0) / 1000).toStringAsFixed(0)}K' : p.price}',
+                                                style: GoogleFonts.plusJakartaSans(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w800,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ],
                                   ),
+                              ],
+                            ),
+                            Positioned.fill(
+                              child: GestureDetector(
+                                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryMapScreen())),
+                                child: Container(color: Colors.transparent),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Horizontal Property Scroll
+                    SizedBox(
+                      height: 220,
+                      child: _isLoadingNearby
+                          ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _nearbyProperties.length,
+                              clipBehavior: Clip.none,
+                              itemBuilder: (context, index) {
+                                final p = _nearbyProperties[index];
+                                return Container(
+                                  width: 280,
+                                  margin: const EdgeInsets.only(right: 16),
+                                  child: PropertyCard(property: p),
                                 );
                               },
-                              icon: const Icon(Icons.visibility, size: 18, color: Colors.white),
-                              label: Text(
-                                'View ${_aiFoundProperties!.length} Result${_aiFoundProperties!.length > 1 ? "s" : ""}',
-                                style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.brandColor,
-                                minimumSize: const Size(double.infinity, 44),
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
                             ),
-                          ),
-                      ],
                     ),
-                  ),
+                  ],
+                ),
                 const SizedBox(height: 32),
                 Text(
                   'PRICE RANGE (भाडाको सीमा)',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 12,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w800,
                     color: Colors.black38,
                     letterSpacing: 1.2,
                   ),
@@ -385,15 +541,15 @@ class _SearchScreenState extends State<SearchScreen> {
                               children: [
                                 TextSpan(
                                   text: '₹',
-                                  style: GoogleFonts.inter(
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey,
                                   ),
                                 ),
                                 TextSpan(
-                                  text: ' 2K',
-                                  style: GoogleFonts.inter(
+                                  text: '2K',
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey,
@@ -407,15 +563,15 @@ class _SearchScreenState extends State<SearchScreen> {
                               children: [
                                 TextSpan(
                                   text: '₹',
-                                  style: GoogleFonts.inter(
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey,
                                   ),
                                 ),
                                 TextSpan(
-                                  text: ' 100K+',
-                                  style: GoogleFonts.inter(
+                                  text: '100K+',
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey,
@@ -452,16 +608,16 @@ class _SearchScreenState extends State<SearchScreen> {
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Rs. ',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
+                              text: '₹',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 20,
                                 fontWeight: FontWeight.w900,
                                 color: AppTheme.brandColor,
                               ),
                             ),
                             TextSpan(
                               text: '${PriceFormatter.format(_priceValue.toInt().toString())} / month',
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.plusJakartaSans(
                                 fontWeight: FontWeight.w900,
                                 color: AppTheme.brandColor,
                                 fontSize: 18,
@@ -608,7 +764,7 @@ class _SearchScreenState extends State<SearchScreen> {
           const SizedBox(width: 8),
           Text(
             text,
-            style: GoogleFonts.inter(fontSize: 13, color: Colors.black87),
+            style: GoogleFonts.plusJakartaSans(fontSize: 13, color: Colors.black87, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -639,7 +795,7 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         title: Text(
           title,
-          style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 14),
+          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 14),
         ),
         subtitle: Text(
           count,
@@ -725,5 +881,125 @@ class _SearchScreenState extends State<SearchScreen> {
         ).showSnackBar(SnackBar(content: Text('AI Search failed: $e')));
       }
     }
+  Widget _buildCategoryIcon(String label, IconData icon) {
+    bool isActive = _activeCategory == label;
+    return GestureDetector(
+      onTap: () => setState(() => _activeCategory = label),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isActive ? Colors.transparent : Colors.transparent,
+            ),
+            child: Icon(
+              icon,
+              color: isActive ? Colors.black : Colors.grey[400],
+              size: 28,
+            ),
+          ),
+          Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 12,
+              fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
+              color: isActive ? Colors.black : Colors.grey[400],
+            ),
+          ),
+          if (isActive)
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              height: 2,
+              width: 20,
+              color: Colors.black,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSuggestedItem(String title, String subtitle, IconData icon, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: AppTheme.brandColor, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      color: Colors.grey[500],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderCard(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black54,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

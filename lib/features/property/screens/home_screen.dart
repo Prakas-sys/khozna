@@ -227,36 +227,6 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 80), // Position clearly above the bottom bar
-        child: SizedBox(
-          height: 42, // Sleek, compact height
-          child: ElevatedButton.icon(
-            onPressed: () {
-              HapticFeedback.heavyImpact();
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()));
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.brandColor,
-              foregroundColor: Colors.white,
-              elevation: 0, 
-              shadowColor: Colors.transparent,
-              shape: const StadiumBorder(),
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-            ),
-            icon: const Icon(Icons.map_rounded, color: Colors.white, size: 16), // Smaller icon
-            label: Text(
-              'Map',
-              style: GoogleFonts.mukta(
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
