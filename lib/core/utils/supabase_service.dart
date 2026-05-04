@@ -69,35 +69,23 @@ class SupabaseService {
     message: message,
   );
   static Future<void> approveBooking({
-    required String propertyId,
-    required String propertyTitle,
-    required String requesterId,
-    required String ownerName,
-    required String notificationId,
-  }) => BookingRepository.approveBooking(
-    propertyId: propertyId,
-    propertyTitle: propertyTitle,
-    requesterId: requesterId,
-    ownerName: ownerName,
-    notificationId: notificationId,
-  );
+    required String bookingId,
+    String? notificationId, // Keeping for backward compatibility
+  }) => BookingRepository.approveRequest(bookingId);
+
   static Future<void> rejectBooking({
-    required String propertyId,
-    required String propertyTitle,
-    required String requesterId,
-    required String notificationId,
+    required String bookingId,
     String? reason,
-  }) => BookingRepository.rejectBooking(
-    propertyId: propertyId,
-    propertyTitle: propertyTitle,
-    requesterId: requesterId,
-    notificationId: notificationId,
-    reason: reason,
-  );
-  static Future<void> cancelBooking(String propertyId) => BookingRepository.cancelBooking(propertyId);
+    String? notificationId, // Keeping for backward compatibility
+  }) => BookingRepository.rejectRequest(bookingId);
+
+  static Future<void> cancelBooking(String bookingId) => BookingRepository.rejectRequest(bookingId); // Or implement a proper cancel
   static Future<BookingModel?> getBookingById(String bookingId) => BookingRepository.getBookingById(bookingId);
   static Future<List<BookingModel>> getMyBookings() => BookingRepository.getMyBookings();
-  static Future<List<BookingModel>> getBookingRequestsForOwner() => BookingRepository.getBookingRequestsForOwner();
+  static Future<List<BookingModel>> getBookingRequestsForOwner() async {
+    final data = await BookingRepository.getOwnerBookings();
+    return data.map((e) => BookingModel.fromMap(e)).toList();
+  }
 
   // Admin
   static Future<AdminStatsModel> getOwnerStats() => AdminRepository.getAdminStats();

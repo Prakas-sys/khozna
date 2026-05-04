@@ -282,30 +282,50 @@ class _PaymentModerationScreenState extends State<PaymentModerationScreen> {
         ),
         child: Column(
           children: [
-            ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              leading: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.receipt_long_outlined, color: Colors.grey),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(12)),
+                    child: const Icon(Icons.receipt_long_outlined, color: Colors.grey),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '₹${NumberFormat('#,##,###').format(amount)}',
+                              style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900, fontSize: 18, color: AppTheme.brandColor),
+                            ),
+                            _ratingBadge(guest?['rating']?.toString() ?? 'N/A'),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Guest: ${guest?['full_name'] ?? 'Unknown'}',
+                          style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: Colors.black87, fontSize: 14),
+                        ),
+                        Text(
+                          'Property: ${property?['title'] ?? 'Property'}',
+                          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+                        ),
+                        Text(
+                          'Time: ${DateFormat('MMM dd, hh:mm a').format(date)}',
+                          style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[400]),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              children: [
-                Text('₹${NumberFormat('#,##,###').format(amount)}', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900, fontSize: 18, color: AppTheme.brandColor)),
-                const Spacer(),
-                _ratingBadge(guest?['rating']?.toString() ?? 'N/A'),
-              ],
             ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                Text('Guest: ${guest?['full_name'] ?? 'Unknown'}', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black87)),
-                Text('Property: ${property?['title'] ?? 'Property'}', style: GoogleFonts.inter(fontSize: 12)),
-                Text('Time: ${DateFormat('MMM dd, hh:mm a').format(date)}', style: GoogleFonts.inter(fontSize: 11, color: Colors.grey)),
-              ],
-            ),
-          ),
           if (payment['proof_image_url'] != null)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

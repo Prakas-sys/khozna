@@ -702,6 +702,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       title: 'भाडा र विवरण',
       subtitle: 'Almost halfway! High precision earns trust.',
       content: [
+        PropertyFormField(
           label: 'महिनाको जम्मा भाडा (Monthly Rent)',
           hint: 'उदा: ५०००',
           controller: _priceController,
