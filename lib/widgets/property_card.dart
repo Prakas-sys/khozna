@@ -272,7 +272,7 @@ class PropertyCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
+                              fontSize: 16.3,
                               fontWeight: FontWeight.w800, // Semi-solid / Stronger look
                               color: const Color(0xFF1A1A2E),
                               letterSpacing: -0.5,
@@ -280,47 +280,50 @@ class PropertyCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: '₹',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.brandColor,
-                                  letterSpacing: 0.3,
+                        Transform.translate(
+                          offset: const Offset(0, -0.5), // Subtle shift for price/symbol
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '₹',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.brandColor,
+                                    letterSpacing: 0.3,
+                                  ),
                                 ),
-                              ),
-                              TextSpan(
-                                text: PriceFormatter.format(property.priceNight > 0 ? property.priceNight.toString() : price),
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.brandColor,
+                                TextSpan(
+                                  text: PriceFormatter.format(property.priceNight > 0 ? property.priceNight.toString() : price),
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppTheme.brandColor,
+                                  ),
                                 ),
-                              ),
-                              WidgetSpan(
-                                child: Transform.translate(
-                                  offset: const Offset(1, -2.5), // Pixel-perfect alignment
-                                  child: Text(
-                                    property.priceNight > 0 ? '/night' : '/mo',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black54,
+                                WidgetSpan(
+                                  child: Transform.translate(
+                                    offset: const Offset(1, -2.0), // Compensated offset (was -2.5) to keep /night steady
+                                    child: Text(
+                                      property.priceNight > 0 ? '/night' : '/mo',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black54,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 2), // Reduced for tighter look
+                    const SizedBox(height: 2), // Reverted to original gap above amenities
                     _buildAmenityItems(),
-                    const SizedBox(height: 4), // Reduced to compensate for glass border thickness
+                    const SizedBox(height: 8), // Moved buttons UP (closer to amenities)
                     // Action Buttons
                     Row(
                       children: [
@@ -346,7 +349,7 @@ class PropertyCard extends StatelessWidget {
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 7,
+                                  vertical: 12,
                                 ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -354,10 +357,12 @@ class PropertyCard extends StatelessWidget {
                                 ),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
                                   const Icon(
                                     Icons.directions_walk_rounded,
                                     size: 16,
@@ -403,17 +408,19 @@ class PropertyCard extends StatelessWidget {
                                   width: 1.0,
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 7,
+                                  vertical: 12,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
                                   SvgPicture.asset(
                                     'assets/icons/message.svg',
                                     width: 16,
