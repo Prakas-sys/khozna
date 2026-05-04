@@ -314,8 +314,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   /// Booking request notification card — shown ONLY to the owner
   Widget _buildBookingRequestCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
-    final String propertyId = note['property_id']?.toString() ?? '';
-    final String requesterId = note['requester_id']?.toString() ?? note['sender_id']?.toString() ?? '';
+    final String bookingId = note['booking_id']?.toString() ?? '';
     // Extract property title from message: "$name wants to rent "$title""  
     final String message = note['message']?.toString() ?? '';
     // Extract property title from message if possible, otherwise use a generic one
@@ -439,12 +438,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: () async {
+                                if (bookingId.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Error: Booking ID missing')),
+                                  );
+                                  return;
+                                }
                                 setCardState(() => acting = true);
                                 try {
                                   await SupabaseService.rejectBooking(
-                                    propertyId: propertyId,
-                                    propertyTitle: propertyTitle,
-                                    requesterId: requesterId,
+                                    bookingId: bookingId,
                                     notificationId: id,
                                   );
                                   if (mounted) setState(() => _notifications.removeAt(index));
@@ -467,6 +470,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           Expanded(
                             child: ElevatedButton.icon(
                               onPressed: () async {
+                                if (bookingId.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Error: Booking ID missing')),
+                                  );
+                                  return;
+                                }
                                 setCardState(() => acting = true);
                                 final ownerProfile = await SupabaseService.getUserProfile(
                                   SupabaseService.currentUserId,
@@ -474,9 +483,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 final ownerName = ownerProfile?.fullName ?? 'The owner';
                                 try {
                                   await SupabaseService.approveBooking(
-                                    propertyId: propertyId,
-                                    propertyTitle: propertyTitle,
-                                    requesterId: requesterId,
+                                    bookingId: bookingId,
                                     ownerName: ownerName,
                                     notificationId: id,
                                   );

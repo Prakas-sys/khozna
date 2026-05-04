@@ -427,7 +427,7 @@ class _MainScreenState extends State<MainScreen> {
                       'assets/icons/profile.svg',
                       activeColor,
                       inactiveColor,
-                      nBadge,
+                      0,
                     ),
                   ],
                 ),

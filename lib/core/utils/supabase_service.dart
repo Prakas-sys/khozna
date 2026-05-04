@@ -6,10 +6,8 @@ import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/features/property/repositories/property_repository.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/profile/repositories/notification_repository.dart';
-import 'package:khozna/features/admin/repositories/admin_repository.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/features/profile/repositories/vote_repository.dart';
-import 'package:khozna/core/models/admin_model.dart';
 import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/core/models/booking_model.dart';
 import 'package:khozna/core/models/property_model.dart';
@@ -69,10 +67,13 @@ class SupabaseService {
     String? requesterId,
     String? ownerName,
     String? notificationId,
-  }) {
-    if (bookingId != null) return BookingRepository.approveRequest(bookingId);
-    // If no bookingId, we might need a legacy way or just fail gracefully
-    return Future.value();
+  }) async {
+    if (bookingId != null) {
+      await BookingRepository.approveRequest(bookingId);
+      if (notificationId != null) {
+        await NotificationRepository.deleteNotification(notificationId);
+      }
+    }
   }
 
   static Future<void> rejectBooking({
@@ -82,9 +83,13 @@ class SupabaseService {
     String? requesterId,
     String? notificationId,
     String? reason,
-  }) {
-    if (bookingId != null) return BookingRepository.rejectRequest(bookingId);
-    return Future.value();
+  }) async {
+    if (bookingId != null) {
+      await BookingRepository.rejectRequest(bookingId);
+      if (notificationId != null) {
+        await NotificationRepository.deleteNotification(notificationId);
+      }
+    }
   }
 
   static Future<void> cancelBooking(String bookingId) => BookingRepository.rejectRequest(bookingId);
@@ -95,12 +100,6 @@ class SupabaseService {
     return data.map((e) => BookingModel.fromMap(e)).toList();
   }
 
-  // Admin
-  static Future<AdminStatsModel> getOwnerStats() => AdminRepository.getAdminStats();
-  static Future<List<KycVerificationModel>> getPendingKycs() => AdminRepository.getPendingKycs();
-  static Future<void> updateKycStatus(String kycId, String userId, String status, {String? reason}) => AdminRepository.updateKycStatus(kycId, userId, status, reason: reason);
-  static Future<void> deleteKycPermanently(String kycId) => AdminRepository.deleteKycPermanently(kycId);
-  static void listenToOwnerAlerts(Function onNewEvent) => AdminRepository.listenToAdminAlerts(onNewEvent);
 
   // Auth
   static Future<void> signInWithGoogleNative({required String idToken, String? accessToken}) => AuthRepository.signInWithIdToken(idToken: idToken, accessToken: accessToken);

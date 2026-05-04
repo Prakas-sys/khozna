@@ -65,6 +65,7 @@ class BookingRepository {
         'message': '$name ले तपाइँको प्रोपर्टी बुक गर्न अनुरोध गर्नुभएको छ।',
         'type': 'booking_request',
         'property_id': propertyId,
+        'booking_id': bookingId,
       });
 
       if (cleanMessage.isNotEmpty) {

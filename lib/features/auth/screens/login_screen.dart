@@ -13,7 +13,6 @@ import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/screens/main_screen.dart';
 import 'package:khozna/features/auth/screens/register_screen.dart';
 import 'package:khozna/features/auth/screens/verify_phone_screen.dart';
-import 'package:khozna/features/admin/screens/owner_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
