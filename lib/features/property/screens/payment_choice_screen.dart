@@ -5,6 +5,8 @@ import 'package:khozna/core/models/booking_model.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:khozna/widgets/khozna_image.dart';
 
 class PaymentChoiceScreen extends StatefulWidget {
   final BookingModel booking;
@@ -23,6 +25,35 @@ class PaymentChoiceScreen extends StatefulWidget {
 class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   String? _selectedType;
   bool _isSubmitting = false;
+  bool _isLoadingOwner = true;
+  String? _ownerEsewa;
+  String? _ownerQr;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOwnerInfo();
+  }
+
+  Future<void> _loadOwnerInfo() async {
+    try {
+      final data = await Supabase.instance.client
+          .from('profiles')
+          .select('esewa_number, qr_code_url')
+          .eq('id', widget.booking.ownerId)
+          .maybeSingle();
+      
+      if (mounted) {
+        setState(() {
+          _ownerEsewa = data?['esewa_number'];
+          _ownerQr = data?['qr_code_url'];
+          _isLoadingOwner = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingOwner = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +72,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           style: GoogleFonts.mukta(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 18),
         ),
       ),
-      body: SingleChildScrollView(
+      body: _isLoadingOwner 
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -63,7 +96,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     subtitle: 'छिटो र सजिलो (Fast & Simple)',
                     description: 'तपाईंले घरबेटीको eSewa नम्बरमा सिधै पैसा पठाउनुहुन्छ। खोज्नाले यसको जिम्मेवारी लिने छैन।',
                     fee: '५% सेवा शुल्क (5% Fee)',
-                    esewa: '9841234567',
+                    esewa: _ownerEsewa ?? 'Not provided',
+                    qrUrl: _ownerQr,
                     icon: Icons.flash_on_rounded,
                     color: Colors.orange,
                     isRecommended: false,
@@ -80,7 +114,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     subtitle: 'सुरक्षित र भरपर्दो (Recommended)',
                     description: 'तपाईंको पैसा खोज्नाको खातामा सुरक्षित रहन्छ। केहि समस्या भएमा पूर्ण फिर्ता पाइनेछ।',
                     fee: '१०% सेवा शुल्क (10% Fee)',
-                    esewa: '9800000000',
+                    esewa: '9800000000', // Khozna's main number
+                    qrUrl: null, // We can add Khozna's QR here
                     icon: Icons.verified_user_rounded,
                     color: AppTheme.brandColor,
                     isRecommended: true,
@@ -158,6 +193,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     required String description,
     required String fee,
     required String esewa,
+    required String? qrUrl,
     required IconData icon,
     required Color color,
     required bool isRecommended,
@@ -220,6 +256,27 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             const SizedBox(height: 8),
             Text(description, style: GoogleFonts.mukta(color: Colors.grey[600], fontSize: 13, height: 1.4)),
             
+            if (qrUrl != null && isSelected) ...[
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: () => _viewFullQr(qrUrl),
+                child: Container(
+                  height: 120,
+                  width: 120,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: color.withOpacity(0.2)),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: KhoznaImage(imageUrl: qrUrl, fit: BoxFit.cover),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text('Tap to enlarge QR Code', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey)),
+            ],
+
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
               child: Divider(height: 1),
@@ -244,6 +301,32 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   ],
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _viewFullQr(String url) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: KhoznaImage(imageUrl: url, fit: BoxFit.contain),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
             ),
           ],
         ),
@@ -324,6 +407,42 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 child: _isSubmitting
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                     : Text('अगाडी बढ्नुहोस्', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 16)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _proceedToPayment() async {
+    setState(() => _isSubmitting = true);
+    try {
+      await BookingRepository.submitPayment(
+        bookingId: widget.booking.id,
+        paymentType: _selectedType!,
+        method: 'esewa',
+        amount: widget.booking.totalPrice,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Payment Submitted! Waiting for verification.')),
+        );
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+}
+ntSize: 16)),
               ),
             ],
           ),

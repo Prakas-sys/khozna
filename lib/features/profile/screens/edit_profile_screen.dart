@@ -23,11 +23,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _esewaController = TextEditingController();
   
   bool _isLoading = false;
   bool _isLocating = false;
   String? _avatarUrl;
+  String? _qrCodeUrl;
   File? _imageFile;
+  File? _qrFile;
   final ImagePicker _picker = ImagePicker();
   
   double? _latitude;
@@ -47,6 +50,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _fullNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _esewaController.dispose();
     super.dispose();
   }
 
@@ -57,7 +61,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         // Load Profile
         final profile = await Supabase.instance.client
             .from('profiles')
-            .select()
+            .select('full_name, email, phone_number, avatar_url, esewa_number, qr_code_url')
             .eq('id', user!.id)
             .maybeSingle();
 
@@ -76,6 +80,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _emailController.text = profile?['email'] ?? user?.email ?? '';
             _phoneController.text = profile?['phone_number'] ?? user?.phone ?? '';
             _avatarUrl = profile?['avatar_url'];
+            _esewaController.text = profile?['esewa_number'] ?? '';
+            _qrCodeUrl = profile?['qr_code_url'];
             
             if (kyc != null) {
               _latitude = kyc['latitude'];
@@ -154,6 +160,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  Future<void> _pickQrCode() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _qrFile = File(pickedFile.path);
+      });
+    }
+  }
+
   Future<void> _updateProfile() async {
     if (_fullNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -166,9 +184,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     try {
       if (user != null) {
         String? newImageUrl = _avatarUrl;
+        String? newQrUrl = _qrCodeUrl;
 
         if (_imageFile != null) {
           newImageUrl = await CloudinaryService.uploadImage(_imageFile!);
+        }
+        
+        if (_qrFile != null) {
+          newQrUrl = await CloudinaryService.uploadImage(_qrFile!);
         }
 
         await Supabase.instance.client.auth.updateUser(
@@ -185,6 +208,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             .update({
               'full_name': SecurityUtils.sanitizeInput(_fullNameController.text),
               'avatar_url': newImageUrl,
+              'esewa_number': SecurityUtils.sanitizeInput(_esewaController.text),
+              'qr_code_url': newQrUrl,
             })
             .eq('id', user!.id);
 
@@ -249,6 +274,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       enabled: false,
                       subtitle: 'Used for secure verification',
                     ),
+                  ]),
+                  const SizedBox(height: 32),
+                  _buildSectionTitle('PAYMENT INFORMATION (OWNER ONLY)'),
+                  const SizedBox(height: 16),
+                  _buildFieldCard([
+                    _buildInputField(
+                      'eSewa Number',
+                      _esewaController,
+                      Icons.account_balance_wallet_outlined,
+                      subtitle: 'Guests will pay to this number',
+                    ),
+                    const Divider(height: 1),
+                    _buildQrPicker(),
                   ]),
                   const SizedBox(height: 32),
                   _buildSectionTitle('VERIFIED LOCATION'),
@@ -553,6 +591,60 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   letterSpacing: 0.2,
                 ),
               ),
+      ),
+    );
+  }
+
+  Widget _buildQrPicker() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.purple.withOpacity(0.08),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.purple, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'eSewa QR Code',
+                  style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                if (_qrFile != null || (_qrCodeUrl != null && _qrCodeUrl!.isNotEmpty))
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: _qrFile != null 
+                        ? Image.file(_qrFile!, fit: BoxFit.cover)
+                        : KhoznaImage(imageUrl: _qrCodeUrl!, fit: BoxFit.cover),
+                    ),
+                  )
+                else
+                  Text(
+                    'No QR code uploaded',
+                    style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[300]),
+                  ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: _pickQrCode,
+            child: Text(
+              _qrFile != null || _qrCodeUrl != null ? 'Change' : 'Upload',
+              style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.brandColor),
+            ),
+          ),
+        ],
       ),
     );
   }
