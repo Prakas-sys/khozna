@@ -113,7 +113,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       default:
         color = Colors.orange;
         title = 'स्वीकृत हुन बाँकी (Pending)';
-        description = 'मालिकले तपाइँको अनुरोध हेर्दै हुनुहुन्छ।';
+        description = 'मालिकले तपाइँको अनुरोध हेर्दै हुनुहुन्छ। स्वीकृत भएपछि भुक्तानी गर्ने विकल्प आउनेछ।';
     }
 
     return Column(

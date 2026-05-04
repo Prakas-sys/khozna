@@ -180,7 +180,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             child: Divider(height: 1),
           ),
           Text(
-            'Price will be finalized after owner approval',
+            'मालिकले तपाईंको अनुरोध स्वीकृत गरेपछि भुक्तानी गर्ने विकल्प आउनेछ।\n(Payment option will appear after the owner approves your request.)',
+            textAlign: TextAlign.center,
             style: GoogleFonts.inter(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
           ),
         ],
