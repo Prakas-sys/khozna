@@ -542,8 +542,7 @@ class PropertyCard extends StatelessWidget {
           const Icon(
             Icons.place_outlined,
             color: AppTheme.brandColor,
-            size: 16,
-          ),
+            size: 16,          ),
           const SizedBox(width: 2),
           Flexible(
             child: Text(
