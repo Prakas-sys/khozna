@@ -210,25 +210,27 @@ class _MainScreenState extends State<MainScreen> {
           },
           child: Scaffold(
             backgroundColor: _currentIndex == 1 ? Colors.black : Colors.white,
-            extendBody: true, // Allow content to flow under the glass navbar
+            extendBody: false, // Changed from true to false for solid navbar
             body: _pages[_currentIndex],
-            bottomNavigationBar: ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                child: Container(
-                  decoration: BoxDecoration(
+            bottomNavigationBar: Container(
+              decoration: BoxDecoration(
+                color: _currentIndex == 1 ? Colors.black : Colors.white,
+                border: Border(
+                  top: BorderSide(
                     color: _currentIndex == 1 
-                        ? Colors.black.withOpacity(0.8) 
-                        : Colors.white.withOpacity(0.85),
-                    border: Border(
-                      top: BorderSide(
-                        color: _currentIndex == 1 
-                            ? Colors.white.withOpacity(0.1) 
-                            : Colors.grey.withOpacity(0.2), 
-                        width: 1.0
-                      ),
-                    ),
+                        ? Colors.white.withOpacity(0.1) 
+                        : Colors.grey.withOpacity(0.15), 
+                    width: 1.0
                   ),
+                ),
+                boxShadow: _currentIndex == 1 ? [] : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -5),
+                  ),
+                ],
+              ),
                   child: BottomAppBar(
                     color: Colors.transparent,
                     surfaceTintColor: Colors.transparent,
