@@ -179,8 +179,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 10),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildSafetyBanner(),
-                const SizedBox(height: 16),
                 _buildHeader(),
                 const SizedBox(height: 24),
                 const DetailSectionTitle(title: 'सुविधाहरू (Amenities)'),

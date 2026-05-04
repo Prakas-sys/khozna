@@ -326,64 +326,51 @@ class PropertyCard extends StatelessWidget {
                       children: [
                         if (!isOwnerView) ...[
                           Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(1), // Thin border thickness
-                              decoration: BoxDecoration(
-                                color: AppTheme.brandColor.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                HapticFeedback.lightImpact();
+                                final allowed = await KycGuard.check(context);
+                                if (!allowed) return;
+                                if (context.mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => PropertyDetailsScreen(
+                                        property: property,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.brandColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 8.3,
+                                ),
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    HapticFeedback.lightImpact();
-                                    final allowed = await KycGuard.check(context);
-                                    if (!allowed) return;
-                                    if (context.mounted) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => PropertyDetailsScreen(
-                                            property: property,
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.brandColor,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                    ),
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.directions_walk_rounded,
+                                    size: 16,
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.directions_walk_rounded,
-                                        size: 18,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        'Visit Now',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 13.5,
-                                        ),
-                                      ),
-                                    ],
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Visit Now',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                             ),
                           ),
@@ -416,7 +403,7 @@ class PropertyCard extends StatelessWidget {
                                   width: 1.0,
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
+                                  vertical: 8.3,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
@@ -429,19 +416,19 @@ class PropertyCard extends StatelessWidget {
                                 children: [
                                   SvgPicture.asset(
                                     'assets/icons/message.svg',
-                                    width: 18,
-                                    height: 18,
+                                    width: 16,
+                                    height: 16,
                                     colorFilter: const ColorFilter.mode(
                                       AppTheme.brandColor,
                                       BlendMode.srcIn,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
+                                  const SizedBox(width: 6),
                                   Text(
                                     'Message',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 13.5,
+                                      fontSize: 13,
                                     ),
                                   ),
                                 ],
