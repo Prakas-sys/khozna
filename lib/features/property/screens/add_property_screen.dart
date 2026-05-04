@@ -151,7 +151,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       return;
     }
 
-    if (_titleController.text.isEmpty || _priceController.text.isEmpty || _selectedImages.isEmpty || _areaController.text.isEmpty) {
+    final bool hasPrice = _priceController.text.isNotEmpty || _priceNightController.text.isNotEmpty;
+    if (_titleController.text.isEmpty || !hasPrice || _selectedImages.isEmpty || _areaController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("कृपया सबै रित्तो ठाउँ भर्नुहोस् (Please fill all required fields)")));
       return;
     }
@@ -306,8 +307,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         isValid = true;
       }
     } else if (_currentStep == 2) {
-      if (_priceController.text.trim().isEmpty) {
-        errorMessage = "कृपया भाडा दर राख्नुहोस् (Please enter Price)";
+      if (_priceController.text.trim().isEmpty && _priceNightController.text.trim().isEmpty) {
+        errorMessage = "कृपया कम्तिमा एउटा भाडा दर राख्नुहोस् (Please enter at least one price)";
       } else {
         isValid = true;
       }
@@ -707,7 +708,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           hint: 'उदा: ५०००',
           controller: _priceController,
           keyboardType: TextInputType.number,
-          isRequired: true,
         ),
         const SizedBox(height: 16),
         PropertyFormField(
