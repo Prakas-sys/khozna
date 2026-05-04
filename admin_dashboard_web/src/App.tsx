@@ -10,6 +10,8 @@ import { KycReview } from './KycReview';
 import { UserManagement } from './UserManagement';
 import { Reports } from './Reports';
 import { Login } from './Login';
+import { Payments } from './Payments';
+import { CreditCard } from 'lucide-react';
 
 // ─── Minimalist Sidebar ──────────────────────────────────────────────────────────
 const Sidebar = ({ onLock }: { onLock: () => void }) => {
@@ -20,6 +22,7 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={18} /> },
     { name: 'Verifications', path: '/kyc', icon: <UserCheck size={18} /> },
     { name: 'Users', path: '/users', icon: <Users size={18} /> },
+    { name: 'Payments', path: '/payments', icon: <CreditCard size={18} /> },
     { name: 'Safety', path: '/reports', icon: <ShieldAlert size={18} /> },
     { name: 'Settings', path: '/settings', icon: <Settings size={18} /> },
   ];
@@ -62,6 +65,7 @@ const Header = () => {
       case '/': return [{ name: 'Overview', path: '/', icon: <LayoutDashboard size={14} /> }];
       case '/kyc': return [{ name: 'Verifications', path: '/kyc' }];
       case '/users': return [{ name: 'Directory', path: '/users' }];
+      case '/payments': return [{ name: 'Moderation', path: '/payments' }];
       case '/reports': return [{ name: 'Safety', path: '/reports' }];
       default: return [{ name: 'Console', path: location.pathname }];
     }
@@ -106,7 +110,7 @@ const Header = () => {
 
 // ─── Enterprise Dashboard Home ───────────────────────────────────────────────────
 const DashboardHome = () => {
-  const [stats, setStats] = useState({ users: 0, kyc: 0, reports: 0 });
+  const [stats, setStats] = useState({ users: 0, kyc: 0, reports: 0, payments: 0 });
   const [activities, setActivities] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -117,13 +121,15 @@ const DashboardHome = () => {
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('kyc_verifications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
           supabase.from('user_reports').select('*', { count: 'exact', head: true }),
+          supabase.from('payments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
           supabase.from('kyc_verifications').select('*').order('updated_at', { ascending: false }).limit(5),
         ]);
         
         setStats({ 
           users: u.count || 0, 
           kyc: k.count || 0, 
-          reports: r.count || 0
+          reports: r.count || 0,
+          payments: p.count || 0
         });
 
         const combined = [
@@ -158,6 +164,7 @@ const DashboardHome = () => {
           { title: 'Total Users', val: stats.users, label: 'Registered Profiles', color: 'text-blue-600', icon: <Users size={20} /> },
           { title: 'Verifications', val: stats.kyc, label: 'Pending Review', color: 'text-orange-600', icon: <UserCheck size={20} /> },
           { title: 'Safety', val: stats.reports, label: 'Unresolved Flags', color: 'text-rose-600', icon: <ShieldAlert size={20} /> },
+          { title: 'Payments', val: stats.payments, label: 'Pending Payouts', color: 'text-emerald-600', icon: <CreditCard size={20} /> },
         ].map((s, i) => (
           <div key={i} className="card-pro p-6">
             <div className="flex items-center justify-between mb-4">
@@ -222,6 +229,7 @@ const App = () => {
             <Route path="/kyc" element={<KycReview />} />
             <Route path="/users" element={<UserManagement />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/payments" element={<Payments />} />
             <Route path="/settings" element={
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center max-w-sm">
