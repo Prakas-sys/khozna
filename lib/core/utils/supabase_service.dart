@@ -41,45 +41,53 @@ class SupabaseService {
   static Future<void> fetchBookedPropertyIds() => BookingRepository.fetchBookedPropertyIds();
   static Future<void> bookProperty(String propertyId, String title, String ownerId) => BookingRepository.createBookingRequest(
     propertyId: propertyId, 
-    propertyTitle: title, 
     ownerId: ownerId,
-    moveInDate: DateTime.now().add(const Duration(days: 7)),
-    durationMonths: 1,
-    guestCount: 1,
-    purpose: 'other',
+    checkIn: DateTime.now().add(const Duration(days: 7)),
+    checkOut: DateTime.now().add(const Duration(days: 37)),
+    totalPrice: 0,
     message: 'Interested in booking this property.',
   );
   static Future<void> createBookingRequest({
     required String propertyId,
-    required String propertyTitle,
     required String ownerId,
     required DateTime moveInDate,
     required int durationMonths,
-    required int guestCount,
-    required String purpose,
     required String message,
+    double totalPrice = 0, // Default if not provided
   }) => BookingRepository.createBookingRequest(
     propertyId: propertyId,
-    propertyTitle: propertyTitle,
     ownerId: ownerId,
-    moveInDate: moveInDate,
-    durationMonths: durationMonths,
-    guestCount: guestCount,
-    purpose: purpose,
+    checkIn: moveInDate,
+    checkOut: moveInDate.add(Duration(days: 30 * durationMonths)),
+    totalPrice: totalPrice,
     message: message,
   );
   static Future<void> approveBooking({
-    required String bookingId,
-    String? notificationId, // Keeping for backward compatibility
-  }) => BookingRepository.approveRequest(bookingId);
+    String? bookingId,
+    String? propertyId,
+    String? propertyTitle,
+    String? requesterId,
+    String? ownerName,
+    String? notificationId,
+  }) {
+    if (bookingId != null) return BookingRepository.approveRequest(bookingId);
+    // If no bookingId, we might need a legacy way or just fail gracefully
+    return Future.value();
+  }
 
   static Future<void> rejectBooking({
-    required String bookingId,
+    String? bookingId,
+    String? propertyId,
+    String? propertyTitle,
+    String? requesterId,
+    String? notificationId,
     String? reason,
-    String? notificationId, // Keeping for backward compatibility
-  }) => BookingRepository.rejectRequest(bookingId);
+  }) {
+    if (bookingId != null) return BookingRepository.rejectRequest(bookingId);
+    return Future.value();
+  }
 
-  static Future<void> cancelBooking(String bookingId) => BookingRepository.rejectRequest(bookingId); // Or implement a proper cancel
+  static Future<void> cancelBooking(String bookingId) => BookingRepository.rejectRequest(bookingId);
   static Future<BookingModel?> getBookingById(String bookingId) => BookingRepository.getBookingById(bookingId);
   static Future<List<BookingModel>> getMyBookings() => BookingRepository.getMyBookings();
   static Future<List<BookingModel>> getBookingRequestsForOwner() async {

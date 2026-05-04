@@ -139,54 +139,111 @@ class _PaymentModerationScreenState extends State<PaymentModerationScreen> {
     }
   }
 
-  void _viewScreenshot(String? url) {
-    if (url == null) return;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(
+          'भुक्तानी व्यवस्थापन (Payments)',
+          style: GoogleFonts.mukta(fontWeight: FontWeight.w800, color: Colors.black, fontSize: 18),
         ),
+        actions: [
+          IconButton(onPressed: _loadData, icon: const Icon(Icons.refresh_rounded, color: Colors.black)),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                _buildMetrics(),
+                _buildTabs(),
+                Expanded(
+                  child: _selectedTab == 0 ? _buildPendingList() : _buildHistoryList(),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildMetrics() {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          _metricItem('Pending', _metrics['pending_count']?.toString() ?? '0', Colors.orange),
+          _metricItem('Verified Today', _metrics['verified_today_count']?.toString() ?? '0', const Color(0xFF00C853)),
+          _metricItem('Total Verified', '₹${NumberFormat('#,##,###').format(_metrics['total_verified_amount'] ?? 0)}', AppTheme.brandColor),
+        ],
+      ),
+    );
+  }
+
+  Widget _metricItem(String label, String value, Color color) {
+    return Expanded(
+      child: Column(
+        children: [
+          Text(value, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900, fontSize: 16, color: color)),
+          const SizedBox(height: 4),
+          Text(label, style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabs() {
+    return Container(
+      color: Colors.white,
+      child: Row(
+        children: [
+          _tabItem(0, 'Pending Requests', _pendingPayments.length),
+          _tabItem(1, 'History', null),
+        ],
+      ),
+    );
+  }
+
+  Widget _tabItem(int index, String label, int? count) {
+    final isSelected = _selectedTab == index;
+    return Expanded(
+      child: InkWell(
+        onTap: () => setState(() => _selectedTab = index),
         child: Column(
           children: [
-            const SizedBox(height: 12),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Verify Payment', style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.bold)),
-                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
+                  Text(
+                    label,
+                    style: GoogleFonts.inter(
+                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                      color: isSelected ? AppTheme.brandColor : Colors.grey,
+                      fontSize: 13,
+                    ),
+                  ),
+                  if (count != null && count > 0) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(color: AppTheme.brandColor, borderRadius: BorderRadius.circular(10)),
+                      child: Text(count.toString(), style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: CachedNetworkImage(
-                        imageUrl: url,
-                        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    _checklistTile('Amount matches exactly?'),
-                    _checklistTile('Recipient name is correct?'),
-                    _checklistTile('Transaction status is Success?'),
-                    _checklistTile('Not a duplicate screenshot?'),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 3,
+              width: double.infinity,
+              color: isSelected ? AppTheme.brandColor : Colors.transparent,
             ),
           ],
         ),
@@ -194,16 +251,24 @@ class _PaymentModerationScreenState extends State<PaymentModerationScreen> {
     );
   }
 
-  Widget _checklistTile(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          const Icon(Icons.check_circle_outline_rounded, color: Colors.grey, size: 20),
-          const SizedBox(width: 12),
-          Text(text, style: GoogleFonts.inter(color: Colors.black87)),
-        ],
-      ),
+  Widget _buildPendingList() {
+    if (_pendingPayments.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.check_circle_outline_rounded, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text('No pending payments to verify!', style: GoogleFonts.inter(color: Colors.grey[400])),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(20),
+      itemCount: _pendingPayments.length,
+      itemBuilder: (context, index) => _buildPaymentCard(_pendingPayments[index]),
     );
   }
 
@@ -361,7 +426,8 @@ class _PaymentModerationScreenState extends State<PaymentModerationScreen> {
                 ],
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -381,7 +447,8 @@ class _PaymentModerationScreenState extends State<PaymentModerationScreen> {
     );
   }
 
-  void _viewScreenshot(String url) {
+  void _viewScreenshot(String? url) {
+    if (url == null) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

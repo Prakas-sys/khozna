@@ -91,7 +91,7 @@ class BookingRepository {
       final booking = await getBookingById(bookingId);
       if (booking != null) {
         await _client.from('notifications').insert({
-          'user_id': booking.guest_id,
+          'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
           'title': '✅ बुकिङ स्वीकृत (Request Approved!)',
           'message': 'तपाइँको बुकिङ अनुरोध स्वीकृत भएको छ। कृपया भुक्तानी विधि छनौट गरि अगाडि बढ्नुहोस्।',
@@ -115,7 +115,7 @@ class BookingRepository {
       final booking = await getBookingById(bookingId);
       if (booking != null) {
         await _client.from('notifications').insert({
-          'user_id': booking.guest_id,
+          'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
           'title': '❌ बुकिङ अस्वीकृत (Request Rejected)',
           'message': 'तपाइँको बुकिङ अनुरोध अस्वीकृत भएको छ।',
