@@ -12,7 +12,6 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
 import 'package:khozna/features/property/widgets/add_property_widgets.dart';
 import 'package:khozna/features/property/repositories/property_repository.dart';
-import 'package:khozna/features/property/screens/property_success_screen.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
