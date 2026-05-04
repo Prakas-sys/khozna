@@ -293,37 +293,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         );
                       },
                     ),
-                    if (_isOwner)
-                      ProfileMenuItem(
-                        icon: Icons.dashboard_customize_outlined,
-                        title: 'Property Manager',
-                        subtitle: 'Approve guests & verify payments',
-                        onTap: () {
-                          if (!AuthGuard.checkAuth(context)) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const OwnerBookingsScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    if (_isAdmin)
-                      ProfileMenuItem(
-                        icon: Icons.admin_panel_settings_outlined,
-                        title: 'Admin Command Center',
-                        subtitle: 'Moderate KYCs, Reports & Payments',
-                        color: Colors.indigo,
-                        onTap: () {
-                          if (!AuthGuard.checkAuth(context)) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const OwnerDashboard(),
-                            ),
-                          );
-                        },
-                      ),
                     ProfileMenuItem(
                       icon: Icons.person_outline,
                       title: 'Edit Profile',

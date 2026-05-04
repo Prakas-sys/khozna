@@ -40,7 +40,7 @@ class PaymentAdminRepository {
         'user_id': guestId,
         'title': '✅ भुक्तानी प्रमाणित (Payment Verified!)',
         'message': 'तपाइँको $propertyTitle को लागि भुक्तानी प्रमाणित भएको छ। अब तपाइँको बुकिङ निश्चित भयो।',
-        'type': 'booking_alert',
+        'type': 'payment_received',
         'property_id': null, // Optional
       });
 
@@ -49,7 +49,7 @@ class PaymentAdminRepository {
         'user_id': ownerId,
         'title': '💰 नयाँ भुक्तानी प्राप्त (Payment Received)',
         'message': '$propertyTitle को लागि नयाँ भुक्तानी प्रमाणित भएको छ। रकम सुरक्षित छ।',
-        'type': 'booking_alert',
+        'type': 'payment_received',
         'property_id': null,
       });
     } catch (e) {

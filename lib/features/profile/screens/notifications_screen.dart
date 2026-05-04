@@ -125,6 +125,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           return _buildBookingRequestCard(note, id, index, sender);
                         }
 
+                        // -- SPECIAL: Payment Received card --
+                        if (type == 'payment_received') {
+                          return _buildPaymentReceivedCard(note, id, index, sender);
+                        }
+
                         // -- Standard notification row --
                         return Dismissible(
                           key: Key(id),
@@ -782,5 +787,117 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       default:
         return Colors.grey;
     }
+  /// Payment received notification card
+  Widget _buildPaymentReceivedCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
+    final String propertyId = note['property_id']?.toString() ?? '';
+    final String message = note['message']?.toString() ?? '';
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.green.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.06),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.payments_rounded, color: Colors.green, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        note['title'] ?? 'Payment Notification',
+                        style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.black),
+                      ),
+                      Text(
+                        _formatTime(note['created_at']),
+                        style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[400]),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  message,
+                  style: GoogleFonts.mukta(fontSize: 14, color: Colors.grey[800], height: 1.4),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      // Fetch latest booking for this property
+                      if (propertyId.isNotEmpty) {
+                        final bookings = await SupabaseService.getMyBookings();
+                        final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
+                        
+                        if (filtered.isNotEmpty && mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BookingStatusScreen(booking: filtered.first),
+                            ),
+                          );
+                        } else {
+                          // Try owner dashboard if no guest booking found
+                          if (mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const OwnerBookingsScreen()),
+                            );
+                          }
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'विवरण हेर्नुहोस् (View Details)',
+                      style: GoogleFonts.mukta(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
