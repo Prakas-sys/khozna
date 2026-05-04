@@ -32,7 +32,7 @@ class PostPropertyIntroScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     // Header
                     Text(
-                      'It\'s easy to get\nstarted on Khozna',
+                      'It\'s easy to list\non Khozna',
                       style: GoogleFonts.inter(
                         fontSize: 32,
                         fontWeight: FontWeight.w700,

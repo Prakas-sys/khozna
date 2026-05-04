@@ -775,12 +775,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         child: Row(
           children: [
             if (_currentStep > 0)
-              Expanded(
-                flex: 1,
+              SizedBox(
+                width: 100,
                 child: OutlinedButton(
                   onPressed: () { _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut); setState(() => _currentStep--); },
                   style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14), side: BorderSide(color: Colors.grey.shade300, width: 1.5), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
-                  child: Text('Back', style: GoogleFonts.inter(color: const Color(0xFF4B5563), fontSize: 15, fontWeight: FontWeight.w600)),
+                  child: Text('Back', style: GoogleFonts.inter(color: const Color(0xFF4B5563), fontSize: 14, fontWeight: FontWeight.w600)),
                 ),
               ),
             if (_currentStep > 0) const SizedBox(width: 12),
