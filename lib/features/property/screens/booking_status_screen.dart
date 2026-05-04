@@ -89,6 +89,10 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
   }
 
   Widget _buildStatusHeader() {
+    Color color;
+    String title;
+    String description;
+
     switch (_booking.status) {
       case 'awaiting_payment':
         color = Colors.blue;
