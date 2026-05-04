@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class OfflineStorage {
   static const String _homeCacheKey = 'khozna_home_cache';
+  static const String _profileCacheKey = 'khozna_profile_cache';
   
   /// Save the home section cache to persistent storage
   static Future<void> saveHomeCache(Map<int, List<Map<String, dynamic>>> cache) async {
@@ -48,6 +49,7 @@ class OfflineStorage {
     }
     return {};
   }
+
   /// Clear the home section cache
   static Future<void> clearHomeCache() async {
     try {
@@ -55,6 +57,40 @@ class OfflineStorage {
       await prefs.remove(_homeCacheKey);
     } catch (e) {
       print('Error clearing home cache: $e');
+    }
+  }
+
+  /// Save the user's profile data to persistent storage (for offline access)
+  static Future<void> saveProfileCache(Map<String, dynamic> profile) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_profileCacheKey, jsonEncode(profile));
+    } catch (e) {
+      print('Error saving profile cache: $e');
+    }
+  }
+
+  /// Load the user's profile data from persistent storage
+  static Future<Map<String, dynamic>?> loadProfileCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final String? jsonString = prefs.getString(_profileCacheKey);
+      if (jsonString != null && jsonString.isNotEmpty) {
+        return Map<String, dynamic>.from(jsonDecode(jsonString));
+      }
+    } catch (e) {
+      print('Error loading profile cache: $e');
+    }
+    return null;
+  }
+
+  /// Clear the profile cache (e.g. on logout)
+  static Future<void> clearProfileCache() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_profileCacheKey);
+    } catch (e) {
+      print('Error clearing profile cache: $e');
     }
   }
 }

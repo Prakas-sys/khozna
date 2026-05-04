@@ -784,7 +784,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 child: Text(
                   widget.property.status == 'booked' 
                     ? 'Booked' 
-                    : (_userHasPendingBooking ? 'Pending' : 'Reserve'),
+                    : (_userHasPendingBooking ? 'Pending' : 'BOOK'),
                   style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,

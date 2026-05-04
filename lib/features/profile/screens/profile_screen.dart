@@ -18,6 +18,7 @@ import 'package:khozna/features/profile/screens/edit_profile_screen.dart';
 import 'package:khozna/features/property/screens/add_property_screen.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
@@ -60,6 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
     _checkOwnerStatus();
     
+    // 1. Use in-memory cache first (instant)
     if (profileCache.value != null) {
       final cache = profileCache.value!;
       _avatarUrl = cache['avatar_url'];
@@ -68,7 +70,28 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       _isLoading = false;
     }
     
+    // 2. Load from persistent disk cache (survives app restart & offline)
+    _loadFromDiskCache();
+    
+    // 3. Fetch fresh from network (updates cache)
     _loadProfile();
+  }
+
+  Future<void> _loadFromDiskCache() async {
+    final diskCache = await OfflineStorage.loadProfileCache();
+    if (diskCache != null && mounted) {
+      setState(() {
+        _avatarUrl ??= diskCache['avatar_url'];
+        if (_kycStatus == 'not_started') {
+          _kycStatus = diskCache['kyc_status'] ?? 'not_started';
+        }
+        _isOwner = _isOwner || (diskCache['is_owner'] ?? false);
+        _isLoading = false;
+        
+        // Also populate in-memory cache
+        profileCache.value ??= diskCache;
+      });
+    }
   }
 
   @override
@@ -94,11 +117,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             // We also keep owner status if it was already true, or use the db value.
             _isOwner = _isOwner || (profile['is_owner'] ?? false);
             
-            profileCache.value = {
+            final cacheData = {
               'avatar_url': _avatarUrl,
               'kyc_status': _kycStatus,
               'is_owner': _isOwner,
             };
+            profileCache.value = cacheData;
+            OfflineStorage.saveProfileCache(cacheData);
           });
         }
       } catch (e) {
@@ -427,6 +452,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
+              // Clear all cached data
+              profileCache.value = null;
+              await OfflineStorage.clearProfileCache();
+              await OfflineStorage.clearHomeCache();
               await Supabase.instance.client.auth.signOut();
               if (mounted) {
                 Navigator.pushAndRemoveUntil(

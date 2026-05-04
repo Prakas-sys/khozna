@@ -799,7 +799,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
@@ -809,14 +809,7 @@ class _SearchScreenState extends State<SearchScreen> {
         backgroundColor: AppTheme.brandColor,
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        icon: const Icon(Icons.support_agent, color: Colors.white),
-        label: Text(
-          'AI सहायक',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w800,
-            color: Colors.white,
-          ),
-        ),
+        child: const Icon(Icons.support_agent, color: Colors.white),
       ),
     );
   }

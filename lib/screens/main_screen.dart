@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
+import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/property/screens/home_screen.dart';
 import 'package:khozna/features/property/screens/reels_screen.dart';
@@ -159,7 +160,17 @@ class _MainScreenState extends State<MainScreen> {
       }
     } catch (e) {
       debugPrint('Initial KYC check failed: $e');
-      if (mounted) setState(() => _isCheckingKyc = false);
+      // Offline fallback: use persistent cache
+      final cached = await OfflineStorage.loadProfileCache();
+      if (mounted) {
+        setState(() {
+          if (cached != null) {
+            _kycStatus = cached['kyc_status'] ?? 'not_started';
+            _isKycVerified = _kycStatus == 'verified';
+          }
+          _isCheckingKyc = false;
+        });
+      }
     }
   }
 

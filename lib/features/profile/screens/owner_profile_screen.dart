@@ -231,23 +231,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             Row(
               children: [
                 Expanded(
-                  child: Container(
+                  child: SizedBox(
                     height: 56,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AppTheme.brandColor, Color(0xFF00B4DB)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.brandColor.withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
                     child: ElevatedButton(
                       onPressed: () {
                         HapticFeedback.lightImpact();
@@ -264,8 +249,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
+                        backgroundColor: AppTheme.brandColor,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),

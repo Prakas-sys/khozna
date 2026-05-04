@@ -196,36 +196,35 @@ class PropertyRepository {
     final cleanLandmark = SecurityUtils.sanitizeInput(landmark);
     final cleanDescription = SecurityUtils.sanitizeInput(description, maxLength: 1000);
 
-    // 2. AI Scam Check
+    // 2. AI Scam Check (Fire and forget, non-blocking)
     final aiService = KhoznaAiService();
-    try {
-      final scamResult = await aiService.detectScam(cleanTitle, price.toString(), cleanArea);
+    aiService.detectScam(cleanTitle, price.toString(), cleanArea).then((scamResult) {
       if (scamResult.toLowerCase().contains("scam")) {
         debugPrint("AI SCAM WARNING: $scamResult");
       }
-    } catch (e) {
-      debugPrint("AI Scam Check Error: $e");
-    }
+    }).catchError((e) => debugPrint("AI Scam Check Error: $e"));
 
-    // 3. Parallel Media Uploads
-    String? videoUrl;
-    if (videoFile != null) {
-      videoUrl = await CloudinaryService.uploadVideo(videoFile);
-    }
+    // 3. Concurrent Media Uploads & AI Landmark Detection
+    Future<String?> videoUploadFuture = videoFile != null ? CloudinaryService.uploadVideo(videoFile) : Future.value(null);
+    Future<List<String?>> imagesUploadFuture = Future.wait(images.map((file) => CloudinaryService.uploadImage(file)));
+    Future<List<Map<String, dynamic>>> landmarksFuture = aiService.getNearbyLandmarks(cleanArea, cleanLandmark).catchError((e) {
+      debugPrint("AI Landmarks Error: $e");
+      return <Map<String, dynamic>>[];
+    });
 
-    final List<Future<String?>> uploadFutures = images.map((file) => CloudinaryService.uploadImage(file)).toList();
-    final List<String?> uploadResults = await Future.wait(uploadFutures);
+    final results = await Future.wait([
+      videoUploadFuture,
+      imagesUploadFuture,
+      landmarksFuture,
+    ]);
+
+    final String? videoUrl = results[0] as String?;
+    final List<String?> uploadResults = results[1] as List<String?>;
+    final List<Map<String, dynamic>> nearbyLandmarks = results[2] as List<Map<String, dynamic>>;
+
     final List<String> uploadedUrls = uploadResults.whereType<String>().toList();
 
     if (uploadedUrls.isEmpty) throw 'Failed to upload any images.';
-
-    // 4. AI Landmark Detection
-    List<Map<String, dynamic>> nearbyLandmarks = [];
-    try {
-      nearbyLandmarks = await aiService.getNearbyLandmarks(cleanArea, cleanLandmark);
-    } catch (e) {
-      debugPrint("AI Landmarks Error: $e");
-    }
 
     // 5. Algorithm: Auto-categorize based on keywords
     final studentKeywords = ['student', 'college', 'university', 'tuition', 'hostel', 'p.g.', 'pg', 'library', 'campus', 'विद्यार्थी', 'कलेज', 'अध्ययन'];
