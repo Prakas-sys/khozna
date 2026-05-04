@@ -323,7 +323,7 @@ class PropertyCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2), // Reverted to original gap above amenities
                     _buildAmenityItems(),
-                    const SizedBox(height: 8), // Moved buttons UP (closer to amenities)
+                    const SizedBox(height: 7), // Reduced gap slightly to fix 1px overflow
                     // Action Buttons
                     Row(
                       children: [
@@ -349,7 +349,7 @@ class PropertyCard extends StatelessWidget {
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
+                                  vertical: 11.5,
                                 ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -379,7 +379,8 @@ class PropertyCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                        ),
+                        const SizedBox(width: 8),
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () async {
@@ -408,7 +409,7 @@ class PropertyCard extends StatelessWidget {
                                   width: 1.0,
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
+                                  vertical: 11.5,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
@@ -442,7 +443,8 @@ class PropertyCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                        ] else ...[
+                        ),
+                      ] else ...[
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: onEdit,
@@ -540,7 +542,7 @@ class PropertyCard extends StatelessWidget {
           const Icon(
             Icons.place_outlined,
             color: AppTheme.brandColor,
-            size: 13.5,
+            size: 16,
           ),
           const SizedBox(width: 2),
           Flexible(
