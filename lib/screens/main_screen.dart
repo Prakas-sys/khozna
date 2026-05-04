@@ -447,11 +447,9 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
-  },
-);
   }
 
   Widget _buildNavItem(
