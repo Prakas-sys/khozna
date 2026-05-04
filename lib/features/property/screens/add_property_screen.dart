@@ -12,6 +12,7 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
 import 'package:khozna/features/property/widgets/add_property_widgets.dart';
 import 'package:khozna/features/property/repositories/property_repository.dart';
+import 'package:khozna/features/property/screens/property_success_screen.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
@@ -22,10 +23,10 @@ class AddPropertyScreen extends StatefulWidget {
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
+  final int _totalSteps = 9;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
-  final ScrollController _step1ScrollController = ScrollController();
-  final FocusNode _titleFocusNode = FocusNode();
+  final ScrollController _mainScrollController = ScrollController();
   final ImagePicker _picker = ImagePicker();
   late ConfettiController _confettiController;
 
@@ -40,6 +41,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final TextEditingController _bathroomsController = TextEditingController();
   final TextEditingController _floorController = TextEditingController();
   final TextEditingController _sqftController = TextEditingController();
+  
+  // Payout State
+  String _selectedPayoutMethod = 'esewa';
+  final TextEditingController _payoutAccountController = TextEditingController();
 
   // Location State
   bool _isLocating = false;
@@ -52,34 +57,38 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final List<String> _selectedAmenities = [];
   final List<String> _selectedRules = [];
   final List<File> _selectedImages = [];
+  File? _selectedVideo;
   bool _isPublishing = false;
 
-  // AI Service (Using Khozna AI)
+  // AI & Checks
   final KhoznaAiService _aiService = KhoznaAiService();
   bool _isEstimatingPrice = false;
   String? _aiPriceSuggestion;
-
-  // Media State
-  File? _selectedVideo;
-  final bool _isUploadingVideo = false;
-
-  // Smart Check Radius State
   double _distanceFromLandmark = 0.0;
   bool _isDistanceVerified = false;
-
-  // New Location Analysis State
   bool _isAnalyzingLocation = false;
-
-  // AI Description State
   bool _isGeneratingDescription = false;
-
-  // Visual Guides
   bool _showLocationNudge = false;
 
   @override
   void initState() {
     super.initState();
     _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+    _loadExistingPayoutDetails();
+  }
+
+  Future<void> _loadExistingPayoutDetails() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user != null) {
+      final profile = await Supabase.instance.client
+          .from('profiles')
+          .select('esewa_number')
+          .eq('id', user.id)
+          .maybeSingle();
+      if (profile != null && profile['esewa_number'] != null) {
+        _payoutAccountController.text = profile['esewa_number'];
+      }
+    }
   }
 
   @override
@@ -95,71 +104,144 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     _bathroomsController.dispose();
     _floorController.dispose();
     _sqftController.dispose();
+    _payoutAccountController.dispose();
     _pageController.dispose();
-    _step1ScrollController.dispose();
-    _titleFocusNode.dispose();
+    _mainScrollController.dispose();
     super.dispose();
   }
 
   void _toggleAmenity(String amenity) {
     setState(() {
-      if (_selectedAmenities.contains(amenity)) {
-        _selectedAmenities.remove(amenity);
-      } else {
-        _selectedAmenities.add(amenity);
-      }
+      if (_selectedAmenities.contains(amenity)) _selectedAmenities.remove(amenity);
+      else _selectedAmenities.add(amenity);
     });
   }
 
   void _toggleRule(String rule) {
     setState(() {
-      if (_selectedRules.contains(rule)) {
-        _selectedRules.remove(rule);
-      } else {
-        _selectedRules.add(rule);
-      }
+      if (_selectedRules.contains(rule)) _selectedRules.remove(rule);
+      else _selectedRules.add(rule);
     });
   }
 
   Future<void> _pickImages() async {
-
-    final List<XFile> images = await _picker.pickMultiImage(
-      imageQuality: 70,
-      maxWidth: 1920,
-      maxHeight: 1920,
-    );
+    final List<XFile> images = await _picker.pickMultiImage(imageQuality: 70, maxWidth: 1920, maxHeight: 1920);
     if (images.isNotEmpty) {
-      setState(() {
-        _selectedImages.addAll(images.map((x) => File(x.path)));
-      });
+      setState(() => _selectedImages.addAll(images.map((x) => File(x.path))));
     }
   }
 
   Future<void> _pickVideo() async {
     final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
-    if (video != null) {
-      setState(() {
-        _selectedVideo = File(video.path);
-      });
+    if (video != null) setState(() => _selectedVideo = File(video.path));
+  }
+
+  Future<void> _detectLocation() async {
+    setState(() => _isLocating = true);
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('कृपया सेटिङ्सबाट लोकेशन अन गर्नुहोस्।')));
+        setState(() => _isLocating = false);
+        return;
+      }
+      final Position position = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
+      if (mounted) {
+        setState(() {
+          _latitude = position.latitude;
+          _longitude = position.longitude;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('एआईले तपाईंको ठाउँ खोज्दैछ... 🤖')));
+        final locData = await _aiService.autoDetectLocationArea(position.latitude, position.longitude);
+        if (mounted) {
+          setState(() {
+            if (locData['area']?.isNotEmpty == true) _areaController.text = locData['area']!;
+            if (locData['landmark']?.isNotEmpty == true) _landmarkController.text = locData['landmark']!;
+            _isLocating = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLocating = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    }
+  }
+
+  void _nextStep() {
+    bool isValid = false;
+    String errorMessage = "";
+    FocusScope.of(context).unfocus();
+
+    switch (_currentStep) {
+      case 0:
+        if (_selectedCategory == null) errorMessage = "कृपया सम्पत्तिको प्रकार छान्नुहोस्।";
+        else isValid = true;
+        break;
+      case 1:
+        if (_areaController.text.trim().isEmpty) errorMessage = "कृपया टोलको नाम राख्नुहोस्।";
+        else if (_landmarkController.text.trim().isEmpty) errorMessage = "कृपया नजिकैको प्रख्यात ठाउँ राख्नुहोस्।";
+        else if (_latitude == null) {
+          setState(() => _showLocationNudge = true);
+          errorMessage = "कृपया नक्सामा लोकेशन सेट गर्नुहोस्।";
+        } else isValid = true;
+        break;
+      case 2:
+        isValid = true; // Basics are optional
+        break;
+      case 3:
+        isValid = true; // Amenities are optional
+        break;
+      case 4:
+        if (_selectedImages.isEmpty) errorMessage = "कृपया कम्तिमा एउटा फोटो राख्नुहोस्।";
+        else isValid = true;
+        break;
+      case 5:
+        isValid = true; // Video is optional
+        break;
+      case 6:
+        if (_titleController.text.trim().isEmpty) errorMessage = "कृपया प्रोपर्टीको आकर्षक शीर्षक राख्नुहोस्।";
+        else isValid = true;
+        break;
+      case 7:
+        if (_priceController.text.trim().isEmpty && _priceNightController.text.trim().isEmpty) {
+          errorMessage = "कृपया मासिक वा दैनिक भाडा राख्नुहोस्।";
+        } else isValid = true;
+        break;
+      case 8: // Payout
+        if (_payoutAccountController.text.trim().isEmpty) {
+          errorMessage = "तपाईंले पेमेन्ट पाउनको लागि खाता नम्बर राख्नुहोस्।";
+        } else isValid = true;
+        break;
+    }
+
+    if (isValid) {
+      if (_currentStep < _totalSteps - 1) {
+        _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+        setState(() => _currentStep++);
+      } else {
+        _publishProperty();
+      }
+    } else if (errorMessage.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage), backgroundColor: Colors.redAccent));
     }
   }
 
   Future<void> _publishProperty() async {
     final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please login to post a property')));
-      return;
-    }
-
-    final bool hasPrice = _priceController.text.isNotEmpty || _priceNightController.text.isNotEmpty;
-    if (_titleController.text.isEmpty || !hasPrice || _selectedImages.isEmpty || _areaController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("कृपया सबै रित्तो ठाउँ भर्नुहोस् (Please fill all required fields)")));
-      return;
-    }
-
+    if (user == null) return;
     setState(() => _isPublishing = true);
 
     try {
+      // Save payout details to profile
+      if (_selectedPayoutMethod == 'esewa') {
+        await Supabase.instance.client.from('profiles').update({
+          'esewa_number': _payoutAccountController.text.trim(),
+        }).eq('id', user.id);
+      }
+
       await PropertyRepository.createProperty(
         title: _titleController.text,
         category: _selectedCategory ?? 'Room',
@@ -186,12 +268,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       await Future.delayed(const Duration(milliseconds: 600));
 
       if (mounted) {
-        final ownerName = user.userMetadata?['full_name'] ?? user.email ?? 'Property Owner';
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (_) => PropertySuccessScreen(
-              ownerName: ownerName,
+              ownerName: user.userMetadata?['full_name'] ?? 'Owner',
               title: _titleController.text,
               area: _areaController.text,
               landmark: _landmarkController.text,
@@ -203,135 +284,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Publishing failed: $e')));
-      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Publishing failed: $e')));
     } finally {
       if (mounted) setState(() => _isPublishing = false);
-    }
-  }
-
-  Future<void> _detectLocation() async {
-    setState(() => _isLocating = true);
-
-    try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.deniedForever ||
-          permission == LocationPermission.denied) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permission denied. Please enable it in Settings.')),
-          );
-        }
-        setState(() => _isLocating = false);
-        return;
-      }
-
-      final Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 15),
-        ),
-      );
-
-      if (mounted) {
-        setState(() {
-          _latitude = position.latitude;
-          _longitude = position.longitude;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('एआईले तपाईंको ठाउँ खोज्दैछ... 🤖\n(AI is predicting your Area)')),
-        );
-
-        final locData = await _aiService.autoDetectLocationArea(
-          position.latitude,
-          position.longitude,
-        );
-
-        if (mounted) {
-          setState(() {
-            if (locData['area']?.isNotEmpty == true) {
-              _areaController.text = locData['area']!;
-            }
-            if (locData['landmark']?.isNotEmpty == true) {
-              _landmarkController.text = locData['landmark']!;
-            }
-            _isLocating = false;
-          });
-
-          if (locData['area']?.isNotEmpty == true) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('AI found your location: ${locData['area']}'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLocating = false);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not get location: $e')));
-      }
-    }
-  }
-
-  void _nextStep() {
-    bool isValid = false;
-    String errorMessage = "";
-
-    FocusScope.of(context).unfocus();
-
-    if (_currentStep == 0) {
-      if (_titleController.text.trim().isEmpty) {
-        errorMessage = "कृपया शीर्षक राख्नुहोस् (Please enter a title)";
-      } else if (_selectedCategory == null) {
-        errorMessage = "कृपया वर्ग छान्नुहोस् (Please select a category)";
-      } else {
-        isValid = true;
-      }
-    } else if (_currentStep == 1) {
-      if (_areaController.text.trim().isEmpty) {
-        errorMessage = "कृपया टोलको नाम राख्नुहोस् (Please enter Area Name)";
-      } else if (_landmarkController.text.trim().isEmpty) {
-        errorMessage = "कृपया चिनिने ठाउँ राख्नुहोस् (Please enter Landmark)";
-      } else if (_latitude == null) {
-        setState(() => _showLocationNudge = true);
-        errorMessage = "कृपया नक्शामा लोकेशन सेट गर्नुहोस् (Please set location on Map)";
-      } else {
-        isValid = true;
-      }
-    } else if (_currentStep == 2) {
-      if (_priceController.text.trim().isEmpty && _priceNightController.text.trim().isEmpty) {
-        errorMessage = "कृपया कम्तिमा एउटा भाडा दर राख्नुहोस् (Please enter at least one price)";
-      } else {
-        isValid = true;
-      }
-    } else {
-      isValid = true;
-    }
-
-    if (isValid) {
-      if (_currentStep < 5) {
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-        setState(() => _currentStep++);
-      }
-    } else if (errorMessage.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
     }
   }
 
@@ -344,31 +299,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Text(
-          'प्रोपर्टी राख्नुहोस्',
-          style: GoogleFonts.hind(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF111827),
-          ),
-        ),
+        title: Text('प्रोपर्टी प्रकाशित गर्नुहोस्', style: GoogleFonts.hind(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.black)),
         centerTitle: true,
         leadingWidth: 64,
         leading: Padding(
           padding: const EdgeInsets.all(12),
           child: GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.close_rounded,
-                color: Colors.black87,
-                size: 18,
-              ),
-            ),
+            child: Container(decoration: BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle), child: const Icon(Icons.close_rounded, color: Colors.black87, size: 18)),
           ),
         ),
         actions: [
@@ -376,22 +314,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             padding: const EdgeInsets.only(right: 16),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.06),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.brandColor.withOpacity(0.15),
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                '${_currentStep + 1} / 6',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.brandColor,
-                  fontSize: 12,
-                ),
-              ),
+              decoration: BoxDecoration(color: AppTheme.brandColor.withOpacity(0.06), borderRadius: BorderRadius.circular(12)),
+              child: Text('${_currentStep + 1} / $_totalSteps', style: GoogleFonts.inter(fontWeight: FontWeight.w800, color: AppTheme.brandColor, fontSize: 12)),
             ),
           ),
         ],
@@ -403,23 +327,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: SizedBox(
-                height: 14,
+                height: 8,
                 child: TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: (_currentStep + 1) / 6),
+                  tween: Tween<double>(begin: 0, end: (_currentStep + 1) / _totalSteps),
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeInOutCubic,
-                  builder: (context, value, child) {
-                    return LinearProgressIndicator(
-                      value: value,
-                      backgroundColor: Colors.grey[200],
-                      valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.brandColor),
-                    );
-                  },
+                  builder: (context, value, child) => LinearProgressIndicator(value: value, backgroundColor: Colors.grey[200], valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.brandColor)),
                 ),
               ),
             ),
           ),
-
           Expanded(
             child: Stack(
               children: [
@@ -427,23 +344,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   controller: _pageController,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    _buildStep1(),
-                    _buildStep2(),
-                    _buildStep3(),
-                    _buildStep4(),
-                    _buildStep5(),
-                    _buildStep6(),
+                    _buildStepCategory(),
+                    _buildStepLocation(),
+                    _buildStepBasics(),
+                    _buildStepAmenities(),
+                    _buildStepPhotos(),
+                    _buildStepVideo(),
+                    _buildStepTitleDesc(),
+                    _buildStepPricingRules(),
+                    _buildStepPayout(),
                   ],
                 ),
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: ConfettiWidget(
-                    confettiController: _confettiController,
-                    blastDirectionality: BlastDirectionality.explosive,
-                    shouldLoop: false,
-                    colors: const [AppTheme.brandColor, Colors.blue, Colors.green, Colors.orange, Colors.pink],
-                  ),
-                ),
+                Align(alignment: Alignment.topCenter, child: ConfettiWidget(confettiController: _confettiController, blastDirectionality: BlastDirectionality.explosive, shouldLoop: false)),
               ],
             ),
           ),
@@ -453,11 +365,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildStep1() {
+  Widget _buildStepCategory() {
     return StepLayout(
-      controller: _step1ScrollController,
-      title: 'तपाईं के भाडामा दिँदै हुनुहुन्छ?',
-      subtitle: 'सुरु गरौं! (Let\'s start your listing)',
+      controller: _mainScrollController,
+      title: 'तपाईंको सम्पत्ति कस्तो प्रकारको हो?',
+      subtitle: 'यसले खोज्नेहरूलाई सही ठाउँ पाउन मद्दत गर्छ। (Choose your property type)',
       content: [
         GridView.count(
           shrinkWrap: true,
@@ -467,56 +379,24 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           crossAxisSpacing: 12,
           childAspectRatio: 0.95,
           children: [
-            CategoryCard(
-              label: 'कोठा\nRoom',
-              icon: CupertinoIcons.bed_double_fill,
-              value: 'Room',
-              selectedValue: _selectedCategory,
-              onSelect: (v) => setState(() => _selectedCategory = v),
-            ),
-            CategoryCard(
-              label: 'फ्ल्याट\nFlat',
-              icon: CupertinoIcons.house_fill,
-              value: 'Flat',
-              selectedValue: _selectedCategory,
-              onSelect: (v) => setState(() => _selectedCategory = v),
-            ),
-            CategoryCard(
-              label: 'सटर / पसल\nCommercial',
-              icon: Icons.storefront_rounded,
-              value: 'Shop',
-              selectedValue: _selectedCategory,
-              onSelect: (v) => setState(() => _selectedCategory = v),
-            ),
-            CategoryCard(
-              label: 'अन्य\nOther',
-              icon: CupertinoIcons.ellipsis,
-              value: 'Other',
-              selectedValue: _selectedCategory,
-              onSelect: (v) => setState(() => _selectedCategory = v),
-            ),
+            CategoryCard(label: 'कोठा\nRoom', icon: CupertinoIcons.bed_double_fill, value: 'Room', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
+            CategoryCard(label: 'फ्ल्याट\nFlat', icon: CupertinoIcons.house_fill, value: 'Flat', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
+            CategoryCard(label: 'सटर\nShop', icon: Icons.storefront_rounded, value: 'Shop', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
+            CategoryCard(label: 'अन्य\nOther', icon: CupertinoIcons.ellipsis, value: 'Other', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
           ],
-        ),
-        const SizedBox(height: 24),
-        PropertyFormField(
-          label: 'विज्ञापनको नाम (Title)',
-          hint: 'e.g. Cozy 2-bedroom flat',
-          controller: _titleController,
-          focusNode: _titleFocusNode,
-          isRequired: true,
         ),
       ],
     );
   }
 
-  Widget _buildStep2() {
+  Widget _buildStepLocation() {
     return StepLayout(
-      title: 'प्रोपर्टी कहाँ छ?',
-      subtitle: 'Accurate location builds trust',
+      title: 'तपाईंको सम्पत्ति कहाँ छ?',
+      subtitle: 'सही लोकेशन राख्दा धेरै मानिसहरूले विश्वास गर्छन्। (Accurate location builds trust)',
       content: [
         PremiumFeatureCard(
           icon: _latitude != null ? Icons.location_on : Icons.my_location,
-          title: _latitude != null ? 'लोकेशन सेट भयो! ✓' : 'लोकेशन राख्नुहोस्',
+          title: _latitude != null ? 'लोकेशन प्रमाणित भयो ✓' : 'नक्सामा लोकेशन सेट गर्नुहोस्',
           subtitle: _latitude != null ? 'GPS verified location detected by AI' : 'Use GPS for maximum listing trust',
           accentColor: _latitude != null ? Colors.green : AppTheme.brandColor,
           isLoading: _isLocating,
@@ -530,387 +410,55 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     children: [
                       const Icon(Icons.back_hand, color: Colors.orange, size: 20),
                       const SizedBox(width: 8),
-                      Text(
-                        'पहिला बटन थिच्नुहोस्! (Click here first)',
-                        style: GoogleFonts.mukta(
-                          color: Colors.orange[800],
-                          fontWeight: FontWeight.w700,
-                          fontSize: 12,
-                        ),
-                      ),
+                      Text('पहिला यहाँ क्लिक गर्नुहोस्!', style: GoogleFonts.mukta(color: Colors.orange[800], fontWeight: FontWeight.w700, fontSize: 13)),
                     ],
                   ),
                 ),
               ElevatedButton.icon(
-                onPressed: _isLocating
-                    ? null
-                    : () {
-                        setState(() => _showLocationNudge = false);
-                        _detectLocation();
-                      },
-                icon: _isLocating
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Icon(
-                        _latitude != null ? Icons.refresh : Icons.gps_fixed,
-                        size: 20,
-                        color: Colors.white,
-                      ),
-                label: Text(
-                  _isLocating
-                      ? 'खोज्दै छ...'
-                      : _latitude != null
-                          ? 'फेरि खोज्नुहोस्'
-                          : 'मेरो लोकेशन पत्ता लगाउनुहोस्',
-                  style: GoogleFonts.mukta(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _latitude != null ? Colors.green : AppTheme.brandColor,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
+                onPressed: _isLocating ? null : () { setState(() => _showLocationNudge = false); _detectLocation(); },
+                icon: _isLocating ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Icon(_latitude != null ? Icons.refresh : Icons.gps_fixed, size: 20, color: Colors.white),
+                label: Text(_isLocating ? 'खोज्दै छ...' : _latitude != null ? 'फेरि खोज्नुहोस्' : 'मेरो लोकेशन पत्ता लगाउनुहोस्', style: GoogleFonts.mukta(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.white)),
+                style: ElevatedButton.styleFrom(backgroundColor: _latitude != null ? Colors.green : AppTheme.brandColor, elevation: 0, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               ),
             ],
           ),
         ),
         const SizedBox(height: 32),
-        PropertyFormField(
-          label: 'नगरपालिका / टोल (Area Name)',
-          hint: 'उदा: ललितपुर, सानेपा-२',
-          controller: _areaController,
-          isRequired: true,
-        ),
+        PropertyFormField(label: 'टोल वा गाउँको नाम (Area Name)', hint: 'उदा: ललितपुर, सानेपा-२', controller: _areaController, isRequired: true),
         const SizedBox(height: 24),
-        PropertyFormField(
-          label: 'नजिकैको चिनिने ठाउँ (Landmark)',
-          hint: 'उदा: सिभिल हस्पिटलको पछाडि',
-          controller: _landmarkController,
-          isRequired: true,
-        ),
-        const SizedBox(height: 24),
-        if (_areaController.text.isNotEmpty || _landmarkController.text.isNotEmpty)
-          PremiumFeatureCard(
-            icon: Icons.gps_fixed_rounded,
-            title: 'Distance Check',
-            subtitle: 'Must be within 250m for verification',
-            isLoading: _isAnalyzingLocation,
-            accentColor: _latitude == null ? Colors.grey : (_isDistanceVerified ? Colors.green : Colors.orange),
-            child: Column(
-              children: [
-                if (_latitude != null) ...[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: LinearProgressIndicator(
-                      value: (1.0 - (_distanceFromLandmark / 1000).clamp(0.0, 1.0)),
-                      minHeight: 12,
-                      backgroundColor: Colors.grey[100],
-                      color: _isDistanceVerified ? Colors.green : Colors.orange,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: (_isDistanceVerified ? Colors.green : Colors.orange).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          _isDistanceVerified ? 'Verified Accuracy ✓' : 'Accuracy Low ⚠',
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 12,
-                            color: _isDistanceVerified ? Colors.green[800] : Colors.orange[800],
-                          ),
-                        ),
-                      ),
-                      Text(
-                        '${_distanceFromLandmark.toStringAsFixed(0)}m away',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                ],
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: (_isAnalyzingLocation || _latitude == null)
-                        ? null
-                        : () async {
-                            HapticFeedback.mediumImpact();
-                            setState(() => _isAnalyzingLocation = true);
-                            try {
-                              List<geo.Location> locations = await geo.locationFromAddress(
-                                  "${_landmarkController.text}, ${_areaController.text}");
-                              if (locations.isNotEmpty) {
-                                double dist = Geolocator.distanceBetween(
-                                  _latitude!, _longitude!,
-                                  locations.first.latitude, locations.first.longitude,
-                                );
-                                setState(() {
-                                  _distanceFromLandmark = dist;
-                                  _isDistanceVerified = dist <= 250;
-                                });
-                              }
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Verification failed. Use landmark name correctly.')),
-                              );
-                            } finally {
-                              setState(() => _isAnalyzingLocation = false);
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.brandColor,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text(
-                      'Start Smart Verification',
-                      style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 14),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        PropertyFormField(label: 'नजिकैको प्रख्यात ठाउँ (Landmark)', hint: 'उदा: सिभिल हस्पिटलको पछाडि', controller: _landmarkController, isRequired: true),
       ],
     );
   }
 
-  Widget _buildStep3() {
+  Widget _buildStepBasics() {
     return StepLayout(
-      title: 'भाडा र विवरण',
-      subtitle: 'Almost halfway! High precision earns trust.',
+      title: 'कोठाको विवरण राख्नुहोस्',
+      subtitle: 'यसले मानिसहरूलाई तपाईंको ठाउँको बारेमा जान्न मद्दत गर्छ। (Share the basics)',
       content: [
-        PropertyFormField(
-          label: 'महिनाको जम्मा भाडा (Monthly Rent)',
-          hint: 'उदा: ५०००',
-          controller: _priceController,
-          keyboardType: TextInputType.number,
-        ),
-        const SizedBox(height: 16),
-        PropertyFormField(
-          label: 'एक रातको भाडा (Price Per Night)',
-          hint: 'उदा: ८०० (Optional)',
-          controller: _priceNightController,
-          keyboardType: TextInputType.number,
-        ),
-        const SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              QuickPriceChip(label: '5,000', value: '5000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
-              const SizedBox(width: 8),
-              QuickPriceChip(label: '8,000', value: '8000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
-              const SizedBox(width: 8),
-              QuickPriceChip(label: '12,000', value: '12000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
-              const SizedBox(width: 8),
-              QuickPriceChip(label: '15,000', value: '15000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
-              const SizedBox(width: 8),
-              QuickPriceChip(label: '25,000', value: '25000', currentValue: _priceController.text, onTap: (v) => setState(() => _priceController.text = v)),
-            ],
-          ),
-        ),
-        const SizedBox(height: 32),
         Row(
           children: [
-            Expanded(
-              child: PropertyFormField(
-                label: 'Beds',
-                hint: 'उदा: २',
-                controller: _bedroomsController,
-                keyboardType: TextInputType.number,
-              ),
-            ),
+            Expanded(child: PropertyFormField(label: 'कतिवटा बेडरुम? (Beds)', hint: 'उदा: २', controller: _bedroomsController, keyboardType: TextInputType.number)),
             const SizedBox(width: 16),
-            Expanded(
-              child: PropertyFormField(
-                label: 'Baths',
-                hint: 'उदा: १',
-                controller: _bathroomsController,
-                keyboardType: TextInputType.number,
-              ),
-            ),
+            Expanded(child: PropertyFormField(label: 'कतिवटा बाथरुम? (Baths)', hint: 'उदा: १', controller: _bathroomsController, keyboardType: TextInputType.number)),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         Row(
           children: [
-            Expanded(
-              child: PropertyFormField(
-                label: 'Floor',
-                hint: 'उदा: १',
-                controller: _floorController,
-              ),
-            ),
+            Expanded(child: PropertyFormField(label: 'कुन तलामा छ? (Floor)', hint: 'उदा: १', controller: _floorController)),
             const SizedBox(width: 16),
-            Expanded(
-              child: PropertyFormField(
-                label: 'Area (sq.ft)',
-                hint: 'उदा: ४००',
-                controller: _sqftController,
-                keyboardType: TextInputType.number,
-              ),
-            ),
+            Expanded(child: PropertyFormField(label: 'क्षेत्रफल (Area sq.ft)', hint: 'उदा: ४००', controller: _sqftController, keyboardType: TextInputType.number)),
           ],
-        ),
-        const SizedBox(height: 32),
-        StatefulBuilder(
-          builder: (context, setInternalState) {
-            return GestureDetector(
-              onTapDown: (_) => HapticFeedback.selectionClick(),
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                setState(() => _isNegotiable = !_isNegotiable);
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                decoration: BoxDecoration(
-                  color: _isNegotiable ? AppTheme.brandColor.withOpacity(0.04) : Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: _isNegotiable ? AppTheme.brandColor : Colors.grey.shade200,
-                    width: _isNegotiable ? 2.5 : 1.5,
-                  ),
-                  boxShadow: _isNegotiable ? [
-                    BoxShadow(
-                      color: AppTheme.brandColor.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    )
-                  ] : [],
-                ),
-                child: Row(
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: _isNegotiable ? AppTheme.brandColor : Colors.grey.shade100,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.handshake_rounded,
-                        color: _isNegotiable ? Colors.white : Colors.grey[400],
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'भाडा मिलाउन सकिन्छ',
-                            style: GoogleFonts.mukta(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 17,
-                              color: const Color(0xFF111827),
-                              letterSpacing: -0.3,
-                            ),
-                          ),
-                          Text(
-                            'Price is Negotiable',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[600],
-                              letterSpacing: -0.1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Transform.scale(
-                      scale: 0.9,
-                      child: Switch.adaptive(
-                        value: _isNegotiable,
-                        onChanged: (v) {
-                          HapticFeedback.mediumImpact();
-                          setState(() => _isNegotiable = v);
-                        },
-                        activeColor: AppTheme.brandColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-        ),
-        const SizedBox(height: 32),
-        PremiumFeatureCard(
-          icon: Icons.insights_rounded,
-          title: 'Price Guide',
-          subtitle: 'AI neighborhood analysis',
-          isLoading: _isEstimatingPrice,
-          accentColor: Colors.purple,
-          child: Column(
-            children: [
-              if (_aiPriceSuggestion != null)
-                Text(_aiPriceSuggestion!, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: const Color(0xFF4B5563), height: 1.5)),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isEstimatingPrice
-                      ? null
-                      : () async {
-                          if (_areaController.text.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please set area in Step 2 first')));
-                            return;
-                          }
-                          setState(() => _isEstimatingPrice = true);
-                          final result = await _aiService.estimatePrice(_areaController.text, _selectedCategory == 'Room' ? 1 : 3, _selectedCategory ?? 'Room');
-                          setState(() {
-                            _aiPriceSuggestion = result;
-                            _isEstimatingPrice = false;
-                          });
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple.withOpacity(0.1),
-                    foregroundColor: Colors.purple,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: const Text('Check Neighborhood Price'),
-                ),
-              ),
-            ],
-          ),
         ),
       ],
     );
   }
 
-  Widget _buildStep4() {
+  Widget _buildStepAmenities() {
     return StepLayout(
-      title: 'सुविधाहरू छान्नुहोस्',
-      subtitle: 'Higher quality amenities attract better tenants.',
+      title: 'के-के सुविधाहरू छन्?',
+      subtitle: 'राम्रो सुविधाहरूले धेरै ग्राहक आकर्षित गर्छ। (Amenities attract better tenants)',
       content: [
         AmenitiesGrid(
           selectedItems: _selectedAmenities,
@@ -956,43 +504,86 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildStep5() {
+  Widget _buildStepPhotos() {
     return StepLayout(
-      title: 'नियमहरू राख्नुहोस्',
-      subtitle: 'Sets expectations for potential tenants.',
+      title: 'केही राम्रा फोटोहरू राख्नुहोस्',
+      subtitle: 'राम्रो उज्यालोमा खिचेको फोटोले छिटो भाडामा जान्छ। (Add at least 3 high-quality photos)',
       content: [
-        AmenitiesGrid(
-          selectedItems: _selectedRules,
-          icons: const {
-            'family_only': Icons.family_restroom_rounded,
-            'boys_allowed': Icons.man_rounded,
-            'girls_allowed': Icons.woman_rounded,
-            'pets_allowed': Icons.pets_rounded,
-            'smoking_allowed': Icons.smoke_free_rounded,
-            'alcohol_allowed': Icons.local_bar_rounded,
-          },
-          labels: const {
-            'family_only': 'परिवार मात्र',
-            'boys_allowed': 'केटा मात्र',
-            'girls_allowed': 'केटी मात्र',
-            'pets_allowed': 'जनावर राख्न पाईने',
-            'smoking_allowed': 'चुरोट पिउन पाईने',
-            'alcohol_allowed': 'मदिरा पिउन पाईने',
-          },
-          onToggle: _toggleRule,
+        GestureDetector(
+          onTap: _pickImages,
+          child: _buildMediaUploadBox(icon: Icons.add_a_photo_outlined, title: 'फोटोहरू थप्नुहोस् (Add Photos)', desc: '३ वा सोभन्दा बढी फोटो राख्नुहोस्।', isBlue: false),
         ),
+        if (_selectedImages.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          Text('छानिएका फोटोहरू (${_selectedImages.length})', style: GoogleFonts.mukta(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 12),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 1),
+            itemCount: _selectedImages.length,
+            itemBuilder: (context, index) {
+              return Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), image: DecorationImage(image: FileImage(_selectedImages[index]), fit: BoxFit.cover)),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedImages.removeAt(index)),
+                    child: Container(margin: const EdgeInsets.all(6), padding: const EdgeInsets.all(4), decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle), child: const Icon(Icons.close, color: Colors.white, size: 16)),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ],
     );
   }
 
-  Widget _buildStep6() {
+  Widget _buildStepVideo() {
     return StepLayout(
-      title: 'फोटो/भिडियो र विवरण',
-      subtitle: 'Final step! Make it look irresistible.',
+      title: 'भिडियोले अझै धेरैलाई आकर्षित गर्छ',
+      subtitle: 'कोठाको छोटो भिडियो (Reel) राख्नुहोस्। (Optional but highly recommended)',
       content: [
+        GestureDetector(
+          onTap: _pickVideo,
+          child: _buildMediaUploadBox(
+            icon: Icons.videocam_outlined,
+            title: _selectedVideo != null ? 'भिडियो छानियो ✓' : 'भिडियो राख्नुहोस् (Upload Reel)',
+            desc: _selectedVideo != null ? 'भिडियो परिवर्तन गर्न यहाँ क्लिक गर्नुहोस्' : 'भिडियो राख्दा ३ गुणा बढी ग्राहक आउँछन्!',
+            isBlue: true,
+            hasFile: _selectedVideo != null,
+          ),
+        ),
+        if (_selectedVideo != null) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            child: Row(
+              children: [
+                const Icon(Icons.video_file, color: Colors.blue, size: 28),
+                const SizedBox(width: 12),
+                Expanded(child: Text('Video: ${_selectedVideo!.path.split('/').last}', style: GoogleFonts.inter(fontSize: 13, color: Colors.blue[900], fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
+                IconButton(icon: const Icon(Icons.close, color: Colors.red, size: 22), onPressed: () => setState(() => _selectedVideo = null)),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildStepTitleDesc() {
+    return StepLayout(
+      title: 'आकर्षक शीर्षक र विवरण',
+      subtitle: 'तपाईंको प्रोपर्टीको बारेमा बताउनुहोस्। (Give it a catchy title and description)',
+      content: [
+        PropertyFormField(label: 'आकर्षक शीर्षक राख्नुहोस् (Title)', hint: 'e.g. Cozy 2-bedroom flat in Sanepa', controller: _titleController, isRequired: true),
+        const SizedBox(height: 32),
         PremiumFeatureCard(
           icon: Icons.auto_awesome_rounded,
-          title: 'आकर्षक विवरण (AI Copywriter)',
+          title: 'आकर्षक विवरण (AI Description)',
           subtitle: 'एकै क्लिकमा राम्रो विवरण लेख्नुहोस्',
           isLoading: _isGeneratingDescription,
           accentColor: AppTheme.brandColor,
@@ -1005,8 +596,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 decoration: InputDecoration(
                   hintText: 'आफ्नो प्रोपर्टीको बारेमा लेख्नुहोस् वा तल क्लिक गर्नुहोस्...',
                   hintStyle: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400]),
-                  filled: true,
-                  fillColor: Colors.grey[50],
+                  filled: true, fillColor: Colors.grey[50],
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.grey[200]!)),
                   enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: Colors.grey[200]!)),
                   focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5)),
@@ -1020,95 +610,104 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     HapticFeedback.mediumImpact();
                     setState(() => _isGeneratingDescription = true);
                     final desc = await _aiService.generateDescription(
-                      title: _titleController.text,
-                      category: _selectedCategory ?? 'Room',
-                      area: _areaController.text,
-                      landmark: _landmarkController.text,
-                      price: _priceController.text,
-                      bedrooms: _bedroomsController.text,
-                      bathrooms: _bathroomsController.text,
-                      floor: _floorController.text,
-                      sqft: _sqftController.text,
-                      isNegotiable: _isNegotiable,
-                      amenities: [..._selectedAmenities, ..._selectedRules],
+                      title: _titleController.text, category: _selectedCategory ?? 'Room', area: _areaController.text, landmark: _landmarkController.text, price: _priceController.text,
+                      bedrooms: _bedroomsController.text, bathrooms: _bathroomsController.text, floor: _floorController.text, sqft: _sqftController.text, isNegotiable: _isNegotiable, amenities: [..._selectedAmenities, ..._selectedRules],
                     );
-                    setState(() {
-                      _descriptionController.text = desc;
-                      _isGeneratingDescription = false;
-                    });
+                    setState(() { _descriptionController.text = desc; _isGeneratingDescription = false; });
                   },
                   icon: const Icon(Icons.flash_on_rounded, size: 18),
-                  label: Text(
-                    'यहाँ क्लिक गर्नुहोस् (Auto Generate)',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 14),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandColor,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
+                  label: Text('AI बाट लेख्नुहोस् (Auto Generate)', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 14)),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.brandColor, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
                 ),
               ),
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildStepPricingRules() {
+    return StepLayout(
+      title: 'भाडा र नियमहरू',
+      subtitle: 'Set your price and house rules.',
+      content: [
+        PropertyFormField(label: 'मासिक भाडा (Monthly Rent)', hint: 'उदा: ५०००', controller: _priceController, keyboardType: TextInputType.number),
+        const SizedBox(height: 16),
+        PropertyFormField(label: 'प्रति रात भाडा (Price Per Night)', hint: 'उदा: ८०० (Optional)', controller: _priceNightController, keyboardType: TextInputType.number),
         const SizedBox(height: 24),
-        GestureDetector(
-          onTap: _pickImages,
-          child: _buildMediaUploadBox(icon: Icons.add_a_photo_outlined, title: 'Add Photos', desc: 'Adding 3 or more photos increases your chances of a quick rental.', isBlue: false),
-        ),
-        if (_selectedImages.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 100,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _selectedImages.length,
-              itemBuilder: (context, index) {
-                return Container(
-                  margin: const EdgeInsets.only(right: 12),
-                  width: 100,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), image: DecorationImage(image: FileImage(_selectedImages[index]), fit: BoxFit.cover)),
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: GestureDetector(
-                      onTap: () => setState(() => _selectedImages.removeAt(index)),
-                      child: Container(margin: const EdgeInsets.all(4), padding: const EdgeInsets.all(2), decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle), child: const Icon(Icons.close, color: Colors.white, size: 16)),
+        StatefulBuilder(
+          builder: (context, setInternalState) {
+            return GestureDetector(
+              onTap: () { HapticFeedback.mediumImpact(); setState(() => _isNegotiable = !_isNegotiable); },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(color: _isNegotiable ? AppTheme.brandColor.withOpacity(0.04) : Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: _isNegotiable ? AppTheme.brandColor : Colors.grey.shade200, width: _isNegotiable ? 2.5 : 1.5)),
+                child: Row(
+                  children: [
+                    Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: _isNegotiable ? AppTheme.brandColor : Colors.grey.shade100, shape: BoxShape.circle), child: Icon(Icons.handshake_rounded, color: _isNegotiable ? Colors.white : Colors.grey[400], size: 22)),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text('भाडा मिलाउन सकिने', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 17, color: const Color(0xFF111827))),
+                        Text('Price is Negotiable', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey[600])),
+                      ]),
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-        const SizedBox(height: 20),
-        GestureDetector(
-          onTap: _pickVideo,
-          child: _buildMediaUploadBox(
-            icon: Icons.videocam_outlined,
-            title: _selectedVideo != null ? 'Video Selected ✓' : 'Upload Reel',
-            desc: _selectedVideo != null ? 'Tap to change video' : 'Videos attract 3x more tenants!',
-            isBlue: true,
-            hasFile: _selectedVideo != null,
+                    Switch.adaptive(value: _isNegotiable, onChanged: (v) { HapticFeedback.mediumImpact(); setState(() => _isNegotiable = v); }, activeColor: AppTheme.brandColor),
+                  ],
+                ),
+              ),
+            );
+          }
+        ),
+        const SizedBox(height: 40),
+        Text('घरका नियमहरू (House Rules)', style: GoogleFonts.mukta(fontSize: 18, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 16),
+        AmenitiesGrid(
+          selectedItems: _selectedRules,
+          icons: const { 'family_only': Icons.family_restroom_rounded, 'boys_allowed': Icons.man_rounded, 'girls_allowed': Icons.woman_rounded, 'pets_allowed': Icons.pets_rounded, 'smoking_allowed': Icons.smoke_free_rounded, 'alcohol_allowed': Icons.local_bar_rounded },
+          labels: const { 'family_only': 'परिवार मात्र', 'boys_allowed': 'केटा मात्र', 'girls_allowed': 'केटी मात्र', 'pets_allowed': 'जनावर राख्न पाईने', 'smoking_allowed': 'चुरोट पिउन पाईने', 'alcohol_allowed': 'मदिरा पिउन पाईने' },
+          onToggle: _toggleRule,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStepPayout() {
+    return StepLayout(
+      title: 'तपाईं कसरी पैसा लिन चाहनुहुन्छ?',
+      subtitle: 'Choose how you want to receive payments from bookings. (Payout Method)',
+      content: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(color: Colors.blue.withOpacity(0.08), borderRadius: BorderRadius.circular(16)),
+          child: Row(
+            children: [
+              const Icon(Icons.account_balance_wallet_rounded, color: Colors.blue),
+              const SizedBox(width: 12),
+              Expanded(child: Text('अतिथिले बुकिङ गर्दा, तपाईंको पैसा सिधै यो खातामा आउनेछ। (Booking payouts will go to this account automatically)', style: GoogleFonts.mukta(fontSize: 14, height: 1.4, color: Colors.blue[900], fontWeight: FontWeight.w600))),
+            ],
           ),
         ),
-        if (_selectedVideo != null) ...[
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-            child: Row(
-              children: [
-                const Icon(Icons.video_file, color: Colors.blue),
-                const SizedBox(width: 12),
-                Expanded(child: Text('Video: ${_selectedVideo!.path.split('/').last}', style: GoogleFonts.inter(fontSize: 12, color: Colors.blue[900]), overflow: TextOverflow.ellipsis)),
-                IconButton(icon: const Icon(Icons.close, color: Colors.red, size: 20), onPressed: () => setState(() => _selectedVideo = null)),
-              ],
-            ),
-          ),
-        ],
+        const SizedBox(height: 32),
+        Row(
+          children: [
+            _buildPayoutTypeSelector('eSewa', 'esewa', Icons.account_balance_wallet, const Color(0xFF60BB46)),
+            const SizedBox(width: 16),
+            _buildPayoutTypeSelector('Khalti', 'khalti', Icons.account_balance_wallet, Colors.purple),
+            const SizedBox(width: 16),
+            _buildPayoutTypeSelector('Bank', 'bank', Icons.account_balance, Colors.blueGrey),
+          ],
+        ),
+        const SizedBox(height: 32),
+        PropertyFormField(
+          label: _selectedPayoutMethod == 'bank' ? 'बैंक खाता नम्बर (Bank Account No.)' : 'खाताको नम्बर (${_selectedPayoutMethod.toUpperCase()} ID)',
+          hint: _selectedPayoutMethod == 'bank' ? 'Account Number' : 'e.g. 98XXXXXXXX',
+          controller: _payoutAccountController,
+          isRequired: true,
+          keyboardType: TextInputType.text,
+        ),
         const SizedBox(height: 40),
         Container(
           padding: const EdgeInsets.all(16),
@@ -1117,11 +716,36 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             children: [
               const Icon(Icons.verified_outlined, color: Colors.green),
               const SizedBox(width: 12),
-              Expanded(child: Text('Your listing will be published after our team verifies it.', style: GoogleFonts.inter(color: Colors.green[800], fontSize: 14, height: 1.4, fontWeight: FontWeight.w600))),
+              Expanded(child: Text('सबै जानकारी सुरक्षित छ। तपाईंको विज्ञापन प्रमाणित भएपछि मात्र सार्वजनिक हुनेछ। (Your listing is secure and will be published after verification.)', style: GoogleFonts.mukta(color: Colors.green[800], fontSize: 14, height: 1.4, fontWeight: FontWeight.w600))),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildPayoutTypeSelector(String title, String type, IconData icon, Color color) {
+    bool isSelected = _selectedPayoutMethod == type;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () { HapticFeedback.lightImpact(); setState(() => _selectedPayoutMethod = type); },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withOpacity(0.1) : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: isSelected ? color : Colors.grey[300]!, width: isSelected ? 2 : 1),
+          ),
+          child: Column(
+            children: [
+              Icon(icon, color: isSelected ? color : Colors.grey[500]),
+              const SizedBox(height: 8),
+              Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: isSelected ? color : Colors.grey[600])),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -1131,65 +755,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       duration: const Duration(milliseconds: 300),
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
-      decoration: BoxDecoration(
-        color: hasFile ? activeColor.withOpacity(0.04) : const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(
-          color: hasFile ? activeColor : const Color(0xFFE5E7EB),
-          width: hasFile ? 2.5 : 1.5,
-        ),
-        boxShadow: hasFile ? [
-          BoxShadow(
-            color: activeColor.withOpacity(0.12),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          )
-        ] : [],
-      ),
+      decoration: BoxDecoration(color: hasFile ? activeColor.withOpacity(0.04) : const Color(0xFFF9FAFB), borderRadius: BorderRadius.circular(28), border: Border.all(color: hasFile ? activeColor : const Color(0xFFE5E7EB), width: hasFile ? 2.5 : 1.5)),
       child: Column(
         children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: hasFile ? activeColor : Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: (hasFile ? activeColor : Colors.black).withOpacity(0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                )
-              ],
-            ),
-            child: Icon(
-              hasFile ? Icons.check_rounded : icon,
-              color: hasFile ? Colors.white : Colors.grey[400],
-              size: 34,
-            ),
-          ),
+          AnimatedContainer(duration: const Duration(milliseconds: 300), padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: hasFile ? activeColor : Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: (hasFile ? activeColor : Colors.black).withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 6))]), child: Icon(hasFile ? Icons.check_rounded : icon, color: hasFile ? Colors.white : Colors.grey[400], size: 34)),
           const SizedBox(height: 24),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.mukta(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: const Color(0xFF111827),
-              letterSpacing: -0.2,
-            ),
-          ),
+          Text(title, textAlign: TextAlign.center, style: GoogleFonts.mukta(fontSize: 18, fontWeight: FontWeight.w800, color: const Color(0xFF111827))),
           const SizedBox(height: 8),
-          Text(
-            desc,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.mukta(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
-              height: 1.4,
-            ),
-          ),
+          Text(desc, textAlign: TextAlign.center, style: GoogleFonts.mukta(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey[600], height: 1.4)),
         ],
       ),
     );
@@ -1206,31 +779,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               Expanded(
                 flex: 1,
                 child: OutlinedButton(
-                  onPressed: () {
-                    _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                    setState(() => _currentStep--);
-                  },
+                  onPressed: () { _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut); setState(() => _currentStep--); },
                   style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 20), side: BorderSide(color: Colors.grey.shade300, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-                  child: Text('Back', style: GoogleFonts.inter(color: const Color(0xFF4B5563), fontSize: 16, fontWeight: FontWeight.w700)),
+                  child: Text('पछाडि', style: GoogleFonts.mukta(color: const Color(0xFF4B5563), fontSize: 17, fontWeight: FontWeight.w700)),
                 ),
               ),
             if (_currentStep > 0) const SizedBox(width: 16),
             Expanded(
               flex: 2,
               child: ElevatedButton(
-                onPressed: _currentStep == 5 ? (_isPublishing ? null : _publishProperty) : () {
-                  HapticFeedback.lightImpact();
-                  _nextStep();
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 22),
-                  backgroundColor: _currentStep == 5 ? Colors.green : AppTheme.brandColor,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-                child: _isPublishing
-                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                    : Text(_currentStep == 5 ? 'Publish Listing' : 'Next Step', textAlign: TextAlign.center, style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 17, color: Colors.white)),
+                onPressed: _currentStep == (_totalSteps - 1) ? (_isPublishing ? null : _nextStep) : () { HapticFeedback.lightImpact(); _nextStep(); },
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 20), backgroundColor: _currentStep == (_totalSteps - 1) ? Colors.green : AppTheme.brandColor, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                child: _isPublishing ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3)) : Text(_currentStep == (_totalSteps - 1) ? 'प्रकाशित गर्नुहोस् (Publish)' : 'अर्को चरण (Next)', textAlign: TextAlign.center, style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 18, color: Colors.white)),
               ),
             ),
           ],

@@ -68,7 +68,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'भुक्तानीको प्रकार (Payment)',
+          'भुक्तानीको माध्यम (Payment)',
           style: GoogleFonts.mukta(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 18),
         ),
       ),
@@ -85,23 +85,24 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 32),
-                  _buildSectionTitle('भुक्तानी विधि छान्नुहोस्', 'Select how you want to pay'),
+                  _buildSectionTitle('भुक्तानीको माध्यम छान्नुहोस्', 'Select how you want to pay'),
                   const SizedBox(height: 20),
                   
                   // Option 1: Direct to Owner
                   _buildChoiceCard(
                     id: 'direct',
-                    title: 'घरबेटीलाई सिधै तिर्ने',
+                    title: 'घरधनीलाई सिधै भुक्तानी',
                     englishTitle: 'Pay Owner Direct',
                     subtitle: 'छिटो र सजिलो (Fast & Simple)',
-                    description: 'तपाईंले घरबेटीको eSewa नम्बरमा सिधै पैसा पठाउनुहुन्छ। खोज्नाले यसको जिम्मेवारी लिने छैन।',
+                    description: 'तपाईंले घरधनीलाई सिधै eSewa मार्फत रकम पठाउन सक्नुहुन्छ। यसको कुनै पनि जिम्मेवारी खोज्नले लिने छैन।',
                     fee: '५% सेवा शुल्क (5% Fee)',
                     esewa: _ownerEsewa ?? 'Not provided',
                     qrUrl: _ownerQr,
-                    icon: Icons.flash_on_rounded,
-                    color: Colors.orange,
+                    icon: Icons.account_balance_wallet_rounded,
+                    color: const Color(0xFF60BB46), // eSewa green
                     isRecommended: false,
                     protection: false,
+                    isEsewa: true,
                   ),
                   
                   const SizedBox(height: 16),
@@ -109,10 +110,10 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   // Option 2: Pay Khozna (Recommended)
                   _buildChoiceCard(
                     id: 'khozna',
-                    title: 'खोज्नालाई तिर्ने',
-                    englishTitle: 'Pay Khozna',
+                    title: 'खोज्न मार्फत भुक्तानी',
+                    englishTitle: 'Pay via Khozna',
                     subtitle: 'सुरक्षित र भरपर्दो (Recommended)',
-                    description: 'तपाईंको पैसा खोज्नाको खातामा सुरक्षित रहन्छ। केहि समस्या भएमा पूर्ण फिर्ता पाइनेछ।',
+                    description: 'तपाईंको रकम खोज्नसँग सुरक्षित रहनेछ। कुनै समस्या आएमा रकम फिर्ता (Refund) हुने सुनिश्चितता छ।',
                     fee: '१०% सेवा शुल्क (10% Fee)',
                     esewa: '9800000000', // Khozna's main number
                     qrUrl: null, // We can add Khozna's QR here
@@ -198,6 +199,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     required Color color,
     required bool isRecommended,
     required bool protection,
+    bool isEsewa = false,
   }) {
     final isSelected = _selectedType == id;
 
@@ -231,7 +233,14 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
-                      child: Icon(icon, color: color, size: 20),
+                      child: isEsewa 
+                          ? Image.network(
+                              'https://esewa.com.np/common/images/esewa_logo.png',
+                              height: 20,
+                              width: 20,
+                              errorBuilder: (context, error, stackTrace) => Icon(icon, color: color, size: 20),
+                            )
+                          : Icon(icon, color: color, size: 20),
                     ),
                     const SizedBox(width: 12),
                     Column(
@@ -351,10 +360,10 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('खोज्ना किन रोज्ने?', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 15)),
+                Text('खोज्न मार्फत भुक्तानी किन गर्ने?', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 15)),
                 const SizedBox(height: 4),
                 Text(
-                  'खोज्नाबाट पैसा तिर्दा तपाईंको पैसा सुरक्षित रहन्छ। यदि घरबेटीले बुकिङ रद्द गरेमा वा कोठा खराब भएमा, हामी तपाईंको पैसा तुरुन्त फिर्ता गर्छौं।',
+                  'खोज्न मार्फत भुक्तानी गर्दा तपाईंको रकम सुरक्षित रहन्छ। यदि घरधनीले बुकिङ रद्द गरेमा वा सम्झौता अनुसार नभएमा, तपाईंले आफ्नो रकम सजिलै फिर्ता पाउनुहुनेछ।',
                   style: GoogleFonts.mukta(color: Colors.grey[700], fontSize: 13, height: 1.5),
                 ),
               ],
@@ -406,7 +415,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 ),
                 child: _isSubmitting
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Text('अगाडी बढ्नुहोस्', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 16)),
+                    : Text('भुक्तानी गर्नुहोस्', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 16)),
               ),
             ],
           ),

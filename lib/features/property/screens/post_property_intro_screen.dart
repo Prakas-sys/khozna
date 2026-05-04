@@ -34,7 +34,7 @@ class PostPropertyIntroScreen extends StatelessWidget {
                       const SizedBox(height: 8),
                       // Header
                       Text(
-                        'Khozna मा सम्पत्ति\nराख्न सजिलो छ',
+                        'Khozna मा सम्पत्ति\nराख्न एकदम सजिलो छ',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 28,
                           fontWeight: FontWeight.w900,
@@ -44,63 +44,39 @@ class PostPropertyIntroScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        '६ सजिलो चरणमा तपाईंको सम्पत्ति राख्नुहोस्',
+                        '३ मुख्य चरणहरूमा तपाईंको प्रोपर्टी प्रकाशित गर्नुहोस्',
                         style: GoogleFonts.mukta(
-                          fontSize: 15,
-                          color: Colors.grey[500],
-                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 40),
 
                       _buildStep(
                         stepNumber: '1',
-                        title: 'प्रकार र शीर्षक',
-                        subtitle: 'Type & Title',
-                        icon: Icons.home_rounded,
+                        title: 'तपाईंको ठाउँको बारेमा बताउनुहोस्',
+                        subtitle: 'Tell us about your place (Category, Location, Basics)',
+                        icon: Icons.maps_home_work_rounded,
                         color: AppTheme.brandColor,
                       ),
                       _buildConnector(),
                       _buildStep(
                         stepNumber: '2',
-                        title: 'ठाउँ / लोकेशन',
-                        subtitle: 'Location & GPS',
-                        icon: Icons.location_on_rounded,
-                        color: Colors.blue,
+                        title: 'आकर्षक बनाउनुहोस्',
+                        subtitle: 'Make it stand out (Photos, Video, Amenities, AI Desc)',
+                        icon: Icons.auto_awesome_rounded,
+                        color: Colors.pink,
                       ),
                       _buildConnector(),
                       _buildStep(
                         stepNumber: '3',
-                        title: 'भाडा र विवरण',
-                        subtitle: 'Price & Details',
-                        icon: Icons.currency_rupee_rounded,
-                        color: Colors.green,
-                      ),
-                      _buildConnector(),
-                      _buildStep(
-                        stepNumber: '4',
-                        title: 'सुविधाहरू',
-                        subtitle: 'Amenities',
-                        icon: Icons.wifi_rounded,
+                        title: 'अन्तिम तयारी र प्रकाशन',
+                        subtitle: 'Finish up (Pricing, House Rules, Payout & Publish)',
+                        icon: Icons.rocket_launch_rounded,
                         color: Colors.orange,
                       ),
-                      _buildConnector(),
-                      _buildStep(
-                        stepNumber: '5',
-                        title: 'नियमहरू',
-                        subtitle: 'House Rules',
-                        icon: Icons.rule_rounded,
-                        color: Colors.purple,
-                      ),
-                      _buildConnector(),
-                      _buildStep(
-                        stepNumber: '6',
-                        title: 'फोटो र प्रकाशित',
-                        subtitle: 'Photos & Publish',
-                        icon: Icons.camera_alt_rounded,
-                        color: Colors.teal,
-                      ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 40),
                     ],
                   ),
                 ),
@@ -109,7 +85,7 @@ class PostPropertyIntroScreen extends StatelessWidget {
               // CTA Button — pinned at bottom
               SizedBox(
                 width: double.infinity,
-                height: 62,
+                height: 54,
                 child: ElevatedButton(
                   onPressed: () {
                     HapticFeedback.mediumImpact();
@@ -125,17 +101,17 @@ class PostPropertyIntroScreen extends StatelessWidget {
                     foregroundColor: Colors.white,
                     elevation: 4,
                     shadowColor: AppTheme.brandColor.withOpacity(0.4),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   child: Text(
                     'सुरु गर्नुहोस्',
                     style: GoogleFonts.mukta(
-                      fontSize: 22,
+                      fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      height: 1.4,
+                      height: 1.2,
                     ),
                   ),
                 ),
