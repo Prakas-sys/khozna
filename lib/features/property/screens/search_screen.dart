@@ -503,7 +503,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  '₹${(double.tryParse(p.price) ?? 0) > 999 ? '${((double.tryParse(p.price) ?? 0) / 1000).toStringAsFixed(0)}K' : (double.tryParse(p.price)?.toInt().toString() ?? p.price)}',
+                                                  '₹${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}${p.priceNight > 0 ? '/n' : ''}',
                                                   style:
                                                       GoogleFonts.plusJakartaSans(
                                                         color: Colors.black,

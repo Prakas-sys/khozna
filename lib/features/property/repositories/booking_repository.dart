@@ -3,12 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/core/models/booking_model.dart';
+import 'package:khozna/core/models/payment_model.dart';
 import 'package:khozna/core/security/security_utils.dart';
 
 class BookingRepository {
   static final _client = Supabase.instance.client;
 
-  /// Initial Load for Master Memory: Fetch all IDs the user has booked/pending.
+  /// Initial Load: Fetch all IDs the user has booked/pending.
   static Future<void> fetchBookedPropertyIds() async {
     final user = _client.auth.currentUser;
     if (user == null) return;
@@ -18,190 +19,195 @@ class BookingRepository {
           .from('bookings')
           .select('property_id')
           .eq('guest_id', user.id)
-          .inFilter('status', ['pending', 'confirmed']);
+          .inFilter('status', ['pending_approval', 'awaiting_payment', 'paid', 'confirmed']);
 
-      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
-        response,
-      );
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
       final set = data.map((e) => e['property_id'].toString()).toSet();
       bookedPropertiesStore.value = set;
-      debugPrint(
-        '--- [DATABASE] Master Memory Loaded: ${set.length} booked houses ---',
-      );
     } catch (e) {
       debugPrint('Error fetching booked IDs: $e');
     }
   }
 
-  /// Create a formal booking request
-  static Future<void> createBookingRequest({
+  /// 1. Create a formal booking request (Guest -> Owner)
+  static Future<String> createBookingRequest({
     required String propertyId,
-    required String propertyTitle,
     required String ownerId,
-    required DateTime moveInDate,
-    required int durationMonths,
-    required int guestCount,
-    required String purpose,
-    required String message,
+    required DateTime checkIn,
+    required DateTime checkOut,
+    required double totalPrice,
+    String? message,
   }) async {
     final user = _client.auth.currentUser;
-    if (user == null) return;
+    if (user == null) throw Exception('User not logged in');
 
     try {
-      // 🔐 Sanitize inputs to prevent injection attacks
-      final cleanPurpose = SecurityUtils.sanitizeInput(purpose);
-      final cleanMessage = SecurityUtils.sanitizeInput(message, maxLength: 1000);
+      final cleanMessage = message != null ? SecurityUtils.sanitizeInput(message, maxLength: 500) : '';
 
-      await _client.from('bookings').insert({
+      final response = await _client.from('bookings').insert({
         'property_id': propertyId,
         'guest_id': user.id,
         'owner_id': ownerId,
-        'property_title': propertyTitle,
-        'move_in_date': moveInDate.toIso8601String(),
-        'duration_months': durationMonths,
-        'guests_count': guestCount,
-        'purpose': cleanPurpose,
-        'message': cleanMessage,
-        'status': 'pending',
-      });
+        'check_in': checkIn.toIso8601String(),
+        'check_out': checkOut.toIso8601String(),
+        'total_price': totalPrice,
+        'status': 'pending_approval',
+      }).select().single();
 
-      final currentBooked = Set<String>.from(bookedPropertiesStore.value);
-      currentBooked.add(propertyId);
-      bookedPropertiesStore.value = currentBooked;
+      final bookingId = response['id'];
 
-      await _client
-          .from('properties')
-          .update({'status': 'pending_approval'})
-          .eq('id', propertyId);
-
+      // Notify owner
       final String name = user.userMetadata?['full_name'] ?? 'A user';
       await _client.from('notifications').insert({
         'user_id': ownerId,
         'sender_id': user.id,
         'title': '🏠 नयाँ बुकिङ अनुरोध (New Booking Request)',
-        'message': '$name ले "$propertyTitle" भाडामा लिन चाहनुहुन्छ।\nबसाइँ सर्ने मिति: ${moveInDate.day}/${moveInDate.month}',
-        'type': 'booking_request',
+        'message': '$name ले तपाइँको प्रोपर्टी बुक गर्न अनुरोध गर्नुभएको छ।',
+        'type': 'booking_alert',
         'property_id': propertyId,
-        'requester_id': user.id,
       });
 
-      if (message.trim().isNotEmpty) {
-        try {
-          final chatId = await ChatRepository.getOrCreateChat(ownerId);
-          await ChatRepository.sendMessage(chatId, '🏠 Booking Request for "$propertyTitle":\n\n$message');
-        } catch (chatError) {
-          debugPrint('Failed to send booking chat message: $chatError');
-        }
+      if (cleanMessage.isNotEmpty) {
+        final chatId = await ChatRepository.getOrCreateChat(ownerId);
+        await ChatRepository.sendMessage(chatId, '🏠 Booking Request for Property ID: $propertyId\nDates: ${checkIn.day}/${checkIn.month} to ${checkOut.day}/${checkOut.month}\n\n$cleanMessage');
       }
+
+      return bookingId;
     } catch (e) {
       debugPrint('Booking Request Error: $e');
       rethrow;
     }
   }
 
-  /// Owner approves a booking request
-  static Future<void> approveBooking({
-    required String propertyId,
-    required String propertyTitle,
-    required String requesterId,
-    required String ownerName,
-    required String notificationId,
-  }) async {
+  /// 2. Owner approves request -> moves to Awaiting Payment
+  static Future<void> approveRequest(String bookingId) async {
     try {
-      await _client
-          .from('properties')
-          .update({'status': 'booked'})
-          .eq('id', propertyId);
+      await _client.from('bookings').update({
+        'status': 'awaiting_payment',
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('id', bookingId);
 
-      await _client
-          .from('bookings')
-          .update({
-            'status': 'confirmed',
-            'confirmed_at': DateTime.now().toUtc().toIso8601String(),
-          })
-          .eq('property_id', propertyId)
-          .eq('guest_id', requesterId)
-          .eq('status', 'pending');
+      // Fetch booking to notify guest
+      final booking = await getBookingById(bookingId);
+      if (booking != null) {
+        await _client.from('notifications').insert({
+          'user_id': booking.guest_id,
+          'sender_id': _client.auth.currentUser?.id,
+          'title': '✅ बुकिङ स्वीकृत (Request Approved!)',
+          'message': 'तपाइँको बुकिङ अनुरोध स्वीकृत भएको छ। कृपया भुक्तानी विधि छनौट गरि अगाडि बढ्नुहोस्।',
+          'type': 'booking_alert',
+          'property_id': booking.propertyId,
+        });
+      }
+    } catch (e) {
+      debugPrint('Approve request error: $e');
+      rethrow;
+    }
+  }
 
-      await _client.from('notifications').insert({
-        'user_id': requesterId,
-        'sender_id': _client.auth.currentUser?.id,
-        'title': '✅ बुकिङ स्वीकृत (Booking Approved!)',
-        'message': '$ownerName ले "$propertyTitle" को लागि तपाईंको बुकिङ स्वीकृत गर्नुभयो। सम्पर्क गरी बसाइँ सर्ने सल्लाह गर्नुहोस्।',
-        'type': 'booking_approved',
-        'property_id': propertyId,
+  static Future<void> rejectRequest(String bookingId) async {
+    try {
+      await _client.from('bookings').update({
+        'status': 'rejected',
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('id', bookingId);
+
+      final booking = await getBookingById(bookingId);
+      if (booking != null) {
+        await _client.from('notifications').insert({
+          'user_id': booking.guest_id,
+          'sender_id': _client.auth.currentUser?.id,
+          'title': '❌ बुकिङ अस्वीकृत (Request Rejected)',
+          'message': 'तपाइँको बुकिङ अनुरोध अस्वीकृत भएको छ।',
+          'type': 'booking_alert',
+          'property_id': booking.propertyId,
+        });
+      }
+    } catch (e) {
+      debugPrint('Reject request error: $e');
+      rethrow;
+    }
+  }
+
+  /// 3. Guest submits payment (Direct or Khozna)
+  static Future<void> submitPayment({
+    required String bookingId,
+    required String paymentType, // 'direct' or 'khozna'
+    required String method, // 'esewa', 'khalti' etc.
+    required double amount,
+    String? referenceId,
+    String? proofImageUrl,
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      // Update booking with payment type and fee
+      final double fee = paymentType == 'khozna' ? (amount * 0.10) : (amount * 0.05);
+
+      await _client.from('bookings').update({
+        'payment_type': paymentType,
+        'khozna_fee': fee,
+        'status': 'paid',
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('id', bookingId);
+
+      // Create payment record
+      await _client.from('payments').insert({
+        'booking_id': bookingId,
+        'payer_id': user.id,
+        'amount': amount,
+        'payment_method': method,
+        'reference_id': referenceId,
+        'proof_image_url': proofImageUrl,
+        'status': 'pending',
       });
 
-      await _client.from('notifications').delete().eq('id', notificationId);
+      // Notify owner/admin
+      // ... logic for notification
     } catch (e) {
-      debugPrint('Approve booking error: $e');
+      debugPrint('Submit payment error: $e');
       rethrow;
     }
   }
 
-  /// Owner rejects a booking request
-  static Future<void> rejectBooking({
-    required String propertyId,
-    required String propertyTitle,
-    required String requesterId,
-    required String notificationId,
-    String? reason,
-  }) async {
+  /// 4. Owner/Admin confirms payment -> moves to Confirmed
+  static Future<void> confirmPayment(String bookingId) async {
     try {
-      await _client
-          .from('properties')
-          .update({'status': 'available'})
-          .eq('id', propertyId);
+      await _client.from('bookings').update({
+        'status': 'confirmed',
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('id', bookingId);
 
-      final cleanReason = reason != null ? SecurityUtils.sanitizeInput(reason) : 'Owner declined the request.';
-
-      await _client
-          .from('bookings')
-          .update({
-            'status': 'rejected',
-            'reject_reason': cleanReason,
-          })
-          .eq('property_id', propertyId)
-          .eq('guest_id', requesterId)
-          .eq('status', 'pending');
-
-      await _client.from('notifications').insert({
-        'user_id': requesterId,
-        'sender_id': _client.auth.currentUser?.id,
-        'title': '❌ बुकिङ अस्वीकृत (Booking Not Accepted)',
-        'message': '"$propertyTitle" को लागि तपाईंको बुकिङ अनुरोध स्वीकृत हुन सकेन। ${reason ?? ""}',
-        'type': 'booking_rejected',
-        'property_id': propertyId,
-      });
-
-      await _client.from('notifications').delete().eq('id', notificationId);
+      await _client.from('payments').update({
+        'status': 'verified',
+      }).eq('booking_id', bookingId);
+      
+      // Trigger in DB will automatically block dates in property_availability
     } catch (e) {
-      debugPrint('Reject booking error: $e');
+      debugPrint('Confirm payment error: $e');
       rethrow;
     }
   }
 
-  /// Cancel a booking
-  static Future<void> cancelBooking(String propertyId) async {
-    try {
-      await _client
-          .from('properties')
-          .update({'status': 'available'})
-          .eq('id', propertyId);
-    } catch (e) {
-      debugPrint('Supabase Cancel Booking Error: $e');
-      rethrow;
-    }
-  }
-
-  /// Get a single booking by ID
   static Future<BookingModel?> getBookingById(String bookingId) async {
-    final response = await _client.from('bookings').select().eq('id', bookingId).maybeSingle();
+    final response = await _client
+        .from('bookings')
+        .select('*, properties(title)')
+        .eq('id', bookingId)
+        .maybeSingle();
+    
     if (response == null) return null;
-    return BookingModel.fromMap(response);
+    
+    // Add property title to the model if it exists
+    final Map<String, dynamic> data = Map<String, dynamic>.from(response);
+    if (data['properties'] != null) {
+      data['property_title'] = data['properties']['title'];
+    }
+    
+    return BookingModel.fromMap(data);
   }
 
-  /// Get all bookings for guest
   static Future<List<BookingModel>> getMyBookings() async {
     final user = _client.auth.currentUser;
     if (user == null) return [];
@@ -209,11 +215,14 @@ class BookingRepository {
     return (response as List).map((e) => BookingModel.fromMap(e)).toList();
   }
 
-  /// Get all booking requests for owner
-  static Future<List<BookingModel>> getBookingRequestsForOwner() async {
+  static Future<List<Map<String, dynamic>>> getOwnerBookings() async {
     final user = _client.auth.currentUser;
     if (user == null) return [];
-    final response = await _client.from('bookings').select().eq('owner_id', user.id).eq('status', 'pending').order('created_at', ascending: false);
-    return (response as List).map((e) => BookingModel.fromMap(e)).toList();
+    final response = await _client
+        .from('bookings')
+        .select('*, properties(title, area_name), guest:profiles!bookings_guest_id_fkey(full_name, avatar_url)')
+        .eq('owner_id', user.id)
+        .order('created_at', ascending: false);
+    return List<Map<String, dynamic>>.from(response);
   }
 }

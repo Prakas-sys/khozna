@@ -184,6 +184,8 @@ class PropertyRepository {
     double? latitude,
     double? longitude,
     File? videoFile,
+    double priceNight = 0,
+    double priceMonth = 0,
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) throw 'User not authenticated';
@@ -258,6 +260,8 @@ class PropertyRepository {
       'nearby_landmarks': nearbyLandmarks,
       'is_premium': autoPremium,
       'is_student_friendly': autoStudent,
+      'price_night': priceNight,
+      'price_month': priceMonth > 0 ? priceMonth : price,
     }).select('id').single();
 
     final String propertyId = response['id'];

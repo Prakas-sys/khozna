@@ -22,6 +22,7 @@ import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/profile/widgets/profile_widgets.dart';
+import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -287,6 +288,21 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         );
                       },
                     ),
+                    if (_isOwner)
+                      ProfileMenuItem(
+                        icon: Icons.dashboard_customize_outlined,
+                        title: 'Booking Requests',
+                        subtitle: 'Approve or manage bookings',
+                        onTap: () {
+                          if (!AuthGuard.checkAuth(context)) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const OwnerBookingsScreen(),
+                            ),
+                          );
+                        },
+                      ),
                     ProfileMenuItem(
                       icon: Icons.person_outline,
                       title: 'Edit Profile',

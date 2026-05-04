@@ -16,6 +16,7 @@ class EditPropertyScreen extends StatefulWidget {
 class _EditPropertyScreenState extends State<EditPropertyScreen> {
   late TextEditingController _titleController;
   late TextEditingController _priceController;
+  late TextEditingController _priceNightController;
   late TextEditingController _descriptionController;
   late String _status;
   bool _isLoading = false;
@@ -25,6 +26,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
     super.initState();
     _titleController = TextEditingController(text: widget.property['title']);
     _priceController = TextEditingController(text: widget.property['price'].toString());
+    _priceNightController = TextEditingController(text: (widget.property['price_night'] ?? '0').toString());
     _descriptionController = TextEditingController(text: widget.property['description']);
     _status = widget.property['status'] ?? 'available';
   }
@@ -33,6 +35,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
   void dispose() {
     _titleController.dispose();
     _priceController.dispose();
+    _priceNightController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -54,6 +57,8 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
       await Supabase.instance.client.from('properties').update({
         'title': cleanTitle,
         'price': double.tryParse(_priceController.text) ?? 0.0,
+        'price_night': double.tryParse(_priceNightController.text) ?? 0.0,
+        'price_month': double.tryParse(_priceController.text) ?? 0.0,
         'description': cleanDescription,
         'status': _status,
       }).eq('id', widget.property['id']);
@@ -101,6 +106,10 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                   
                   _buildLabel('Price (Rent/Month)'),
                   _buildTextField(_priceController, 'Price', isNumber: true),
+                  const SizedBox(height: 20),
+                  
+                  _buildLabel('Price (Per Night)'),
+                  _buildTextField(_priceNightController, 'Nightly Price', isNumber: true),
                   const SizedBox(height: 20),
                   
                   _buildLabel('Status'),

@@ -8,6 +8,7 @@ import 'package:khozna/features/admin/screens/property_moderation_screen.dart';
 import 'package:khozna/features/admin/screens/kyc_review_screen.dart';
 import 'package:khozna/features/admin/screens/user_reports_screen.dart';
 import 'package:khozna/features/admin/widgets/owner_widgets.dart';
+import 'package:khozna/features/admin/screens/payment_moderation_screen.dart';
 
 class OwnerDashboard extends StatefulWidget {
   const OwnerDashboard({super.key});
@@ -80,6 +81,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                         OwnerStatCard(title: 'Properties', value: stats.totalProperties.toString(), icon: Icons.home_work_outlined, color: Colors.purple, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyModerationScreen())).then((_) => _refreshStats())),
                         OwnerStatCard(title: 'Active Bookings', value: stats.activeBookings.toString(), icon: Icons.calendar_today_outlined, color: Colors.green),
                         OwnerStatCard(title: 'User Reports', value: stats.pendingReports.toString(), icon: Icons.report_problem_outlined, color: Colors.red, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserReportsScreen())).then((_) => _refreshStats())),
+                        OwnerStatCard(title: 'Pending Payments', value: '...', icon: Icons.payments_outlined, color: Colors.amber, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentModerationScreen())).then((_) => _refreshStats())),
                       ],
                     ),
                   const SizedBox(height: 24),
@@ -89,6 +91,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                   OwnerActionItem(title: 'Property Moderation', subtitle: 'Verify or remove listings', icon: Icons.gavel_outlined, color: Colors.redAccent, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PropertyModerationScreen())).then((_) => _refreshStats())),
                   OwnerActionItem(title: 'User Management', subtitle: 'Search or block users', icon: Icons.manage_accounts_outlined, color: Colors.blue, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserManagementScreen()))),
                   OwnerActionItem(title: 'User Reports', subtitle: 'Manage reported users and scams', icon: Icons.report_problem_outlined, color: Colors.red, badge: stats.pendingReports > 0 ? stats.pendingReports.toString() : null, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const UserReportsScreen())).then((_) => _refreshStats())),
+                  OwnerActionItem(title: 'Payment Moderation', subtitle: 'Verify eSewa screenshots & payouts', icon: Icons.account_balance_wallet_outlined, color: Colors.amber, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PaymentModerationScreen())).then((_) => _refreshStats())),
                   const SizedBox(height: 40),
                   Center(child: TextButton.icon(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.exit_to_app, color: Colors.grey), label: Text('Exit Owner Mode', style: GoogleFonts.inter(color: Colors.grey, fontWeight: FontWeight.w600)))),
                 ],

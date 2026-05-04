@@ -34,6 +34,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final TextEditingController _areaController = TextEditingController();
   final TextEditingController _landmarkController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _priceNightController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _bedroomsController = TextEditingController();
   final TextEditingController _bathroomsController = TextEditingController();
@@ -88,6 +89,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     _areaController.dispose();
     _landmarkController.dispose();
     _priceController.dispose();
+    _priceNightController.dispose();
     _descriptionController.dispose();
     _bedroomsController.dispose();
     _bathroomsController.dispose();
@@ -175,6 +177,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         latitude: _latitude,
         longitude: _longitude,
         videoFile: _selectedVideo,
+        priceNight: double.tryParse(_priceNightController.text) ?? 0.0,
+        priceMonth: double.tryParse(_priceController.text) ?? 0.0,
       );
 
       _confettiController.play();
@@ -698,12 +702,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       title: 'भाडा र विवरण',
       subtitle: 'Almost halfway! High precision earns trust.',
       content: [
-        PropertyFormField(
           label: 'महिनाको जम्मा भाडा (Monthly Rent)',
           hint: 'उदा: ५०००',
           controller: _priceController,
           keyboardType: TextInputType.number,
           isRequired: true,
+        ),
+        const SizedBox(height: 16),
+        PropertyFormField(
+          label: 'एक रातको भाडा (Price Per Night)',
+          hint: 'उदा: ८०० (Optional)',
+          controller: _priceNightController,
+          keyboardType: TextInputType.number,
         ),
         const SizedBox(height: 16),
         SingleChildScrollView(

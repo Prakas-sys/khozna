@@ -77,7 +77,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Future<void> _checkUserBookingStatus() async {
     if (widget.property.id.contains('demo') || _currentUserId.isEmpty) return;
     try {
-      final result = await Supabase.instance.client.from('bookings').select('id, status').eq('property_id', widget.property.id).eq('guest_id', _currentUserId).inFilter('status', ['pending', 'confirmed']).limit(1);
+      final result = await Supabase.instance.client.from('bookings').select('id, status').eq('property_id', widget.property.id).eq('guest_id', _currentUserId).inFilter('status', ['pending_approval', 'awaiting_payment', 'paid', 'confirmed']).limit(1);
       if (mounted) setState(() => _userHasPendingBooking = result.isNotEmpty);
     } catch (_) {}
   }
@@ -375,8 +375,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                         Expanded(child: Text(widget.property.title, style: GoogleFonts.plusJakartaSans(fontSize: 26, fontWeight: FontWeight.w900, color: const Color(0xFF1A1A2E), height: 1.1, letterSpacing: -1.0))),
           const SizedBox(width: 16),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.price), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
-            Text('भाडा/महिना', style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w600)),
+            if (widget.property.priceNight > 0) ...[
+              RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.priceNight.toString()), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
+              Text('प्रति रात (Per Night)', style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w600)),
+            ] else ...[
+              RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.price), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
+              Text('भाडा/महिना (Per Month)', style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w600)),
+            ],
           ]),
         ]),
         const SizedBox(height: 8),

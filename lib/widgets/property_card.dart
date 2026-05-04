@@ -293,7 +293,7 @@ class PropertyCard extends StatelessWidget {
                                 ),
                               ),
                               TextSpan(
-                                text: PriceFormatter.format(price),
+                                text: PriceFormatter.format(property.priceNight > 0 ? property.priceNight.toString() : price),
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -304,7 +304,7 @@ class PropertyCard extends StatelessWidget {
                                 child: Transform.translate(
                                   offset: const Offset(1, -2.5), // Pixel-perfect alignment
                                   child: Text(
-                                    '/mo',
+                                    property.priceNight > 0 ? '/night' : '/mo',
                                     style: GoogleFonts.inter(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,

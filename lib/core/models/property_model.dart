@@ -24,6 +24,10 @@ class Property {
   final List<String> nearbyLandmarks;
   final bool isStudentFriendly;
   final String videoUrl;
+  final double priceNight;
+  final double priceMonth;
+  final bool isVerified;
+  final String cancellationPolicy;
 
   Property({
     required this.id,
@@ -51,6 +55,10 @@ class Property {
     this.nearbyLandmarks = const [],
     this.isStudentFriendly = false,
     this.videoUrl = '',
+    this.priceNight = 0,
+    this.priceMonth = 0,
+    this.isVerified = false,
+    this.cancellationPolicy = 'standard',
   });
 
   /// First image URL, or a sensible fallback placeholder.
@@ -100,6 +108,10 @@ class Property {
       }).toList() ?? [],
       isStudentFriendly: map['is_student_friendly'] ?? false,
       videoUrl: map['video_url']?.toString() ?? '',
+      priceNight: double.tryParse(map['price_night']?.toString() ?? '0') ?? 0,
+      priceMonth: double.tryParse(map['price_month']?.toString() ?? '0') ?? 0,
+      isVerified: map['is_verified'] ?? false,
+      cancellationPolicy: map['cancellation_policy']?.toString() ?? 'standard',
     );
   }
 }
