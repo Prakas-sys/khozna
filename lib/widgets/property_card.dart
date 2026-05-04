@@ -346,7 +346,7 @@ class PropertyCard extends StatelessWidget {
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 8.3,
+                                  vertical: 7,
                                 ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -403,7 +403,7 @@ class PropertyCard extends StatelessWidget {
                                   width: 1.0,
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 8.3,
+                                  vertical: 7,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
