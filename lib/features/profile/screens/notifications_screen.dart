@@ -5,6 +5,7 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
+import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 import 'package:khozna/widgets/trust_badge.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -147,24 +148,35 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           child: InkWell(
                             onTap: () async {
                               final type = note['type']?.toString() ?? '';
-                              if (type == 'booking_approved' || type == 'booking_rejected') {
-                                final propertyId = note['property_id'];
-                                if (propertyId != null) {
-                                  // Fetch latest booking for this guest and property
-                                  final bookings = await SupabaseService.getMyBookings();
-                                  final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
-                                  
-                                  if (filtered.isNotEmpty && mounted) {
-                                    final booking = filtered.first;
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => BookingStatusScreen(booking: booking),
-                                      ),
-                                    );
+                              if (type == 'booking_approved' || type == 'booking_rejected' || type == 'booking_alert') {
+                                  final propertyId = note['property_id'];
+                                  if (propertyId != null) {
+                                    // If it's a booking_alert, it might be for the owner
+                                    // Check if the current user is likely the owner (or just try fetching)
+                                    final bookings = await SupabaseService.getMyBookings();
+                                    final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
+                                    
+                                    if (filtered.isNotEmpty && mounted) {
+                                      final booking = filtered.first;
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => BookingStatusScreen(booking: booking),
+                                        ),
+                                      );
+                                    } else {
+                                      // Maybe it's an owner notification
+                                      if (mounted) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const OwnerBookingsScreen(),
+                                          ),
+                                        );
+                                      }
+                                    }
                                   }
                                 }
-                              }
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -301,9 +313,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final String requesterId = note['requester_id']?.toString() ?? note['sender_id']?.toString() ?? '';
     // Extract property title from message: "$name wants to rent "$title""  
     final String message = note['message']?.toString() ?? '';
-    final RegExp titleRegex = RegExp(r'wants to rent "(.+)"');
-    final match = titleRegex.firstMatch(message);
-    final String propertyTitle = match?.group(1) ?? 'this property';
+    // Extract property title from message if possible, otherwise use a generic one
+    String propertyTitle = 'तपाइँको प्रोपर्टी (Your Property)';
+    if (message.contains('"')) {
+      final RegExp titleRegex = RegExp(r'"(.+)"');
+      final match = titleRegex.firstMatch(message);
+      if (match != null) propertyTitle = match.group(1)!;
+    }
     bool acting = false;
 
     return StatefulBuilder(
@@ -432,7 +448,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                               },
                               icon: const Icon(Icons.close_rounded, size: 16),
-                              label: Text('Reject', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
+                              label: Text('अस्वीकार (Reject)', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 13)),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: Colors.red,
                                 side: const BorderSide(color: Colors.red, width: 1.5),
@@ -465,7 +481,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                               },
                               icon: const Icon(Icons.check_rounded, size: 16),
-                              label: Text('Approve', style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 12)),
+                              label: Text('स्वीकार (Approve)', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 13)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF22C55E),
                                 foregroundColor: Colors.white,

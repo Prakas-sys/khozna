@@ -61,9 +61,9 @@ class BookingRepository {
       await _client.from('notifications').insert({
         'user_id': ownerId,
         'sender_id': user.id,
-        'title': '🏠 नयाँ बुकिङ अनुरोध (New Booking Request)',
+        'title': '🏠 नयाँ बुकिङ अनुरोध (New Booking Request!)',
         'message': '$name ले तपाइँको प्रोपर्टी बुक गर्न अनुरोध गर्नुभएको छ।',
-        'type': 'booking_alert',
+        'type': 'booking_request',
         'property_id': propertyId,
       });
 
