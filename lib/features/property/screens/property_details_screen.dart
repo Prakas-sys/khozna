@@ -711,12 +711,55 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildBottomActionBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-      decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, -5))]),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Colors.grey.shade200)),
+      ),
       child: SafeArea(
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
+            // Left Side: Price Details
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '₹${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                        ),
+                      ),
+                      TextSpan(
+                        text: widget.property.priceNight > 0 ? 'night' : 'month',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '100% Secure Payment',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.green.shade700,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            
+            // Right Side: Slim Reserve Button
+            SizedBox(
+              height: 48,
               child: ElevatedButton(
                 onPressed: (widget.property.status == 'booked' || _userHasPendingBooking) 
                   ? null 
@@ -734,21 +777,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.brandColor, 
                   foregroundColor: Colors.white, 
-                  padding: const EdgeInsets.symmetric(vertical: 18), 
+                  padding: const EdgeInsets.symmetric(horizontal: 32), 
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
                 ), 
                 child: Text(
                   widget.property.status == 'booked' 
-                    ? 'BOOKED' 
-                    : (_userHasPendingBooking ? 'PENDING APPROVAL' : 'BOOK NOW'),
+                    ? 'Booked' 
+                    : (_userHasPendingBooking ? 'Pending' : 'Reserve'),
                   style: GoogleFonts.inter(
                     fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
+                    fontWeight: FontWeight.w700,
                   ),
                 )
-              )
+              ),
             ),
           ]
         )
