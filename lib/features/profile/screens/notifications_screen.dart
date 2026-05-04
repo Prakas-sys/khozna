@@ -787,6 +787,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       default:
         return Colors.grey;
     }
+  }
+
   /// Payment received notification card
   Widget _buildPaymentReceivedCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
     final String propertyId = note['property_id']?.toString() ?? '';

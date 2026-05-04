@@ -442,39 +442,3 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     }
   }
 }
-ntSize: 16)),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _proceedToPayment() async {
-    setState(() => _isSubmitting = true);
-    try {
-      await BookingRepository.submitPayment(
-        bookingId: widget.booking.id,
-        paymentType: _selectedType!,
-        method: 'esewa',
-        amount: widget.booking.totalPrice,
-      );
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Payment Submitted! Waiting for verification.')),
-        );
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
-  }
-}
