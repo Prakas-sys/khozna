@@ -770,8 +770,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildBottomBar() {
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Colors.grey.shade200, width: 1))),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        decoration: BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1))),
         child: Row(
           children: [
             if (_currentStep > 0)
@@ -779,17 +779,17 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 flex: 1,
                 child: OutlinedButton(
                   onPressed: () { _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut); setState(() => _currentStep--); },
-                  style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 20), side: BorderSide(color: Colors.grey.shade300, width: 2), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-                  child: Text('पछाडि', style: GoogleFonts.mukta(color: const Color(0xFF4B5563), fontSize: 17, fontWeight: FontWeight.w700)),
+                  style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14), side: BorderSide(color: Colors.grey.shade300, width: 1.5), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                  child: Text('Back', style: GoogleFonts.inter(color: const Color(0xFF4B5563), fontSize: 15, fontWeight: FontWeight.w600)),
                 ),
               ),
-            if (_currentStep > 0) const SizedBox(width: 16),
+            if (_currentStep > 0) const SizedBox(width: 12),
             Expanded(
               flex: 2,
               child: ElevatedButton(
                 onPressed: _currentStep == (_totalSteps - 1) ? (_isPublishing ? null : _nextStep) : () { HapticFeedback.lightImpact(); _nextStep(); },
-                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 20), backgroundColor: _currentStep == (_totalSteps - 1) ? Colors.green : AppTheme.brandColor, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-                child: _isPublishing ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3)) : Text(_currentStep == (_totalSteps - 1) ? 'प्रकाशित गर्नुहोस् (Publish)' : 'अर्को चरण (Next)', textAlign: TextAlign.center, style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 18, color: Colors.white)),
+                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14), backgroundColor: _currentStep == (_totalSteps - 1) ? Colors.green : AppTheme.brandColor, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
+                child: _isPublishing ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5)) : Text(_currentStep == (_totalSteps - 1) ? 'Publish' : 'Next', textAlign: TextAlign.center, style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 15, color: Colors.white)),
               ),
             ),
           ],
