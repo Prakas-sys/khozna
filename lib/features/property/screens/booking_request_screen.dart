@@ -43,8 +43,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Request Booking',
-          style: GoogleFonts.sora(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17),
+          'बुकिङ अनुरोध (Request Booking)',
+          style: GoogleFonts.mukta(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 18),
         ),
       ),
       body: SingleChildScrollView(
@@ -55,13 +55,13 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             _buildPropertyHeader(),
             const SizedBox(height: 32),
             _buildDatePicker(
-              label: 'CHECK-IN',
+              label: 'पस्ने मिति (CHECK-IN)',
               date: _checkIn,
               onTap: () => _selectDate(true),
             ),
             const SizedBox(height: 16),
             _buildDatePicker(
-              label: 'CHECK-OUT',
+              label: 'निस्कने मिति (CHECK-OUT)',
               date: _checkOut,
               onTap: () => _selectDate(false),
             ),
@@ -205,12 +205,12 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             elevation: 0,
           ),
-          child: _isSubmitting
-              ? const CircularProgressIndicator(color: Colors.white)
-              : Text(
-                  'SEND BOOKING REQUEST',
-                  style: GoogleFonts.sora(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
+            child: _isSubmitting
+                ? const CircularProgressIndicator(color: Colors.white)
+                : Text(
+                    'अनुरोध पठाउनुहोस् (SEND REQUEST)',
+                    style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 16),
+                  ),
         ),
       ),
     );

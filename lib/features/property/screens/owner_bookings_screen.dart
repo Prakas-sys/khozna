@@ -204,11 +204,11 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                _buildDateInfo('Check-in', checkIn),
+                _buildDateInfo('पस्ने मिति (Check-in)', checkIn),
                 const Spacer(),
                 const Icon(Icons.arrow_forward_rounded, color: Colors.grey, size: 16),
                 const Spacer(),
-                _buildDateInfo('Check-out', checkOut),
+                _buildDateInfo('निस्कने मिति (Check-out)', checkOut),
               ],
             ),
           ),
@@ -259,8 +259,8 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                           elevation: 0,
                         ),
                         child: Text(
-                          'Confirm Payment Received',
-                          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                          'भुक्तानी प्राप्त भयो (Payment Received)',
+                          style: GoogleFonts.mukta(fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -294,23 +294,23 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     switch (status) {
       case 'pending_approval':
         color = Colors.orange;
-        label = 'Pending Approval';
+        label = 'स्वीकृत हुन बाँकी (Pending)';
         break;
       case 'awaiting_payment':
         color = Colors.blue;
-        label = 'Awaiting Payment';
+        label = 'भुक्तानी बाँकी (Awaiting Payment)';
         break;
       case 'paid':
         color = Colors.purple;
-        label = 'Paid (Pending Verification)';
+        label = 'भुक्तानी प्राप्त (Paid)';
         break;
       case 'confirmed':
         color = const Color(0xFF00C853);
-        label = 'Confirmed';
+        label = 'पक्का भयो (Confirmed)';
         break;
       case 'rejected':
         color = Colors.red;
-        label = 'Rejected';
+        label = 'अस्वीकृत (Rejected)';
         break;
       default:
         color = Colors.grey;

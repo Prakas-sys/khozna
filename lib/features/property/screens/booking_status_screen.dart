@@ -58,8 +58,8 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Booking Status',
-          style: GoogleFonts.sora(color: Colors.black, fontWeight: FontWeight.bold),
+          'बुकिङ अवस्था (Booking Status)',
+          style: GoogleFonts.mukta(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 18),
         ),
         actions: [
           IconButton(
@@ -89,31 +89,31 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
   }
 
   Widget _buildStatusHeader() {
-    Color color = Colors.orange;
-    String title = 'Pending Approval';
-    String description = 'Owner is reviewing your request.';
-
     switch (_booking.status) {
       case 'awaiting_payment':
         color = Colors.blue;
-        title = 'Request Accepted!';
-        description = 'Please complete the payment to confirm.';
+        title = 'अनुरोध स्वीकृत (Accepted!)';
+        description = 'कृपया भुक्तानी प्रक्रिया अगाडि बढाउनुहोस्।';
         break;
       case 'paid':
         color = Colors.purple;
-        title = 'Payment Received';
-        description = 'Owner is verifying your payment.';
+        title = 'भुक्तानी प्राप्त (Paid)';
+        description = 'मालिकले तपाइँको भुक्तानी प्रमाणित गर्दै हुनुहुन्छ।';
         break;
       case 'confirmed':
         color = Colors.green;
-        title = 'Booking Confirmed';
-        description = 'Get ready for your stay!';
+        title = 'बुकिङ पक्का (Confirmed)';
+        description = 'तपाइँको बुकिङ पक्का भयो, स्वागत छ!';
         break;
       case 'rejected':
         color = Colors.red;
-        title = 'Request Declined';
-        description = 'The owner could not accept this request.';
+        title = 'अनुरोध अस्वीकृत (Rejected)';
+        description = 'मालिकले यो अनुरोध स्वीकार गर्न सक्नुभएन।';
         break;
+      default:
+        color = Colors.orange;
+        title = 'स्वीकृत हुन बाँकी (Pending)';
+        description = 'मालिकले तपाइँको अनुरोध हेर्दै हुनुहुन्छ।';
     }
 
     return Column(
@@ -159,9 +159,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildTimelineItem('CHECK-IN', _booking.checkIn),
+          _buildTimelineItem('पस्ने मिति (CHECK-IN)', _booking.checkIn),
           const Icon(Icons.arrow_forward_rounded, color: Colors.grey, size: 20),
-          _buildTimelineItem('CHECK-OUT', _booking.checkOut),
+          _buildTimelineItem('निस्कने मिति (CHECK-OUT)', _booking.checkOut),
         ],
       ),
     );
