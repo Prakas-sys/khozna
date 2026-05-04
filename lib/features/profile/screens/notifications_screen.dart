@@ -131,6 +131,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           return _buildPaymentReceivedCard(note, id, index, sender);
                         }
 
+                        // -- SPECIAL: Booking Approved (Guest) card --
+                        if (type == 'booking_alert' && (note['title']?.toString().contains('स्वीकृत') || note['message']?.toString().contains('स्वीकृत'))) {
+                          return _buildBookingApprovedCard(note, id, index, sender);
+                        }
+
                         // -- Standard notification row --
                         return Dismissible(
                           key: Key(id),
@@ -537,6 +542,120 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         );
       },
+    );
+  }
+
+  /// Booking Approved card — shown to the guest
+  Widget _buildBookingApprovedCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
+    final String bookingId = note['booking_id']?.toString() ?? '';
+    final String title = note['title'] ?? 'Booking Approved';
+    final String message = note['message'] ?? '';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.brandColor.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor.withOpacity(0.06),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check_circle_rounded, color: AppTheme.brandColor, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black),
+                      ),
+                      Text(
+                        _formatTime(note['created_at']),
+                        style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[400]),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Body
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              message,
+              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[700], height: 1.5),
+            ),
+          ),
+          // Action button
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  if (bookingId.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Error: Booking ID missing')),
+                    );
+                    return;
+                  }
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Opening payment options...'), duration: Duration(seconds: 1)),
+                  );
+                  
+                  final booking = await SupabaseService.getBookingById(bookingId);
+                  if (booking != null && mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaymentChoiceScreen(
+                          booking: booking,
+                          propertyTitle: booking.propertyTitle ?? 'Your Property',
+                        ),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.payment_rounded, size: 18),
+                label: Text('अहिले भुक्तानी गर्नुहोस् (Pay Now)', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 15)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
