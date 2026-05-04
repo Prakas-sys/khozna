@@ -6,6 +6,7 @@ import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
+import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:khozna/widgets/trust_badge.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -154,10 +155,36 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             onTap: () async {
                               final type = note['type']?.toString() ?? '';
                               if (type == 'booking_approved' || type == 'booking_rejected' || type == 'booking_alert') {
+                                  // 1. Check if it's an "Approved" message for the guest to pay
+                                  final String title = note['title']?.toString() ?? '';
+                                  final String message = note['message']?.toString() ?? '';
+                                  final bool isApproved = title.contains('स्वीकृत') || message.contains('स्वीकृत');
+                                  final String bookingId = note['booking_id']?.toString() ?? '';
+
+                                  if (isApproved && bookingId.isNotEmpty) {
+                                    // Navigate to payment choice screen
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Opening payment options...'), duration: Duration(seconds: 1)),
+                                    );
+                                    
+                                    final booking = await SupabaseService.getBookingById(bookingId);
+                                    if (booking != null && mounted) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => PaymentChoiceScreen(
+                                            booking: booking,
+                                            propertyTitle: booking.propertyTitle ?? 'Your Property',
+                                          ),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                  }
+
+                                  // 2. Fallback to status screen if guest
                                   final propertyId = note['property_id'];
                                   if (propertyId != null) {
-                                    // If it's a booking_alert, it might be for the owner
-                                    // Check if the current user is likely the owner (or just try fetching)
                                     final bookings = await SupabaseService.getMyBookings();
                                     final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
                                     
@@ -170,7 +197,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                         ),
                                       );
                                     } else {
-                                      // Maybe it's an owner notification
+                                      // 3. Maybe it's an owner notification
                                       if (mounted) {
                                         Navigator.push(
                                           context,

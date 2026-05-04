@@ -98,6 +98,7 @@ class BookingRepository {
           'message': 'तपाइँको बुकिङ अनुरोध स्वीकृत भएको छ। कृपया भुक्तानी विधि छनौट गरि अगाडि बढ्नुहोस्।',
           'type': 'booking_alert',
           'property_id': booking.propertyId,
+          'booking_id': bookingId,
         });
       }
     } catch (e) {
@@ -122,6 +123,7 @@ class BookingRepository {
           'message': 'तपाइँको बुकिङ अनुरोध अस्वीकृत भएको छ।',
           'type': 'booking_alert',
           'property_id': booking.propertyId,
+          'booking_id': bookingId,
         });
       }
     } catch (e) {
