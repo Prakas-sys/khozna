@@ -132,7 +132,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         }
 
                         // -- SPECIAL: Booking Approved (Guest) card --
-                        if (type == 'booking_alert' && (note['title']?.toString().contains('स्वीकृत') || note['message']?.toString().contains('स्वीकृत'))) {
+                        final isApproved = (note['title']?.toString().contains('स्वीकृत') == true) || (note['message']?.toString().contains('स्वीकृत') == true);
+                        if (type == 'booking_approved' || (type == 'booking_alert' && isApproved)) {
                           return _buildBookingApprovedCard(note, id, index, sender);
                         }
 
