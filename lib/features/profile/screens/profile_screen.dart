@@ -24,6 +24,7 @@ import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/profile/widgets/profile_widgets.dart';
 import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
+import 'package:khozna/features/admin/screens/owner_dashboard.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isVerified;
@@ -41,6 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
   bool _isOwner = false;
+  bool _isAdmin = false;
   String? _avatarUrl;
   bool _isUploading = false;
   String _kycStatus = 'not_started';
@@ -65,6 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       _avatarUrl = cache['avatar_url'];
       _kycStatus = cache['kyc_status'] ?? 'not_started';
       _isOwner = cache['is_owner'] ?? false;
+      _isAdmin = cache['is_admin'] ?? false;
       _isLoading = false;
     }
     
@@ -82,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       try {
         final profile = await Supabase.instance.client
             .from('profiles')
-            .select('avatar_url, kyc_status, is_owner')
+            .select('avatar_url, kyc_status, is_owner, is_admin')
             .eq('id', user!.id)
             .maybeSingle();
 
@@ -90,6 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           setState(() {
             _avatarUrl = profile['avatar_url'];
             _kycStatus = profile['kyc_status'] ?? 'not_started';
+            _isAdmin = profile['is_admin'] ?? false;
             
             // We also keep owner status if it was already true, or use the db value.
             _isOwner = _isOwner || (profile['is_owner'] ?? false);
@@ -98,6 +102,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               'avatar_url': _avatarUrl,
               'kyc_status': _kycStatus,
               'is_owner': _isOwner,
+              'is_admin': _isAdmin,
             };
           });
         }
@@ -291,14 +296,30 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     if (_isOwner)
                       ProfileMenuItem(
                         icon: Icons.dashboard_customize_outlined,
-                        title: 'Booking Requests',
-                        subtitle: 'Approve or manage bookings',
+                        title: 'Property Manager',
+                        subtitle: 'Approve guests & verify payments',
                         onTap: () {
                           if (!AuthGuard.checkAuth(context)) return;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => const OwnerBookingsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    if (_isAdmin)
+                      ProfileMenuItem(
+                        icon: Icons.admin_panel_settings_outlined,
+                        title: 'Admin Command Center',
+                        subtitle: 'Moderate KYCs, Reports & Payments',
+                        color: Colors.indigo,
+                        onTap: () {
+                          if (!AuthGuard.checkAuth(context)) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const OwnerDashboard(),
                             ),
                           );
                         },
