@@ -269,21 +269,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
                   ProfileMenuSection(title: 'OVERVIEW', items: [
                     ProfileMenuItem(
-                      icon: Icons.workspace_premium_rounded,
-                      title: 'Khozna Premium',
-                      subtitle: 'Upgrade for verified listings',
-                      color: Colors.amber[800],
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const PaymentSelectionScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                    ProfileMenuItem(
                       icon: Icons.book_online_outlined,
                       title: 'My Bookings',
                       subtitle: 'Track your rental requests',

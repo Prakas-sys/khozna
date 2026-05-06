@@ -46,6 +46,12 @@ class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
         child: Column(
           children: [
             const SizedBox(height: 10),
+            Image.asset(
+              'assets/images/original logo.png',
+              height: 80,
+              errorBuilder: (context, error, stackTrace) => const Icon(Icons.workspace_premium_rounded, size: 80, color: AppTheme.brandColor),
+            ),
+            const SizedBox(height: 24),
             Text(
               'Pick Your Right Plan',
               style: GoogleFonts.plusJakartaSans(
@@ -53,73 +59,6 @@ class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
                 fontWeight: FontWeight.w900,
                 color: kTextDark,
                 letterSpacing: -1.0,
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Toggle Monthly/Annually
-            Container(
-              height: 50,
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        HapticFeedback.lightImpact();
-                        setState(() => isAnnual = false);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: !isAnnual ? Colors.white : Colors.transparent,
-                          borderRadius: BorderRadius.circular(26),
-                          boxShadow: !isAnnual
-                              ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))]
-                              : [],
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Monthly',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: !isAnnual ? FontWeight.w700 : FontWeight.w500,
-                            color: !isAnnual ? Colors.black : kTextMid,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        HapticFeedback.lightImpact();
-                        setState(() => isAnnual = true);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isAnnual ? Colors.white : Colors.transparent,
-                          borderRadius: BorderRadius.circular(26),
-                          boxShadow: isAnnual
-                              ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))]
-                              : [],
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Annually',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: isAnnual ? FontWeight.w700 : FontWeight.w500,
-                            color: isAnnual ? Colors.black : kTextMid,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
             const SizedBox(height: 32),
@@ -181,7 +120,7 @@ class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
                   // Handle subscription
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7C3AED), // Purple like in the image, or kPrimary
+                  backgroundColor: AppTheme.brandColor, // Purple like in the image, or kPrimary
                   foregroundColor: Colors.white,
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -242,11 +181,11 @@ class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: isSelected ? const Color(0xFF7C3AED) : Colors.grey.shade200,
+                color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
                 width: 2,
               ),
               boxShadow: isSelected
-                  ? [BoxShadow(color: const Color(0xFF7C3AED).withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10))]
+                  ? [BoxShadow(color: AppTheme.brandColor.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10))]
                   : [],
             ),
             child: Column(
@@ -257,7 +196,7 @@ class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: isSelected ? const Color(0xFF7C3AED) : const Color(0xFF6B7280),
+                    color: isSelected ? AppTheme.brandColor : const Color(0xFF6B7280),
                     letterSpacing: 1.2,
                   ),
                 ),
@@ -308,7 +247,7 @@ class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: isSelected ? const Color(0xFF7C3AED) : const Color(0xFF7C3AED),
+                    color: isSelected ? AppTheme.brandColor : AppTheme.brandColor,
                   ),
                 ),
               ],
@@ -357,7 +296,7 @@ class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected ? const Color(0xFF7C3AED) : Colors.grey.shade100,
+                color: isSelected ? AppTheme.brandColor : Colors.grey.shade100,
                 width: 2,
               ),
               boxShadow: [
