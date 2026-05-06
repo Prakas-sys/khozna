@@ -111,6 +111,19 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               ),
               const SizedBox(height: 24),
 
+              // Payment Gateway Row (MOVED TO TOP)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa'),
+                  _buildGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
+                  _buildGateway('bank', null, 'Bank Transfer', icon: Icons.account_balance_rounded),
+                  _buildGateway('card', null, 'Cards', icon: Icons.credit_card_rounded, isSoon: true),
+                ],
+              ),
+
+              const SizedBox(height: 32),
+
               // CARD 1: Pay owner directly
               _buildPlanCard(
                 id: 'direct',
@@ -161,26 +174,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               
               const SizedBox(height: 32),
               
-              Text(
-                'CHOOSE YOUR PAYMENT METHOD',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Payment Gateway Row
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa'),
-                  _buildGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
-                  _buildGateway('bank', null, 'Bank Transfer', icon: Icons.account_balance_rounded),
-                  _buildGateway('card', null, 'Cards', icon: Icons.credit_card_rounded, isSoon: true),
-                ],
-              ),
 
               const SizedBox(height: 24),
               
