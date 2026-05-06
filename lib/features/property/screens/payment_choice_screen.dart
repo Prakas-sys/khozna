@@ -95,7 +95,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               ),
               const SizedBox(height: 32),
 
-              // Card 1: Direct Payment (Flat Professional Design)
+              // Card 1: Direct Payment
               _buildFlatPlanCard(
                 id: 'direct',
                 title: 'DIRECT PAYMENT',
@@ -108,7 +108,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
               const SizedBox(height: 16),
 
-              // Card 2: Khozna Protection (Flat Professional Design)
+              // Card 2: Khozna Protection
               _buildFlatPlanCard(
                 id: 'khozna',
                 title: 'KHOZNA PROTECTION',
@@ -138,19 +138,19 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 children: [
                   _buildGatewayIcon('esewa', 'assets/images/esewa.webp', 'eSewa'),
                   _buildGatewayIcon('khalti', 'assets/images/khalti.png', 'Khalti'),
-                  _buildGatewayIcon('bank', null, 'Bank', icon: Icons.account_balance_outlined, isComingSoon: true),
+                  _buildGatewayIcon('bank', null, 'Bank', icon: Icons.account_balance_rounded),
                   _buildGatewayIcon('card', null, 'Card', icon: Icons.credit_card_outlined, isComingSoon: true),
                 ],
               ),
 
               const SizedBox(height: 40),
               
-              // Total Section (Flat)
+              // Total Section
               _buildFlatTotalSection(),
 
               const SizedBox(height: 24),
 
-              // Main Action Button (Flat)
+              // Main Action Button
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -206,39 +206,19 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           ),
         ),
         child: Stack(
+          clipBehavior: Clip.none,
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        color: isSelected ? AppTheme.brandColor : Colors.grey[400],
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    if (isRecommended)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF22C55E),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'SAFE CHOICE',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 8,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                  ],
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? AppTheme.brandColor : Colors.grey[400],
+                    letterSpacing: 1.0,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -270,12 +250,34 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 ),
               ],
             ),
-            if (isSelected)
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Icon(Icons.check_circle_rounded, color: AppTheme.brandColor, size: 24),
+            // Badges & Tick in the top right corner
+            Positioned(
+              top: -4,
+              right: -4,
+              child: Row(
+                children: [
+                  if (isRecommended)
+                    Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF22C55E),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        'SAFE CHOICE',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  if (isSelected)
+                    Icon(Icons.check_circle_rounded, color: AppTheme.brandColor, size: 24),
+                ],
               ),
+            ),
           ],
         ),
       ),
@@ -302,18 +304,14 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 ),
               ),
               padding: const EdgeInsets.all(14),
-              child: Stack(
-                children: [
-                  Center(
-                    child: asset != null
-                        ? Image.asset(
-                            asset,
-                            fit: BoxFit.contain,
-                            errorBuilder: (context, error, stackTrace) => Icon(Icons.payment, color: Colors.grey[300]),
-                          )
-                        : Icon(icon, color: isSelected ? AppTheme.brandColor : Colors.grey[400], size: 28),
-                  ),
-                ],
+              child: Center(
+                child: asset != null
+                    ? Image.asset(
+                        asset,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Icon(Icons.payment, color: Colors.grey[300]),
+                      )
+                    : Icon(icon, color: isSelected ? AppTheme.brandColor : Colors.grey[400], size: 28),
               ),
             ),
             const SizedBox(height: 8),
