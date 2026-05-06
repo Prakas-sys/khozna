@@ -113,7 +113,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
               // Payment Gateway Row (MOVED TO TOP)
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa'),
                   _buildGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
