@@ -282,7 +282,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       const SizedBox(width: 8),
                       Icon(
                         isSelected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded, 
-                        color: isSelected ? (isRecommended ? AppTheme.brandColor : const Color(0xFF22C55E)) : Colors.grey[300], 
+                        color: isSelected ? (isRecommended ? AppTheme.brandColor : const Color(0xFF22C55E)) : Colors.grey[400], 
                         size: 22
                       ),
                     ],
@@ -419,9 +419,16 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           Container(
             width: 64, height: 64,
             decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey.shade100, width: isSelected ? 2 : 1),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey.shade300, width: isSelected ? 2 : 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Center(
               child: asset != null 
