@@ -88,39 +88,41 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
-              Text(
-                'Choose payment method',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Choose the option that works best for you.',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  color: Colors.grey[500],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Payment Gateway Row (MOVED TO TOP)
+              const SizedBox(height: 12),
+              
+              // HORIZONTAL TITLE + GATEWAYS
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa'),
-                  _buildGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
-                  _buildGateway('bank', null, 'Bank Transfer', icon: Icons.account_balance_rounded),
-                  _buildGateway('card', null, 'Cards', icon: Icons.credit_card_rounded, isSoon: true),
+                  Expanded(
+                    flex: 4,
+                    child: Text(
+                      'Choose payment method',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black,
+                        height: 1.1,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 6,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa'),
+                        _buildGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
+                        _buildGateway('bank', null, 'Bank', icon: Icons.account_balance_rounded),
+                        _buildGateway('card', null, 'Card', icon: Icons.credit_card_rounded, isSoon: true),
+                      ],
+                    ),
+                  ),
                 ],
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
 
               // CARD 1: Pay owner directly
               _buildPlanCard(
@@ -408,45 +410,29 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
   Widget _buildGateway(String id, String? asset, String label, {IconData? icon, bool isSoon = false, String? badge}) {
     final isSelected = _selectedGateway == id;
-    return Flexible(
-      child: GestureDetector(
-        onTap: isSoon ? null : () => setState(() => _selectedGateway = id),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          decoration: BoxDecoration(
-            color: isSelected ? AppTheme.brandColor.withOpacity(0.05) : Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey.shade100, width: isSelected ? 1.5 : 1),
+    return GestureDetector(
+      onTap: isSoon ? null : () => setState(() => _selectedGateway = id),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 56, height: 56,
+            decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey.shade100, width: isSelected ? 2 : 1),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+            ),
+            child: Center(
+              child: asset != null 
+                  ? Image.asset(asset, width: 24, height: 24, fit: BoxFit.contain)
+                  : Icon(icon, color: isSelected ? AppTheme.brandColor : Colors.grey[300], size: 24),
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (asset != null)
-                Image.asset(asset, width: 20, height: 20, fit: BoxFit.contain)
-              else
-                Icon(icon, color: isSelected ? AppTheme.brandColor : Colors.grey[400], size: 18),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Text(
-                  label,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 10,
-                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                    color: isSelected ? AppTheme.brandColor : Colors.grey[600],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (isSoon) ...[
-                const SizedBox(width: 4),
-                Text('SOON', style: GoogleFonts.plusJakartaSans(fontSize: 6, fontWeight: FontWeight.w900, color: Colors.grey[400])),
-              ],
-            ],
-          ),
-        ),
+          const SizedBox(height: 4),
+          Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600, color: isSelected ? Colors.black : Colors.grey[500])),
+          if (isSoon)
+            Text('SOON', style: GoogleFonts.plusJakartaSans(fontSize: 6, fontWeight: FontWeight.w900, color: Colors.grey[300])),
+        ],
       ),
     );
   }
