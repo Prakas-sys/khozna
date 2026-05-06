@@ -123,6 +123,7 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (!_showNearbySection) ...[
                 // 1. BRANDED HEADER
                 Text(
                   'Find your next home',
@@ -221,7 +222,6 @@ class _SearchScreenState extends State<SearchScreen> {
                 const SizedBox(height: 32),
 
                 // 3. POPULAR LOCATIONS (INITIAL STATE)
-                if (!_showNearbySection) ...[
                   Text(
                     'Popular Locations',
                     style: GoogleFonts.plusJakartaSans(
@@ -303,6 +303,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 80), // Prevent collision with FAB
                 ],
 
                 // 5. NEARBY SECTION (REVEALED ON TAP)
@@ -328,25 +329,39 @@ class _SearchScreenState extends State<SearchScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Row(
                                 children: [
-                                  Text(
-                                    'Nearby Properties',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: -0.8,
-                                      color: Colors.black,
-                                    ),
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
+                                    onPressed: () {
+                                      HapticFeedback.lightImpact();
+                                      setState(() => _showNearbySection = false);
+                                    },
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
                                   ),
-                                  Text(
-                                    'Find homes near you',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 13,
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Nearby Properties',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: -0.8,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Find homes near you',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 13,
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
