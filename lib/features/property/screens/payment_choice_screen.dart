@@ -45,7 +45,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF3F4F6), // Slightly darker grey background
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
