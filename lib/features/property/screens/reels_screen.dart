@@ -11,6 +11,7 @@ import 'package:khozna/features/property/screens/property_details_screen.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
+import 'package:khozna/core/utils/formatters.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
@@ -388,12 +389,29 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 text: TextSpan(
                                   children: [
                                     TextSpan(
-                                      text: 'Rs. ',
-                                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w900, color: AppTheme.brandColor),
+                                      text: '₹ ',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppTheme.brandColor,
+                                        letterSpacing: 0.3,
+                                      ),
                                     ),
                                     TextSpan(
-                                      text: '${property.price} /mo',
-                                      style: GoogleFonts.inter(color: AppTheme.brandColor, fontWeight: FontWeight.w900, fontSize: 15),
+                                      text: PriceFormatter.format(property.priceNight > 0 ? property.priceNight.toString() : property.price),
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppTheme.brandColor,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: property.priceNight > 0 ? ' /night' : ' /mo',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.brandColor.withOpacity(0.8),
+                                      ),
                                     ),
                                   ],
                                 ),

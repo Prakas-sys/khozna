@@ -219,7 +219,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       builder: (context) => FilterResultsScreen(
                                         location: val,
                                         priceRange:
-                                            'Up to Rs. ${_priceValue.toInt()}',
+                                            'Up to ₹ ${_priceValue.toInt()}',
                                       ),
                                     ),
                                   );
@@ -292,7 +292,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             MaterialPageRoute(
                               builder: (context) => FilterResultsScreen(
                                 location: _searchController.text,
-                                priceRange: 'Up to Rs. ${_priceValue.toInt()}',
+                                priceRange: 'Up to ₹ ${_priceValue.toInt()}',
                               ),
                             ),
                           );
@@ -600,7 +600,7 @@ class _SearchScreenState extends State<SearchScreen> {
       // Floating AI Button - only in Main Search section
       if (!_showNearbySection)
         Positioned(
-          bottom: 100, // Positioned above the search button
+          bottom: 160, // Positioned higher, above the search button
           right: 24,
           child: GestureDetector(
             onTap: () {

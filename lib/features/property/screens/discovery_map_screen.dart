@@ -66,8 +66,8 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             .map((p) {
               final price = p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0);
               final priceLabel = price > 999
-                  ? 'Rs.${(price / 1000).toStringAsFixed(0)}K'
-                  : 'Rs.${price.toInt()}';
+                  ? '₹${(price / 1000).toStringAsFixed(0)}K'
+                  : '₹${price.toInt()}';
               return Marker(
                 point: LatLng(p.latitude!, p.longitude!),
                 width: 80,
