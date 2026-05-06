@@ -49,6 +49,8 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isLoadingNearby = true;
   LatLng? _userLocation;
   final MapController _miniMapController = MapController();
+  final ScrollController _scrollController = ScrollController();
+  bool _showMapPill = false;
 
   @override
   void initState() {
@@ -80,6 +82,13 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     _loadNearbyData();
+
+    _scrollController.addListener(() {
+      final shouldShow = _scrollController.offset > 100;
+      if (shouldShow != _showMapPill) {
+        setState(() => _showMapPill = shouldShow);
+      }
+    });
   }
 
   Future<void> _loadNearbyData() async {
@@ -108,6 +117,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -116,8 +126,11 @@ class _SearchScreenState extends State<SearchScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: null,
-      body: SafeArea(
+      body: Stack(
+        children: [
+          SafeArea(
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             child: Column(
@@ -313,79 +326,42 @@ class _SearchScreenState extends State<SearchScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // 1. Prominent Nearby Header & Map Button
-                      InkWell(
-                        onTap: () {
-                          HapticFeedback.mediumImpact();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const DiscoveryMapScreen(),
+                      // Header with back arrow + title
+                      Transform.translate(
+                        offset: const Offset(-8, 0),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                setState(() => _showNearbySection = false);
+                              },
+                              child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
                             ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(16),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
-                                    onPressed: () {
-                                      HapticFeedback.lightImpact();
-                                      setState(() => _showNearbySection = false);
-                                    },
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Nearby Properties',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: -0.8,
+                                    color: Colors.black,
                                   ),
-                                  const SizedBox(width: 12),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Nearby Properties',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w900,
-                                          letterSpacing: -0.8,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Find homes near you',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 13,
-                                          color: Colors.grey[600],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
+                                ),
+                                Text(
+                                  'Find homes near you',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.brandColor,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppTheme.brandColor.withOpacity(0.3),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
                                 ),
-                                child: const Icon(
-                                  Icons.map_rounded,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -417,7 +393,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   initialCenter:
                                       _userLocation ??
                                       const LatLng(27.7172, 85.3240),
-                                  initialZoom: 14.0,
+                                  initialZoom: 12.5,
                                   interactionOptions: const InteractionOptions(
                                     flags: InteractiveFlag.none,
                                   ),
@@ -472,39 +448,39 @@ class _SearchScreenState extends State<SearchScreen> {
                                               p.latitude!,
                                               p.longitude!,
                                             ),
-                                            width: 100,
-                                            height: 45,
+                                            width: 50,
+                                            height: 30,
                                             child: Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 8,
+                                                    horizontal: 8,
+                                                    vertical: 4,
                                                   ),
                                               decoration: BoxDecoration(
                                                 color: Colors.white,
                                                 borderRadius:
-                                                    BorderRadius.circular(30),
+                                                    BorderRadius.circular(20),
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.black
-                                                        .withOpacity(0.15),
-                                                    blurRadius: 10,
-                                                    offset: const Offset(0, 4),
+                                                        .withOpacity(0.2),
+                                                    blurRadius: 6,
+                                                    offset: const Offset(0, 2),
                                                   ),
                                                 ],
                                                 border: Border.all(
-                                                  color: Colors.grey.shade100,
+                                                  color: Colors.grey.shade200,
                                                 ),
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  'Rs. ${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}${p.priceNight > 0 ? '/n' : ''}',
+                                                  'Rs.${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}',
                                                   style:
                                                       GoogleFonts.plusJakartaSans(
                                                         color: Colors.black,
                                                         fontWeight:
-                                                            FontWeight.w900,
-                                                        fontSize: 13,
+                                                            FontWeight.w800,
+                                                        fontSize: 11,
                                                       ),
                                                 ),
                                               ),
@@ -567,6 +543,116 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
         ),
+      ),
+      // Floating Map Pill (Airbnb-style) - only in Nearby section
+      if (_showNearbySection && _showMapPill)
+        Positioned(
+          bottom: 28,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.mediumImpact();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DiscoveryMapScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1A1A2E),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Map',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    const Icon(
+                      Icons.map_rounded,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      // Floating AI Pill - only in Main Search section
+      if (!_showNearbySection)
+        Positioned(
+          bottom: 28,
+          right: 24,
+          child: GestureDetector(
+            onTap: () {
+              HapticFeedback.mediumImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AiChatScreen(),
+                ),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppTheme.brandColor, Color(0xFF007AFF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.brandColor.withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.auto_awesome,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'AI Support',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        ],
+      ),
     );
   }
 

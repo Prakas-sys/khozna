@@ -47,7 +47,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
           _userLocation = LatLng(position.latitude, position.longitude);
           _initialPosition = _userLocation!;
         });
-        _mapController.move(_initialPosition, 15.0);
+        _mapController.move(_initialPosition, 13.0);
       }
     } catch (e) {
       debugPrint('Error getting location: $e');
@@ -63,33 +63,46 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
         _properties = properties;
         _markers = _properties
             .where((p) => p.latitude != null && p.longitude != null)
-            .map((p) => Marker(
-                  point: LatLng(p.latitude!, p.longitude!),
-                  width: 60,
-                  height: 60,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _navigateToDetails(p),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4)),
-                        ],
-                        border: Border.all(color: AppTheme.brandColor, width: 2),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.home_rounded,
-                          color: AppTheme.brandColor,
-                          size: 24,
+            .map((p) {
+              final price = p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0);
+              final priceLabel = price > 999
+                  ? 'Rs.${(price / 1000).toStringAsFixed(0)}K'
+                  : 'Rs.${price.toInt()}';
+              return Marker(
+                point: LatLng(p.latitude!, p.longitude!),
+                width: 80,
+                height: 36,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => _navigateToDetails(p),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                      border: Border.all(color: Colors.grey.shade200, width: 1),
+                    ),
+                    child: Center(
+                      child: Text(
+                        priceLabel,
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12,
                         ),
                       ),
                     ),
                   ),
-                ))
+                ),
+              );
+            })
             .toList();
         _isLoading = false;
       });
@@ -151,7 +164,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: _initialPosition,
-              initialZoom: 15.0,
+              initialZoom: 13.0,
               minZoom: 3.0,
               maxZoom: 18.0,
             ),
