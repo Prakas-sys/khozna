@@ -169,7 +169,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
               // Payment Gateway Row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa'),
                   _buildGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
@@ -282,7 +282,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    if (!isRecommended)
+                                    if (badgeText.isNotEmpty)
                                       Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(4)),
@@ -429,12 +429,14 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
   Widget _buildGateway(String id, String? asset, String label, {IconData? icon, bool isSoon = false, String? badge}) {
     final isSelected = _selectedGateway == id;
-    return GestureDetector(
-      onTap: isSoon ? null : () => setState(() => _selectedGateway = id),
-      child: Column(
-        children: [
-          Container(
-            width: 70, height: 70,
+    return Expanded(
+      child: GestureDetector(
+        onTap: isSoon ? null : () => setState(() => _selectedGateway = id),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64, height: 64,
             decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(16),
               border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey.shade100, width: isSelected ? 2 : 1),
