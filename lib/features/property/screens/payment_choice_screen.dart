@@ -90,7 +90,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             children: [
               const SizedBox(height: 8),
               Text(
-                'How would you like to pay?',
+                'Choose payment method',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
@@ -437,34 +437,38 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           children: [
             Container(
               width: 64, height: 64,
-            decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey.shade100, width: isSelected ? 2 : 1),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+              decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey.shade100, width: isSelected ? 2 : 1),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+              ),
+              child: Center(
+                child: asset != null 
+                    ? Image.asset(asset, width: 30, height: 30, fit: BoxFit.contain)
+                    : Icon(icon, color: Colors.grey[300], size: 28),
+              ),
             ),
-            child: Center(
-              child: asset != null 
-                  ? Image.asset(asset, width: 30, height: 30, fit: BoxFit.contain)
-                  : Icon(icon, color: Colors.grey[300], size: 28),
+            const SizedBox(height: 6),
+            Text(label, 
+              textAlign: TextAlign.center,
+              style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600, color: isSelected ? Colors.black : Colors.grey[500])
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600, color: isSelected ? Colors.black : Colors.grey[500])),
-          if (badge != null)
-            Container(
-              margin: const EdgeInsets.only(top: 2),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(4)),
-              child: Text(badge, style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.w900, color: const Color(0xFF16A34A))),
-            ),
-          if (isSoon)
-            Container(
-              margin: const EdgeInsets.only(top: 2),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)),
-              child: Text('SOON', style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.w900, color: Colors.grey[400])),
-            ),
-        ],
+            if (badge != null)
+              Container(
+                margin: const EdgeInsets.only(top: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(4)),
+                child: Text(badge, style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.w900, color: const Color(0xFF16A34A))),
+              ),
+            if (isSoon)
+              Container(
+                margin: const EdgeInsets.only(top: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)),
+                child: Text('SOON', style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.w900, color: Colors.grey[400])),
+              ),
+          ],
+        ),
       ),
     );
   }
