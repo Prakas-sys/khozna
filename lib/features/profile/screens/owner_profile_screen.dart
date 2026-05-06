@@ -7,7 +7,9 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
+import 'package:khozna/widgets/trust_badge.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:khozna/features/profile/repositories/vote_repository.dart';
 
 class OwnerProfileScreen extends StatefulWidget {
   final String ownerId;
@@ -32,9 +34,23 @@ class OwnerProfileScreen extends StatefulWidget {
 }
 
 class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
+  int _voteCount = 0;
+  bool _isLoadingVotes = true;
+
   @override
   void initState() {
     super.initState();
+    _loadVoteCount();
+  }
+
+  Future<void> _loadVoteCount() async {
+    final count = await VoteRepository.getVoteCount(widget.ownerId);
+    if (mounted) {
+      setState(() {
+        _voteCount = count;
+        _isLoadingVotes = false;
+      });
+    }
   }
 
 
@@ -64,27 +80,52 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         child: Column(
           children: [
             Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: widget.isVerified ? const Color(0xFF00A3FF).withOpacity(0.2) : Colors.transparent,
+                        width: 4,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (widget.isVerified ? const Color(0xFF00A3FF) : Colors.black).withOpacity(0.1),
+                          blurRadius: 24,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.grey[100],
-                  backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
-                      ? CachedNetworkImageProvider(widget.avatar)
-                      : null,
-                  child: (widget.avatar.isEmpty || widget.avatar.contains('pravatar.cc'))
-                      ? Icon(Icons.person, size: 60, color: Colors.grey[400])
-                      : null,
-                ),
+                    child: CircleAvatar(
+                      radius: 65,
+                      backgroundColor: Colors.grey[100],
+                      backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
+                          ? CachedNetworkImageProvider(widget.avatar)
+                          : null,
+                      child: (widget.avatar.isEmpty || widget.avatar.contains('pravatar.cc'))
+                          ? Icon(Icons.person, size: 65, color: Colors.grey[400])
+                          : null,
+                    ),
+                  ),
+                  if (widget.isVerified)
+                    Positioned(
+                      bottom: 4,
+                      right: 4,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.verified_rounded,
+                          color: Color(0xFF00A3FF),
+                          size: 32,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             const SizedBox(height: 16),
@@ -135,30 +176,45 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            if (!_isLoadingVotes)
+              TrustBadge(
+                badge: _voteCount >= 30 ? 'top' : (widget.isVerified ? 'trusted' : 'new'),
+                fontSize: 14,
+              ),
             const SizedBox(height: 32),
+
+            // Trust Vote Card (Now higher up)
+            TrustVoteCard(
+              targetUserId: widget.ownerId,
+              targetName: widget.name,
+            ),
+
+            const SizedBox(height: 24),
 
             // Stats Row
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 24),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FA),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.grey.shade100),
+                border: Border.all(color: Colors.grey.shade200),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildStatItem('सूचीहरू (Listings)', widget.totalListings.toString()),
+                  Container(height: 30, width: 1, color: Colors.grey[200]),
+                  _buildStatItem('भरोसा (Trust)', _isLoadingVotes ? '...' : '$_voteCount'),
                 ],
               ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Trust Vote Card
-            TrustVoteCard(
-              targetUserId: widget.ownerId,
-              targetName: widget.name,
             ),
 
             const SizedBox(height: 24),

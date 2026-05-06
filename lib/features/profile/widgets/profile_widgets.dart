@@ -351,45 +351,13 @@ class PostPropertyCard extends StatelessWidget {
           end: Alignment.centerRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0077AA).withOpacity(0.3),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        // Shadow removed as requested
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Stack(
           children: [
-            // Shimmer sweep
-            AnimatedBuilder(
-              animation: shimmerAnimation,
-              builder: (context, child) {
-                return Positioned.fill(
-                  child: FractionallySizedBox(
-                    widthFactor: 2.0,
-                    alignment: Alignment(shimmerAnimation.value, 0.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          stops: const [0.35, 0.5, 0.65],
-                          colors: [
-                            Colors.transparent,
-                            Colors.white.withOpacity(0.15),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            // 3D house image (Large and positioned at the bottom right)
+            // Shimmer effect removed as requested, but 3D image restored
             Positioned(
               right: -100,
               bottom: -130,
@@ -433,13 +401,7 @@ class PostPropertyCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.12),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                        // Button shadow removed
                       ),
                       child: Text(
                         'Post Now',
