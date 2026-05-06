@@ -167,11 +167,11 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Gateways
+              // Payment Gateway Row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa', badge: 'RECOMMENDED'),
+                  _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa'),
                   _buildGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
                   _buildGateway('bank', null, 'Bank Transfer', icon: Icons.account_balance_rounded),
                   _buildGateway('card', null, 'Cards', icon: Icons.credit_card_rounded, isSoon: true),
@@ -240,155 +240,189 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borderColor, width: isSelected ? 2 : 1),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Stack(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: isSelected && isRecommended ? const Color(0xFFF0F7FF) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: borderColor, width: isSelected ? 2.5 : 1),
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Stack(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
-                        child: Icon(icon, color: iconColor, size: 24),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+                            child: Icon(icon, color: iconColor, size: 24),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Text(
-                                    title,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w800,
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        title,
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                    const SizedBox(width: 8),
+                                    if (!isRecommended)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(4)),
+                                        child: Text(badgeText, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: badgeColor)),
+                                      ),
+                                  ],
                                 ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(4)),
-                                  child: Text(badgeText, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: badgeColor)),
-                                ),
+                                const SizedBox(height: 2),
+                                Text(subtitle, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w500)),
+                                const SizedBox(height: 12),
+                                Text(feeText, style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w900, color: feeColor)),
                               ],
                             ),
-                            const SizedBox(height: 2),
-                            Text(subtitle, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w500)),
-                            const SizedBox(height: 12),
-                            Text(feeText, style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w900, color: feeColor)),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        top: 0, right: 0,
+                        child: Icon(isSelected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded, color: isSelected ? (isRecommended ? AppTheme.brandColor : const Color(0xFF22C55E)) : Colors.grey[300], size: 22),
                       ),
                     ],
                   ),
-                  Positioned(
-                    top: 0, right: 0,
-                    child: Icon(isSelected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded, color: isSelected ? (isRecommended ? AppTheme.brandColor : const Color(0xFF22C55E)) : Colors.grey[300], size: 22),
-                  ),
-                ],
-              ),
-            ),
-            
-            // Features Section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: const Color(0xFFF9FAFB), border: Border(top: BorderSide(color: Colors.grey.shade100))),
-              child: Column(
-                children: [
-                  if (features != null)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: Column(
-                            children: features.map((f) => Padding(
-                              padding: const EdgeInsets.only(bottom: 6),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.check_rounded, color: Color(0xFF16A34A), size: 14),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      f,
-                                      style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w600),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                ),
+                
+                // Features Section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: const Color(0xFFF9FAFB), border: Border(top: BorderSide(color: Colors.grey.shade100))),
+                  child: Column(
+                    children: [
+                      if (features != null)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: features.map((f) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 6),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.check_rounded, color: Color(0xFF16A34A), size: 14),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          f,
+                                          style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w600),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                )).toList(),
                               ),
-                            )).toList(),
-                          ),
+                            ),
+                            const SizedBox(width: 8),
+                            if (warning != null)
+                              Expanded(
+                                flex: 2,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(color: const Color(0xFFFFF7ED), borderRadius: BorderRadius.circular(10)),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Icon(Icons.warning_rounded, color: Color(0xFFEA580C), size: 14),
+                                      const SizedBox(width: 6),
+                                      Expanded(child: Text(warning, style: GoogleFonts.plusJakartaSans(fontSize: 9, color: const Color(0xFFEA580C), fontWeight: FontWeight.w700))),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
-                        if (warning != null)
-                          Expanded(
-                            flex: 2,
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(color: const Color(0xFFFFF7ED), borderRadius: BorderRadius.circular(10)),
+                      if (featuresRow != null)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: featuresRow.map((f) => Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 2),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.warning_rounded, color: Color(0xFFEA580C), size: 14),
-                                  const SizedBox(width: 6),
-                                  Expanded(child: Text(warning, style: GoogleFonts.plusJakartaSans(fontSize: 9, color: const Color(0xFFEA580C), fontWeight: FontWeight.w700))),
+                                  Icon(f['icon'] as IconData, color: AppTheme.brandColor, size: 14),
+                                  const SizedBox(width: 4),
+                                  Expanded(child: Text(f['text'] as String, style: GoogleFonts.plusJakartaSans(fontSize: 8, color: Colors.grey[600], fontWeight: FontWeight.w700, height: 1.2))),
                                 ],
                               ),
                             ),
-                          ),
-                      ],
-                    ),
-                  if (featuresRow != null)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: featuresRow.map((f) => Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 2),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(f['icon'] as IconData, color: AppTheme.brandColor, size: 14),
-                              const SizedBox(width: 4),
-                              Expanded(child: Text(f['text'] as String, style: GoogleFonts.plusJakartaSans(fontSize: 8, color: Colors.grey[600], fontWeight: FontWeight.w700, height: 1.2))),
-                            ],
-                          ),
+                          )).toList(),
                         ),
-                      )).toList(),
+                    ],
+                  ),
+                ),
+                
+                // Footer
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade100))),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(footer, style: GoogleFonts.plusJakartaSans(fontSize: 10, color: Colors.grey[500], fontWeight: FontWeight.w500))),
+                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey, size: 10),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isRecommended)
+            Positioned(
+              top: -10,
+              left: 24,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.brandColor,
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.brandColor.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                ],
+                  ],
+                ),
+                child: Text(
+                  'RECOMMENDED',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
             ),
-            
-            // Footer
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade100))),
-              child: Row(
-                children: [
-                  Expanded(child: Text(footer, style: GoogleFonts.plusJakartaSans(fontSize: 10, color: Colors.grey[500], fontWeight: FontWeight.w500))),
-                  const Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey, size: 10),
-                ],
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
