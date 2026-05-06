@@ -88,40 +88,25 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 12),
-              
-              // HORIZONTAL TITLE + GATEWAYS
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 4,
-                    child: Text(
-                      'Choose payment method',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black,
-                        height: 1.1,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 6,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa'),
-                        _buildGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
-                        _buildGateway('bank', null, 'Bank', icon: Icons.account_balance_rounded),
-                        _buildGateway('card', null, 'Card', icon: Icons.credit_card_rounded, isSoon: true),
-                      ],
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 8),
+              Text(
+                'Choose payment method',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black,
+                  letterSpacing: -0.5,
+                ),
               ),
-
+              const SizedBox(height: 8),
+              Text(
+                'Choose the option that works best for you.',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  color: Colors.grey[500],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               const SizedBox(height: 24),
 
               // CARD 1: Pay owner directly
@@ -172,7 +157,28 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
               const SizedBox(height: 32),
               
-              // Removed Gateways from here (Moved to top)
+              const SizedBox(height: 32),
+              
+              Text(
+                'Choose your payment method',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Payment Gateway Row
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa'),
+                  _buildGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
+                  _buildGateway('bank', null, 'Bank Transfer', icon: Icons.account_balance_rounded),
+                  _buildGateway('card', null, 'Cards', icon: Icons.credit_card_rounded, isSoon: true),
+                ],
+              ),
 
               const SizedBox(height: 24),
               
