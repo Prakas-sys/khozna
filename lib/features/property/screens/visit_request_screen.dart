@@ -269,7 +269,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               ),
               child: _isSubmitting
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : Text('Request Visit', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 16)),
+                  : Text('Schedule Visit', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 16)),
             ),
             const SizedBox(height: 12),
             GestureDetector(
@@ -287,8 +287,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 );
               },
               child: Text(
-                'Chat with Owner first',
-                style: GoogleFonts.inter(fontSize: 14, color: AppTheme.brandColor, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
+                'Chat with Owner',
+                style: GoogleFonts.inter(fontSize: 14, color: AppTheme.brandColor, fontWeight: FontWeight.w600),
               ),
             ),
           ],

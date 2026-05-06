@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
+import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:intl/intl.dart';
 
 class OwnerBookingsScreen extends StatefulWidget {

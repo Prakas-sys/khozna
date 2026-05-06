@@ -21,6 +21,7 @@ class ChatScreen extends StatefulWidget {
   final String ownerId;
   final bool isVerified;
   final bool isOwner;
+  final String? initialMessage;
 
   const ChatScreen({
     super.key,
@@ -31,6 +32,7 @@ class ChatScreen extends StatefulWidget {
     this.ownerId = '',
     this.isVerified = false,
     this.isOwner = false,
+    this.initialMessage,
   });
 
   @override
@@ -73,7 +75,13 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _startBannerAnimation());
     if (widget.ownerId.isNotEmpty) {
       _loadOwnerProfile();
-      if (_activeChatId == null) _initializeChat();
+      if (_activeChatId == null) {
+        _initializeChat().then((_) {
+          if (widget.initialMessage != null && _activeChatId != null) {
+            _sendMessage(widget.initialMessage);
+          }
+        });
+      }
     } else if (_activeChatId != null) {
       ChatRepository.markChatAsRead(_activeChatId!);
     }

@@ -40,7 +40,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
   Future<void> _refreshBooking() async {
     setState(() => _isLoading = true);
     try {
-      final updated = await SupabaseService.getBookingById(_booking.id);
+      final updated = await SupabaseService.getVisitById(_booking.id);
       if (updated != null && mounted) setState(() => _booking = updated);
     } catch (_) {}
     if (mounted) setState(() => _isLoading = false);

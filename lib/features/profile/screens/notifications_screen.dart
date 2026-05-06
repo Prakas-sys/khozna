@@ -170,7 +170,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   if (isApproved && bookingId.isNotEmpty) {
                                     // Navigate to payment choice screen
                                     
-                                    final booking = await SupabaseService.getBookingById(bookingId);
+                                    final booking = await SupabaseService.getVisitById(bookingId);
                                     if (booking != null && mounted) {
                                       Navigator.push(
                                         context,
@@ -188,7 +188,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   // 2. Fallback to status screen if guest
                                   final propertyId = note['property_id'];
                                   if (propertyId != null) {
-                                    final bookings = await SupabaseService.getMyBookings();
+                                    final bookings = await SupabaseService.getMyVisits();
                                     final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
                                     
                                     if (filtered.isNotEmpty && mounted) {
@@ -476,7 +476,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 }
                                 setCardState(() => acting = true);
                                 try {
-                                  await SupabaseService.rejectBooking(
+                                  await SupabaseService.rejectVisit(
                                     bookingId: bookingId,
                                     notificationId: id,
                                   );
@@ -512,7 +512,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 );
                                 final ownerName = ownerProfile?.fullName ?? 'The owner';
                                 try {
-                                  await SupabaseService.approveBooking(
+                                  await SupabaseService.approveVisit(
                                     bookingId: bookingId,
                                     ownerName: ownerName,
                                     notificationId: id,
@@ -625,7 +625,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   
                   
                   
-                  final booking = await SupabaseService.getBookingById(bookingId);
+                  final booking = await SupabaseService.getVisitById(bookingId);
                   if (booking != null && mounted) {
                     Navigator.push(
                       context,
@@ -1010,7 +1010,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     onPressed: () async {
                       // Fetch latest booking for this property
                       if (propertyId.isNotEmpty) {
-                        final bookings = await SupabaseService.getMyBookings();
+                        final bookings = await SupabaseService.getMyVisits();
                         final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
                         
                         if (filtered.isNotEmpty && mounted) {

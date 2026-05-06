@@ -60,4 +60,36 @@ class BookingModel {
       'status': status,
     };
   }
+
+  BookingModel copyWith({
+    String? id,
+    String? propertyId,
+    String? guestId,
+    String? ownerId,
+    DateTime? checkIn,
+    DateTime? checkOut,
+    double? totalPrice,
+    double? khoznaFee,
+    String? paymentType,
+    String? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? propertyTitle,
+  }) {
+    return BookingModel(
+      id: id ?? this.id,
+      propertyId: propertyId ?? this.propertyId,
+      guestId: guestId ?? this.guestId,
+      ownerId: ownerId ?? this.ownerId,
+      checkIn: checkIn ?? this.checkIn,
+      checkOut: checkOut ?? this.checkOut,
+      totalPrice: totalPrice ?? this.totalPrice,
+      khoznaFee: khoznaFee ?? this.khoznaFee,
+      paymentType: paymentType ?? this.paymentType,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      propertyTitle: propertyTitle ?? this.propertyTitle,
+    );
+  }
 }
