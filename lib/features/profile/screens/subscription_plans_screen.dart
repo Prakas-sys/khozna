@@ -21,19 +21,16 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Background Decorative Gradients
+          // Background Gradient Orbs for "Magical" feel
           Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.15),
-                shape: BoxShape.circle,
-              ),
-              child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50), child: Container()),
-            ),
+            top: -150,
+            left: -100,
+            child: _buildGlowOrb(AppTheme.brandColor.withOpacity(0.2), 300),
+          ),
+          Positioned(
+            top: 200,
+            right: -150,
+            child: _buildGlowOrb(Colors.purple.withOpacity(0.1), 400),
           ),
 
           CustomScrollView(
@@ -46,64 +43,49 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
                   icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
                   onPressed: () => Navigator.pop(context),
                 ),
-                centerTitle: true,
-                title: Text(
-                  'Premium Subscription',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black),
-                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.info_outline_rounded, color: Colors.black),
+                    onPressed: () {},
+                  ),
+                ],
               ),
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 20),
-                      // 3D Visual or Logo
-                      Center(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 140,
-                              height: 140,
-                              decoration: BoxDecoration(
-                                color: AppTheme.brandColor.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            Image.asset(
-                              'assets/images/tiny house.png',
-                              height: 120,
-                              fit: BoxFit.contain,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 10),
                       Text(
-                        'हाम्रो प्रीमियम योजना छान्नुहोस्',
+                        'Khozna Premium',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 26,
+                          fontSize: 32,
                           fontWeight: FontWeight.w900,
                           color: Colors.black,
-                          height: 1.2,
+                          letterSpacing: -1.0,
                         ),
-                        textAlign: TextAlign.center,
                       ),
                       Text(
-                        'Choose Your Premium Plan',
+                        'Upgrade for verified badges & boost',
                         style: GoogleFonts.inter(
                           fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: Colors.grey[500],
                         ),
                       ),
+                      
                       const SizedBox(height: 32),
+                      
+                      // Magical Balance Card
+                      _buildBalanceCard(),
 
+                      const SizedBox(height: 32),
+                      
                       // Toggle
                       _buildToggle(),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
 
                       // Plans
                       _buildPlanCard(
@@ -132,23 +114,42 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
                       // CTA
                       SizedBox(
                         width: double.infinity,
-                        height: 60,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            HapticFeedback.mediumImpact();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.brandColor,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            elevation: 0,
+                        height: 64,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: const LinearGradient(
+                              colors: [AppTheme.brandColor, Color(0xFF0077B6)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.brandColor.withOpacity(0.3),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            'Upgrade Now',
-                            style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
+                          child: ElevatedButton(
+                            onPressed: () => HapticFeedback.mediumImpact(),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                            child: Text(
+                              'Upgrade to ${selectedPlan.toUpperCase()}',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 50),
                     ],
                   ),
                 ),
@@ -160,9 +161,107 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
     );
   }
 
+  Widget _buildGlowOrb(Color color, double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+        child: Container(color: Colors.transparent),
+      ),
+    );
+  }
+
+  Widget _buildBalanceCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.black.withOpacity(0.9), Colors.black.withOpacity(0.8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'YOUR BALANCE',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white.withOpacity(0.5),
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const Icon(Icons.wallet_rounded, color: Colors.white, size: 20),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'रू १,२५०.००',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              _buildBalanceAction(Icons.add_rounded, 'Add Money'),
+              const SizedBox(width: 12),
+              _buildBalanceAction(Icons.history_rounded, 'History'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBalanceAction(IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white, size: 16),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildToggle() {
     return Container(
-      height: 54,
+      height: 56,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: const Color(0xFFF3F4F6),
@@ -170,41 +269,34 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
       ),
       child: Row(
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => isAnnual = false),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: !isAnnual ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(26),
-                  boxShadow: !isAnnual ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)] : [],
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'Monthly',
-                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: !isAnnual ? Colors.black : Colors.grey),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => isAnnual = true),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isAnnual ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(26),
-                  boxShadow: isAnnual ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)] : [],
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'Annually',
-                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700, color: isAnnual ? Colors.black : Colors.grey),
-                ),
-              ),
-            ),
-          ),
+          _buildToggleItem(false, 'Monthly'),
+          _buildToggleItem(true, 'Annually (Save 20%)'),
         ],
+      ),
+    );
+  }
+
+  Widget _buildToggleItem(bool value, String label) {
+    final isSelected = isAnnual == value;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => isAnnual = value),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(26),
+            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)] : [],
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+              color: isSelected ? Colors.black : Colors.grey[500],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -228,7 +320,7 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
+            color: isSelected ? AppTheme.brandColor : Colors.grey.shade100,
             width: 2.5,
           ),
           boxShadow: isSelected
@@ -243,13 +335,24 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w900, color: isSelected ? AppTheme.brandColor : Colors.grey, letterSpacing: 1.2),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: isSelected ? AppTheme.brandColor : Colors.grey[400],
+                    letterSpacing: 1.5,
+                  ),
                 ),
                 if (isRecommended)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: AppTheme.brandColor, borderRadius: BorderRadius.circular(20)),
-                    child: Text('RECOMMENDED', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w800, color: Colors.white)),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(colors: [Color(0xFFFFB703), Color(0xFFFB8500)]),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'RECOMMENDED',
+                      style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.white),
+                    ),
                   ),
               ],
             ),
@@ -260,23 +363,35 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
               children: [
                 Text(
                   'रू $price',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 34, fontWeight: FontWeight.w900, color: Colors.black),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 36, fontWeight: FontWeight.w900, color: Colors.black),
                 ),
                 const SizedBox(width: 4),
                 Text(
                   '/$period',
-                  style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey[400]),
+                  style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey[400]),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             ...features.map((f) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle_rounded, size: 18, color: isSelected ? AppTheme.brandColor : Colors.grey[300]),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(f, style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700], fontWeight: FontWeight.w500))),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppTheme.brandColor.withOpacity(0.1) : Colors.grey[100],
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.check_rounded, size: 14, color: isSelected ? AppTheme.brandColor : Colors.grey[400]),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      f,
+                      style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700], fontWeight: FontWeight.w500),
+                    ),
+                  ),
                 ],
               ),
             )),

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/models/booking_model.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:khozna/widgets/khozna_image.dart';
 
 class PaymentChoiceScreen extends StatefulWidget {
   final BookingModel booking;
@@ -23,7 +22,7 @@ class PaymentChoiceScreen extends StatefulWidget {
 }
 
 class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
-  String? _selectedType;
+  String _selectedType = 'khozna';
   bool _isSubmitting = false;
   bool _isLoadingOwner = true;
   String? _ownerEsewa;
@@ -57,8 +56,12 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const Color kTextDark = Color(0xFF1A1A2E);
+    const Color kTextMid = Color(0xFF6B7280);
+    const Color kSuccess = Color(0xFF22C55E);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFBF9),
+      backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -69,62 +72,139 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         ),
         title: Text(
           'भुक्तानीको माध्यम (Payment)',
-          style: GoogleFonts.mukta(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 18),
+          style: GoogleFonts.mukta(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: Colors.black,
+          ),
         ),
       ),
       body: _isLoadingOwner 
-        ? const Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
         : SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            // Booking Details Header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(32),
+                  bottomRight: Radius.circular(32),
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 32),
-                  _buildSectionTitle('भुक्तानीको माध्यम छान्नुहोस्', 'Select how you want to pay'),
-                  const SizedBox(height: 20),
-                  
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'बुकिङ विवरण',
+                      style: GoogleFonts.mukta(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.brandColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.propertyTitle,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      color: kTextDark,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today_outlined, size: 16, color: kTextMid),
+                      const SizedBox(width: 8),
+                      Text(
+                        'जेठ १५ - १६ (रू ${NumberFormat('#,##,###').format(widget.booking.totalPrice)} - १ रात)',
+                        style: GoogleFonts.mukta(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: kTextMid,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 32),
+            
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'भुक्तानीको माध्यम छान्नुहोस्',
+                    style: GoogleFonts.mukta(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: kTextDark,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Select how you want to pay',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: kTextMid,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
                   // Option 1: Direct to Owner
-                  _buildChoiceCard(
+                  _buildPaymentCard(
                     id: 'direct',
                     title: 'घरधनीलाई सिधै भुक्तानी',
-                    englishTitle: 'Pay Owner Direct',
-                    subtitle: 'छिटो र सजिलो (Fast & Simple)',
-                    description: 'तपाईंले घरधनीलाई सिधै eSewa मार्फत रकम पठाउन सक्नुहुन्छ। यसको कुनै पनि जिम्मेवारी खोज्नले लिने छैन।',
-                    fee: '५% सेवा शुल्क (5% Fee)',
-                    esewa: _ownerEsewa ?? 'Not provided',
-                    qrUrl: _ownerQr,
-                    icon: Icons.account_balance_wallet_rounded,
-                    color: const Color(0xFF60BB46), // eSewa green
-                    isRecommended: false,
-                    protection: false,
-                    isEsewa: true,
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Option 2: Pay Khozna (Recommended)
-                  _buildChoiceCard(
-                    id: 'khozna',
-                    title: 'खोज्न मार्फत भुक्तानी',
-                    englishTitle: 'Pay via Khozna',
-                    subtitle: 'सुरक्षित र भरपर्दो (Recommended)',
-                    description: 'तपाईंको रकम खोज्नसँग सुरक्षित रहनेछ। कुनै समस्या आएमा रकम फिर्ता (Refund) हुने सुनिश्चितता छ।',
-                    fee: '१०% सेवा शुल्क (10% Fee)',
-                    esewa: '9800000000', // Khozna's main number
-                    qrUrl: null, // We can add Khozna's QR here
-                    icon: Icons.verified_user_rounded,
-                    color: AppTheme.brandColor,
-                    isRecommended: true,
-                    protection: true,
+                    subtitle: 'Pay Owner Direct',
+                    highlightText: 'छिटो र सजिलो (Fast & Simple)',
+                    highlightColor: kSuccess,
+                    description: 'तपाईंले घरधनीलाई सिधै eSewa मार्फत रकम पठाउन सक्नुहुन्छ। यसको कुनै पनि जिम्मेवारी खोज्नुले लिने छैन।',
+                    iconAsset: 'assets/images/esewa.webp',
+                    esewaNumber: _ownerEsewa ?? 'उपलब्ध छैन',
+                    feeText: '५% सेवा शुल्क (5% Fee)',
+                    feeColor: kSuccess,
+                    warningText: '⚠️ No protection',
+                    isSelected: _selectedType == 'direct',
+                    onTap: () => setState(() => _selectedType = 'direct'),
                   ),
 
-                  const SizedBox(height: 32),
-                  _buildProtectionBox(),
+                  const SizedBox(height: 16),
+
+                  // Option 2: Pay via Khozna
+                  _buildPaymentCard(
+                    id: 'khozna',
+                    title: 'खोज्न मार्फत भुक्तानी',
+                    subtitle: 'Pay via Khozna',
+                    badgeText: 'RECOMMENDED',
+                    highlightText: 'सुरक्षित र भरपर्दो (Recommended)',
+                    highlightColor: AppTheme.brandColor,
+                    description: 'तपाईंको रकम खोज्नुसँग सुरक्षित रहनेछ। कुनै समस्या आएमा रकम फिर्ता (Refund) हुने सुनिश्चितता छ।',
+                    iconData: Icons.check_circle_rounded,
+                    esewaNumber: '9800000000',
+                    feeText: '१०% सेवा शुल्क (10% Fee)',
+                    feeColor: AppTheme.brandColor,
+                    isSelected: _selectedType == 'khozna',
+                    onTap: () => setState(() => _selectedType = 'khozna'),
+                  ),
+
                   const SizedBox(height: 100),
                 ],
               ),
@@ -136,177 +216,168 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: AppTheme.brandColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-            child: Text(
-              'बुकिङ विवरण',
-              style: GoogleFonts.mukta(color: AppTheme.brandColor, fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            widget.propertyTitle,
-            style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: -0.5),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
-              const SizedBox(width: 8),
-              Text(
-                'जेठ १५ - १६ (${widget.booking.totalPrice} - १ रात)',
-                style: GoogleFonts.mukta(color: Colors.grey[600], fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String nepali, String english) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(nepali, style: GoogleFonts.mukta(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.black)),
-        Text(english, style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey[400], letterSpacing: 1.2)),
-      ],
-    );
-  }
-
-  Widget _buildChoiceCard({
+  Widget _buildPaymentCard({
     required String id,
     required String title,
-    required String englishTitle,
     required String subtitle,
+    String? badgeText,
+    required String highlightText,
+    required Color highlightColor,
     required String description,
-    required String fee,
-    required String esewa,
-    required String? qrUrl,
-    required IconData icon,
-    required Color color,
-    required bool isRecommended,
-    required bool protection,
-    bool isEsewa = false,
+    String? iconAsset,
+    IconData? iconData,
+    required String esewaNumber,
+    required String feeText,
+    required Color feeColor,
+    String? warningText,
+    required bool isSelected,
+    required VoidCallback onTap,
   }) {
-    final isSelected = _selectedType == id;
-
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        setState(() => _selectedType = id);
-      },
+      onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.05) : Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
           border: Border.all(
-            color: isSelected ? color : Colors.grey[200]!,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? highlightColor : Colors.grey.shade200,
+            width: 2,
           ),
-          boxShadow: isSelected 
-            ? [BoxShadow(color: color.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 8))]
-            : [],
+          boxShadow: isSelected
+              ? [BoxShadow(color: highlightColor.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))]
+              : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
-                      child: isEsewa 
-                          ? Image.network(
-                              'https://esewa.com.np/common/images/esewa_logo.png',
-                              height: 20,
-                              width: 20,
-                              errorBuilder: (context, error, stackTrace) => Icon(icon, color: color, size: 20),
-                            )
-                          : Icon(icon, color: color, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(title, style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 16)),
-                        Text(englishTitle, style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey)),
-                      ],
-                    ),
-                  ],
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: highlightColor.withOpacity(0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: iconAsset != null
+                      ? Image.asset(iconAsset, fit: BoxFit.contain)
+                      : Icon(iconData, color: highlightColor, size: 28),
                 ),
-                if (isRecommended)
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.mukta(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (badgeText != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: AppTheme.brandColor, borderRadius: BorderRadius.circular(10)),
-                    child: Text('RECOMMENDED', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w900)),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: highlightColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      badgeText,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ),
               ],
             ),
             const SizedBox(height: 16),
-            Text(subtitle, style: GoogleFonts.mukta(fontWeight: FontWeight.bold, color: color, fontSize: 14)),
-            const SizedBox(height: 8),
-            Text(description, style: GoogleFonts.mukta(color: Colors.grey[600], fontSize: 13, height: 1.4)),
-            
-            if (qrUrl != null && isSelected) ...[
-              const SizedBox(height: 16),
-              GestureDetector(
-                onTap: () => _viewFullQr(qrUrl),
-                child: Container(
-                  height: 120,
-                  width: 120,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: color.withOpacity(0.2)),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: KhoznaImage(imageUrl: qrUrl, fit: BoxFit.cover),
-                  ),
-                ),
+            Text(
+              highlightText,
+              style: GoogleFonts.mukta(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: highlightColor,
               ),
-              const SizedBox(height: 8),
-              Text('Tap to enlarge QR Code', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey)),
-            ],
-
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Divider(height: 1),
             ),
-            
+            const SizedBox(height: 6),
+            Text(
+              description,
+              style: GoogleFonts.mukta(
+                fontSize: 13,
+                color: const Color(0xFF6B7280),
+                fontWeight: FontWeight.w500,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Divider(height: 1, color: Color(0xFFF3F4F6)),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('eSewa Number:', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
-                    Text(esewa, style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
+                    Text(
+                      'eSewa Number:',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF9CA3AF),
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      esewaNumber,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF4B5563),
+                      ),
+                    ),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(fee, style: GoogleFonts.mukta(fontSize: 12, fontWeight: FontWeight.bold, color: color)),
-                    if (!protection) 
-                      Text('⚠️ No protection', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.red)),
+                    Text(
+                      feeText,
+                      style: GoogleFonts.mukta(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: feeColor,
+                      ),
+                    ),
+                    if (warningText != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        warningText,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFEF4444),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],
@@ -317,66 +388,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  void _viewFullQr(String url) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: KhoznaImage(imageUrl: url, fit: BoxFit.contain),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProtectionBox() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTheme.brandColor.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.brandColor.withOpacity(0.1)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.info_outline_rounded, color: AppTheme.brandColor, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('खोज्न मार्फत भुक्तानी किन गर्ने?', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 15)),
-                const SizedBox(height: 4),
-                Text(
-                  'खोज्न मार्फत भुक्तानी गर्दा तपाईंको रकम सुरक्षित रहन्छ। यदि घरधनीले बुकिङ रद्द गरेमा वा सम्झौता अनुसार नभएमा, तपाईंले आफ्नो रकम सजिलै फिर्ता पाउनुहुनेछ।',
-                  style: GoogleFonts.mukta(color: Colors.grey[700], fontSize: 13, height: 1.5),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildBottomAction() {
-    if (_selectedType == null) return const SizedBox.shrink();
-
     final feePercent = _selectedType == 'khozna' ? 0.10 : 0.05;
     final feeAmount = widget.booking.totalPrice * feePercent;
     final total = widget.booking.totalPrice + feeAmount;
@@ -429,7 +441,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     try {
       await BookingRepository.submitPayment(
         bookingId: widget.booking.id,
-        paymentType: _selectedType!,
+        paymentType: _selectedType,
         method: 'esewa',
         amount: widget.booking.totalPrice,
       );
