@@ -61,7 +61,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             decoration: BoxDecoration(
               color: const Color(0xFFF0FDF4),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFFDCFCE7)),
             ),
             child: Row(
               children: [
@@ -384,13 +383,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 decoration: BoxDecoration(
                   color: isRecommended ? AppTheme.brandColor : const Color(0xFF16A34A),
                   borderRadius: BorderRadius.circular(6),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (isRecommended ? AppTheme.brandColor : const Color(0xFF16A34A)).withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
                 child: Text(
                   badgeText,
