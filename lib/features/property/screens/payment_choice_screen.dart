@@ -109,7 +109,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
 
               // Payment Gateway Row (MOVED TO TOP)
               Row(
@@ -122,7 +122,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 ],
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 48),
 
               // CARD 1: Pay owner directly
               _buildPlanCard(
