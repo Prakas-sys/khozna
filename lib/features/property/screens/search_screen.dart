@@ -597,10 +597,10 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
         ),
-      // Floating AI Pill - only in Main Search section
+      // Floating AI Button - only in Main Search section
       if (!_showNearbySection)
         Positioned(
-          bottom: 28,
+          bottom: 100, // Positioned above the search button
           right: 24,
           child: GestureDetector(
             onTap: () {
@@ -613,14 +613,15 @@ class _SearchScreenState extends State<SearchScreen> {
               );
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [AppTheme.brandColor, Color(0xFF007AFF)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(30),
+                shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: AppTheme.brandColor.withOpacity(0.3),
@@ -629,24 +630,12 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.auto_awesome,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'AI Support',
-                    style: GoogleFonts.plusJakartaSans(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
+              child: const Center(
+                child: Icon(
+                  Icons.auto_awesome,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
             ),
           ),
