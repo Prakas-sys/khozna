@@ -311,7 +311,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -462,11 +462,11 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       child: Column(
         children: [
           Container(
-            width: 72,
-            height: 72,
+            width: 64,
+            height: 64,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected ? AppTheme.brandColor : Colors.grey.shade100,
                 width: isSelected ? 2 : 1,
@@ -483,8 +483,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               children: [
                 Center(
                   child: asset != null
-                      ? Image.asset(asset, width: 28, height: 28, fit: BoxFit.contain)
-                      : Icon(icon, color: Colors.grey[400], size: 24),
+                      ? Image.asset(asset, width: 24, height: 24, fit: BoxFit.contain)
+                      : Icon(icon, color: Colors.grey[400], size: 22),
                 ),
                 if (isSoon)
                   Positioned(
