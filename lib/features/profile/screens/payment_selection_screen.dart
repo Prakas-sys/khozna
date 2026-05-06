@@ -11,19 +11,17 @@ class PaymentSelectionScreen extends StatefulWidget {
 }
 
 class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
-  bool isAnnual = false;
-  String selectedPlan = 'Premium';
-  String selectedPayment = 'esewa';
+  String selectedMethod = 'khozna';
 
   @override
   Widget build(BuildContext context) {
-    const Color kPrimary = Color(0xFF00A3E1);
     const Color kTextDark = Color(0xFF1A1A2E);
     const Color kTextMid = Color(0xFF6B7280);
-    const Color kSuccess = Color(0xFF00C853);
+    const Color kSuccess = Color(0xFF22C55E);
+    const Color kDanger = Color(0xFFEF4444);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -31,308 +29,317 @@ class _PaymentSelectionScreenState extends State<PaymentSelectionScreen> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        centerTitle: true,
         title: Text(
-          'सदस्यता छान्नुहोस् (Pick Your Plan)',
+          'भुक्तानीको माध्यम (Payment)',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
             color: Colors.black,
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
-            Image.asset(
-              'assets/images/original logo.png',
-              height: 80,
-              errorBuilder: (context, error, stackTrace) => const Icon(Icons.workspace_premium_rounded, size: 80, color: AppTheme.brandColor),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Pick Your Right Plan',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                color: kTextDark,
-                letterSpacing: -1.0,
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Plan Cards
-            _buildPlanCard(
-              title: 'BASIC PLAN',
-              price: isAnnual ? '४,५००' : '५००',
-              period: isAnnual ? 'yr' : 'mo',
-              features: 'सजिलो कोठा खोज्न र बुक गर्न।',
-              isSelected: selectedPlan == 'Basic',
-              onTap: () => setState(() => selectedPlan = 'Basic'),
-            ),
-            const SizedBox(height: 16),
-            _buildPlanCard(
-              title: 'PREMIUM PLAN',
-              price: isAnnual ? '९,०००' : '९९९',
-              period: isAnnual ? 'yr' : 'mo',
-              features: 'Verified Listings & AI Search access.',
-              isSelected: selectedPlan == 'Premium',
-              isBestValue: true,
-              onTap: () => setState(() => selectedPlan = 'Premium'),
-            ),
-
-            const SizedBox(height: 32),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Choose Your Payment Method',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: kTextDark,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Payment Methods Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildPaymentOption('esewa', 'eSewa', 'assets/images/esewa.webp'),
-                _buildPaymentOption('khalti', 'Khalti', 'assets/images/khalti by image.png'),
-                _buildPaymentOption('bank', 'Bank', null, icon: Icons.account_balance_rounded),
-                _buildPaymentOption('card', 'Card', null, icon: Icons.credit_card_rounded),
-              ],
-            ),
-
-            const SizedBox(height: 40),
-            
-            // CTA Button
-            SizedBox(
+            // Booking Details Section
+            Container(
               width: double.infinity,
-              height: 60,
-              child: ElevatedButton(
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  // Handle subscription
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.brandColor, // Purple like in the image, or kPrimary
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(32),
+                  bottomRight: Radius.circular(32),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Try For Free',
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'बुकिङ विवरण',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.brandColor,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward_rounded, size: 20),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Beautiful Apartment',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      color: kTextDark,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_today_outlined, size: 16, color: kTextMid),
+                      const SizedBox(width: 8),
+                      Text(
+                        'जेठ १५ - १६ (0.0 - १ रात)',
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: kTextMid,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
 
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildFooterLink('Privacy Policy'),
-                const SizedBox(width: 12),
-                Container(width: 4, height: 4, decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle)),
-                const SizedBox(width: 12),
-                _buildFooterLink('Terms & Conditions'),
-              ],
+            const SizedBox(height: 32),
+            
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'भुक्तानीको माध्यम छान्नुहोस्',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: kTextDark,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Select how you want to pay',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: kTextMid,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Option 1: Direct Payment
+                  _buildPaymentCard(
+                    id: 'direct',
+                    title: 'घरधनीलाई सिधै भुक्तानी',
+                    subtitle: 'Pay Owner Direct',
+                    highlightText: 'छिटो र सजिलो (Fast & Simple)',
+                    highlightColor: kSuccess,
+                    description: 'तपाईंले घरधनीलाई सिधै eSewa मार्फत रकम पठाउन सक्नुहुन्छ। यसको कुनै पनि जिम्मेवारी खोज्नुले लिने छैन।',
+                    iconAsset: 'assets/images/esewa.webp',
+                    esewaNumber: '9863590097',
+                    feeText: '५% सेवा शुल्क (5% Fee)',
+                    feeColor: kSuccess,
+                    warningText: '⚠️ No protection',
+                    isSelected: selectedMethod == 'direct',
+                    onTap: () => setState(() => selectedMethod = 'direct'),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Option 2: Pay via Khozna
+                  _buildPaymentCard(
+                    id: 'khozna',
+                    title: 'खोज्न मार्फत भुक्तानी',
+                    subtitle: 'Pay via Khozna',
+                    badgeText: 'RECOMMENDED',
+                    highlightText: 'सुरक्षित र भरपर्दो (Recommended)',
+                    highlightColor: AppTheme.brandColor,
+                    description: 'तपाईंको रकम खोज्नुसँग सुरक्षित रहनेछ। कुनै समस्या आएमा रकम फिर्ता (Refund) हुने सुनिश्चितता छ।',
+                    iconData: Icons.check_circle_rounded,
+                    esewaNumber: '9800000000',
+                    feeText: '१०% सेवा शुल्क (10% Fee)',
+                    feeColor: AppTheme.brandColor,
+                    isSelected: selectedMethod == 'khozna',
+                    onTap: () => setState(() => selectedMethod = 'khozna'),
+                  ),
+
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
-            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPlanCard({
+  Widget _buildPaymentCard({
+    required String id,
     required String title,
-    required String price,
-    required String period,
-    required String features,
+    required String subtitle,
+    String? badgeText,
+    required String highlightText,
+    required Color highlightColor,
+    required String description,
+    String? iconAsset,
+    IconData? iconData,
+    required String esewaNumber,
+    required String feeText,
+    required Color feeColor,
+    String? warningText,
     required bool isSelected,
-    bool isBestValue = false,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
-                width: 2,
-              ),
-              boxShadow: isSelected
-                  ? [BoxShadow(color: AppTheme.brandColor.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10))]
-                  : [],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: isSelected ? highlightColor : Colors.grey.shade200,
+            width: 2,
+          ),
+          boxShadow: isSelected
+              ? [BoxShadow(color: highlightColor.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))]
+              : [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Text(
-                  title,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: isSelected ? AppTheme.brandColor : const Color(0xFF6B7280),
-                    letterSpacing: 1.2,
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: highlightColor.withOpacity(0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: iconAsset != null
+                      ? Image.asset(iconAsset, fit: BoxFit.contain)
+                      : Icon(iconData, color: highlightColor, size: 28),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
+                if (badgeText != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: highlightColor,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      badgeText,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              highlightText,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: highlightColor,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              description,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: const Color(0xFF6B7280),
+                fontWeight: FontWeight.w500,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Divider(height: 1, color: Color(0xFFF3F4F6)),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'रू $price',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'NPR/$period',
+                      'eSewa Number:',
                       style: GoogleFonts.inter(
-                        fontSize: 14,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[500],
+                        color: const Color(0xFF9CA3AF),
                       ),
                     ),
-                    if (isSelected) ...[
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(color: Color(0xFF7C3AED), shape: BoxShape.circle),
-                        child: const Icon(Icons.check_rounded, color: Colors.white, size: 16),
+                    const SizedBox(height: 2),
+                    Text(
+                      esewaNumber,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF4B5563),
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      feeText,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: feeColor,
+                      ),
+                    ),
+                    if (warningText != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        warningText,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFEF4444),
+                        ),
                       ),
                     ],
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  features,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  isSelected ? 'Selected' : (title.contains('BASIC') ? 'Try For Free' : 'Learn More'),
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: isSelected ? AppTheme.brandColor : AppTheme.brandColor,
-                  ),
-                ),
               ],
             ),
-          ),
-          if (isBestValue)
-            Positioned(
-              top: -12,
-              right: 20,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF22C55E),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4))],
-                ),
-                child: Text(
-                  'Best Value!',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPaymentOption(String id, String label, String? asset, {IconData? icon}) {
-    bool isSelected = selectedPayment == id;
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        setState(() => selectedPayment = id);
-      },
-      child: Column(
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isSelected ? AppTheme.brandColor : Colors.grey.shade100,
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(12),
-            child: asset != null
-                ? Image.asset(asset, fit: BoxFit.contain)
-                : Icon(icon, color: Colors.grey[700], size: 28),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              color: isSelected ? Colors.black : Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFooterLink(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.inter(
-        fontSize: 12,
-        color: Colors.grey[500],
-        fontWeight: FontWeight.w600,
+          ],
+        ),
       ),
     );
   }
