@@ -267,7 +267,17 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                           children: [
                             Row(
                               children: [
-                                Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
+                                Expanded(
+                                  child: Text(
+                                    title,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                                 const SizedBox(width: 8),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -304,6 +314,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
+                          flex: 3,
                           child: Column(
                             children: features.map((f) => Padding(
                               padding: const EdgeInsets.only(bottom: 6),
@@ -311,14 +322,23 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                                 children: [
                                   const Icon(Icons.check_rounded, color: Color(0xFF16A34A), size: 14),
                                   const SizedBox(width: 8),
-                                  Text(f, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                                  Expanded(
+                                    child: Text(
+                                      f,
+                                      style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w600),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
                                 ],
                               ),
                             )).toList(),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         if (warning != null)
                           Expanded(
+                            flex: 2,
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(color: const Color(0xFFFFF7ED), borderRadius: BorderRadius.circular(10)),
@@ -337,13 +357,18 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   if (featuresRow != null)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: featuresRow.map((f) => Expanded(
-                        child: Row(
-                          children: [
-                            Icon(f['icon'] as IconData, color: AppTheme.brandColor, size: 14),
-                            const SizedBox(width: 6),
-                            Expanded(child: Text(f['text'] as String, style: GoogleFonts.plusJakartaSans(fontSize: 8, color: Colors.grey[600], fontWeight: FontWeight.w700, height: 1.2))),
-                          ],
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(f['icon'] as IconData, color: AppTheme.brandColor, size: 14),
+                              const SizedBox(width: 4),
+                              Expanded(child: Text(f['text'] as String, style: GoogleFonts.plusJakartaSans(fontSize: 8, color: Colors.grey[600], fontWeight: FontWeight.w700, height: 1.2))),
+                            ],
+                          ),
                         ),
                       )).toList(),
                     ),
