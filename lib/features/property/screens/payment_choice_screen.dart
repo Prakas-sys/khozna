@@ -37,8 +37,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'भुक्तानी विधि छनौट गर्नुहोस् (Choose how you want to pay)',
-          style: GoogleFonts.mukta(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 16),
+          'भुक्तानी विधि (Payment Method)',
+          style: GoogleFonts.mukta(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 18),
         ),
       ),
       body: SingleChildScrollView(
@@ -59,9 +59,11 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             _buildPaymentOption(
               id: 'direct',
               icon: Icons.person_outline_rounded,
-              title: 'I will deal directly with owner',
-              description: 'Use eSewa or Khalti and pay after agreement. Done offline style.',
-              badge: 'DEFAULT',
+              title: 'Deal directly with owner',
+              nepaliTitle: 'घरधनीसँग सिधै कुरा गर्छु',
+              description: 'Use eSewa or Khalti and pay after agreement.',
+              nepaliDescription: 'ई-सेवा वा खल्ती प्रयोग गर्नुहोस् र सम्झौता पछि भुक्तानी गर्नुहोस्।',
+              badge: 'POPULAR',
               isSelected: _selectedType == 'direct',
               onTap: () => setState(() => _selectedType = 'direct'),
             ),
@@ -72,9 +74,11 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             _buildPaymentOption(
               id: 'khozna',
               icon: Icons.shield_outlined,
-              title: 'Use KHOZNA Safe Payment',
-              description: 'We hold money safely. Money released only after you move in.',
-              badge: 'PREMIUM TRUST',
+              title: 'KHOZNA Safe Payment',
+              nepaliTitle: 'खोज्ना सुरक्षित भुक्तानी',
+              description: 'We hold your payment safely until you move in.',
+              nepaliDescription: 'हामी तपाईंको पैसा सुरक्षित राख्छौं। तपाईं सरेपछि मात्र पैसा रिलिज हुन्छ।',
+              badge: 'EXTRA SECURE',
               isSelected: _selectedType == 'khozna',
               onTap: () => setState(() => _selectedType = 'khozna'),
             ),
@@ -108,8 +112,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              '⚠️ Please visit the room before making any payment.',
-              style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.amber.shade900),
+              '⚠️ पैसा तिर्नु अघि कृपया कोठामा गएर हेर्नुहोस्। (Visit before payment)',
+              style: GoogleFonts.mukta(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.amber.shade900, height: 1.2),
             ),
           ),
         ],
@@ -121,7 +125,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     required String id,
     required IconData icon,
     required String title,
+    required String nepaliTitle,
     required String description,
+    required String nepaliDescription,
     required String badge,
     required bool isSelected,
     required VoidCallback onTap,
@@ -148,17 +154,32 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(title, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 15)),
-                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          nepaliTitle,
+                          style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 15, height: 1.1),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
-                        child: Text(badge, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: Colors.blue.shade700)),
+                        child: Text(badge, style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.w900, color: Colors.blue.shade700)),
                       ),
                     ],
                   ),
-                  Text(description, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
+                  Text(
+                    title,
+                    style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600, fontSize: 11, color: Colors.grey[500]),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    nepaliDescription,
+                    style: GoogleFonts.mukta(fontSize: 12, color: Colors.grey[700], height: 1.2),
+                  ),
                 ],
               ),
             ),
@@ -179,17 +200,17 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('How to pay:', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13)),
+              Text('भुक्तानी गर्ने तरिका (How to pay):', style: GoogleFonts.mukta(fontWeight: FontWeight.bold, fontSize: 15)),
               const SizedBox(height: 12),
-              _instructionItem('1', 'Talk to owner and confirm monthly rent.'),
-              _instructionItem('2', 'Pay via eSewa or Khalti to owner directly.'),
-              _instructionItem('3', 'Take a screenshot of the payment.'),
-              _instructionItem('4', 'Upload the proof below to confirm in Khozna.'),
+              _instructionItem('१', 'घरधनीसँग कुरा गर्नुहोस् र भाडा तय गर्नुहोस्। (Talk to owner)'),
+              _instructionItem('२', 'ई-सेवा वा खल्तीबाट सिधै घरधनीलाई पैसा पठाउनुहोस्। (Pay directly)'),
+              _instructionItem('३', 'पैसा पठाएको स्क्रिनसट लिनुहोस्। (Take screenshot)'),
+              _instructionItem('४', 'पुष्टि गर्नको लागि तल प्रमाण अपलोड गर्नुहोस्। (Upload proof)'),
             ],
           ),
         ),
         const SizedBox(height: 24),
-        Text('Upload Payment Proof', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
+        Text('प्रमाण अपलोड गर्नुहोस् (Upload Proof)', style: GoogleFonts.mukta(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 12),
         Container(
           width: double.infinity,
@@ -204,7 +225,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             children: [
               const Icon(Icons.cloud_upload_outlined, color: Colors.grey, size: 32),
               const SizedBox(height: 8),
-              Text('Upload Screenshot', style: GoogleFonts.inter(color: Colors.grey, fontSize: 12)),
+              Text('स्क्रिनसट अपलोड गर्नुहोस् (Upload Screenshot)', style: GoogleFonts.mukta(color: Colors.grey, fontSize: 13)),
             ],
           ),
         ),
@@ -212,8 +233,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         TextField(
           controller: _transactionController,
           decoration: InputDecoration(
-            hintText: 'Enter Transaction ID',
+            hintText: 'कारोबार आईडी (Transaction ID) हाल्नुहोस्',
             labelText: 'Transaction ID',
+            labelStyle: GoogleFonts.inter(fontSize: 14),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.numbers_rounded),
           ),
@@ -265,9 +287,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$num.', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor, fontSize: 13)),
+          Text('$num.', style: GoogleFonts.mukta(fontWeight: FontWeight.bold, color: AppTheme.brandColor, fontSize: 14)),
           const SizedBox(width: 8),
-          Expanded(child: Text(text, style: GoogleFonts.inter(fontSize: 13, color: Colors.black87))),
+          Expanded(child: Text(text, style: GoogleFonts.mukta(fontSize: 14, color: Colors.black87))),
         ],
       ),
     );
@@ -301,8 +323,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         child: _isSubmitting
             ? const CircularProgressIndicator(color: Colors.white)
             : Text(
-                _selectedType == 'direct' ? 'I HAVE PAID' : 'PAY SECURELY',
-                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 16),
+                _selectedType == 'direct' ? 'मैले पैसा तिरिसकें (I HAVE PAID)' : 'सुरक्षित भुक्तानी गर्नुहोस् (PAY SECURELY)',
+                style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 16),
               ),
       ),
     );

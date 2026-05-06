@@ -140,7 +140,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                       _detailRow(
                         Icons.currency_rupee,
                         'Monthly Rent',
-                        widget.price.isEmpty ? 'Not specified' : '₹ ${widget.price}/mo',
+                        widget.price.isEmpty ? 'Not specified' : 'Rs. ${widget.price}/mo',
                       ),
                     ],
                   ),
@@ -669,7 +669,7 @@ class QuickPriceChip extends StatelessWidget {
           text: TextSpan(
             children: [
               TextSpan(
-                text: '₹ ',
+                text: 'Rs. ',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,

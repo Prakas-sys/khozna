@@ -69,7 +69,7 @@ class _SearchScreenState extends State<SearchScreen> {
               MaterialPageRoute(
                 builder: (context) => FilterResultsScreen(
                   location: widget.initialQuery!,
-                  priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                  priceRange: 'Up to Rs. ${_priceValue.toInt()}',
                 ),
               ),
             );
@@ -205,7 +205,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       builder: (context) => FilterResultsScreen(
                                         location: val,
                                         priceRange:
-                                            'Up to ₹ ${_priceValue.toInt()}',
+                                            'Up to Rs. ${_priceValue.toInt()}',
                                       ),
                                     ),
                                   );
@@ -279,7 +279,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             MaterialPageRoute(
                               builder: (context) => FilterResultsScreen(
                                 location: _searchController.text,
-                                priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                                priceRange: 'Up to Rs. ${_priceValue.toInt()}',
                               ),
                             ),
                           );
@@ -502,7 +502,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  '₹${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}${p.priceNight > 0 ? '/n' : ''}',
+                                                  'Rs. ${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}${p.priceNight > 0 ? '/n' : ''}',
                                                   style:
                                                       GoogleFonts.plusJakartaSans(
                                                         color: Colors.black,
@@ -600,7 +600,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: '₹',
+                                    text: 'Rs. ',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -622,7 +622,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: '₹',
+                                    text: 'Rs. ',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -669,7 +669,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: '₹',
+                                text: 'Rs. ',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
@@ -716,7 +716,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   builder: (context) => FilterResultsScreen(
                                     location: search,
                                     priceRange:
-                                        'Up to ₹ ${_priceValue.toInt()}',
+                                        'Up to Rs. ${_priceValue.toInt()}',
                                   ),
                                 ),
                               );
@@ -857,7 +857,7 @@ class _SearchScreenState extends State<SearchScreen> {
             MaterialPageRoute(
               builder: (context) => FilterResultsScreen(
                 location: title.split(',')[0],
-                priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                priceRange: 'Rs. ${_priceValue.toInt()}',
               ),
             ),
           );

@@ -274,7 +274,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '₹${p.priceNight > 0 ? p.priceNight : p.price}${p.priceNight > 0 ? '/night' : '/mo'}',
+                                  'Rs. ${p.priceNight > 0 ? p.priceNight : p.price}${p.priceNight > 0 ? '/night' : '/mo'}',
                                   style: GoogleFonts.inter(
                                     fontWeight: FontWeight.bold,
                                     color: AppTheme.brandColor,

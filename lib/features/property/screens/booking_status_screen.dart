@@ -96,7 +96,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     switch (_booking.status) {
       case 'awaiting_payment':
         color = Colors.blue;
-        title = 'अनुरोध स्वीकृत (Accepted!)';
+        title = 'भ्रमण स्वीकृत (Visit Approved)';
         description = 'मालिकले भ्रमणको लागि निम्तो दिनुभएको छ। कोठा हेर्न जानुहोला।';
         break;
       case 'paid':
@@ -237,7 +237,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           ),
           child: Text(
-            'PROCEED TO PAYMENT',
+            'I LIKED THIS ROOM',
             style: GoogleFonts.sora(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),

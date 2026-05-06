@@ -165,7 +165,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             onPressed: () {
               HapticFeedback.mediumImpact();
               Share.share(
-                'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: ₹${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
+                'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: Rs. ${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
               );
             },
           ),
@@ -204,7 +204,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 if (widget.property.houseRules.isNotEmpty) ...[
                   const DetailSectionTitle(title: 'नियमहरू (House Rules)'),
                   const SizedBox(height: 12),
-                  ...widget.property.houseRules.map((rule) => RuleRow(icon: Icons.info_outline, title: rule)),
+                  ...widget.property.houseRules.map((rule) {
+                    // Format rule string (e.g., family_only -> Family Only)
+                    String formattedRule = rule.replaceAll('_', ' ');
+                    if (formattedRule.isNotEmpty) {
+                      formattedRule = formattedRule[0].toUpperCase() + formattedRule.substring(1);
+                    }
+                    return RuleRow(icon: Icons.info_outline, title: formattedRule);
+                  }),
                   const SizedBox(height: 24),
                 ],
                 const SizedBox(height: 32),
@@ -374,10 +381,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           const SizedBox(width: 16),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             if (widget.property.priceNight > 0) ...[
-              RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.priceNight.toString()), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
+              RichText(text: TextSpan(children: [TextSpan(text: 'Rs. ', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.priceNight.toString()), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
               Text('प्रति रात (Per Night)', style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w600)),
             ] else ...[
-              RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.price), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
+              RichText(text: TextSpan(children: [TextSpan(text: 'Rs. ', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.price), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
               Text('भाडा/महिना (Per Month)', style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w600)),
             ],
           ]),
@@ -719,41 +726,49 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Left Side: Price Details
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '₹${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black,
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Rs. ${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
-                      TextSpan(
-                        text: widget.property.priceNight > 0 ? 'night' : 'month',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: Colors.black87,
+                        TextSpan(
+                          text: widget.property.priceNight > 0 ? '/night' : '/mo',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Text(
-                  'No Payment Required Yet',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.blue.shade700,
-                    fontWeight: FontWeight.w600,
+                  Text(
+                    'No Payment Required',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: Colors.blue.shade700,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+            
+            const SizedBox(width: 8),
             
             // Right Side: Slim Reserve Button
             SizedBox(
@@ -777,7 +792,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.brandColor, 
                   foregroundColor: Colors.white, 
-                  padding: const EdgeInsets.symmetric(horizontal: 32), 
+                  padding: const EdgeInsets.symmetric(horizontal: 20), 
                   elevation: 0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
                 ), 
@@ -786,8 +801,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     ? 'Booked' 
                     : (_userHasPendingBooking ? 'Visit Scheduled' : 'SCHEDULE VISIT'),
                   style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
                   ),
                 )
               ),
