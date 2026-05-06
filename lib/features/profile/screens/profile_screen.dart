@@ -24,6 +24,7 @@ import 'package:khozna/core/guards/auth_guard.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/profile/widgets/profile_widgets.dart';
 import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
+import 'package:khozna/features/profile/screens/payment_selection_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isVerified;
@@ -268,6 +269,21 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   ],
 
                   ProfileMenuSection(title: 'OVERVIEW', items: [
+                    ProfileMenuItem(
+                      icon: Icons.workspace_premium_rounded,
+                      title: 'Khozna Premium',
+                      subtitle: 'Upgrade for verified listings',
+                      color: Colors.amber[800],
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PaymentSelectionScreen(),
+                          ),
+                        );
+                      },
+                    ),
                     ProfileMenuItem(
                       icon: Icons.book_online_outlined,
                       title: 'My Bookings',
