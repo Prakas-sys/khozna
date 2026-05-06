@@ -247,49 +247,40 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Stack(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
-                            child: Icon(icon, color: iconColor, size: 24),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        title,
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                  ],
-                                ),
-                                const SizedBox(height: 2),
-                                Text(subtitle, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w500)),
-                                const SizedBox(height: 12),
-                                Text(feeText, style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w900, color: feeColor)),
-                              ],
-                            ),
-                          ),
-                        ],
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+                        child: Icon(icon, color: iconColor, size: 24),
                       ),
-                      Positioned(
-                        top: 0, right: 0,
-                        child: Icon(isSelected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded, color: isSelected ? (isRecommended ? AppTheme.brandColor : const Color(0xFF22C55E)) : Colors.grey[300], size: 22),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(subtitle, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w500)),
+                            const SizedBox(height: 12),
+                            Text(feeText, style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w900, color: feeColor)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        isSelected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded, 
+                        color: isSelected ? (isRecommended ? AppTheme.brandColor : const Color(0xFF22C55E)) : Colors.grey[300], 
+                        size: 22
                       ),
                     ],
                   ),
@@ -385,7 +376,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           if (badgeText.isNotEmpty)
             Positioned(
               top: -10,
-              left: 24,
+              left: 16,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
