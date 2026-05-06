@@ -288,8 +288,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.brandColor,
                         foregroundColor: Colors.white,
-                        elevation: 4,
-                        shadowColor: AppTheme.brandColor.withOpacity(0.4),
+                        elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -765,17 +764,20 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AiChatScreen()),
-          );
-        },
-        backgroundColor: AppTheme.brandColor,
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        child: const Icon(Icons.support_agent, color: Colors.white),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AiChatScreen()),
+            );
+          },
+          backgroundColor: AppTheme.brandColor,
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+          child: const Icon(Icons.support_agent, color: Colors.white),
+        ),
       ),
     );
   }
