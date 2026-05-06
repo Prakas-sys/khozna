@@ -282,12 +282,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    if (badgeText.isNotEmpty)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(4)),
-                                        child: Text(badgeText, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: badgeColor)),
-                                      ),
                                   ],
                                 ),
                                 const SizedBox(height: 2),
@@ -394,25 +388,25 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               ],
             ),
           ),
-          if (isRecommended)
+          if (badgeText.isNotEmpty)
             Positioned(
               top: -10,
               left: 24,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppTheme.brandColor,
+                  color: isRecommended ? AppTheme.brandColor : const Color(0xFF16A34A),
                   borderRadius: BorderRadius.circular(6),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.brandColor.withOpacity(0.3),
+                      color: (isRecommended ? AppTheme.brandColor : const Color(0xFF16A34A)).withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Text(
-                  'RECOMMENDED',
+                  badgeText,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 9,
                     fontWeight: FontWeight.w900,
