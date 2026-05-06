@@ -138,8 +138,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 children: [
                   _buildGatewayIcon('esewa', 'assets/images/esewa.webp', 'eSewa'),
                   _buildGatewayIcon('khalti', 'assets/images/khalti.png', 'Khalti'),
-                  _buildGatewayIcon('bank', null, 'Bank', icon: Icons.account_balance_rounded, isComingSoon: true),
-                  _buildGatewayIcon('card', null, 'Card', icon: Icons.credit_card_rounded, isComingSoon: true),
+                  _buildGatewayIcon('bank', null, 'Bank', icon: Icons.account_balance_outlined, isComingSoon: true),
+                  _buildGatewayIcon('card', null, 'Card', icon: Icons.credit_card_outlined, isComingSoon: true),
                 ],
               ),
 
@@ -311,7 +311,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             fit: BoxFit.contain,
                             errorBuilder: (context, error, stackTrace) => Icon(Icons.payment, color: Colors.grey[300]),
                           )
-                        : Icon(icon, color: isSelected ? AppTheme.brandColor : Colors.grey[400]),
+                        : Icon(icon, color: isSelected ? AppTheme.brandColor : Colors.grey[400], size: 28),
                   ),
                 ],
               ),
