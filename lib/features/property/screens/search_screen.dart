@@ -365,6 +365,25 @@ class _SearchScreenState extends State<SearchScreen> {
                                   ),
                                 ],
                               ),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppTheme.brandColor.withOpacity(0.3),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.map_rounded,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -514,49 +533,28 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Horizontal Property Scroll
-                      SizedBox(
-                        height: 300,
-                        child: _isLoadingNearby
-                            ? const Center(
+                      // Vertical Property Scroll
+                      _isLoadingNearby
+                          ? const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(32.0),
                                 child: CircularProgressIndicator(
                                   color: AppTheme.brandColor,
                                 ),
-                              )
-                            : ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: _nearbyProperties.length,
-                                clipBehavior: Clip.none,
-                                itemBuilder: (context, index) {
-                                  final p = _nearbyProperties[index];
-                                  return Container(
-                                    width: MediaQuery.of(context).size.width - 48,
-                                    margin: const EdgeInsets.only(right: 16),
-                                    alignment: Alignment.topCenter,
-                                    child: PropertyCard(property: p),
-                                  );
-                                },
                               ),
-                      ),
-                      const SizedBox(height: 24),
-                      Center(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            HapticFeedback.mediumImpact();
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()));
-                          },
-                          icon: const Icon(Icons.map_rounded),
-                          label: const Text('Map View'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.brandColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                            elevation: 4,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                            textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 16),
-                          ),
-                        ),
-                      ),
+                            )
+                          : ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: _nearbyProperties.length,
+                              itemBuilder: (context, index) {
+                                final p = _nearbyProperties[index];
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 24),
+                                  child: PropertyCard(property: p),
+                                );
+                              },
+                            ),
                       const SizedBox(height: 80), // Prevent collision with FAB
                     ],
                   ),
@@ -569,22 +567,6 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
         ),
-      ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 24),
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AiChatScreen()),
-            );
-          },
-          backgroundColor: AppTheme.brandColor,
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-          child: const Icon(Icons.support_agent, color: Colors.white),
-        ),
-      ),
     );
   }
 
