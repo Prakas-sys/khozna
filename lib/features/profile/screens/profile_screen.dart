@@ -264,8 +264,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         );
                       },
                     ),
-                    const SizedBox(height: 20),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 8),
                   ],
 
                   ProfileMenuSection(title: 'OVERVIEW', items: [
