@@ -90,7 +90,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             children: [
               const SizedBox(height: 8),
               Text(
-                'Choose payment method',
+                'CHOOSE PAYMENT METHOD',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
@@ -162,7 +162,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               const SizedBox(height: 32),
               
               Text(
-                'Choose your payment method',
+                'CHOOSE YOUR PAYMENT METHOD',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
