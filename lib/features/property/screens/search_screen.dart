@@ -365,44 +365,6 @@ class _SearchScreenState extends State<SearchScreen> {
                                   ),
                                 ],
                               ),
-                              // ENLARGED PILL MAP BUTTON
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.brandColor,
-                                  borderRadius: BorderRadius.circular(30),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppTheme.brandColor.withOpacity(
-                                        0.3,
-                                      ),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 6),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'Map',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    const Icon(
-                                      Icons.map_rounded,
-                                      color: Colors.white,
-                                      size: 24,
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -568,7 +530,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 itemBuilder: (context, index) {
                                   final p = _nearbyProperties[index];
                                   return Container(
-                                    width: 280,
+                                    width: MediaQuery.of(context).size.width - 48,
                                     margin: const EdgeInsets.only(right: 16),
                                     alignment: Alignment.topCenter,
                                     child: PropertyCard(property: p),
@@ -576,202 +538,31 @@ class _SearchScreenState extends State<SearchScreen> {
                                 },
                               ),
                       ),
+                      const SizedBox(height: 24),
+                      Center(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            HapticFeedback.mediumImpact();
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()));
+                          },
+                          icon: const Icon(Icons.map_rounded),
+                          label: const Text('Map View'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.brandColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                            textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 80), // Prevent collision with FAB
                     ],
                   ),
-                  const SizedBox(height: 32),
-                  Text(
-                    'PRICE RANGE (भाडाको सीमा)',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black38,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                        color: Colors.grey.shade100,
-                        width: 1.2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Rs. ',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: '2K',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Rs. ',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: '100K+',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SliderTheme(
-                          data: SliderTheme.of(context).copyWith(
-                            activeTrackColor: AppTheme.brandColor,
-                            inactiveTrackColor: AppTheme.brandColor.withOpacity(
-                              0.1,
-                            ),
-                            thumbColor: Colors.white,
-                            overlayColor: AppTheme.brandColor.withOpacity(0.1),
-                            thumbShape: const RoundSliderThumbShape(
-                              enabledThumbRadius: 10,
-                              elevation: 4,
-                            ),
-                            trackHeight: 4,
-                          ),
-                          child: Slider(
-                            value: _priceValue,
-                            min: 2000,
-                            max: 100000,
-                            onChanged: (val) =>
-                                setState(() => _priceValue = val),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Rs. ',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.brandColor,
-                                ),
-                              ),
-                              TextSpan(
-                                text:
-                                    '${PriceFormatter.format(_priceValue.toInt().toString())} / month',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.brandColor,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Text(
-                    'RECENTLY SEARCHED (भर्खरै खोजिएका)',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.black38,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: _recentSearches
-                        .map(
-                          (search) => InkWell(
-                            onTap: () {
-                              setState(() => _searchController.text = search);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FilterResultsScreen(
-                                    location: search,
-                                    priceRange:
-                                        'Up to Rs. ${_priceValue.toInt()}',
-                                  ),
-                                ),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(30),
-                            child: _buildRecentTag(search),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                  const SizedBox(height: 40),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Popular Areas ',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                            color: Colors.black,
-                          ),
-                        ),
-                        TextSpan(
-                          text: '(लोकप्रिय ठाउँहरू)',
-                          style: GoogleFonts.mukta(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildAreaItem('Baluwatar, Kathmandu', '450+ Listings'),
-                  _buildAreaItem('Sanepa, Lalitpur', '320+ Listings'),
-                  _buildAreaItem('Baneshwor, Kathmandu', '580+ Listings'),
-                  _buildAreaItem('Jhamsikhel, Lalitpur', '210+ Listings'),
-                  _buildAreaItem('Kirtipur, Kathmandu', '120+ Listings'),
+                ],
+
+                if (!_showNearbySection) ...[
                   const SizedBox(height: 80), // Prevent collision with FAB
                 ],
               ],
