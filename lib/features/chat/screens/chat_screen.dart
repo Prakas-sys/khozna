@@ -380,13 +380,13 @@ class _ChatScreenState extends State<ChatScreen> {
             GestureDetector(
               onTap: () => _sendMessage(),
               child: Container(
-                width: 54,
-                height: 54,
+                width: 50,
+                height: 50,
                 decoration: const BoxDecoration(
                   color: AppTheme.brandColor,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.send_rounded, color: Colors.white, size: 26),
+                child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
               ),
             ),
           ],
