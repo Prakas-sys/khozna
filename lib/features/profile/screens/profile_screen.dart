@@ -60,7 +60,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
     _checkOwnerStatus();
     
-    // 1. Use in-memory cache first (instant)
     if (profileCache.value != null) {
       final cache = profileCache.value!;
       _avatarUrl = cache['avatar_url'];
@@ -69,10 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       _isLoading = false;
     }
     
-    // 2. Load from persistent disk cache (survives app restart & offline)
     _loadFromDiskCache();
-    
-    // 3. Fetch fresh from network (updates cache)
     _loadProfile();
   }
 
@@ -86,8 +82,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         }
         _isOwner = _isOwner || (diskCache['is_owner'] ?? false);
         _isLoading = false;
-        
-        // Also populate in-memory cache
         profileCache.value ??= diskCache;
       });
     }
@@ -112,8 +106,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           setState(() {
             _avatarUrl = profile['avatar_url'];
             _kycStatus = profile['kyc_status'] ?? 'not_started';
-            
-            // We also keep owner status if it was already true, or use the db value.
             _isOwner = _isOwner || (profile['is_owner'] ?? false);
             
             final cacheData = {
@@ -268,16 +260,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
                   ProfileMenuSection(title: 'OVERVIEW', items: [
                     ProfileMenuItem(
-                      icon: Icons.book_online_outlined,
-                      title: 'My Bookings',
-                      subtitle: 'Track your rental requests',
+                      icon: Icons.directions_walk_rounded,
+                      title: 'My Visits',
+                      subtitle: 'Track your visit requests',
                       onTap: () async {
                         if (!AuthGuard.checkAuth(context)) return;
-                        final bookings = await SupabaseService.getMyBookings();
-                        if (bookings.isEmpty) {
+                        final visits = await SupabaseService.getMyVisits();
+                        if (visits.isEmpty) {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('No bookings found.')),
+                              const SnackBar(content: Text('No visits found.')),
                             );
                           }
                           return;
@@ -286,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => BookingStatusScreen(booking: bookings.first),
+                              builder: (_) => BookingStatusScreen(booking: visits.first),
                             ),
                           );
                         }
@@ -435,17 +427,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
             child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.w600)),
           ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
-              // Clear all cached data
               profileCache.value = null;
               await OfflineStorage.clearProfileCache();
               await OfflineStorage.clearHomeCache();
@@ -461,10 +447,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             child: Text('Log Out', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
@@ -547,4 +529,3 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 }
-

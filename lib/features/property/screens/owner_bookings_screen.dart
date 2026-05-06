@@ -44,6 +44,25 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
         await BookingRepository.approveRequest(bookingId);
       } else if (action == 'reject') {
         await BookingRepository.rejectRequest(bookingId);
+      } else if (action == 'suggest_time') {
+        // Find the booking to get guest details
+        final b = _bookings.firstWhere((element) => element['id'] == bookingId);
+        final guest = b['guest'];
+        if (mounted && guest != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => chat_page.ChatScreen(
+                ownerId: b['guest_id'],
+                name: guest['full_name'] ?? 'Guest',
+                avatar: guest['avatar_url'] ?? '',
+                online: true,
+                initialMessage: 'Hi! Regarding your visit request for "${b['properties']?['title']}", could we reschedule to a different time?',
+              ),
+            ),
+          );
+        }
+        return;
       } else if (action == 'confirm_payment') {
         await BookingRepository.confirmPayment(bookingId);
       }
@@ -70,7 +89,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: Text(
-          'बुकिङ अनुरोधहरू (Booking Requests)',
+          'भ्रमण अनुरोधहरू (Visit Requests)',
           style: GoogleFonts.plusJakartaSans(
             fontWeight: FontWeight.w800,
             fontSize: 18,
@@ -199,69 +218,88 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
           const SizedBox(height: 16),
           const Divider(height: 1),
 
-          // Date Selection
+          // Visit Date Info
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                _buildDateInfo('पस्ने मिति (Check-in)', checkIn),
+                _buildDateInfo('भ्रमण गर्ने मिति (Visit Date)', checkIn),
                 const Spacer(),
-                const Icon(Icons.arrow_forward_rounded, color: Colors.grey, size: 16),
+                const Icon(Icons.calendar_today_rounded, color: AppTheme.brandColor, size: 20),
                 const Spacer(),
-                _buildDateInfo('निस्कने मिति (Check-out)', checkOut),
+                Expanded(
+                  child: Text(
+                    'Time: Flexible', // Defaulting to flexible if not specified
+                    textAlign: TextAlign.right,
+                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey[700]),
+                  ),
+                ),
               ],
             ),
           ),
 
-          // Action Buttons
           if (status == 'pending_approval' || status == 'paid')
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Row(
+              child: Column(
                 children: [
                   if (status == 'pending_approval') ...[
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => _handleAction(booking['id'], 'reject'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => _handleAction(booking['id'], 'reject'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.red,
+                              side: const BorderSide(color: Colors.red),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Decline'),
+                          ),
                         ),
-                        child: const Text('Reject'),
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => _handleAction(booking['id'], 'approve'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.brandColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              elevation: 0,
+                            ),
+                            child: const Text('Accept Visit'),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => _handleAction(booking['id'], 'approve'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.brandColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 0,
-                        ),
-                        child: const Text('Approve'),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () => _handleAction(booking['id'], 'suggest_time'),
+                      icon: const Icon(Icons.access_time_rounded, size: 18),
+                      label: const Text('Suggest New Time'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.blueGrey,
+                        side: BorderSide(color: Colors.blueGrey.withOpacity(0.3)),
+                        minimumSize: const Size(double.infinity, 45),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ],
                   if (status == 'paid')
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => _handleAction(booking['id'], 'confirm_payment'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00C853),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          'भुक्तानी प्राप्त भयो (Payment Received)',
-                          style: GoogleFonts.mukta(fontWeight: FontWeight.bold),
-                        ),
+                    ElevatedButton(
+                      onPressed: () => _handleAction(booking['id'], 'confirm_payment'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF00C853),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        'भुक्तानी प्राप्त भयो (Payment Received)',
+                        style: GoogleFonts.mukta(fontWeight: FontWeight.bold),
                       ),
                     ),
                 ],
@@ -294,15 +332,15 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     switch (status) {
       case 'pending_approval':
         color = Colors.orange;
-        label = 'स्वीकृत हुन बाँकी (Pending)';
+        label = 'भ्रमण अनुरोध (Visit Requested)';
         break;
       case 'awaiting_payment':
         color = Colors.blue;
-        label = 'भुक्तानी बाँकी (Awaiting Payment)';
+        label = 'भ्रमण स्वीकृत (Visit Approved)';
         break;
       case 'paid':
         color = Colors.purple;
-        label = 'भुक्तानी प्राप्त (Paid)';
+        label = 'कोठा मन पर्यो (Liked Room)';
         break;
       case 'confirmed':
         color = const Color(0xFF00C853);
@@ -348,12 +386,12 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'No booking requests yet',
+            'No visit requests yet',
             style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 8),
           Text(
-            'New requests from potential guests\nwill appear here.',
+            'New requests to visit your room\nwill appear here.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(color: Colors.grey),
           ),

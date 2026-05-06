@@ -61,16 +61,16 @@ class BookingRepository {
       await _client.from('notifications').insert({
         'user_id': ownerId,
         'sender_id': user.id,
-        'title': '🏠 नयाँ बुकिङ अनुरोध (New Booking Request!)',
-        'message': '$name ले तपाइँको प्रोपर्टी बुक गर्न अनुरोध गर्नुभएको छ।',
-        'type': 'booking_request',
+        'title': '👀 नयाँ भ्रमण अनुरोध (New Visit Request!)',
+        'message': '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ।',
+        'type': 'visit_request',
         'property_id': propertyId,
         'booking_id': bookingId,
       });
 
       if (cleanMessage.isNotEmpty) {
         final chatId = await ChatRepository.getOrCreateChat(ownerId);
-        await ChatRepository.sendMessage(chatId, '🏠 Booking Request for Property ID: $propertyId\nDates: ${checkIn.day}/${checkIn.month} to ${checkOut.day}/${checkOut.month}\n\n$cleanMessage');
+        await ChatRepository.sendMessage(chatId, '👀 Visit Request for Property ID: $propertyId\nSuggested Date: ${checkIn.day}/${checkIn.month}/${checkIn.year}\n\n$cleanMessage');
       }
 
       return bookingId;
@@ -94,9 +94,9 @@ class BookingRepository {
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
-          'title': '✅ बुकिङ स्वीकृत (Request Approved!)',
-          'message': 'तपाइँको बुकिङ अनुरोध स्वीकृत भएको छ। कृपया भुक्तानी विधि छनौट गरि अगाडि बढ्नुहोस्।',
-          'type': 'booking_alert',
+          'title': '✅ भ्रमण स्वीकृत (Visit Approved!)',
+          'message': 'तपाइँको भ्रमण अनुरोध स्वीकृत भएको छ। कोठा हेरेर मन पराएपछि मात्र भुक्तानीको प्रक्रिया हुनेछ।',
+          'type': 'visit_alert',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
         });
@@ -119,9 +119,9 @@ class BookingRepository {
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
-          'title': '❌ बुकिङ अस्वीकृत (Request Rejected)',
-          'message': 'तपाइँको बुकिङ अनुरोध अस्वीकृत भएको छ।',
-          'type': 'booking_alert',
+          'title': '❌ भ्रमण अस्वीकृत (Visit Rejected)',
+          'message': 'मालिकले अहिले भ्रमणको लागि समय मिलाउन सक्नुभएन।',
+          'type': 'visit_alert',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
         });

@@ -369,7 +369,7 @@ class PropertyCard extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    'Visit Now',
+                                    'Schedule Visit',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 13,

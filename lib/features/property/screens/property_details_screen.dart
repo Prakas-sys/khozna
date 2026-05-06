@@ -13,7 +13,7 @@ import 'package:khozna/core/utils/formatters.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:khozna/features/property/screens/booking_request_screen.dart';
+import 'package:khozna/features/property/screens/visit_request_screen.dart';
 import 'package:khozna/features/property/screens/discovery_map_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:khozna/features/property/widgets/property_details_widgets.dart';
@@ -745,10 +745,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ),
                 ),
                 Text(
-                  '100% Secure Payment',
+                  'No Payment Required Yet',
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: Colors.green.shade700,
+                    color: Colors.blue.shade700,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -764,11 +764,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   : () => Navigator.push(
                       context, 
                       MaterialPageRoute(
-                        builder: (_) => BookingRequestScreen(
+                        builder: (_) => VisitRequestScreen(
                           propertyId: widget.property.id, 
                           propertyTitle: widget.property.title, 
                           ownerId: widget.property.ownerId, 
-                          ownerName: widget.property.ownerName ?? 'Owner'
+                          ownerName: widget.property.ownerName ?? 'Owner',
+                          propertyPrice: widget.property.price,
+                          thumbnailUrl: widget.property.imageUrl,
                         )
                       )
                     ).then((v) => v == true ? setState(() => _userHasPendingBooking = true) : null), 
@@ -782,7 +784,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 child: Text(
                   widget.property.status == 'booked' 
                     ? 'Booked' 
-                    : (_userHasPendingBooking ? 'Pending' : 'BOOK'),
+                    : (_userHasPendingBooking ? 'Visit Scheduled' : 'SCHEDULE VISIT'),
                   style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,

@@ -35,32 +35,33 @@ class SupabaseService {
   static Future<void> updatePropertyStatus(String id, String status) => PropertyRepository.updatePropertyStatus(id, status);
   static Future<void> deletePropertyPermanently(String id) => PropertyRepository.deletePropertyPermanently(id);
 
-  // Booking
+  // Visit Requests
   static Future<void> fetchBookedPropertyIds() => BookingRepository.fetchBookedPropertyIds();
-  static Future<void> bookProperty(String propertyId, String title, String ownerId) => BookingRepository.createBookingRequest(
+  
+  static Future<void> requestVisit(String propertyId, String title, String ownerId) => BookingRepository.createBookingRequest(
     propertyId: propertyId, 
     ownerId: ownerId,
-    checkIn: DateTime.now().add(const Duration(days: 7)),
-    checkOut: DateTime.now().add(const Duration(days: 37)),
+    checkIn: DateTime.now().add(const Duration(days: 1)),
+    checkOut: DateTime.now().add(const Duration(days: 31)),
     totalPrice: 0,
-    message: 'Interested in booking this property.',
+    message: 'Interested in visiting this property.',
   );
-  static Future<void> createBookingRequest({
+
+  static Future<void> createVisitRequest({
     required String propertyId,
     required String ownerId,
-    required DateTime moveInDate,
-    required int durationMonths,
+    required DateTime visitDate,
     required String message,
-    double totalPrice = 0, // Default if not provided
   }) => BookingRepository.createBookingRequest(
     propertyId: propertyId,
     ownerId: ownerId,
-    checkIn: moveInDate,
-    checkOut: moveInDate.add(Duration(days: 30 * durationMonths)),
-    totalPrice: totalPrice,
+    checkIn: visitDate,
+    checkOut: visitDate.add(const Duration(days: 30)),
+    totalPrice: 0,
     message: message,
   );
-  static Future<void> approveBooking({
+
+  static Future<void> approveVisit({
     String? bookingId,
     String? propertyId,
     String? propertyTitle,
@@ -76,7 +77,7 @@ class SupabaseService {
     }
   }
 
-  static Future<void> rejectBooking({
+  static Future<void> rejectVisit({
     String? bookingId,
     String? propertyId,
     String? propertyTitle,
@@ -92,10 +93,10 @@ class SupabaseService {
     }
   }
 
-  static Future<void> cancelBooking(String bookingId) => BookingRepository.rejectRequest(bookingId);
-  static Future<BookingModel?> getBookingById(String bookingId) => BookingRepository.getBookingById(bookingId);
-  static Future<List<BookingModel>> getMyBookings() => BookingRepository.getMyBookings();
-  static Future<List<BookingModel>> getBookingRequestsForOwner() async {
+  static Future<void> cancelVisit(String bookingId) => BookingRepository.rejectRequest(bookingId);
+  static Future<BookingModel?> getVisitById(String bookingId) => BookingRepository.getBookingById(bookingId);
+  static Future<List<BookingModel>> getMyVisits() => BookingRepository.getMyBookings();
+  static Future<List<BookingModel>> getVisitRequestsForOwner() async {
     final data = await BookingRepository.getOwnerBookings();
     return data.map((e) => BookingModel.fromMap(e)).toList();
   }

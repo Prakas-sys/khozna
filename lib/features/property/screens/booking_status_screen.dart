@@ -58,7 +58,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'बुकिङ अवस्था (Booking Status)',
+          'भ्रमण अवस्था (Visit Status)',
           style: GoogleFonts.mukta(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 18),
         ),
         actions: [
@@ -97,27 +97,27 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       case 'awaiting_payment':
         color = Colors.blue;
         title = 'अनुरोध स्वीकृत (Accepted!)';
-        description = 'कृपया भुक्तानी प्रक्रिया अगाडि बढाउनुहोस्।';
+        description = 'मालिकले भ्रमणको लागि निम्तो दिनुभएको छ। कोठा हेर्न जानुहोला।';
         break;
       case 'paid':
         color = Colors.purple;
-        title = 'भुक्तानी प्राप्त (Paid)';
-        description = 'मालिकले तपाइँको भुक्तानी प्रमाणित गर्दै हुनुहुन्छ।';
+        title = 'कोठा मन पर्यो (Liked Room)';
+        description = 'तपाईंले कोठा मन पराउनुभयो। अब मालिकसँग कुरा गरेर अगाडि बढ्नुहोस्।';
         break;
       case 'confirmed':
         color = Colors.green;
-        title = 'बुकिङ पक्का (Confirmed)';
-        description = 'तपाइँको बुकिङ पक्का भयो, स्वागत छ!';
+        title = 'भ्रमण पक्का (Visit Confirmed)';
+        description = 'तपाइँको भ्रमण समय पक्का भयो। कोठा हेर्न समयमा पुग्नुहोला!';
         break;
       case 'rejected':
         color = Colors.red;
-        title = 'अनुरोध अस्वीकृत (Rejected)';
-        description = 'मालिकले यो अनुरोध स्वीकार गर्न सक्नुभएन।';
+        title = 'भ्रमण अस्वीकृत (Rejected)';
+        description = 'मालिकले अहिले यो समयमा भ्रमण गराउन सक्नुभएन।';
         break;
       default:
         color = Colors.orange;
-        title = 'स्वीकृत हुन बाँकी (Pending)';
-        description = 'मालिकले तपाइँको अनुरोध हेर्दै हुनुहुन्छ। स्वीकृत भएपछि भुक्तानी गर्ने विकल्प आउनेछ।';
+        title = 'भ्रमण अनुरोध (Visit Requested)';
+        description = 'मालिकले तपाइँको भ्रमण अनुरोध हेर्दै हुनुहुन्छ। समय पक्का भएपछि यहाँ देखिनेछ।';
     }
 
     return Column(
@@ -161,11 +161,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildTimelineItem('पस्ने मिति (CHECK-IN)', _booking.checkIn),
-          const Icon(Icons.arrow_forward_rounded, color: Colors.grey, size: 20),
-          _buildTimelineItem('निस्कने मिति (CHECK-OUT)', _booking.checkOut),
+          _buildTimelineItem('भ्रमण मिति (VISIT DATE)', _booking.checkIn),
         ],
       ),
     );
@@ -248,7 +246,65 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
 
     if (_booking.status == 'confirmed') {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppTheme.brandColor.withOpacity(0.1)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'तपाईं कोठा हेर्न जानुभयो? कस्तो लाग्यो?\n(Did you visit the room? Share your experience.)',
+                  style: GoogleFonts.sora(fontWeight: FontWeight.bold, fontSize: 16, height: 1.4),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'If you liked it, proceed to talk about moving in.',
+                  style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Moves to decision stage
+                          setState(() {
+                            _booking = _booking.copyWith(status: 'awaiting_payment');
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.brandColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('YES, I LIKED IT'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('NO, SEARCH MORE'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           _buildActionButton(
             label: 'MESSAGE HOST',
             icon: Icons.chat_bubble_outline_rounded,
@@ -263,13 +319,6 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          _buildActionButton(
-            label: 'VIEW CHECK-IN DETAILS',
-            icon: Icons.key_rounded,
-            isPrimary: false,
-            onPressed: () {},
           ),
         ],
       );
