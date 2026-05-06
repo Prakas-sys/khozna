@@ -417,16 +417,16 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 56, height: 56,
+            width: 64, height: 64,
             decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(14),
+              color: Colors.white, borderRadius: BorderRadius.circular(16),
               border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey.shade100, width: isSelected ? 2 : 1),
               boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
             ),
             child: Center(
               child: asset != null 
-                  ? Image.asset(asset, width: 24, height: 24, fit: BoxFit.contain)
-                  : Icon(icon, color: isSelected ? AppTheme.brandColor : Colors.grey[300], size: 24),
+                  ? Image.asset(asset, width: 32, height: 32, fit: BoxFit.contain)
+                  : Icon(icon, color: isSelected ? AppTheme.brandColor : Colors.grey[300], size: 28),
             ),
           ),
           const SizedBox(height: 4),
