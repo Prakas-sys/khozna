@@ -23,10 +23,9 @@ class PaymentChoiceScreen extends StatefulWidget {
 
 class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   String _selectedType = 'khozna'; // 'direct' or 'khozna'
-  String _selectedGateway = 'esewa'; // 'esewa', 'khalti', 'bank', 'card'
+  String _selectedGateway = 'esewa'; 
   bool _isSubmitting = false;
   bool _isLoadingOwner = true;
-  String? _ownerEsewa;
 
   @override
   void initState() {
@@ -36,18 +35,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
   Future<void> _loadOwnerInfo() async {
     try {
-      final data = await Supabase.instance.client
-          .from('profiles')
-          .select('esewa_number')
-          .eq('id', widget.booking.ownerId)
-          .maybeSingle();
-      
-      if (mounted) {
-        setState(() {
-          _ownerEsewa = data?['esewa_number'];
-          _isLoadingOwner = false;
-        });
-      }
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) setState(() => _isLoadingOwner = false);
     } catch (e) {
       if (mounted) setState(() => _isLoadingOwner = false);
     }
@@ -56,7 +45,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFBFC),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -64,15 +53,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
           onPressed: () => Navigator.pop(context),
-        ),
-        centerTitle: true,
-        title: Text(
-          'Payment Details',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: Colors.black,
-          ),
         ),
         actions: [
           Container(
@@ -104,70 +84,74 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
         : SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 8),
               Text(
                 'How would you like to pay?',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 24,
+                  fontSize: 28,
                   fontWeight: FontWeight.w800,
                   color: Colors.black,
                   letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
               Text(
-                widget.propertyTitle,
+                'Choose the option that works best for you.',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[500],
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 24),
 
-              // Card 1: Direct Payment (0% Fee)
-              _buildModernPlanCard(
+              // CARD 1: Pay owner directly
+              _buildPlanCard(
                 id: 'direct',
                 icon: Icons.account_balance_wallet_outlined,
-                iconColor: const Color(0xFF22C55E),
+                iconBg: const Color(0xFFF0FDF4),
+                iconColor: const Color(0xFF16A34A),
                 title: 'Pay owner directly',
                 badgeText: 'NO FEE',
-                badgeColor: const Color(0xFFF0FDF4),
-                badgeTextColor: const Color(0xFF16A34A),
+                badgeBg: const Color(0xFFF0FDF4),
+                badgeColor: const Color(0xFF16A34A),
                 subtitle: 'Pay the owner directly (Recommended if you know them)',
-                priceText: '0% Fee',
-                features: [
-                  'You pay the owner directly',
-                  'No extra charges from Khozna',
-                ],
-                warningText: 'No protection\nYou won\'t be covered by Khozna Protection.',
+                feeText: '0% Fee',
+                feeColor: const Color(0xFF16A34A),
+                features: ['You pay the owner directly', 'No extra charges from Khozna'],
+                warning: 'No protection\nYou won\'t be covered by Khozna Protection.',
+                footer: 'Why no fee?  We don\'t charge any fee when you pay directly to the owner.',
                 isSelected: _selectedType == 'direct',
                 onTap: () => setState(() => _selectedType = 'direct'),
               ),
 
               const SizedBox(height: 16),
 
-              // Card 2: Khozna Protection (10% Fee)
-              _buildModernPlanCard(
+              // CARD 2: Khozna Protection
+              _buildPlanCard(
                 id: 'khozna',
                 icon: Icons.shield_outlined,
+                iconBg: const Color(0xFFEFF6FF),
                 iconColor: AppTheme.brandColor,
                 title: 'Pay with Khozna Protection',
                 badgeText: 'RECOMMENDED',
-                badgeColor: const Color(0xFFEFF6FF),
-                badgeTextColor: AppTheme.brandColor,
+                badgeBg: const Color(0xFFEFF6FF),
+                badgeColor: AppTheme.brandColor,
                 subtitle: 'We hold your payment securely until you\'re satisfied.',
-                priceText: '10% Fee',
-                features: [
-                  '100% Payment protection',
-                  'Refund if something goes wrong',
-                  'Khozna support when you need it',
+                feeText: '10% Fee',
+                feeColor: AppTheme.brandColor,
+                featuresRow: [
+                  {'icon': Icons.verified_user_outlined, 'text': '100% Payment\nprotection'},
+                  {'icon': Icons.history_rounded, 'text': 'Refund if\nsomething goes wrong'},
+                  {'icon': Icons.headset_mic_outlined, 'text': 'Khozna support\nwhen you need it'},
                 ],
+                footer: 'Learn more about Khozna Protection',
                 isSelected: _selectedType == 'khozna',
-                isPremium: true,
+                isRecommended: true,
                 onTap: () => setState(() => _selectedType = 'khozna'),
               ),
 
@@ -183,85 +167,44 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Payment Gateway Row
+              // Gateways
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildModernGateway('esewa', 'assets/images/esewa.webp', 'eSewa', badge: 'RECOMMENDED'),
-                  _buildModernGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
-                  _buildModernGateway('bank', null, 'Bank Transfer', icon: Icons.account_balance_rounded),
-                  _buildModernGateway('card', null, 'Cards', icon: Icons.credit_card_rounded, isSoon: true),
+                  _buildGateway('esewa', 'assets/images/esewa.webp', 'eSewa', badge: 'RECOMMENDED'),
+                  _buildGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
+                  _buildGateway('bank', null, 'Bank Transfer', icon: Icons.account_balance_rounded),
+                  _buildGateway('card', null, 'Cards', icon: Icons.credit_card_rounded, isSoon: true),
                 ],
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               
-              // Security Info Bar
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4).withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFDCFCE7)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.lock_outline_rounded, color: Color(0xFF16A34A), size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Your security is our priority',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF16A34A),
-                            ),
-                          ),
-                          Text(
-                            'We never store your card or bank details. All payments are 100% secure.',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11,
-                              color: const Color(0xFF16A34A).withOpacity(0.8),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF16A34A), size: 14),
-                  ],
-                ),
-              ),
+              // Security Bar
+              _buildSecurityBar(),
 
-              const SizedBox(height: 32),
-              
-              // Total Section
-              _buildModernTotalSection(),
+              const SizedBox(height: 24),
+              _buildTotalSection(),
 
               const SizedBox(height: 24),
 
-              // Main Action Button
+              // Action Button
               SizedBox(
                 width: double.infinity,
-                height: 58,
+                height: 56,
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _proceedToPayment,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.brandColor,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 0,
                   ),
                   child: _isSubmitting
-                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : Text(
                           'भुक्तानी गर्नुहोस् (Pay Now)',
-                          style: GoogleFonts.mukta(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                          ),
+                          style: GoogleFonts.mukta(fontSize: 17, fontWeight: FontWeight.w800),
                         ),
                 ),
               ),
@@ -273,175 +216,149 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  Widget _buildModernPlanCard({
+  Widget _buildPlanCard({
     required String id,
     required IconData icon,
+    required Color iconBg,
     required Color iconColor,
     required String title,
     required String badgeText,
+    required Color badgeBg,
     required Color badgeColor,
-    required Color badgeTextColor,
     required String subtitle,
-    required String priceText,
-    required List<String> features,
-    String? warningText,
+    required String feeText,
+    required Color feeColor,
+    List<String>? features,
+    List<Map<String, dynamic>>? featuresRow,
+    String? warning,
+    required String footer,
     required bool isSelected,
-    bool isPremium = false,
+    bool isRecommended = false,
     required VoidCallback onTap,
   }) {
+    final borderColor = isSelected ? (isRecommended ? AppTheme.brandColor : const Color(0xFF22C55E)) : Colors.grey.shade200;
+    
     return GestureDetector(
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
         decoration: BoxDecoration(
-          color: isSelected && isPremium ? const Color(0xFFF0F7FF) : Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: isSelected ? (isPremium ? AppTheme.brandColor : const Color(0xFF22C55E)) : Colors.grey.shade200,
-            width: isSelected ? (isPremium ? 2.5 : 2) : 1,
-          ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: (isPremium ? AppTheme.brandColor : const Color(0xFF22C55E)).withOpacity(0.12),
-              blurRadius: 24,
-              offset: const Offset(0, 8),
-            )
-          ] : null,
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: borderColor, width: isSelected ? 2 : 1),
         ),
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Stack(
                 children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: iconColor.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon, color: iconColor, size: 26),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+                        child: Icon(icon, color: iconColor, size: 24),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Text(
-                                title,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.black,
+                            Row(
+                              children: [
+                                Text(title, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(color: badgeBg, borderRadius: BorderRadius.circular(4)),
+                                  child: Text(badgeText, style: GoogleFonts.plusJakartaSans(fontSize: 8, fontWeight: FontWeight.w900, color: badgeColor)),
                                 ),
-                              ),
+                              ],
                             ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: badgeColor,
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                badgeText,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w900,
-                                  color: badgeTextColor,
-                                ),
-                              ),
-                            ),
+                            const SizedBox(height: 2),
+                            Text(subtitle, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w500)),
+                            const SizedBox(height: 12),
+                            Text(feeText, style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w900, color: feeColor)),
                           ],
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          subtitle,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12,
-                            color: Colors.grey[500],
-                            fontWeight: FontWeight.w500,
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    top: 0, right: 0,
+                    child: Icon(isSelected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded, color: isSelected ? (isRecommended ? AppTheme.brandColor : const Color(0xFF22C55E)) : Colors.grey[300], size: 22),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Features Section
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(color: const Color(0xFFF9FAFB), border: Border(top: BorderSide(color: Colors.grey.shade100))),
+              child: Column(
+                children: [
+                  if (features != null)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children: features.map((f) => Padding(
+                              padding: const EdgeInsets.only(bottom: 6),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.check_rounded, color: Color(0xFF16A34A), size: 14),
+                                  const SizedBox(width: 8),
+                                  Text(f, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            )).toList(),
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          priceText,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            color: isPremium ? AppTheme.brandColor : const Color(0xFF16A34A),
+                        if (warning != null)
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(color: const Color(0xFFFFF7ED), borderRadius: BorderRadius.circular(10)),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.warning_rounded, color: Color(0xFFEA580C), size: 14),
+                                  const SizedBox(width: 6),
+                                  Expanded(child: Text(warning, style: GoogleFonts.plusJakartaSans(fontSize: 9, color: const Color(0xFFEA580C), fontWeight: FontWeight.w700))),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
                       ],
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  if (isSelected)
-                    Icon(Icons.check_circle_rounded, color: isPremium ? AppTheme.brandColor : const Color(0xFF22C55E), size: 24)
-                  else
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.grey.shade300, width: 2),
-                      ),
+                  if (featuresRow != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: featuresRow.map((f) => Expanded(
+                        child: Row(
+                          children: [
+                            Icon(f['icon'] as IconData, color: AppTheme.brandColor, size: 14),
+                            const SizedBox(width: 6),
+                            Expanded(child: Text(f['text'] as String, style: GoogleFonts.plusJakartaSans(fontSize: 8, color: Colors.grey[600], fontWeight: FontWeight.w700, height: 1.2))),
+                          ],
+                        ),
+                      )).toList(),
                     ),
                 ],
               ),
             ),
             
-            // Features Row
+            // Footer
             Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey.shade100))),
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    flex: 6,
-                    child: Column(
-                      children: features.map((f) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Row(
-                          children: [
-                            Icon(Icons.check_rounded, color: isPremium ? AppTheme.brandColor : const Color(0xFF16A34A), size: 14),
-                            const SizedBox(width: 8),
-                            Expanded(child: Text(f, style: GoogleFonts.plusJakartaSans(fontSize: 11, color: Colors.grey[700], fontWeight: FontWeight.w600))),
-                          ],
-                        ),
-                      )).toList(),
-                    ),
-                  ),
-                  if (warningText != null) ...[
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 5,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFF7ED),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.warning_rounded, color: Color(0xFFEA580C), size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(child: Text(warningText, style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFFEA580C), fontWeight: FontWeight.w700))),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+                  Expanded(child: Text(footer, style: GoogleFonts.plusJakartaSans(fontSize: 10, color: Colors.grey[500], fontWeight: FontWeight.w500))),
+                  const Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey, size: 10),
                 ],
               ),
             ),
@@ -451,117 +368,88 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  Widget _buildModernGateway(String id, String? asset, String label, {IconData? icon, bool isSoon = false, String? badge}) {
+  Widget _buildGateway(String id, String? asset, String label, {IconData? icon, bool isSoon = false, String? badge}) {
     final isSelected = _selectedGateway == id;
     return GestureDetector(
       onTap: isSoon ? null : () => setState(() => _selectedGateway = id),
       child: Column(
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 70, height: 70,
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: isSelected ? AppTheme.brandColor : Colors.grey.shade100,
-                width: isSelected ? 2 : 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                )
-              ],
+              color: Colors.white, borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: isSelected ? AppTheme.brandColor : Colors.grey.shade100, width: isSelected ? 2 : 1),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4))],
             ),
-            child: Stack(
-              children: [
-                Center(
-                  child: asset != null
-                      ? Image.asset(asset, width: 24, height: 24, fit: BoxFit.contain)
-                      : Icon(icon, color: Colors.grey[400], size: 22),
-                ),
-                if (isSoon)
-                  Positioned(
-                    bottom: 4,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text('SOON', style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.w900, color: Colors.grey.shade500)),
-                      ),
-                    ),
-                  ),
-              ],
+            child: Center(
+              child: asset != null 
+                  ? Image.asset(asset, width: 30, height: 30, fit: BoxFit.contain)
+                  : Icon(icon, color: Colors.grey[300], size: 28),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-              color: isSelected ? Colors.black : Colors.grey[500],
-            ),
-          ),
+          const SizedBox(height: 6),
+          Text(label, style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600, color: isSelected ? Colors.black : Colors.grey[500])),
           if (badge != null)
             Container(
               margin: const EdgeInsets.only(top: 2),
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(4),
-              ),
+              decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(4)),
               child: Text(badge, style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.w900, color: const Color(0xFF16A34A))),
+            ),
+          if (isSoon)
+            Container(
+              margin: const EdgeInsets.only(top: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)),
+              child: Text('SOON', style: GoogleFonts.plusJakartaSans(fontSize: 7, fontWeight: FontWeight.w900, color: Colors.grey[400])),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildModernTotalSection() {
+  Widget _buildSecurityBar() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFDCFCE7))),
+      child: Row(
+        children: [
+          const Icon(Icons.lock_outline_rounded, color: Color(0xFF16A34A), size: 18),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Your security is our priority', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF16A34A))),
+                Text('We never store your card or bank details.', style: GoogleFonts.plusJakartaSans(fontSize: 10, color: const Color(0xFF16A34A).withOpacity(0.8))),
+              ],
+            ),
+          ),
+          Text('Learn more', style: GoogleFonts.plusJakartaSans(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFF16A34A))),
+          const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF16A34A), size: 10),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTotalSection() {
     final feePercent = _selectedType == 'khozna' ? 0.10 : 0.0;
-    final feeAmount = widget.booking.totalPrice * feePercent;
-    final total = widget.booking.totalPrice + feeAmount;
+    final total = widget.booking.totalPrice * (1 + feePercent);
 
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
-      ),
+      decoration: BoxDecoration(color: const Color(0xFFF9FAFB), borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
-          _totalRow('Property Price', 'Rs. ${NumberFormat('#,##,###').format(widget.booking.totalPrice)}'),
-          const SizedBox(height: 12),
-          _totalRow('Service Fee (${_selectedType == 'khozna' ? '10%' : '0%'})', 'Rs. ${NumberFormat('#,##,###').format(feeAmount)}', isDiscount: _selectedType == 'direct'),
-          const Divider(height: 32),
+          _row('Property Price', 'Rs. ${NumberFormat('#,##,###').format(widget.booking.totalPrice)}'),
+          const SizedBox(height: 10),
+          _row('Service Fee (${_selectedType == 'khozna' ? '10%' : '0%'})', 'Rs. ${NumberFormat('#,##,###').format(widget.booking.totalPrice * feePercent)}'),
+          const Divider(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Total Amount',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black,
-                ),
-              ),
-              Text(
-                'Rs. ${NumberFormat('#,##,###').format(total)}',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  color: AppTheme.brandColor,
-                ),
-              ),
+              Text('Total Amount', style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800)),
+              Text('Rs. ${NumberFormat('#,##,###').format(total)}', style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w900, color: AppTheme.brandColor)),
             ],
           ),
         ],
@@ -569,50 +457,15 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  Widget _totalRow(String label, String value, {bool isDiscount = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[600],
-          ),
-        ),
-        Text(
-          value,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: isDiscount ? const Color(0xFF16A34A) : Colors.black,
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _row(String l, String v) => Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(l, style: GoogleFonts.plusJakartaSans(fontSize: 13, color: Colors.grey[600], fontWeight: FontWeight.w500)), Text(v, style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.bold))]);
 
   Future<void> _proceedToPayment() async {
     setState(() => _isSubmitting = true);
-    HapticFeedback.mediumImpact();
     try {
-      await BookingRepository.submitPayment(
-        bookingId: widget.booking.id,
-        paymentType: _selectedType,
-        method: _selectedGateway,
-        amount: widget.booking.totalPrice,
-      );
-
-      if (mounted) {
-        Navigator.pop(context, true);
-      }
+      await BookingRepository.submitPayment(bookingId: widget.booking.id, paymentType: _selectedType, method: _selectedGateway, amount: widget.booking.totalPrice);
+      if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
-      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
