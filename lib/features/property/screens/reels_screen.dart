@@ -235,7 +235,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
         Positioned(
           left: 12,
           right: 12,
-          bottom: 95,
+          bottom: MediaQuery.of(context).padding.bottom + 16,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -538,7 +538,7 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
         ),
         // Horizontal dot indicators at the bottom center
         Positioned(
-          bottom: 260, // Positioned above the info card
+          bottom: MediaQuery.of(context).padding.bottom + 185, // Positioned above the info card
           left: 0,
           right: 0,
           child: Row(
