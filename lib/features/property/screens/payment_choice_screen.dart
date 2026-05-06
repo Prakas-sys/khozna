@@ -92,11 +92,13 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               Text(
                 'Choose payment method',
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 28,
+                  fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: Colors.black,
                   letterSpacing: -0.5,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
               Text(
