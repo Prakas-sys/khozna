@@ -185,7 +185,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
               // Payment Gateway Row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _buildModernGateway('esewa', 'assets/images/esewa.webp', 'eSewa', badge: 'RECOMMENDED'),
                   _buildModernGateway('khalti', 'assets/images/khalti.png', 'Khalti'),
@@ -294,17 +294,17 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isSelected && isPremium ? const Color(0xFFF0F7FF) : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isSelected ? (isPremium ? AppTheme.brandColor : const Color(0xFF22C55E)) : Colors.grey.shade200,
-            width: isSelected ? 2 : 1,
+            width: isSelected ? (isPremium ? 2.5 : 2) : 1,
           ),
           boxShadow: isSelected ? [
             BoxShadow(
-              color: (isPremium ? AppTheme.brandColor : const Color(0xFF22C55E)).withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: (isPremium ? AppTheme.brandColor : const Color(0xFF22C55E)).withOpacity(0.12),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
             )
           ] : null,
         ),
@@ -339,8 +339,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                                   fontWeight: FontWeight.w800,
                                   color: Colors.black,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -369,8 +367,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             color: Colors.grey[500],
                             fontWeight: FontWeight.w500,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 12),
                         Text(
