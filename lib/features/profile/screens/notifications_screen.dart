@@ -169,9 +169,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
                                   if (isApproved && bookingId.isNotEmpty) {
                                     // Navigate to payment choice screen
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Opening payment options...'), duration: Duration(seconds: 1)),
-                                    );
                                     
                                     final booking = await SupabaseService.getBookingById(bookingId);
                                     if (booking != null && mounted) {
@@ -626,9 +623,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     return;
                   }
                   
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Opening payment options...'), duration: Duration(seconds: 1)),
-                  );
+                  
                   
                   final booking = await SupabaseService.getBookingById(bookingId);
                   if (booking != null && mounted) {
