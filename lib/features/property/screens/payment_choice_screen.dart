@@ -100,8 +100,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 id: 'direct',
                 title: 'DIRECT PAYMENT',
                 price: '5% FEE',
-                subtitle: 'Pay directly to owner via eSewa',
-                description: 'Fast & Simple. Khozna takes no responsibility for this transaction.',
+                subtitle: 'घरधनीलाई सिधै भुक्तानी',
+                description: 'छिटो र सजिलो। यस कारोबारको जिम्मेवारी खोज्नले लिने छैन।',
                 isSelected: _selectedType == 'direct',
                 onTap: () => setState(() => _selectedType = 'direct'),
               ),
@@ -113,8 +113,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 id: 'khozna',
                 title: 'KHOZNA PROTECTION',
                 price: '10% FEE',
-                subtitle: 'Fully protected & refundable',
-                description: 'Your money is safe with Khozna. Instant refund if booking is cancelled.',
+                subtitle: 'खोज्न सुरक्षित भुक्तानी',
+                description: 'खोज्नमा तपाईंको रकम सुरक्षित रहन्छ। बुकिङ रद्द भएमा तुरुन्त फिर्ता हुनेछ।',
                 isSelected: _selectedType == 'khozna',
                 isRecommended: true,
                 onTap: () => setState(() => _selectedType = 'khozna'),
@@ -232,17 +232,17 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                  style: GoogleFonts.mukta(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
                     color: isSelected ? AppTheme.brandColor : Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 Text(
                   description,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
+                  style: GoogleFonts.mukta(
+                    fontSize: 14,
                     color: Colors.grey[500],
                     fontWeight: FontWeight.w500,
                     height: 1.4,
