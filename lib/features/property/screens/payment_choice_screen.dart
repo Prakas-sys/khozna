@@ -331,12 +331,16 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       children: [
                         Row(
                           children: [
-                            Text(
-                              title,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.black,
+                            Expanded(
+                              child: Text(
+                                title,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.black,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -365,6 +369,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             color: Colors.grey[500],
                             fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -378,6 +384,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(width: 8),
                   if (isSelected)
                     Icon(Icons.check_circle_rounded, color: isPremium ? AppTheme.brandColor : const Color(0xFF22C55E), size: 24)
                   else
