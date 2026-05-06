@@ -119,11 +119,11 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Choose the option that works best for you.',
+                widget.propertyTitle,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 24),
@@ -483,8 +483,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               children: [
                 Center(
                   child: asset != null
-                      ? Image.asset(asset, width: 36, height: 36, fit: BoxFit.contain)
-                      : Icon(icon, color: Colors.grey[400], size: 32),
+                      ? Image.asset(asset, width: 28, height: 28, fit: BoxFit.contain)
+                      : Icon(icon, color: Colors.grey[400], size: 24),
                 ),
                 if (isSoon)
                   Positioned(
