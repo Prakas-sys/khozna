@@ -99,25 +99,50 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   }
 
   Widget _buildTrustWarning() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.amber.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber.shade200),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 24),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              '⚠️ पैसा तिर्नु अघि कृपया कोठामा गएर हेर्नुहोस्। (Visit before payment)',
-              style: GoogleFonts.mukta(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.amber.shade900, height: 1.2),
-            ),
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF00A3E1).withOpacity(0.08),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF00A3E1).withOpacity(0.2)),
           ),
-        ],
-      ),
+          child: Row(
+            children: [
+              const Icon(Icons.shield_rounded, color: Color(0xFF00A3E1), size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'KHOZNA Safe Payment ensures your money is secure until you move in.',
+                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1E3A8A)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.amber.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.amber.shade200),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  '⚠️ पैसा तिर्नु अघि कृपया कोठामा गएर हेर्नुहोस्। (Visit before payment)\nKHOZNA cannot guarantee safety for payments made outside the platform.',
+                  style: GoogleFonts.mukta(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.amber.shade900, height: 1.2),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -268,14 +293,37 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'We hold your money securely. It is released to the owner only after you successfully move in. Small 10% fee applies for this security.',
-            style: GoogleFonts.inter(fontSize: 12, color: Colors.blue.shade800, height: 1.4),
+            'Benefits of Safe Payment:',
+            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF1E3A8A)),
+          ),
+          const SizedBox(height: 12),
+          _safePaymentBenefit(Icons.lock_clock_rounded, 'Money held safely until move-in'),
+          _safePaymentBenefit(Icons.receipt_long_rounded, 'Official payment proof stored'),
+          _safePaymentBenefit(Icons.support_agent_rounded, '24/7 Dispute support'),
+          _safePaymentBenefit(Icons.trending_up_rounded, 'Boost your Tenant Trust Score'),
+          const SizedBox(height: 16),
+          Text(
+            'Small 10% fee applies for these security benefits.',
+            style: GoogleFonts.inter(fontSize: 11, color: Colors.blue.shade800, fontStyle: FontStyle.italic),
           ),
           const Divider(height: 32),
           _row('Monthly Rent', 'Rs. ${NumberFormat('#,##,###').format(widget.booking.totalPrice)}'),
           _row('Khozna Service Fee (10%)', 'Rs. ${NumberFormat('#,##,###').format(widget.booking.totalPrice * 0.1)}'),
           const SizedBox(height: 12),
           _row('Total to Pay', 'Rs. ${NumberFormat('#,##,###').format(widget.booking.totalPrice * 1.1)}', isBold: true),
+        ],
+      ),
+    );
+  }
+
+  Widget _safePaymentBenefit(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: AppTheme.brandColor),
+          const SizedBox(width: 10),
+          Expanded(child: Text(text, style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF1E3A8A), fontWeight: FontWeight.w500))),
         ],
       ),
     );

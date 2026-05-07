@@ -260,31 +260,6 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
                   ProfileMenuSection(title: 'OVERVIEW', items: [
                     ProfileMenuItem(
-                      icon: Icons.directions_walk_rounded,
-                      title: 'My Visits',
-                      subtitle: 'Track your visit requests',
-                      onTap: () async {
-                        if (!AuthGuard.checkAuth(context)) return;
-                        final visits = await SupabaseService.getMyVisits();
-                        if (visits.isEmpty) {
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('No visits found.')),
-                            );
-                          }
-                          return;
-                        }
-                        if (mounted) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BookingStatusScreen(booking: visits.first),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    ProfileMenuItem(
                       icon: Icons.list_alt_rounded,
                       title: 'My Listings',
                       subtitle: 'Properties you posted',

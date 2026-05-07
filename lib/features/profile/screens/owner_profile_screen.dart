@@ -225,12 +225,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               decoration: BoxDecoration(
                 color: widget.isVerified
                     ? const Color(0xFFE8F5E9)
-                    : const Color(0xFFFFF3E0),
+                    : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: widget.isVerified
                       ? Colors.green.withOpacity(0.1)
-                      : Colors.orange.withOpacity(0.1),
+                      : Colors.grey.withOpacity(0.1),
                 ),
               ),
               child: Row(
@@ -238,11 +238,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: widget.isVerified ? Colors.green : Colors.orange,
+                      color: widget.isVerified ? Colors.green : Colors.blueGrey,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      widget.isVerified ? Icons.verified_user : Icons.gpp_maybe,
+                      widget.isVerified ? Icons.verified_user : Icons.lock_outline_rounded,
                       color: Colors.white,
                       size: 24,
                     ),
@@ -253,24 +253,24 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.isVerified ? 'KYC Verified · पहिचान प्रमाणित' : 'पहिचान प्रमाणित हुन बाँकी छ · Verification Pending',
+                          widget.isVerified ? 'KYC Verified · पहिचान प्रमाणित' : 'सम्पर्क विवरण सुरक्षित (Contact Gated)',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: widget.isVerified
                                 ? Colors.green[800]
-                                : Colors.orange[900],
+                                : Colors.blueGrey[800],
                           ),
                         ),
                         Text(
                           widget.isVerified
                               ? 'पहिचान पूर्ण रूपमा प्रमाणित र भरोसायोग्य छ।'
-                              : '${widget.totalListings > 0 ? 'घरबेटी' : 'प्रयोगकर्ता'}को पहिचान प्रमाणित हुने प्रक्रियामा छ।',
+                              : 'सम्पर्क विवरणहरू भ्रमण अनुरोध स्वीकृत भएपछि मात्र देखिनेछन्। (Full details revealed after visit acceptance)',
                           style: GoogleFonts.mukta(
                             fontSize: 12,
                             color: widget.isVerified
                                 ? Colors.green[700]
-                                : Colors.orange[700],
+                                : Colors.blueGrey[700],
                             height: 1.2,
                           ),
                         ),

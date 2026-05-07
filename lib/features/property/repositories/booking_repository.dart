@@ -70,7 +70,7 @@ class BookingRepository {
 
       if (cleanMessage.isNotEmpty) {
         final chatId = await ChatRepository.getOrCreateChat(ownerId);
-        await ChatRepository.sendMessage(chatId, '👀 Visit Request for Property ID: $propertyId\nSuggested Date: ${checkIn.day}/${checkIn.month}/${checkIn.year}\n\n$cleanMessage');
+        await ChatRepository.sendMessage(chatId, cleanMessage);
       }
 
       return bookingId;

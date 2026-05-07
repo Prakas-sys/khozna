@@ -755,11 +755,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     ),
                   ),
                   Text(
-                    'No Payment Required',
+                    '✓ Meet First, Pay Later',
                     style: GoogleFonts.inter(
                       fontSize: 11,
-                      color: Colors.blue.shade700,
-                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF00C853),
+                      fontWeight: FontWeight.w700,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

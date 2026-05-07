@@ -29,6 +29,13 @@ class ChatBanner extends StatelessWidget {
                   'अग्रिम पैसा कहिल्यै नपठाउनुहोस्! • Never send advance payment before visiting!',
                   style: GoogleFonts.inter(color: Colors.red[800], fontWeight: FontWeight.w600, fontSize: 12),
                 ),
+                const SizedBox(width: 60),
+                const Icon(Icons.shield_rounded, color: Colors.blue, size: 16),
+                const SizedBox(width: 8),
+                Text(
+                  'Use KHOZNA Safe Payment for 100% money protection. • खोज्ना सुरक्षित भुक्तानी प्रयोग गर्नुहोस्!',
+                  style: GoogleFonts.inter(color: Colors.blue[800], fontWeight: FontWeight.w600, fontSize: 12),
+                ),
                 const SizedBox(width: 200),
               ],
             ),

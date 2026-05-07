@@ -44,13 +44,38 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final now = DateTime.now();
       final diff = now.difference(date);
 
-      if (diff.inMinutes < 1) return 'Just now';
-      if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-      if (diff.inHours < 24) return '${diff.inHours}h ago';
-      return '${diff.inDays}d ago';
+      if (diff.inMinutes < 1) return 'भर्खरै (Just now)';
+      if (diff.inMinutes < 60) return '${diff.inMinutes}मि अघि (${diff.inMinutes}m)';
+      if (diff.inHours < 24) return '${diff.inHours}घण्टा अघि (${diff.inHours}h)';
+      return '${diff.inDays}दिन अघि (${diff.inDays}d)';
     } catch (_) {
       return '';
     }
+  }
+
+  String _getHumanMessage(Map<String, dynamic> note, dynamic sender) {
+    final type = note['type']?.toString() ?? '';
+    final String message = (note['message'] ?? note['title'] ?? '').toString();
+    final name = sender?['full_name'] ?? 'Someone';
+
+    // Remove app name repetition
+    String cleanMessage = message.replaceAll('Khozna app', '').trim();
+    if (cleanMessage.startsWith('ले')) cleanMessage = cleanMessage.substring(1).trim();
+
+    if (type == 'booking_request' || cleanMessage.contains('कोठा हेर्न अनुरोध')) {
+      return '👀 $name wants to visit your room.';
+    }
+    if (type == 'booking_approved' || cleanMessage.contains('स्वीकृत')) {
+      return '✅ Your visit request was accepted!';
+    }
+    if (type == 'chat' || type == 'message') {
+      return '💬 New message from $name';
+    }
+    if (type == 'payment_received' || cleanMessage.contains('भुक्तानी')) {
+      return '💰 Payment received from $name!';
+    }
+
+    return cleanMessage.isEmpty ? 'New update for you' : cleanMessage;
   }
 
   @override
@@ -122,8 +147,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         final String type = note['type']?.toString() ?? '';
 
                         // -- SPECIAL: Booking Request card with Approve/Reject --
-                        if (type == 'booking_request') {
-                          return _buildBookingRequestCard(note, id, index, sender);
+                        final String msgText = (note['message'] ?? '').toString();
+                        final bool isBookingRequest = type == 'booking_request' || 
+                            msgText.contains('कोठा हेर्न अनुरोध') || 
+                            msgText.contains('visit request');
+                        
+                        if (isBookingRequest) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _buildBookingRequestCard(note, id, index, sender),
+                          );
                         }
 
                         // -- SPECIAL: Payment Received card --
@@ -296,9 +329,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                             ),
                                             children: [
                                               TextSpan(
-                                                text: sender != null
-                                                    ? sender['full_name'] + ' '
-                                                    : '',
+                                                text: _getHumanMessage(note, sender),
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -383,26 +414,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF00A3E1).withOpacity(0.12),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.home_rounded, color: Color(0xFF00A3E1), size: 20),
-                    ),
+                    Text('👀', style: TextStyle(fontSize: 18)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            note['title'] ?? 'New Booking Request',
-                            style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black),
+                            'भ्रमण अनुरोध (New Visit Request)',
+                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black),
                           ),
                           Text(
                             _formatTime(note['created_at']),
-                            style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[400]),
+                            style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
                           ),
                         ],
                       ),
@@ -432,8 +456,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                message,
-                                style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[700], height: 1.4),
+                                _getHumanMessage(note, sender),
+                                style: GoogleFonts.mukta(fontSize: 15, color: Colors.black, fontWeight: FontWeight.w600, height: 1.4),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.amber.shade200),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text('⚠️', style: TextStyle(fontSize: 12)),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        'पहिला भेट गर्नुहोस्, त्यसपछि मात्र पैसा लिनुहोस्।',
+                                        style: GoogleFonts.mukta(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.amber.shade900),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                               if (sender != null) ...[
                                 const SizedBox(height: 4),
@@ -454,7 +499,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ],
                 ),
               ),
-              // Action buttons
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: acting
@@ -464,75 +508,99 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ))
                     : Row(
                         children: [
-                          // REJECT
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () async {
-                                if (bookingId.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Error: Booking ID missing')),
-                                  );
-                                  return;
-                                }
-                                setCardState(() => acting = true);
-                                try {
-                                  await SupabaseService.rejectVisit(
-                                    bookingId: bookingId,
-                                    notificationId: id,
-                                  );
-                                  if (mounted) setState(() => _notifications.removeAt(index));
-                                } catch (_) {
-                                  setCardState(() => acting = false);
-                                }
-                              },
-                              icon: const Icon(Icons.close_rounded, size: 16),
-                              label: Text('अस्वीकार (Reject)', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 13)),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.red,
-                                side: const BorderSide(color: Colors.red, width: 1.5),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                          if (bookingId.isEmpty)
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  if (sender != null) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => chat_page.ChatScreen(
+                                          ownerId: sender['id']?.toString() ?? '',
+                                          name: sender['full_name'] ?? 'User',
+                                          avatar: sender['avatar_url'] ?? '',
+                                          online: true,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const OwnerBookingsScreen()),
+                                    );
+                                  }
+                                },
+                                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                                label: Text('कुरा गर्नुहोस् (Message)', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 13)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF00A3E1),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                              ),
+                            )
+                          else ...[
+                            // REJECT
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () async {
+                                  setCardState(() => acting = true);
+                                  try {
+                                    await SupabaseService.rejectVisit(
+                                      bookingId: bookingId,
+                                      notificationId: id,
+                                    );
+                                    if (mounted) setState(() => _notifications.removeAt(index));
+                                  } catch (_) {
+                                    setCardState(() => acting = false);
+                                  }
+                                },
+                                icon: const Icon(Icons.close_rounded, size: 16),
+                                label: Text('अस्वीकार (Reject)', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 13)),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                  side: const BorderSide(color: Colors.red, width: 1.5),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          // APPROVE
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () async {
-                                if (bookingId.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Error: Booking ID missing')),
+                            const SizedBox(width: 12),
+                            // APPROVE
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () async {
+                                  setCardState(() => acting = true);
+                                  final ownerProfile = await SupabaseService.getUserProfile(
+                                    SupabaseService.currentUserId,
                                   );
-                                  return;
-                                }
-                                setCardState(() => acting = true);
-                                final ownerProfile = await SupabaseService.getUserProfile(
-                                  SupabaseService.currentUserId,
-                                );
-                                final ownerName = ownerProfile?.fullName ?? 'The owner';
-                                try {
-                                  await SupabaseService.approveVisit(
-                                    bookingId: bookingId,
-                                    ownerName: ownerName,
-                                    notificationId: id,
-                                  );
-                                  if (mounted) setState(() => _notifications.removeAt(index));
-                                } catch (_) {
-                                  setCardState(() => acting = false);
-                                }
-                              },
-                              icon: const Icon(Icons.check_rounded, size: 16),
-                              label: Text('स्वीकार (Approve)', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 13)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF22C55E),
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                  final ownerName = ownerProfile?.fullName ?? 'The owner';
+                                  try {
+                                    await SupabaseService.approveVisit(
+                                      bookingId: bookingId,
+                                      ownerName: ownerName,
+                                      notificationId: id,
+                                    );
+                                    if (mounted) setState(() => _notifications.removeAt(index));
+                                  } catch (_) {
+                                    setCardState(() => acting = false);
+                                  }
+                                },
+                                icon: const Icon(Icons.check_rounded, size: 16),
+                                label: Text('स्वीकार (Approve)', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 13)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF22C55E),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
               ),

@@ -60,7 +60,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             
             _buildInfoRow(
               icon: Icons.calendar_today_rounded,
-              label: 'Preferred Visit Date',
+              label: 'भ्रमणको समय (Preferred Visit Date)',
               value: '${_visitDate.day} ${_getMonth(_visitDate.month)}, ${_visitDate.year}',
               onTap: () => _selectVisitDate(),
             ),
@@ -69,7 +69,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             
             _buildInfoRow(
               icon: Icons.person_outline_rounded,
-              label: 'Visiting',
+              label: 'आउने संख्या (Visiting)',
               value: 'You / 1 person',
             ),
             
@@ -79,13 +79,13 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             
             const SizedBox(height: 32),
             
-            _buildSectionTitle('Message to Owner'),
+            _buildSectionTitle('घरबेटीलाई सन्देश (Message to Owner)'),
             const SizedBox(height: 12),
             TextField(
               controller: _messageController,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: 'Introduce yourself and suggest a time...',
+                hintText: 'आफ्नो परिचय दिनुहोस् र समय प्रस्ताव गर्नुहोस्...',
                 fillColor: const Color(0xFFF8FAFC),
                 filled: true,
                 border: OutlineInputBorder(
@@ -205,14 +205,13 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Monthly Rent', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.grey[700])),
+              Text('मासिक भाडा (Monthly Rent)', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.grey[700])),
               Text('Rs. ${widget.propertyPrice}', style: GoogleFonts.sora(fontWeight: FontWeight.w900, fontSize: 18, color: AppTheme.brandColor)),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            'Final price will be discussed after visit.',
-            style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic),
+            'अन्तिम मूल्य भ्रमणपछि छलफल गरिनेछ। (Price will be discussed after visit)',
+            style: GoogleFonts.mukta(fontSize: 12, color: Colors.grey[600], fontStyle: FontStyle.italic),
           ),
         ],
       ),
@@ -233,7 +232,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              '⚠️ Please visit the room before making any payment.',
+              '⚠️ पैसा तिर्नु भन्दा पहिले कोठा हेर्नुहोला। (Please visit before payment)',
               style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.amber.shade900),
             ),
           ),
@@ -254,7 +253,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'What do you want to do next?',
+              'अब के गर्न चाहनुहुन्छ? (What\'s next?)',
               style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.grey[800]),
             ),
             const SizedBox(height: 16),
@@ -269,7 +268,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               ),
               child: _isSubmitting
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : Text('Schedule Visit', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 16)),
+                  : Text('भ्रमण तालिका बनाउनुहोस् (Schedule Visit)', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 16)),
             ),
             const SizedBox(height: 12),
             GestureDetector(
@@ -287,8 +286,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 );
               },
               child: Text(
-                'Chat with Owner',
-                style: GoogleFonts.inter(fontSize: 14, color: AppTheme.brandColor, fontWeight: FontWeight.w600),
+                'घरबेटीसँग कुरा गर्नुहोस् (Chat with Owner)',
+                style: GoogleFonts.mukta(fontSize: 14, color: AppTheme.brandColor, fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -316,7 +315,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         checkIn: _visitDate,
         checkOut: _visitDate.add(const Duration(days: 30)), 
         totalPrice: 0, 
-        message: 'भ्रमण अनुरोध (Visit Request):\n${_messageController.text}',
+        message: _messageController.text,
       );
       if (mounted) {
         HapticFeedback.heavyImpact();
@@ -330,6 +329,6 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
   }
 
   String _getMonth(int month) {
-    return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month - 1];
+    return ['जनवरी (Jan)', 'फेब्रुअरी (Feb)', 'मार्च (Mar)', 'अप्रिल (Apr)', 'मे (May)', 'जुन (Jun)', 'जुलाई (Jul)', 'अगस्ट (Aug)', 'सेप्टेम्बर (Sep)', 'अक्टोबर (Oct)', 'नोभेम्बर (Nov)', 'डिसेम्बर (Dec)'][month - 1];
   }
 }
