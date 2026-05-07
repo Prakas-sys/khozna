@@ -71,7 +71,7 @@ class _SearchScreenState extends State<SearchScreen> {
               MaterialPageRoute(
                 builder: (context) => FilterResultsScreen(
                   location: widget.initialQuery!,
-                  priceRange: 'Up to Rs. ${_priceValue.toInt()}',
+                  priceRange: 'Up to ₹ ${_priceValue.toInt()}',
                 ),
               ),
             );
@@ -467,7 +467,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  'Rs.${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}',
+                                                  '₹ ${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}',
                                                   style:
                                                       GoogleFonts.plusJakartaSans(
                                                         color: Colors.black,

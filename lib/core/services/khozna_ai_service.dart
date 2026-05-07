@@ -129,7 +129,7 @@ class KhoznaAiService {
         foundProperties = response;
         liveContext = "Here is the CURRENT LIVE INVENTORY on Khozna relevant to the query. Use this exact data to answer the user:\n";
         for (var p in response) {
-          liveContext += "- ${p['category']} in ${p['area_name']} for Rs. ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
+          liveContext += "- ${p['category']} in ${p['area_name']} for ₹ ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
         }
       } else {
         // Fallback: fetch most recent available if no keyword match
@@ -143,7 +143,7 @@ class KhoznaAiService {
         if ((fallback as List).isNotEmpty) {
            liveContext = "No direct match found for the specific query, but here are some overall available properties on Khozna:\n";
            for (var p in fallback) {
-             liveContext += "- ${p['category']} in ${p['area_name']} for Rs. ${p['price']}/mo. Title: ${p['title']}\n";
+             liveContext += "- ${p['category']} in ${p['area_name']} for ₹ ${p['price']}/mo. Title: ${p['title']}\n";
            }
         }
       }
@@ -200,7 +200,7 @@ BEHAVIOR RULES:
     - Title: $title
     - Category: $category
     - Location: $area, near $landmark
-    - Rent: Rs. $price per month (Negotiable: ${isNegotiable ? 'Yes' : 'No'})
+    - Rent: ₹ $price per month (Negotiable: ${isNegotiable ? 'Yes' : 'No'})
     - Size: ${bedrooms.isNotEmpty ? '$bedrooms Bedrooms' : ''}, ${bathrooms.isNotEmpty ? '$bathrooms Bathrooms' : ''}, Floor: $floor, Area: $sqft sq.ft
     - Amenities: ${amenities.join(', ')}
     
@@ -211,7 +211,8 @@ BEHAVIOR RULES:
     4. Mention it's a great opportunity for tenants.
     5. Be around 3-4 sentences long.
     6. MUST be written ONLY in Nepali (Devanagari) or a natural Nepali/English mix. 
-    7. ABSOLUTELY NO Hindi words. If you are unsure whether a word is Nepali or Hindi, write it in English instead.
+    7. ALWAYS use the ₹ symbol for currency (e.g., ₹15,000), NEVER use 'Rs.' or 'रु'.
+    8. ABSOLUTELY NO Hindi words. If you are unsure whether a word is Nepali or Hindi, write it in English instead.
     """;
 
     return _getAiResponse(

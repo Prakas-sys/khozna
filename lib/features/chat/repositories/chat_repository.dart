@@ -200,9 +200,9 @@ class ChatRepository {
     if (user == null) return;
 
     // 🔐 IDOR Protection: Ensure user is a participant before allowing delete
-    final chat = await _client.from('chats').select('participant_one, participant_two').eq('id', chatId).maybeSingle();
+    final chat = await _client.from('chats').select('user1_id, user2_id').eq('id', chatId).maybeSingle();
     if (chat == null) return;
-    if (chat['participant_one'] != user.id && chat['participant_two'] != user.id) {
+    if (chat['user1_id'] != user.id && chat['user2_id'] != user.id) {
        AppLogger.logSuspiciousActivity(event: 'IDOR_BLOCKED', details: 'Unauthorized chat delete attempt on $chatId');
        return; 
     }

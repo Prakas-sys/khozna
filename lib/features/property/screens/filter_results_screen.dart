@@ -33,7 +33,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchProperties() async {
-    // Extract numeric price from string like "Up to Rs. 45000"
+    // Extract numeric price from string like "Up to ₹ 45000"
     final priceStr = widget.priceRange.replaceAll(RegExp(r'[^0-9]'), '');
     final priceInt = int.tryParse(priceStr);
 

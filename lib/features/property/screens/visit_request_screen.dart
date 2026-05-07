@@ -403,7 +403,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
 
   Widget _buildBottomCTA() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+      padding: const EdgeInsets.fromLTRB(36, 16, 36, 32),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -419,7 +419,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           ),
           const SizedBox(height: 16),
           _largeButton(
-            label: 'भ्रमण तालिका बनाउनुहोस् (Schedule Visit)',
+            label: 'भ्रमण गर्नुहोस् (Schedule Visit)',
             icon: Icons.calendar_today_outlined,
             color: AppTheme.brandColor,
             onPressed: _isSubmitting ? null : _submit,
