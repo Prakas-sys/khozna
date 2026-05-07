@@ -713,7 +713,7 @@ class _SearchScreenState extends State<SearchScreen> {
             MaterialPageRoute(
               builder: (context) => FilterResultsScreen(
                 location: title.split(',')[0],
-                priceRange: 'Rs. ${_priceValue.toInt()}',
+                priceRange: '₹ ${_priceValue.toInt()}',
               ),
             ),
           );

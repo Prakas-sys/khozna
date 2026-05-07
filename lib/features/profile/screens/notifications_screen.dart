@@ -8,6 +8,7 @@ import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:khozna/widgets/trust_badge.dart';
+import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});

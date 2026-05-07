@@ -737,7 +737,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: 'Rs. ${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
+                          text: '₹${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -780,12 +780,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       context, 
                       MaterialPageRoute(
                         builder: (_) => VisitRequestScreen(
-                          propertyId: widget.property.id, 
-                          propertyTitle: widget.property.title, 
-                          ownerId: widget.property.ownerId, 
-                          ownerName: widget.property.ownerName ?? 'Owner',
-                          propertyPrice: widget.property.price,
-                          thumbnailUrl: widget.property.imageUrl,
+                          property: widget.property,
                         )
                       )
                     ).then((v) => v == true ? setState(() => _userHasPendingBooking = true) : null), 
