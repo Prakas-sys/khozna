@@ -140,7 +140,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                       _detailRow(
                         Icons.currency_rupee,
                         'Monthly Rent',
-                        widget.price.isEmpty ? 'Not specified' : 'Rs. ${widget.price}/mo',
+                        widget.price.isEmpty ? 'Not specified' : '₹${widget.price}/mo',
                       ),
                     ],
                   ),
@@ -437,18 +437,20 @@ class PremiumFeatureCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
+                      style: GoogleFonts.hind(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
+                        height: 1.2,
                       ),
                     ),
                     Text(
                       subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
+                      style: GoogleFonts.hind(
+                        fontSize: 12,
                         color: Colors.grey[500],
                         fontWeight: FontWeight.w500,
+                        height: 1.2,
                       ),
                     ),
                   ],
@@ -669,7 +671,7 @@ class QuickPriceChip extends StatelessWidget {
           text: TextSpan(
             children: [
               TextSpan(
-                text: 'Rs. ',
+                text: '₹',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,

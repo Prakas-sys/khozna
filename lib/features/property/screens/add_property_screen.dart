@@ -194,7 +194,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         isValid = true; // Amenities are optional
         break;
       case 4:
-        if (_selectedImages.isEmpty) errorMessage = "कृपया कम्तिमा एउटा फोटो राख्नुहोस्।";
+        if (_selectedImages.length < 3) errorMessage = "कृपया कम्तिमा ३ वटा फोटोहरू राख्नुहोस्। (At least 3 photos required)";
         else isValid = true;
         break;
       case 5:
@@ -380,7 +380,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           children: [
             CategoryCard(label: 'कोठा\nRoom', icon: CupertinoIcons.bed_double_fill, value: 'Room', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
             CategoryCard(label: 'फ्ल्याट\nFlat', icon: CupertinoIcons.house_fill, value: 'Flat', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
-            CategoryCard(label: 'सटर\nShop', icon: Icons.storefront_rounded, value: 'Shop', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
+            CategoryCard(label: 'अपार्टमेन्ट\nApartment', icon: Icons.apartment_rounded, value: 'Apartment', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
             CategoryCard(label: 'अन्य\nOther', icon: CupertinoIcons.ellipsis, value: 'Other', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
           ],
         ),
@@ -395,8 +395,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       content: [
         PremiumFeatureCard(
           icon: _latitude != null ? Icons.location_on : Icons.my_location,
-          title: _latitude != null ? 'लोकेशन प्रमाणित भयो ✓' : 'नक्सामा लोकेशन सेट गर्नुहोस्',
-          subtitle: _latitude != null ? 'GPS verified location detected by AI' : 'Use GPS for maximum listing trust',
+          title: _latitude != null ? 'लोकेशन प्रमाणित भयो' : 'नक्सामा लोकेशन सेट गर्नुहोस्',
+          subtitle: _latitude != null ? 'GPS verified location detected' : 'Use GPS for maximum listing trust',
           accentColor: _latitude != null ? Colors.green : AppTheme.brandColor,
           isLoading: _isLocating,
           child: Column(
@@ -506,11 +506,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildStepPhotos() {
     return StepLayout(
       title: 'केही राम्रा फोटोहरू राख्नुहोस्',
-      subtitle: 'राम्रो उज्यालोमा खिचेको फोटोले छिटो भाडामा जान्छ। (Add at least 3 high-quality photos)',
+      subtitle: 'राम्रो उज्यालोमा खिचेको फोटोले छिटो भाडामा जान्छ। (Add at least 3-5 high-quality photos)',
       content: [
         GestureDetector(
           onTap: _pickImages,
-          child: _buildMediaUploadBox(icon: Icons.add_a_photo_outlined, title: 'फोटोहरू थप्नुहोस् (Add Photos)', desc: '३ वा सोभन्दा बढी फोटो राख्नुहोस्।', isBlue: false),
+          child: _buildMediaUploadBox(icon: Icons.add_a_photo_outlined, title: 'फोटोहरू थप्नुहोस् (Add Photos)', desc: '३-५ वा सोभन्दा बढी फोटो राख्नुहोस्।', isBlue: false),
         ),
         if (_selectedImages.isNotEmpty) ...[
           const SizedBox(height: 24),
