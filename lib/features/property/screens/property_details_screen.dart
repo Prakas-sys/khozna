@@ -165,7 +165,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             onPressed: () {
               HapticFeedback.mediumImpact();
               Share.share(
-                'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: ₹ ${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
+                'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: Rs. ${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
               );
             },
           ),
@@ -381,10 +381,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           const SizedBox(width: 16),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             if (widget.property.priceNight > 0) ...[
-              RichText(text: TextSpan(children: [TextSpan(text: '₹ ', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.priceNight.toString()), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
+              RichText(text: TextSpan(children: [TextSpan(text: 'Rs. ', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.priceNight.toString()), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
               Text('प्रति रात (Per Night)', style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w600)),
             ] else ...[
-              RichText(text: TextSpan(children: [TextSpan(text: '₹ ', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.price), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
+              RichText(text: TextSpan(children: [TextSpan(text: 'Rs. ', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.price), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
               Text('भाडा/महिना (Per Month)', style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w600)),
             ],
           ]),
@@ -739,7 +739,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: '₹${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
+                          text: 'Rs. ${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,

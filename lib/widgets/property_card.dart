@@ -286,9 +286,9 @@ class PropertyCard extends StatelessWidget {
                             text: TextSpan(
                               children: [
                                 TextSpan(
-                                  text: '₹',
+                                  text: 'Rs.',
                                   style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 18,
+                                    fontSize: 15, // Slightly smaller for Rs. text
                                     fontWeight: FontWeight.w700,
                                     color: AppTheme.brandColor,
                                     letterSpacing: 0.3,

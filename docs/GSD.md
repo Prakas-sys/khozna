@@ -23,6 +23,7 @@ This file tracks the technical status.
 - [x] Admin Protocol: Implemented secure is_admin check for dashboard access.
 - [x] UI Polishing: Standardized currency to 'Rs.', removed 'Pokhara' from suggestions, and fixed AI pill colors.
 - [x] Chat Refinement: Aligned chat input and resolved overlap issues on Search screen.
+- [x] Visit Request Polish: Overhauled Visit Request screen to "Platinum" standard and decoupled from Chat (now uses Notifications).
 
 ## 3. Atomic GSD Steps Complete
 - [x] Initialized GSD Structure.
@@ -40,3 +41,4 @@ This file tracks the technical status.
 - (2026-04-13) **Mission: Property Listing Polish.** Fixed Visit Now button bug (missing amenities/houseRules/ownerId/status). Removed 70 lines of dead code. All 3 screens (Home, Filter, Saved) verified passing correct data to details screen.
 - (2026-05-01) **Mission: Security Hardening & Admin Protocol.** Removed frontend backdoors (hardcoded PINs/Bypasses) and implemented proper Database Ownership rules (RLS). Prepared system for secure admin management.
 - (2026-05-07) **Mission: UI Polishing & Chat Refinement.** Standardized currency to 'Rs.' across app. Removed Pokhara from search suggestions, fixed AI pill colors to match branding, and refined chat input alignment. Resolved overlap between Search button and AI pill on the search screen.
+- (2026-05-07) **Mission: Visit Request Polish & Notification Refinement.** Elevated Visit Request screen to Platinum standard. Decoupled visit requests from the Chat section to prevent message clutter; requests now exclusively trigger high-context owner notifications.

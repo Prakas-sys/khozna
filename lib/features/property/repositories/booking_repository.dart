@@ -62,16 +62,11 @@ class BookingRepository {
         'user_id': ownerId,
         'sender_id': user.id,
         'title': '👀 नयाँ भ्रमण अनुरोध (New Visit Request!)',
-        'message': '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ।',
+        'message': '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ। ${message ?? ""}',
         'type': 'visit_request',
         'property_id': propertyId,
         'booking_id': bookingId,
       });
-
-      if (cleanMessage.isNotEmpty) {
-        final chatId = await ChatRepository.getOrCreateChat(ownerId);
-        await ChatRepository.sendMessage(chatId, cleanMessage);
-      }
 
       return bookingId;
     } catch (e) {
