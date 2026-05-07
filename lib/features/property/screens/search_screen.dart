@@ -309,7 +309,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 80), // Prevent collision with FAB
+                  const SizedBox(height: 140), // Increased to prevent collision with FAB and AI Pill
                 ],
 
                 // 5. NEARBY SECTION (REVEALED ON TAP)
@@ -593,7 +593,7 @@ class _SearchScreenState extends State<SearchScreen> {
       // Floating AI Button - only in Main Search section
       if (!_showNearbySection)
         Positioned(
-          bottom: 160, // Positioned higher, above the search button
+          bottom: 32,
           right: 24,
           child: GestureDetector(
             onTap: () {
