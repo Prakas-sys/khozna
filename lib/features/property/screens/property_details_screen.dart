@@ -666,50 +666,52 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ])),
           ]),
         ),
-        const SizedBox(height: 20),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => chat_page.ChatScreen(
-                  ownerId: widget.property.ownerId,
-                  name: name,
-                  avatar: avatar,
-                  isVerified: isVerified,
-                  online: true,
-                ),
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.brandColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [Colors.white, Color(0xFFE0E0E0)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ).createShader(bounds),
-                  child: SvgPicture.asset(
-                    'assets/icons/message.svg',
-                    width: 18,
-                    height: 18,
-                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+        if (!_isMyProperty) ...[
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => chat_page.ChatScreen(
+                    ownerId: widget.property.ownerId,
+                    name: name,
+                    avatar: avatar,
+                    isVerified: isVerified,
+                    online: true,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text("Message Owner", style: GoogleFonts.inter(fontWeight: FontWeight.w800)),
-              ],
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.brandColor,
+                foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ShaderMask(
+                    shaderCallback: (bounds) => const LinearGradient(
+                      colors: [Colors.white, Color(0xFFE0E0E0)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: SvgPicture.asset(
+                      'assets/icons/message.svg',
+                      width: 18,
+                      height: 18,
+                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text("Message Owner", style: GoogleFonts.inter(fontWeight: FontWeight.w800)),
+                ],
+              ),
             ),
           ),
-        ),
+        ],
       ]),
     );
   }
@@ -771,37 +773,38 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             const SizedBox(width: 8),
             
             // Right Side: Slim Reserve Button
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: (widget.property.status == 'booked' || _userHasPendingBooking) 
-                  ? null 
-                  : () => Navigator.push(
-                      context, 
-                      MaterialPageRoute(
-                        builder: (_) => VisitRequestScreen(
-                          property: widget.property,
+            if (!_isMyProperty)
+              SizedBox(
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: (widget.property.status == 'booked' || _userHasPendingBooking) 
+                    ? null 
+                    : () => Navigator.push(
+                        context, 
+                        MaterialPageRoute(
+                          builder: (_) => VisitRequestScreen(
+                            property: widget.property,
+                          )
                         )
-                      )
-                    ).then((v) => v == true ? setState(() => _userHasPendingBooking = true) : null), 
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.brandColor, 
-                  foregroundColor: Colors.white, 
-                  padding: const EdgeInsets.symmetric(horizontal: 20), 
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))
-                ), 
-                child: Text(
-                  widget.property.status == 'booked' 
-                    ? 'Booked' 
-                    : (_userHasPendingBooking ? 'Visit Scheduled' : 'SCHEDULE VISIT'),
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                  ),
-                )
+                      ).then((v) => v == true ? setState(() => _userHasPendingBooking = true) : null), 
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.brandColor, 
+                    foregroundColor: Colors.white, 
+                    padding: const EdgeInsets.symmetric(horizontal: 20), 
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))
+                  ), 
+                  child: Text(
+                    widget.property.status == 'booked' 
+                      ? 'Booked' 
+                      : (_userHasPendingBooking ? 'Visit Scheduled' : 'SCHEDULE VISIT'),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  )
+                ),
               ),
-            ),
           ]
         )
       ),

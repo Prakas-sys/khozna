@@ -5,6 +5,7 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/widgets/khozna_image.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
@@ -98,7 +99,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.verified_user_rounded, color: Color(0xFF22C55E), size: 14),
+                const Icon(Icons.verified_user_rounded, color: AppTheme.brandColor, size: 14),
                 const SizedBox(width: 4),
                 Text(
                   'सुरक्षित प्लेटफर्म',
@@ -117,8 +118,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             const SizedBox(height: 24),
             _buildActionRow(
               icon: Icons.calendar_month_rounded,
-              iconColor: const Color(0xFF22C55E),
-              label: 'भ्रमणको मिति (Preferred Visit Date)',
+              iconColor: AppTheme.brandColor,
+              label: 'भ्रमणको मिति · Visit Date',
               value: _getFormattedDate(_visitDate),
               subtitle: _getDayName(_visitDate),
               onTap: () => _selectVisitDate(),
@@ -127,7 +128,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             _buildActionRow(
               icon: Icons.group_outlined,
               iconColor: AppTheme.brandColor,
-              label: 'आउने संख्या (Visiting)',
+              label: 'आउने संख्या · Visiting',
               value: 'तपाईं / $_visitingCount जना',
               onTap: () => _showVisitingPicker(),
             ),
@@ -217,6 +218,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
         ],
@@ -231,7 +233,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             ),
             child: Icon(icon, color: iconColor, size: 24),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,31 +242,50 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                   label,
                   style: GoogleFonts.inter(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.w800),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        value,
+                        style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(width: 6),
+                      Text(
+                        '· $subtitle',
+                        style: GoogleFonts.mukta(fontSize: 13, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ],
                 ),
-                if (subtitle != null)
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.mukta(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500),
-                  ),
               ],
             ),
           ),
-          TextButton.icon(
-            onPressed: onTap,
-            icon: const Icon(Icons.edit, size: 14),
-            label: Text(
-              'परिवर्तन गर्नुहोस्',
-              style: GoogleFonts.mukta(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.grey[700],
+          const SizedBox(width: 8),
+          InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              backgroundColor: Colors.grey[50],
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.edit, size: 14, color: Colors.grey[700]),
+                  const SizedBox(width: 4),
+                  Text(
+                    'बदल्नुहोस्',
+                    style: GoogleFonts.mukta(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -278,6 +299,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
         ],
@@ -287,10 +309,10 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF6366F1).withOpacity(0.1),
+              color: AppTheme.brandColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF6366F1), size: 24),
+            child: const Icon(Icons.account_balance_wallet_rounded, color: AppTheme.brandColor, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -304,7 +326,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 const SizedBox(height: 4),
                 Text(
                   '₹ ${widget.property.price}',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w800, color: const Color(0xFF1E3A8A)),
+                  style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w800, color: AppTheme.brandColor),
                 ),
                 Text(
                   'अन्तिम मूल्य भ्रमणपछि छलफल गरिनेछ',
@@ -319,12 +341,12 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           ),
           Column(
             children: [
-              const Icon(Icons.location_city_rounded, color: Color(0xFF6366F1), size: 32),
+              const Icon(Icons.location_city_rounded, color: AppTheme.brandColor, size: 32),
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1),
+                  color: AppTheme.brandColor,
                   borderRadius: BorderRadius.circular(100),
                 ),
                 child: Text(
@@ -352,10 +374,10 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF22C55E).withOpacity(0.1),
+              color: AppTheme.brandColor.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.verified_user, color: Color(0xFF22C55E), size: 20),
+            child: const Icon(Icons.verified_user, color: AppTheme.brandColor, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -399,15 +421,15 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           _largeButton(
             label: 'भ्रमण तालिका बनाउनुहोस् (Schedule Visit)',
             icon: Icons.calendar_today_outlined,
-            color: const Color(0xFF0F766E),
+            color: AppTheme.brandColor,
             onPressed: _isSubmitting ? null : _submit,
             isLoading: _isSubmitting,
           ),
           const SizedBox(height: 12),
           _largeButton(
             label: 'घरधनीसँग कुरा गर्नुहोस् (Chat with Owner)',
-            icon: Icons.chat_bubble_outline_rounded,
-            color: const Color(0xFF2E7D32),
+            svgIcon: 'assets/icons/message.svg',
+            color: AppTheme.brandColor,
             isOutlined: true,
             onPressed: () {
               Navigator.push(
@@ -442,26 +464,31 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
 
   Widget _largeButton({
     required String label,
-    required IconData icon,
+    IconData? icon,
+    String? svgIcon,
     required Color color,
     required VoidCallback? onPressed,
     bool isOutlined = false,
     bool isLoading = false,
   }) {
+    final iconColor = isOutlined ? color : Colors.white;
     return InkWell(
       onTap: onPressed,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(30),
       child: Container(
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: isOutlined ? Colors.white : color,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(30),
           border: isOutlined ? Border.all(color: color, width: 1.5) : null,
         ),
         child: Row(
           children: [
-            Icon(icon, color: isOutlined ? color : Colors.white, size: 20),
+            if (svgIcon != null)
+              SvgPicture.asset(svgIcon, width: 20, height: 20, colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn))
+            else if (icon != null)
+              Icon(icon, color: iconColor, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -474,9 +501,9 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               ),
             ),
             if (isLoading)
-              const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: isOutlined ? color : Colors.white, strokeWidth: 2))
+              SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: iconColor, strokeWidth: 2))
             else
-              Icon(Icons.chevron_right, color: isOutlined ? color : Colors.white, size: 20),
+              Icon(Icons.chevron_right, color: iconColor, size: 20),
           ],
         ),
       ),
