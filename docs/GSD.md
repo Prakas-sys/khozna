@@ -37,4 +37,4 @@ This file tracks the technical status.
 - (2026-04-02) **Mission: Environment Restoration & Project Organization.** Fixed JDK/Flutter/Android config. Cleaned root directory (Moved logs to `debug_logs/` and scripts to `scripts/`).
 - (2026-04-13) **Mission: Property Listing Polish.** Fixed Visit Now button bug (missing amenities/houseRules/ownerId/status). Removed 70 lines of dead code. All 3 screens (Home, Filter, Saved) verified passing correct data to details screen.
 - (2026-05-01) **Mission: Security Hardening & Admin Protocol.** Removed frontend backdoors (hardcoded PINs/Bypasses) and implemented proper Database Ownership rules (RLS). Prepared system for secure admin management.
-- (2026-05-07) **Mission: UI Polishing & Chat Refinement.** Removed Pokhara from search suggestions, fixed AI pill colors to match branding, and refined chat input alignment (restored separate send button with better vertical centering).
+- (2026-05-07) **Mission: UI Polishing & Chat Refinement.** Removed Pokhara from search suggestions, fixed AI pill colors to match branding, and refined chat input alignment. Resolved overlap between Search button and AI pill on the search screen.
