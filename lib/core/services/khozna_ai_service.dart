@@ -343,7 +343,7 @@ BEHAVIOR RULES:
     final String prompt =
         """
     Location: $area, near $landmark
-    Please identify 3-4 real or highly probable nearby landmarks for this location in Nepal (KTM, Lalitpur, Bhaktapur, Pokhara, etc).
+    Please identify 3-4 real or highly probable nearby landmarks for this location in Nepal (KTM, Lalitpur, Bhaktapur, etc).
     Return ONLY a JSON list of objects.
     
     Keys required:

@@ -314,87 +314,70 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildInputArea() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
-      color: Colors.transparent, 
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Colors.grey.shade100)),
+      ),
       child: SafeArea(
-        top: false,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: Container(
-                height: 52, // Fixed height to keep it consistent
+                height: 52,
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(32),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 15,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                  border: Border.all(color: Colors.grey.shade200, width: 1.5),
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(26),
+                  border: Border.all(color: Colors.grey.shade200),
                 ),
                 child: Row(
                   children: [
-                    const SizedBox(width: 6),
-                    // Left side rounded button
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(Icons.add_rounded, color: Color(0xFF6B7280), size: 22),
-                        onPressed: () {},
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
                     const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.add_rounded, color: Color(0xFF6B7280), size: 22),
+                      onPressed: () {},
+                      constraints: const BoxConstraints(),
+                      padding: const EdgeInsets.all(8),
+                    ),
                     Expanded(
-                      child: Container(
-                        height: double.infinity, // Touch top and bottom
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: Colors.grey.shade200, width: 1),
-                        ),
-                        child: TextField(
-                          controller: _messageController,
-                          style: GoogleFonts.inter(fontSize: 15),
-                          decoration: InputDecoration(
-                            hintText: 'Message...',
-                            hintStyle: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 15),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                          ),
+                      child: TextField(
+                        controller: _messageController,
+                        style: GoogleFonts.inter(fontSize: 15),
+                        decoration: InputDecoration(
+                          hintText: 'Message...',
+                          hintStyle: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 15),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 4),
                     IconButton(
                       icon: const Icon(Icons.camera_alt_rounded, color: Color(0xFF6B7280), size: 22),
                       onPressed: _pickAndSendImage,
+                      constraints: const BoxConstraints(),
+                      padding: const EdgeInsets.all(8),
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 8),
                   ],
                 ),
               ),
             ),
             const SizedBox(width: 10),
-            GestureDetector(
-              onTap: () => _sendMessage(),
-              child: Container(
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  color: AppTheme.brandColor,
-                  shape: BoxShape.circle,
+            // Send button nudged slightly up for "better horizontal alignment" feel
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: GestureDetector(
+                onTap: () => _sendMessage(),
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    color: AppTheme.brandColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
                 ),
-                child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
               ),
             ),
           ],

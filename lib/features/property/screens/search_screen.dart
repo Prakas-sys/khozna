@@ -272,13 +272,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     Icons.museum_rounded,
                     onTap: () => _searchController.text = 'Lalitpur',
                   ),
-                  _buildSuggestedItem(
-                    'Pokhara',
-                    'Lakefront and scenic views',
-                    Icons.landscape_rounded,
-                    onTap: () => _searchController.text = 'Pokhara',
-                  ),
-
                   const SizedBox(height: 40),
                   // Khozna Branded Search Button
                   SizedBox(
@@ -617,7 +610,7 @@ class _SearchScreenState extends State<SearchScreen> {
               height: 56,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [AppTheme.brandColor, Color(0xFF007AFF)],
+                  colors: [AppTheme.brandColor, AppTheme.brandColor],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
