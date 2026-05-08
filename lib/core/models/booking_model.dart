@@ -12,6 +12,10 @@ class BookingModel {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String? propertyTitle;
+  final String? rejectionReason;
+  final bool? visitConfirmed;
+  final bool? visitLiked;
+  final String? feedbackReason;
 
   BookingModel({
     required this.id,
@@ -27,6 +31,10 @@ class BookingModel {
     required this.createdAt,
     required this.updatedAt,
     this.propertyTitle,
+    this.rejectionReason,
+    this.visitConfirmed,
+    this.visitLiked,
+    this.feedbackReason,
   });
 
   factory BookingModel.fromMap(Map<String, dynamic> map) {
@@ -44,6 +52,10 @@ class BookingModel {
       createdAt: DateTime.parse(map['created_at']),
       updatedAt: DateTime.parse(map['updated_at']),
       propertyTitle: map['property_title'],
+      rejectionReason: map['rejection_reason'],
+      visitConfirmed: map['visit_confirmed'],
+      visitLiked: map['visit_liked'],
+      feedbackReason: map['feedback_reason'],
     );
   }
 
@@ -75,6 +87,10 @@ class BookingModel {
     DateTime? createdAt,
     DateTime? updatedAt,
     String? propertyTitle,
+    String? rejectionReason,
+    bool? visitConfirmed,
+    bool? visitLiked,
+    String? feedbackReason,
   }) {
     return BookingModel(
       id: id ?? this.id,
@@ -90,6 +106,10 @@ class BookingModel {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       propertyTitle: propertyTitle ?? this.propertyTitle,
+      rejectionReason: rejectionReason ?? this.rejectionReason,
+      visitConfirmed: visitConfirmed ?? this.visitConfirmed,
+      visitLiked: visitLiked ?? this.visitLiked,
+      feedbackReason: feedbackReason ?? this.feedbackReason,
     );
   }
 }

@@ -37,14 +37,82 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     }
   }
 
+  Future<void> _showRejectReasonPicker(String bookingId) async {
+    const reasons = [
+      'कोठा भरिसक्यो (Room occupied)',
+      'समय मिलेन (Time unavailable)',
+      'विद्यार्थी मात्र (Students only)',
+      'परिवार मात्र (Family only)',
+      'अन्य (Other)',
+    ];
+    String? selectedReason;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      backgroundColor: Colors.white,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setS) => Padding(
+          padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('अस्वीकार गर्नुको कारण', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w900, fontSize: 20)),
+              Text('Why are you declining this visit?', style: GoogleFonts.inter(color: Colors.grey, fontSize: 13)),
+              const SizedBox(height: 16),
+              ...reasons.map((r) => RadioListTile<String>(
+                title: Text(r, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
+                value: r,
+                groupValue: selectedReason,
+                activeColor: Colors.red,
+                onChanged: (v) => setS(() => selectedReason = v),
+              )),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: selectedReason == null ? null : () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.grey.shade200,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  ),
+                  child: Text('Confirm Decline', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 15)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (selectedReason == null) return;
+    setState(() => _isLoading = true);
+    try {
+      await BookingRepository.rejectWithReason(bookingId, reason: selectedReason);
+      await _fetchBookings();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Visit declined. Guest notified.', style: GoogleFonts.mukta()), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed: $e')));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _handleAction(String bookingId, String action) async {
     HapticFeedback.mediumImpact();
     setState(() => _isLoading = true);
     try {
       if (action == 'approve') {
         await BookingRepository.approveRequest(bookingId);
-      } else if (action == 'reject') {
-        await BookingRepository.rejectRequest(bookingId);
       } else if (action == 'suggest_time') {
         // Find the booking to get guest details
         final b = _bookings.firstWhere((element) => element['id'] == bookingId);
@@ -249,7 +317,10 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () => _handleAction(booking['id'], 'reject'),
+                            onPressed: () {
+                              setState(() => _isLoading = false);
+                              _showRejectReasonPicker(booking['id']);
+                            },
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.red,
                               side: const BorderSide(color: Colors.red),

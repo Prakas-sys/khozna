@@ -103,19 +103,25 @@ class BookingRepository {
   }
 
   static Future<void> rejectRequest(String bookingId) async {
+    return rejectWithReason(bookingId, reason: null);
+  }
+
+  static Future<void> rejectWithReason(String bookingId, {String? reason}) async {
     try {
       await _client.from('bookings').update({
         'status': 'rejected',
+        'rejection_reason': reason,
         'updated_at': DateTime.now().toUtc().toIso8601String(),
       }).eq('id', bookingId);
 
       final booking = await getBookingById(bookingId);
       if (booking != null) {
+        final reasonText = reason != null ? '\nकारण: $reason' : '';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
           'title': '❌ भ्रमण अस्वीकृत (Visit Rejected)',
-          'message': 'मालिकले अहिले भ्रमणको लागि समय मिलाउन सक्नुभएन।',
+          'message': 'मालिकले अहिले भ्रमणको लागि समय मिलाउन सक्नुभएन।$reasonText',
           'type': 'visit_alert',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
@@ -123,6 +129,58 @@ class BookingRepository {
       }
     } catch (e) {
       debugPrint('Reject request error: $e');
+      rethrow;
+    }
+  }
+
+  /// Remind owner about a pending request
+  static Future<void> remindOwner(String bookingId) async {
+    try {
+      final booking = await getBookingById(bookingId);
+      if (booking != null) {
+        final user = _client.auth.currentUser;
+        final String name = user?.userMetadata?['full_name'] ?? 'Guest';
+        await _client.from('notifications').insert({
+          'user_id': booking.ownerId,
+          'sender_id': user?.id,
+          'title': '🔔 भ्रमण अनुरोध याद दिलाउँदै (Visit Reminder)',
+          'message': '$name ले तपाइँको जवाफको लागि प्रतीक्षा गर्दैछ।',
+          'type': 'visit_reminder',
+          'property_id': booking.propertyId,
+          'booking_id': bookingId,
+        });
+      }
+    } catch (e) {
+      debugPrint('Remind owner error: $e');
+      rethrow;
+    }
+  }
+
+  /// Guest confirms they visited (yes/no)
+  static Future<void> confirmVisitDone(String bookingId, {required bool visited}) async {
+    try {
+      await _client.from('bookings').update({
+        'visit_confirmed': visited,
+        'status': visited ? 'visit_accepted' : 'visit_rejected',
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('id', bookingId);
+    } catch (e) {
+      debugPrint('Confirm visit done error: $e');
+      rethrow;
+    }
+  }
+
+  /// Guest confirms they liked the room — unlocks payment
+  static Future<void> confirmVisitLiked(String bookingId, {required bool liked, String? feedbackReason}) async {
+    try {
+      await _client.from('bookings').update({
+        'visit_liked': liked,
+        'feedback_reason': feedbackReason,
+        'status': liked ? 'awaiting_payment' : 'visit_completed',
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('id', bookingId);
+    } catch (e) {
+      debugPrint('Confirm visit liked error: $e');
       rethrow;
     }
   }

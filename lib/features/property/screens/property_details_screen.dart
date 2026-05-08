@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -35,6 +36,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   final PageController _pageController = PageController();
   bool _isReserved = false;
   bool _userHasPendingBooking = false;
+  bool _hasAcceptedVisit = false;
   Map<String, dynamic>? _ownerData;
 
   String get _currentUserId => Supabase.instance.client.auth.currentUser?.id ?? '';
@@ -65,6 +67,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     _incrementViews();
     _userHasPendingBooking = bookedPropertiesStore.value.contains(widget.property.id);
     _checkUserBookingStatus();
+    _checkAcceptedVisit();
   }
 
   Future<void> _incrementViews() async {
@@ -82,6 +85,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     } catch (_) {}
   }
 
+  Future<void> _checkAcceptedVisit() async {
+    if (widget.property.id.contains('demo') || _currentUserId.isEmpty) return;
+    try {
+      final result = await Supabase.instance.client
+          .from('bookings')
+          .select('id, status')
+          .eq('property_id', widget.property.id)
+          .eq('guest_id', _currentUserId)
+          .inFilter('status', ['awaiting_payment', 'visit_accepted', 'paid', 'confirmed'])
+          .limit(1);
+      if (mounted) setState(() => _hasAcceptedVisit = result.isNotEmpty);
+    } catch (_) {}
+  }
+
   Future<void> _fetchOwnerData() async {
     if (widget.property.ownerId.isEmpty) return;
     try {
@@ -92,9 +109,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Future<void> _openMap() async {
     if (_hasLocation) {
+      if (!_isMyProperty && !_hasAcceptedVisit) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('मालिकले भ्रमण स्वीकार गरेपछि मात्र दिशा देखिनेछ। (Directions unlock after visit is accepted)'),
+            backgroundColor: AppTheme.brandColor,
+          ),
+        );
+        return;
+      }
       showModalBottomSheet(
         context: context,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         builder: (context) => SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -478,23 +504,72 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildMapPreview() {
-    return GestureDetector(
-      onTap: _openMap,
-      child: ClipRRect(
+    // If owner or already has accepted visit — show real map
+    if (_isMyProperty || _hasAcceptedVisit) {
+      return GestureDetector(
+        onTap: _openMap,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            height: 200,
+            decoration: BoxDecoration(color: Colors.grey[200], border: Border.all(color: Colors.black.withOpacity(0.05))),
+            child: Stack(children: [
+              Positioned.fill(
+                child: _getStaticMapUrl().isEmpty
+                    ? Image.asset('assets/images/Map view.png', fit: BoxFit.cover)
+                    : KhoznaImage(imageUrl: _getStaticMapUrl(), fit: BoxFit.cover),
+              ),
+              Center(child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(50)),
+                child: Text('Open Maps', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
+              )),
+            ]),
+          ),
+        ),
+      );
+    }
+
+    // Locked state — approximate area only
+    return Container(
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
         borderRadius: BorderRadius.circular(24),
-        child: Container(
-          height: 200,
-          decoration: BoxDecoration(color: Colors.grey[200], border: Border.all(color: Colors.black.withOpacity(0.05))),
-          child: Stack(children: [
-            Positioned.fill(
-              child: _getStaticMapUrl().isEmpty 
-                  ? Image.asset('assets/images/Map view.png', fit: BoxFit.cover) 
-                  : KhoznaImage(imageUrl: _getStaticMapUrl(), fit: BoxFit.cover),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Stack(children: [
+        // Blurred fake map background
+        Positioned.fill(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: Image.asset('assets/images/Map view.png', fit: BoxFit.cover),
             ),
-            Center(child: Container(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(50)), child: Text("Open Maps", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor)))),
+          ),
+        ),
+        // Lock overlay
+        Center(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle,
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 12)]),
+              child: const Icon(Icons.lock_rounded, color: AppTheme.brandColor, size: 28),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(color: Colors.white.withOpacity(0.95), borderRadius: BorderRadius.circular(50)),
+              child: Column(children: [
+                Text('Approximate Area Only', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.black)),
+                Text('Schedule a visit to unlock exact location', style: GoogleFonts.inter(fontSize: 11, color: Colors.grey)),
+              ]),
+            ),
           ]),
         ),
-      ),
+      ]),
     );
   }
 

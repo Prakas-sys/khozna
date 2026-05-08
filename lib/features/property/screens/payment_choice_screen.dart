@@ -307,10 +307,10 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             style: GoogleFonts.inter(fontSize: 11, color: Colors.blue.shade800, fontStyle: FontStyle.italic),
           ),
           const Divider(height: 32),
-          _row('Monthly Rent', '₹ ${NumberFormat('#,##,###').format(widget.booking.totalPrice)}'),
-          _row('Khozna Service Fee (10%)', '₹ ${NumberFormat('#,##,###').format(widget.booking.totalPrice * 0.1)}'),
+          _row('Monthly Rent', 'Rs. ${PriceFormatter.format(widget.booking.totalPrice.toString())}'),
+          _row('Khozna Service Fee (10%)', 'Rs. ${PriceFormatter.format((widget.booking.totalPrice * 0.1).toString())}'),
           const SizedBox(height: 12),
-          _row('Total to Pay', '₹ ${NumberFormat('#,##,###').format(widget.booking.totalPrice * 1.1)}', isBold: true),
+          _row('Total to Pay', 'Rs. ${PriceFormatter.format((widget.booking.totalPrice * 1.1).toString())}', isBold: true),
         ],
       ),
     );
