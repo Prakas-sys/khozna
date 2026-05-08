@@ -249,6 +249,30 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             Text(cfg.subtitle, style: GoogleFonts.inter(fontSize: 13, color: cfg.color.withOpacity(0.8))),
           ])),
         ]),
+        
+        // Trust Hint: Only show for accepted visits that aren't yet liked
+        if ((_booking.status == 'visit_accepted' || _booking.status == 'awaiting_payment') && (_booking.visitLiked != true)) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.security_rounded, color: Colors.blue, size: 18),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'सुरक्षित रहनुहोस्: कोठा हेरेर मन परेपछि मात्र भुक्तानी विवरण खुल्नेछ। (Payment unlocks after visit)',
+                    style: GoogleFonts.mukta(fontSize: 12, color: Colors.blue.shade900, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
 
         // Rejection reason
         if (_booking.status == 'rejected' && _booking.rejectionReason != null) ...[

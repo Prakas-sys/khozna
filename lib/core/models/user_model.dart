@@ -6,6 +6,10 @@ class UserModel {
   final String kycStatus;
   final bool isVerified;
   final bool isOwner;
+  final String? esewaNumber;
+  final String? khaltiNumber;
+  final String? accountHolderName;
+  final String? qrCodeUrl;
   final DateTime createdAt;
 
   UserModel({
@@ -16,6 +20,10 @@ class UserModel {
     this.kycStatus = 'unverified',
     this.isVerified = false,
     this.isOwner = false,
+    this.esewaNumber,
+    this.khaltiNumber,
+    this.accountHolderName,
+    this.qrCodeUrl,
     required this.createdAt,
   });
 
@@ -28,6 +36,10 @@ class UserModel {
       kycStatus: map['kyc_status'] ?? 'unverified',
       isVerified: map['kyc_status'] == 'verified',
       isOwner: map['is_owner'] ?? false,
+      esewaNumber: map['esewa_number'],
+      khaltiNumber: map['khalti_number'],
+      accountHolderName: map['account_holder_name'],
+      qrCodeUrl: map['qr_code_url'],
       createdAt: DateTime.parse(map['created_at'] ?? DateTime.now().toIso8601String()),
     );
   }

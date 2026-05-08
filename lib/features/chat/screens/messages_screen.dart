@@ -83,7 +83,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 32,
                       fontWeight: FontWeight.w800,
-                      color: AppTheme.brandColor,
+                      color: Colors.black,
                       letterSpacing: -1.0,
                     ),
                   ),
@@ -186,11 +186,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: AppTheme.brandColor.withOpacity(0.1),
+        color: const Color(0xFFF3F4F6), // Subtle grey background instead of brand color
         shape: BoxShape.circle,
-        border: Border.all(color: AppTheme.brandColor.withOpacity(0.2)),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
-      child: Icon(icon, color: AppTheme.brandColor, size: 22),
+      child: Icon(icon, color: Colors.black, size: 22),
     );
   }
 

@@ -24,6 +24,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _esewaController = TextEditingController();
+  final _khaltiController = TextEditingController();
+  final _accountNameController = TextEditingController();
   
   bool _isLoading = false;
   bool _isLocating = false;
@@ -51,6 +53,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     _esewaController.dispose();
+    _khaltiController.dispose();
+    _accountNameController.dispose();
     super.dispose();
   }
 
@@ -61,7 +65,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         // Load Profile
         final profile = await Supabase.instance.client
             .from('profiles')
-            .select('full_name, email, phone_number, avatar_url, esewa_number, qr_code_url')
+            .select('full_name, email, phone_number, avatar_url, esewa_number, khalti_number, account_holder_name, qr_code_url')
             .eq('id', user!.id)
             .maybeSingle();
 
@@ -81,6 +85,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _phoneController.text = profile?['phone_number'] ?? user?.phone ?? '';
             _avatarUrl = profile?['avatar_url'];
             _esewaController.text = profile?['esewa_number'] ?? '';
+            _khaltiController.text = profile?['khalti_number'] ?? '';
+            _accountNameController.text = profile?['account_holder_name'] ?? '';
             _qrCodeUrl = profile?['qr_code_url'];
             
             if (kyc != null) {
@@ -209,6 +215,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               'full_name': SecurityUtils.sanitizeInput(_fullNameController.text),
               'avatar_url': newImageUrl,
               'esewa_number': SecurityUtils.sanitizeInput(_esewaController.text),
+              'khalti_number': SecurityUtils.sanitizeInput(_khaltiController.text),
+              'account_holder_name': SecurityUtils.sanitizeInput(_accountNameController.text),
               'qr_code_url': newQrUrl,
             })
             .eq('id', user!.id);
@@ -284,6 +292,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _esewaController,
                       Icons.account_balance_wallet_outlined,
                       subtitle: 'Guests will pay to this number',
+                    ),
+                    const Divider(height: 1),
+                    _buildInputField(
+                      'Khalti Number',
+                      _khaltiController,
+                      Icons.account_balance_wallet_rounded,
+                      subtitle: 'Optional alternative payment',
+                    ),
+                    const Divider(height: 1),
+                    _buildInputField(
+                      'Account Holder Name',
+                      _accountNameController,
+                      Icons.badge_outlined,
+                      subtitle: 'Name as seen on Bank/eSewa',
                     ),
                     const Divider(height: 1),
                     _buildQrPicker(),

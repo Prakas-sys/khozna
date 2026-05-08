@@ -25,6 +25,28 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   String _selectedType = 'direct'; // 'direct' or 'khozna'
   final TextEditingController _transactionController = TextEditingController();
   bool _isSubmitting = false;
+  bool _isLoadingOwner = true;
+  UserModel? _ownerProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOwnerPaymentDetails();
+  }
+
+  Future<void> _loadOwnerPaymentDetails() async {
+    try {
+      final profile = await SupabaseService.getUserProfile(widget.booking.ownerId);
+      if (mounted) {
+        setState(() {
+          _ownerProfile = profile;
+          _isLoadingOwner = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingOwner = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -256,6 +278,14 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           ),
         ),
         const SizedBox(height: 16),
+        if (_isLoadingOwner)
+          const Center(child: CircularProgressIndicator())
+        else if (_ownerProfile != null)
+          _buildOwnerPaymentInfo()
+        else
+          Text('Error loading payment details. Please chat with owner.', style: GoogleFonts.inter(color: Colors.red, fontSize: 12)),
+        
+        const SizedBox(height: 24),
         TextField(
           controller: _transactionController,
           decoration: InputDecoration(
@@ -265,6 +295,106 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             prefixIcon: const Icon(Icons.numbers_rounded),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOwnerPaymentInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.account_circle_outlined, color: Colors.grey, size: 20),
+                  const SizedBox(width: 8),
+                  Text('Account Holder:', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey)),
+                ],
+              ),
+              Text(_ownerProfile?.accountHolderName ?? _ownerProfile?.fullName ?? 'Not provided', 
+                style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black)),
+              
+              const Divider(height: 24),
+              
+              if (_ownerProfile?.esewaNumber != null && _ownerProfile!.esewaNumber!.isNotEmpty) ...[
+                _paymentDetailItem('eSewa Number', _ownerProfile!.esewaNumber!, Colors.green),
+                const SizedBox(height: 12),
+              ],
+              
+              if (_ownerProfile?.khaltiNumber != null && _ownerProfile!.khaltiNumber!.isNotEmpty) ...[
+                _paymentDetailItem('Khalti Number', _ownerProfile!.khaltiNumber!, Colors.purple),
+                const SizedBox(height: 12),
+              ],
+
+              if (_ownerProfile?.qrCodeUrl != null && _ownerProfile!.qrCodeUrl!.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text('Scan QR Code:', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 12),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade200),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(_ownerProfile!.qrCodeUrl!, width: 150, height: 150, fit: BoxFit.cover),
+                    ),
+                  ),
+                ),
+              ],
+              
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(12)),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text('⚠️ Send payment only after agreement with owner.', 
+                        style: GoogleFonts.mukta(fontSize: 12, color: Colors.red.shade900, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _paymentDetailItem(String label, String value, Color color) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: GoogleFonts.inter(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w600)),
+            Text(value, style: GoogleFonts.sora(fontSize: 16, fontWeight: FontWeight.w800, color: color)),
+          ],
+        ),
+        IconButton(
+          icon: const Icon(Icons.copy_rounded, size: 20, color: Colors.grey),
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: value));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$label copied!')));
+          },
         ),
       ],
     );
@@ -387,7 +517,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         bookingId: widget.booking.id, 
         paymentType: _selectedType, 
         method: _selectedType == 'direct' ? 'manual' : 'digital', 
-        amount: widget.booking.totalPrice
+        amount: widget.booking.totalPrice,
+        referenceId: _transactionController.text.trim(),
       );
       if (mounted) {
         HapticFeedback.mediumImpact();
