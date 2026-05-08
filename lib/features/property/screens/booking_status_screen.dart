@@ -259,7 +259,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             child: Row(children: [
               const Icon(Icons.info_outline, color: Colors.red, size: 18),
               const SizedBox(width: 8),
-              Expanded(child: Text('कारण: ${_booking.rejectionReason}', style: GoogleFonts.inter(fontSize: 13, color: Colors.red.shade800))),
+              Expanded(child: Text('Declined Reason: ${_booking.rejectionReason}', style: GoogleFonts.inter(fontSize: 13, color: Colors.red.shade800, fontWeight: FontWeight.bold))),
             ]),
           ),
         ],
@@ -525,7 +525,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       case 'visit_liked':
         return _StatusConfig(Icons.favorite_rounded, Colors.green, 'Room Liked! 🎉', 'कोठा मन पराउनुभयो — अब भुक्तानी गर्न सक्नुहुन्छ');
       case 'rejected':
-        return _StatusConfig(Icons.cancel_rounded, Colors.red, 'Visit Rejected ❌', 'यो भ्रमण अहिले सम्भव भएन');
+        return _StatusConfig(Icons.cancel_rounded, Colors.red, 'Visit Declined ❌', 'यो भ्रमण अहिले सम्भव भएन');
       case 'paid':
         return _StatusConfig(Icons.payment_rounded, const Color(0xFF00C853), 'Payment Submitted', 'भुक्तानी पुष्टि हुँदैछ');
       case 'confirmed':

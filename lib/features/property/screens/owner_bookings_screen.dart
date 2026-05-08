@@ -96,8 +96,13 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
       await BookingRepository.rejectWithReason(bookingId, reason: selectedReason);
       await _fetchBookings();
       if (mounted) {
+        HapticFeedback.lightImpact();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Visit declined. Guest notified.', style: GoogleFonts.mukta()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('भ्रमण अस्वीकृत गरियो (Visit Declined)', style: GoogleFonts.mukta(fontWeight: FontWeight.bold)),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     } catch (e) {
@@ -420,7 +425,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
         break;
       case 'rejected':
         color = Colors.red;
-        label = 'अस्वीकृत (Rejected)';
+        label = 'अस्वीकृत (Declined)';
         break;
       default:
         color = Colors.grey;
