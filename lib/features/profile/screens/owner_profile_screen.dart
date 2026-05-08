@@ -67,7 +67,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          widget.totalListings > 0 ? 'Owner Profile' : 'User Profile',
+          'Owner Profile',
           style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
             fontWeight: FontWeight.w800,
@@ -168,7 +168,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 const SizedBox(width: 4),
                 Text(
                   'प्रमाणित प्रयोगकर्ता · ${widget.location}',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.mukta(
                     color: Colors.grey[600],
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -254,8 +254,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       children: [
                         Text(
                           widget.isVerified ? 'KYC Verified · पहिचान प्रमाणित' : 'सम्पर्क विवरण सुरक्षित (Contact Gated)',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12,
+                          style: GoogleFonts.mukta(
+                            fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: widget.isVerified
                                 ? Colors.green[800]

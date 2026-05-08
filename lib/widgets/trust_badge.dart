@@ -53,7 +53,7 @@ class TrustBadge extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               label,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.mukta(
                 color: color,
                 fontSize: fontSize ?? 12,
                 fontWeight: FontWeight.bold,
