@@ -120,7 +120,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       }
       showModalBottomSheet(
         context: context,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         builder: (context) => SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
