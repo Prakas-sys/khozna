@@ -185,14 +185,10 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               onRefresh: _fetchListings,
               child: ListView.builder(
                 padding: const EdgeInsets.all(20),
-                itemCount: _listings.length + 1,
+                itemCount: _listings.length,
                 itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return _buildPerformanceInsights();
-                  }
-                  final listingIndex = index - 1;
                   try {
-                    return _buildListingCard(_listings[listingIndex]);
+                    return _buildListingCard(_listings[index]);
                   } catch (e) {
                     debugPrint('Error building listing card: $e');
                     return Container(
@@ -223,7 +219,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                 },
               ),
             ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         onPressed: () async {
           if (!await AuthGuard.checkKyc(context)) return;
           if (!mounted) return;
@@ -234,173 +230,12 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         },
         backgroundColor: AppTheme.brandColor,
         elevation: 8,
-        highlightElevation: 0,
-        shape: const StadiumBorder(),
-        extendedPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
-        icon: const Icon(Icons.add_rounded, color: Colors.white, size: 22),
-        label: Text(
-          'नयाँ थप्नुहोस् (Add New)',
-          style: GoogleFonts.hind(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
       ),
     );
   }
 
-  Widget _buildPerformanceInsights() {
-    int totalViews = 0;
-    for (var l in _listings) {
-      totalViews += (l['views'] as int? ?? 0);
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'प्रस्तुति विवरण (Performance)',
-          style: GoogleFonts.hind(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1A1A2E),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppTheme.brandColor, Color(0xFF0077A8)], // 30% Secondary (Brand Shades)
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.brandColor.withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildInsightItem(
-                    'कुल अवलोकन',
-                    'Total Views',
-                    totalViews.toString(),
-                    Icons.remove_red_eye_rounded,
-                  ),
-                  Container(
-                    width: 1,
-                    height: 40,
-                    color: Colors.white.withOpacity(0.1),
-                  ),
-                  _buildInsightItem(
-                    'आगन्तुक रुचि',
-                    'Visitor Interest',
-                    'High',
-                    Icons.trending_up_rounded,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const Divider(color: Colors.white10),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.auto_awesome_rounded,
-                      color: Color(0xFFFACC15), // Gold accent for AI
-                      size: 16,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'AI Tip: Your price is ₹500 higher than local average. Adjust it to get 2.5x more visitors!',
-                      style: GoogleFonts.inter(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 32),
-        Text(
-          'तपाईंका सुचीहरू (Your Listings)',
-          style: GoogleFonts.hind(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1A1A2E),
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
-
-  Widget _buildInsightItem(
-    String nepalTitle,
-    String engTitle,
-    String value,
-    IconData icon,
-  ) {
-    return Expanded(
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: Colors.white, size: 20),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-            ),
-          ),
-          Text(
-            nepalTitle,
-            style: GoogleFonts.hind(
-              fontSize: 12,
-              color: Colors.white.withOpacity(0.6),
-            ),
-          ),
-          Text(
-            engTitle,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: Colors.white.withOpacity(0.4),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildListingCard(Map<String, dynamic> item) {
     final property = Property.fromMap(item);
