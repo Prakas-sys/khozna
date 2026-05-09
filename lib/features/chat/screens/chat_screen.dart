@@ -44,6 +44,8 @@ class _ChatScreenState extends State<ChatScreen> {
   late TextEditingController _messageController;
   late ScrollController _bannerScrollController;
   bool _isSendingImage = false;
+  bool _isRecording = false;
+  int _recordingDuration = 0;
   final List<ChatMessage> _optimisticMessages = [];
 
   String? _activeChatId;
@@ -52,6 +54,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   late String _displayName;
   late String _displayAvatar;
+  late String _displayLocation;
   late bool _isOwner;
 
   final List<String> _quickReplies = [
@@ -71,6 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _bannerScrollController = ScrollController();
     _displayName = widget.name;
     _displayAvatar = widget.avatar;
+    _displayLocation = 'Kathmandu, Nepal';
     _isOwner = widget.isOwner;
 
     WidgetsBinding.instance.addPostFrameCallback(
@@ -96,7 +100,7 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _displayName = profile.fullName;
         _displayAvatar = profile.avatarUrl ?? _displayAvatar;
-        _displayAvatar = profile.avatarUrl ?? _displayAvatar;
+        _displayLocation = profile.areaName ?? 'Kathmandu, Nepal';
         _isOwner = profile.isOwner;
       });
     }
@@ -203,7 +207,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ownerId: widget.ownerId,
                     name: _displayName,
                     avatar: _displayAvatar,
-                    location: 'Khozna User',
+                    location: _displayLocation,
                     totalListings: _isOwner ? 1 : 0,
                   ),
                 ),
@@ -374,7 +378,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             ownerId: widget.ownerId,
                             name: _displayName,
                             avatar: _displayAvatar,
-                            location: 'Khozna User',
+                            location: _displayLocation,
                             totalListings: _isOwner ? 1 : 0,
                           ),
                         ),
@@ -434,82 +438,138 @@ class _ChatScreenState extends State<ChatScreen> {
         border: Border(top: BorderSide(color: Colors.grey.shade100)),
       ),
       child: SafeArea(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Column(
           children: [
-            Expanded(
-              child: Container(
-                height: 52,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9FAFB),
-                  borderRadius: BorderRadius.circular(26),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
+            if (_isRecording)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
                   children: [
+                    const Icon(Icons.mic, color: Colors.red, size: 20),
                     const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.add_rounded,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      onPressed: () {},
-                      constraints: const BoxConstraints(),
-                      padding: const EdgeInsets.all(8),
+                    Text(
+                      'Recording... 0:${_recordingDuration.toString().padLeft(2, '0')}',
+                      style: GoogleFonts.inter(color: Colors.red, fontWeight: FontWeight.bold),
                     ),
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        style: GoogleFonts.inter(fontSize: 15),
-                        decoration: InputDecoration(
-                          hintText: 'Message...',
-                          hintStyle: GoogleFonts.inter(
-                            color: const Color(0xFF9CA3AF),
-                            fontSize: 15,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                          ),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.camera_alt_rounded,
-                        color: Color(0xFF6B7280),
-                        size: 22,
-                      ),
-                      onPressed: _pickAndSendImage,
-                      constraints: const BoxConstraints(),
-                      padding: const EdgeInsets.all(8),
-                    ),
-                    const SizedBox(width: 8),
+                    const Spacer(),
+                    Text('Slide to cancel <', style: GoogleFonts.inter(color: Colors.grey, fontSize: 12)),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            // Send button nudged slightly up for "better horizontal alignment" feel
-            Padding(
-              padding: const EdgeInsets.only(bottom: 2),
-              child: GestureDetector(
-                onTap: () => _sendMessage(),
-                child: Container(
-                  width: 52,
-                  height: 52,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.brandColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.send_rounded,
-                    color: Colors.white,
-                    size: 22,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(26),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.add_rounded,
+                            color: Color(0xFF6B7280),
+                            size: 22,
+                          ),
+                          onPressed: () {},
+                          constraints: const BoxConstraints(),
+                          padding: const EdgeInsets.all(8),
+                        ),
+                        Expanded(
+                          child: TextField(
+                            controller: _messageController,
+                            style: GoogleFonts.inter(fontSize: 15),
+                            onChanged: (val) => setState(() {}),
+                            decoration: InputDecoration(
+                              hintText: 'Message...',
+                              hintStyle: GoogleFonts.inter(
+                                color: const Color(0xFF9CA3AF),
+                                fontSize: 15,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.camera_alt_rounded,
+                            color: Color(0xFF6B7280),
+                            size: 22,
+                          ),
+                          onPressed: _pickAndSendImage,
+                          constraints: const BoxConstraints(),
+                          padding: const EdgeInsets.all(8),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onLongPressStart: (_) {
+                    if (_messageController.text.isEmpty) {
+                      HapticFeedback.heavyImpact();
+                      setState(() {
+                        _isRecording = true;
+                        _recordingDuration = 0;
+                      });
+                      // Mock timer
+                      Future.doWhile(() async {
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (!_isRecording) return false;
+                        setState(() => _recordingDuration++);
+                        return true;
+                      });
+                    }
+                  },
+                  onLongPressEnd: (_) {
+                    if (_isRecording) {
+                      HapticFeedback.mediumImpact();
+                      final duration = _recordingDuration;
+                      setState(() => _isRecording = false);
+                      
+                      // Mock sending a voice message
+                      final tempMsg = ChatMessage(
+                        id: 'temp_audio_${DateTime.now().millisecondsSinceEpoch}',
+                        chatId: _activeChatId ?? '',
+                        senderId: _currentUserId,
+                        audioUrl: 'mock_url',
+                        audioDuration: duration,
+                        createdAt: DateTime.now(),
+                        isOptimistic: true,
+                      );
+                      setState(() => _optimisticMessages.insert(0, tempMsg));
+                    }
+                  },
+                  onTap: () {
+                    if (_messageController.text.isNotEmpty) {
+                      _sendMessage();
+                    }
+                  },
+                  child: Container(
+                    width: 52,
+                    height: 52,
+                    decoration: const BoxDecoration(
+                      color: AppTheme.brandColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      _messageController.text.isEmpty ? Icons.mic : Icons.send_rounded,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

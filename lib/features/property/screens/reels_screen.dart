@@ -38,7 +38,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
       final data = await Supabase.instance.client
           .from('properties')
           .select(
-            'id, owner_id, title, area_name, price, images, video_url, category, status, bedrooms, bathrooms, profiles:owner_id(full_name, avatar_url, kyc_status)',
+            'id, owner_id, title, area_name, price, images, video_url, category, status, bedrooms, bathrooms, profiles:owner_id(full_name, avatar_url, kyc_status, area_name)',
           )
           .order('created_at', ascending: false)
           .limit(30);
@@ -275,7 +275,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                             ownerId: property.ownerId,
                             name: property.ownerName,
                             avatar: property.ownerAvatar,
-                            location: property.location,
+                            location: property.ownerLocation,
                             totalListings: 1,
                           ),
                         ),

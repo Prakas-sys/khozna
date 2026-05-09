@@ -4,6 +4,8 @@ class ChatMessage {
   final String senderId;
   final String? text;
   final String? imageUrl;
+  final String? audioUrl;
+  final int? audioDuration;
   final DateTime createdAt;
   final bool isRead;
   final bool isDeleted;
@@ -15,6 +17,8 @@ class ChatMessage {
     required this.senderId,
     this.text,
     this.imageUrl,
+    this.audioUrl,
+    this.audioDuration,
     required this.createdAt,
     this.isRead = false,
     this.isDeleted = false,
@@ -28,6 +32,8 @@ class ChatMessage {
       senderId: map['sender_id']?.toString() ?? '',
       text: map['text'],
       imageUrl: map['image_url'],
+      audioUrl: map['audio_url'],
+      audioDuration: map['audio_duration'],
       createdAt: DateTime.parse(
         map['created_at'] ?? DateTime.now().toIso8601String(),
       ).toLocal(),
@@ -44,6 +50,8 @@ class ChatMessage {
       'sender_id': senderId,
       'text': text,
       'image_url': imageUrl,
+      'audio_url': audioUrl,
+      'audio_duration': audioDuration,
       'created_at': createdAt.toIso8601String(),
       'is_read': isRead,
       'is_deleted': isDeleted,

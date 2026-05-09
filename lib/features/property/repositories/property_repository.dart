@@ -16,16 +16,21 @@ class PropertyRepository {
     required int index,
     double? lat,
     double? lng,
+    List<String> excludeIds = const [],
   }) async {
     try {
       dynamic query = _client
           .from('properties')
           .select(
-            '*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)',
+            '*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status, area_name)',
           );
 
       if (index != 5) {
         query = query.eq('status', 'available');
+      }
+
+      if (excludeIds.isNotEmpty) {
+        query = query.not('id', 'in', '(${excludeIds.join(",")})');
       }
 
       switch (index) {
@@ -148,7 +153,7 @@ class PropertyRepository {
       final response = await _client
           .from('saved_properties')
           .select(
-            '*, properties(*, property_images(*), profiles(full_name, avatar_url, kyc_status))',
+            '*, properties(*, property_images(*), profiles(full_name, avatar_url, kyc_status, area_name))',
           )
           .eq('user_id', user.id)
           .order('created_at', ascending: false);
@@ -168,7 +173,7 @@ class PropertyRepository {
       final response = await _client
           .from('properties')
           .select(
-            '*, property_images(*), profiles(full_name, avatar_url, kyc_status)',
+            '*, property_images(*), profiles(full_name, avatar_url, kyc_status, area_name)',
           )
           .order('created_at', ascending: false);
       return (response as List).map((e) => Property.fromMap(e)).toList();

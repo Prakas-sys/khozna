@@ -49,7 +49,7 @@ class HomeScreenState extends State<HomeScreen> {
       if (mounted) setState(() {});
     }
     await _getCurrentLocation();
-    if (mounted) setState(() => _initializeFutures());
+    if (mounted) _initializeFutures();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -208,13 +208,29 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _initializeFutures() {
+  Future<void> _initializeFutures() async {
+    final Set<String> seenIds = {};
+
     for (int i = 0; i < 5; i++) {
-      _sectionFutures[i] = PropertyRepository.getSectionProperties(
+      // We create a new future that waits for the previous ones to finish their 'seenIds' update
+      final sectionData = await PropertyRepository.getSectionProperties(
         index: i,
         lat: _currentPosition?.latitude,
         lng: _currentPosition?.longitude,
+        excludeIds: seenIds.toList(),
       );
+
+      // Add these to our "Memory"
+      for (var p in sectionData) {
+        seenIds.add(p.id);
+      }
+
+      // Update the UI with this section's unique data
+      if (mounted) {
+        setState(() {
+          _sectionFutures[i] = Future.value(sectionData);
+        });
+      }
     }
   }
 
@@ -244,7 +260,7 @@ class HomeScreenState extends State<HomeScreen> {
           await OfflineStorage.clearHomeCache();
           homeSectionCache.value = {};
           await _getCurrentLocation();
-          setState(() => _initializeFutures());
+          _initializeFutures();
           await Future.wait(_sectionFutures);
         },
         color: AppTheme.brandColor,

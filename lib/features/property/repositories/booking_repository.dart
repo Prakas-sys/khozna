@@ -74,7 +74,7 @@ class BookingRepository {
       await _client.from('notifications').insert({
         'user_id': ownerId,
         'sender_id': user.id,
-        'title': '👀 नयाँ भ्रमण अनुरोध (New Visit Request!)',
+        'title': '🚶‍♂️ नयाँ भ्रमण अनुरोध (New Visit Request!)',
         'message':
             '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ। ${message ?? ""}',
         'type': 'visit_request',
@@ -278,6 +278,18 @@ class BookingRepository {
 
   static Future<void> confirmPayment(String bookingId) async {
     try {
+      // 1. Fetch booking with property details to know the rental type
+      final response = await _client
+          .from('bookings')
+          .select('*, properties(id, category, price_month, price_night)')
+          .eq('id', bookingId)
+          .single();
+
+      final property = response['properties'];
+      final String propertyId = property['id'];
+      final String category = property['category']?.toString().toLowerCase() ?? '';
+
+      // 2. Update booking and payment status
       await _client
           .from('bookings')
           .update({
@@ -290,6 +302,24 @@ class BookingRepository {
           .from('payments')
           .update({'status': 'verified'})
           .eq('booking_id', bookingId);
+
+      // 3. Smart Property Hiding:
+      // If it's a long-term rental (Room, Flat, Apartment), hide the property.
+      // If it's short-term (Homestay, GuestHouse), keep it available for other nights.
+      final bool isLongTerm = category == 'room' ||
+          category == 'flat' ||
+          category == 'apartment' ||
+          category == 'house';
+
+      if (isLongTerm) {
+        await _client
+            .from('properties')
+            .update({'status': 'booked'})
+            .eq('id', propertyId);
+        debugPrint('Long-term property $propertyId marked as BOOKED (Hidden)');
+      } else {
+        debugPrint('Nightly property $propertyId remains AVAILABLE for other dates');
+      }
 
       // Trigger in DB will automatically block dates in property_availability
     } catch (e) {

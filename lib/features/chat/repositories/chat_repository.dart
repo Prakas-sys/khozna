@@ -165,6 +165,22 @@ class ChatRepository {
     });
   }
 
+  static Future<void> sendAudioMessage(
+    String chatId,
+    String audioUrl,
+    int durationSeconds,
+  ) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+
+    await _client.from('messages').insert({
+      'chat_id': chatId,
+      'sender_id': user.id,
+      'audio_url': audioUrl,
+      'audio_duration': durationSeconds,
+    });
+  }
+
   static Future<void> markChatAsRead(String chatId) async {
     final user = _client.auth.currentUser;
     if (user == null) return;

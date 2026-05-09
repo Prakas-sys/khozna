@@ -14,8 +14,8 @@ class Property {
   final String status;
   final String ownerId;
   final String ownerName;
-  final String ownerAvatar;
   final bool isOwnerVerified;
+  final String ownerLocation;
   final List<String> amenities;
   final List<String> houseRules;
   final double? latitude;
@@ -47,6 +47,7 @@ class Property {
     required this.ownerName,
     required this.ownerAvatar,
     required this.isOwnerVerified,
+    required this.ownerLocation,
     required this.amenities,
     required this.houseRules,
     this.latitude,
@@ -97,6 +98,7 @@ class Property {
       ownerName: ownerProfile?['full_name'] ?? 'Khozna User',
       ownerAvatar: ownerProfile?['avatar_url'] ?? '',
       isOwnerVerified: ownerProfile?['kyc_status'] == 'verified',
+      ownerLocation: ownerProfile?['area_name'] ?? 'Nepal',
       amenities:
           (map['amenities'] as List?)?.map((e) => e.toString()).toList() ?? [],
       houseRules:

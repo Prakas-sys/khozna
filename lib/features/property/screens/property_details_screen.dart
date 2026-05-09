@@ -278,6 +278,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildHeader(),
+                const SizedBox(height: 12),
+                _buildTrustActivityCard(),
                 const SizedBox(height: 24),
                 const DetailSectionTitle(title: 'सुविधाहरू (Amenities)'),
                 const SizedBox(height: 20),
@@ -311,16 +313,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   const DetailSectionTitle(title: 'नियमहरू (House Rules)'),
                   const SizedBox(height: 12),
                   ...widget.property.houseRules.map((rule) {
-                    // Format rule string (e.g., family_only -> Family Only)
-                    String formattedRule = rule.replaceAll('_', ' ');
-                    if (formattedRule.isNotEmpty) {
-                      formattedRule =
-                          formattedRule[0].toUpperCase() +
-                          formattedRule.substring(1);
-                    }
+                    final data = _getFeatureData(rule);
                     return RuleRow(
-                      icon: Icons.info_outline,
-                      title: formattedRule,
+                      icon: data.$1,
+                      title: data.$2,
                     );
                   }),
                   const SizedBox(height: 24),
@@ -505,6 +501,103 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ],
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrustActivityCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.auto_graph_rounded,
+                  color: AppTheme.brandColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'High Interest',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
+                    Text(
+                      '12 people viewed this in the last 24 hours',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(height: 1, color: Color(0xFFE2E8F0)),
+          ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.bolt_rounded,
+                  color: Colors.orange,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Fast Response',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
+                    Text(
+                      'Host usually responds within 1 hour',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: const Color(0xFF64748B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -727,64 +820,71 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       );
     }
 
-    // Fuzzy Matching for Amenities
-    (IconData, String, Color) _getAmenityData(String feature) {
-      final k = feature.toLowerCase().trim();
-      if (k.contains('water'))
-        return (Icons.water_drop_outlined, 'Water', Colors.lightBlue);
-      if (k.contains('wifi') || k.contains('internet'))
-        return (Icons.wifi, 'Internet', Colors.blue);
-      if (k.contains('bike'))
-        return (Icons.motorcycle_rounded, 'Bike Parking', Colors.blueGrey);
-      if (k.contains('car'))
-        return (
-          Icons.directions_car_filled_rounded,
-          'Car Parking',
-          Colors.indigo,
-        );
-      if (k.contains('parking'))
-        return (Icons.local_parking_rounded, 'Parking', Colors.indigo);
-      if (k.contains('sunny'))
-        return (Icons.wb_sunny_outlined, 'Sunny', Colors.amber);
-      if (k.contains('cctv') || k.contains('security'))
-        return (Icons.videocam_outlined, 'CCTV', Colors.redAccent);
-      if (k.contains('balcony'))
-        return (Icons.balcony_outlined, 'Balcony', Colors.teal);
-      if (k.contains('hot water'))
-        return (Icons.hot_tub_outlined, 'Hot Water', Colors.orangeAccent);
-      if (k.contains('bath'))
-        return (Icons.bathroom_outlined, 'Bath', Colors.cyan);
-      if (k.contains('family'))
-        return (Icons.family_restroom_outlined, 'Family', Colors.purple);
-      if (k.contains('kitchen'))
-        return (Icons.kitchen_outlined, 'Kitchen', Colors.orange);
-      if (k.contains('ac') || k.contains('air cond'))
-        return (Icons.ac_unit_rounded, 'AC', Colors.blueGrey);
-      if (k.contains('furnish'))
-        return (Icons.chair_rounded, 'Furnished', Colors.brown);
-      if (k.contains('gym') || k.contains('fitness'))
-        return (Icons.fitness_center_rounded, 'Gym', Colors.blueGrey);
-      if (k.contains('pool')) return (Icons.pool_rounded, 'Pool', Colors.blue);
-      if (k.contains('lift') || k.contains('elevat'))
-        return (Icons.elevator_rounded, 'Lift', Colors.grey);
+  (IconData, String, Color) _getFeatureData(String feature) {
+    final k = feature.toLowerCase().trim();
+    if (k.contains('water'))
+      return (Icons.water_drop_outlined, 'Water', Colors.lightBlue);
+    if (k.contains('wifi') || k.contains('internet'))
+      return (Icons.wifi, 'Internet', Colors.blue);
+    if (k.contains('bike'))
+      return (Icons.motorcycle_rounded, 'Bike Parking', Colors.blueGrey);
+    if (k.contains('car'))
+      return (Icons.directions_car_filled_rounded, 'Car Parking', Colors.indigo);
+    if (k.contains('parking'))
+      return (Icons.local_parking_rounded, 'Parking', Colors.indigo);
+    if (k.contains('sunny'))
+      return (Icons.wb_sunny_outlined, 'Sunny', Colors.amber);
+    if (k.contains('cctv') || k.contains('security'))
+      return (Icons.videocam_outlined, 'CCTV', Colors.redAccent);
+    if (k.contains('balcony'))
+      return (Icons.balcony_outlined, 'Balcony', Colors.teal);
+    if (k.contains('hot water'))
+      return (Icons.hot_tub_outlined, 'Hot Water', Colors.orangeAccent);
+    if (k.contains('bath'))
+      return (Icons.bathroom_outlined, 'Bath', Colors.cyan);
+    if (k.contains('family'))
+      return (Icons.family_restroom_outlined, 'Family', Colors.purple);
+    if (k.contains('kitchen'))
+      return (Icons.kitchen_outlined, 'Kitchen', Colors.orange);
+    if (k.contains('ac') || k.contains('air cond'))
+      return (Icons.ac_unit_rounded, 'AC', Colors.blueGrey);
+    if (k.contains('furnish'))
+      return (Icons.chair_rounded, 'Furnished', Colors.brown);
+    if (k.contains('gym') || k.contains('fitness'))
+      return (Icons.fitness_center_rounded, 'Gym', Colors.blueGrey);
+    if (k.contains('pool')) return (Icons.pool_rounded, 'Pool', Colors.blue);
+    if (k.contains('lift') || k.contains('elevat'))
+      return (Icons.elevator_rounded, 'Lift', Colors.grey);
 
-      String formatted = feature.replaceAll('_', ' ');
-      if (formatted.isNotEmpty) {
-        formatted = formatted[0].toUpperCase() + formatted.substring(1);
-      }
-      return (
-        Icons.check_circle_outline_rounded,
-        formatted,
-        AppTheme.brandColor,
-      );
+    // House Rule Specifics
+    if (k.contains('smoke') || k.contains('smoking'))
+      return (Icons.smoke_free_rounded, 'No Smoking', Colors.redAccent);
+    if (k.contains('pet'))
+      return (Icons.pets_rounded, 'Pets Allowed', Colors.brown);
+    if (k.contains('party') || k.contains('event'))
+      return (Icons.celebration_rounded, 'No Parties', Colors.purpleAccent);
+    if (k.contains('couple'))
+      return (Icons.people_outline_rounded, 'Couples Allowed', Colors.pinkAccent);
+    if (k.contains('girl'))
+      return (Icons.woman_rounded, 'Girls Only', Colors.pink);
+    if (k.contains('boy')) return (Icons.man_rounded, 'Boys Only', Colors.indigo);
+
+    String formatted = feature.replaceAll('_', ' ');
+    if (formatted.isNotEmpty) {
+      formatted = formatted[0].toUpperCase() + formatted.substring(1);
     }
+    return (
+      Icons.check_circle_outline_rounded,
+      formatted,
+      AppTheme.brandColor,
+    );
+  }
 
     final combinedFeatures = {
       ...widget.property.amenities,
-      ...widget.property.houseRules,
     };
     for (var feature in combinedFeatures) {
-      final data = _getAmenityData(feature);
+      final data = _getFeatureData(feature);
       items.add(
         PropertyStatItem(
           icon: data.$1,
@@ -1155,7 +1255,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     name: name,
                     avatar: avatar,
                     isVerified: isVerified,
-                    location: widget.property.location,
+                    location: widget.property.ownerLocation,
                     totalListings: 1, // At least this one
                   ),
                 ),
@@ -1358,30 +1458,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _remindOwner,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFB300), // Premium Amber
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                ),
-                child: Text(
-                  'Remind Owner',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.2,
-                  ),
-                ),
-              ),
-            ),
+            _buildDisabledButton('Pending Approval'),
             const SizedBox(height: 4),
             GestureDetector(
               onTap: _cancelRequest,
@@ -1454,21 +1531,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Future<void> _remindOwner() async {
-    if (_pendingBookingId == null) return;
-    HapticFeedback.lightImpact();
-    try {
-      await SupabaseService.remindOwner(_pendingBookingId!);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('मालिकलाई जानकारी पठाइयो (Reminder sent to owner)'),
-            backgroundColor: Colors.amber,
-          ),
-        );
-      }
-    } catch (_) {}
-  }
 
   Future<void> _cancelRequest() async {
     if (_pendingBookingId == null) return;

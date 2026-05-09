@@ -61,29 +61,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final String message = (note['message'] ?? note['title'] ?? '').toString();
     final name = sender?['full_name'] ?? 'Someone';
 
-    // Remove app name repetition
-    String cleanMessage = message.replaceAll('Khozna app', '').trim();
-    if (cleanMessage.startsWith('ले'))
-      cleanMessage = cleanMessage.substring(1).trim();
-
     if (type == 'booking_request' ||
-        cleanMessage.contains('कोठा हेर्न अनुरोध')) {
-      return '👀 $name wants to visit your room.';
+        message.contains('कोठा हेर्न अनुरोध') ||
+        type == 'visit_request') {
+      return '🚶‍♂️ $name ले कोठा हेर्न अनुरोध गर्नुभएको छ।';
     }
-    if (type == 'booking_approved' || cleanMessage.contains('स्वीकृत')) {
-      return '✅ Your visit request was accepted!';
+    if (type == 'booking_approved' ||
+        message.contains('स्वीकृत') ||
+        type == 'visit_alert' && message.contains('स्वीकृत')) {
+      return '✅ तपाईंको भ्रमण अनुरोध स्वीकृत भयो! (Visit Accepted!)';
     }
-    if (cleanMessage.contains('अस्वीकृत') || type == 'booking_rejected') {
-      return '❌ Your visit request was rejected.';
+    if (message.contains('अस्वीकृत') ||
+        message.contains('सक्नुभएन') ||
+        type == 'booking_rejected') {
+      return '❌ भ्रमण हुन सकेन (Visit Update)';
     }
     if (type == 'chat' || type == 'message') {
-      return '💬 New message from $name';
+      return '💬 $name बाट नयाँ सन्देश (New Message)';
     }
-    if (type == 'payment_received' || cleanMessage.contains('भुक्तानी')) {
-      return '💰 Payment received from $name!';
+    if (type == 'payment_received' || message.contains('भुक्तानी')) {
+      return '💰 भुक्तानी प्राप्त भयो! (Payment Received from $name)';
     }
 
-    return cleanMessage.isEmpty ? 'New update for you' : cleanMessage;
+    return message.isEmpty ? 'नयाँ सूचना (New Update)' : message;
   }
 
   @override
@@ -191,7 +191,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             (note['message']?.toString().contains('स्वीकृत') ==
                                 true);
                         if (type == 'booking_approved' ||
-                            (type == 'booking_alert' && isApproved)) {
+                            (type == 'visit_alert' && isApproved)) {
                           return _buildBookingApprovedCard(
                             note,
                             id,
@@ -319,7 +319,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                   avatar:
                                                       sender['avatar_url'] ??
                                                       'https://via.placeholder.com/150',
-                                                  location: 'Kathmandu, Nepal',
+                                                  location: sender?['area_name'] ?? 'Kathmandu, Nepal',
                                                   totalListings: 0,
                                                 ),
                                           ),

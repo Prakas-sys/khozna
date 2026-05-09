@@ -28,13 +28,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _accountNameController = TextEditingController();
   final _areaController = TextEditingController();
   final _userTypeController = TextEditingController();
+  final _bioController = TextEditingController();
+  final _orgController = TextEditingController();
 
   bool _isLoading = false;
   bool _isLocating = false;
   String? _avatarUrl;
   String? _qrCodeUrl;
+  String? _studentIdUrl;
   File? _imageFile;
   File? _qrFile;
+  File? _idFile;
   final ImagePicker _picker = ImagePicker();
 
   double? _latitude;
@@ -61,6 +65,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _accountNameController.dispose();
     _areaController.dispose();
     _userTypeController.dispose();
+    _bioController.dispose();
+    _orgController.dispose();
     super.dispose();
   }
 
@@ -72,7 +78,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final profile = await Supabase.instance.client
             .from('profiles')
             .select(
-              'full_name, email, phone_number, avatar_url, esewa_number, khalti_number, account_holder_name, qr_code_url, area_name, user_type',
+              'full_name, email, phone_number, avatar_url, esewa_number, khalti_number, account_holder_name, qr_code_url, area_name, user_type, bio, organization, student_id_url',
             )
             .eq('id', user!.id)
             .maybeSingle();
@@ -103,6 +109,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _qrCodeUrl = profile?['qr_code_url'];
             _areaController.text = profile?['area_name'] ?? '';
             _userTypeController.text = profile?['user_type'] ?? '';
+            _bioController.text = profile?['bio'] ?? '';
+            _orgController.text = profile?['organization'] ?? '';
+            _studentIdUrl = profile?['student_id_url'];
 
             if (kyc != null) {
               _latitude = kyc['latitude'];
@@ -196,6 +205,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  Future<void> _pickStudentId() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _idFile = File(pickedFile.path);
+      });
+    }
+  }
+
   Future<void> _updateProfile() async {
     if (_fullNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
@@ -209,6 +230,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (user != null) {
         String? newImageUrl = _avatarUrl;
         String? newQrUrl = _qrCodeUrl;
+        String? newIdUrl = _studentIdUrl;
 
         if (_imageFile != null) {
           newImageUrl = await CloudinaryService.uploadImage(_imageFile!);
@@ -216,6 +238,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         if (_qrFile != null) {
           newQrUrl = await CloudinaryService.uploadImage(_qrFile!);
+        }
+
+        if (_idFile != null) {
+          newIdUrl = await CloudinaryService.uploadImage(_idFile!);
         }
 
         await Supabase.instance.client.auth.updateUser(
@@ -248,6 +274,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               'qr_code_url': newQrUrl,
               'area_name': SecurityUtils.sanitizeInput(_areaController.text),
               'user_type': SecurityUtils.sanitizeInput(_userTypeController.text),
+              'bio': SecurityUtils.sanitizeInput(_bioController.text),
+              'organization':
+                  SecurityUtils.sanitizeInput(_orgController.text),
+              'student_id_url': newIdUrl,
             })
             .eq('id', user!.id);
 
@@ -326,6 +356,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Icons.badge_outlined,
                       subtitle: 'Example: Student, Family, Professional',
                     ),
+                    const Divider(height: 1),
+                    _buildInputField(
+                      'College / Organization (कलेज वा अफिस)',
+                      _orgController,
+                      Icons.business_rounded,
+                      subtitle: 'Example: Pulchowk Campus, TUTH, or Company Name',
+                    ),
+                    const Divider(height: 1),
+                    _buildInputField(
+                      'About You (आफ्नो बारेमा छोटो जानकारी)',
+                      _bioController,
+                      Icons.description_outlined,
+                      subtitle: 'Help owners trust you! Mention your study/hobbies.',
+                      maxLines: 3,
+                    ),
+                    const Divider(height: 1),
+                    _buildIdCardPicker(),
                   ]),
                   const SizedBox(height: 32),
                   _buildSectionTitle('PAYMENT INFORMATION (OWNER ONLY)'),
@@ -496,6 +543,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     IconData icon, {
     bool enabled = true,
     String? subtitle,
+    int maxLines = 1,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -525,6 +573,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 TextField(
                   controller: controller,
                   enabled: enabled,
+                  maxLines: maxLines,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -783,6 +832,92 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             onPressed: _pickQrCode,
             child: Text(
               _qrFile != null || _qrCodeUrl != null ? 'Change' : 'Upload',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: AppTheme.brandColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIdCardPicker() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.08),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.badge_rounded,
+              color: Colors.blue,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'College ID Card (Student Proof)',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'कलेज आइडी (परिचय पत्र)',
+                  style: GoogleFonts.mukta(
+                    fontSize: 13,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                if (_idFile != null ||
+                    (_studentIdUrl != null && _studentIdUrl!.isNotEmpty))
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      width: double.infinity,
+                      height: 140,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: _idFile != null
+                          ? Image.file(_idFile!, fit: BoxFit.cover)
+                          : KhoznaImage(
+                              imageUrl: _studentIdUrl!,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  )
+                else
+                  Text(
+                    'No ID uploaded yet',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.grey[300],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          TextButton(
+            onPressed: _pickStudentId,
+            child: Text(
+              _idFile != null || _studentIdUrl != null ? 'Change' : 'Upload',
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 13,

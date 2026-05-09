@@ -86,7 +86,7 @@ class MessageBubble extends StatelessWidget {
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.72,
               ),
-              padding: message.imageUrl != null
+              padding: (message.imageUrl != null)
                   ? EdgeInsets.zero
                   : const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
@@ -148,6 +148,12 @@ class MessageBubble extends StatelessWidget {
                         fit: BoxFit.cover,
                       ),
                     )
+                  : message.audioUrl != null
+                  ? VoiceMessageBubble(
+                      audioUrl: message.audioUrl!,
+                      duration: message.audioDuration ?? 0,
+                      isMe: isMe,
+                    )
                   : Text(
                       message.text ?? '',
                       style: GoogleFonts.inter(
@@ -187,6 +193,83 @@ class MessageBubble extends StatelessWidget {
             const SizedBox(height: 8),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class VoiceMessageBubble extends StatefulWidget {
+  final String audioUrl;
+  final int duration;
+  final bool isMe;
+
+  const VoiceMessageBubble({
+    super.key,
+    required this.audioUrl,
+    required this.duration,
+    required this.isMe,
+  });
+
+  @override
+  State<VoiceMessageBubble> createState() => _VoiceMessageBubbleState();
+}
+
+class _VoiceMessageBubbleState extends State<VoiceMessageBubble> {
+  bool _isPlaying = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 200,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () => setState(() => _isPlaying = !_isPlaying),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: widget.isMe ? Colors.white.withOpacity(0.2) : AppTheme.brandColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                color: widget.isMe ? Colors.white : AppTheme.brandColor,
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: List.generate(15, (index) {
+                    final height = [10, 15, 8, 20, 12, 18, 14, 10, 16, 22, 10, 14, 18, 12, 8][index];
+                    return Container(
+                      width: 2,
+                      height: height.toDouble(),
+                      margin: const EdgeInsets.only(right: 2),
+                      decoration: BoxDecoration(
+                        color: widget.isMe ? Colors.white.withOpacity(0.6) : Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '0:${widget.duration.toString().padLeft(2, '0')}',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    color: widget.isMe ? Colors.white.withOpacity(0.8) : Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

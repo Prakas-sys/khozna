@@ -302,9 +302,15 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
+                  _buildStepProgress(),
+                  const SizedBox(height: 24),
                   _buildStatusCard(),
                   const SizedBox(height: 16),
                   _buildPropertyCard(),
+                  const SizedBox(height: 16),
+                  if (_booking.status == 'visit_accepted' ||
+                      _booking.status == 'awaiting_payment')
+                    _buildMapPreview(),
                   const SizedBox(height: 16),
                   if (_showVisitedQuestion) _buildVisitedQuestion(),
                   if (_showLikedQuestion && !_showVisitedQuestion)
@@ -315,6 +321,97 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildStepProgress() {
+    int currentStep = 0;
+    if (_booking.status == 'pending_approval') currentStep = 0;
+    else if (_booking.status == 'visit_accepted') currentStep = 1;
+    else if (_booking.status == 'awaiting_payment' || _booking.visitLiked == true) currentStep = 2;
+    else if (_booking.status == 'confirmed') currentStep = 3;
+    else if (_booking.status == 'paid') currentStep = 3;
+
+    final steps = [
+      {'label': 'Requested', 'icon': Icons.send_rounded},
+      {'label': 'Approved', 'icon': Icons.check_circle_rounded},
+      {'label': 'Liked', 'icon': Icons.favorite_rounded},
+      {'label': 'Move-In', 'icon': Icons.home_rounded},
+    ];
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        children: List.generate(steps.length, (index) {
+          final isCompleted = index < currentStep;
+          final isActive = index == currentStep;
+          final isLast = index == steps.length - 1;
+          final color = isCompleted || isActive ? AppTheme.brandColor : Colors.grey.shade300;
+
+          return Expanded(
+            child: Row(
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: isCompleted ? AppTheme.brandColor : (isActive ? Colors.white : Colors.grey.shade50),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: color,
+                          width: 2,
+                        ),
+                        boxShadow: isActive ? [
+                          BoxShadow(
+                            color: AppTheme.brandColor.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          )
+                        ] : null,
+                      ),
+                      child: Icon(
+                        isCompleted ? Icons.check : (steps[index]['icon'] as IconData),
+                        size: 16,
+                        color: isCompleted ? Colors.white : color,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      steps[index]['label'] as String,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 10,
+                        fontWeight: isActive ? FontWeight.w800 : FontWeight.w600,
+                        color: color,
+                      ),
+                    ),
+                  ],
+                ),
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      height: 2,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      color: isCompleted ? AppTheme.brandColor : Colors.grey.shade200,
+                    ),
+                  ),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 
@@ -580,6 +677,110 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     );
   }
 
+  Widget _buildMapPreview() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.location_on_rounded, color: Colors.red),
+              const SizedBox(width: 8),
+              Text(
+                'कोठाको स्थान (Room Location)',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              height: 150,
+              width: double.infinity,
+              color: Colors.blue.shade50,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // This would be a real Google Map widget in production
+                  Icon(Icons.map_outlined, color: Colors.blue.shade200, size: 50),
+                  Positioned(
+                    bottom: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'Map Unlocked! 🔓',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green.shade700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // Launch Google Maps
+                final url =
+                    'https://www.google.com/maps/search/?api=1&query=${_booking.checkIn.toIso8601String()}'; // Placeholder logic
+                launchUrl(Uri.parse(url));
+              },
+              icon: const Icon(Icons.directions_rounded),
+              label: Text(
+                'बाटो हेर्नुहोस् (Get Directions)',
+                style: GoogleFonts.mukta(fontWeight: FontWeight.w800),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00A3E1),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildActionArea() {
     if (_isActing)
       return const Center(
@@ -793,47 +994,68 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
 
   Widget _buildVisitedQuestion() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
+        border: Border.all(color: AppTheme.brandColor.withOpacity(0.1)),
       ),
       child: Column(
         children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor.withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.directions_walk_rounded,
+              color: AppTheme.brandColor,
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 16),
           Text(
-            '👀 कोठा हेर्न जानुभयो?',
+            '🚶‍♂️ कोठा हेर्न जानुभयो?',
             style: GoogleFonts.plusJakartaSans(
               fontWeight: FontWeight.w900,
               fontSize: 20,
+              letterSpacing: -0.5,
             ),
           ),
           Text(
             'Did you visit the room?',
-            style: GoogleFonts.inter(color: Colors.grey),
+            style: GoogleFonts.inter(
+              color: Colors.grey[600],
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           Row(
             children: [
               Expanded(
-                child: _actionBtn(
+                child: _premiumChoiceBtn(
                   label: 'Yes, I visited',
+                  icon: Icons.check_circle_rounded,
                   color: AppTheme.brandColor,
                   onTap: () => _handleVisitedAnswer(true),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
-                child: _actionBtn(
+                child: _premiumChoiceBtn(
                   label: 'No',
-                  color: Colors.grey,
-                  outlined: true,
+                  icon: Icons.cancel_rounded,
+                  color: Colors.grey.shade400,
+                  isOutlined: true,
                   onTap: () => _handleVisitedAnswer(false),
                 ),
               ),
@@ -846,67 +1068,96 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
 
   Widget _buildLikedQuestion() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
+        border: Border.all(color: const Color(0xFF00C853).withOpacity(0.1)),
       ),
       child: Column(
         children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00C853).withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.favorite_rounded,
+              color: Color(0xFF00C853),
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 16),
           Text(
             'कोठा मन पर्यो?',
             style: GoogleFonts.plusJakartaSans(
               fontWeight: FontWeight.w900,
               fontSize: 20,
+              letterSpacing: -0.5,
             ),
           ),
           Text(
             'Did you like the room?',
-            style: GoogleFonts.inter(color: Colors.grey),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Yes भने, घरबेटीको भुक्तानी विवरण खुल्नेछ।',
-            style: GoogleFonts.mukta(
-              fontSize: 12,
-              color: Colors.green.shade700,
+            style: GoogleFonts.inter(
+              color: Colors.grey[600],
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
-            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00C853).withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '✅ कोठा मन परेमा, यहाँबाट भुक्तानीको प्रक्रिया अगाडि बढाउन सक्नुहुन्छ।',
+              style: GoogleFonts.mukta(
+                fontSize: 12,
+                color: const Color(0xFF1B5E20),
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
           Row(
             children: [
               Expanded(
-                child: _actionBtn(
-                  label: 'Yes! I liked it 🎉',
-                  color: AppTheme.brandColor,
+                child: _premiumChoiceBtn(
+                  label: 'Yes! ❤️',
+                  icon: Icons.thumb_up_rounded,
+                  color: const Color(0xFF00C853),
                   onTap: () => _handleLikedAnswer(true),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
-                child: _actionBtn(
+                child: _premiumChoiceBtn(
                   label: 'No',
-                  color: Colors.grey,
-                  outlined: true,
+                  icon: Icons.thumb_down_rounded,
+                  color: Colors.grey.shade400,
+                  isOutlined: true,
                   onTap: () => _handleLikedAnswer(false),
                 ),
               ),
             ],
           ),
-          // Go to payment if already liked
-          if (_booking.status == 'awaiting_payment' &&
-              (_booking.visitLiked == true)) ...[
-            const SizedBox(height: 12),
+          if (_booking.status == 'awaiting_payment' && (_booking.visitLiked == true)) ...[
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 20),
             _actionBtn(
-              label: '💳 Proceed to Payment',
+              label: '💳 PROCEED TO PAYMENT',
               color: const Color(0xFF00C853),
               onTap: () => Navigator.push(
                 context,
@@ -920,6 +1171,50 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _premiumChoiceBtn({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+    bool isOutlined = false,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: isOutlined ? Colors.white : color,
+          borderRadius: BorderRadius.circular(20),
+          border: isOutlined ? Border.all(color: color.withOpacity(0.3), width: 2) : null,
+          boxShadow: isOutlined ? null : [
+            BoxShadow(
+              color: color.withOpacity(0.2),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: isOutlined ? color : Colors.white, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                color: isOutlined ? color : Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
