@@ -269,7 +269,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
 
 class CategoryCard extends StatelessWidget {
   final String label;
-  final IconData icon;
+  final String imagePath;
   final String value;
   final String? selectedValue;
   final Function(String) onSelect;
@@ -277,7 +277,7 @@ class CategoryCard extends StatelessWidget {
   const CategoryCard({
     super.key,
     required this.label,
-    required this.icon,
+    required this.imagePath,
     required this.value,
     required this.selectedValue,
     required this.onSelect,
@@ -294,37 +294,58 @@ class CategoryCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor.withOpacity(0.05) : Colors.white,
+          color: isSelected ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
             width: isSelected ? 2 : 1.5,
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isSelected ? AppTheme.brandColor : Colors.grey.shade50,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: isSelected ? Colors.white : Colors.grey[600],
-                size: 24,
+            Align(
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    imagePath,
+                    height: 54,
+                    width: 54,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.hind(
+                      fontSize: 15,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                      color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
+                      height: 1.2,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.hind(
-                fontSize: 15,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
-                height: 1.2,
+            Positioned(
+              top: 12,
+              right: 12,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: isSelected ? AppTheme.brandColor : Colors.transparent,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected ? AppTheme.brandColor : Colors.grey.shade300,
+                    width: 2,
+                  ),
+                ),
+                child: isSelected
+                    ? const Icon(Icons.check, color: Colors.white, size: 14)
+                    : null,
               ),
             ),
           ],
