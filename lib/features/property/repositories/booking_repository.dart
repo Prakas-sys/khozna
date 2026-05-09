@@ -103,6 +103,7 @@ class BookingRepository {
       // Fetch booking to notify guest
       final booking = await getBookingById(bookingId);
       if (booking != null) {
+        debugPrint('Sending approval notification to guest: ${booking.guestId}');
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
@@ -113,6 +114,8 @@ class BookingRepository {
           'property_id': booking.propertyId,
           'booking_id': bookingId,
         });
+      } else {
+        debugPrint('Could not find booking $bookingId to notify guest');
       }
     } catch (e) {
       debugPrint('Approve request error: $e');
@@ -140,6 +143,7 @@ class BookingRepository {
 
       final booking = await getBookingById(bookingId);
       if (booking != null) {
+        debugPrint('Sending rejection notification to guest: ${booking.guestId}');
         final reasonText = reason != null ? '\nकारण: $reason' : '';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
@@ -151,6 +155,8 @@ class BookingRepository {
           'property_id': booking.propertyId,
           'booking_id': bookingId,
         });
+      } else {
+        debugPrint('Could not find booking $bookingId to notify guest of rejection');
       }
     } catch (e) {
       debugPrint('Reject request error: $e');

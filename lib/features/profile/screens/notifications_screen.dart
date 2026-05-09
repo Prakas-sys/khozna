@@ -584,20 +584,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ),
                               if (sender != null) ...[
                                 const SizedBox(height: 12),
-                                Row(
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
                                     TrustBadge(
                                       badge: sender['trust_badge'] ?? 'new',
                                       fontSize: 10,
                                     ),
-                                    const SizedBox(width: 8),
                                     if (sender['kyc_status'] == 'verified')
                                       const Icon(
                                         Icons.verified,
                                         size: 14,
                                         color: Colors.blue,
                                       ),
-                                    const Spacer(),
                                     InkWell(
                                       onTap: () => _showGuestProfile(context, sender),
                                       borderRadius: BorderRadius.circular(50),
