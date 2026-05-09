@@ -988,45 +988,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               size: 50,
               color: AppTheme.brandColor,
             ),
-            // Floating decorative icons
-            Positioned(
-              top: 10,
-              right: 15,
-              child: Transform.rotate(
-                angle: 0.4,
-                child: Icon(
-                  Icons.favorite_rounded,
-                  size: 20,
-                  color: Colors.red.withOpacity(0.4),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 20,
-              left: 10,
-              child: Transform.rotate(
-                angle: -0.3,
-                child: Icon(
-                  Icons.chat_bubble_rounded,
-                  size: 18,
-                  color: AppTheme.brandColor.withOpacity(0.4),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 40,
-              left: 0,
-              child: Icon(
-                Icons.home_work_rounded,
-                size: 16,
-                color: Colors.orange.withOpacity(0.4),
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 32),
         Text(
-          'कुनै नयाँ सूचना छैन',
+          'सबै ठिक छ! (All Caught Up!)',
           style: GoogleFonts.mukta(
             fontSize: 22,
             fontWeight: FontWeight.w800,
@@ -1036,19 +1002,66 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         const SizedBox(height: 12),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
-            'तपाईंका नयाँ सन्देश र बुकिङहरू यहाँ देखा पर्नेछन्।',
+            'नयाँ सूचनाहरू यहाँ देखा पर्नेछन्। (New updates will appear here.)',
             textAlign: TextAlign.center,
             style: GoogleFonts.mukta(
-              fontSize: 16,
+              fontSize: 15,
               color: Colors.grey[600],
-              height: 1.5,
-              fontWeight: FontWeight.w500,
+              height: 1.4,
             ),
           ),
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 48),
+        // Engagement Tip Card
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 32),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.lightbulb_outline_rounded,
+                      color: AppTheme.brandColor,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Khozna Pro Tip',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: const Color(0xFF1E293B),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'सुनिश्चित गर्नुहोस् कि तपाईंको प्रोफाइल प्रमाणित छ! प्रमाणित प्रयोगकर्ताहरूले २ गुणा बढी प्रतिक्रिया पाउँछन्। (Verified users get 2x more responses!)',
+                style: GoogleFonts.mukta(
+                  fontSize: 14,
+                  color: const Color(0xFF64748B),
+                  height: 1.6,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
