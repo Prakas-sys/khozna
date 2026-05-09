@@ -585,7 +585,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         TextSpan(
                           text: '₹',
                           style: GoogleFonts.inter(
-                            fontSize: 24,
+                            fontSize: 22,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.brandColor,
                           ),
@@ -619,7 +619,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         TextSpan(
                           text: '₹',
                           style: GoogleFonts.inter(
-                            fontSize: 24,
+                            fontSize: 22,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.brandColor,
                           ),
@@ -1284,8 +1284,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     text: TextSpan(
                       children: [
                         TextSpan(
+                          text: '₹',
+                          style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                          ),
+                        ),
+                        TextSpan(
                           text:
-                              'Rs. ${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
+                              '${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,

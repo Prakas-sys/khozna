@@ -506,9 +506,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               onSelect: (v) => setState(() => _selectedCategory = v),
             ),
             CategoryCard(
-              label: 'अन्य / Other',
+              label: 'घर / House',
               imagePath: 'assets/images/tiny house.png',
-              value: 'Other',
+              value: 'House',
               imageScale: 1.8,
               selectedValue: _selectedCategory,
               onSelect: (v) => setState(() => _selectedCategory = v),
