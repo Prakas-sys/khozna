@@ -10,6 +10,7 @@ import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BookingStatusScreen extends StatefulWidget {
   final BookingModel booking;

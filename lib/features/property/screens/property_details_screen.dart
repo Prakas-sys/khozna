@@ -279,7 +279,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               delegate: SliverChildListDelegate([
                 _buildHeader(),
                 const SizedBox(height: 12),
-                _buildTrustActivityCard(),
                 const SizedBox(height: 24),
                 const DetailSectionTitle(title: 'सुविधाहरू (Amenities)'),
                 const SizedBox(height: 20),
@@ -507,102 +506,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildTrustActivityCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.auto_graph_rounded,
-                  color: AppTheme.brandColor,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'High Interest',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
-                      ),
-                    ),
-                    Text(
-                      '12 people viewed this in the last 24 hours',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: const Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12),
-            child: Divider(height: 1, color: Color(0xFFE2E8F0)),
-          ),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.bolt_rounded,
-                  color: Colors.orange,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Fast Response',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1E293B),
-                      ),
-                    ),
-                    Text(
-                      'Host usually responds within 1 hour',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: const Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildHeader() {
     return Column(
@@ -880,17 +783,22 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-    final combinedFeatures = {
-      ...widget.property.amenities,
-    };
-    for (var feature in combinedFeatures) {
+    final Map<IconData, String> uniqueItems = {};
+    for (var feature in widget.property.amenities) {
       final data = _getFeatureData(feature);
+      // Only keep the first occurrence of each icon type
+      if (!uniqueItems.containsKey(data.$1)) {
+        uniqueItems[data.$1] = data.$2;
+      }
+    }
+
+    for (var entry in uniqueItems.entries) {
       items.add(
         PropertyStatItem(
-          icon: data.$1,
+          icon: entry.key,
           value: '',
-          label: data.$2,
-          accentColor: data.$3,
+          label: entry.value,
+          accentColor: AppTheme.brandColor,
         ),
       );
     }
@@ -1559,5 +1467,27 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         _updateBookingStatus();
       } catch (_) {}
     }
+  }
+
+  (IconData, String) _getFeatureData(String feature) {
+    final f = feature.toLowerCase();
+    if (f.contains('wifi') || f.contains('internet'))
+      return (Icons.wifi_rounded, 'Free Wi-Fi');
+    if (f.contains('park') || f.contains('garage'))
+      return (Icons.local_parking_rounded, 'Parking');
+    if (f.contains('water') || f.contains('shower'))
+      return (Icons.water_drop_rounded, '24/7 Water');
+    if (f.contains('power') || f.contains('backup'))
+      return (Icons.battery_charging_full_rounded, 'Power Backup');
+    if (f.contains('student'))
+      return (Icons.school_rounded, 'Student Friendly');
+    if (f.contains('family')) return (Icons.family_restroom_rounded, 'Families');
+    if (f.contains('no smok')) return (Icons.smoke_free_rounded, 'No Smoking');
+    if (f.contains('pet')) return (Icons.pets_rounded, 'Pets Allowed');
+    if (f.contains('security') || f.contains('cctv'))
+      return (Icons.security_rounded, 'Security');
+
+    // Default
+    return (Icons.check_circle_outline_rounded, feature);
   }
 }

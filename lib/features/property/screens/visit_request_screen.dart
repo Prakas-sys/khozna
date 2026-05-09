@@ -301,17 +301,21 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                           color: const Color(0xFF1A1A2E),
                         ),
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        overflow: TextOverflow.visible, // Don't truncate date
                       ),
                     ),
                     if (subtitle != null) ...[
                       const SizedBox(width: 6),
-                      Text(
-                        '· $subtitle',
-                        style: GoogleFonts.mukta(
-                          fontSize: 13,
-                          color: Colors.grey[500],
-                          fontWeight: FontWeight.w600,
+                      Expanded( // Allow subtitle to wrap or be flexible
+                        child: Text(
+                          '· $subtitle',
+                          style: GoogleFonts.mukta(
+                            fontSize: 13,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -409,7 +413,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                     Text(
                       '₹',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 16,
+                        fontSize: 22,
                         fontWeight: FontWeight.w700,
                         color: AppTheme.brandColor,
                       ),

@@ -14,6 +14,7 @@ class Property {
   final String status;
   final String ownerId;
   final String ownerName;
+  final String ownerAvatar;
   final bool isOwnerVerified;
   final String ownerLocation;
   final List<String> amenities;

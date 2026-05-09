@@ -233,42 +233,18 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           ).then((_) => _fetchListings());
         },
         backgroundColor: AppTheme.brandColor,
-        elevation: 0,
+        elevation: 8,
         highlightElevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-        extendedPadding: const EdgeInsets.symmetric(
-          horizontal: 24, // Bigger
-          vertical: 18,
-        ),
-        icon: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 24,
-        ), // Bigger icon
-        label: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'नयाँ थप्नुहोस्',
-              style: GoogleFonts.hind(
-                fontSize: 15, // Adjusted for Hind
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                height: 1.1,
-              ),
-            ),
-            Text(
-              'Add New Listing',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-                height: 1.0,
-                letterSpacing: 0.2,
-              ),
-            ),
-          ],
+        shape: const StadiumBorder(),
+        extendedPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
+        icon: const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+        label: Text(
+          'नयाँ थप्नुहोस् (Add New)',
+          style: GoogleFonts.hind(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
     );
@@ -293,19 +269,19 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         ),
         const SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF1A1A2E), Color(0xFF2D3250)],
+              colors: [AppTheme.brandColor, Color(0xFF0077A8)], // 30% Secondary (Brand Shades)
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF1A1A2E).withOpacity(0.2),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
+                color: AppTheme.brandColor.withOpacity(0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
@@ -341,12 +317,12 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.15),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.auto_awesome_rounded,
-                      color: Colors.blue,
+                      color: Color(0xFFFACC15), // Gold accent for AI
                       size: 16,
                     ),
                   ),
@@ -389,7 +365,14 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     return Expanded(
       child: Column(
         children: [
-          Icon(icon, color: AppTheme.brandColor, size: 24),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.white, size: 20),
+          ),
           const SizedBox(height: 8),
           Text(
             value,
