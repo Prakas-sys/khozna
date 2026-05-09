@@ -37,6 +37,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   bool _isReserved = false;
   bool _userHasPendingBooking = false;
   bool _hasAcceptedVisit = false;
+  String? _pendingBookingId;
+  String _pendingBookingStatus = '';
   Map<String, dynamic>? _ownerData;
 
   String get _currentUserId =>
@@ -81,11 +83,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         : [widget.property.imageUrl];
 
     _incrementViews();
-    _userHasPendingBooking = bookedPropertiesStore.value.contains(
-      widget.property.id,
-    );
-    _checkUserBookingStatus();
-    _checkAcceptedVisit();
+    _updateBookingStatus();
   }
 
   Future<void> _incrementViews() async {
@@ -98,7 +96,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     } catch (_) {}
   }
 
-  Future<void> _checkUserBookingStatus() async {
+  Future<void> _updateBookingStatus() async {
     if (widget.property.id.contains('demo') || _currentUserId.isEmpty) return;
     try {
       final result = await Supabase.instance.client
@@ -106,33 +104,40 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           .select('id, status')
           .eq('property_id', widget.property.id)
           .eq('guest_id', _currentUserId)
-          .inFilter('status', [
-            'pending_approval',
-            'awaiting_payment',
-            'paid',
-            'confirmed',
-          ])
+          .order('created_at', ascending: false)
           .limit(1);
-      if (mounted) setState(() => _userHasPendingBooking = result.isNotEmpty);
-    } catch (_) {}
-  }
 
-  Future<void> _checkAcceptedVisit() async {
-    if (widget.property.id.contains('demo') || _currentUserId.isEmpty) return;
-    try {
-      final result = await Supabase.instance.client
-          .from('bookings')
-          .select('id, status')
-          .eq('property_id', widget.property.id)
-          .eq('guest_id', _currentUserId)
-          .inFilter('status', [
-            'awaiting_payment',
-            'visit_accepted',
-            'paid',
-            'confirmed',
-          ])
-          .limit(1);
-      if (mounted) setState(() => _hasAcceptedVisit = result.isNotEmpty);
+      if (mounted) {
+        setState(() {
+          if (result.isNotEmpty) {
+            final status = result[0]['status'];
+            _pendingBookingId = result[0]['id'];
+            _pendingBookingStatus = status;
+
+            // Define which statuses count as "pending" or "active" for the bottom bar
+            _userHasPendingBooking = [
+              'pending_approval',
+              'visit_accepted',
+              'awaiting_payment',
+              'paid',
+              'confirmed',
+            ].contains(status);
+
+            // Define which statuses reveal the map
+            _hasAcceptedVisit = [
+              'visit_accepted',
+              'awaiting_payment',
+              'paid',
+              'confirmed',
+            ].contains(status);
+          } else {
+            _userHasPendingBooking = false;
+            _pendingBookingId = null;
+            _pendingBookingStatus = '';
+            _hasAcceptedVisit = false;
+          }
+        });
+      }
     } catch (_) {}
   }
 
@@ -584,7 +589,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       children: [
                         TextSpan(
                           text: '₹',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.brandColor,
@@ -594,7 +599,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           text: PriceFormatter.format(
                             widget.property.priceNight.toString(),
                           ),
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
@@ -618,7 +623,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       children: [
                         TextSpan(
                           text: '₹',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.brandColor,
@@ -626,7 +631,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ),
                         TextSpan(
                           text: PriceFormatter.format(widget.property.price),
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
@@ -945,7 +950,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   child: Column(
                     children: [
                       Text(
-                        'Approximate Area Only',
+                        'Approximate Area: ${widget.property.areaName ?? "Kathmandu"}',
                         style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
@@ -953,7 +958,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ),
                       ),
                       Text(
-                        'Schedule a visit to unlock exact location',
+                        'Exact location reveals after visit is accepted',
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           color: Colors.grey,
@@ -1328,55 +1333,163 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
             const SizedBox(width: 8),
 
-            // Right Side: Slim Reserve Button
+            // Right Side: Action Button(s)
             if (!_isMyProperty)
-              SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  onPressed:
-                      (widget.property.status == 'booked' ||
-                          _userHasPendingBooking)
-                      ? null
-                      : () =>
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => VisitRequestScreen(
-                                  property: widget.property,
-                                ),
-                              ),
-                            ).then(
-                              (v) => v == true
-                                  ? setState(
-                                      () => _userHasPendingBooking = true,
-                                    )
-                                  : null,
-                            ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandColor,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: Text(
-                    widget.property.status == 'booked'
-                        ? 'Booked'
-                        : (_userHasPendingBooking
-                              ? 'Visit Scheduled'
-                              : 'SCHEDULE VISIT'),
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
+              Expanded(
+                flex: 2,
+                child: _buildBottomActionButtons(context),
               ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildBottomActionButtons(BuildContext context) {
+    if (widget.property.status == 'booked') {
+      return _buildDisabledButton('Booked');
+    }
+
+    if (_userHasPendingBooking) {
+      if (_pendingBookingStatus == 'pending_approval') {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: 40,
+              child: ElevatedButton(
+                onPressed: _remindOwner,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber.shade600,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  'Remind Owner',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            GestureDetector(
+              onTap: _cancelRequest,
+              child: Text(
+                'Cancel Request',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: Colors.red[400],
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ],
+        );
+      }
+
+      return _buildDisabledButton(
+        _pendingBookingStatus == 'visit_accepted'
+            ? 'Visit Accepted'
+            : 'Visit Scheduled',
+      );
+    }
+
+    return SizedBox(
+      height: 48,
+      child: ElevatedButton(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VisitRequestScreen(property: widget.property),
+          ),
+        ).then((v) => v == true ? _updateBookingStatus() : null),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.brandColor,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        child: Text(
+          'SCHEDULE VISIT',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDisabledButton(String label) {
+    return Container(
+      height: 48,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w800,
+          color: Colors.grey[500],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _remindOwner() async {
+    if (_pendingBookingId == null) return;
+    HapticFeedback.lightImpact();
+    try {
+      await SupabaseService.remindOwner(_pendingBookingId!);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('मालिकलाई जानकारी पठाइयो (Reminder sent to owner)'),
+            backgroundColor: Colors.amber,
+          ),
+        );
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _cancelRequest() async {
+    if (_pendingBookingId == null) return;
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel Request?'),
+        content: const Text('Are you sure you want to cancel this visit request?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Yes, Cancel', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await SupabaseService.cancelVisit(_pendingBookingId!);
+        _updateBookingStatus();
+      } catch (_) {}
+    }
   }
 }

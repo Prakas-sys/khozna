@@ -26,6 +26,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _esewaController = TextEditingController();
   final _khaltiController = TextEditingController();
   final _accountNameController = TextEditingController();
+  final _areaController = TextEditingController();
+  final _userTypeController = TextEditingController();
 
   bool _isLoading = false;
   bool _isLocating = false;
@@ -57,6 +59,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _esewaController.dispose();
     _khaltiController.dispose();
     _accountNameController.dispose();
+    _areaController.dispose();
+    _userTypeController.dispose();
     super.dispose();
   }
 
@@ -68,7 +72,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final profile = await Supabase.instance.client
             .from('profiles')
             .select(
-              'full_name, email, phone_number, avatar_url, esewa_number, khalti_number, account_holder_name, qr_code_url',
+              'full_name, email, phone_number, avatar_url, esewa_number, khalti_number, account_holder_name, qr_code_url, area_name, user_type',
             )
             .eq('id', user!.id)
             .maybeSingle();
@@ -97,6 +101,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _khaltiController.text = profile?['khalti_number'] ?? '';
             _accountNameController.text = profile?['account_holder_name'] ?? '';
             _qrCodeUrl = profile?['qr_code_url'];
+            _areaController.text = profile?['area_name'] ?? '';
+            _userTypeController.text = profile?['user_type'] ?? '';
 
             if (kyc != null) {
               _latitude = kyc['latitude'];
@@ -240,6 +246,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 _accountNameController.text,
               ),
               'qr_code_url': newQrUrl,
+              'area_name': SecurityUtils.sanitizeInput(_areaController.text),
+              'user_type': SecurityUtils.sanitizeInput(_userTypeController.text),
             })
             .eq('id', user!.id);
 
@@ -303,6 +311,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Icons.phone_android_rounded,
                       enabled: false,
                       subtitle: 'Used for secure verification',
+                    ),
+                    const Divider(height: 1),
+                    _buildInputField(
+                      'Current Area (बस्ने ठाउँ)',
+                      _areaController,
+                      Icons.location_on_outlined,
+                      subtitle: 'Example: Baneshwor, Kathmandu',
+                    ),
+                    const Divider(height: 1),
+                    _buildInputField(
+                      'User Type (पेशा / स्थिति)',
+                      _userTypeController,
+                      Icons.badge_outlined,
+                      subtitle: 'Example: Student, Family, Professional',
                     ),
                   ]),
                   const SizedBox(height: 32),

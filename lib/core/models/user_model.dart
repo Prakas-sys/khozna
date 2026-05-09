@@ -11,6 +11,8 @@ class UserModel {
   final String? accountHolderName;
   final String? qrCodeUrl;
   final DateTime createdAt;
+  final String? areaName;
+  final String? userType;
 
   UserModel({
     required this.id,
@@ -25,6 +27,8 @@ class UserModel {
     this.accountHolderName,
     this.qrCodeUrl,
     required this.createdAt,
+    this.areaName,
+    this.userType,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -43,6 +47,8 @@ class UserModel {
       createdAt: DateTime.parse(
         map['created_at'] ?? DateTime.now().toIso8601String(),
       ),
+      areaName: map['area_name'],
+      userType: map['user_type'],
     );
   }
 }

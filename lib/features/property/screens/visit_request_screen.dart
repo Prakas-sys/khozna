@@ -406,9 +406,9 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                   textBaseline: TextBaseline.alphabetic,
                   children: [
                     Text(
-                      'Rs.',
+                      '₹',
                       style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppTheme.brandColor,
                       ),
@@ -622,7 +622,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           color: isOutlined ? Colors.white : color,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(50),
           border: isOutlined
               ? Border.all(color: color.withOpacity(0.2), width: 1.5)
               : null,
@@ -672,18 +672,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
 
   String _getMonthName(int month) {
     return [
-      'जनवरी',
-      'फेब्रुअरी',
-      'मार्च',
-      'अप्रिल',
-      'मे (May)',
-      'जुन',
-      'जुलाई',
-      'अगस्ट',
-      'सेप्टेम्बर',
-      'अक्टोबर',
-      'नोभेम्बर',
-      'डिसेम्बर',
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
     ][month - 1];
   }
 

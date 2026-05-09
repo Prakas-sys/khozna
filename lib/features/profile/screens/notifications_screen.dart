@@ -485,7 +485,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
                 child: Row(
                   children: [
-                    Text('👀', style: TextStyle(fontSize: 18)),
+                    Text('⏳', style: TextStyle(fontSize: 18)),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -580,7 +580,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 ),
                               ),
                               if (sender != null) ...[
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 12),
                                 Row(
                                   children: [
                                     TrustBadge(
@@ -588,12 +588,49 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       fontSize: 10,
                                     ),
                                     const SizedBox(width: 8),
-                                    if (sender['is_verified'] == true)
+                                    if (sender['kyc_status'] == 'verified')
                                       const Icon(
                                         Icons.verified,
                                         size: 14,
                                         color: Colors.blue,
                                       ),
+                                    const Spacer(),
+                                    InkWell(
+                                      onTap: () => _showGuestProfile(context, sender),
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF00A3E1).withOpacity(0.08),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: const Color(0xFF00A3E1).withOpacity(0.15),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.person_search_outlined,
+                                              size: 14,
+                                              color: Color(0xFF00A3E1),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              'प्रोफाइल (Profile)',
+                                              style: GoogleFonts.inter(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: const Color(0xFF00A3E1),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],
@@ -676,11 +713,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             Expanded(
                               child: OutlinedButton.icon(
                                 onPressed: () async {
+                                  final String? reason =
+                                      await _showRejectionReasonPicker(context);
+                                  if (reason == null) return;
+
                                   setCardState(() => acting = true);
                                   try {
                                     await SupabaseService.rejectVisit(
                                       bookingId: bookingId,
                                       notificationId: id,
+                                      reason: reason,
                                     );
                                     if (mounted)
                                       setState(
@@ -1090,6 +1132,62 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
+  Future<String?> _showRejectionReasonPicker(BuildContext context) async {
+    final reasons = [
+      'कोठा खाली छैन (Room occupied)',
+      'समय मिलेन (Time unavailable)',
+      'विद्यार्थी मात्र (Students only)',
+      'परिवार मात्र (Family only)',
+      'अन्य (Other reason)',
+    ];
+
+    return await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'अस्वीकार गर्नुको कारण (Select Reason)',
+              style: GoogleFonts.mukta(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ...reasons.map(
+              (reason) => ListTile(
+                title: Text(
+                  reason,
+                  style: GoogleFonts.mukta(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                trailing: const Icon(Icons.chevron_right, size: 20),
+                onTap: () => Navigator.pop(context, reason),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _confirmClearAll() async {
     final bool? confirm = await showDialog<bool>(
       context: context,
@@ -1338,6 +1436,183 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showGuestProfile(BuildContext context, dynamic sender) {
+    if (sender == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.grey[100],
+              backgroundImage: sender['avatar_url'] != null
+                  ? CachedNetworkImageProvider(sender['avatar_url'])
+                  : null,
+              child: sender['avatar_url'] == null
+                  ? Icon(Icons.person, size: 50, color: Colors.grey[400])
+                  : null,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  sender['full_name'] ?? 'Guest',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                if (sender['kyc_status'] == 'verified') ...[
+                  const SizedBox(width: 8),
+                  const Icon(Icons.verified, color: Colors.blue, size: 20),
+                ],
+              ],
+            ),
+            const SizedBox(height: 8),
+            TrustBadge(badge: sender['trust_badge'] ?? 'new'),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey.shade100),
+              ),
+              child: Column(
+                children: [
+                  _buildGuestInfoRow(
+                    Icons.location_on_outlined,
+                    'बस्ने ठाउँ (Current Area)',
+                    sender['area_name'] ?? 'Not Specified',
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(height: 1),
+                  ),
+                  _buildGuestInfoRow(
+                    Icons.badge_outlined,
+                    'पेशा / स्थिति (Type)',
+                    sender['user_type'] ?? 'Not Specified',
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(height: 1),
+                  ),
+                  _buildGuestInfoRow(
+                    Icons.security_outlined,
+                    'Verified Status',
+                    sender['kyc_status'] == 'verified'
+                        ? 'KYC Verified Guest'
+                        : 'Phone Verified Only',
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.amber.shade50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.amber.shade200),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: Colors.amber, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'सुरक्षाको लागि फोन नम्बर भ्रमण स्वीकृत भएपछि मात्र देखाइनेछ। (Phone number hidden for privacy)',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.amber.shade900,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                ),
+                child: Text(
+                  'Close',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuestInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.grey[600]),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: Colors.grey[500],
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                value,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
