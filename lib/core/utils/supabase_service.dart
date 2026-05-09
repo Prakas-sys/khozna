@@ -188,6 +188,9 @@ class SupabaseService {
   static Future<void> sendImageMessage(String chatId, String imageUrl) =>
       ChatRepository.sendImageMessage(chatId, imageUrl);
 
+  static Future<void> remindOwner(String bookingId) =>
+      BookingRepository.remindOwner(bookingId);
+
   // Trust Votes
   static Future<int> getVoteCount(String targetId) =>
       VoteRepository.getVoteCount(targetId);
