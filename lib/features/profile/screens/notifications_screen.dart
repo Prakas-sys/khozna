@@ -73,6 +73,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (type == 'booking_approved' || cleanMessage.contains('स्वीकृत')) {
       return '✅ Your visit request was accepted!';
     }
+    if (cleanMessage.contains('अस्वीकृत') || type == 'booking_rejected') {
+      return '❌ Your visit request was rejected.';
+    }
     if (type == 'chat' || type == 'message') {
       return '💬 New message from $name';
     }
@@ -597,7 +600,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     const Spacer(),
                                     InkWell(
                                       onTap: () => _showGuestProfile(context, sender),
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(50),
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 10,
@@ -605,7 +608,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: const Color(0xFF00A3E1).withOpacity(0.08),
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(50),
                                           border: Border.all(
                                             color: const Color(0xFF00A3E1).withOpacity(0.15),
                                           ),
@@ -700,7 +703,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(50),
                                   ),
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 12,
@@ -747,7 +750,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     width: 1.5,
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(50),
                                   ),
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 12,
@@ -794,7 +797,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(50),
                                   ),
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 12,
