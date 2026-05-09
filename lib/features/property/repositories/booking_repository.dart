@@ -148,9 +148,9 @@ class BookingRepository {
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
-          'title': '❌ भ्रमण अस्वीकृत (Visit Rejected)',
+          'title': '❌ भ्रमण हुन सकेन (Visit Update)',
           'message':
-              'मालिकले अहिले भ्रमणको लागि समय मिलाउन सक्नुभएन।$reasonText',
+              'क्षमा गर्नुहोला, घरधनीले यो समयमा भ्रमण व्यवस्था गर्न सक्नुभएन।$reasonText',
           'type': 'visit_alert',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
