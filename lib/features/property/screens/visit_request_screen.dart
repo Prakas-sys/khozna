@@ -786,6 +786,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
       );
       if (mounted) {
         HapticFeedback.heavyImpact();
+        await BookingRepository.fetchBookedPropertyIds(); // Update global store
         Navigator.pop(context, true);
       }
     } catch (e) {

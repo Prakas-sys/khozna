@@ -1491,6 +1491,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (confirm == true) {
       try {
         await SupabaseService.cancelVisit(_pendingBookingId!);
+        await BookingRepository.fetchBookedPropertyIds(); // Update global store
         _updateBookingStatus();
       } catch (_) {}
     }
