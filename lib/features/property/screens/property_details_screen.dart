@@ -1358,22 +1358,24 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           children: [
             SizedBox(
               width: double.infinity,
-              height: 40,
+              height: 48,
               child: ElevatedButton(
                 onPressed: _remindOwner,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber.shade600,
+                  backgroundColor: const Color(0xFFFFB300), // Premium Amber
                   foregroundColor: Colors.white,
                   elevation: 0,
+                  padding: EdgeInsets.zero,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(50),
                   ),
                 ),
                 child: Text(
                   'Remind Owner',
                   style: GoogleFonts.inter(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w800,
+                    letterSpacing: -0.2,
                   ),
                 ),
               ),
