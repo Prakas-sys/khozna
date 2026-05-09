@@ -341,46 +341,22 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             const SizedBox(height: 48),
 
             // Safety Section
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red.shade50.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(16),
+            TextButton.icon(
+              onPressed: () => _showReportDialog(context),
+              icon: Icon(Icons.gpp_maybe_rounded, size: 14, color: Colors.grey.shade400),
+              label: Text(
+                'Report Suspicious Activity',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade500,
+                  decoration: TextDecoration.underline,
+                ),
               ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.gpp_maybe_rounded, color: Colors.red.shade300, size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Report Suspicious Activity',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.red.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  TextButton(
-                    onPressed: () => _showReportDialog(context),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      shape: StadiumBorder(side: BorderSide(color: Colors.red.shade200)),
-                    ),
-                    child: Text(
-                      'रिपोर्ट गर्नुहोस् (Report)',
-                      style: GoogleFonts.mukta(
-                        color: Colors.red.shade700,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
             const SizedBox(height: 40),

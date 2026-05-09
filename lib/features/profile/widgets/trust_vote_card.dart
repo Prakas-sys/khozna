@@ -161,15 +161,6 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                                       color: Colors.black87,
                                     ),
                                   ),
-                                  Text(
-                                    'पाहुनाको भरोसा',
-                                    style: GoogleFonts.mukta(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 11,
-                                      color: AppTheme.brandColor,
-                                      height: 1.0,
-                                    ),
-                                  ),
                                 ],
                               ),
                             ],

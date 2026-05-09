@@ -28,7 +28,7 @@ class TrustBadge extends StatelessWidget {
       case 'trusted':
         color = const Color(0xFF00A3FF); // Khozna Blue
         icon = Icons.verified_rounded;
-        label = 'प्रमाणित (Verified Real)';
+        label = 'प्रमाणित (Verified Owner)';
         break;
       case 'new':
       default:

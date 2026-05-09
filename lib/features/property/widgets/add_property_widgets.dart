@@ -303,57 +303,33 @@ class CategoryCard extends StatelessWidget {
             width: isSelected ? 2 : 1.5,
           ),
         ),
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Transform.scale(
-                    scale: imageScale,
-                    child: Image.asset(
-                      imagePath,
-                      height: 85,
-                      width: 85,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.hind(
-                      fontSize: 15,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                      color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
-                      height: 1.2,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              top: 12,
-              right: 12,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: isSelected ? AppTheme.brandColor : Colors.transparent,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected ? AppTheme.brandColor : Colors.grey.shade300,
-                    width: 2,
-                  ),
+        child: Align(
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Transform.scale(
+                scale: imageScale,
+                child: Image.asset(
+                  imagePath,
+                  height: 105,
+                  width: 105,
+                  fit: BoxFit.contain,
                 ),
-                child: isSelected
-                    ? const Icon(Icons.check, color: Colors.white, size: 14)
-                    : null,
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.hind(
+                  fontSize: 15,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
+                  height: 1.2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -385,7 +361,7 @@ class StepLayout extends StatelessWidget {
           Text(
             title,
             style: GoogleFonts.hind(
-              fontSize: 26,
+              fontSize: 24,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
               height: 1.2,

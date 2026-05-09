@@ -368,7 +368,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     return StepLayout(
       controller: _mainScrollController,
       title: 'तपाईंको सम्पत्ति कस्तो प्रकारको हो?',
-      subtitle: 'यसले खोज्नेहरूलाई सही ठाउँ पाउन मद्दत गर्छ। (Choose your property type)',
+      subtitle: 'Choose your property type',
       content: [
         GridView.count(
           shrinkWrap: true,
@@ -379,9 +379,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           childAspectRatio: 0.95,
           children: [
             CategoryCard(label: 'कोठा / Room', imagePath: 'assets/images/single room (2).png', value: 'Room', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
-            CategoryCard(label: 'फ्ल्याट / Flat', imagePath: 'assets/images/Flat.png', value: 'Flat', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
-            CategoryCard(label: 'कटेज / Cottage', imagePath: 'assets/images/Cottage.png', value: 'Cottage', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
-            CategoryCard(label: 'होस्टल / Hostel', imagePath: 'assets/images/Hostel.png', value: 'Hostel', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
+            CategoryCard(label: 'फ्ल्याट / Flat', imagePath: 'assets/images/flat (2).png', value: 'Flat', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
+            CategoryCard(label: 'कटेज / Cottage', imagePath: 'assets/images/cottage (2).png', value: 'Cottage', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
+            CategoryCard(label: 'होस्टल / Hostel', imagePath: 'assets/images/Hotel.png', value: 'Hostel', selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
             CategoryCard(label: 'अन्य / Other', imagePath: 'assets/images/tiny house.png', value: 'Other', imageScale: 1.8, selectedValue: _selectedCategory, onSelect: (v) => setState(() => _selectedCategory = v)),
           ],
         ),
