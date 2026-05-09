@@ -273,6 +273,7 @@ class CategoryCard extends StatelessWidget {
   final String value;
   final String? selectedValue;
   final Function(String) onSelect;
+  final double imageScale;
 
   const CategoryCard({
     super.key,
@@ -281,6 +282,7 @@ class CategoryCard extends StatelessWidget {
     required this.value,
     required this.selectedValue,
     required this.onSelect,
+    this.imageScale = 1.0,
   });
 
   @override
@@ -308,13 +310,16 @@ class CategoryCard extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    imagePath,
-                    height: 54,
-                    width: 54,
-                    fit: BoxFit.contain,
+                  Transform.scale(
+                    scale: imageScale,
+                    child: Image.asset(
+                      imagePath,
+                      height: 85,
+                      width: 85,
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   Text(
                     label,
                     textAlign: TextAlign.center,
@@ -333,8 +338,8 @@ class CategoryCard extends StatelessWidget {
               right: 12,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                width: 22,
-                height: 22,
+                width: 20,
+                height: 20,
                 decoration: BoxDecoration(
                   color: isSelected ? AppTheme.brandColor : Colors.transparent,
                   shape: BoxShape.circle,

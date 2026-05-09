@@ -6,7 +6,8 @@ import 'package:khozna/core/models/booking_model.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/core/utils/formatters.dart';
 import 'package:intl/intl.dart';
-
+import 'package:khozna/core/models/user_model.dart';
+import 'package:khozna/core/utils/supabase_service.dart';
 class PaymentChoiceScreen extends StatefulWidget {
   final BookingModel booking;
   final String propertyTitle;
