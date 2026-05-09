@@ -7,6 +7,7 @@ import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/core/models/property_model.dart';
+import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:flutter/services.dart';
