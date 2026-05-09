@@ -29,7 +29,7 @@ class FavouriteButton extends StatefulWidget {
 class _FavouriteButtonState extends State<FavouriteButton> {
   void _showSaveBottomSheet(BuildContext context) {
     final TextEditingController nameController = TextEditingController();
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -38,7 +38,7 @@ class _FavouriteButtonState extends State<FavouriteButton> {
         return StatefulBuilder(
           builder: (context, setState) {
             final bool isValid = nameController.text.trim().isNotEmpty;
-            
+
             return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -92,7 +92,10 @@ class _FavouriteButtonState extends State<FavouriteButton> {
                       onChanged: (val) => setState(() {}),
                       decoration: InputDecoration(
                         hintText: 'List Name (जस्तै: मनपरेका घरहरू)',
-                        hintStyle: GoogleFonts.mukta(color: Colors.grey[400], fontSize: 16),
+                        hintStyle: GoogleFonts.mukta(
+                          color: Colors.grey[400],
+                          fontSize: 16,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: Colors.grey[400]!),
@@ -103,10 +106,19 @@ class _FavouriteButtonState extends State<FavouriteButton> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppTheme.brandColor, width: 2),
+                          borderSide: BorderSide(
+                            color: AppTheme.brandColor,
+                            width: 2,
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-                        counterStyle: GoogleFonts.mukta(color: Colors.grey[600], fontSize: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 18,
+                        ),
+                        counterStyle: GoogleFonts.mukta(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -136,28 +148,41 @@ class _FavouriteButtonState extends State<FavouriteButton> {
                               ? () async {
                                   HapticFeedback.lightImpact();
                                   Navigator.pop(context);
-                                  await SupabaseService.toggleSaveProperty(widget.propertyId);
+                                  await SupabaseService.toggleSaveProperty(
+                                    widget.propertyId,
+                                  );
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
                                           'Saved to ${nameController.text.trim()}',
-                                          style: GoogleFonts.mukta(fontWeight: FontWeight.w600),
+                                          style: GoogleFonts.mukta(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                         backgroundColor: Colors.black87,
                                         behavior: SnackBarBehavior.floating,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
                                       ),
                                     );
                                   }
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isValid ? Colors.black : Colors.grey[300],
+                            backgroundColor: isValid
+                                ? Colors.black
+                                : Colors.grey[300],
                             foregroundColor: Colors.white,
                             disabledForegroundColor: Colors.white,
                             disabledBackgroundColor: Colors.grey[300],
-                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 14,
+                            ),
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -213,9 +238,7 @@ class _FavouriteButtonState extends State<FavouriteButton> {
           },
           child: Container(
             padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-            ),
+            decoration: const BoxDecoration(shape: BoxShape.circle),
             child: SvgPicture.string(
               '''
               <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display: block; fill: ${isLiked ? '#FF385C' : 'rgba(0, 0, 0, 0.4)'}; height: ${widget.size}px; width: ${widget.size}px; stroke: #ffffff; stroke-width: 2.2; overflow: visible;">
@@ -231,4 +254,3 @@ class _FavouriteButtonState extends State<FavouriteButton> {
     );
   }
 }
-

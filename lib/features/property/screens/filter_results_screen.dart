@@ -55,12 +55,18 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
 
     var query = Supabase.instance.client
         .from('properties')
-        .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)');
+        .select(
+          '*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)',
+        );
 
     // Filter by location if it's a real location
     if (isLocationSearch) {
       final searchVal = widget.location.trim();
-      query = query.or('area_name.ilike.%$searchVal%,title.ilike.%$searchVal%,category.ilike.%$searchVal%') as dynamic;
+      query =
+          query.or(
+                'area_name.ilike.%$searchVal%,title.ilike.%$searchVal%,category.ilike.%$searchVal%',
+              )
+              as dynamic;
     }
 
     // Filter by price if a valid number was found
@@ -210,7 +216,10 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   }
 
                   final properties = snapshot.data ?? [];
-                  final priceStr = widget.priceRange.replaceAll(RegExp(r'[^0-9]'), '');
+                  final priceStr = widget.priceRange.replaceAll(
+                    RegExp(r'[^0-9]'),
+                    '',
+                  );
                   final priceInt = int.tryParse(priceStr);
 
                   if (properties.isEmpty) {
@@ -276,4 +285,3 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
     );
   }
 }
-

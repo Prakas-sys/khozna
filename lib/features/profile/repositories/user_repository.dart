@@ -9,7 +9,11 @@ class UserRepository {
   static Future<UserModel?> getUserProfile(String userId) async {
     if (userId.isEmpty) return null;
     try {
-      final response = await _client.from('profiles').select().eq('id', userId).maybeSingle();
+      final response = await _client
+          .from('profiles')
+          .select()
+          .eq('id', userId)
+          .maybeSingle();
       if (response == null) return null;
       return UserModel.fromMap(response);
     } catch (e) {
@@ -20,7 +24,10 @@ class UserRepository {
 
   static Future<List<UserModel>> getAllUsers() async {
     try {
-      final response = await _client.from('profiles').select().order('created_at', ascending: false);
+      final response = await _client
+          .from('profiles')
+          .select()
+          .order('created_at', ascending: false);
       return (response as List).map((e) => UserModel.fromMap(e)).toList();
     } catch (e) {
       debugPrint('Error fetching users: $e');
@@ -30,7 +37,11 @@ class UserRepository {
 
   static Future<List<UserModel>> searchUsers(String query) async {
     try {
-      final response = await _client.from('profiles').select().or('full_name.ilike.%$query%,phone_number.ilike.%$query%').order('created_at', ascending: false);
+      final response = await _client
+          .from('profiles')
+          .select()
+          .or('full_name.ilike.%$query%,phone_number.ilike.%$query%')
+          .order('created_at', ascending: false);
       return (response as List).map((e) => UserModel.fromMap(e)).toList();
     } catch (e) {
       debugPrint('Error searching users: $e');
@@ -44,7 +55,11 @@ class UserRepository {
     await _client.from('profiles').delete().eq('id', userId);
   }
 
-  static Future<void> reportUser(String userId, String reporterId, String reason) async {
+  static Future<void> reportUser(
+    String userId,
+    String reporterId,
+    String reason,
+  ) async {
     final cleanReason = SecurityUtils.sanitizeInput(reason, maxLength: 500);
     await _client.from('user_reports').insert({
       'reported_user_id': userId,
@@ -55,7 +70,12 @@ class UserRepository {
 
   static Future<List<UserReportModel>> getUserReports() async {
     try {
-      final response = await _client.from('user_reports').select('*, reported:reported_user_id(full_name, avatar_url), reporter:reporter_id(full_name)').order('created_at', ascending: false);
+      final response = await _client
+          .from('user_reports')
+          .select(
+            '*, reported:reported_user_id(full_name, avatar_url), reporter:reporter_id(full_name)',
+          )
+          .order('created_at', ascending: false);
       return (response as List).map((e) => UserReportModel.fromMap(e)).toList();
     } catch (e) {
       debugPrint('Error fetching reports: $e');

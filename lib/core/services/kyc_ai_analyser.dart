@@ -81,7 +81,8 @@ IMPORTANT: Your job is to PROTECT users from fraud. Be strict. If you cannot cle
 You MUST return ONLY a valid JSON object — no markdown, no explanation, just raw JSON.
 ''';
 
-    final userPrompt = '''
+    final userPrompt =
+        '''
 Analyze this KYC submission for Khozna app (Nepal property rental platform):
 
 Submitted Details:
@@ -133,13 +134,23 @@ Return ONLY this exact JSON:
                   'role': 'user',
                   'content': [
                     {'type': 'text', 'text': userPrompt},
-                    {'type': 'image_url', 'image_url': {'url': frontImageUrl}},
-                    {'type': 'image_url', 'image_url': {'url': backImageUrl}},
-                    {'type': 'image_url', 'image_url': {'url': selfieImageUrl}},
+                    {
+                      'type': 'image_url',
+                      'image_url': {'url': frontImageUrl},
+                    },
+                    {
+                      'type': 'image_url',
+                      'image_url': {'url': backImageUrl},
+                    },
+                    {
+                      'type': 'image_url',
+                      'image_url': {'url': selfieImageUrl},
+                    },
                   ],
                 },
               ],
-              'temperature': 0.1, // Very low — we want strict deterministic analysis
+              'temperature':
+                  0.1, // Very low — we want strict deterministic analysis
               'max_tokens': 600,
             }),
           )
@@ -169,14 +180,14 @@ Return ONLY this exact JSON:
   }
 
   static Map<String, dynamic> _error(String message) => {
-        'verdict': 'ERROR',
-        'confidence': 0,
-        'is_genuine_nepali_id': false,
-        'name_match': false,
-        'id_number_match': false,
-        'human_face_in_selfie': false,
-        'location_valid': false,
-        'red_flags': [message],
-        'notes': message,
-      };
+    'verdict': 'ERROR',
+    'confidence': 0,
+    'is_genuine_nepali_id': false,
+    'name_match': false,
+    'id_number_match': false,
+    'human_face_in_selfie': false,
+    'location_valid': false,
+    'red_flags': [message],
+    'notes': message,
+  };
 }

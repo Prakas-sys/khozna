@@ -30,7 +30,7 @@ void initializeBadgeSync() {
 
   messageBadgeCount.addListener(updateNativeBadge);
   notificationBadgeCount.addListener(updateNativeBadge);
-  
+
   debugPrint("Badge sync initialized (Native + In-app)");
 }
 
@@ -39,7 +39,7 @@ final ValueNotifier<Map<int, List<Map<String, dynamic>>>> homeSectionCache =
     ValueNotifier<Map<int, List<Map<String, dynamic>>>>({});
 
 /// Cache for Messages Screen to enable instant loading.
-final ValueNotifier<List<ChatConversation>?> chatListCache = 
+final ValueNotifier<List<ChatConversation>?> chatListCache =
     ValueNotifier<List<ChatConversation>?>(null);
 
 /// Cache for Profile Screen to enable instant loading.
@@ -48,5 +48,5 @@ final ValueNotifier<Map<String, dynamic>?> profileCache =
 
 /// Global notifier for real-time KYC status updates
 /// Used to trigger Success/Rejection popups across the app.
-final ValueNotifier<Map<String, dynamic>?> lastKycNotification = 
+final ValueNotifier<Map<String, dynamic>?> lastKycNotification =
     ValueNotifier<Map<String, dynamic>?>(null);

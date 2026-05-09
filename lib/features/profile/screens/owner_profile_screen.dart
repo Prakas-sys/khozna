@@ -53,8 +53,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +61,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.black,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -86,12 +88,18 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: widget.isVerified ? const Color(0xFF00A3FF).withOpacity(0.2) : Colors.transparent,
+                        color: widget.isVerified
+                            ? const Color(0xFF00A3FF).withOpacity(0.2)
+                            : Colors.transparent,
                         width: 4,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: (widget.isVerified ? const Color(0xFF00A3FF) : Colors.black).withOpacity(0.1),
+                          color:
+                              (widget.isVerified
+                                      ? const Color(0xFF00A3FF)
+                                      : Colors.black)
+                                  .withOpacity(0.1),
                           blurRadius: 24,
                           offset: const Offset(0, 12),
                         ),
@@ -100,11 +108,19 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     child: CircleAvatar(
                       radius: 65,
                       backgroundColor: Colors.grey[100],
-                      backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
+                      backgroundImage:
+                          (widget.avatar.isNotEmpty &&
+                              !widget.avatar.contains('pravatar.cc'))
                           ? CachedNetworkImageProvider(widget.avatar)
                           : null,
-                      child: (widget.avatar.isEmpty || widget.avatar.contains('pravatar.cc'))
-                          ? Icon(Icons.person, size: 65, color: Colors.grey[400])
+                      child:
+                          (widget.avatar.isEmpty ||
+                              widget.avatar.contains('pravatar.cc'))
+                          ? Icon(
+                              Icons.person,
+                              size: 65,
+                              color: Colors.grey[400],
+                            )
                           : null,
                     ),
                   ),
@@ -179,7 +195,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             const SizedBox(height: 12),
             if (!_isLoadingVotes)
               TrustBadge(
-                badge: _voteCount >= 30 ? 'top' : (widget.isVerified ? 'trusted' : 'new'),
+                badge: _voteCount >= 30
+                    ? 'top'
+                    : (widget.isVerified ? 'trusted' : 'new'),
                 fontSize: 14,
               ),
             const SizedBox(height: 32),
@@ -210,9 +228,15 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatItem('सूचीहरू (Listings)', widget.totalListings.toString()),
+                  _buildStatItem(
+                    'सूचीहरू (Listings)',
+                    widget.totalListings.toString(),
+                  ),
                   Container(height: 30, width: 1, color: Colors.grey[200]),
-                  _buildStatItem('भरोसा (Trust)', _isLoadingVotes ? '...' : '$_voteCount'),
+                  _buildStatItem(
+                    'भरोसा (Trust)',
+                    _isLoadingVotes ? '...' : '$_voteCount',
+                  ),
                 ],
               ),
             ),
@@ -242,7 +266,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      widget.isVerified ? Icons.verified_user : Icons.lock_outline_rounded,
+                      widget.isVerified
+                          ? Icons.verified_user
+                          : Icons.lock_outline_rounded,
                       color: Colors.white,
                       size: 24,
                     ),
@@ -253,7 +279,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.isVerified ? 'KYC Verified · पहिचान प्रमाणित' : 'सम्पर्क विवरण सुरक्षित (Contact Gated)',
+                          widget.isVerified
+                              ? 'KYC Verified · पहिचान प्रमाणित'
+                              : 'सम्पर्क विवरण सुरक्षित (Contact Gated)',
                           style: GoogleFonts.mukta(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -319,7 +347,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             'assets/icons/message.svg',
                             width: 20,
                             height: 20,
-                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            colorFilter: const ColorFilter.mode(
+                              Colors.white,
+                              BlendMode.srcIn,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Text(
@@ -343,7 +374,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             // Safety Section
             TextButton.icon(
               onPressed: () => _showReportDialog(context),
-              icon: Icon(Icons.gpp_maybe_rounded, size: 14, color: Colors.grey.shade400),
+              icon: Icon(
+                Icons.gpp_maybe_rounded,
+                size: 14,
+                color: Colors.grey.shade400,
+              ),
               label: Text(
                 'Report Suspicious Activity',
                 style: GoogleFonts.plusJakartaSans(
@@ -354,7 +389,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 ),
               ),
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
@@ -412,7 +450,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           ElevatedButton(
             onPressed: () async {
               if (reasonController.text.trim().isEmpty) return;
-              final reporterId = Supabase.instance.client.auth.currentUser?.id ?? 'anonymous';
+              final reporterId =
+                  Supabase.instance.client.auth.currentUser?.id ?? 'anonymous';
 
               try {
                 await SupabaseService.reportUser(
@@ -423,20 +462,32 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 if (context.mounted) {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Report submitted. Thank you.')),
+                    const SnackBar(
+                      content: Text('Report submitted. Thank you.'),
+                    ),
                   );
                 }
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
                 }
               }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            child: const Text('Submit Report', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Submit Report',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -448,11 +499,18 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
       children: [
         Text(
           value,
-          style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.w800),
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+          ),
         ),
         Text(
           label,
-          style: GoogleFonts.mukta(fontSize: 13, color: Colors.grey[600], fontWeight: FontWeight.w500),
+          style: GoogleFonts.mukta(
+            fontSize: 13,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );

@@ -145,7 +145,9 @@ class PhotoUploadBox extends StatelessWidget {
       onTap: onTap,
       child: CustomPaint(
         painter: DashRectPainter(
-          color: image != null ? Colors.green.withOpacity(0.5) : AppTheme.brandColor.withOpacity(0.4), 
+          color: image != null
+              ? Colors.green.withOpacity(0.5)
+              : AppTheme.brandColor.withOpacity(0.4),
           gap: 6,
         ),
         child: AnimatedContainer(
@@ -153,7 +155,9 @@ class PhotoUploadBox extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 32),
           decoration: BoxDecoration(
-            color: image != null ? Colors.green.withOpacity(0.04) : AppTheme.brandColor.withOpacity(0.02),
+            color: image != null
+                ? Colors.green.withOpacity(0.04)
+                : AppTheme.brandColor.withOpacity(0.02),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -173,7 +177,11 @@ class PhotoUploadBox extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.check_circle_rounded, color: Colors.green, size: 18),
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      color: Colors.green,
+                      size: 18,
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       'Uploaded Successfully',
@@ -193,7 +201,9 @@ class PhotoUploadBox extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    isSelfie ? Icons.face_retouching_natural_rounded : Icons.camera_alt_rounded,
+                    isSelfie
+                        ? Icons.face_retouching_natural_rounded
+                        : Icons.camera_alt_rounded,
                     color: AppTheme.brandColor,
                     size: 32,
                   ),
@@ -288,11 +298,17 @@ class KycTextField extends StatelessWidget {
           prefixIcon: providerLogo != null
               ? Padding(
                   padding: const EdgeInsets.all(14.0),
-                  child: KhoznaImage(imageUrl: providerLogo!, width: 22, height: 22),
+                  child: KhoznaImage(
+                    imageUrl: providerLogo!,
+                    width: 22,
+                    height: 22,
+                  ),
                 )
               : Icon(
                   icon,
-                  color: controller.text.isNotEmpty ? AppTheme.brandColor : Colors.grey[400],
+                  color: controller.text.isNotEmpty
+                      ? AppTheme.brandColor
+                      : Colors.grey[400],
                   size: 20,
                 ),
           suffixIcon: isVerified
@@ -323,8 +339,13 @@ class KycTextField extends StatelessWidget {
           filled: true,
           fillColor: isVerified
               ? Colors.grey[50]
-              : (controller.text.isNotEmpty ? Colors.blue[50]!.withOpacity(0.3) : Colors.white),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              : (controller.text.isNotEmpty
+                    ? Colors.blue[50]!.withOpacity(0.3)
+                    : Colors.white),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(50),
             borderSide: BorderSide(color: Colors.grey.shade200),
@@ -332,13 +353,18 @@ class KycTextField extends StatelessWidget {
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(50),
             borderSide: BorderSide(
-              color: controller.text.isNotEmpty ? AppTheme.brandColor.withOpacity(0.3) : Colors.grey.shade200,
+              color: controller.text.isNotEmpty
+                  ? AppTheme.brandColor.withOpacity(0.3)
+                  : Colors.grey.shade200,
               width: 1.2,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(50),
-            borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5),
+            borderSide: const BorderSide(
+              color: AppTheme.brandColor,
+              width: 1.5,
+            ),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(50),
@@ -349,4 +375,3 @@ class KycTextField extends StatelessWidget {
     );
   }
 }
-

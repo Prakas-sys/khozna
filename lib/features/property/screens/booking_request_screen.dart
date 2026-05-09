@@ -39,12 +39,20 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.black,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'बुकिङ अनुरोध (Request Booking)',
-          style: GoogleFonts.mukta(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 18),
+          style: GoogleFonts.mukta(
+            color: Colors.black,
+            fontWeight: FontWeight.w800,
+            fontSize: 18,
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -68,7 +76,10 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             const SizedBox(height: 32),
             Text(
               'Message to Owner',
-              style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14),
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -103,7 +114,11 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(Icons.home_work_rounded, color: AppTheme.brandColor, size: 32),
+          child: const Icon(
+            Icons.home_work_rounded,
+            color: AppTheme.brandColor,
+            size: 32,
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -112,7 +127,10 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             children: [
               Text(
                 widget.propertyTitle,
-                style: GoogleFonts.sora(fontSize: 18, fontWeight: FontWeight.bold),
+                style: GoogleFonts.sora(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -127,7 +145,11 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
     );
   }
 
-  Widget _buildDatePicker({required String label, required DateTime date, required VoidCallback onTap}) {
+  Widget _buildDatePicker({
+    required String label,
+    required DateTime date,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -143,15 +165,30 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)),
+                Text(
+                  label,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                    letterSpacing: 1,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   '${date.day} ${_getMonth(date.month)}, ${date.year}',
-                  style: GoogleFonts.sora(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.sora(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
-            const Icon(Icons.calendar_today_rounded, color: AppTheme.brandColor, size: 20),
+            const Icon(
+              Icons.calendar_today_rounded,
+              color: AppTheme.brandColor,
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -171,8 +208,14 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Total Duration', style: GoogleFonts.inter(color: Colors.grey)),
-              Text('$days Days', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+              Text(
+                'Total Duration',
+                style: GoogleFonts.inter(color: Colors.grey),
+              ),
+              Text(
+                '$days Days',
+                style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           const Padding(
@@ -182,7 +225,11 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
           Text(
             'मालिकले तपाईंको अनुरोध स्वीकृत गरेपछि भुक्तानी गर्ने विकल्प आउनेछ।\n(Payment option will appear after the owner approves your request.)',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: Colors.grey,
+              fontStyle: FontStyle.italic,
+            ),
           ),
         ],
       ),
@@ -194,7 +241,13 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
       ),
       child: SafeArea(
         child: ElevatedButton(
@@ -203,15 +256,20 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             backgroundColor: AppTheme.brandColor,
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 60),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             elevation: 0,
           ),
-            child: _isSubmitting
-                ? const CircularProgressIndicator(color: Colors.white)
-                : Text(
-                    'अनुरोध पठाउनुहोस् (SEND REQUEST)',
-                    style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 16),
+          child: _isSubmitting
+              ? const CircularProgressIndicator(color: Colors.white)
+              : Text(
+                  'अनुरोध पठाउनुहोस् (SEND REQUEST)',
+                  style: GoogleFonts.mukta(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
                   ),
+                ),
         ),
       ),
     );
@@ -221,7 +279,9 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isCheckIn ? _checkIn : _checkOut,
-      firstDate: isCheckIn ? DateTime.now() : _checkIn.add(const Duration(days: 1)),
+      firstDate: isCheckIn
+          ? DateTime.now()
+          : _checkIn.add(const Duration(days: 1)),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
 
@@ -252,13 +312,29 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
       );
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
   String _getMonth(int month) {
-    return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month - 1];
+    return [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ][month - 1];
   }
 }

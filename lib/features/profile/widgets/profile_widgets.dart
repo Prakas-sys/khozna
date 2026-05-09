@@ -29,10 +29,7 @@ class ProfileHeader extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppTheme.brandColor,
-            AppTheme.brandColor.withOpacity(0.8),
-          ],
+          colors: [AppTheme.brandColor, AppTheme.brandColor.withOpacity(0.8)],
         ),
       ),
       child: Stack(
@@ -96,34 +93,34 @@ class ProfileHeader extends StatelessWidget {
                                     strokeWidth: 2,
                                   )
                                 : avatarUrl != null
-                                    ? ClipOval(
-                                        child: KhoznaImage(
-                                          imageUrl: avatarUrl!,
-                                          width: 108,
-                                          height: 108,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )
-                                    : Container(
-                                        width: 108,
-                                        height: 108,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.grey[200]!,
-                                              Colors.grey[100]!,
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          Icons.person_rounded,
-                                          size: 54,
-                                          color: Colors.grey[400],
-                                        ),
+                                ? ClipOval(
+                                    child: KhoznaImage(
+                                      imageUrl: avatarUrl!,
+                                      width: 108,
+                                      height: 108,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  )
+                                : Container(
+                                    width: 108,
+                                    height: 108,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.grey[200]!,
+                                          Colors.grey[100]!,
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
                                       ),
+                                    ),
+                                    child: Icon(
+                                      Icons.person_rounded,
+                                      size: 54,
+                                      color: Colors.grey[400],
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
@@ -209,8 +206,8 @@ class VerificationCard extends StatelessWidget {
     final bool isPending = kycStatus == 'pending';
     final bool isRejected = kycStatus == 'rejected';
 
-    Color mainColor = isVerified 
-        ? Colors.green 
+    Color mainColor = isVerified
+        ? Colors.green
         : (isRejected ? Colors.red : Colors.orange);
 
     return Container(
@@ -225,10 +222,7 @@ class VerificationCard extends StatelessWidget {
             offset: const Offset(0, 10),
           ),
         ],
-        border: Border.all(
-          color: mainColor.withOpacity(0.1),
-          width: 1,
-        ),
+        border: Border.all(color: mainColor.withOpacity(0.1), width: 1),
       ),
       child: Row(
         children: [
@@ -237,8 +231,16 @@ class VerificationCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  isVerified ? Colors.green.shade50 : (isRejected ? Colors.red.shade50 : Colors.orange.shade50),
-                  isVerified ? Colors.green.shade100 : (isRejected ? Colors.red.shade100 : Colors.orange.shade100),
+                  isVerified
+                      ? Colors.green.shade50
+                      : (isRejected
+                            ? Colors.red.shade50
+                            : Colors.orange.shade50),
+                  isVerified
+                      ? Colors.green.shade100
+                      : (isRejected
+                            ? Colors.red.shade100
+                            : Colors.orange.shade100),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -250,7 +252,9 @@ class VerificationCard extends StatelessWidget {
                   ? Icons.verified_user_rounded
                   : (isPending
                         ? Icons.hourglass_empty_rounded
-                        : (isRejected ? Icons.error_outline_rounded : Icons.gpp_maybe_rounded)),
+                        : (isRejected
+                              ? Icons.error_outline_rounded
+                              : Icons.gpp_maybe_rounded)),
               color: isVerified
                   ? Colors.green.shade700
                   : (isRejected ? Colors.red.shade700 : Colors.orange.shade700),
@@ -265,9 +269,11 @@ class VerificationCard extends StatelessWidget {
                 Text(
                   isVerified
                       ? 'Profile Verified (प्रमाणित)'
-                      : (isPending 
-                          ? 'Pending KYC (प्रमाणीकरण हुँदैछ)' 
-                          : (isRejected ? 'KYC Rejected (अस्वीकृत)' : 'Verify Identity (पहिचान प्रमाणित)')),
+                      : (isPending
+                            ? 'Pending KYC (प्रमाणीकरण हुँदैछ)'
+                            : (isRejected
+                                  ? 'KYC Rejected (अस्वीकृत)'
+                                  : 'Verify Identity (पहिचान प्रमाणित)')),
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -277,9 +283,11 @@ class VerificationCard extends StatelessWidget {
                 Text(
                   isVerified
                       ? 'तपाईंको पहिचान प्रमाणित भयो।'
-                      : (isPending 
-                          ? 'तपाईंको कागजातहरू जाँच हुँदैछ।' 
-                          : (isRejected ? 'कागजात अस्वीकृत भयो। फेरि प्रयास गर्नुहोस्।' : 'घरभाडामा राख्न केवाईसी भेरिफाइ गर्नुहोस्। 👉')),
+                      : (isPending
+                            ? 'तपाईंको कागजातहरू जाँच हुँदैछ।'
+                            : (isRejected
+                                  ? 'कागजात अस्वीकृत भयो। फेरि प्रयास गर्नुहोस्।'
+                                  : 'घरभाडामा राख्न केवाईसी भेरिफाइ गर्नुहोस्। 👉')),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     color: Colors.grey[600],
@@ -343,10 +351,7 @@ class PostPropertyCard extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFF0077AA),
-            Color(0xFF00A3E1),
-          ],
+          colors: [Color(0xFF0077AA), Color(0xFF00A3E1)],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
@@ -397,7 +402,10 @@ class PostPropertyCard extends StatelessWidget {
                   GestureDetector(
                     onTap: onPost,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
@@ -422,7 +430,6 @@ class PostPropertyCard extends StatelessWidget {
     );
   }
 }
-
 
 class ProfileMenuSection extends StatelessWidget {
   final String title;

@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 
 class MapLauncher {
   static Future<void> openMap(double lat, double lng, String title) async {
-    String googleUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+    String googleUrl =
+        'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
     String appleUrl = 'https://maps.apple.com/?q=$lat,$lng';
 
     try {
@@ -20,13 +21,19 @@ class MapLauncher {
         if (await canLaunchUrl(Uri.parse(googleMapUri))) {
           await launchUrl(Uri.parse(googleMapUri));
         } else {
-          await launchUrl(Uri.parse(googleUrl), mode: LaunchMode.externalApplication);
+          await launchUrl(
+            Uri.parse(googleUrl),
+            mode: LaunchMode.externalApplication,
+          );
         }
       }
     } catch (e) {
       debugPrint('Could not launch maps: $e');
       // Fallback to web browser
-      await launchUrl(Uri.parse(googleUrl), mode: LaunchMode.externalApplication);
+      await launchUrl(
+        Uri.parse(googleUrl),
+        mode: LaunchMode.externalApplication,
+      );
     }
   }
 }

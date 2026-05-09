@@ -27,16 +27,14 @@ import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final bool isVerified;
-  const ProfileScreen({
-    super.key,
-    this.isVerified = false,
-  });
+  const ProfileScreen({super.key, this.isVerified = false});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
   final User? user = Supabase.instance.client.auth.currentUser;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
@@ -59,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       CurvedAnimation(parent: _shimmerController, curve: Curves.easeInOutSine),
     );
     _checkOwnerStatus();
-    
+
     if (profileCache.value != null) {
       final cache = profileCache.value!;
       _avatarUrl = cache['avatar_url'];
@@ -67,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       _isOwner = cache['is_owner'] ?? false;
       _isLoading = false;
     }
-    
+
     _loadFromDiskCache();
     _loadProfile();
   }
@@ -107,7 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             _avatarUrl = profile['avatar_url'];
             _kycStatus = profile['kyc_status'] ?? 'not_started';
             _isOwner = _isOwner || (profile['is_owner'] ?? false);
-            
+
             final cacheData = {
               'avatar_url': _avatarUrl,
               'kyc_status': _kycStatus,
@@ -205,7 +203,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             backgroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               background: ProfileHeader(
-                fullName: user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'],
+                fullName:
+                    user?.userMetadata?['full_name'] ??
+                    user?.userMetadata?['name'],
                 avatarUrl: _avatarUrl,
                 kycStatus: _kycStatus,
                 isOwner: _isOwner,
@@ -258,102 +258,111 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     const SizedBox(height: 8),
                   ],
 
-                  ProfileMenuSection(title: 'OVERVIEW', items: [
-                    ProfileMenuItem(
-                      icon: Icons.list_alt_rounded,
-                      title: 'My Listings',
-                      subtitle: 'Properties you posted',
-                      onTap: () {
-                        if (!AuthGuard.checkAuth(context)) return;
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const MyListingsScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                    ProfileMenuItem(
-                      icon: Icons.person_outline,
-                      title: 'Edit Profile',
-                      subtitle: 'Update your personal info',
-                      onTap: () {
-                        if (!AuthGuard.checkAuth(context)) return;
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const EditProfileScreen(),
-                          ),
-                        ).then((value) {
-                          if (value == true) _loadProfile();
-                        });
-                      },
-                    ),
-                    ProfileMenuItem(
-                      icon: Icons.bookmark_outline,
-                      title: 'Saved Properties',
-                      subtitle: 'Properties you liked',
-                      onTap: () {
-                        if (!AuthGuard.checkAuth(context)) return;
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SavedPropertiesScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ]),
+                  ProfileMenuSection(
+                    title: 'OVERVIEW',
+                    items: [
+                      ProfileMenuItem(
+                        icon: Icons.list_alt_rounded,
+                        title: 'My Listings',
+                        subtitle: 'Properties you posted',
+                        onTap: () {
+                          if (!AuthGuard.checkAuth(context)) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MyListingsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      ProfileMenuItem(
+                        icon: Icons.person_outline,
+                        title: 'Edit Profile',
+                        subtitle: 'Update your personal info',
+                        onTap: () {
+                          if (!AuthGuard.checkAuth(context)) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const EditProfileScreen(),
+                            ),
+                          ).then((value) {
+                            if (value == true) _loadProfile();
+                          });
+                        },
+                      ),
+                      ProfileMenuItem(
+                        icon: Icons.bookmark_outline,
+                        title: 'Saved Properties',
+                        subtitle: 'Properties you liked',
+                        onTap: () {
+                          if (!AuthGuard.checkAuth(context)) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SavedPropertiesScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
 
                   const SizedBox(height: 24),
 
-                  ProfileMenuSection(title: 'LEGAL & HELP', items: [
-                    ProfileMenuItem(
-                      icon: Icons.help_center_outlined,
-                      title: 'Help Center',
-                      subtitle: 'FAQs & Contact Support',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const HelpCenterScreen(),
+                  ProfileMenuSection(
+                    title: 'LEGAL & HELP',
+                    items: [
+                      ProfileMenuItem(
+                        icon: Icons.help_center_outlined,
+                        title: 'Help Center',
+                        subtitle: 'FAQs & Contact Support',
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HelpCenterScreen(),
+                          ),
                         ),
                       ),
-                    ),
-                    ProfileMenuItem(
-                      icon: Icons.privacy_tip_outlined,
-                      title: 'Safety Center',
-                      subtitle: 'Protect your account',
-                      color: Colors.redAccent,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const SafetyCenterScreen(),
+                      ProfileMenuItem(
+                        icon: Icons.privacy_tip_outlined,
+                        title: 'Safety Center',
+                        subtitle: 'Protect your account',
+                        color: Colors.redAccent,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SafetyCenterScreen(),
+                          ),
                         ),
                       ),
-                    ),
-                    ProfileMenuItem(
-                      icon: Icons.description_outlined,
-                      title: 'Terms & Privacy',
-                      subtitle: 'Our guidelines',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const TermsPrivacyScreen(),
+                      ProfileMenuItem(
+                        icon: Icons.description_outlined,
+                        title: 'Terms & Privacy',
+                        subtitle: 'Our guidelines',
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const TermsPrivacyScreen(),
+                          ),
                         ),
                       ),
-                    ),
-                  ]),
+                    ],
+                  ),
 
                   const SizedBox(height: 24),
 
-                  ProfileMenuSection(title: 'ACCOUNTS', items: [
-                    ProfileMenuItem(
-                      icon: Icons.switch_account_outlined,
-                      title: 'Switch Account',
-                      subtitle: 'Manage multiple accounts',
-                      onTap: () => _showAccountSwitcher(context),
-                    ),
-                  ]),
+                  ProfileMenuSection(
+                    title: 'ACCOUNTS',
+                    items: [
+                      ProfileMenuItem(
+                        icon: Icons.switch_account_outlined,
+                        title: 'Switch Account',
+                        subtitle: 'Manage multiple accounts',
+                        onTap: () => _showAccountSwitcher(context),
+                      ),
+                    ],
+                  ),
 
                   const SizedBox(height: 32),
 
@@ -372,8 +381,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         backgroundColor: Colors.red.withOpacity(0.05),
                       ),
                     ),
@@ -397,12 +411,24 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
         contentPadding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
         actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-        title: Text('Log Out', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18)),
-        content: Text('Are you sure you want to log out?', style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14)),
+        title: Text(
+          'Log Out',
+          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        content: Text(
+          'Are you sure you want to log out?',
+          style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.w600)),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.inter(
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -422,9 +448,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            child: Text('Log Out', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+            child: Text(
+              'Log Out',
+              style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),
@@ -445,7 +476,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Switch Account', style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              'Switch Account',
+              style: GoogleFonts.inter(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.all(12),
@@ -458,7 +495,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundImage: _avatarUrl != null ? CachedNetworkImageProvider(_avatarUrl!) : null,
+                    backgroundImage: _avatarUrl != null
+                        ? CachedNetworkImageProvider(_avatarUrl!)
+                        : null,
                     child: _avatarUrl == null ? const Icon(Icons.person) : null,
                   ),
                   const SizedBox(width: 12),
@@ -466,8 +505,20 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(user?.userMetadata?['full_name'] ?? 'Current User', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16)),
-                        Text(user?.email ?? '', style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 12)),
+                        Text(
+                          user?.userMetadata?['full_name'] ?? 'Current User',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          user?.email ?? '',
+                          style: GoogleFonts.inter(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -490,11 +541,23 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               },
               leading: Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  shape: BoxShape.circle,
+                ),
                 child: const Icon(Icons.add, color: Colors.black),
               ),
-              title: Text('Add Account', style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15)),
-              subtitle: Text('Log in with email and password', style: GoogleFonts.inter(fontSize: 12)),
+              title: Text(
+                'Add Account',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+              subtitle: Text(
+                'Log in with email and password',
+                style: GoogleFonts.inter(fontSize: 12),
+              ),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
             ),
             const SizedBox(height: 24),

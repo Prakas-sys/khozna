@@ -45,7 +45,9 @@ class _KycScreenState extends State<KycScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(true); // 🔐 Screen Shield: blocks screenshots on KYC documents
+    SecurityUtils.setSecure(
+      true,
+    ); // 🔐 Screen Shield: blocks screenshots on KYC documents
     _loadInitialData();
   }
 
@@ -60,8 +62,10 @@ class _KycScreenState extends State<KycScreen> {
           _emailController.text = user.email ?? '';
           _phoneController.text = user.phone ?? '';
 
-          if (user.email != null && user.email!.isNotEmpty) _isEmailVerified = true;
-          if (user.phone != null && user.phone!.isNotEmpty) _isPhoneVerified = true;
+          if (user.email != null && user.email!.isNotEmpty)
+            _isEmailVerified = true;
+          if (user.phone != null && user.phone!.isNotEmpty)
+            _isPhoneVerified = true;
         });
       }
 
@@ -74,14 +78,17 @@ class _KycScreenState extends State<KycScreen> {
 
         if (mounted) {
           setState(() {
-            if (profile['full_name'] != null && profile['full_name'].toString().isNotEmpty) {
+            if (profile['full_name'] != null &&
+                profile['full_name'].toString().isNotEmpty) {
               _nameController.text = profile['full_name'];
             }
-            if (profile['email'] != null && profile['email'].toString().isNotEmpty) {
+            if (profile['email'] != null &&
+                profile['email'].toString().isNotEmpty) {
               _emailController.text = profile['email'];
               _isEmailVerified = true;
             }
-            if (profile['phone'] != null && profile['phone'].toString().isNotEmpty) {
+            if (profile['phone'] != null &&
+                profile['phone'].toString().isNotEmpty) {
               _phoneController.text = profile['phone'];
               _isPhoneVerified = true;
             }
@@ -187,7 +194,7 @@ class _KycScreenState extends State<KycScreen> {
     } catch (e) {
       debugPrint('Error picking image: $e');
       if (e.toString().contains('already_active')) return;
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -231,9 +238,15 @@ class _KycScreenState extends State<KycScreen> {
     setState(() => _isSubmitting = true);
     try {
       final results = await Future.wait([
-        CloudinaryService.uploadImage(_frontImage!).timeout(const Duration(minutes: 2)),
-        CloudinaryService.uploadImage(_backImage!).timeout(const Duration(minutes: 2)),
-        CloudinaryService.uploadImage(_selfieImage!).timeout(const Duration(minutes: 2)),
+        CloudinaryService.uploadImage(
+          _frontImage!,
+        ).timeout(const Duration(minutes: 2)),
+        CloudinaryService.uploadImage(
+          _backImage!,
+        ).timeout(const Duration(minutes: 2)),
+        CloudinaryService.uploadImage(
+          _selfieImage!,
+        ).timeout(const Duration(minutes: 2)),
       ]);
 
       final frontUrl = results[0];
@@ -249,7 +262,9 @@ class _KycScreenState extends State<KycScreen> {
         'full_name': SecurityUtils.sanitizeInput(_nameController.text),
         'email': SecurityUtils.sanitizeInput(_emailController.text),
         'phone_number': SecurityUtils.sanitizeInput(_phoneController.text),
-        'citizenship_number': SecurityUtils.sanitizeInput(_citizenshipController.text),
+        'citizenship_number': SecurityUtils.sanitizeInput(
+          _citizenshipController.text,
+        ),
         'front_image_url': frontUrl,
         'back_image_url': backUrl,
         'selfie_image_url': selfieUrl,
@@ -273,20 +288,29 @@ class _KycScreenState extends State<KycScreen> {
       if (mounted) {
         setState(() => _isSubmitting = false);
         HapticFeedback.mediumImpact();
-        
+
         showDialog(
           context: context,
           barrierDismissible: true,
           builder: (ctx) => AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
             title: Row(
               children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.green, size: 28),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.green,
+                  size: 28,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'कागजातहरू बुझाइयो', 
-                    style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18)
+                    'कागजातहरू बुझाइयो',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
               ],
@@ -303,7 +327,10 @@ class _KycScreenState extends State<KycScreen> {
                 },
                 child: Text(
                   'हुन्छ, बुझें (Understood)',
-                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, color: AppTheme.brandColor),
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.brandColor,
+                  ),
                 ),
               ),
             ],
@@ -346,7 +373,7 @@ class _KycScreenState extends State<KycScreen> {
               ),
             ],
           ),
-          
+
           Positioned(
             left: 0,
             right: 0,
@@ -371,7 +398,10 @@ class _KycScreenState extends State<KycScreen> {
                     ),
                   ),
                   child: _currentStep == 1
-                      ? KycStepButton(text: 'Next Step (अर्को चरण)', onPressed: _nextStep)
+                      ? KycStepButton(
+                          text: 'Next Step (अर्को चरण)',
+                          onPressed: _nextStep,
+                        )
                       : _buildSubmitButton(),
                 ),
               ),
@@ -393,7 +423,11 @@ class _KycScreenState extends State<KycScreen> {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.white.withOpacity(0.1)),
                   ),
-                  child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
             ),
@@ -496,7 +530,11 @@ class _KycScreenState extends State<KycScreen> {
         Center(
           child: TextButton.icon(
             onPressed: () => setState(() => _currentStep = 1),
-            icon: Icon(Icons.arrow_back_rounded, size: 16, color: Colors.grey[600]),
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              size: 16,
+              color: Colors.grey[600],
+            ),
             label: Text(
               'Back to Details (विवरण सच्याउनुहोस्)',
               style: GoogleFonts.inter(
@@ -561,16 +599,18 @@ class _KycScreenState extends State<KycScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            AppTheme.brandColor,
-            AppTheme.brandColor.withOpacity(0.85),
-          ],
+          colors: [AppTheme.brandColor, AppTheme.brandColor.withOpacity(0.85)],
         ),
       ),
       child: Stack(
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 20, 24, 20),
+            padding: EdgeInsets.fromLTRB(
+              24,
+              MediaQuery.of(context).padding.top + 20,
+              24,
+              20,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -605,7 +645,7 @@ class _KycScreenState extends State<KycScreen> {
               ],
             ),
           ),
-          
+
           Positioned(
             left: 16,
             top: MediaQuery.of(context).padding.top + 14,
@@ -616,10 +656,14 @@ class _KycScreenState extends State<KycScreen> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.white.withOpacity(0.15)),
               ),
-              child: const Icon(Icons.shield_outlined, color: Colors.white, size: 22),
+              child: const Icon(
+                Icons.shield_outlined,
+                color: Colors.white,
+                size: 22,
+              ),
             ),
           ),
-          
+
           Positioned(
             top: -30,
             right: -20,
@@ -642,9 +686,7 @@ class _KycScreenState extends State<KycScreen> {
       duration: const Duration(milliseconds: 300),
       height: 4,
       decoration: BoxDecoration(
-        color: active
-            ? Colors.white
-            : Colors.white.withOpacity(0.3),
+        color: active ? Colors.white : Colors.white.withOpacity(0.3),
         borderRadius: BorderRadius.circular(10),
       ),
     );
@@ -667,12 +709,16 @@ class _KycScreenState extends State<KycScreen> {
               color: isVerified ? Colors.green.withOpacity(0.05) : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isVerified ? Colors.green.withOpacity(0.5) : AppTheme.brandColor.withOpacity(0.3),
+                color: isVerified
+                    ? Colors.green.withOpacity(0.5)
+                    : AppTheme.brandColor.withOpacity(0.3),
                 width: isVerified ? 1.5 : 2.0,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: isVerified ? Colors.green.withOpacity(0.1) : AppTheme.brandColor.withOpacity(0.08),
+                  color: isVerified
+                      ? Colors.green.withOpacity(0.1)
+                      : AppTheme.brandColor.withOpacity(0.08),
                   blurRadius: 15,
                   offset: const Offset(0, 8),
                 ),
@@ -683,18 +729,27 @@ class _KycScreenState extends State<KycScreen> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isVerified ? Colors.green : AppTheme.brandColor.withOpacity(0.1),
+                    color: isVerified
+                        ? Colors.green
+                        : AppTheme.brandColor.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: _isLocating
                       ? const SizedBox(
                           width: 24,
                           height: 24,
-                          child: CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2.5),
+                          child: CircularProgressIndicator(
+                            color: AppTheme.brandColor,
+                            strokeWidth: 2.5,
+                          ),
                         )
                       : Icon(
-                          isVerified ? Icons.my_location_rounded : Icons.fingerprint_rounded,
-                          color: isVerified ? Colors.white : AppTheme.brandColor,
+                          isVerified
+                              ? Icons.my_location_rounded
+                              : Icons.fingerprint_rounded,
+                          color: isVerified
+                              ? Colors.white
+                              : AppTheme.brandColor,
                           size: 28,
                         ),
                 ),
@@ -708,7 +763,9 @@ class _KycScreenState extends State<KycScreen> {
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800,
                           fontSize: 16,
-                          color: isVerified ? Colors.green[800] : Colors.black87,
+                          color: isVerified
+                              ? Colors.green[800]
+                              : Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -727,7 +784,10 @@ class _KycScreenState extends State<KycScreen> {
                 ),
                 if (!isVerified && !_isLocating)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.brandColor,
                       borderRadius: BorderRadius.circular(50),
@@ -741,7 +801,11 @@ class _KycScreenState extends State<KycScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.touch_app_rounded, color: Colors.white, size: 16),
+                        const Icon(
+                          Icons.touch_app_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           'Tap',

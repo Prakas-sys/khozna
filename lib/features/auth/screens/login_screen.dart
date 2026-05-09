@@ -69,8 +69,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-
-
   Future<void> _verifyPhone() async {
     if (!_agreeToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -102,8 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     final fullPhone = '+977$phone';
-
-
 
     setState(() => _isLoading = true);
     try {
@@ -159,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Force account picker by signing out first
       await googleSignIn.signOut();
-      
+
       final googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         setState(() => _isLoading = false);

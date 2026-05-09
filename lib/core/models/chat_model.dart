@@ -28,7 +28,9 @@ class ChatMessage {
       senderId: map['sender_id']?.toString() ?? '',
       text: map['text'],
       imageUrl: map['image_url'],
-      createdAt: DateTime.parse(map['created_at'] ?? DateTime.now().toIso8601String()).toLocal(),
+      createdAt: DateTime.parse(
+        map['created_at'] ?? DateTime.now().toIso8601String(),
+      ).toLocal(),
       isRead: map['is_read'] == true,
       isDeleted: map['is_deleted'] == true,
       isOptimistic: map['is_optimistic'] == true,
@@ -70,7 +72,10 @@ class ChatConversation {
     this.isOtherUserOnline = false,
   });
 
-  factory ChatConversation.fromMap(Map<String, dynamic> map, String currentUserId) {
+  factory ChatConversation.fromMap(
+    Map<String, dynamic> map,
+    String currentUserId,
+  ) {
     // Determine which user is the "other" user
     final bool isUser1Me = map['user1_id'] == currentUserId;
     final otherUser = isUser1Me ? map['user2'] : map['user1'];

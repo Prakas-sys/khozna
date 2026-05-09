@@ -41,8 +41,12 @@ class KycVerificationModel {
       selfieImageUrl: map['selfie_image_url'] ?? '',
       status: map['status'] ?? 'pending',
       rejectionReason: map['rejection_reason'],
-      latitude: map['latitude'] != null ? double.tryParse(map['latitude'].toString()) : null,
-      longitude: map['longitude'] != null ? double.tryParse(map['longitude'].toString()) : null,
+      latitude: map['latitude'] != null
+          ? double.tryParse(map['latitude'].toString())
+          : null,
+      longitude: map['longitude'] != null
+          ? double.tryParse(map['longitude'].toString())
+          : null,
       createdAt: DateTime.parse(map['created_at']),
     );
   }

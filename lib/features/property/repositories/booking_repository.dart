@@ -19,9 +19,16 @@ class BookingRepository {
           .from('bookings')
           .select('property_id')
           .eq('guest_id', user.id)
-          .inFilter('status', ['pending_approval', 'awaiting_payment', 'paid', 'confirmed']);
+          .inFilter('status', [
+            'pending_approval',
+            'awaiting_payment',
+            'paid',
+            'confirmed',
+          ]);
 
-      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(response);
+      final List<Map<String, dynamic>> data = List<Map<String, dynamic>>.from(
+        response,
+      );
       final set = data.map((e) => e['property_id'].toString()).toSet();
       bookedPropertiesStore.value = set;
     } catch (e) {
@@ -42,17 +49,23 @@ class BookingRepository {
     if (user == null) throw Exception('User not logged in');
 
     try {
-      final cleanMessage = message != null ? SecurityUtils.sanitizeInput(message, maxLength: 500) : '';
+      final cleanMessage = message != null
+          ? SecurityUtils.sanitizeInput(message, maxLength: 500)
+          : '';
 
-      final response = await _client.from('bookings').insert({
-        'property_id': propertyId,
-        'guest_id': user.id,
-        'owner_id': ownerId,
-        'check_in': checkIn.toIso8601String(),
-        'check_out': checkOut.toIso8601String(),
-        'total_price': totalPrice,
-        'status': 'pending_approval',
-      }).select().single();
+      final response = await _client
+          .from('bookings')
+          .insert({
+            'property_id': propertyId,
+            'guest_id': user.id,
+            'owner_id': ownerId,
+            'check_in': checkIn.toIso8601String(),
+            'check_out': checkOut.toIso8601String(),
+            'total_price': totalPrice,
+            'status': 'pending_approval',
+          })
+          .select()
+          .single();
 
       final bookingId = response['id'];
 
@@ -62,7 +75,8 @@ class BookingRepository {
         'user_id': ownerId,
         'sender_id': user.id,
         'title': '👀 नयाँ भ्रमण अनुरोध (New Visit Request!)',
-        'message': '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ। ${message ?? ""}',
+        'message':
+            '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ। ${message ?? ""}',
         'type': 'visit_request',
         'property_id': propertyId,
         'booking_id': bookingId,
@@ -75,13 +89,16 @@ class BookingRepository {
     }
   }
 
-  /// 2. Owner approves request -> moves to Awaiting Payment
+  /// 2. Owner approves request -> moves to Visit Accepted
   static Future<void> approveRequest(String bookingId) async {
     try {
-      await _client.from('bookings').update({
-        'status': 'awaiting_payment',
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      }).eq('id', bookingId);
+      await _client
+          .from('bookings')
+          .update({
+            'status': 'visit_accepted',
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
 
       // Fetch booking to notify guest
       final booking = await getBookingById(bookingId);
@@ -90,7 +107,8 @@ class BookingRepository {
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
           'title': '✅ भ्रमण स्वीकृत (Visit Approved!)',
-          'message': 'तपाइँको भ्रमण अनुरोध स्वीकृत भएको छ। कोठा हेरेर मन पराएपछि मात्र भुक्तानीको प्रक्रिया हुनेछ।',
+          'message':
+              'तपाइँको भ्रमण अनुरोध स्वीकृत भएको छ। कोठा हेरेर मन पराएपछि मात्र भुक्तानीको प्रक्रिया हुनेछ।',
           'type': 'visit_alert',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
@@ -106,13 +124,19 @@ class BookingRepository {
     return rejectWithReason(bookingId, reason: null);
   }
 
-  static Future<void> rejectWithReason(String bookingId, {String? reason}) async {
+  static Future<void> rejectWithReason(
+    String bookingId, {
+    String? reason,
+  }) async {
     try {
-      await _client.from('bookings').update({
-        'status': 'rejected',
-        'rejection_reason': reason,
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      }).eq('id', bookingId);
+      await _client
+          .from('bookings')
+          .update({
+            'status': 'rejected',
+            'rejection_reason': reason,
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
 
       final booking = await getBookingById(bookingId);
       if (booking != null) {
@@ -121,7 +145,8 @@ class BookingRepository {
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
           'title': '❌ भ्रमण अस्वीकृत (Visit Rejected)',
-          'message': 'मालिकले अहिले भ्रमणको लागि समय मिलाउन सक्नुभएन।$reasonText',
+          'message':
+              'मालिकले अहिले भ्रमणको लागि समय मिलाउन सक्नुभएन।$reasonText',
           'type': 'visit_alert',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
@@ -157,13 +182,19 @@ class BookingRepository {
   }
 
   /// Guest confirms they visited (yes/no)
-  static Future<void> confirmVisitDone(String bookingId, {required bool visited}) async {
+  static Future<void> confirmVisitDone(
+    String bookingId, {
+    required bool visited,
+  }) async {
     try {
-      await _client.from('bookings').update({
-        'visit_confirmed': visited,
-        'status': visited ? 'visit_accepted' : 'visit_rejected',
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      }).eq('id', bookingId);
+      await _client
+          .from('bookings')
+          .update({
+            'visit_confirmed': visited,
+            'status': visited ? 'visit_accepted' : 'visit_rejected',
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
     } catch (e) {
       debugPrint('Confirm visit done error: $e');
       rethrow;
@@ -171,14 +202,21 @@ class BookingRepository {
   }
 
   /// Guest confirms they liked the room — unlocks payment
-  static Future<void> confirmVisitLiked(String bookingId, {required bool liked, String? feedbackReason}) async {
+  static Future<void> confirmVisitLiked(
+    String bookingId, {
+    required bool liked,
+    String? feedbackReason,
+  }) async {
     try {
-      await _client.from('bookings').update({
-        'visit_liked': liked,
-        'feedback_reason': feedbackReason,
-        'status': liked ? 'awaiting_payment' : 'visit_completed',
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      }).eq('id', bookingId);
+      await _client
+          .from('bookings')
+          .update({
+            'visit_liked': liked,
+            'feedback_reason': feedbackReason,
+            'status': liked ? 'awaiting_payment' : 'visit_completed',
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
     } catch (e) {
       debugPrint('Confirm visit liked error: $e');
       rethrow;
@@ -199,14 +237,19 @@ class BookingRepository {
 
     try {
       // Update booking with payment type and fee
-      final double fee = paymentType == 'khozna' ? (amount * 0.10) : (amount * 0.05);
+      final double fee = paymentType == 'khozna'
+          ? (amount * 0.10)
+          : (amount * 0.05);
 
-      await _client.from('bookings').update({
-        'payment_type': paymentType,
-        'khozna_fee': fee,
-        'status': 'paid',
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      }).eq('id', bookingId);
+      await _client
+          .from('bookings')
+          .update({
+            'payment_type': paymentType,
+            'khozna_fee': fee,
+            'status': 'paid',
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
 
       // Create payment record
       await _client.from('payments').insert({
@@ -227,21 +270,45 @@ class BookingRepository {
     }
   }
 
-  /// 4. Owner/Admin confirms payment -> moves to Confirmed
   static Future<void> confirmPayment(String bookingId) async {
     try {
-      await _client.from('bookings').update({
-        'status': 'confirmed',
-        'updated_at': DateTime.now().toUtc().toIso8601String(),
-      }).eq('id', bookingId);
+      await _client
+          .from('bookings')
+          .update({
+            'status': 'confirmed',
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
 
-      await _client.from('payments').update({
-        'status': 'verified',
-      }).eq('booking_id', bookingId);
-      
+      await _client
+          .from('payments')
+          .update({'status': 'verified'})
+          .eq('booking_id', bookingId);
+
       // Trigger in DB will automatically block dates in property_availability
     } catch (e) {
       debugPrint('Confirm payment error: $e');
+      rethrow;
+    }
+  }
+
+  static Future<void> rejectPayment(String bookingId) async {
+    try {
+      // Revert booking to awaiting_payment so guest can try again
+      await _client
+          .from('bookings')
+          .update({
+            'status': 'awaiting_payment',
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', bookingId);
+
+      await _client
+          .from('payments')
+          .update({'status': 'failed'})
+          .eq('booking_id', bookingId);
+    } catch (e) {
+      debugPrint('Reject payment error: $e');
       rethrow;
     }
   }
@@ -252,22 +319,26 @@ class BookingRepository {
         .select('*, properties(title)')
         .eq('id', bookingId)
         .maybeSingle();
-    
+
     if (response == null) return null;
-    
+
     // Add property title to the model if it exists
     final Map<String, dynamic> data = Map<String, dynamic>.from(response);
     if (data['properties'] != null) {
       data['property_title'] = data['properties']['title'];
     }
-    
+
     return BookingModel.fromMap(data);
   }
 
   static Future<List<BookingModel>> getMyBookings() async {
     final user = _client.auth.currentUser;
     if (user == null) return [];
-    final response = await _client.from('bookings').select().eq('guest_id', user.id).order('created_at', ascending: false);
+    final response = await _client
+        .from('bookings')
+        .select()
+        .eq('guest_id', user.id)
+        .order('created_at', ascending: false);
     return (response as List).map((e) => BookingModel.fromMap(e)).toList();
   }
 
@@ -276,7 +347,9 @@ class BookingRepository {
     if (user == null) return [];
     final response = await _client
         .from('bookings')
-        .select('*, properties(title, area_name), guest:profiles!bookings_guest_id_fkey(full_name, avatar_url)')
+        .select(
+          '*, properties(title, area_name), guest:profiles!bookings_guest_id_fkey(full_name, avatar_url), payments(id, proof_image_url, reference_id)',
+        )
         .eq('owner_id', user.id)
         .order('created_at', ascending: false);
     return List<Map<String, dynamic>>.from(response);

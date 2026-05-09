@@ -30,7 +30,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  
+
   // Try to update badge count if data is present
   try {
     if (message.data.containsKey('badge')) {
@@ -42,7 +42,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   } catch (e) {
     debugPrint("Background badge error: $e");
   }
-  
+
   debugPrint("Background message received: ${message.messageId}");
 }
 
@@ -78,12 +78,12 @@ void main() async {
   // Initialize Firebase earlier to establish stable channel
   try {
     await Firebase.initializeApp();
-    
+
     // 📈 Pass all unfiltered errors from the framework to Crashlytics.
     FlutterError.onError = (errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
-    
+
     // Pass all errors within the platform (e.g. native crashes)
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
@@ -170,7 +170,7 @@ Future<void> _initializeServices() async {
     GoogleFonts.plusJakartaSans(),
     GoogleFonts.outfit(),
   ]).catchError((_) => []);
-  
+
   debugPrint('--- PARALLEL INITIALIZATION COMPLETE ---');
 }
 
@@ -182,9 +182,10 @@ Future<void> _setupNotifications() async {
     await SupabaseService.saveDeviceToken(token);
   }
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    final currentUserId = supabase.Supabase.instance.client.auth.currentUser?.id;
+    final currentUserId =
+        supabase.Supabase.instance.client.auth.currentUser?.id;
     final senderId = message.data['sender_id'];
-    
+
     // 🛡️ SECURITY: Don't show notifications or increment badges for our own messages!
     if (senderId != null && senderId == currentUserId) {
       debugPrint('--- [PUSH] Ignoring self-sent message notification ---');
@@ -205,7 +206,11 @@ Future<void> _setupNotifications() async {
         notificationBadgeCount.value += 1;
       }
       int total = messageBadgeCount.value + notificationBadgeCount.value;
-      _showLocalNotification(notification.title ?? '', notification.body ?? '', total);
+      _showLocalNotification(
+        notification.title ?? '',
+        notification.body ?? '',
+        total,
+      );
     }
   });
 }
@@ -215,23 +220,26 @@ void _showLocalNotification(String title, String body, int badgeCount) async {
   FlutterAppBadger.updateBadgeCount(badgeCount);
 
   // FIX: Generate unique ID every time to prevent old ones from disappearing
-  final int notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
+  final int notificationId = DateTime.now().millisecondsSinceEpoch.remainder(
+    100000,
+  );
 
   final AndroidNotificationDetails androidPlatformChannelSpecifics =
       AndroidNotificationDetails(
-    'high_importance_channel',
-    'High Importance Notifications',
-    importance: Importance.max,
-    priority: Priority.high,
-    showWhen: true,
-    number: badgeCount, // This sets the badge/number on some Android launchers
-    // FIX: Enable BigText so long messages aren't cut off
-    styleInformation: BigTextStyleInformation(
-      body,
-      contentTitle: title,
-      summaryText: 'Khozna Alert',
-    ),
-  );
+        'high_importance_channel',
+        'High Importance Notifications',
+        importance: Importance.max,
+        priority: Priority.high,
+        showWhen: true,
+        number:
+            badgeCount, // This sets the badge/number on some Android launchers
+        // FIX: Enable BigText so long messages aren't cut off
+        styleInformation: BigTextStyleInformation(
+          body,
+          contentTitle: title,
+          summaryText: 'Khozna Alert',
+        ),
+      );
 
   final NotificationDetails platformChannelSpecifics = NotificationDetails(
     android: androidPlatformChannelSpecifics,
@@ -271,15 +279,15 @@ class _KhoznaAppState extends State<KhoznaApp> {
     await SupabaseService.fetchSavedPropertyIds(); // Fetch Master Memory IDs
     await SupabaseService.fetchBookedPropertyIds(); // Fetch Booking Master Memory
     initializeBadgeSync();
-    
+
     // Initial fetch of unread counts to populate badges immediately
     SupabaseService.fetchUnreadMessageCount();
     SupabaseService.fetchUnreadNotificationCount();
 
     // 🧹 AUTO-CLEAR RED BADGE ON OPEN - Reset internal counters only if needed
     debugPrint("Initializing badges on app open");
-    // We don't want to force reset to 0 here because it might clear the launcher badge 
-    // before the fetchUnread... calls complete. 
+    // We don't want to force reset to 0 here because it might clear the launcher badge
+    // before the fetchUnread... calls complete.
     // Instead, we let the fetch calls update the values.
 
     // Listen for Auth State changes to update internal state and initialize services

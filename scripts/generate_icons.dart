@@ -25,17 +25,19 @@ void main() async {
   for (final mipmap in mipmapSizes.keys) {
     final targetDir = Directory('${androidResDir.path}/$mipmap');
     if (!await targetDir.exists()) {
-       await targetDir.create(recursive: true);
+      await targetDir.create(recursive: true);
     }
-    
-    // We're just copying the large image to all folders. 
+
+    // We're just copying the large image to all folders.
     // Android is capable of scaling down a large valid PNG if it's placed in the mipmap folders.
     final targetFile = File('${targetDir.path}/ic_launcher.png');
     await sourceFile.copy(targetFile.path);
     print('Copied logo to $mipmap/ic_launcher.png');
-    
+
     // Also create the foreground/background for adaptive icons if they exist
-    final targetForeground = File('${targetDir.path}/ic_launcher_foreground.png');
+    final targetForeground = File(
+      '${targetDir.path}/ic_launcher_foreground.png',
+    );
     await sourceFile.copy(targetForeground.path);
   }
 

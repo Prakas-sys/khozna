@@ -36,7 +36,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   Future<void> _loadChats() async {
     if (!mounted) return;
-    
+
     // 1. Instant rendering from cache if available
     if (chatListCache.value != null && _chats.isEmpty) {
       setState(() {
@@ -46,7 +46,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
     } else if (_chats.isEmpty) {
       setState(() => _isLoading = true);
     }
-    
+
     // 2. Fetch fresh data
     try {
       final data = await SupabaseService.getConversations();
@@ -93,14 +93,18 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       const SizedBox(width: 12),
                       PopupMenuButton<String>(
                         offset: const Offset(0, 50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                         color: Colors.white,
                         elevation: 4,
                         child: _buildHeaderIcon(Icons.settings_outlined),
                         onSelected: (val) {
                           if (val == 'export') {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Exporting chats to PDF...')),
+                              const SnackBar(
+                                content: Text('Exporting chats to PDF...'),
+                              ),
                             );
                           }
                         },
@@ -109,9 +113,18 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             value: 'export',
                             child: Row(
                               children: [
-                                const Icon(Icons.picture_as_pdf_rounded, size: 20, color: Colors.redAccent),
+                                const Icon(
+                                  Icons.picture_as_pdf_rounded,
+                                  size: 20,
+                                  color: Colors.redAccent,
+                                ),
                                 const SizedBox(width: 12),
-                                Text('Export Chats (PDF)', style: GoogleFonts.inter(fontWeight: FontWeight.w500)),
+                                Text(
+                                  'Export Chats (PDF)',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -139,10 +152,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
-                        color: selected ? AppTheme.brandColor.withOpacity(0.08) : Colors.white,
+                        color: selected
+                            ? AppTheme.brandColor.withOpacity(0.08)
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: selected ? AppTheme.brandColor.withOpacity(0.3) : const Color(0xFFE5E7EB),
+                          color: selected
+                              ? AppTheme.brandColor.withOpacity(0.3)
+                              : const Color(0xFFE5E7EB),
                           width: 1.0,
                         ),
                       ),
@@ -150,8 +167,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         label,
                         style: GoogleFonts.inter(
                           fontSize: 14,
-                          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                          color: selected ? AppTheme.brandColor : const Color(0xFF6B7280),
+                          fontWeight: selected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: selected
+                              ? AppTheme.brandColor
+                              : const Color(0xFF6B7280),
                         ),
                       ),
                     ),
@@ -162,18 +183,26 @@ class _MessagesScreenState extends State<MessagesScreen> {
             const SizedBox(height: 12),
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppTheme.brandColor,
+                      ),
+                    )
                   : _chats.isEmpty
-                      ? _buildEmptyState()
-                      : RefreshIndicator(
-                          onRefresh: _loadChats,
-                          color: AppTheme.brandColor,
-                          child: ListView.builder(
-                            itemCount: _chats.length,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            itemBuilder: (context, index) => _buildChatTile(_chats[index]),
-                          ),
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      onRefresh: _loadChats,
+                      color: AppTheme.brandColor,
+                      child: ListView.builder(
+                        itemCount: _chats.length,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
+                        itemBuilder: (context, index) =>
+                            _buildChatTile(_chats[index]),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -186,7 +215,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
       width: 44,
       height: 44,
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6), // Subtle grey background instead of brand color
+        color: const Color(
+          0xFFF3F4F6,
+        ), // Subtle grey background instead of brand color
         shape: BoxShape.circle,
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
@@ -211,20 +242,30 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 'assets/icons/message.svg',
                 width: 64,
                 height: 64,
-                colorFilter: const ColorFilter.mode(AppTheme.brandColor, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(
+                  AppTheme.brandColor,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
             const SizedBox(height: 24),
             Text(
               'No Messages Yet',
               textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w800),
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
               'When you connect with property owners, your conversations will appear here.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFF666666), height: 1.5),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: const Color(0xFF666666),
+                height: 1.5,
+              ),
             ),
           ],
         ),
@@ -264,8 +305,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
               CircleAvatar(
                 radius: 28,
                 backgroundColor: const Color(0xFFF0F2F5),
-                backgroundImage: chat.otherUserAvatar.isNotEmpty ? CachedNetworkImageProvider(chat.otherUserAvatar) : null,
-                child: chat.otherUserAvatar.isEmpty ? const Icon(Icons.person, color: Colors.grey, size: 30) : null,
+                backgroundImage: chat.otherUserAvatar.isNotEmpty
+                    ? CachedNetworkImageProvider(chat.otherUserAvatar)
+                    : null,
+                child: chat.otherUserAvatar.isEmpty
+                    ? const Icon(Icons.person, color: Colors.grey, size: 30)
+                    : null,
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -287,8 +332,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
                           timeStr,
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: unreadCount > 0 ? AppTheme.brandColor : const Color(0xFF667781),
-                            fontWeight: unreadCount > 0 ? FontWeight.w600 : FontWeight.w400,
+                            color: unreadCount > 0
+                                ? AppTheme.brandColor
+                                : const Color(0xFF667781),
+                            fontWeight: unreadCount > 0
+                                ? FontWeight.w600
+                                : FontWeight.w400,
                           ),
                         ),
                       ],
@@ -302,7 +351,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             style: GoogleFonts.inter(
                               fontSize: 14,
                               color: const Color(0xFF667781),
-                              fontWeight: unreadCount > 0 ? FontWeight.w500 : FontWeight.w400,
+                              fontWeight: unreadCount > 0
+                                  ? FontWeight.w500
+                                  : FontWeight.w400,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -316,7 +367,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                               color: AppTheme.brandColor,
                               shape: BoxShape.circle,
                             ),
-                            constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
+                            constraints: const BoxConstraints(
+                              minWidth: 22,
+                              minHeight: 22,
+                            ),
                             child: Center(
                               child: Text(
                                 '$unreadCount',
@@ -360,9 +414,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Conversation'),
-        content: const Text('Are you sure you want to delete this entire chat?'),
+        content: const Text(
+          'Are you sure you want to delete this entire chat?',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(ctx);

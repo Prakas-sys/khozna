@@ -33,7 +33,9 @@ class KycGuard {
   }
 
   static Future<void> _showKycGateSheet(
-      BuildContext context, String status) async {
+    BuildContext context,
+    String status,
+  ) async {
     final bool isPending = status == 'pending';
 
     await showModalBottomSheet(
@@ -159,15 +161,16 @@ class KycGuard {
                 decoration: BoxDecoration(
                   color: Colors.orange.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.orange.withOpacity(0.2),
-                  ),
+                  border: Border.all(color: Colors.orange.withOpacity(0.2)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.hourglass_top_rounded,
-                        color: Colors.orange, size: 18),
+                    const Icon(
+                      Icons.hourglass_top_rounded,
+                      color: Colors.orange,
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       'Review Pending — Please Wait',

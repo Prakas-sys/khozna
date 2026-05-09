@@ -166,11 +166,17 @@ class _AiChatScreenState extends State<AiChatScreen> {
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                    borderSide: BorderSide(
+                      color: Colors.grey.shade200,
+                      width: 1,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide(color: AppTheme.brandColor, width: 1.5),
+                    borderSide: BorderSide(
+                      color: AppTheme.brandColor,
+                      width: 1.5,
+                    ),
                   ),
                 ),
                 onSubmitted: (_) => _sendMessage(),
@@ -213,7 +219,12 @@ class _ChatBubble extends StatelessWidget {
   final List<dynamic>? properties;
   final String? query;
 
-  const _ChatBubble({required this.message, required this.isMe, this.properties, this.query});
+  const _ChatBubble({
+    required this.message,
+    required this.isMe,
+    this.properties,
+    this.query,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -260,16 +271,26 @@ class _ChatBubble extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.visibility, size: 16, color: Colors.white),
+                  icon: const Icon(
+                    Icons.visibility,
+                    size: 16,
+                    color: Colors.white,
+                  ),
                   label: Text(
                     'View ${properties!.length} Property${properties!.length > 1 ? "s" : ""}',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 13),
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.brandColor,
                     minimumSize: const Size(double.infinity, 36),
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
               ),

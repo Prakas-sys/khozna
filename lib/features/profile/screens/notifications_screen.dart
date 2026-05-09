@@ -46,8 +46,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final diff = now.difference(date);
 
       if (diff.inMinutes < 1) return 'भर्खरै (Just now)';
-      if (diff.inMinutes < 60) return '${diff.inMinutes}मि अघि (${diff.inMinutes}m)';
-      if (diff.inHours < 24) return '${diff.inHours}घण्टा अघि (${diff.inHours}h)';
+      if (diff.inMinutes < 60)
+        return '${diff.inMinutes}मि अघि (${diff.inMinutes}m)';
+      if (diff.inHours < 24)
+        return '${diff.inHours}घण्टा अघि (${diff.inHours}h)';
       return '${diff.inDays}दिन अघि (${diff.inDays}d)';
     } catch (_) {
       return '';
@@ -61,9 +63,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     // Remove app name repetition
     String cleanMessage = message.replaceAll('Khozna app', '').trim();
-    if (cleanMessage.startsWith('ले')) cleanMessage = cleanMessage.substring(1).trim();
+    if (cleanMessage.startsWith('ले'))
+      cleanMessage = cleanMessage.substring(1).trim();
 
-    if (type == 'booking_request' || cleanMessage.contains('कोठा हेर्न अनुरोध')) {
+    if (type == 'booking_request' ||
+        cleanMessage.contains('कोठा हेर्न अनुरोध')) {
       return '👀 $name wants to visit your room.';
     }
     if (type == 'booking_approved' || cleanMessage.contains('स्वीकृत')) {
@@ -148,27 +152,49 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         final String type = note['type']?.toString() ?? '';
 
                         // -- SPECIAL: Booking Request card with Approve/Reject --
-                        final String msgText = (note['message'] ?? '').toString();
-                        final bool isBookingRequest = type == 'booking_request' || 
-                            msgText.contains('कोठा हेर्न अनुरोध') || 
+                        final String msgText = (note['message'] ?? '')
+                            .toString();
+                        final bool isBookingRequest =
+                            type == 'booking_request' ||
+                            msgText.contains('कोठा हेर्न अनुरोध') ||
                             msgText.contains('visit request');
-                        
+
                         if (isBookingRequest) {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 16),
-                            child: _buildBookingRequestCard(note, id, index, sender),
+                            child: _buildBookingRequestCard(
+                              note,
+                              id,
+                              index,
+                              sender,
+                            ),
                           );
                         }
 
                         // -- SPECIAL: Payment Received card --
                         if (type == 'payment_received') {
-                          return _buildPaymentReceivedCard(note, id, index, sender);
+                          return _buildPaymentReceivedCard(
+                            note,
+                            id,
+                            index,
+                            sender,
+                          );
                         }
 
                         // -- SPECIAL: Booking Approved (Guest) card --
-                        final isApproved = (note['title']?.toString().contains('स्वीकृत') == true) || (note['message']?.toString().contains('स्वीकृत') == true);
-                        if (type == 'booking_approved' || (type == 'booking_alert' && isApproved)) {
-                          return _buildBookingApprovedCard(note, id, index, sender);
+                        final isApproved =
+                            (note['title']?.toString().contains('स्वीकृत') ==
+                                true) ||
+                            (note['message']?.toString().contains('स्वीकृत') ==
+                                true);
+                        if (type == 'booking_approved' ||
+                            (type == 'booking_alert' && isApproved)) {
+                          return _buildBookingApprovedCard(
+                            note,
+                            id,
+                            index,
+                            sender,
+                          );
                         }
 
                         // -- Standard notification row --
@@ -194,58 +220,78 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           child: InkWell(
                             onTap: () async {
                               final type = note['type']?.toString() ?? '';
-                              if (type == 'booking_approved' || type == 'booking_rejected' || type == 'booking_alert') {
-                                  // 1. Check if it's an "Approved" message for the guest to pay
-                                  final String title = note['title']?.toString() ?? '';
-                                  final String message = note['message']?.toString() ?? '';
-                                  final bool isApproved = title.contains('स्वीकृत') || message.contains('स्वीकृत');
-                                  final String bookingId = note['booking_id']?.toString() ?? '';
+                              if (type == 'booking_approved' ||
+                                  type == 'booking_rejected' ||
+                                  type == 'booking_alert') {
+                                // 1. Check if it's an "Approved" message for the guest to pay
+                                final String title =
+                                    note['title']?.toString() ?? '';
+                                final String message =
+                                    note['message']?.toString() ?? '';
+                                final bool isApproved =
+                                    title.contains('स्वीकृत') ||
+                                    message.contains('स्वीकृत');
+                                final String bookingId =
+                                    note['booking_id']?.toString() ?? '';
 
-                                  if (isApproved && bookingId.isNotEmpty) {
-                                    // Navigate to payment choice screen
-                                    
-                                    final booking = await SupabaseService.getVisitById(bookingId);
-                                    if (booking != null && mounted) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => PaymentChoiceScreen(
-                                            booking: booking,
-                                            propertyTitle: booking.propertyTitle ?? 'Your Property',
-                                          ),
-                                        ),
+                                if (isApproved && bookingId.isNotEmpty) {
+                                  // Navigate to payment choice screen
+
+                                  final booking =
+                                      await SupabaseService.getVisitById(
+                                        bookingId,
                                       );
-                                      return;
-                                    }
+                                  if (booking != null && mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            PaymentChoiceScreen(
+                                              booking: booking,
+                                              propertyTitle:
+                                                  booking.propertyTitle ??
+                                                  'Your Property',
+                                            ),
+                                      ),
+                                    );
+                                    return;
                                   }
+                                }
 
-                                  // 2. Fallback to status screen if guest
-                                  final propertyId = note['property_id'];
-                                  if (propertyId != null) {
-                                    final bookings = await SupabaseService.getMyVisits();
-                                    final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
-                                    
-                                    if (filtered.isNotEmpty && mounted) {
-                                      final booking = filtered.first;
+                                // 2. Fallback to status screen if guest
+                                final propertyId = note['property_id'];
+                                if (propertyId != null) {
+                                  final bookings =
+                                      await SupabaseService.getMyVisits();
+                                  final filtered = bookings
+                                      .where((b) => b.propertyId == propertyId)
+                                      .toList();
+
+                                  if (filtered.isNotEmpty && mounted) {
+                                    final booking = filtered.first;
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            BookingStatusScreen(
+                                              booking: booking,
+                                            ),
+                                      ),
+                                    );
+                                  } else {
+                                    // 3. Maybe it's an owner notification
+                                    if (mounted) {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => BookingStatusScreen(booking: booking),
+                                          builder: (context) =>
+                                              const OwnerBookingsScreen(),
                                         ),
                                       );
-                                    } else {
-                                      // 3. Maybe it's an owner notification
-                                      if (mounted) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const OwnerBookingsScreen(),
-                                          ),
-                                        );
-                                      }
                                     }
                                   }
                                 }
+                              }
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -258,17 +304,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => OwnerProfileScreen(
-                                              ownerId: sender['id']?.toString() ?? '',
-                                              name:
-                                                  sender['full_name'] ??
-                                                  'Khozna User',
-                                              avatar:
-                                                  sender['avatar_url'] ??
-                                                  'https://via.placeholder.com/150',
-                                              location: 'Kathmandu, Nepal',
-                                              totalListings: 0,
-                                            ),
+                                            builder: (context) =>
+                                                OwnerProfileScreen(
+                                                  ownerId:
+                                                      sender['id']
+                                                          ?.toString() ??
+                                                      '',
+                                                  name:
+                                                      sender['full_name'] ??
+                                                      'Khozna User',
+                                                  avatar:
+                                                      sender['avatar_url'] ??
+                                                      'https://via.placeholder.com/150',
+                                                  location: 'Kathmandu, Nepal',
+                                                  totalListings: 0,
+                                                ),
                                           ),
                                         );
                                       }
@@ -281,7 +331,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                           backgroundImage:
                                               sender != null &&
                                                   sender['avatar_url'] != null
-                                              ? CachedNetworkImageProvider(sender['avatar_url'])
+                                              ? CachedNetworkImageProvider(
+                                                  sender['avatar_url'],
+                                                )
                                               : null,
                                           child:
                                               sender == null ||
@@ -299,7 +351,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                           child: Container(
                                             padding: const EdgeInsets.all(3),
                                             decoration: BoxDecoration(
-                                              color: _getTypeColor(note['type']),
+                                              color: _getTypeColor(
+                                                note['type'],
+                                              ),
                                               shape: BoxShape.circle,
                                               border: Border.all(
                                                 color: Colors.white,
@@ -319,7 +373,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   const SizedBox(width: 14),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         RichText(
                                           text: TextSpan(
@@ -330,7 +385,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                             ),
                                             children: [
                                               TextSpan(
-                                                text: _getHumanMessage(note, sender),
+                                                text: _getHumanMessage(
+                                                  note,
+                                                  sender,
+                                                ),
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -375,9 +433,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   /// Booking request notification card — shown ONLY to the owner
-  Widget _buildBookingRequestCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
+  Widget _buildBookingRequestCard(
+    Map<String, dynamic> note,
+    String id,
+    int index,
+    dynamic sender,
+  ) {
     final String bookingId = note['booking_id']?.toString() ?? '';
-    // Extract property title from message: "$name wants to rent "$title""  
+    // Extract property title from message: "$name wants to rent "$title""
     final String message = note['message']?.toString() ?? '';
     // Extract property title from message if possible, otherwise use a generic one
     String propertyTitle = 'तपाइँको प्रोपर्टी (Your Property)';
@@ -395,7 +458,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFF00A3E1).withOpacity(0.15)),
+            border: Border.all(
+              color: const Color(0xFF00A3E1).withOpacity(0.15),
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.05),
@@ -408,10 +473,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             children: [
               // Header
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF00A3E1).withOpacity(0.06),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -423,11 +493,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         children: [
                           Text(
                             'भ्रमण अनुरोध (New Visit Request)',
-                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                              color: Colors.black,
+                            ),
                           ),
                           Text(
                             _formatTime(note['created_at']),
-                            style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: Colors.grey[500],
+                            ),
                           ),
                         ],
                       ),
@@ -446,10 +523,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         CircleAvatar(
                           radius: 22,
                           backgroundColor: Colors.grey[100],
-                          backgroundImage: sender != null && sender['avatar_url'] != null
-                              ? CachedNetworkImageProvider(sender['avatar_url']) : null,
+                          backgroundImage:
+                              sender != null && sender['avatar_url'] != null
+                              ? CachedNetworkImageProvider(sender['avatar_url'])
+                              : null,
                           child: sender == null || sender['avatar_url'] == null
-                              ? Icon(Icons.person, color: Colors.grey[400], size: 24) : null,
+                              ? Icon(
+                                  Icons.person,
+                                  color: Colors.grey[400],
+                                  size: 24,
+                                )
+                              : null,
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -458,15 +542,25 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             children: [
                               Text(
                                 _getHumanMessage(note, sender),
-                                style: GoogleFonts.mukta(fontSize: 15, color: Colors.black, fontWeight: FontWeight.w600, height: 1.4),
+                                style: GoogleFonts.mukta(
+                                  fontSize: 15,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.4,
+                                ),
                               ),
                               const SizedBox(height: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.amber.shade50,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.amber.shade200),
+                                  border: Border.all(
+                                    color: Colors.amber.shade200,
+                                  ),
                                 ),
                                 child: Row(
                                   children: [
@@ -475,7 +569,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     Expanded(
                                       child: Text(
                                         'पहिला भेट गर्नुहोस्, त्यसपछि मात्र पैसा लिनुहोस्।',
-                                        style: GoogleFonts.mukta(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.amber.shade900),
+                                        style: GoogleFonts.mukta(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.amber.shade900,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -485,10 +583,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 const SizedBox(height: 4),
                                 Row(
                                   children: [
-                                    TrustBadge(badge: sender['trust_badge'] ?? 'new', fontSize: 10),
+                                    TrustBadge(
+                                      badge: sender['trust_badge'] ?? 'new',
+                                      fontSize: 10,
+                                    ),
                                     const SizedBox(width: 8),
                                     if (sender['is_verified'] == true)
-                                      const Icon(Icons.verified, size: 14, color: Colors.blue),
+                                      const Icon(
+                                        Icons.verified,
+                                        size: 14,
+                                        color: Colors.blue,
+                                      ),
                                   ],
                                 ),
                               ],
@@ -503,10 +608,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: acting
-                    ? const Center(child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ))
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
                     : Row(
                         children: [
                           if (bookingId.isEmpty)
@@ -517,29 +624,50 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => chat_page.ChatScreen(
-                                          ownerId: sender['id']?.toString() ?? '',
-                                          name: sender['full_name'] ?? 'User',
-                                          avatar: sender['avatar_url'] ?? '',
-                                          online: true,
-                                        ),
+                                        builder: (context) =>
+                                            chat_page.ChatScreen(
+                                              ownerId:
+                                                  sender['id']?.toString() ??
+                                                  '',
+                                              name:
+                                                  sender['full_name'] ?? 'User',
+                                              avatar:
+                                                  sender['avatar_url'] ?? '',
+                                              online: true,
+                                            ),
                                       ),
                                     );
                                   } else {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const OwnerBookingsScreen()),
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const OwnerBookingsScreen(),
+                                      ),
                                     );
                                   }
                                 },
-                                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
-                                label: Text('कुरा गर्नुहोस् (Message)', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 13)),
+                                icon: const Icon(
+                                  Icons.chat_bubble_outline_rounded,
+                                  size: 18,
+                                ),
+                                label: Text(
+                                  'कुरा गर्नुहोस् (Message)',
+                                  style: GoogleFonts.mukta(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF00A3E1),
                                   foregroundColor: Colors.white,
                                   elevation: 0,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                 ),
                               ),
                             )
@@ -554,18 +682,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       bookingId: bookingId,
                                       notificationId: id,
                                     );
-                                    if (mounted) setState(() => _notifications.removeAt(index));
+                                    if (mounted)
+                                      setState(
+                                        () => _notifications.removeAt(index),
+                                      );
                                   } catch (_) {
                                     setCardState(() => acting = false);
                                   }
                                 },
                                 icon: const Icon(Icons.close_rounded, size: 16),
-                                label: Text('अस्वीकार (Reject)', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 13)),
+                                label: Text(
+                                  'अस्वीकार (Reject)',
+                                  style: GoogleFonts.mukta(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                ),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.red,
-                                  side: const BorderSide(color: Colors.red, width: 1.5),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  side: const BorderSide(
+                                    color: Colors.red,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                 ),
                               ),
                             ),
@@ -575,29 +719,44 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               child: ElevatedButton.icon(
                                 onPressed: () async {
                                   setCardState(() => acting = true);
-                                  final ownerProfile = await SupabaseService.getUserProfile(
-                                    SupabaseService.currentUserId,
-                                  );
-                                  final ownerName = ownerProfile?.fullName ?? 'The owner';
+                                  final ownerProfile =
+                                      await SupabaseService.getUserProfile(
+                                        SupabaseService.currentUserId,
+                                      );
+                                  final ownerName =
+                                      ownerProfile?.fullName ?? 'The owner';
                                   try {
                                     await SupabaseService.approveVisit(
                                       bookingId: bookingId,
                                       ownerName: ownerName,
                                       notificationId: id,
                                     );
-                                    if (mounted) setState(() => _notifications.removeAt(index));
+                                    if (mounted)
+                                      setState(
+                                        () => _notifications.removeAt(index),
+                                      );
                                   } catch (_) {
                                     setCardState(() => acting = false);
                                   }
                                 },
                                 icon: const Icon(Icons.check_rounded, size: 16),
-                                label: Text('स्वीकार (Approve)', style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 13)),
+                                label: Text(
+                                  'स्वीकार (Approve)',
+                                  style: GoogleFonts.mukta(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF22C55E),
                                   foregroundColor: Colors.white,
                                   elevation: 0,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                 ),
                               ),
                             ),
@@ -613,7 +772,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   /// Booking Approved card — shown to the guest
-  Widget _buildBookingApprovedCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
+  Widget _buildBookingApprovedCard(
+    Map<String, dynamic> note,
+    String id,
+    int index,
+    dynamic sender,
+  ) {
     final String bookingId = note['booking_id']?.toString() ?? '';
     final String title = note['title'] ?? 'Booking Approved';
     final String message = note['message'] ?? '';
@@ -639,7 +803,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: AppTheme.brandColor.withOpacity(0.06),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
             ),
             child: Row(
               children: [
@@ -649,7 +815,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     color: AppTheme.brandColor.withOpacity(0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.check_circle_rounded, color: AppTheme.brandColor, size: 20),
+                  child: const Icon(
+                    Icons.check_circle_rounded,
+                    color: AppTheme.brandColor,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -658,11 +828,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.black),
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13,
+                          color: Colors.black,
+                        ),
                       ),
                       Text(
                         _formatTime(note['created_at']),
-                        style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[400]),
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: Colors.grey[400],
+                        ),
                       ),
                     ],
                   ),
@@ -675,7 +852,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             padding: const EdgeInsets.all(16),
             child: Text(
               message,
-              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[700], height: 1.5),
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: Colors.grey[700],
+                height: 1.5,
+              ),
             ),
           ),
           // Action button
@@ -687,13 +868,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 onPressed: () async {
                   if (bookingId.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Error: Booking ID missing')),
+                      const SnackBar(
+                        content: Text('Error: Booking ID missing'),
+                      ),
                     );
                     return;
                   }
-                  
-                  
-                  
+
                   final booking = await SupabaseService.getVisitById(bookingId);
                   if (booking != null && mounted) {
                     Navigator.push(
@@ -701,19 +882,28 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       MaterialPageRoute(
                         builder: (context) => PaymentChoiceScreen(
                           booking: booking,
-                          propertyTitle: booking.propertyTitle ?? 'Your Property',
+                          propertyTitle:
+                              booking.propertyTitle ?? 'Your Property',
                         ),
                       ),
                     );
                   }
                 },
                 icon: const Icon(Icons.payment_rounded, size: 18),
-                label: Text('अहिले भुक्तानी गर्नुहोस् (Pay Now)', style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 15)),
+                label: Text(
+                  'अहिले भुक्तानी गर्नुहोस् (Pay Now)',
+                  style: GoogleFonts.mukta(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.brandColor,
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
@@ -1008,10 +1198,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   /// Payment received notification card
-  Widget _buildPaymentReceivedCard(Map<String, dynamic> note, String id, int index, dynamic sender) {
+  Widget _buildPaymentReceivedCard(
+    Map<String, dynamic> note,
+    String id,
+    int index,
+    dynamic sender,
+  ) {
     final String propertyId = note['property_id']?.toString() ?? '';
     final String message = note['message']?.toString() ?? '';
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -1032,7 +1227,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.green.withOpacity(0.06),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
             ),
             child: Row(
               children: [
@@ -1042,7 +1239,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     color: Colors.green.withOpacity(0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.payments_rounded, color: Colors.green, size: 20),
+                  child: const Icon(
+                    Icons.payments_rounded,
+                    color: Colors.green,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1051,11 +1252,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       Text(
                         note['title'] ?? 'Payment Notification',
-                        style: GoogleFonts.mukta(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.black),
+                        style: GoogleFonts.mukta(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
                       ),
                       Text(
                         _formatTime(note['created_at']),
-                        style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[400]),
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: Colors.grey[400],
+                        ),
                       ),
                     ],
                   ),
@@ -1070,7 +1278,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               children: [
                 Text(
                   message,
-                  style: GoogleFonts.mukta(fontSize: 14, color: Colors.grey[800], height: 1.4),
+                  style: GoogleFonts.mukta(
+                    fontSize: 14,
+                    color: Colors.grey[800],
+                    height: 1.4,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
@@ -1080,13 +1292,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       // Fetch latest booking for this property
                       if (propertyId.isNotEmpty) {
                         final bookings = await SupabaseService.getMyVisits();
-                        final filtered = bookings.where((b) => b.propertyId == propertyId).toList();
-                        
+                        final filtered = bookings
+                            .where((b) => b.propertyId == propertyId)
+                            .toList();
+
                         if (filtered.isNotEmpty && mounted) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => BookingStatusScreen(booking: filtered.first),
+                              builder: (context) =>
+                                  BookingStatusScreen(booking: filtered.first),
                             ),
                           );
                         } else {
@@ -1094,7 +1309,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           if (mounted) {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const OwnerBookingsScreen()),
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const OwnerBookingsScreen(),
+                              ),
                             );
                           }
                         }
@@ -1104,7 +1322,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       elevation: 0,
                     ),
                     child: Text(

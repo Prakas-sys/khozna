@@ -5,7 +5,7 @@ void main() async {
   try {
     final response = await supabase.from('messages').select().limit(1);
     print(response);
-  } catch(e) {
+  } catch (e) {
     print('Error: $e');
   }
 }

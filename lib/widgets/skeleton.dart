@@ -16,7 +16,8 @@ class Skeleton extends StatefulWidget {
   State<Skeleton> createState() => _SkeletonState();
 }
 
-class _SkeletonState extends State<Skeleton> with SingleTickerProviderStateMixin {
+class _SkeletonState extends State<Skeleton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -48,9 +49,11 @@ class _SkeletonState extends State<Skeleton> with SingleTickerProviderStateMixin
           width: widget.width,
           height: widget.height,
           decoration: BoxDecoration(
-            borderRadius: widget.borderRadius is BorderRadius 
-                ? widget.borderRadius as BorderRadius 
-                : BorderRadius.circular((widget.borderRadius as num).toDouble()),
+            borderRadius: widget.borderRadius is BorderRadius
+                ? widget.borderRadius as BorderRadius
+                : BorderRadius.circular(
+                    (widget.borderRadius as num).toDouble(),
+                  ),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,

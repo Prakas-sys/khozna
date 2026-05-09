@@ -32,12 +32,14 @@ class KhoznaImage extends StatelessWidget {
         height: height ?? double.infinity,
         borderRadius: borderRadius ?? BorderRadius.zero,
       ),
-      errorWidget: (context, url, error) => errorWidget ?? Container(
-        width: width,
-        height: height,
-        color: Colors.grey[100],
-        child: const Icon(Icons.error_outline, color: Colors.grey),
-      ),
+      errorWidget: (context, url, error) =>
+          errorWidget ??
+          Container(
+            width: width,
+            height: height,
+            color: Colors.grey[100],
+            child: const Icon(Icons.error_outline, color: Colors.grey),
+          ),
       // Optimization: Cache key based on URL and optional sizing
       cacheKey: imageUrl,
       // Memory optimization: Downsample if we know the size
@@ -46,10 +48,7 @@ class KhoznaImage extends StatelessWidget {
     );
 
     if (borderRadius != null) {
-      return ClipRRect(
-        borderRadius: borderRadius!,
-        child: imageWidget,
-      );
+      return ClipRRect(borderRadius: borderRadius!, child: imageWidget);
     }
 
     return imageWidget;

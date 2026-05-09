@@ -29,7 +29,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(true); // 🔐 Screen Shield: blocks screenshots on register
+    SecurityUtils.setSecure(
+      true,
+    ); // 🔐 Screen Shield: blocks screenshots on register
   }
 
   @override
@@ -300,12 +302,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       width: double.infinity,
                       height: 60,
                       child: ElevatedButton(
-                        onPressed: _isLoading 
-                          ? null 
-                          : () {
-                              HapticFeedback.mediumImpact();
-                              _handleRegister();
-                            },
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                HapticFeedback.mediumImpact();
+                                _handleRegister();
+                              },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.brandColor,
                           foregroundColor: Colors.white,
@@ -389,10 +391,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(50),
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.2),
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.2), width: 1.5),
       ),
       child: Row(
         children: [

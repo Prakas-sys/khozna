@@ -46,14 +46,16 @@ class PostPropertyIntroScreen extends StatelessWidget {
                     _buildStep(
                       stepNumber: '1',
                       title: 'Basic Details',
-                      subtitle: 'Tell us where it is and what type of property you have.',
+                      subtitle:
+                          'Tell us where it is and what type of property you have.',
                       icon: Icons.maps_home_work_outlined,
                     ),
                     const Divider(color: Color(0xFFF3F4F6), height: 1),
                     _buildStep(
                       stepNumber: '2',
                       title: 'Property Features',
-                      subtitle: 'Share how many beds, baths, and the area size.',
+                      subtitle:
+                          'Share how many beds, baths, and the area size.',
                       icon: Icons.bed_outlined,
                     ),
                     const Divider(color: Color(0xFFF3F4F6), height: 1),
@@ -74,7 +76,8 @@ class PostPropertyIntroScreen extends StatelessWidget {
                     _buildStep(
                       stepNumber: '5',
                       title: 'AI Description',
-                      subtitle: 'Our AI will craft a perfect title and description.',
+                      subtitle:
+                          'Our AI will craft a perfect title and description.',
                       icon: Icons.auto_awesome_outlined,
                     ),
                     const Divider(color: Color(0xFFF3F4F6), height: 1),
@@ -96,7 +99,9 @@ class PostPropertyIntroScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1)),
+                border: Border(
+                  top: BorderSide(color: Colors.grey.shade100, width: 1),
+                ),
               ),
               child: ElevatedButton(
                 onPressed: () {

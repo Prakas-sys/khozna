@@ -40,7 +40,9 @@ class UserModel {
       khaltiNumber: map['khalti_number'],
       accountHolderName: map['account_holder_name'],
       qrCodeUrl: map['qr_code_url'],
-      createdAt: DateTime.parse(map['created_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        map['created_at'] ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
 }

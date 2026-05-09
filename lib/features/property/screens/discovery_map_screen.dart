@@ -31,7 +31,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
     super.initState();
     if (widget.initialCenter != null) {
       _initialPosition = widget.initialCenter!;
-      _isLoading = false; 
+      _isLoading = false;
     }
     _loadUserLocationAndProperties();
   }
@@ -41,7 +41,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      
+
       if (mounted) {
         setState(() {
           _userLocation = LatLng(position.latitude, position.longitude);
@@ -64,7 +64,9 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
         _markers = _properties
             .where((p) => p.latitude != null && p.longitude != null)
             .map((p) {
-              final price = p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0);
+              final price = p.priceNight > 0
+                  ? p.priceNight
+                  : (double.tryParse(p.price) ?? 0);
               final priceLabel = price > 999
                   ? 'Rs. ${(price / 1000).toStringAsFixed(0)}K'
                   : 'Rs. ${price.toInt()}';
@@ -76,7 +78,10 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _navigateToDetails(p),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -130,7 +135,11 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
           child: CircleAvatar(
             backgroundColor: Colors.white,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 18),
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.black,
+                size: 18,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -170,7 +179,8 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=xmsI10GyMKz5IT0XAIhv',
+                urlTemplate:
+                    'https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=xmsI10GyMKz5IT0XAIhv',
                 userAgentPackageName: 'com.khozna.khozna',
                 retinaMode: true,
               ),
@@ -194,7 +204,11 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white, width: 3),
                             boxShadow: [
-                              BoxShadow(color: Colors.blue.withOpacity(0.4), blurRadius: 12, spreadRadius: 4),
+                              BoxShadow(
+                                color: Colors.blue.withOpacity(0.4),
+                                blurRadius: 12,
+                                spreadRadius: 4,
+                              ),
                             ],
                           ),
                         ),
@@ -206,14 +220,21 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                         borderRadius: BorderRadius.circular(20),
                         color: AppTheme.brandColor,
                         boxShadow: [
-                          BoxShadow(color: AppTheme.brandColor.withOpacity(0.3), blurRadius: 10, spreadRadius: 2),
+                          BoxShadow(
+                            color: AppTheme.brandColor.withOpacity(0.3),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          ),
                         ],
                         border: Border.all(color: Colors.white, width: 2),
                       ),
                       child: Center(
                         child: Text(
                           markers.length.toString(),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     );
@@ -226,7 +247,7 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
             const Center(
               child: CircularProgressIndicator(color: AppTheme.brandColor),
             ),
-          
+
           // Bottom Property Carousel
           Positioned(
             bottom: 30,
@@ -242,7 +263,10 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                   final p = _properties[index];
                   return GestureDetector(
                     onTap: () {
-                      final destination = LatLng(p.latitude ?? 0, p.longitude ?? 0);
+                      final destination = LatLng(
+                        p.latitude ?? 0,
+                        p.longitude ?? 0,
+                      );
                       _mapController.move(destination, 15.5);
                     },
                     child: Container(
@@ -297,21 +321,34 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
                                 const SizedBox(height: 8),
                                 ElevatedButton(
                                   onPressed: () {
-                                    if (p.latitude != null && p.longitude != null) {
-                                      MapLauncher.openMap(p.latitude!, p.longitude!, p.title);
+                                    if (p.latitude != null &&
+                                        p.longitude != null) {
+                                      MapLauncher.openMap(
+                                        p.latitude!,
+                                        p.longitude!,
+                                        p.title,
+                                      );
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppTheme.brandColor,
                                     foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 0,
+                                    ),
                                     minimumSize: const Size(0, 32),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
                                     elevation: 0,
                                   ),
                                   child: Text(
                                     'Get Directions',
-                                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold),
+                                    style: GoogleFonts.inter(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ],

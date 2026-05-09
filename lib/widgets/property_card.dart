@@ -72,9 +72,7 @@ class PropertyCard extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => PropertyDetailsScreen(
-                      property: property,
-                    ),
+                    builder: (_) => PropertyDetailsScreen(property: property),
                   ),
                 );
               }
@@ -103,7 +101,8 @@ class PropertyCard extends StatelessWidget {
               Stack(
                 children: [
                   SizedBox(
-                    height: 175, // Reduced from 180 to perfectly fit 285px parent without overflow
+                    height:
+                        175, // Reduced from 180 to perfectly fit 285px parent without overflow
                     width: double.infinity,
                     child: Hero(
                       tag: id,
@@ -126,8 +125,13 @@ class PropertyCard extends StatelessWidget {
                                 // Subtly blurring overlay for the 'Instagram' feel
                                 Positioned.fill(
                                   child: BackdropFilter(
-                                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                                    child: Container(color: Colors.white.withOpacity(0)),
+                                    filter: ImageFilter.blur(
+                                      sigmaX: 5,
+                                      sigmaY: 5,
+                                    ),
+                                    child: Container(
+                                      color: Colors.white.withOpacity(0),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -169,9 +173,14 @@ class PropertyCard extends StatelessWidget {
                           valueListenable: bookedPropertiesStore,
                           builder: (context, bookedIds, _) {
                             final isBooked = status == 'booked';
-                            final isPending = bookedIds.contains(id) || status == 'pending_approval';
-                            
-                            if (!isBooked && !isPending && status != 'available') return const SizedBox.shrink();
+                            final isPending =
+                                bookedIds.contains(id) ||
+                                status == 'pending_approval';
+
+                            if (!isBooked &&
+                                !isPending &&
+                                status != 'available')
+                              return const SizedBox.shrink();
 
                             return Container(
                               padding: const EdgeInsets.symmetric(
@@ -181,7 +190,9 @@ class PropertyCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: isBooked
                                     ? Colors.redAccent
-                                    : (isPending ? Colors.orange : const Color(0xFF00C853)),
+                                    : (isPending
+                                          ? Colors.orange
+                                          : const Color(0xFF00C853)),
                                 borderRadius: BorderRadius.circular(30),
                                 boxShadow: [
                                   BoxShadow(
@@ -192,8 +203,8 @@ class PropertyCard extends StatelessWidget {
                                 ],
                               ),
                               child: Text(
-                                isBooked 
-                                    ? 'BOOKED' 
+                                isBooked
+                                    ? 'BOOKED'
                                     : (isPending ? 'PENDING' : 'FOR RENT'),
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
@@ -258,7 +269,12 @@ class PropertyCard extends StatelessWidget {
               ),
               // --- Content below image ---
               Padding(
-                padding: const EdgeInsets.fromLTRB(14, 6, 14, 7), // Restored to your original 7px bottom padding
+                padding: const EdgeInsets.fromLTRB(
+                  14,
+                  6,
+                  14,
+                  7,
+                ), // Restored to your original 7px bottom padding
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -273,7 +289,8 @@ class PropertyCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16.3,
-                              fontWeight: FontWeight.w800, // Semi-solid / Stronger look
+                              fontWeight:
+                                  FontWeight.w800, // Semi-solid / Stronger look
                               color: const Color(0xFF1A1A2E),
                               letterSpacing: -0.5,
                             ),
@@ -281,21 +298,29 @@ class PropertyCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Transform.translate(
-                          offset: const Offset(0, -0.5), // Subtle shift for price/symbol
+                          offset: const Offset(
+                            0,
+                            -0.5,
+                          ), // Subtle shift for price/symbol
                           child: RichText(
                             text: TextSpan(
                               children: [
                                 TextSpan(
                                   text: '₹',
                                   style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 15, // Slightly smaller for Rs. text
+                                    fontSize:
+                                        15, // Slightly smaller for Rs. text
                                     fontWeight: FontWeight.w700,
                                     color: AppTheme.brandColor,
                                     letterSpacing: 0.3,
                                   ),
                                 ),
                                 TextSpan(
-                                  text: PriceFormatter.format(property.priceNight > 0 ? property.priceNight.toString() : price),
+                                  text: PriceFormatter.format(
+                                    property.priceNight > 0
+                                        ? property.priceNight.toString()
+                                        : price,
+                                  ),
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -304,9 +329,14 @@ class PropertyCard extends StatelessWidget {
                                 ),
                                 WidgetSpan(
                                   child: Transform.translate(
-                                    offset: const Offset(1, -2.0), // Compensated offset (was -2.5) to keep /night steady
+                                    offset: const Offset(
+                                      1,
+                                      -2.0,
+                                    ), // Compensated offset (was -2.5) to keep /night steady
                                     child: Text(
-                                      property.priceNight > 0 ? '/night' : '/mo',
+                                      property.priceNight > 0
+                                          ? '/night'
+                                          : '/mo',
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -321,9 +351,13 @@ class PropertyCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 2), // Reverted to original gap above amenities
+                    const SizedBox(
+                      height: 2,
+                    ), // Reverted to original gap above amenities
                     _buildAmenityItems(),
-                    const SizedBox(height: 7), // Reduced gap slightly to fix 1px overflow
+                    const SizedBox(
+                      height: 7,
+                    ), // Reduced gap slightly to fix 1px overflow
                     // Action Buttons
                     Row(
                       children: [
@@ -363,24 +397,24 @@ class PropertyCard extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                  const Icon(
-                                    Icons.directions_walk_rounded,
-                                    size: 16,
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Visit Now',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 13,
+                                    const Icon(
+                                      Icons.directions_walk_rounded,
+                                      size: 16,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Visit Now',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () async {
@@ -422,29 +456,29 @@ class PropertyCard extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                  SvgPicture.asset(
-                                    'assets/icons/message.svg',
-                                    width: 16,
-                                    height: 16,
-                                    colorFilter: const ColorFilter.mode(
-                                      AppTheme.brandColor,
-                                      BlendMode.srcIn,
+                                    SvgPicture.asset(
+                                      'assets/icons/message.svg',
+                                      width: 16,
+                                      height: 16,
+                                      colorFilter: const ColorFilter.mode(
+                                        AppTheme.brandColor,
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Message',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 13,
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Message',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 13,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ] else ...[
+                        ] else ...[
                           Expanded(
                             child: OutlinedButton.icon(
                               onPressed: onEdit,
@@ -542,7 +576,8 @@ class PropertyCard extends StatelessWidget {
           const Icon(
             Icons.place_outlined,
             color: AppTheme.brandColor,
-            size: 16,          ),
+            size: 16,
+          ),
           const SizedBox(width: 2),
           Flexible(
             child: Text(
@@ -669,6 +704,7 @@ class PropertyCard extends StatelessWidget {
       ],
     );
   }
+
   Widget _buildImagePlaceholder() {
     return Container(
       width: double.infinity,
@@ -678,11 +714,7 @@ class PropertyCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Center(
-        child: Icon(
-          Icons.image_outlined,
-          color: Colors.grey[300],
-          size: 40,
-        ),
+        child: Icon(Icons.image_outlined, color: Colors.grey[300], size: 40),
       ),
     );
   }

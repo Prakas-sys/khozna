@@ -93,10 +93,7 @@ class HelpCenterScreen extends StatelessWidget {
             Center(
               child: Text(
                 'v1.0.0 • Khozna Private Limited',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: Colors.grey[400],
-                ),
+                style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[400]),
               ),
             ),
           ],
@@ -254,7 +251,7 @@ class HelpCenterScreen extends StatelessWidget {
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
                     blurRadius: 10,
-                  )
+                  ),
                 ],
               ),
               child: Icon(icon, color: AppTheme.brandColor, size: 24),
@@ -305,7 +302,7 @@ class HelpCenterScreen extends StatelessWidget {
                   color: Colors.black.withOpacity(0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
-                )
+                ),
               ],
             ),
             child: Icon(icon, color: Colors.black87, size: 24),

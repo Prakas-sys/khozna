@@ -143,8 +143,12 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
         // Sync with Supabase (using our internal profile table)
         await SupabaseService.syncUserWithSupabase(response.user!);
 
-        AppLogger.logAuthAttempt(method: 'OTP Verify', success: true, userId: response.user!.id);
-        
+        AppLogger.logAuthAttempt(
+          method: 'OTP Verify',
+          success: true,
+          userId: response.user!.id,
+        );
+
         if (mounted) {
           // Take user to home screen
           Navigator.pushAndRemoveUntil(
@@ -155,7 +159,11 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
         }
       }
     } catch (e) {
-      AppLogger.logAuthAttempt(method: 'OTP Verify', success: false, error: e.toString());
+      AppLogger.logAuthAttempt(
+        method: 'OTP Verify',
+        success: false,
+        error: e.toString(),
+      );
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

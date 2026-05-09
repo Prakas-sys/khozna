@@ -37,7 +37,9 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     try {
       final response = await Supabase.instance.client
           .from('properties')
-          .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)')
+          .select(
+            '*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)',
+          )
           .eq('owner_id', user!.id)
           .order('status', ascending: true)
           .order('created_at', ascending: false);
@@ -62,11 +64,15 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
           'Delete Property?',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 20, letterSpacing: -0.5),
+          style: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.w800,
+            fontSize: 20,
+            letterSpacing: -0.5,
+          ),
         ),
         content: Text(
           'This will permanently delete your property listing from Khozna. This action cannot be undone.',
-                    style: GoogleFonts.outfit(
+          style: GoogleFonts.outfit(
             fontSize: 14,
             color: Colors.grey[600],
             height: 1.5,
@@ -200,7 +206,10 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                           Expanded(
                             child: Text(
                               'Error loading this listing. Please contact support.',
-                                                            style: GoogleFonts.outfit(color: Colors.red[700], fontSize: 13),
+                              style: GoogleFonts.outfit(
+                                color: Colors.red[700],
+                                fontSize: 13,
+                              ),
                             ),
                           ),
                         ],
@@ -227,7 +236,11 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           horizontal: 24, // Bigger
           vertical: 18,
         ),
-        icon: const Icon(Icons.add, color: Colors.white, size: 24), // Bigger icon
+        icon: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 24,
+        ), // Bigger icon
         label: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,13 +314,17 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           const SizedBox(height: 24),
           Text(
             'No active listings',
-            style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: -0.5),
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             'Your property listings will appear here\nonce you publish them.',
             textAlign: TextAlign.center,
-                        style: GoogleFonts.outfit(color: Colors.grey, height: 1.5),
+            style: GoogleFonts.outfit(color: Colors.grey, height: 1.5),
           ),
         ],
       ),

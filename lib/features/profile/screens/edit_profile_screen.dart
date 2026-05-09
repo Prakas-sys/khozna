@@ -26,7 +26,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _esewaController = TextEditingController();
   final _khaltiController = TextEditingController();
   final _accountNameController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _isLocating = false;
   String? _avatarUrl;
@@ -34,7 +34,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   File? _imageFile;
   File? _qrFile;
   final ImagePicker _picker = ImagePicker();
-  
+
   double? _latitude;
   double? _longitude;
   String _kycStatus = 'not_verified';
@@ -42,7 +42,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(true); // 🔐 Screen Shield: blocks screenshots on profile data
+    SecurityUtils.setSecure(
+      true,
+    ); // 🔐 Screen Shield: blocks screenshots on profile data
     _loadUserData();
   }
 
@@ -65,7 +67,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         // Load Profile
         final profile = await Supabase.instance.client
             .from('profiles')
-            .select('full_name, email, phone_number, avatar_url, esewa_number, khalti_number, account_holder_name, qr_code_url')
+            .select(
+              'full_name, email, phone_number, avatar_url, esewa_number, khalti_number, account_holder_name, qr_code_url',
+            )
             .eq('id', user!.id)
             .maybeSingle();
 
@@ -80,15 +84,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         if (mounted) {
           setState(() {
-            _fullNameController.text = profile?['full_name'] ?? user?.userMetadata?['full_name'] ?? user?.userMetadata?['name'] ?? '';
+            _fullNameController.text =
+                profile?['full_name'] ??
+                user?.userMetadata?['full_name'] ??
+                user?.userMetadata?['name'] ??
+                '';
             _emailController.text = profile?['email'] ?? user?.email ?? '';
-            _phoneController.text = profile?['phone_number'] ?? user?.phone ?? '';
+            _phoneController.text =
+                profile?['phone_number'] ?? user?.phone ?? '';
             _avatarUrl = profile?['avatar_url'];
             _esewaController.text = profile?['esewa_number'] ?? '';
             _khaltiController.text = profile?['khalti_number'] ?? '';
             _accountNameController.text = profile?['account_holder_name'] ?? '';
             _qrCodeUrl = profile?['qr_code_url'];
-            
+
             if (kyc != null) {
               _latitude = kyc['latitude'];
               _longitude = kyc['longitude'];
@@ -111,8 +120,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      
-      if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) {
+
+      if (permission == LocationPermission.deniedForever ||
+          permission == LocationPermission.denied) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Location permission denied.')),
@@ -122,7 +132,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
 
       final Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
 
       // Update in DB (kyc_verifications)
@@ -145,9 +157,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating location: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating location: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLocating = false);
@@ -180,9 +192,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _updateProfile() async {
     if (_fullNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Name cannot be empty')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Name cannot be empty')));
       return;
     }
 
@@ -195,7 +207,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (_imageFile != null) {
           newImageUrl = await CloudinaryService.uploadImage(_imageFile!);
         }
-        
+
         if (_qrFile != null) {
           newQrUrl = await CloudinaryService.uploadImage(_qrFile!);
         }
@@ -203,7 +215,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await Supabase.instance.client.auth.updateUser(
           UserAttributes(
             data: {
-              'full_name': SecurityUtils.sanitizeInput(_fullNameController.text),
+              'full_name': SecurityUtils.sanitizeInput(
+                _fullNameController.text,
+              ),
               'avatar_url': newImageUrl,
             },
           ),
@@ -212,11 +226,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         await Supabase.instance.client
             .from('profiles')
             .update({
-              'full_name': SecurityUtils.sanitizeInput(_fullNameController.text),
+              'full_name': SecurityUtils.sanitizeInput(
+                _fullNameController.text,
+              ),
               'avatar_url': newImageUrl,
-              'esewa_number': SecurityUtils.sanitizeInput(_esewaController.text),
-              'khalti_number': SecurityUtils.sanitizeInput(_khaltiController.text),
-              'account_holder_name': SecurityUtils.sanitizeInput(_accountNameController.text),
+              'esewa_number': SecurityUtils.sanitizeInput(
+                _esewaController.text,
+              ),
+              'khalti_number': SecurityUtils.sanitizeInput(
+                _khaltiController.text,
+              ),
+              'account_holder_name': SecurityUtils.sanitizeInput(
+                _accountNameController.text,
+              ),
               'qr_code_url': newQrUrl,
             })
             .eq('id', user!.id);
@@ -234,9 +256,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -376,14 +398,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: _imageFile != null
                     ? Image.file(_imageFile!, fit: BoxFit.cover)
                     : (_avatarUrl != null && _avatarUrl!.isNotEmpty)
-                        ? KhoznaImage(
-                            imageUrl: _avatarUrl!,
-                            fit: BoxFit.cover,
-                          )
-                        : Container(
-                            color: AppTheme.brandColor.withOpacity(0.1),
-                            child: const Icon(Icons.person_rounded, size: 50, color: AppTheme.brandColor),
-                          ),
+                    ? KhoznaImage(imageUrl: _avatarUrl!, fit: BoxFit.cover)
+                    : Container(
+                        color: AppTheme.brandColor.withOpacity(0.1),
+                        child: const Icon(
+                          Icons.person_rounded,
+                          size: 50,
+                          color: AppTheme.brandColor,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -406,7 +429,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ],
                 ),
-                child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 16),
+                child: const Icon(
+                  Icons.camera_alt_rounded,
+                  color: Colors.white,
+                  size: 16,
+                ),
               ),
             ),
           ),
@@ -441,7 +468,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildInputField(String label, TextEditingController controller, IconData icon, {bool enabled = true, String? subtitle}) {
+  Widget _buildInputField(
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    bool enabled = true,
+    String? subtitle,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
@@ -461,7 +494,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600),
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 TextField(
                   controller: controller,
@@ -479,19 +516,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     focusedBorder: InputBorder.none,
                     disabledBorder: InputBorder.none,
                     hintText: 'Not provided',
-                    hintStyle: GoogleFonts.inter(fontSize: 14, color: Colors.grey[300]),
+                    hintStyle: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: Colors.grey[300],
+                    ),
                   ),
                 ),
                 if (subtitle != null)
                   Text(
                     subtitle,
-                    style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[400]),
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      color: Colors.grey[400],
+                    ),
                   ),
               ],
             ),
           ),
           if (!enabled)
-            const Icon(Icons.lock_outline_rounded, size: 14, color: Colors.grey),
+            const Icon(
+              Icons.lock_outline_rounded,
+              size: 14,
+              color: Colors.grey,
+            ),
         ],
       ),
     );
@@ -515,11 +562,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isVerified ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+                  color: isVerified
+                      ? Colors.green.withOpacity(0.1)
+                      : Colors.orange.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isVerified ? Icons.verified_user_rounded : Icons.location_on_outlined,
+                  isVerified
+                      ? Icons.verified_user_rounded
+                      : Icons.location_on_outlined,
                   color: isVerified ? Colors.green : Colors.orange,
                   size: 24,
                 ),
@@ -530,28 +581,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isVerified ? 'Verified GPS Location' : 'Current GPS Status',
-                      style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 15),
+                      isVerified
+                          ? 'Verified GPS Location'
+                          : 'Current GPS Status',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                      ),
                     ),
                     Text(
-                      hasLocation 
+                      hasLocation
                           ? '${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}'
                           : 'Location not set yet',
-                      style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600]),
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                      ),
                     ),
                   ],
                 ),
               ),
               if (isVerified)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     'SECURE',
-                    style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.green),
+                    style: GoogleFonts.inter(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.green,
+                    ),
                   ),
                 ),
             ],
@@ -561,18 +627,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: _isLocating ? null : _updateLocation,
-              icon: _isLocating 
-                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+              icon: _isLocating
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Icon(Icons.refresh_rounded, size: 18),
               label: Text(
-                hasLocation ? 'Update Current Location' : 'Link Current Location',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 13),
+                hasLocation
+                    ? 'Update Current Location'
+                    : 'Link Current Location',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                ),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.brandColor,
                 side: BorderSide(color: AppTheme.brandColor.withOpacity(0.3)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ),
@@ -581,7 +658,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               padding: const EdgeInsets.only(top: 12),
               child: Text(
                 'Complete KYC to verify your permanent address.',
-                style: GoogleFonts.inter(fontSize: 11, color: Colors.orange[700], fontWeight: FontWeight.w500),
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: Colors.orange[700],
+                  fontWeight: FontWeight.w500,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -600,7 +681,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           backgroundColor: AppTheme.brandColor,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
           shadowColor: AppTheme.brandColor.withOpacity(0.5),
         ),
         child: _isLoading
@@ -628,7 +711,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               color: Colors.purple.withOpacity(0.08),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.purple, size: 20),
+            child: const Icon(
+              Icons.qr_code_scanner_rounded,
+              color: Colors.purple,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -637,24 +724,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               children: [
                 Text(
                   'eSewa QR Code',
-                  style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600),
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                if (_qrFile != null || (_qrCodeUrl != null && _qrCodeUrl!.isNotEmpty))
+                if (_qrFile != null ||
+                    (_qrCodeUrl != null && _qrCodeUrl!.isNotEmpty))
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: SizedBox(
                       width: 100,
                       height: 100,
-                      child: _qrFile != null 
-                        ? Image.file(_qrFile!, fit: BoxFit.cover)
-                        : KhoznaImage(imageUrl: _qrCodeUrl!, fit: BoxFit.cover),
+                      child: _qrFile != null
+                          ? Image.file(_qrFile!, fit: BoxFit.cover)
+                          : KhoznaImage(
+                              imageUrl: _qrCodeUrl!,
+                              fit: BoxFit.cover,
+                            ),
                     ),
                   )
                 else
                   Text(
                     'No QR code uploaded',
-                    style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[300]),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: Colors.grey[300],
+                    ),
                   ),
               ],
             ),
@@ -663,7 +761,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             onPressed: _pickQrCode,
             child: Text(
               _qrFile != null || _qrCodeUrl != null ? 'Change' : 'Upload',
-              style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13, color: AppTheme.brandColor),
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                color: AppTheme.brandColor,
+              ),
             ),
           ),
         ],
@@ -671,4 +773,3 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 }
-

@@ -19,24 +19,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _deleteAccount() async {
     setState(() => _isDeleting = true);
-    
+
     try {
       // Call the Edge Function
       await Supabase.instance.client.functions.invoke('delete-account');
-      
+
       // Sign out locally
       await Supabase.instance.client.auth.signOut();
-      
+
       if (mounted) {
         // Clear navigation stack and go to LoginScreen
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const LoginScreen()),
           (route) => false,
         );
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Account permanently deleted. We are sorry to see you go.'),
+            content: Text(
+              'Account permanently deleted. We are sorry to see you go.',
+            ),
             backgroundColor: Colors.black,
           ),
         );
@@ -65,12 +67,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Delete Account?',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w800, color: Colors.redAccent, fontSize: 18),
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w800,
+            color: Colors.redAccent,
+            fontSize: 18,
+          ),
           textAlign: TextAlign.center,
         ),
         content: Text(
           'This will permanently delete your profile, properties, messages, and all other data. This action cannot be undone.',
-          style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w400),
+          style: GoogleFonts.inter(
+            color: Colors.grey[700],
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
           textAlign: TextAlign.center,
         ),
         actionsAlignment: MainAxisAlignment.center,
@@ -87,22 +97,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                    ),
                   ),
                   onPressed: () {
                     Navigator.pop(context);
                     _showFinalConfirmation();
                   },
-                  child: Text('Continue to Delete', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 15)),
+                  child: Text(
+                    'Continue to Delete',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.bold, fontSize: 15)),
+                  child: Text(
+                    'Cancel',
+                    style: GoogleFonts.inter(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -121,12 +148,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           'Last Warning',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w800, color: Colors.redAccent, fontSize: 18),
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w800,
+            color: Colors.redAccent,
+            fontSize: 18,
+          ),
           textAlign: TextAlign.center,
         ),
         content: Text(
           'Are you 100% sure?\nAll your listed properties and earnings history will be lost forever.',
-          style: GoogleFonts.inter(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w400),
+          style: GoogleFonts.inter(
+            color: Colors.grey[700],
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+          ),
           textAlign: TextAlign.center,
         ),
         actionsAlignment: MainAxisAlignment.center,
@@ -143,22 +178,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                    ),
                   ),
                   onPressed: () {
                     Navigator.pop(context);
                     _deleteAccount();
                   },
-                  child: Text('Yes, Delete Everything', style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 15)),
+                  child: Text(
+                    'Yes, Delete Everything',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: Text('Wait, keep my account', style: GoogleFonts.inter(color: Colors.grey[600], fontWeight: FontWeight.bold, fontSize: 15)),
+                  child: Text(
+                    'Wait, keep my account',
+                    style: GoogleFonts.inter(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -175,7 +227,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: Text(
           'Settings',
-          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 18, letterSpacing: -0.5),
+          style: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.w800,
+            fontSize: 18,
+            letterSpacing: -0.5,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -228,12 +284,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             subtitle: Text(
               'This action cannot be undone.',
-              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.grey[600]),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: Colors.grey[600],
+              ),
             ),
             onTap: _isDeleting ? null : _showDeleteConfirmation,
-            trailing: _isDeleting 
-              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.red))
-              : null,
+            trailing: _isDeleting
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.red,
+                    ),
+                  )
+                : null,
           ),
 
           const SizedBox(height: 40),
@@ -271,10 +338,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15)),
+      title: Text(
+        title,
+        style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
+      ),
       subtitle: Text(
         desc,
-        style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w400),
+        style: GoogleFonts.inter(
+          fontSize: 12,
+          color: Colors.grey[500],
+          fontWeight: FontWeight.w400,
+        ),
       ),
       trailing: Switch(
         value: value,
@@ -350,7 +424,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         child: Icon(icon, color: Colors.black, size: 20),
       ),
-      title: Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15)),
+      title: Text(
+        title,
+        style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
+      ),
       trailing: const Icon(
         Icons.arrow_forward_ios,
         size: 14,

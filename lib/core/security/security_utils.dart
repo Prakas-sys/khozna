@@ -33,7 +33,7 @@ class SecurityUtils {
       if (isRooted) return SecurityStatus.rooted;
       if (!isRealDevice) return SecurityStatus.emulator;
       if (isMockLocation) return SecurityStatus.mockLocation;
-      
+
       return SecurityStatus.safe;
     } catch (_) {
       // Fail open in case of detection errors to avoid blocking real users

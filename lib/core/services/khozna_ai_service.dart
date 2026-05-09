@@ -90,16 +90,23 @@ class KhoznaAiService {
 
   /// 2. AI Scam Detector
   Future<String> detectScam(String title, String price, String area) async {
-    String prompt = "Title: $title, Price: $price. Scam check for Nepal. Tell me if it looks suspicious.";
-    return _getAiResponse(prompt, systemPrompt: "Security expert. Answer ONLY in Nepali followed by English in parentheses. NO HINDI.");
+    String prompt =
+        "Title: $title, Price: $price. Scam check for Nepal. Tell me if it looks suspicious.";
+    return _getAiResponse(
+      prompt,
+      systemPrompt:
+          "Security expert. Answer ONLY in Nepali followed by English in parentheses. NO HINDI.",
+    );
   }
 
   /// 3. AI Price Estimator
   Future<String> estimatePrice(String location, int rooms, String type) async {
-    String prompt = "$rooms room $type in $location, Nepal. Estimate a fair monthly rent in NPR. Be concise.";
+    String prompt =
+        "$rooms room $type in $location, Nepal. Estimate a fair monthly rent in NPR. Be concise.";
     return _getAiResponse(
       prompt,
-      systemPrompt: "You are a real estate valuation expert in Nepal. Answer ONLY in Nepali followed by English in parentheses. ABSOLUTELY NO HINDI. Use 'कोठा' (Kotha), never use 'कमरा' (Kamara).",
+      systemPrompt:
+          "You are a real estate valuation expert in Nepal. Answer ONLY in Nepali followed by English in parentheses. ABSOLUTELY NO HINDI. Use 'कोठा' (Kotha), never use 'कमरा' (Kamara).",
     );
   }
 
@@ -111,15 +118,20 @@ class KhoznaAiService {
     try {
       // We try to find properties matching words in the message
       // and also include some general available properties
-      final List<String> keywords = message.split(' ').where((w) => w.length > 2).toList();
-      
+      final List<String> keywords = message
+          .split(' ')
+          .where((w) => w.length > 2)
+          .toList();
+
       var query = Supabase.instance.client
           .from('properties')
           .select('title, category, area_name, price, bedrooms')
           .eq('status', 'available');
 
       if (keywords.isNotEmpty) {
-        String filter = keywords.map((k) => "area_name.ilike.%$k%,title.ilike.%$k%").join(',');
+        String filter = keywords
+            .map((k) => "area_name.ilike.%$k%,title.ilike.%$k%")
+            .join(',');
         query = query.or(filter);
       }
 
@@ -127,9 +139,11 @@ class KhoznaAiService {
 
       if ((response as List).isNotEmpty) {
         foundProperties = response;
-        liveContext = "Here is the CURRENT LIVE INVENTORY on Khozna relevant to the query. Use this exact data to answer the user:\n";
+        liveContext =
+            "Here is the CURRENT LIVE INVENTORY on Khozna relevant to the query. Use this exact data to answer the user:\n";
         for (var p in response) {
-          liveContext += "- ${p['category']} in ${p['area_name']} for ₹ ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
+          liveContext +=
+              "- ${p['category']} in ${p['area_name']} for ₹ ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
         }
       } else {
         // Fallback: fetch most recent available if no keyword match
@@ -139,19 +153,22 @@ class KhoznaAiService {
             .eq('status', 'available')
             .order('created_at', ascending: false)
             .limit(5);
-        
+
         if ((fallback as List).isNotEmpty) {
-           liveContext = "No direct match found for the specific query, but here are some overall available properties on Khozna:\n";
-           for (var p in fallback) {
-             liveContext += "- ${p['category']} in ${p['area_name']} for ₹ ${p['price']}/mo. Title: ${p['title']}\n";
-           }
+          liveContext =
+              "No direct match found for the specific query, but here are some overall available properties on Khozna:\n";
+          for (var p in fallback) {
+            liveContext +=
+                "- ${p['category']} in ${p['area_name']} for ₹ ${p['price']}/mo. Title: ${p['title']}\n";
+          }
         }
       }
     } catch (e) {
       print('Error fetching AI context: $e');
     }
 
-    final String systemPrompt = """
+    final String systemPrompt =
+        """
 You are Khozna AI — the official assistant for Khozna, Nepal's premier property rental platform.
 
 CRITICAL LANGUAGE RULE: 
@@ -173,10 +190,7 @@ BEHAVIOR RULES:
 5. Format: Nepali sentence followed by English in parentheses.
 """;
     final aiText = await _getAiResponse(message, systemPrompt: systemPrompt);
-    return {
-      'text': aiText,
-      'properties': foundProperties,
-    };
+    return {'text': aiText, 'properties': foundProperties};
   }
 
   /// 5. AI Description Generator
@@ -245,7 +259,10 @@ BEHAVIOR RULES:
     );
   }
 
-  Future<Map<String, String>> autoDetectLocationArea(double lat, double lng) async {
+  Future<Map<String, String>> autoDetectLocationArea(
+    double lat,
+    double lng,
+  ) async {
     try {
       String micro = '';
       String city = '';
@@ -253,7 +270,10 @@ BEHAVIOR RULES:
 
       // 1. Google Native Geocoding
       try {
-        List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(lat, lng);
+        List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
+          lat,
+          lng,
+        );
         if (placemarks.isNotEmpty) {
           geo.Placemark place = placemarks.first;
           road = place.street ?? place.thoroughfare ?? '';
@@ -262,11 +282,11 @@ BEHAVIOR RULES:
           city = place.locality ?? place.subAdministrativeArea ?? 'Nepal';
 
           if (road.isNotEmpty && !road.contains('+') && road.length > 3) {
-             micro = road;
+            micro = road;
           } else if (name.isNotEmpty && !name.contains('+')) {
-             micro = name;
+            micro = name;
           } else {
-             micro = subLocality;
+            micro = subLocality;
           }
           micro = micro.replaceAll('Road', '').replaceAll('Street', '').trim();
           if (micro.endsWith(',')) micro = micro.substring(0, micro.length - 1);
@@ -275,13 +295,21 @@ BEHAVIOR RULES:
 
       // 2. OSM Fallback if Google misses deep micro Area
       if (micro.isEmpty || micro.toLowerCase() == city.toLowerCase()) {
-        final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng&zoom=18&addressdetails=1');
-        final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0'});
+        final url = Uri.parse(
+          'https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lng&zoom=18&addressdetails=1',
+        );
+        final response = await http.get(
+          url,
+          headers: {'User-Agent': 'KhoznaApp/1.0'},
+        );
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           final displayName = data['display_name']?.toString() ?? '';
           if (displayName.isNotEmpty) {
-            List<String> parts = displayName.split(',').map((e) => e.trim()).toList();
+            List<String> parts = displayName
+                .split(',')
+                .map((e) => e.trim())
+                .toList();
             if (parts.isNotEmpty) {
               micro = parts[0];
               if (parts.length > 1 && city.isEmpty) city = parts[1];
@@ -295,7 +323,8 @@ BEHAVIOR RULES:
         // Skip Plus Codes like "H9Q2+X4"
         if (input.contains('+') && input.length < 12) return '';
         // Skip purely numeric codes/house numbers (like "42" or "101")
-        if (RegExp(r'^\d*[a-zA-Z]?$').hasMatch(input.replaceAll(' ', ''))) return '';
+        if (RegExp(r'^\d*[a-zA-Z]?$').hasMatch(input.replaceAll(' ', '')))
+          return '';
         return input;
       }
 
@@ -304,11 +333,13 @@ BEHAVIOR RULES:
       city = cleanText(city);
       road = cleanText(road);
 
-      if (micro.isNotEmpty && city.isNotEmpty && micro.toLowerCase() != city.toLowerCase()) {
+      if (micro.isNotEmpty &&
+          city.isNotEmpty &&
+          micro.toLowerCase() != city.toLowerCase()) {
         if (micro.toLowerCase().contains(city.toLowerCase())) {
-           area = micro;
+          area = micro;
         } else {
-           area = '$micro, $city';
+          area = '$micro, $city';
         }
       } else if (city.isNotEmpty) {
         area = city;
@@ -319,17 +350,15 @@ BEHAVIOR RULES:
       String landmark = '';
       if (road.isNotEmpty && road != micro && cleanText(road).isNotEmpty) {
         landmark = 'Near ${cleanText(road)}';
-      } else if (micro.isNotEmpty && micro.toLowerCase() != city.toLowerCase()) {
+      } else if (micro.isNotEmpty &&
+          micro.toLowerCase() != city.toLowerCase()) {
         // If there's no road, the 'micro' location (often a shop, school, or neighborhood)
         // should become the specific landmark, and we keep the broader city as the area!
         landmark = 'Near $micro';
         area = city.isNotEmpty ? city : area;
       }
 
-      return {
-        'area': area,
-        'landmark': landmark,
-      };
+      return {'area': area, 'landmark': landmark};
     } catch (e) {
       print('Auto-detect location error: $e');
       return {'area': '', 'landmark': ''};
@@ -378,13 +407,15 @@ BEHAVIOR RULES:
       return [];
     }
   }
+
   /// 8. AI Location Refinement (Fixes incorrect/broad map names)
   Future<String> refineLocationWithAI({
     required double lat,
     required double lng,
     required String rawAddress,
   }) async {
-    final String prompt = """
+    final String prompt =
+        """
     Coordinates: $lat, $lng
     Raw Map Data: $rawAddress
     
@@ -413,11 +444,11 @@ BEHAVIOR RULES:
 
     final response = await _getAiResponse(
       prompt,
-      systemPrompt: "You are a Nepali geography expert. You always prioritize the 'Native Specific' neighborhood name provided in the input over generic city names. You never confuse Khasibazar with Tyanglaphat.",
+      systemPrompt:
+          "You are a Nepali geography expert. You always prioritize the 'Native Specific' neighborhood name provided in the input over generic city names. You never confuse Khasibazar with Tyanglaphat.",
     );
-    
+
     // Clean up any quotes or extra whitespace the AI might return
     return response.replaceAll('"', '').replaceAll("'", "").trim();
   }
 }
-

@@ -27,7 +27,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  final List<Future<List<Property>>> _sectionFutures = List.generate(5, (index) => Future.value(<Property>[]));
+  final List<Future<List<Property>>> _sectionFutures = List.generate(
+    5,
+    (index) => Future.value(<Property>[]),
+  );
   Position? _currentPosition;
   String _currentLocationName = "Kathmandu, Nepal";
   final KhoznaAiService _aiService = KhoznaAiService();
@@ -52,9 +55,15 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> _getCurrentLocation() async {
     try {
       LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-        final position = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high));
+      if (permission == LocationPermission.denied)
+        permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        final position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+          ),
+        );
         if (mounted) {
           setState(() => _currentPosition = position);
           _fetchAreaName(position);
@@ -70,27 +79,57 @@ class HomeScreenState extends State<HomeScreen> {
       String micro = '';
       String macro = '';
       String rawDisplayName = '';
-      
+
       geo.Placemark? nativePlace;
       try {
-        List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(position.latitude, position.longitude);
+        List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
         if (placemarks.isNotEmpty) {
           nativePlace = placemarks.first;
-          macro = nativePlace.locality ?? nativePlace.subAdministrativeArea ?? '';
-          micro = (nativePlace.subLocality ?? nativePlace.thoroughfare ?? nativePlace.name ?? '').replaceAll('Road', '').replaceAll('Street', '').trim();
+          macro =
+              nativePlace.locality ?? nativePlace.subAdministrativeArea ?? '';
+          micro =
+              (nativePlace.subLocality ??
+                      nativePlace.thoroughfare ??
+                      nativePlace.name ??
+                      '')
+                  .replaceAll('Road', '')
+                  .replaceAll('Street', '')
+                  .trim();
         }
       } catch (_) {}
 
       // Get raw data from Nominatim for additional context
-      final url = Uri.parse('https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1');
-      final response = await http.get(url, headers: {'User-Agent': 'KhoznaApp/1.0'});
+      final url = Uri.parse(
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1',
+      );
+      final response = await http.get(
+        url,
+        headers: {'User-Agent': 'KhoznaApp/1.0'},
+      );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         rawDisplayName = data['display_name'] ?? '';
         final address = data['address'];
         if (address != null && (micro.isEmpty || macro.isEmpty)) {
-          final osmMicro = address['suburb'] ?? address['neighbourhood'] ?? address['hamlet'] ?? address['quarter'] ?? address['village'] ?? address['residential'] ?? address['road'] ?? '';
-          final osmMacro = address['city'] ?? address['town'] ?? address['municipality'] ?? address['city_district'] ?? address['county'] ?? '';
+          final osmMicro =
+              address['suburb'] ??
+              address['neighbourhood'] ??
+              address['hamlet'] ??
+              address['quarter'] ??
+              address['village'] ??
+              address['residential'] ??
+              address['road'] ??
+              '';
+          final osmMacro =
+              address['city'] ??
+              address['town'] ??
+              address['municipality'] ??
+              address['city_district'] ??
+              address['county'] ??
+              '';
           if (micro.isEmpty) micro = osmMicro;
           if (macro.isEmpty) macro = osmMacro;
         }
@@ -99,14 +138,17 @@ class HomeScreenState extends State<HomeScreen> {
       // If we have a very specific native subLocality, we use it as a "Strong Lead" for the AI
       String area = '';
       try {
-        debugPrint("Location Debug - Lat: ${position.latitude}, Lng: ${position.longitude}");
+        debugPrint(
+          "Location Debug - Lat: ${position.latitude}, Lng: ${position.longitude}",
+        );
         final aiPolished = await _aiService.refineLocationWithAI(
           lat: position.latitude,
           lng: position.longitude,
-          rawAddress: "Native Specific: $micro, Native City: $macro, Full OSM: $rawDisplayName",
+          rawAddress:
+              "Native Specific: $micro, Native City: $macro, Full OSM: $rawDisplayName",
         );
         debugPrint("AI Location Response: $aiPolished");
-        
+
         if (aiPolished.isNotEmpty && aiPolished.contains(',')) {
           area = aiPolished;
         }
@@ -116,14 +158,20 @@ class HomeScreenState extends State<HomeScreen> {
 
       // Fallback/Cleanup
       if (area.isEmpty) {
-        String clean(String s) => s.replaceAll('Municipality', '').replaceAll('Nagarpalika', '').replaceAll('Mahanagarpalika', '').trim();
+        String clean(String s) => s
+            .replaceAll('Municipality', '')
+            .replaceAll('Nagarpalika', '')
+            .replaceAll('Mahanagarpalika', '')
+            .trim();
         micro = clean(micro);
         macro = clean(macro);
         bool isPlusCode(String s) => s.contains('+') && s.length <= 12;
         if (isPlusCode(micro)) micro = '';
         if (isPlusCode(macro)) macro = '';
 
-        if (micro.isNotEmpty && macro.isNotEmpty && micro.toLowerCase() != macro.toLowerCase()) {
+        if (micro.isNotEmpty &&
+            macro.isNotEmpty &&
+            micro.toLowerCase() != macro.toLowerCase()) {
           area = '$micro, $macro';
         } else if (macro.isNotEmpty) {
           area = macro;
@@ -137,7 +185,8 @@ class HomeScreenState extends State<HomeScreen> {
       // Final redundancy check: If "Kirtipur, Kirtipur", just show "Kirtipur"
       if (area.contains(',')) {
         List<String> parts = area.split(',').map((e) => e.trim()).toList();
-        if (parts.length >= 2 && parts[0].toLowerCase() == parts[1].toLowerCase()) {
+        if (parts.length >= 2 &&
+            parts[0].toLowerCase() == parts[1].toLowerCase()) {
           area = parts[0];
         }
       }
@@ -146,8 +195,10 @@ class HomeScreenState extends State<HomeScreen> {
       // If the coordinates are clearly in Kirtipur but the API/AI says "Sanga", force it to Khasibazar.
       final lat = position.latitude;
       final lng = position.longitude;
-      bool isInKirtipur = lat > 27.65 && lat < 27.70 && lng > 85.25 && lng < 85.30;
-      if (isInKirtipur && (area.toLowerCase().contains('sanga') || area.contains('सा:गा'))) {
+      bool isInKirtipur =
+          lat > 27.65 && lat < 27.70 && lng > 85.25 && lng < 85.30;
+      if (isInKirtipur &&
+          (area.toLowerCase().contains('sanga') || area.contains('सा:गा'))) {
         area = "Khasibazar, Kirtipur";
       }
 
@@ -179,7 +230,10 @@ class HomeScreenState extends State<HomeScreen> {
             onLocationTap: _handleLocationTap,
             onNotificationTap: () {
               notificationBadgeCount.value = 0;
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+              );
             },
           ),
         ),
@@ -205,23 +259,49 @@ class HomeScreenState extends State<HomeScreen> {
                 const HomeHeroSection(),
                 const SizedBox(height: 24),
                 HomeSearchBar(
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen())),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SearchScreen()),
+                  ),
                   onVoiceResult: (text) {
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => SearchScreen(initialQuery: text)));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SearchScreen(initialQuery: text),
+                      ),
+                    );
                   },
                 ),
                 const SizedBox(height: 32),
                 _buildSection(0, 'Near You', 'Properties in your current area'),
                 const SizedBox(height: 18),
-                _buildSection(1, 'Special Deals', 'Exclusive offers & negotiable prices'),
+                _buildSection(
+                  1,
+                  'Special Deals',
+                  'Exclusive offers & negotiable prices',
+                ),
                 const SizedBox(height: 18),
-                _buildSection(2, 'Student Specials', 'Budget rooms near colleges'),
+                _buildSection(
+                  2,
+                  'Student Specials',
+                  'Budget rooms near colleges',
+                ),
                 const SizedBox(height: 18),
-                _buildSection(3, 'Family Friendly', 'Spacious homes for everyone'),
+                _buildSection(
+                  3,
+                  'Family Friendly',
+                  'Spacious homes for everyone',
+                ),
                 const SizedBox(height: 18),
-                _buildSection(4, 'Premium Selection', 'Luxurious & Executive stays'),
-                const SizedBox(height: 120), // Added significant extra space so the bottom section isn't cut off by the menu
+                _buildSection(
+                  4,
+                  'Premium Selection',
+                  'Luxurious & Executive stays',
+                ),
+                const SizedBox(
+                  height: 120,
+                ), // Added significant extra space so the bottom section isn't cut off by the menu
               ],
             ),
           ),
@@ -236,7 +316,12 @@ class HomeScreenState extends State<HomeScreen> {
       title: title,
       subtitle: subtitle,
       future: _sectionFutures[index],
-      onViewAll: (t, s) => Navigator.push(context, MaterialPageRoute(builder: (_) => FilterResultsScreen(location: t, priceRange: s))),
+      onViewAll: (t, s) => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FilterResultsScreen(location: t, priceRange: s),
+        ),
+      ),
     );
   }
 

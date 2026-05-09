@@ -25,7 +25,11 @@ class AuthRepository {
         'avatar_url': avatar,
       }, onConflict: 'id');
     } catch (e) {
-      AppLogger.logApiError(endpoint: 'syncUserWithSupabase', error: e.toString(), context: 'Syncing user profile');
+      AppLogger.logApiError(
+        endpoint: 'syncUserWithSupabase',
+        error: e.toString(),
+        context: 'Syncing user profile',
+      );
     }
   }
 
@@ -40,9 +44,17 @@ class AuthRepository {
         idToken: idToken,
         accessToken: accessToken,
       );
-      AppLogger.logAuthAttempt(method: 'Google SignIn Native', success: true, userId: currentUserId);
+      AppLogger.logAuthAttempt(
+        method: 'Google SignIn Native',
+        success: true,
+        userId: currentUserId,
+      );
     } catch (e) {
-      AppLogger.logAuthAttempt(method: 'Google SignIn Native', success: false, error: e.toString());
+      AppLogger.logAuthAttempt(
+        method: 'Google SignIn Native',
+        success: false,
+        error: e.toString(),
+      );
       rethrow;
     }
   }
@@ -54,9 +66,17 @@ class AuthRepository {
         OAuthProvider.google,
         redirectTo: 'com.khozna.khozna://login-callback/',
       );
-      AppLogger.logAuthAttempt(method: 'Google SignIn Web', success: true, userId: currentUserId);
+      AppLogger.logAuthAttempt(
+        method: 'Google SignIn Web',
+        success: true,
+        userId: currentUserId,
+      );
     } catch (e) {
-      AppLogger.logAuthAttempt(method: 'Google SignIn Web', success: false, error: e.toString());
+      AppLogger.logAuthAttempt(
+        method: 'Google SignIn Web',
+        success: false,
+        error: e.toString(),
+      );
       rethrow;
     }
   }

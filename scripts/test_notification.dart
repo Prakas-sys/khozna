@@ -11,11 +11,13 @@ void main() async {
     if (line.startsWith('SUPABASE_URL=')) url = line.split('=')[1];
     if (line.startsWith('SUPABASE_ANON_KEY=')) key = line.split('=')[1];
   }
-  
+
   final supabase = SupabaseClient(url, key);
-  
+
   try {
-    final res = await supabase.from('notifications').select('*, sender:sender_id(full_name, avatar_url)');
+    final res = await supabase
+        .from('notifications')
+        .select('*, sender:sender_id(full_name, avatar_url)');
     print('Fetched: $res');
   } catch (e) {
     print('Error: $e');

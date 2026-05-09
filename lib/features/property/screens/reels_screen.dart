@@ -37,12 +37,14 @@ class _ReelsScreenState extends State<ReelsScreen> {
       debugPrint('ReelsScreen: Starting fetch...');
       final data = await Supabase.instance.client
           .from('properties')
-          .select('id, owner_id, title, area_name, price, images, video_url, category, status, bedrooms, bathrooms, profiles:owner_id(full_name, avatar_url, kyc_status)')
+          .select(
+            'id, owner_id, title, area_name, price, images, video_url, category, status, bedrooms, bathrooms, profiles:owner_id(full_name, avatar_url, kyc_status)',
+          )
           .order('created_at', ascending: false)
           .limit(30);
 
       debugPrint('ReelsScreen: Fetched ${data.length} items');
-      
+
       if (mounted) {
         setState(() {
           reels = (data as List).map((p) => Property.fromMap(p)).toList();
@@ -59,7 +61,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
             .select('*')
             .order('created_at', ascending: false)
             .limit(30);
-        
+
         debugPrint('ReelsScreen fallback: Fetched ${data.length} items');
 
         if (mounted) {
@@ -86,81 +88,97 @@ class _ReelsScreenState extends State<ReelsScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: AppTheme.brandColor))
+          ? const Center(
+              child: CircularProgressIndicator(color: AppTheme.brandColor),
+            )
           : reels.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.video_library_outlined, color: Colors.white38, size: 64),
-                      const SizedBox(height: 16),
-                      Text(
-                        'अहिले कुनै Reel छैन।\n(No reels yet)',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.mukta(color: Colors.white60, fontSize: 16),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.video_library_outlined,
+                    color: Colors.white38,
+                    size: 64,
                   ),
-                )
-              : Stack(
-                  children: [
-                    RefreshIndicator(
-                      onRefresh: _fetchReels,
-                      color: AppTheme.brandColor,
-                      backgroundColor: Colors.white,
-                      child: PageView.builder(
-                        controller: _pageController,
-                        scrollDirection: Axis.vertical,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: reels.length,
-                        itemBuilder: (context, index) {
-                          return _buildReelItem(reels[index]);
-                        },
-                      ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'अहिले कुनै Reel छैन।\n(No reels yet)',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.mukta(
+                      color: Colors.white60,
+                      fontSize: 16,
                     ),
-                    // Top Toggle (Photos/Videos)
-                    Positioned(
-                      top: 10,
-                      left: 0,
-                      right: 0,
-                      child: SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(30),
-                                  border: Border.all(color: Colors.white.withOpacity(0.15)),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _buildSegmentButton(
-                                      title: 'Photos',
-                                      icon: Icons.image_rounded,
-                                      isSelected: isImageView,
-                                      onTap: () => setState(() => isImageView = true),
-                                    ),
-                                    _buildSegmentButton(
-                                      title: 'Videos',
-                                      icon: Icons.play_circle_fill,
-                                      isSelected: !isImageView,
-                                      onTap: () => setState(() => isImageView = false),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
+                ],
+              ),
+            )
+          : Stack(
+              children: [
+                RefreshIndicator(
+                  onRefresh: _fetchReels,
+                  color: AppTheme.brandColor,
+                  backgroundColor: Colors.white,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    scrollDirection: Axis.vertical,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: reels.length,
+                    itemBuilder: (context, index) {
+                      return _buildReelItem(reels[index]);
+                    },
+                  ),
                 ),
+                // Top Toggle (Photos/Videos)
+                Positioned(
+                  top: 10,
+                  left: 0,
+                  right: 0,
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.15),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildSegmentButton(
+                                  title: 'Photos',
+                                  icon: Icons.image_rounded,
+                                  isSelected: isImageView,
+                                  onTap: () =>
+                                      setState(() => isImageView = true),
+                                ),
+                                _buildSegmentButton(
+                                  title: 'Videos',
+                                  icon: Icons.play_circle_fill,
+                                  isSelected: !isImageView,
+                                  onTap: () =>
+                                      setState(() => isImageView = false),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 
@@ -184,7 +202,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 16, color: isSelected ? Colors.black87 : Colors.white70),
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.black87 : Colors.white70,
+            ),
             const SizedBox(width: 6),
             Text(
               title,
@@ -262,7 +284,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         padding: const EdgeInsets.all(2),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppTheme.brandColor, width: 2),
+                          border: Border.all(
+                            color: AppTheme.brandColor,
+                            width: 2,
+                          ),
                         ),
                         child: CircleAvatar(
                           radius: 20,
@@ -286,17 +311,28 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           Row(
                             children: [
                               Text(
-                                property.ownerName.isNotEmpty ? property.ownerName : 'Owner',
+                                property.ownerName.isNotEmpty
+                                    ? property.ownerName
+                                    : 'Owner',
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 14,
-                                  shadows: [const Shadow(color: Colors.black54, blurRadius: 6)],
+                                  shadows: [
+                                    const Shadow(
+                                      color: Colors.black54,
+                                      blurRadius: 6,
+                                    ),
+                                  ],
                                 ),
                               ),
                               if (property.isOwnerVerified) ...[
                                 const SizedBox(width: 4),
-                                const Icon(Icons.verified, color: AppTheme.brandColor, size: 14),
+                                const Icon(
+                                  Icons.verified,
+                                  color: AppTheme.brandColor,
+                                  size: 14,
+                                ),
                               ],
                             ],
                           ),
@@ -315,7 +351,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
                     // Image count badge (Photos mode only)
                     if (isImageView && allImages.length > 1)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(12),
@@ -323,11 +362,19 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.photo_library_rounded, color: Colors.white70, size: 12),
+                            const Icon(
+                              Icons.photo_library_rounded,
+                              color: Colors.white70,
+                              size: 12,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${allImages.length}',
-                              style: GoogleFonts.inter(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.w600),
+                              style: GoogleFonts.inter(
+                                color: Colors.white70,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
@@ -370,14 +417,22 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  const Icon(Icons.location_on, color: AppTheme.brandColor, size: 13),
+                                  const Icon(
+                                    Icons.location_on,
+                                    color: AppTheme.brandColor,
+                                    size: 13,
+                                  ),
                                   const SizedBox(width: 4),
                                   Flexible(
                                     child: Text(
                                       property.location,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.inter(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500),
+                                      style: GoogleFonts.inter(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -398,7 +453,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: PriceFormatter.format(property.priceNight > 0 ? property.priceNight.toString() : property.price),
+                                      text: PriceFormatter.format(
+                                        property.priceNight > 0
+                                            ? property.priceNight.toString()
+                                            : property.price,
+                                      ),
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w800,
@@ -406,11 +465,15 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: property.priceNight > 0 ? ' /night' : ' /mo',
+                                      text: property.priceNight > 0
+                                          ? ' /night'
+                                          : ' /mo',
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
-                                        color: AppTheme.brandColor.withOpacity(0.8),
+                                        color: AppTheme.brandColor.withOpacity(
+                                          0.8,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -427,17 +490,42 @@ class _ReelsScreenState extends State<ReelsScreen> {
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.lightImpact();
-                                Navigator.push(context, MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property)));
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PropertyDetailsScreen(
+                                      property: property,
+                                    ),
+                                  ),
+                                );
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.directions_walk_rounded, color: Colors.black, size: 16),
+                                    const Icon(
+                                      Icons.directions_walk_rounded,
+                                      color: Colors.black,
+                                      size: 16,
+                                    ),
                                     const SizedBox(width: 6),
-                                    Text('VISIT', style: GoogleFonts.plusJakartaSans(color: Colors.black, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
+                                    Text(
+                                      'VISIT',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 10,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -446,18 +534,27 @@ class _ReelsScreenState extends State<ReelsScreen> {
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.mediumImpact();
-                                Navigator.push(context, MaterialPageRoute(
-                                  builder: (_) => chat_page.ChatScreen(
-                                    ownerId: property.ownerId,
-                                    name: property.ownerName,
-                                    avatar: property.ownerAvatar,
-                                    online: true,
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => chat_page.ChatScreen(
+                                      ownerId: property.ownerId,
+                                      name: property.ownerName,
+                                      avatar: property.ownerAvatar,
+                                      online: true,
+                                    ),
                                   ),
-                                ));
+                                );
                               },
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                decoration: BoxDecoration(color: AppTheme.brandColor, borderRadius: BorderRadius.circular(30)),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -465,10 +562,21 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       'assets/icons/message.svg',
                                       width: 14,
                                       height: 14,
-                                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                      colorFilter: const ColorFilter.mode(
+                                        Colors.white,
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                                     const SizedBox(width: 6),
-                                    Text('CHAT', style: GoogleFonts.plusJakartaSans(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 10, letterSpacing: 0.5)),
+                                    Text(
+                                      'CHAT',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 10,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -495,16 +603,28 @@ class _ReelsScreenState extends State<ReelsScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.home_work_rounded, size: 80, color: Colors.white24),
+              const Icon(
+                Icons.home_work_rounded,
+                size: 80,
+                color: Colors.white24,
+              ),
               const SizedBox(height: 16),
-              Text('No photos available', style: GoogleFonts.inter(color: Colors.white38, fontSize: 14)),
+              Text(
+                'No photos available',
+                style: GoogleFonts.inter(color: Colors.white38, fontSize: 14),
+              ),
             ],
           ),
         ),
       );
     }
     if (images.length == 1) {
-      return KhoznaImage(imageUrl: images[0], width: double.infinity, height: double.infinity, fit: BoxFit.cover);
+      return KhoznaImage(
+        imageUrl: images[0],
+        width: double.infinity,
+        height: double.infinity,
+        fit: BoxFit.cover,
+      );
     }
     return _MultiImageCarousel(images: images);
   }
@@ -556,7 +676,9 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
         ),
         // Horizontal dot indicators at the bottom center
         Positioned(
-          bottom: MediaQuery.of(context).padding.bottom + 185, // Positioned above the info card
+          bottom:
+              MediaQuery.of(context).padding.bottom +
+              185, // Positioned above the info card
           left: 0,
           right: 0,
           child: Row(

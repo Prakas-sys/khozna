@@ -20,7 +20,7 @@ class CloudinaryService {
     // 🔐 Strict File Validation
     final fileSize = await imageFile.length();
     if (fileSize > 5 * 1024 * 1024) throw Exception('Image exceeds 5MB limit');
-    
+
     final ext = path.extension(imageFile.path).toLowerCase();
     if (!['.jpg', '.jpeg', '.png', '.webp'].contains(ext)) {
       throw Exception('Invalid image format. Only JPG, PNG, WEBP allowed.');
@@ -42,11 +42,17 @@ class CloudinaryService {
         final jsonMap = jsonDecode(responseString);
         return jsonMap['secure_url'];
       } else {
-        AppLogger.logApiError(endpoint: 'cloudinary/uploadImage', error: 'Upload failed with status: ${response.statusCode}');
+        AppLogger.logApiError(
+          endpoint: 'cloudinary/uploadImage',
+          error: 'Upload failed with status: ${response.statusCode}',
+        );
         return null;
       }
     } catch (e) {
-      AppLogger.logApiError(endpoint: 'cloudinary/uploadImage', error: e.toString());
+      AppLogger.logApiError(
+        endpoint: 'cloudinary/uploadImage',
+        error: e.toString(),
+      );
       return null;
     }
   }
@@ -59,7 +65,7 @@ class CloudinaryService {
     // 🔐 Strict File Validation
     final fileSize = await imageFile.length();
     if (fileSize > 5 * 1024 * 1024) throw Exception('Image exceeds 5MB limit');
-    
+
     final ext = path.extension(imageFile.path).toLowerCase();
     if (!['.jpg', '.jpeg', '.png', '.webp'].contains(ext)) {
       throw Exception('Invalid image format. Only JPG, PNG, WEBP allowed.');
@@ -91,11 +97,17 @@ class CloudinaryService {
 
         return imageUrl;
       } else {
-        AppLogger.logApiError(endpoint: 'cloudinary/uploadPropertyImage', error: 'Upload failed with status: ${response.statusCode}');
+        AppLogger.logApiError(
+          endpoint: 'cloudinary/uploadPropertyImage',
+          error: 'Upload failed with status: ${response.statusCode}',
+        );
         return null;
       }
     } catch (e) {
-      AppLogger.logApiError(endpoint: 'cloudinary/uploadPropertyImage', error: e.toString());
+      AppLogger.logApiError(
+        endpoint: 'cloudinary/uploadPropertyImage',
+        error: e.toString(),
+      );
       return null;
     }
   }
@@ -104,8 +116,9 @@ class CloudinaryService {
   static Future<String?> uploadVideo(File videoFile) async {
     // 🔐 Strict File Validation
     final fileSize = await videoFile.length();
-    if (fileSize > 50 * 1024 * 1024) throw Exception('Video exceeds 50MB limit');
-    
+    if (fileSize > 50 * 1024 * 1024)
+      throw Exception('Video exceeds 50MB limit');
+
     final ext = path.extension(videoFile.path).toLowerCase();
     if (!['.mp4', '.mov'].contains(ext)) {
       throw Exception('Invalid video format. Only MP4 and MOV allowed.');
@@ -127,11 +140,17 @@ class CloudinaryService {
         final jsonMap = jsonDecode(responseString);
         return jsonMap['secure_url'];
       } else {
-        AppLogger.logApiError(endpoint: 'cloudinary/uploadVideo', error: 'Upload failed with status: ${response.statusCode}');
+        AppLogger.logApiError(
+          endpoint: 'cloudinary/uploadVideo',
+          error: 'Upload failed with status: ${response.statusCode}',
+        );
         return null;
       }
     } catch (e) {
-      AppLogger.logApiError(endpoint: 'cloudinary/uploadVideo', error: e.toString());
+      AppLogger.logApiError(
+        endpoint: 'cloudinary/uploadVideo',
+        error: e.toString(),
+      );
       return null;
     }
   }

@@ -56,10 +56,12 @@ class _MainScreenState extends State<MainScreen> {
 
     final title = data['title'] ?? 'KYC Update';
     final message = data['message'] ?? '';
-    final isSuccess = title.toString().contains('Approved') || title.toString().contains('Verified');
+    final isSuccess =
+        title.toString().contains('Approved') ||
+        title.toString().contains('Verified');
 
     HapticFeedback.heavyImpact();
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -74,11 +76,15 @@ class _MainScreenState extends State<MainScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isSuccess ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                  color: isSuccess
+                      ? Colors.green.withOpacity(0.1)
+                      : Colors.red.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isSuccess ? Icons.verified_user_rounded : Icons.gpp_bad_rounded,
+                  isSuccess
+                      ? Icons.verified_user_rounded
+                      : Icons.gpp_bad_rounded,
                   color: isSuccess ? Colors.green : Colors.red,
                   size: 48,
                 ),
@@ -122,11 +128,16 @@ class _MainScreenState extends State<MainScreen> {
                     backgroundColor: isSuccess ? Colors.green : Colors.black87,
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                   child: Text(
                     isSuccess ? 'Great!' : 'Review Status',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16),
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -217,26 +228,28 @@ class _MainScreenState extends State<MainScreen> {
                 color: _currentIndex == 1 ? Colors.black : Colors.white,
                 border: Border(
                   top: BorderSide(
-                    color: _currentIndex == 1 
-                        ? Colors.white.withOpacity(0.1) 
-                        : Colors.grey.withOpacity(0.15), 
-                    width: 1.0
+                    color: _currentIndex == 1
+                        ? Colors.white.withOpacity(0.1)
+                        : Colors.grey.withOpacity(0.15),
+                    width: 1.0,
                   ),
                 ),
-                boxShadow: _currentIndex == 1 ? [] : [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
+                boxShadow: _currentIndex == 1
+                    ? []
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, -5),
+                        ),
+                      ],
               ),
-                  child: BottomAppBar(
-                    color: Colors.transparent,
-                    surfaceTintColor: Colors.transparent,
-                    padding: EdgeInsets.zero,
-                    height: 58,
-                    elevation: 0,
+              child: BottomAppBar(
+                color: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                padding: EdgeInsets.zero,
+                height: 58,
+                elevation: 0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -269,7 +282,8 @@ class _MainScreenState extends State<MainScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const PostPropertyIntroScreen(),
+                                builder: (context) =>
+                                    const PostPropertyIntroScreen(),
                               ),
                             );
                             return;
@@ -314,7 +328,8 @@ class _MainScreenState extends State<MainScreen> {
                                 .select('kyc_status')
                                 .eq('id', user.id)
                                 .maybeSingle();
-                            freshStatus = freshData?['kyc_status'] ?? 'not_started';
+                            freshStatus =
+                                freshData?['kyc_status'] ?? 'not_started';
                             setState(() => _kycStatus = freshStatus);
                           } catch (_) {}
 
@@ -327,7 +342,9 @@ class _MainScreenState extends State<MainScreen> {
                                 context: context,
                                 builder: (ctx) => AlertDialog(
                                   backgroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
                                   content: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -338,19 +355,30 @@ class _MainScreenState extends State<MainScreen> {
                                           color: Colors.orange.shade50,
                                           shape: BoxShape.circle,
                                         ),
-                                        child: Icon(Icons.hourglass_top_rounded, color: Colors.orange.shade700, size: 40),
+                                        child: Icon(
+                                          Icons.hourglass_top_rounded,
+                                          color: Colors.orange.shade700,
+                                          size: 40,
+                                        ),
                                       ),
                                       const SizedBox(height: 20),
                                       Text(
                                         'Verification in Progress',
                                         textAlign: TextAlign.center,
-                                        style: GoogleFonts.inter(fontSize: 20, fontWeight: FontWeight.w800),
+                                        style: GoogleFonts.inter(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w800,
+                                        ),
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
                                         'Your documents are being reviewed.\nVerification takes up to 48 hours.',
                                         textAlign: TextAlign.center,
-                                        style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600], height: 1.5),
+                                        style: GoogleFonts.inter(
+                                          fontSize: 13,
+                                          color: Colors.grey[600],
+                                          height: 1.5,
+                                        ),
                                       ),
                                       const SizedBox(height: 20),
                                       SizedBox(
@@ -358,13 +386,24 @@ class _MainScreenState extends State<MainScreen> {
                                         child: ElevatedButton(
                                           onPressed: () => Navigator.pop(ctx),
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppTheme.brandColor,
+                                            backgroundColor:
+                                                AppTheme.brandColor,
                                             foregroundColor: Colors.white,
                                             elevation: 0,
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                            padding: const EdgeInsets.symmetric(vertical: 14),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 14,
+                                            ),
                                           ),
-                                          child: Text('Got it', style: GoogleFonts.inter(fontWeight: FontWeight.w700)),
+                                          child: Text(
+                                            'Got it',
+                                            style: GoogleFonts.inter(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -375,14 +414,17 @@ class _MainScreenState extends State<MainScreen> {
                               // Not started — open KYC form
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const KycScreen()),
+                                MaterialPageRoute(
+                                  builder: (context) => const KycScreen(),
+                                ),
                               );
                             }
                           } else {
                             final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const PostPropertyIntroScreen(),
+                                builder: (context) =>
+                                    const PostPropertyIntroScreen(),
                               ),
                             );
 

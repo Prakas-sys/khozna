@@ -27,10 +27,10 @@ class NotificationRepository {
           ),
           callback: (payload) {
             notificationBadgeCount.value += 1;
-            
+
             final data = payload.newRecord;
-            if (data['type'] == 'kyc_update' || 
-               (data['title'] ?? '').toString().contains('KYC')) {
+            if (data['type'] == 'kyc_update' ||
+                (data['title'] ?? '').toString().contains('KYC')) {
               lastKycNotification.value = data;
             }
           },
@@ -97,7 +97,8 @@ class NotificationRepository {
     final user = _client.auth.currentUser;
     if (user == null) return;
     try {
-      await _client.from('notifications')
+      await _client
+          .from('notifications')
           .delete()
           .eq('id', id)
           .eq('user_id', user.id); // 🔐 IDOR Protection
@@ -145,7 +146,7 @@ class NotificationRepository {
           .eq('user_id', user.id)
           .eq('is_read', false)
           .count(CountOption.exact);
-      
+
       notificationBadgeCount.value = response.count;
     } catch (e) {
       debugPrint('Error fetching unread count: $e');

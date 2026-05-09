@@ -28,8 +28,7 @@ class _TrustVoteCardState extends State<TrustVoteCard>
   late AnimationController _animController;
   late Animation<double> _scaleAnim;
 
-  final String? _currentUserId =
-      Supabase.instance.client.auth.currentUser?.id;
+  final String? _currentUserId = Supabase.instance.client.auth.currentUser?.id;
 
   bool get _isOwnProfile => _currentUserId == widget.targetUserId;
 
@@ -98,10 +97,7 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                   AppTheme.brandColor.withOpacity(0.08),
                   AppTheme.brandColor.withOpacity(0.03),
                 ]
-              : [
-                  Colors.grey.shade50,
-                  Colors.white,
-                ],
+              : [Colors.grey.shade50, Colors.white],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -145,7 +141,8 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                           Row(
                             children: [
                               const Icon(
-                                Icons.verified_user_rounded, // Changed to verified user for more "Owner" feel
+                                Icons
+                                    .verified_user_rounded, // Changed to verified user for more "Owner" feel
                                 color: AppTheme.brandColor,
                                 size: 20,
                               ),
@@ -154,7 +151,9 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _isOwnProfile ? 'Your Trust Score' : 'Owner Trust Score',
+                                    _isOwnProfile
+                                        ? 'Your Trust Score'
+                                        : 'Owner Trust Score',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontWeight: FontWeight.w800,
                                       fontSize: 14,
@@ -189,9 +188,9 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                             ),
                           ),
                           Text(
-                            _isOwnProfile 
-                              ? 'तपाईंलाई $_voteCount जनाले भरोसा गरेका छन्\n($_voteCount people trust on you)' 
-                              : 'यो घरधनीलाई $_voteCount जनाले भरोसा गरेका छन्\n($_voteCount people trust this Owner)',
+                            _isOwnProfile
+                                ? 'तपाईंलाई $_voteCount जनाले भरोसा गरेका छन्\n($_voteCount people trust on you)'
+                                : 'यो घरधनीलाई $_voteCount जनाले भरोसा गरेका छन्\n($_voteCount people trust this Owner)',
                             style: GoogleFonts.mukta(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -232,11 +231,12 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                               boxShadow: _hasVoted
                                   ? [
                                       BoxShadow(
-                                        color: AppTheme.brandColor
-                                            .withOpacity(0.3),
+                                        color: AppTheme.brandColor.withOpacity(
+                                          0.3,
+                                        ),
                                         blurRadius: 12,
                                         offset: const Offset(0, 4),
-                                      )
+                                      ),
                                     ]
                                   : [],
                             ),
@@ -388,10 +388,7 @@ class _TrustVoteCardState extends State<TrustVoteCard>
             ),
             Text(
               '$_voteCount votes',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: Colors.grey[400],
-              ),
+              style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[400]),
             ),
           ],
         ),

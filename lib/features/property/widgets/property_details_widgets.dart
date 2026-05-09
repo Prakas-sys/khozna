@@ -11,7 +11,7 @@ class DetailSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-                  style: GoogleFonts.inter(
+      style: GoogleFonts.inter(
         fontSize: 19,
         fontWeight: FontWeight.bold,
         color: AppTheme.primaryTextColor,
@@ -104,11 +104,11 @@ class LocationInfoRow extends StatelessWidget {
             children: [
               Text(
                 label,
-                                                style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+                style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
               ),
               Text(
                 value,
-                                                style: GoogleFonts.inter(
+                style: GoogleFonts.inter(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                   color: AppTheme.primaryTextColor,
@@ -257,22 +257,13 @@ class NavArrow extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.25),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.3),
-            width: 1,
-          ),
+          border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Center(
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
+            child: Center(child: Icon(icon, color: Colors.white, size: 18)),
           ),
         ),
       ),

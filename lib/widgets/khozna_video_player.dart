@@ -107,7 +107,9 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          _controller.value.isPlaying ? _controller.pause() : _controller.play();
+          _controller.value.isPlaying
+              ? _controller.pause()
+              : _controller.play();
         });
       },
       child: Stack(
@@ -117,7 +119,10 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
           if (_isInitialized)
             Positioned.fill(
               child: ImageFiltered(
-                imageFilter: ColorFilter.mode(Colors.black.withOpacity(0.4), BlendMode.darken),
+                imageFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.4),
+                  BlendMode.darken,
+                ),
                 child: ImageFiltered(
                   imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                   child: FittedBox(
@@ -140,7 +145,7 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
                 child: VideoPlayer(_controller),
               ),
             ),
-          
+
           if (!_controller.value.isPlaying && _isInitialized)
             Container(
               decoration: BoxDecoration(
@@ -185,12 +190,22 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white24),
                   ),
-                  child: const Icon(Icons.videocam_off_rounded, color: Colors.white, size: 56),
+                  child: const Icon(
+                    Icons.videocam_off_rounded,
+                    color: Colors.white,
+                    size: 56,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  widget.videoUrl.isEmpty ? 'Video Coming Soon' : 'Failed to load video',
-                  style: GoogleFonts.inter(color: Colors.white60, fontSize: 14, fontWeight: FontWeight.w500),
+                  widget.videoUrl.isEmpty
+                      ? 'Video Coming Soon'
+                      : 'Failed to load video',
+                  style: GoogleFonts.inter(
+                    color: Colors.white60,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),

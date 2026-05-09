@@ -45,7 +45,9 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
             const SizedBox(height: 32),
             _buildHeader(
               _isEnglish ? 'Terms of Service' : 'सेवाका सर्तहरू',
-              _isEnglish ? 'Last Updated: April 2024' : 'अन्तिम अपडेट: अप्रिल २०२४',
+              _isEnglish
+                  ? 'Last Updated: April 2024'
+                  : 'अन्तिम अपडेट: अप्रिल २०२४',
             ),
             const SizedBox(height: 24),
             _buildSection(
@@ -79,7 +81,9 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
             ),
             _buildSection(
               num: '4',
-              title: _isEnglish ? 'Moderation & Blocking' : 'परिमार्जन र ब्लकिङ',
+              title: _isEnglish
+                  ? 'Moderation & Blocking'
+                  : 'परिमार्जन र ब्लकिङ',
               content: _isEnglish
                   ? 'Khozna reserves the right to block any user suspected of fraud or harassment. Blocking is our primary internal enforcement mechanism.'
                   : 'खोज्नाले ठगी वा दुर्व्यवहारको शंका लागेमा कुनै पनि प्रयोगकर्तालाई ब्लक गर्ने अधिकार सुरक्षित राख्छ। ब्लक गर्नु हाम्रो मुख्य आन्तरिक कारबाही प्रक्रिया हो।',
@@ -152,12 +156,8 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
         ),
         child: Row(
           children: [
-            Expanded(
-              child: _buildToggleButton(true, 'ENGLISH'),
-            ),
-            Expanded(
-              child: _buildToggleButton(false, 'नेपाली'),
-            ),
+            Expanded(child: _buildToggleButton(true, 'ENGLISH')),
+            Expanded(child: _buildToggleButton(false, 'नेपाली')),
           ],
         ),
       ),
@@ -180,7 +180,7 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
                     color: Colors.black.withOpacity(0.05),
                     blurRadius: 5,
                     offset: const Offset(0, 2),
-                  )
+                  ),
                 ]
               : null,
         ),
@@ -268,7 +268,10 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
     );
   }
 
-  Widget _buildHighlightSection({required String title, required String content}) {
+  Widget _buildHighlightSection({
+    required String title,
+    required String content,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(20),

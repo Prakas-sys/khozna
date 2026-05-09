@@ -28,7 +28,7 @@ class ChatRepository {
         .select('chat_id')
         .eq('is_read', false)
         .neq('sender_id', user.id);
-        
+
     final Map<String, int> unreadCounts = {};
     for (var row in (unreadResponse as List)) {
       final cId = row['chat_id']?.toString();
@@ -42,8 +42,10 @@ class ChatRepository {
     for (var chat in chatsData) {
       final u1 = chat['user1_id']?.toString();
       final u2 = chat['user2_id']?.toString();
-      if (u1 != null && u1 != user.id) otherUserIds.add(u1);
-      else if (u2 != null && u2 != user.id) otherUserIds.add(u2);
+      if (u1 != null && u1 != user.id)
+        otherUserIds.add(u1);
+      else if (u2 != null && u2 != user.id)
+        otherUserIds.add(u2);
     }
 
     // 3. Fetch profiles
@@ -53,7 +55,7 @@ class ChatRepository {
           .from('profiles')
           .select('id, full_name, avatar_url')
           .inFilter('id', otherUserIds.toList());
-      
+
       for (var p in (profilesResponse as List)) {
         profiles[p['id']] = p;
       }
@@ -66,10 +68,12 @@ class ChatRepository {
       final u2 = e['user2_id']?.toString();
       final otherId = (u1 != user.id) ? u1 : u2;
       if (otherId == null) continue;
-      
+
       final profile = profiles[otherId];
-      final chatTime = DateTime.parse(e['updated_at'] ?? DateTime.now().toIso8601String()).toLocal();
-      
+      final chatTime = DateTime.parse(
+        e['updated_at'] ?? DateTime.now().toIso8601String(),
+      ).toLocal();
+
       final chat = ChatConversation(
         id: e['id'],
         otherUserId: otherId,
@@ -79,13 +83,16 @@ class ChatRepository {
         lastMessageTime: chatTime,
         unreadCount: unreadCounts[e['id']?.toString()] ?? 0,
       );
-      
-      if (!uniqueChats.containsKey(otherId) || chatTime.isAfter(uniqueChats[otherId]!.lastMessageTime)) {
+
+      if (!uniqueChats.containsKey(otherId) ||
+          chatTime.isAfter(uniqueChats[otherId]!.lastMessageTime)) {
         uniqueChats[otherId] = chat;
       }
     }
-    
-    final sortedList = uniqueChats.values.where((chat) => chat.otherUserName != 'Khozna User').toList();
+
+    final sortedList = uniqueChats.values
+        .where((chat) => chat.otherUserName != 'Khozna User')
+        .toList();
     sortedList.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
     return sortedList;
   }
@@ -110,11 +117,15 @@ class ChatRepository {
       return response['id'];
     }
 
-    final newChat = await _client.from('chats').insert({
-      'user1_id': u1,
-      'user2_id': u2,
-      'participants': [u1, u2],
-    }).select('id').single();
+    final newChat = await _client
+        .from('chats')
+        .insert({
+          'user1_id': u1,
+          'user2_id': u2,
+          'participants': [u1, u2],
+        })
+        .select('id')
+        .single();
 
     return newChat['id'];
   }
@@ -131,7 +142,7 @@ class ChatRepository {
   static Future<void> sendMessage(String chatId, String text) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
-    
+
     // 🔐 Prevent XSS and Injection in messages
     final cleanText = SecurityUtils.sanitizeInput(text, maxLength: 2000);
     if (cleanText.isEmpty) return;
@@ -189,7 +200,8 @@ class ChatRepository {
   static Future<void> deleteMessage(String messageId, String chatId) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
-    await _client.from('messages')
+    await _client
+        .from('messages')
         .delete()
         .eq('id', messageId)
         .eq('sender_id', user.id); // 🔐 IDOR Protection: only sender can delete
@@ -200,11 +212,18 @@ class ChatRepository {
     if (user == null) return;
 
     // 🔐 IDOR Protection: Ensure user is a participant before allowing delete
-    final chat = await _client.from('chats').select('user1_id, user2_id').eq('id', chatId).maybeSingle();
+    final chat = await _client
+        .from('chats')
+        .select('user1_id, user2_id')
+        .eq('id', chatId)
+        .maybeSingle();
     if (chat == null) return;
     if (chat['user1_id'] != user.id && chat['user2_id'] != user.id) {
-       AppLogger.logSuspiciousActivity(event: 'IDOR_BLOCKED', details: 'Unauthorized chat delete attempt on $chatId');
-       return; 
+      AppLogger.logSuspiciousActivity(
+        event: 'IDOR_BLOCKED',
+        details: 'Unauthorized chat delete attempt on $chatId',
+      );
+      return;
     }
 
     // Perform a real hard delete from Supabase as requested

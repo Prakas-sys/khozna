@@ -39,9 +39,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   bool _hasAcceptedVisit = false;
   Map<String, dynamic>? _ownerData;
 
-  String get _currentUserId => Supabase.instance.client.auth.currentUser?.id ?? '';
-  bool get _isMyProperty => (widget.property.ownerId == _currentUserId) && !widget.property.id.contains('demo');
-  bool get _hasLocation => widget.property.latitude != null && widget.property.longitude != null;
+  String get _currentUserId =>
+      Supabase.instance.client.auth.currentUser?.id ?? '';
+  bool get _isMyProperty =>
+      (widget.property.ownerId == _currentUserId) &&
+      !widget.property.id.contains('demo');
+  bool get _hasLocation =>
+      widget.property.latitude != null && widget.property.longitude != null;
   static const Color _airbnbGrey = Color(0xFF717171);
 
   late final List<String> displayImages;
@@ -49,9 +53,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _isReserved = widget.property.status == 'booked' || widget.property.status == 'pending_approval';
-    
-    if (widget.property.ownerName != null || widget.property.ownerAvatar != null) {
+    _isReserved =
+        widget.property.status == 'booked' ||
+        widget.property.status == 'pending_approval';
+
+    if (widget.property.ownerName != null ||
+        widget.property.ownerAvatar != null) {
       _ownerData = {
         'full_name': widget.property.ownerName,
         'avatar_url': widget.property.ownerAvatar,
@@ -60,12 +67,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     _fetchOwnerData();
-    displayImages = widget.property.images.isNotEmpty 
-        ? widget.property.images.map((url) => url.contains('cloudinary.com') ? url.replaceAll('/upload/', '/upload/q_auto,f_auto,w_1200,c_limit/') : url).toList()
+    displayImages = widget.property.images.isNotEmpty
+        ? widget.property.images
+              .map(
+                (url) => url.contains('cloudinary.com')
+                    ? url.replaceAll(
+                        '/upload/',
+                        '/upload/q_auto,f_auto,w_1200,c_limit/',
+                      )
+                    : url,
+              )
+              .toList()
         : [widget.property.imageUrl];
-    
+
     _incrementViews();
-    _userHasPendingBooking = bookedPropertiesStore.value.contains(widget.property.id);
+    _userHasPendingBooking = bookedPropertiesStore.value.contains(
+      widget.property.id,
+    );
     _checkUserBookingStatus();
     _checkAcceptedVisit();
   }
@@ -73,14 +91,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Future<void> _incrementViews() async {
     if (widget.property.id.contains('demo') || _isMyProperty) return;
     try {
-      await Supabase.instance.client.rpc('increment_property_views', params: {'property_id': widget.property.id});
+      await Supabase.instance.client.rpc(
+        'increment_property_views',
+        params: {'property_id': widget.property.id},
+      );
     } catch (_) {}
   }
 
   Future<void> _checkUserBookingStatus() async {
     if (widget.property.id.contains('demo') || _currentUserId.isEmpty) return;
     try {
-      final result = await Supabase.instance.client.from('bookings').select('id, status').eq('property_id', widget.property.id).eq('guest_id', _currentUserId).inFilter('status', ['pending_approval', 'awaiting_payment', 'paid', 'confirmed']).limit(1);
+      final result = await Supabase.instance.client
+          .from('bookings')
+          .select('id, status')
+          .eq('property_id', widget.property.id)
+          .eq('guest_id', _currentUserId)
+          .inFilter('status', [
+            'pending_approval',
+            'awaiting_payment',
+            'paid',
+            'confirmed',
+          ])
+          .limit(1);
       if (mounted) setState(() => _userHasPendingBooking = result.isNotEmpty);
     } catch (_) {}
   }
@@ -93,7 +125,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           .select('id, status')
           .eq('property_id', widget.property.id)
           .eq('guest_id', _currentUserId)
-          .inFilter('status', ['awaiting_payment', 'visit_accepted', 'paid', 'confirmed'])
+          .inFilter('status', [
+            'awaiting_payment',
+            'visit_accepted',
+            'paid',
+            'confirmed',
+          ])
           .limit(1);
       if (mounted) setState(() => _hasAcceptedVisit = result.isNotEmpty);
     } catch (_) {}
@@ -102,7 +139,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Future<void> _fetchOwnerData() async {
     if (widget.property.ownerId.isEmpty) return;
     try {
-      final data = await Supabase.instance.client.from('profiles').select().eq('id', widget.property.ownerId).maybeSingle();
+      final data = await Supabase.instance.client
+          .from('profiles')
+          .select()
+          .eq('id', widget.property.ownerId)
+          .maybeSingle();
       if (mounted) setState(() => _ownerData = data);
     } catch (_) {}
   }
@@ -112,7 +153,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       if (!_isMyProperty && !_hasAcceptedVisit) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('मालिकले भ्रमण स्वीकार गरेपछि मात्र दिशा देखिनेछ। (Directions unlock after visit is accepted)'),
+            content: Text(
+              'मालिकले भ्रमण स्वीकार गरेपछि मात्र दिशा देखिनेछ। (Directions unlock after visit is accepted)',
+            ),
             backgroundColor: AppTheme.brandColor,
           ),
         );
@@ -126,7 +169,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.map_outlined, color: AppTheme.brandColor),
+                leading: const Icon(
+                  Icons.map_outlined,
+                  color: AppTheme.brandColor,
+                ),
                 title: const Text('View on Khozna Map'),
                 onTap: () {
                   Navigator.pop(context);
@@ -134,18 +180,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => DiscoveryMapScreen(
-                        initialCenter: LatLng(widget.property.latitude!, widget.property.longitude!),
+                        initialCenter: LatLng(
+                          widget.property.latitude!,
+                          widget.property.longitude!,
+                        ),
                       ),
                     ),
                   );
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.navigation_outlined, color: Colors.green),
+                leading: const Icon(
+                  Icons.navigation_outlined,
+                  color: Colors.green,
+                ),
                 title: const Text('Get Directions (Google Maps)'),
                 onTap: () {
                   Navigator.pop(context);
-                  MapLauncher.openMap(widget.property.latitude!, widget.property.longitude!, widget.property.title);
+                  MapLauncher.openMap(
+                    widget.property.latitude!,
+                    widget.property.longitude!,
+                    widget.property.title,
+                  );
                 },
               ),
               const SizedBox(height: 10),
@@ -172,7 +228,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.black,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -187,7 +247,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           FavouriteButton(propertyId: widget.property.id),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.share_rounded, color: Colors.black87, size: 22),
+            icon: const Icon(
+              Icons.share_rounded,
+              color: Colors.black87,
+              size: 22,
+            ),
             onPressed: () {
               HapticFeedback.mediumImpact();
               Share.share(
@@ -208,12 +272,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 _buildHeader(),
                 const SizedBox(height: 24),
                 const DetailSectionTitle(title: 'सुविधाहरू (Amenities)'),
-                const SizedBox(height: 20), 
+                const SizedBox(height: 20),
                 _buildAmenityGrid(),
                 const SizedBox(height: 44),
                 const DetailSectionTitle(title: 'Description'),
                 const SizedBox(height: 2),
-                Text(widget.property.description ?? 'सानेपाको शान्त वातावरणमा अवस्थित यो कोठा विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ।', style: GoogleFonts.inter(fontSize: 15, color: _airbnbGrey, height: 1.6)),
+                Text(
+                  widget.property.description ??
+                      'सानेपाको शान्त वातावरणमा अवस्थित यो कोठा विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ।',
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: _airbnbGrey,
+                    height: 1.6,
+                  ),
+                ),
                 const SizedBox(height: 32),
                 const DetailSectionTitle(title: 'Location'),
                 const SizedBox(height: 12),
@@ -234,9 +306,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     // Format rule string (e.g., family_only -> Family Only)
                     String formattedRule = rule.replaceAll('_', ' ');
                     if (formattedRule.isNotEmpty) {
-                      formattedRule = formattedRule[0].toUpperCase() + formattedRule.substring(1);
+                      formattedRule =
+                          formattedRule[0].toUpperCase() +
+                          formattedRule.substring(1);
                     }
-                    return RuleRow(icon: Icons.info_outline, title: formattedRule);
+                    return RuleRow(
+                      icon: Icons.info_outline,
+                      title: formattedRule,
+                    );
                   }),
                   const SizedBox(height: 24),
                 ],
@@ -244,7 +321,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Center(
                   child: TextButton.icon(
                     onPressed: () => _showReportDialog(),
-                    icon: const Icon(Icons.report_gmailerrorred_rounded, color: Colors.grey, size: 18),
+                    icon: const Icon(
+                      Icons.report_gmailerrorred_rounded,
+                      color: Colors.grey,
+                      size: 18,
+                    ),
                     label: Text(
                       'Report this listing',
                       style: GoogleFonts.inter(
@@ -261,7 +342,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _isMyProperty ? null : _buildBottomActionBar(context),
+      bottomNavigationBar: _isMyProperty
+          ? null
+          : _buildBottomActionBar(context),
     );
   }
 
@@ -276,13 +359,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               children: [
                 PageView.builder(
                   controller: _pageController,
-                  onPageChanged: (index) => setState(() => _currentImageIndex = index),
-                  itemCount: widget.property.videoUrl.isNotEmpty ? displayImages.length + 1 : displayImages.length,
+                  onPageChanged: (index) =>
+                      setState(() => _currentImageIndex = index),
+                  itemCount: widget.property.videoUrl.isNotEmpty
+                      ? displayImages.length + 1
+                      : displayImages.length,
                   itemBuilder: (context, index) {
                     // Check if this index should show a video
                     if (index == 0 && widget.property.videoUrl.isNotEmpty) {
                       return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
@@ -305,12 +394,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     }
 
                     // Adjust index if video was inserted at 0
-                    final imageIndex = widget.property.videoUrl.isNotEmpty ? index - 1 : index;
+                    final imageIndex = widget.property.videoUrl.isNotEmpty
+                        ? index - 1
+                        : index;
 
                     return Hero(
-                      tag: widget.property.id + (imageIndex == 0 ? '' : imageIndex.toString()),
+                      tag:
+                          widget.property.id +
+                          (imageIndex == 0 ? '' : imageIndex.toString()),
                       child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
@@ -332,7 +428,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     );
                   },
                 ),
-                if ((widget.property.videoUrl.isNotEmpty ? displayImages.length + 1 : displayImages.length) > 1) ...[
+                if ((widget.property.videoUrl.isNotEmpty
+                        ? displayImages.length + 1
+                        : displayImages.length) >
+                    1) ...[
                   Positioned(
                     left: 24,
                     top: 0,
@@ -342,7 +441,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         icon: Icons.chevron_left_rounded,
                         onTap: () {
                           HapticFeedback.lightImpact();
-                          _pageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                          _pageController.previousPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
                         },
                         iconSize: 24,
                         size: 36,
@@ -358,7 +460,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         icon: Icons.chevron_right_rounded,
                         onTap: () {
                           HapticFeedback.lightImpact();
-                          _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
                         },
                         iconSize: 24,
                         size: 36,
@@ -372,14 +477,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
-                        (widget.property.videoUrl.isNotEmpty ? displayImages.length + 1 : displayImages.length),
+                        (widget.property.videoUrl.isNotEmpty
+                            ? displayImages.length + 1
+                            : displayImages.length),
                         (index) => Container(
                           width: _currentImageIndex == index ? 24 : 8,
                           height: 8,
                           margin: const EdgeInsets.symmetric(horizontal: 4),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(4),
-                            color: _currentImageIndex == index ? Colors.white : Colors.white.withOpacity(0.5),
+                            color: _currentImageIndex == index
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.5),
                           ),
                         ),
                       ),
@@ -393,88 +502,289 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       ),
     );
   }
+
   Widget _buildHeader() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: AppTheme.brandColor.withOpacity(0.1), borderRadius: BorderRadius.circular(6)), child: Text(widget.property.category.toUpperCase(), style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.brandColor, letterSpacing: 1))),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: const Color(0xFF00C853).withOpacity(0.1), borderRadius: BorderRadius.circular(6), border: Border.all(color: const Color(0xFF00C853).withOpacity(0.3))), child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.verified_rounded, color: Color(0xFF00C853), size: 14), const SizedBox(width: 4), Text('VERIFIED', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF00C853), letterSpacing: 1))])),
-        ]),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Text(
+                widget.property.category.toUpperCase(),
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.brandColor,
+                  letterSpacing: 1,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00C853).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: const Color(0xFF00C853).withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.verified_rounded,
+                    color: Color(0xFF00C853),
+                    size: 14,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'VERIFIED',
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF00C853),
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(child: Text(widget.property.title, style: GoogleFonts.plusJakartaSans(fontSize: 26, fontWeight: FontWeight.w900, color: const Color(0xFF1A1A2E), height: 1.1, letterSpacing: -1.0))),
-          const SizedBox(width: 16),
-          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            if (widget.property.priceNight > 0) ...[
-              RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.priceNight.toString()), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
-              Text('प्रति रात (Per Night)', style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w600)),
-            ] else ...[
-              RichText(text: TextSpan(children: [TextSpan(text: '₹', style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700, color: AppTheme.brandColor)), TextSpan(text: PriceFormatter.format(widget.property.price), style: GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w800, color: AppTheme.brandColor, letterSpacing: -1))])),
-              Text('भाडा/महिना (Per Month)', style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF6B7280), fontWeight: FontWeight.w600)),
-            ],
-          ]),
-        ]),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                widget.property.title,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF1A1A2E),
+                  height: 1.1,
+                  letterSpacing: -1.0,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (widget.property.priceNight > 0) ...[
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '₹',
+                          style: GoogleFonts.inter(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.brandColor,
+                          ),
+                        ),
+                        TextSpan(
+                          text: PriceFormatter.format(
+                            widget.property.priceNight.toString(),
+                          ),
+                          style: GoogleFonts.inter(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.brandColor,
+                            letterSpacing: -1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    'प्रति रात (Per Night)',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: const Color(0xFF6B7280),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ] else ...[
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '₹',
+                          style: GoogleFonts.inter(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.brandColor,
+                          ),
+                        ),
+                        TextSpan(
+                          text: PriceFormatter.format(widget.property.price),
+                          style: GoogleFonts.inter(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: AppTheme.brandColor,
+                            letterSpacing: -1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    'भाडा/महिना (Per Month)',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: const Color(0xFF6B7280),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
-        Row(children: [const Icon(Icons.location_on_outlined, color: AppTheme.brandColor, size: 18), const SizedBox(width: 6), Expanded(child: Text(widget.property.location, style: GoogleFonts.inter(fontSize: 16, color: AppTheme.brandColor, fontWeight: FontWeight.w600)))]),
+        Row(
+          children: [
+            const Icon(
+              Icons.location_on_outlined,
+              color: AppTheme.brandColor,
+              size: 18,
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                widget.property.location,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  color: AppTheme.brandColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
 
   Widget _buildAmenityGrid() {
     final List<Widget> items = [];
-    
+
     // Core Stats (Show only if valid)
     if (widget.property.bedrooms > 0) {
-      items.add(PropertyStatItem(icon: Icons.bed_outlined, value: '${widget.property.bedrooms}', label: 'Beds', accentColor: AppTheme.brandColor));
+      items.add(
+        PropertyStatItem(
+          icon: Icons.bed_outlined,
+          value: '${widget.property.bedrooms}',
+          label: 'Beds',
+          accentColor: AppTheme.brandColor,
+        ),
+      );
     }
     if (widget.property.bathrooms > 0) {
-      items.add(PropertyStatItem(icon: Icons.bathtub_outlined, value: '${widget.property.bathrooms}', label: 'Baths', accentColor: Colors.cyan));
+      items.add(
+        PropertyStatItem(
+          icon: Icons.bathtub_outlined,
+          value: '${widget.property.bathrooms}',
+          label: 'Baths',
+          accentColor: Colors.cyan,
+        ),
+      );
     }
     if (widget.property.area != '0' && widget.property.area.isNotEmpty) {
-      items.add(PropertyStatItem(icon: Icons.square_foot_outlined, value: widget.property.area, label: 'Area', accentColor: Colors.green));
+      items.add(
+        PropertyStatItem(
+          icon: Icons.square_foot_outlined,
+          value: widget.property.area,
+          label: 'Area',
+          accentColor: Colors.green,
+        ),
+      );
     }
     if (widget.property.floor != 'N/A' && widget.property.floor.isNotEmpty) {
-      items.add(PropertyStatItem(icon: Icons.layers_outlined, value: widget.property.floor, label: 'Floor', accentColor: Colors.orange));
+      items.add(
+        PropertyStatItem(
+          icon: Icons.layers_outlined,
+          value: widget.property.floor,
+          label: 'Floor',
+          accentColor: Colors.orange,
+        ),
+      );
     }
 
     // Fuzzy Matching for Amenities
     (IconData, String, Color) _getAmenityData(String feature) {
       final k = feature.toLowerCase().trim();
-      if (k.contains('water')) return (Icons.water_drop_outlined, 'Water', Colors.lightBlue);
-      if (k.contains('wifi') || k.contains('internet')) return (Icons.wifi, 'Internet', Colors.blue);
-      if (k.contains('bike')) return (Icons.motorcycle_rounded, 'Bike Parking', Colors.blueGrey);
-      if (k.contains('car')) return (Icons.directions_car_filled_rounded, 'Car Parking', Colors.indigo);
-      if (k.contains('parking')) return (Icons.local_parking_rounded, 'Parking', Colors.indigo);
-      if (k.contains('sunny')) return (Icons.wb_sunny_outlined, 'Sunny', Colors.amber);
-      if (k.contains('cctv') || k.contains('security')) return (Icons.videocam_outlined, 'CCTV', Colors.redAccent);
-      if (k.contains('balcony')) return (Icons.balcony_outlined, 'Balcony', Colors.teal);
-      if (k.contains('hot water')) return (Icons.hot_tub_outlined, 'Hot Water', Colors.orangeAccent);
-      if (k.contains('bath')) return (Icons.bathroom_outlined, 'Bath', Colors.cyan);
-      if (k.contains('family')) return (Icons.family_restroom_outlined, 'Family', Colors.purple);
-      if (k.contains('kitchen')) return (Icons.kitchen_outlined, 'Kitchen', Colors.orange);
-      if (k.contains('ac') || k.contains('air cond')) return (Icons.ac_unit_rounded, 'AC', Colors.blueGrey);
-      if (k.contains('furnish')) return (Icons.chair_rounded, 'Furnished', Colors.brown);
-      if (k.contains('gym') || k.contains('fitness')) return (Icons.fitness_center_rounded, 'Gym', Colors.blueGrey);
+      if (k.contains('water'))
+        return (Icons.water_drop_outlined, 'Water', Colors.lightBlue);
+      if (k.contains('wifi') || k.contains('internet'))
+        return (Icons.wifi, 'Internet', Colors.blue);
+      if (k.contains('bike'))
+        return (Icons.motorcycle_rounded, 'Bike Parking', Colors.blueGrey);
+      if (k.contains('car'))
+        return (
+          Icons.directions_car_filled_rounded,
+          'Car Parking',
+          Colors.indigo,
+        );
+      if (k.contains('parking'))
+        return (Icons.local_parking_rounded, 'Parking', Colors.indigo);
+      if (k.contains('sunny'))
+        return (Icons.wb_sunny_outlined, 'Sunny', Colors.amber);
+      if (k.contains('cctv') || k.contains('security'))
+        return (Icons.videocam_outlined, 'CCTV', Colors.redAccent);
+      if (k.contains('balcony'))
+        return (Icons.balcony_outlined, 'Balcony', Colors.teal);
+      if (k.contains('hot water'))
+        return (Icons.hot_tub_outlined, 'Hot Water', Colors.orangeAccent);
+      if (k.contains('bath'))
+        return (Icons.bathroom_outlined, 'Bath', Colors.cyan);
+      if (k.contains('family'))
+        return (Icons.family_restroom_outlined, 'Family', Colors.purple);
+      if (k.contains('kitchen'))
+        return (Icons.kitchen_outlined, 'Kitchen', Colors.orange);
+      if (k.contains('ac') || k.contains('air cond'))
+        return (Icons.ac_unit_rounded, 'AC', Colors.blueGrey);
+      if (k.contains('furnish'))
+        return (Icons.chair_rounded, 'Furnished', Colors.brown);
+      if (k.contains('gym') || k.contains('fitness'))
+        return (Icons.fitness_center_rounded, 'Gym', Colors.blueGrey);
       if (k.contains('pool')) return (Icons.pool_rounded, 'Pool', Colors.blue);
-      if (k.contains('lift') || k.contains('elevat')) return (Icons.elevator_rounded, 'Lift', Colors.grey);
-      
+      if (k.contains('lift') || k.contains('elevat'))
+        return (Icons.elevator_rounded, 'Lift', Colors.grey);
+
       String formatted = feature.replaceAll('_', ' ');
       if (formatted.isNotEmpty) {
         formatted = formatted[0].toUpperCase() + formatted.substring(1);
       }
-      return (Icons.check_circle_outline_rounded, formatted, AppTheme.brandColor);
+      return (
+        Icons.check_circle_outline_rounded,
+        formatted,
+        AppTheme.brandColor,
+      );
     }
 
-    final combinedFeatures = {...widget.property.amenities, ...widget.property.houseRules};
+    final combinedFeatures = {
+      ...widget.property.amenities,
+      ...widget.property.houseRules,
+    };
     for (var feature in combinedFeatures) {
       final data = _getAmenityData(feature);
-      items.add(PropertyStatItem(
-        icon: data.$1,
-        value: '',
-        label: data.$2,
-        accentColor: data.$3,
-      ));
+      items.add(
+        PropertyStatItem(
+          icon: data.$1,
+          value: '',
+          label: data.$2,
+          accentColor: data.$3,
+        ),
+      );
     }
 
     if (items.isEmpty) return const SizedBox.shrink();
@@ -482,7 +792,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-      decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(32), border: Border.all(color: const Color(0xFFE2E8F0))),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
       child: Wrap(
         spacing: 8,
         runSpacing: 20,
@@ -495,11 +809,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildLocationDetails() {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey[200]!)),
-      child: Column(children: [
-        LocationInfoRow(icon: Icons.location_on_rounded, label: 'Area', value: widget.property.location),
-        if (widget.property.landmark.isNotEmpty) ...[const Divider(height: 16), LocationInfoRow(icon: Icons.assistant_navigation, label: 'Landmark', value: widget.property.landmark)],
-      ]),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        children: [
+          LocationInfoRow(
+            icon: Icons.location_on_rounded,
+            label: 'Area',
+            value: widget.property.location,
+          ),
+          if (widget.property.landmark.isNotEmpty) ...[
+            const Divider(height: 16),
+            LocationInfoRow(
+              icon: Icons.assistant_navigation,
+              label: 'Landmark',
+              value: widget.property.landmark,
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -512,19 +843,44 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           borderRadius: BorderRadius.circular(24),
           child: Container(
             height: 200,
-            decoration: BoxDecoration(color: Colors.grey[200], border: Border.all(color: Colors.black.withOpacity(0.05))),
-            child: Stack(children: [
-              Positioned.fill(
-                child: _getStaticMapUrl().isEmpty
-                    ? Image.asset('assets/images/Map view.png', fit: BoxFit.cover)
-                    : KhoznaImage(imageUrl: _getStaticMapUrl(), fit: BoxFit.cover),
-              ),
-              Center(child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), borderRadius: BorderRadius.circular(50)),
-                child: Text('Open Maps', style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: AppTheme.brandColor)),
-              )),
-            ]),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              border: Border.all(color: Colors.black.withOpacity(0.05)),
+            ),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: _getStaticMapUrl().isEmpty
+                      ? Image.asset(
+                          'assets/images/Map view.png',
+                          fit: BoxFit.cover,
+                        )
+                      : KhoznaImage(
+                          imageUrl: _getStaticMapUrl(),
+                          fit: BoxFit.cover,
+                        ),
+                ),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: Text(
+                      'Open Maps',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.brandColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -538,51 +894,97 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Stack(children: [
-        // Blurred fake map background
-        Positioned.fill(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: ImageFiltered(
-              imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-              child: Image.asset('assets/images/Map view.png', fit: BoxFit.cover),
+      child: Stack(
+        children: [
+          // Blurred fake map background
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                child: Image.asset(
+                  'assets/images/Map view.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
-        ),
-        // Lock overlay
-        Center(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 12)]),
-              child: const Icon(Icons.lock_rounded, color: AppTheme.brandColor, size: 28),
+          // Lock overlay
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 12,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.lock_rounded,
+                    color: AppTheme.brandColor,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.95),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Approximate Area Only',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        'Schedule a visit to unlock exact location',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.95), borderRadius: BorderRadius.circular(50)),
-              child: Column(children: [
-                Text('Approximate Area Only', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 14, color: Colors.black)),
-                Text('Schedule a visit to unlock exact location', style: GoogleFonts.inter(fontSize: 11, color: Colors.grey)),
-              ]),
-            ),
-          ]),
-        ),
-      ]),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildSafetyBanner() {
-    final bool isVerified = _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
-    
+    final bool isVerified =
+        _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isVerified ? Colors.blue.withOpacity(0.05) : Colors.orange.withOpacity(0.05),
+        color: isVerified
+            ? Colors.blue.withOpacity(0.05)
+            : Colors.orange.withOpacity(0.05),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isVerified ? Colors.blue.withOpacity(0.1) : Colors.orange.withOpacity(0.2),
+          color: isVerified
+              ? Colors.blue.withOpacity(0.1)
+              : Colors.orange.withOpacity(0.2),
           width: 1.5,
         ),
       ),
@@ -591,14 +993,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           Row(
             children: [
               Icon(
-                isVerified ? Icons.security_rounded : Icons.warning_amber_rounded,
+                isVerified
+                    ? Icons.security_rounded
+                    : Icons.warning_amber_rounded,
                 color: isVerified ? Colors.blue[700] : Colors.orange[800],
                 size: 20,
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  isVerified ? 'Khozna Safety Tip' : 'Caution: Unverified Owner',
+                  isVerified
+                      ? 'Khozna Safety Tip'
+                      : 'Caution: Unverified Owner',
                   style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w800,
                     fontSize: 14,
@@ -653,16 +1059,22 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             const SizedBox(height: 8),
             Text(
               'Why are you reporting this? (तपाईं किन रिपोर्ट गर्दै हुनुहुन्छ?)',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
             ),
             const SizedBox(height: 24),
             _buildReportOption('Scam or Fraud (ठगी)', Icons.money_off_rounded),
-            _buildReportOption('Wrong Information (गलत विवरण)', Icons.edit_off_rounded),
-            _buildReportOption('Owner Misbehavior (राम्रो व्यवहार छैन)', Icons.person_off_rounded),
-            _buildReportOption('Duplicate Listing (दोहोरिएको विज्ञापन)', Icons.copy_rounded),
+            _buildReportOption(
+              'Wrong Information (गलत विवरण)',
+              Icons.edit_off_rounded,
+            ),
+            _buildReportOption(
+              'Owner Misbehavior (राम्रो व्यवहार छैन)',
+              Icons.person_off_rounded,
+            ),
+            _buildReportOption(
+              'Duplicate Listing (दोहोरिएको विज्ञापन)',
+              Icons.copy_rounded,
+            ),
             const SizedBox(height: 24),
             Text(
               'False reports will result in a permanent ban.',
@@ -690,7 +1102,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Thank you. Our team will investigate this within 24 hours.'),
+            content: Text(
+              'Thank you. Our team will investigate this within 24 hours.',
+            ),
             backgroundColor: AppTheme.brandColor,
           ),
         );
@@ -699,95 +1113,151 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildOwnerCard() {
-    final String name = _ownerData?['full_name'] ?? widget.property.ownerName ?? 'Khozna User';
-    final String avatar = _ownerData?['avatar_url'] ?? widget.property.ownerAvatar ?? '';
-    final bool isVerified = _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
+    final String name =
+        _ownerData?['full_name'] ?? widget.property.ownerName ?? 'Khozna User';
+    final String avatar =
+        _ownerData?['avatar_url'] ?? widget.property.ownerAvatar ?? '';
+    final bool isVerified =
+        _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
 
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 20, offset: const Offset(0, 10))]),
-      child: Column(children: [
-        InkWell(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => OwnerProfileScreen(
-                  ownerId: widget.property.ownerId,
-                  name: name,
-                  avatar: avatar,
-                  isVerified: isVerified,
-                  location: widget.property.location,
-                  totalListings: 1, // At least this one
-                ),
-              ),
-            );
-          },
-          borderRadius: BorderRadius.circular(16),
-          child: Row(children: [
-            ClipOval(
-              child: KhoznaImage(
-                imageUrl: avatar,
-                width: 60,
-                height: 60,
-                errorWidget: Container(color: Colors.grey[100], child: const Icon(Icons.person, color: Colors.grey)),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [Text(name, style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold)), if (isVerified) const Icon(Icons.verified, size: 18, color: Colors.green)]),
-              Text('Verified Owner', style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600])),
-            ])),
-          ]),
-        ),
-        if (!_isMyProperty) ...[
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.push(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => chat_page.ChatScreen(
+                  builder: (_) => OwnerProfileScreen(
                     ownerId: widget.property.ownerId,
                     name: name,
                     avatar: avatar,
                     isVerified: isVerified,
-                    online: true,
+                    location: widget.property.location,
+                    totalListings: 1, // At least this one
                   ),
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.brandColor,
-                foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ShaderMask(
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [Colors.white, Color(0xFFE0E0E0)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ).createShader(bounds),
-                    child: SvgPicture.asset(
-                      'assets/icons/message.svg',
-                      width: 18,
-                      height: 18,
-                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              );
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Row(
+              children: [
+                ClipOval(
+                  child: KhoznaImage(
+                    imageUrl: avatar,
+                    width: 60,
+                    height: 60,
+                    errorWidget: Container(
+                      color: Colors.grey[100],
+                      child: const Icon(Icons.person, color: Colors.grey),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Text("Message Owner", style: GoogleFonts.inter(fontWeight: FontWeight.w800)),
-                ],
-              ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            name,
+                            style: GoogleFonts.inter(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          if (isVerified)
+                            const Icon(
+                              Icons.verified,
+                              size: 18,
+                              color: Colors.green,
+                            ),
+                        ],
+                      ),
+                      Text(
+                        'Verified Owner',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
+          if (!_isMyProperty) ...[
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => chat_page.ChatScreen(
+                      ownerId: widget.property.ownerId,
+                      name: name,
+                      avatar: avatar,
+                      isVerified: isVerified,
+                      online: true,
+                    ),
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ShaderMask(
+                      shaderCallback: (bounds) => const LinearGradient(
+                        colors: [Colors.white, Color(0xFFE0E0E0)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ).createShader(bounds),
+                      child: SvgPicture.asset(
+                        'assets/icons/message.svg',
+                        width: 18,
+                        height: 18,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Message Owner",
+                      style: GoogleFonts.inter(fontWeight: FontWeight.w800),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
-      ]),
+      ),
     );
   }
 
@@ -814,7 +1284,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     text: TextSpan(
                       children: [
                         TextSpan(
-                          text: 'Rs. ${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
+                          text:
+                              'Rs. ${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -822,7 +1293,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           ),
                         ),
                         TextSpan(
-                          text: widget.property.priceNight > 0 ? '/night' : '/mo',
+                          text: widget.property.priceNight > 0
+                              ? '/night'
+                              : '/mo',
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             color: Colors.black87,
@@ -844,44 +1317,57 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(width: 8),
-            
+
             // Right Side: Slim Reserve Button
             if (!_isMyProperty)
               SizedBox(
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: (widget.property.status == 'booked' || _userHasPendingBooking) 
-                    ? null 
-                    : () => Navigator.push(
-                        context, 
-                        MaterialPageRoute(
-                          builder: (_) => VisitRequestScreen(
-                            property: widget.property,
-                          )
-                        )
-                      ).then((v) => v == true ? setState(() => _userHasPendingBooking = true) : null), 
+                  onPressed:
+                      (widget.property.status == 'booked' ||
+                          _userHasPendingBooking)
+                      ? null
+                      : () =>
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => VisitRequestScreen(
+                                  property: widget.property,
+                                ),
+                              ),
+                            ).then(
+                              (v) => v == true
+                                  ? setState(
+                                      () => _userHasPendingBooking = true,
+                                    )
+                                  : null,
+                            ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandColor, 
-                    foregroundColor: Colors.white, 
-                    padding: const EdgeInsets.symmetric(horizontal: 20), 
+                    backgroundColor: AppTheme.brandColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))
-                  ), 
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
                   child: Text(
-                    widget.property.status == 'booked' 
-                      ? 'Booked' 
-                      : (_userHasPendingBooking ? 'Visit Scheduled' : 'SCHEDULE VISIT'),
+                    widget.property.status == 'booked'
+                        ? 'Booked'
+                        : (_userHasPendingBooking
+                              ? 'Visit Scheduled'
+                              : 'SCHEDULE VISIT'),
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                     ),
-                  )
+                  ),
                 ),
               ),
-          ]
-        )
+          ],
+        ),
       ),
     );
   }

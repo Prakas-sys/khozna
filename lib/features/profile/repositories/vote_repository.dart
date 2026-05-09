@@ -70,7 +70,10 @@ class VoteRepository {
 
   /// Toggle vote — returns new hasVoted state
   static Future<({bool hasVoted, int count})> toggleVote(
-      String targetId, int currentCount, bool currentlyVoted) async {
+    String targetId,
+    int currentCount,
+    bool currentlyVoted,
+  ) async {
     if (currentlyVoted) {
       final success = await removeVote(targetId);
       if (success) {

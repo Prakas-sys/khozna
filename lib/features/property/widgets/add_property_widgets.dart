@@ -41,7 +41,10 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _scaleAnim = CurvedAnimation(parent: _animController, curve: Curves.elasticOut);
+    _scaleAnim = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.elasticOut,
+    );
     _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
     _animController.forward();
   }
@@ -133,21 +136,38 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _detailRow(Icons.home_outlined, 'Title', widget.title.isEmpty ? 'My Property' : widget.title),
-                      _detailRow(Icons.location_on_outlined, 'Location', widget.area),
+                      _detailRow(
+                        Icons.home_outlined,
+                        'Title',
+                        widget.title.isEmpty ? 'My Property' : widget.title,
+                      ),
+                      _detailRow(
+                        Icons.location_on_outlined,
+                        'Location',
+                        widget.area,
+                      ),
                       if (widget.landmark.isNotEmpty)
-                        _detailRow(Icons.place_outlined, 'Landmark', widget.landmark),
+                        _detailRow(
+                          Icons.place_outlined,
+                          'Landmark',
+                          widget.landmark,
+                        ),
                       _detailRow(
                         Icons.payments_outlined,
                         'Monthly Rent',
-                        widget.price.isEmpty ? 'Not specified' : 'Rs. ${widget.price}/mo',
+                        widget.price.isEmpty
+                            ? 'Not specified'
+                            : 'Rs. ${widget.price}/mo',
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -296,7 +316,9 @@ class CategoryCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
+          color: isSelected
+              ? AppTheme.brandColor.withOpacity(0.03)
+              : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
@@ -324,7 +346,9 @@ class CategoryCard extends StatelessWidget {
                 style: GoogleFonts.hind(
                   fontSize: 15,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
+                  color: isSelected
+                      ? AppTheme.brandColor
+                      : const Color(0xFF4B5563),
                   height: 1.2,
                 ),
               ),
@@ -512,7 +536,10 @@ class PropertyFormField extends StatelessWidget {
             if (isRequired)
               const Text(
                 ' *',
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
           ],
         ),
@@ -529,13 +556,13 @@ class PropertyFormField extends StatelessWidget {
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.inter(
-              fontSize: 14,
-              color: Colors.grey[400],
-            ),
+            hintStyle: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400]),
             filled: true,
             fillColor: Colors.grey[50],
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide(color: Colors.grey.shade200),
@@ -546,7 +573,10 @@ class PropertyFormField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5),
+              borderSide: const BorderSide(
+                color: AppTheme.brandColor,
+                width: 1.5,
+              ),
             ),
           ),
         ),
@@ -595,13 +625,15 @@ class AmenitiesGrid extends StatelessWidget {
                 color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
                 width: 1.5,
               ),
-              boxShadow: isSelected ? [
-                BoxShadow(
-                  color: AppTheme.brandColor.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                )
-              ] : [],
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: AppTheme.brandColor.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : [],
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -621,8 +653,12 @@ class AmenitiesGrid extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.hind(
                       fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                      color: isSelected ? Colors.white : const Color(0xFF4B5563),
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w600,
+                      color: isSelected
+                          ? Colors.white
+                          : const Color(0xFF4B5563),
                     ),
                   ),
                 ),

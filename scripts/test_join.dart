@@ -10,9 +10,9 @@ void main() async {
     if (line.startsWith('SUPABASE_URL=')) url = line.split('=')[1];
     if (line.startsWith('SUPABASE_ANON_KEY=')) key = line.split('=')[1];
   }
-  
+
   final supabase = SupabaseClient(url, key);
-  
+
   try {
     // We will sign in as the user who got rejected to see if we can fetch it
     // Wait, we don't have their password.

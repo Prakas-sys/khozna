@@ -47,7 +47,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<ChatMessage> _optimisticMessages = [];
 
   String? _activeChatId;
-  final String _currentUserId = supabase.Supabase.instance.client.auth.currentUser?.id ?? '';
+  final String _currentUserId =
+      supabase.Supabase.instance.client.auth.currentUser?.id ?? '';
 
   late String _displayName;
   late String _displayAvatar;
@@ -72,7 +73,9 @@ class _ChatScreenState extends State<ChatScreen> {
     _displayAvatar = widget.avatar;
     _isOwner = widget.isOwner;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _startBannerAnimation());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _startBannerAnimation(),
+    );
     if (widget.ownerId.isNotEmpty) {
       _loadOwnerProfile();
       if (_activeChatId == null) {
@@ -115,9 +118,14 @@ class _ChatScreenState extends State<ChatScreen> {
       if (_bannerScrollController.hasClients) {
         final maxScroll = _bannerScrollController.position.maxScrollExtent;
         if (maxScroll > 0) {
-          await _bannerScrollController.animateTo(maxScroll, duration: Duration(milliseconds: (maxScroll * 40).toInt()), curve: Curves.linear);
+          await _bannerScrollController.animateTo(
+            maxScroll,
+            duration: Duration(milliseconds: (maxScroll * 40).toInt()),
+            curve: Curves.linear,
+          );
           await Future.delayed(const Duration(seconds: 1));
-          if (_bannerScrollController.hasClients) _bannerScrollController.jumpTo(0);
+          if (_bannerScrollController.hasClients)
+            _bannerScrollController.jumpTo(0);
         }
       }
     }
@@ -146,7 +154,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     setState(() => _optimisticMessages.insert(0, tempMsg));
-    if (_activeChatId == null && widget.ownerId.isNotEmpty) await _initializeChat();
+    if (_activeChatId == null && widget.ownerId.isNotEmpty)
+      await _initializeChat();
 
     if (_activeChatId != null) {
       ChatRepository.sendMessage(_activeChatId!, msgText).catchError((e) {
@@ -156,15 +165,20 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _pickAndSendImage() async {
-    final XFile? picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
+    final XFile? picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
     if (picked == null) return;
-    if (_activeChatId == null && widget.ownerId.isNotEmpty) await _initializeChat();
+    if (_activeChatId == null && widget.ownerId.isNotEmpty)
+      await _initializeChat();
     if (_activeChatId == null) return;
 
     setState(() => _isSendingImage = true);
     try {
       final url = await CloudinaryService.uploadImage(File(picked.path));
-      if (url != null) await ChatRepository.sendImageMessage(_activeChatId!, url);
+      if (url != null)
+        await ChatRepository.sendImageMessage(_activeChatId!, url);
     } finally {
       if (mounted) setState(() => _isSendingImage = false);
     }
@@ -180,30 +194,58 @@ class _ChatScreenState extends State<ChatScreen> {
         leading: const BackButton(color: Colors.black),
         titleSpacing: 0,
         title: InkWell(
-        onTap: () {
-          if (widget.ownerId.isNotEmpty) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => OwnerProfileScreen(
-                  ownerId: widget.ownerId,
-                  name: _displayName,
-                  avatar: _displayAvatar,
-                  location: 'Khozna User',
-                  totalListings: _isOwner ? 1 : 0,
+          onTap: () {
+            if (widget.ownerId.isNotEmpty) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => OwnerProfileScreen(
+                    ownerId: widget.ownerId,
+                    name: _displayName,
+                    avatar: _displayAvatar,
+                    location: 'Khozna User',
+                    totalListings: _isOwner ? 1 : 0,
+                  ),
                 ),
-              ),
-            );
-          }
-        },
+              );
+            }
+          },
           child: Row(
             children: [
-              CircleAvatar(radius: 18, backgroundImage: (_displayAvatar.isNotEmpty && !_displayAvatar.contains('pravatar.cc')) ? CachedNetworkImageProvider(_displayAvatar) : null, child: (_displayAvatar.isEmpty || _displayAvatar.contains('pravatar.cc')) ? const Icon(Icons.person, size: 18) : null),
+              CircleAvatar(
+                radius: 18,
+                backgroundImage:
+                    (_displayAvatar.isNotEmpty &&
+                        !_displayAvatar.contains('pravatar.cc'))
+                    ? CachedNetworkImageProvider(_displayAvatar)
+                    : null,
+                child:
+                    (_displayAvatar.isEmpty ||
+                        _displayAvatar.contains('pravatar.cc'))
+                    ? const Icon(Icons.person, size: 18)
+                    : null,
+              ),
               const SizedBox(width: 10),
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(_displayName, style: GoogleFonts.inter(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
-                Text(widget.online ? 'Online' : 'Offline', style: GoogleFonts.inter(color: widget.online ? Colors.green : Colors.grey, fontSize: 11)),
-              ]),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _displayName,
+                    style: GoogleFonts.inter(
+                      color: Colors.black,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    widget.online ? 'Online' : 'Offline',
+                    style: GoogleFonts.inter(
+                      color: widget.online ? Colors.green : Colors.grey,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -219,8 +261,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     stream: ChatRepository.getMessagesStream(_activeChatId!),
                     builder: (context, snapshot) {
                       final streamMessages = snapshot.data ?? [];
-                      final streamTexts = streamMessages.map((m) => m.text).toSet();
-                      final pending = _optimisticMessages.where((m) => !streamTexts.contains(m.text)).toList();
+                      final streamTexts = streamMessages
+                          .map((m) => m.text)
+                          .toSet();
+                      final pending = _optimisticMessages
+                          .where((m) => !streamTexts.contains(m.text))
+                          .toList();
                       final messages = [...pending, ...streamMessages];
 
                       return ListView.builder(
@@ -231,7 +277,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemBuilder: (context, index) => MessageBubble(
                           message: messages[index],
                           isMe: messages[index].senderId == _currentUserId,
-                          onLongPress: messages[index].senderId == _currentUserId ? () => _showDeleteDialog(messages[index].id) : null,
+                          onLongPress:
+                              messages[index].senderId == _currentUserId
+                              ? () => _showDeleteDialog(messages[index].id)
+                              : null,
                         ),
                       );
                     },
@@ -251,8 +300,18 @@ class _ChatScreenState extends State<ChatScreen> {
         title: const Text('Delete Message'),
         content: const Text('Remove this message for everyone?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          ElevatedButton(onPressed: () { Navigator.pop(ctx); ChatRepository.deleteMessage(id, _activeChatId!); }, style: ElevatedButton.styleFrom(backgroundColor: Colors.red), child: const Text('Delete')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ChatRepository.deleteMessage(id, _activeChatId!);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );
@@ -264,52 +323,107 @@ class _ChatScreenState extends State<ChatScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+        ),
         child: SafeArea(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const SizedBox(height: 30),
-            CircleAvatar(radius: 50, backgroundImage: (_displayAvatar.isNotEmpty && !_displayAvatar.contains('pravatar.cc')) ? CachedNetworkImageProvider(_displayAvatar) : null, child: (_displayAvatar.isEmpty || _displayAvatar.contains('pravatar.cc')) ? Icon(Icons.person, size: 50, color: Colors.grey[400]) : null),
-            const SizedBox(height: 16),
-            Text(_displayName, style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.bold)),
-            Text(
-              _isOwner ? 'Property Owner' : 'Guest',
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 30),
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              _buildActionCircle(Icons.person_rounded, 'Profile', Colors.blue, () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => OwnerProfileScreen(
-                      ownerId: widget.ownerId,
-                      name: _displayName,
-                      avatar: _displayAvatar,
-                      location: 'Khozna User',
-                      totalListings: _isOwner ? 1 : 0,
-                    ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 30),
+              CircleAvatar(
+                radius: 50,
+                backgroundImage:
+                    (_displayAvatar.isNotEmpty &&
+                        !_displayAvatar.contains('pravatar.cc'))
+                    ? CachedNetworkImageProvider(_displayAvatar)
+                    : null,
+                child:
+                    (_displayAvatar.isEmpty ||
+                        _displayAvatar.contains('pravatar.cc'))
+                    ? Icon(Icons.person, size: 50, color: Colors.grey[400])
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _displayName,
+                style: GoogleFonts.inter(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                _isOwner ? 'Property Owner' : 'Guest',
+                style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildActionCircle(
+                    Icons.person_rounded,
+                    'Profile',
+                    Colors.blue,
+                    () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OwnerProfileScreen(
+                            ownerId: widget.ownerId,
+                            name: _displayName,
+                            avatar: _displayAvatar,
+                            location: 'Khozna User',
+                            totalListings: _isOwner ? 1 : 0,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              }),
-              const SizedBox(width: 32),
-              _buildActionCircle(Icons.report_problem_rounded, 'Report', Colors.red, () {}),
-            ]),
-            const SizedBox(height: 40),
-          ]),
+                  const SizedBox(width: 32),
+                  _buildActionCircle(
+                    Icons.report_problem_rounded,
+                    'Report',
+                    Colors.red,
+                    () {},
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );
   }
 
-
-
-  Widget _buildActionCircle(IconData icon, String label, Color color, VoidCallback onTap) {
-    return Column(children: [
-      InkWell(onTap: onTap, child: Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle), child: Icon(icon, color: color, size: 26))),
-      const SizedBox(height: 8),
-      Text(label, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[700])),
-    ]);
+  Widget _buildActionCircle(
+    IconData icon,
+    String label,
+    Color color,
+    VoidCallback onTap,
+  ) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 26),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[700]),
+        ),
+      ],
+    );
   }
 
   Widget _buildInputArea() {
@@ -335,7 +449,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(Icons.add_rounded, color: Color(0xFF6B7280), size: 22),
+                      icon: const Icon(
+                        Icons.add_rounded,
+                        color: Color(0xFF6B7280),
+                        size: 22,
+                      ),
                       onPressed: () {},
                       constraints: const BoxConstraints(),
                       padding: const EdgeInsets.all(8),
@@ -346,14 +464,23 @@ class _ChatScreenState extends State<ChatScreen> {
                         style: GoogleFonts.inter(fontSize: 15),
                         decoration: InputDecoration(
                           hintText: 'Message...',
-                          hintStyle: GoogleFonts.inter(color: const Color(0xFF9CA3AF), fontSize: 15),
+                          hintStyle: GoogleFonts.inter(
+                            color: const Color(0xFF9CA3AF),
+                            fontSize: 15,
+                          ),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                          ),
                         ),
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.camera_alt_rounded, color: Color(0xFF6B7280), size: 22),
+                      icon: const Icon(
+                        Icons.camera_alt_rounded,
+                        color: Color(0xFF6B7280),
+                        size: 22,
+                      ),
                       onPressed: _pickAndSendImage,
                       constraints: const BoxConstraints(),
                       padding: const EdgeInsets.all(8),
@@ -376,7 +503,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     color: AppTheme.brandColor,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
+                  child: const Icon(
+                    Icons.send_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
                 ),
               ),
             ),

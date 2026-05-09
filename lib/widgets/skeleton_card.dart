@@ -51,13 +51,20 @@ class _SkeletonCardState extends State<SkeletonCard>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image Placeholder (Shimmering)
-            _buildShimmerItem(Container(
-              height: 175,
-              width: double.infinity,
-              color: Colors.white,
-            )),
+            _buildShimmerItem(
+              Container(
+                height: 175,
+                width: double.infinity,
+                color: Colors.white,
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 4), // Tight match for PropertyCard
+              padding: const EdgeInsets.fromLTRB(
+                12,
+                4,
+                12,
+                4,
+              ), // Tight match for PropertyCard
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -65,22 +72,26 @@ class _SkeletonCardState extends State<SkeletonCard>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildShimmerItem(Container(
-                        width: 100,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
+                      _buildShimmerItem(
+                        Container(
+                          width: 100,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
-                      )),
-                      _buildShimmerItem(Container(
-                        width: 70,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
+                      ),
+                      _buildShimmerItem(
+                        Container(
+                          width: 70,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                         ),
-                      )),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -90,23 +101,27 @@ class _SkeletonCardState extends State<SkeletonCard>
                     children: [
                       Row(
                         children: [
-                          _buildShimmerItem(Container(
-                            width: 12,
-                            height: 12,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
+                          _buildShimmerItem(
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
                             ),
-                          )),
+                          ),
                           const SizedBox(width: 4),
-                          _buildShimmerItem(Container(
-                            width: 60,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(2),
+                          _buildShimmerItem(
+                            Container(
+                              width: 60,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(2),
+                              ),
                             ),
-                          )),
+                          ),
                         ],
                       ),
                       Row(
@@ -123,23 +138,27 @@ class _SkeletonCardState extends State<SkeletonCard>
                   Row(
                     children: [
                       Expanded(
-                        child: _buildShimmerItem(Container(
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(30),
+                        child: _buildShimmerItem(
+                          Container(
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
                           ),
-                        )),
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: _buildShimmerItem(Container(
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(30),
+                        child: _buildShimmerItem(
+                          Container(
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
                           ),
-                        )),
+                        ),
                       ),
                     ],
                   ),
