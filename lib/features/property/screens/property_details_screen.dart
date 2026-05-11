@@ -666,34 +666,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ),
         const SizedBox(height: 8),
         Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.location_on_rounded,
-                color: AppTheme.brandColor,
-                size: 14,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                widget.property.location,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  color: const Color(0xFF6B7280),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
@@ -729,7 +701,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             widget.property.priceNight.toString(),
                           ),
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 28,
+                            fontSize: 27.5,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
                             letterSpacing: -0.5,
@@ -780,6 +752,34 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ),
                 ],
               ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.location_on_rounded,
+                color: AppTheme.brandColor,
+                size: 14,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                widget.property.location,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  color: const Color(0xFF6B7280),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
