@@ -385,10 +385,11 @@ class StepLayout extends StatelessWidget {
           Text(
             title,
             style: GoogleFonts.hind(
-              fontSize: 24,
+              fontSize: 21,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
               height: 1.2,
+              letterSpacing: -0.4,
             ),
           ),
           const SizedBox(height: 6),
