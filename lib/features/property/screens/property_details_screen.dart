@@ -236,38 +236,50 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         elevation: 0,
         centerTitle: true,
         toolbarHeight: 48,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.black,
-            size: 18,
+        leading: Transform.translate(
+          offset: const Offset(0, -2),
+          child: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.black,
+              size: 18,
+            ),
+            onPressed: () => Navigator.pop(context),
           ),
-          onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'Property Details',
-          style: GoogleFonts.plusJakartaSans(
-            color: Colors.black,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.3,
+        title: Transform.translate(
+          offset: const Offset(0, -2),
+          child: Text(
+            'Property Details',
+            style: GoogleFonts.plusJakartaSans(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.3,
+            ),
           ),
         ),
         actions: [
-          FavouriteButton(propertyId: widget.property.id),
+          Transform.translate(
+            offset: const Offset(0, -2),
+            child: FavouriteButton(propertyId: widget.property.id),
+          ),
           const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(
-              Icons.share_rounded,
-              color: Colors.black87,
-              size: 22,
+          Transform.translate(
+            offset: const Offset(0, -2),
+            child: IconButton(
+              icon: const Icon(
+                Icons.share_rounded,
+                color: Colors.black87,
+                size: 22,
+              ),
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                Share.share(
+                  'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: ₹${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
+                );
+              },
             ),
-            onPressed: () {
-              HapticFeedback.mediumImpact();
-              Share.share(
-                'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: ₹${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
-              );
-            },
           ),
           const SizedBox(width: 8),
         ],
@@ -654,14 +666,42 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ),
         const SizedBox(height: 8),
         Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.location_on_rounded,
+                color: AppTheme.brandColor,
+                size: 14,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                widget.property.location,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  color: const Color(0xFF6B7280),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Text(
                 widget.property.title,
                 style: GoogleFonts.plusJakartaSans(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 24, // Reduced from 26
+                  fontWeight: FontWeight.w700,
                   color: const Color(0xFF1A1A2E),
                   height: 1.1,
                   letterSpacing: -0.5,
@@ -679,7 +719,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         TextSpan(
                           text: '₹',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 22,
+                            fontSize: 24, // Increased from 20
                             fontWeight: FontWeight.w700,
                             color: AppTheme.brandColor,
                           ),
@@ -689,19 +729,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             widget.property.priceNight.toString(),
                           ),
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 24,
+                            fontSize: 28,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
-                            letterSpacing: -1,
+                            letterSpacing: -0.5,
                           ),
                         ),
                       ],
                     ),
                   ),
                   Text(
-                    'प्रति रात (Per Night)',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
+                    'Per Night',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
                       color: const Color(0xFF6B7280),
                       fontWeight: FontWeight.w600,
                     ),
@@ -713,7 +753,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         TextSpan(
                           text: '₹',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 22,
+                            fontSize: 24, // Increased from 20
                             fontWeight: FontWeight.w700,
                             color: AppTheme.brandColor,
                           ),
@@ -721,46 +761,25 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         TextSpan(
                           text: PriceFormatter.format(widget.property.price),
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 24,
+                            fontSize: 28,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
-                            letterSpacing: -1,
+                            letterSpacing: -0.5,
                           ),
                         ),
                       ],
                     ),
                   ),
                   Text(
-                    'भाडा/महिना (Per Month)',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
+                    'Per Month',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 12,
                       color: const Color(0xFF6B7280),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            const Icon(
-              Icons.location_on_outlined,
-              color: AppTheme.brandColor,
-              size: 18,
-            ),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                widget.property.location,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: AppTheme.brandColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
             ),
           ],
         ),
@@ -1361,17 +1380,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       children: [
                         TextSpan(
                           text: '₹',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             color: Colors.black,
                           ),
                         ),
                         TextSpan(
                           text:
                               '${PriceFormatter.format((widget.property.priceNight > 0 ? widget.property.priceNight : widget.property.price).toString())} ',
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 18,
                             fontWeight: FontWeight.w800,
                             color: Colors.black,
                           ),
@@ -1380,9 +1399,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           text: widget.property.priceNight > 0
                               ? '/night'
                               : '/mo',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: Colors.black87,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],

@@ -225,10 +225,10 @@ class GlassCircle extends StatelessWidget {
             height: size,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(opacity),
+              color: const Color(0xFF1F2937).withOpacity(opacity * 2), // More grey/slate
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white.withOpacity(0.25),
+                color: Colors.white.withOpacity(0.15),
                 width: 1,
               ),
             ),
@@ -255,9 +255,9 @@ class NavArrow extends StatelessWidget {
         width: 32,
         height: 60,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.25),
+          color: const Color(0xFF1F2937).withOpacity(0.4),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+          border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
