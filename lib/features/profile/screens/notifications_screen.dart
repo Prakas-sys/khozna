@@ -545,8 +545,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             children: [
                               Text(
                                 _getHumanMessage(note, sender),
-                                style: GoogleFonts.mukta(
-                                  fontSize: 15,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
                                   color: Colors.black,
                                   fontWeight: FontWeight.w600,
                                   height: 1.4,
@@ -874,7 +874,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.notoSansDevanagari(
+                        style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w800,
                           fontSize: 16,
                           color: Colors.black,
@@ -899,10 +899,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             padding: const EdgeInsets.all(16),
             child: Text(
               message,
-              style: GoogleFonts.notoSansDevanagari(
-                fontSize: 15,
+              style: GoogleFonts.inter(
+                fontSize: 14,
                 color: Colors.grey[700],
-                height: 1.3,
+                height: 1.4,
               ),
             ),
           ),
@@ -1007,7 +1007,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           child: Text(
             'New updates will appear here.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               fontSize: 14,
               color: Colors.grey[600],
               height: 1.4,
@@ -1054,7 +1054,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               const SizedBox(height: 16),
               Text(
                 'Get verified to double your response rate! Verified users build more trust.',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontSize: 13,
                   color: const Color(0xFF64748B),
                   height: 1.6,
@@ -1368,7 +1368,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       Text(
                         note['title'] ?? 'Payment Notification',
-                        style: GoogleFonts.mukta(
+                        style: GoogleFonts.plusJakartaSans(
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
                           color: Colors.black,
@@ -1394,7 +1394,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               children: [
                 Text(
                   message,
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.inter(
                     fontSize: 14,
                     color: Colors.grey[800],
                     height: 1.4,
