@@ -357,7 +357,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         title: Transform.translate(
           offset: const Offset(0, 2),
           child: Text(
-            'सम्पत्ति थप्नुहोस्',
+            'सम्पत्ति राख्नुहोस्',
             style: GoogleFonts.notoSansDevanagari(
               fontSize: 18,
               fontWeight: FontWeight.w600,
