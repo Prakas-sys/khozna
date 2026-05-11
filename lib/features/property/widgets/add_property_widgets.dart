@@ -98,7 +98,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                 const SizedBox(height: 28),
                 Text(
                   'प्रकाशित भयो! 🎉',
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.poppins(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF111827),
@@ -207,7 +207,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                     ),
                     child: Text(
                       'गृहपृष्ठमा जानुहोस् (Go Home)',
-                      style: GoogleFonts.mukta(
+                      style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -263,7 +263,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: Colors.grey[500],
@@ -272,7 +272,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.poppins(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF1F2937),
@@ -343,7 +343,7 @@ class CategoryCard extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.mukta(
+                style: GoogleFonts.poppins(
                   fontSize: 15,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                   color: isSelected
@@ -384,7 +384,7 @@ class StepLayout extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.mukta(
+            style: GoogleFonts.poppins(
               fontSize: 21,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
@@ -464,7 +464,7 @@ class PremiumFeatureCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.mukta(
+                      style: GoogleFonts.poppins(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
@@ -473,7 +473,7 @@ class PremiumFeatureCard extends StatelessWidget {
                     ),
                     Text(
                       subtitle,
-                      style: GoogleFonts.mukta(
+                      style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.grey[500],
                         fontWeight: FontWeight.w500,
@@ -528,7 +528,7 @@ class PropertyFormField extends StatelessWidget {
           children: [
             Text(
               label,
-              style: GoogleFonts.mukta(
+              style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF374151),
@@ -652,7 +652,7 @@ class AmenitiesGrid extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.mukta(
+                    style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: isSelected
                           ? FontWeight.w700
