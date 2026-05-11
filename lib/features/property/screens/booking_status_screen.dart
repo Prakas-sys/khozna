@@ -905,7 +905,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'भ्रमण स्वीकृत भयो! ✅',
+                  'भ्रमण स्वीकृत भयो!',
                   style: GoogleFonts.mukta(
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
@@ -1273,7 +1273,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         return _StatusConfig(
           Icons.check_circle_rounded,
           Colors.blue,
-          'Visit Accepted ✅',
+          'Visit Accepted',
           'भ्रमण स्वीकृत — कोठा हेर्न जानुहोस्',
         );
       case 'awaiting_payment':

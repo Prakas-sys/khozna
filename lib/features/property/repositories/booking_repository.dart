@@ -74,7 +74,7 @@ class BookingRepository {
       await _client.from('notifications').insert({
         'user_id': ownerId,
         'sender_id': user.id,
-        'title': '🚶‍♂️ नयाँ भ्रमण अनुरोध (New Visit Request!)',
+        'title': 'नयाँ भ्रमण अनुरोध (New Visit Request!)',
         'message':
             '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ। ${message ?? ""}',
         'type': 'visit_request',
@@ -107,7 +107,7 @@ class BookingRepository {
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
-          'title': '✅ भ्रमण स्वीकृत (Visit Approved!)',
+          'title': 'भ्रमण स्वीकृत (Visit Approved!)',
           'message':
               'तपाइँको भ्रमण अनुरोध स्वीकृत भएको छ। कोठा हेरेर मन पराएपछि मात्र भुक्तानीको प्रक्रिया हुनेछ।',
           'type': 'visit_alert',

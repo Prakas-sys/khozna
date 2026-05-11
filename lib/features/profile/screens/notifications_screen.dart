@@ -69,7 +69,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (type == 'booking_approved' ||
         message.contains('स्वीकृत') ||
         type == 'visit_alert' && message.contains('स्वीकृत')) {
-      return '✅ तपाईंको भ्रमण अनुरोध स्वीकृत भयो! (Visit Accepted!)';
+      return 'तपाईंको भ्रमण अनुरोध स्वीकृत भयो! (Visit Accepted!)';
     }
     if (message.contains('अस्वीकृत') ||
         message.contains('सक्नुभएन') ||
@@ -858,12 +858,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withOpacity(0.12),
+                    color: Colors.green.withOpacity(0.12),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.check_circle_rounded,
-                    color: AppTheme.brandColor,
+                    color: Colors.green,
                     size: 20,
                   ),
                 ),
@@ -874,10 +874,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.notoSansDevanagari(
                           fontWeight: FontWeight.w800,
-                          fontSize: 13,
+                          fontSize: 16,
                           color: Colors.black,
+                          height: 1.2,
                         ),
                       ),
                       Text(
@@ -898,10 +899,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             padding: const EdgeInsets.all(16),
             child: Text(
               message,
-              style: GoogleFonts.inter(
-                fontSize: 13,
+              style: GoogleFonts.notoSansDevanagari(
+                fontSize: 15,
                 color: Colors.grey[700],
-                height: 1.5,
+                height: 1.3,
               ),
             ),
           ),
@@ -938,9 +939,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 icon: const Icon(Icons.payment_rounded, size: 18),
                 label: Text(
                   'अहिले भुक्तानी गर्नुहोस् (Pay Now)',
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w800,
-                    fontSize: 15,
+                    fontSize: 17,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
