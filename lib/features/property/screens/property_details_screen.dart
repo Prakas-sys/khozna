@@ -260,26 +260,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         ),
         actions: [
-          Transform.translate(
-            offset: const Offset(0, -4),
-            child: FavouriteButton(propertyId: widget.property.id),
-          ),
+          FavouriteButton(propertyId: widget.property.id),
           const SizedBox(width: 8),
-          Transform.translate(
-            offset: const Offset(0, -4),
-            child: IconButton(
-              icon: const Icon(
-                Icons.share_rounded,
-                color: Colors.black87,
-                size: 22,
-              ),
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                Share.share(
-                  'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: ₹${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
-                );
-              },
+          IconButton(
+            icon: const Icon(
+              Icons.share_rounded,
+              color: Colors.black87,
+              size: 22,
             ),
+            onPressed: () {
+              HapticFeedback.mediumImpact();
+              Share.share(
+                'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: ₹${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
+              );
+            },
           ),
           const SizedBox(width: 8),
         ],
@@ -755,7 +749,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 2),
         Row(
           children: [
             Container(
