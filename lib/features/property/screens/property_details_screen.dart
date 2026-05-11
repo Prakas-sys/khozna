@@ -237,7 +237,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         centerTitle: true,
         toolbarHeight: 48,
         leading: Transform.translate(
-          offset: const Offset(0, -2),
+          offset: const Offset(0, -4),
           child: IconButton(
             icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -248,7 +248,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         ),
         title: Transform.translate(
-          offset: const Offset(0, -2),
+          offset: const Offset(0, -4),
           child: Text(
             'Property Details',
             style: GoogleFonts.plusJakartaSans(
@@ -261,12 +261,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ),
         actions: [
           Transform.translate(
-            offset: const Offset(0, -2),
+            offset: const Offset(0, -4),
             child: FavouriteButton(propertyId: widget.property.id),
           ),
           const SizedBox(width: 8),
           Transform.translate(
-            offset: const Offset(0, -2),
+            offset: const Offset(0, -4),
             child: IconButton(
               icon: const Icon(
                 Icons.share_rounded,
@@ -701,7 +701,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             widget.property.priceNight.toString(),
                           ),
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 27.5,
+                            fontSize: 27,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
                             letterSpacing: -0.5,
@@ -733,7 +733,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         TextSpan(
                           text: PriceFormatter.format(widget.property.price),
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 28,
+                            fontSize: 27,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
                             letterSpacing: -0.5,
