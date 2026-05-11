@@ -239,7 +239,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         if (res == true) _loadProfile();
                       },
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
                   ],
 
                   if (!_isLoading && _kycStatus == 'verified') ...[
@@ -308,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   ProfileMenuSection(
                     title: 'LEGAL & HELP',
@@ -350,7 +350,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   ProfileMenuSection(
                     title: 'ACCOUNTS',
@@ -364,7 +364,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ],
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 20),
 
                   SizedBox(
                     width: double.infinity,

@@ -323,7 +323,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   }),
                   const SizedBox(height: 24),
                 ],
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
                 Center(
                   child: TextButton.icon(
                     onPressed: () => _showReportDialog(),
@@ -1291,7 +1291,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ),
           if (!_isMyProperty) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
