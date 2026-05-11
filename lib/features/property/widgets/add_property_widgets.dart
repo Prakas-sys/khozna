@@ -343,7 +343,7 @@ class CategoryCard extends StatelessWidget {
               Text(
                 label,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.hind(
+                style: GoogleFonts.mukta(
                   fontSize: 15,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                   color: isSelected
@@ -384,7 +384,7 @@ class StepLayout extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.hind(
+            style: GoogleFonts.mukta(
               fontSize: 21,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
@@ -464,7 +464,7 @@ class PremiumFeatureCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: GoogleFonts.hind(
+                      style: GoogleFonts.mukta(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
@@ -473,7 +473,7 @@ class PremiumFeatureCard extends StatelessWidget {
                     ),
                     Text(
                       subtitle,
-                      style: GoogleFonts.hind(
+                      style: GoogleFonts.mukta(
                         fontSize: 12,
                         color: Colors.grey[500],
                         fontWeight: FontWeight.w500,
@@ -528,7 +528,7 @@ class PropertyFormField extends StatelessWidget {
           children: [
             Text(
               label,
-              style: GoogleFonts.hind(
+              style: GoogleFonts.mukta(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: const Color(0xFF374151),
@@ -652,7 +652,7 @@ class AmenitiesGrid extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.hind(
+                    style: GoogleFonts.mukta(
                       fontSize: 12,
                       fontWeight: isSelected
                           ? FontWeight.w700

@@ -355,8 +355,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
-          'प्रोपर्टी प्रकाशित गर्नुहोस्',
-          style: GoogleFonts.hind(
+          'सम्पत्ति थप्नुहोस्',
+          style: GoogleFonts.mukta(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: Colors.black,
@@ -523,13 +523,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     return StepLayout(
       title: 'तपाईंको सम्पत्ति कहाँ छ?',
       subtitle:
-          'सही लोकेशन राख्दा धेरै मानिसहरूले विश्वास गर्छन्। (Accurate location builds trust)',
+          'सही जानकारीले ग्राहकको विश्वास जित्न सजिलो हुन्छ। (Accurate location builds trust)',
       content: [
         PremiumFeatureCard(
           icon: _latitude != null ? Icons.location_on : Icons.my_location,
           title: _latitude != null
               ? 'लोकेशन प्रमाणित भयो'
-              : 'नक्सामा लोकेशन सेट गर्नुहोस्',
+              : 'नक्सामा ठाउँ देखाउनुहोस्',
           subtitle: _latitude != null
               ? 'GPS verified location detected'
               : 'Use GPS for maximum listing trust',
@@ -586,7 +586,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       ? 'खोज्दै छ...'
                       : _latitude != null
                       ? 'फेरि खोज्नुहोस्'
-                      : 'मेरो लोकेशन पत्ता लगाउनुहोस्',
+                      : 'मेरो ठाउँ खोज्नुहोस्',
                   style: GoogleFonts.mukta(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -612,14 +612,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ),
         const SizedBox(height: 32),
         PropertyFormField(
-          label: 'टोल वा गाउँको नाम (Area Name)',
+          label: 'टोल वा ठाउँको नाम (Area Name)',
           hint: 'उदा: ललितपुर, सानेपा-२',
           controller: _areaController,
           isRequired: true,
         ),
         const SizedBox(height: 24),
         PropertyFormField(
-          label: 'नजिकैको प्रख्यात ठाउँ (Landmark)',
+          label: 'नजिकैको चिनिने ठाउँ (Landmark)',
           hint: 'उदा: सिभिल हस्पिटलको पछाडि',
           controller: _landmarkController,
           isRequired: true,
