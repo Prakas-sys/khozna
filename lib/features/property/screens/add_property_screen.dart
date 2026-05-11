@@ -356,9 +356,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         scrolledUnderElevation: 0,
         title: Text(
           'सम्पत्ति थप्नुहोस्',
-          style: GoogleFonts.poppins(
+          style: GoogleFonts.notoSansDevanagari(
             fontSize: 18,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             color: Colors.black,
           ),
         ),
@@ -551,7 +551,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       const SizedBox(width: 8),
                       Text(
                         'पहिला यहाँ क्लिक गर्नुहोस्!',
-                        style: GoogleFonts.poppins(
+                        style: GoogleFonts.notoSansDevanagari(
                           color: Colors.orange[800],
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
@@ -587,7 +587,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       : _latitude != null
                       ? 'फेरि खोज्नुहोस्'
                       : 'मेरो ठाउँ खोज्नुहोस्',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.notoSansDevanagari(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -749,7 +749,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           const SizedBox(height: 24),
           Text(
             'छानिएका फोटोहरू (${_selectedImages.length})',
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+            style: GoogleFonts.notoSansDevanagari(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           GridView.builder(
@@ -878,7 +878,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               TextField(
                 controller: _descriptionController,
                 maxLines: 5,
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.notoSansDevanagari(
                   fontSize: 15,
                   color: Colors.black87,
                   height: 1.5,
@@ -1029,7 +1029,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         children: [
                           Text(
                             'भाडा मिलाउन सकिने',
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.notoSansDevanagari(
                               fontWeight: FontWeight.w800,
                               fontSize: 17,
                               color: const Color(0xFF111827),
@@ -1063,7 +1063,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 40),
         Text(
           'घरका नियमहरू (House Rules)',
-          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w800),
+          style: GoogleFonts.notoSansDevanagari(fontSize: 18, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 16),
         AmenitiesGrid(
@@ -1112,7 +1112,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               Expanded(
                 child: Text(
                   'अतिथिले बुकिङ गर्दा, तपाईंको पैसा सिधै यो खातामा आउनेछ। (Booking payouts will go to this account automatically)',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.notoSansDevanagari(
                     fontSize: 14,
                     height: 1.4,
                     color: Colors.blue[900],
@@ -1174,7 +1174,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               Expanded(
                 child: Text(
                   'सबै जानकारी सुरक्षित छ। तपाईंको विज्ञापन प्रमाणित भएपछि मात्र सार्वजनिक हुनेछ। (Your listing is secure and will be published after verification.)',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.notoSansDevanagari(
                     color: Colors.green[800],
                     fontSize: 14,
                     height: 1.4,
@@ -1282,7 +1282,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.notoSansDevanagari(
               fontSize: 18,
               fontWeight: FontWeight.w800,
               color: const Color(0xFF111827),
@@ -1292,7 +1292,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           Text(
             desc,
             textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.notoSansDevanagari(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Colors.grey[600],
