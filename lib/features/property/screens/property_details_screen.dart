@@ -235,20 +235,22 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
+        toolbarHeight: 48,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
             color: Colors.black,
-            size: 20,
+            size: 18,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           'Property Details',
-          style: GoogleFonts.inter(
+          style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
           ),
         ),
         actions: [
@@ -279,7 +281,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               delegate: SliverChildListDelegate([
                 _buildHeader(),
                 const SizedBox(height: 12),
-                const SizedBox(height: 24),
+                _buildQuickInfoRow(),
+                const SizedBox(height: 32),
                 const DetailSectionTitle(title: 'सुविधाहरू (Amenities)'),
                 const SizedBox(height: 20),
                 _buildAmenityGrid(),
@@ -436,7 +439,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         : displayImages.length) >
                     1) ...[
                   Positioned(
-                    left: 24,
+                    left: 20,
                     top: 0,
                     bottom: 0,
                     child: Center(
@@ -449,13 +452,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             curve: Curves.easeInOut,
                           );
                         },
-                        iconSize: 24,
-                        size: 36,
+                        iconSize: 16,
+                        size: 26,
                       ),
                     ),
                   ),
                   Positioned(
-                    right: 24,
+                    right: 20,
                     top: 0,
                     bottom: 0,
                     child: Center(
@@ -468,8 +471,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             curve: Curves.easeInOut,
                           );
                         },
-                        iconSize: 24,
-                        size: 36,
+                        iconSize: 16,
+                        size: 26,
                       ),
                     ),
                   ),
@@ -506,6 +509,93 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
+
+  Widget _buildQuickInfoRow() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildQuickStatItem(
+            icon: Icons.bed_outlined,
+            label: 'Bed',
+            value: widget.property.bedrooms.toString(),
+            color: AppTheme.brandColor,
+            bgColor: AppTheme.brandColor.withOpacity(0.08),
+          ),
+          _buildQuickStatItem(
+            icon: Icons.layers_outlined,
+            label: 'Floor',
+            value: widget.property.floor,
+            color: Colors.orange,
+            bgColor: Colors.orange.withOpacity(0.08),
+          ),
+          _buildQuickStatItem(
+            icon: Icons.square_foot_outlined,
+            label: 'Length',
+            value: widget.property.area,
+            color: Colors.green,
+            bgColor: Colors.green.withOpacity(0.08),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickStatItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+    required Color bgColor,
+  }) {
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: bgColor,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF1E293B),
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: const Color(0xFF64748B),
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildHeader() {
     return Column(
@@ -571,10 +661,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 widget.property.title,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 26,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                   color: const Color(0xFF1A1A2E),
                   height: 1.1,
-                  letterSpacing: -1.0,
+                  letterSpacing: -0.5,
                 ),
               ),
             ),
@@ -681,17 +771,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildAmenityGrid() {
     final List<Widget> items = [];
 
-    // Core Stats (Show only if valid)
-    if (widget.property.bedrooms > 0) {
-      items.add(
-        PropertyStatItem(
-          icon: Icons.bed_outlined,
-          value: '${widget.property.bedrooms}',
-          label: 'Beds',
-          accentColor: AppTheme.brandColor,
-        ),
-      );
-    }
+    // Core Stats
     if (widget.property.bathrooms > 0) {
       items.add(
         PropertyStatItem(
@@ -699,26 +779,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           value: '${widget.property.bathrooms}',
           label: 'Baths',
           accentColor: Colors.cyan,
-        ),
-      );
-    }
-    if (widget.property.area != '0' && widget.property.area.isNotEmpty) {
-      items.add(
-        PropertyStatItem(
-          icon: Icons.square_foot_outlined,
-          value: widget.property.area,
-          label: 'Area',
-          accentColor: Colors.green,
-        ),
-      );
-    }
-    if (widget.property.floor != 'N/A' && widget.property.floor.isNotEmpty) {
-      items.add(
-        PropertyStatItem(
-          icon: Icons.layers_outlined,
-          value: widget.property.floor,
-          label: 'Floor',
-          accentColor: Colors.orange,
         ),
       );
     }

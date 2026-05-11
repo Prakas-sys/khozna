@@ -241,41 +241,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       const SizedBox(height: 32),
 
-                      // 3. RECENT SEARCHES
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Recent Searches',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.black87,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              setState(() => _recentSearches.clear());
-                            },
-                            child: Text(
-                              'Clear All',
-                              style: GoogleFonts.inter(
-                                color: AppTheme.brandColor,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: _recentSearches.map((s) => _buildRecentTag(s)).toList(),
-                      ),
-                      const SizedBox(height: 32),
+
 
                       // 4. QUICK DISCOVERY
                       Text(
@@ -298,7 +264,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         },
                       ),
                       
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 8),
                       Text(
                         'Popular Areas',
                         style: GoogleFonts.plusJakartaSans(
@@ -308,104 +274,28 @@ class _SearchScreenState extends State<SearchScreen> {
                           letterSpacing: 0.5,
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        child: Row(
-                          children: [
-                            'Baluwatar', 'Sanepa', 'Lalitpur', 'Kirtipur', 'Baneshwor'
-                          ].map((area) => Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: ActionChip(
-                              label: Text(area),
-                              onPressed: () {
-                                _searchController.text = area;
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => FilterResultsScreen(
-                                      location: area,
-                                      priceRange: 'Up to ₹ ${_priceValue.toInt()}',
-                                    ),
-                                  ),
-                                );
-                              },
-                              backgroundColor: Colors.grey.shade50,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                              side: BorderSide(color: Colors.grey.shade200),
-                              labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13),
-                            ),
-                          )).toList(),
+                      const SizedBox(height: 8),
+                      ...['Baluwatar', 'Sanepa', 'Lalitpur', 'Kirtipur', 'Baneshwor'].map((area) =>
+                        _buildSuggestedItem(
+                          area,
+                          'Browse properties in $area',
+                          Icons.location_on_rounded,
+                          onTap: () {
+                            _searchController.text = area;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FilterResultsScreen(
+                                  location: area,
+                                  priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
 
                       const SizedBox(height: 32),
-                      // AI SEARCH PROMPT (Redesigned as a premium card)
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              AppTheme.brandColor,
-                              Colors.blue.shade700,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.brandColor.withOpacity(0.3),
-                              blurRadius: 15,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(Icons.auto_awesome, color: Colors.white, size: 36),
-                            const SizedBox(height: 12),
-                            Text(
-                              'Smart AI Search',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 18,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Tell me what you need, like "Flat under 15k for students in Kirtipur"',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
-                                color: Colors.white.withOpacity(0.9),
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const AiChatScreen()),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: AppTheme.brandColor,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                                child: Text(
-                                  'Ask Khozna AI',
-                                  style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 40),
                       // Khozna Branded Search Button
                       SizedBox(
                         width: double.infinity,
