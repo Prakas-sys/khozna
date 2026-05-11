@@ -235,28 +235,22 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        toolbarHeight: 48,
-        leading: Transform.translate(
-          offset: const Offset(0, -4),
-          child: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: Colors.black,
-              size: 18,
-            ),
-            onPressed: () => Navigator.pop(context),
+        toolbarHeight: 52,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.black,
+            size: 18,
           ),
+          onPressed: () => Navigator.pop(context),
         ),
-        title: Transform.translate(
-          offset: const Offset(0, -4),
-          child: Text(
-            'Property Details',
-            style: GoogleFonts.plusJakartaSans(
-              color: Colors.black,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.3,
-            ),
+        title: Text(
+          'Property Details',
+          style: GoogleFonts.plusJakartaSans(
+            color: Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
           ),
         ),
         actions: [
@@ -663,15 +657,48 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Text(
-                widget.property.title,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 24, // Reduced from 26
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
-                  height: 1.1,
-                  letterSpacing: -0.5,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.property.title,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF1A1A2E),
+                      height: 1.1,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor.withOpacity(0.08),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.location_on_rounded,
+                          color: AppTheme.brandColor,
+                          size: 12,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          widget.property.location,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            color: const Color(0xFF6B7280),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             const SizedBox(width: 16),
@@ -685,7 +712,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         TextSpan(
                           text: '₹',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 24, // Increased from 20
+                            fontSize: 24,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.brandColor,
                           ),
@@ -695,7 +722,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             widget.property.priceNight.toString(),
                           ),
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 27,
+                            fontSize: 26.5,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
                             letterSpacing: -0.5,
@@ -719,7 +746,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         TextSpan(
                           text: '₹',
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 24, // Increased from 20
+                            fontSize: 24,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.brandColor,
                           ),
@@ -727,7 +754,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         TextSpan(
                           text: PriceFormatter.format(widget.property.price),
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 27,
+                            fontSize: 26.5,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
                             letterSpacing: -0.5,
@@ -746,34 +773,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ),
                 ],
               ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 2),
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.location_on_rounded,
-                color: AppTheme.brandColor,
-                size: 14,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                widget.property.location,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  color: const Color(0xFF6B7280),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
             ),
           ],
         ),
