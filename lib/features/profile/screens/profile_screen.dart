@@ -196,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 180,
+            expandedHeight: 220,
             floating: false,
             pinned: true,
             elevation: 0,
@@ -225,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 100, 20, 10),
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
               child: Column(
                 children: [
                   if (!_isLoading && _kycStatus != 'verified') ...[
@@ -388,7 +388,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 100),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
