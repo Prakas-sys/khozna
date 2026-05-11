@@ -447,7 +447,7 @@ class ProfileMenuSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 12, bottom: 6),
+          padding: const EdgeInsets.only(left: 12, bottom: 12),
           child: Text(
             title.toUpperCase(),
             style: GoogleFonts.inter(
@@ -503,7 +503,7 @@ class ProfileMenuItem extends StatelessWidget {
         HapticFeedback.lightImpact();
         onTap?.call();
       },
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
