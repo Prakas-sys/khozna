@@ -354,12 +354,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Text(
-          'सम्पत्ति थप्नुहोस्',
-          style: GoogleFonts.notoSansDevanagari(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.black,
+        title: Transform.translate(
+          offset: const Offset(0, 2),
+          child: Text(
+            'सम्पत्ति थप्नुहोस्',
+            style: GoogleFonts.notoSansDevanagari(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+              height: 1.2,
+            ),
           ),
         ),
         centerTitle: true,
@@ -1033,6 +1037,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                               fontWeight: FontWeight.w800,
                               fontSize: 17,
                               color: const Color(0xFF111827),
+                              height: 1.2,
                             ),
                           ),
                           Text(
