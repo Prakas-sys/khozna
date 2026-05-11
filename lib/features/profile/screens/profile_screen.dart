@@ -196,7 +196,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 220,
+            expandedHeight: 180,
             floating: false,
             pinned: true,
             elevation: 0,
@@ -225,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 32, 20, 10),
+              padding: const EdgeInsets.fromLTRB(20, 100, 20, 10),
               child: Column(
                 children: [
                   if (!_isLoading && _kycStatus != 'verified') ...[
@@ -307,7 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 32),
                   ProfileMenuSection(
                     title: 'LEGAL & HELP',
                     items: [
@@ -347,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 32),
                   ProfileMenuSection(
                     title: 'ACCOUNTS',
                     items: [
@@ -360,7 +360,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ],
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 48),
 
                   SizedBox(
                     width: double.infinity,
