@@ -697,7 +697,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   Text(
                     widget.property.title,
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 24,
+                      fontSize: 23,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF1A1A2E),
                       height: 1.1,

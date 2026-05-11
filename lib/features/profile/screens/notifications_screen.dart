@@ -95,9 +95,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
-          'सूचनाहरू',
-          style: GoogleFonts.mukta(
-            fontSize: 20,
+          'Notifications',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
             fontWeight: FontWeight.w800,
             color: Colors.black,
             letterSpacing: -0.5,
@@ -993,22 +993,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         const SizedBox(height: 32),
         Text(
-          'सबै ठिक छ! (All Caught Up!)',
-          style: GoogleFonts.mukta(
-            fontSize: 22,
+          'All Caught Up!',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 20,
             fontWeight: FontWeight.w800,
             color: Colors.black,
-            letterSpacing: -0.8,
+            letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 12),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
           child: Text(
-            'नयाँ सूचनाहरू यहाँ देखा पर्नेछन्। (New updates will appear here.)',
+            'New updates will appear here.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.mukta(
-              fontSize: 15,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 14,
               color: Colors.grey[600],
               height: 1.4,
             ),
@@ -1053,9 +1053,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'सुनिश्चित गर्नुहोस् कि तपाईंको प्रोफाइल प्रमाणित छ! प्रमाणित प्रयोगकर्ताहरूले २ गुणा बढी प्रतिक्रिया पाउँछन्। (Verified users get 2x more responses!)',
-                style: GoogleFonts.mukta(
-                  fontSize: 14,
+                'Get verified to double your response rate! Verified users build more trust.',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
                   color: const Color(0xFF64748B),
                   height: 1.6,
                 ),
