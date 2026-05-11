@@ -670,7 +670,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Row(
                     children: [
                       Container(
@@ -682,7 +682,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         child: const Icon(
                           Icons.location_on_rounded,
                           color: AppTheme.brandColor,
-                          size: 12,
+                          size: 13,
                         ),
                       ),
                       const SizedBox(width: 6),
