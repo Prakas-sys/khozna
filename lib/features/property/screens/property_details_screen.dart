@@ -722,7 +722,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             widget.property.priceNight.toString(),
                           ),
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 26.5,
+                            fontSize: 24,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
                             letterSpacing: -0.5,
@@ -754,7 +754,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         TextSpan(
                           text: PriceFormatter.format(widget.property.price),
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 26.5,
+                            fontSize: 24,
                             fontWeight: FontWeight.w800,
                             color: AppTheme.brandColor,
                             letterSpacing: -0.5,
