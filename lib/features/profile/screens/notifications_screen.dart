@@ -64,7 +64,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (type == 'booking_request' ||
         message.contains('कोठा हेर्न अनुरोध') ||
         type == 'visit_request') {
-      return '🚶‍♂️ $name ले कोठा हेर्न अनुरोध गर्नुभएको छ।';
+      return '$name ले कोठा हेर्न अनुरोध गर्नुभएको छ।';
     }
     if (type == 'booking_approved' ||
         message.contains('स्वीकृत') ||
@@ -74,13 +74,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (message.contains('अस्वीकृत') ||
         message.contains('सक्नुभएन') ||
         type == 'booking_rejected') {
-      return '❌ भ्रमण हुन सकेन (Visit Update)';
+      return 'भ्रमण हुन सकेन (Visit Update)';
     }
     if (type == 'chat' || type == 'message') {
-      return '💬 $name बाट नयाँ सन्देश (New Message)';
+      return '$name बाट नयाँ सन्देश (New Message)';
     }
     if (type == 'payment_received' || message.contains('भुक्तानी')) {
-      return '💰 भुक्तानी प्राप्त भयो! (Payment Received from $name)';
+      return 'भुक्तानी प्राप्त भयो! (Payment Received from $name)';
     }
 
     return message.isEmpty ? 'नयाँ सूचना (New Update)' : message;
@@ -825,8 +825,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     dynamic sender,
   ) {
     final String bookingId = note['booking_id']?.toString() ?? '';
-    final String title = note['title'] ?? 'Booking Approved';
-    final String message = note['message'] ?? '';
+    final String title = (note['title'] ?? 'Booking Approved').toString().replaceAll('✅', '').trim();
+    final String message = (note['message'] ?? '').toString().replaceAll('✅', '').trim();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

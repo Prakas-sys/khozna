@@ -235,7 +235,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        toolbarHeight: 52,
+        toolbarHeight: 48,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -309,7 +309,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   const DetailSectionTitle(title: 'घरबेटीको विवरण (Owner)'),
                   const SizedBox(height: 12),
                   _buildOwnerCard(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                 ],
                 if (widget.property.houseRules.isNotEmpty) ...[
                   const DetailSectionTitle(title: 'नियमहरू (House Rules)'),
@@ -321,9 +321,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       title: data.$2,
                     );
                   }),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 12),
                 ],
-                const SizedBox(height: 16),
+                const SizedBox(height: 4),
                 Center(
                   child: TextButton.icon(
                     onPressed: () => _showReportDialog(),
@@ -342,7 +342,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: _isMyProperty ? 40 : 140),
+                SizedBox(height: _isMyProperty ? 40 : 100),
               ]),
             ),
           ),
@@ -433,6 +433,40 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                     );
                   },
+                ),
+                // Premium Glassmorphism Image Counter
+                Positioned(
+                  top: 24,
+                  left: 32,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: Text(
+                          '${_currentImageIndex + 1}/${widget.property.videoUrl.isNotEmpty ? displayImages.length + 1 : displayImages.length}',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
                 if ((widget.property.videoUrl.isNotEmpty
                         ? displayImages.length + 1
@@ -652,7 +686,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -670,7 +704,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 4),
                   Row(
                     children: [
                       Container(

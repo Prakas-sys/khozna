@@ -231,7 +231,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                     ),
                     child: Text(
                       'View My Listings',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.plusJakartaSans(
                         color: const Color(0xFF4B5563),
                         fontSize: 14,
                         fontWeight: FontWeight.w800,

@@ -138,33 +138,13 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
       appBar: AppBar(
-        title: RichText(
-          text: TextSpan(
-            style: GoogleFonts.plusJakartaSans(
-              fontWeight: FontWeight.w800,
-              fontSize: 18,
-              color: Colors.black,
-              letterSpacing: -0.5,
-            ),
-            children: [
-              TextSpan(
-                text: 'मेरो प्रोपर्टी ',
-                style: GoogleFonts.notoSansDevanagari(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                  color: Colors.black,
-                  height: 1.2,
-                ),
-              ),
-              TextSpan(
-                text: '(My Listings)',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF64748B),
-                ),
-              ),
-            ],
+        title: Text(
+          'My Listings',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: Colors.black,
+            letterSpacing: -0.5,
           ),
         ),
         centerTitle: true,

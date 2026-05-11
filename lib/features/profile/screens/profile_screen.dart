@@ -225,7 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
               child: Column(
                 children: [
                   if (!_isLoading && _kycStatus != 'verified') ...[
@@ -239,7 +239,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         if (res == true) _loadProfile();
                       },
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                   ],
 
                   if (!_isLoading && _kycStatus == 'verified') ...[
@@ -307,9 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 16),
-
+                  const SizedBox(height: 8),
                   ProfileMenuSection(
                     title: 'LEGAL & HELP',
                     items: [
@@ -349,9 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: 16),
-
+                  const SizedBox(height: 8),
                   ProfileMenuSection(
                     title: 'ACCOUNTS',
                     items: [
@@ -364,7 +360,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
 
                   SizedBox(
                     width: double.infinity,

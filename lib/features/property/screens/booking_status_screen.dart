@@ -1121,7 +1121,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              '✅ कोठा मन परेमा, यहाँबाट भुक्तानीको प्रक्रिया अगाडि बढाउन सक्नुहुन्छ।',
+              'कोठा मन परेमा, यहाँबाट भुक्तानीको प्रक्रिया अगाडि बढाउन सक्नुहुन्छ।',
               style: GoogleFonts.mukta(
                 fontSize: 12,
                 color: const Color(0xFF1B5E20),
