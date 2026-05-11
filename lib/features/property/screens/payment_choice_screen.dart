@@ -125,25 +125,25 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.amber.shade50,
+        color: Colors.red.shade50,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber.shade200),
+        border: Border.all(color: Colors.red.shade200),
       ),
       child: Row(
         children: [
           const Icon(
-            Icons.warning_amber_rounded,
-            color: Colors.amber,
+            Icons.gpp_maybe_rounded,
+            color: Colors.red,
             size: 24,
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              '⚠️ Send payment only after agreement with owner.\nकोठा हेरेर घरबेटीसँग पक्का भएपछि मात्र पैसा पठाउनुहोला।',
+              'Send payment only after agreement with owner.\nकोठा हेरेर घरबेटीसँग पक्का भएपछि मात्र पैसा पठाउनुहोला।',
               style: GoogleFonts.mukta(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: Colors.amber.shade900,
+                color: Colors.red.shade900,
                 height: 1.2,
               ),
             ),
@@ -212,7 +212,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             _paymentDetailItem(
               'eSewa Number',
               _ownerProfile!.esewaNumber!,
-              Colors.green,
+              const Color(0xFF60BB46),
+              'assets/images/esewa.webp',
             ),
             const SizedBox(height: 16),
           ],
@@ -222,7 +223,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             _paymentDetailItem(
               'Khalti Number',
               _ownerProfile!.khaltiNumber!,
-              Colors.purple,
+              const Color(0xFF5C2D91),
+              'assets/images/khalti.png',
             ),
             const SizedBox(height: 16),
           ],
@@ -270,30 +272,52 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  Widget _paymentDetailItem(String label, String value, Color color) {
+  Widget _paymentDetailItem(
+    String label,
+    String value,
+    Color color, [
+    String? assetIcon,
+  ]) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: Colors.grey,
-                fontWeight: FontWeight.w600,
-              ),
+        if (assetIcon != null) ...[
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
-            Text(
-              value,
-              style: GoogleFonts.sora(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: color,
-              ),
+            child: Image.asset(
+              assetIcon,
+              width: 24,
+              height: 24,
+              fit: BoxFit.contain,
             ),
-          ],
+          ),
+          const SizedBox(width: 16),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                value,
+                style: GoogleFonts.sora(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
         ),
         IconButton(
           icon: const Icon(Icons.copy_rounded, size: 20, color: Colors.grey),

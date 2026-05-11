@@ -1136,13 +1136,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               'esewa',
               Icons.account_balance_wallet,
               const Color(0xFF60BB46),
+              'assets/images/esewa.webp',
             ),
             const SizedBox(width: 16),
             _buildPayoutTypeSelector(
               'Khalti',
               'khalti',
               Icons.account_balance_wallet,
-              Colors.purple,
+              const Color(0xFF5C2D91),
+              'assets/images/khalti.png',
             ),
             const SizedBox(width: 16),
             _buildPayoutTypeSelector(
@@ -1198,8 +1200,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     String title,
     String type,
     IconData icon,
-    Color color,
-  ) {
+    Color color, [
+    String? assetIcon,
+  ]) {
     bool isSelected = _selectedPayoutMethod == type;
     return Expanded(
       child: GestureDetector(
@@ -1220,7 +1223,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           ),
           child: Column(
             children: [
-              Icon(icon, color: isSelected ? color : Colors.grey[500]),
+              if (assetIcon != null)
+                Image.asset(
+                  assetIcon,
+                  height: 24,
+                  width: 24,
+                  fit: BoxFit.contain,
+                )
+              else
+                Icon(icon, color: isSelected ? color : Colors.grey[500]),
               const SizedBox(height: 8),
               Text(
                 title,

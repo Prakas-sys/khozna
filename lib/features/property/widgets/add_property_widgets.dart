@@ -97,7 +97,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                 ),
                 const SizedBox(height: 28),
                 Text(
-                  'प्रकाशित भयो! 🎉',
+                  'प्रकाशित भयो!',
                   style: GoogleFonts.notoSansDevanagari(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,

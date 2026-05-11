@@ -149,10 +149,11 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
             children: [
               TextSpan(
                 text: 'मेरो प्रोपर्टी ',
-                style: GoogleFonts.hind(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                style: GoogleFonts.notoSansDevanagari(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
                   color: Colors.black,
+                  height: 1.2,
                 ),
               ),
               TextSpan(
@@ -229,7 +230,9 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           ).then((_) => _fetchListings());
         },
         backgroundColor: AppTheme.brandColor,
-        elevation: 8,
+        elevation: 3,
+        hoverElevation: 4,
+        highlightElevation: 2,
         shape: const CircleBorder(),
         child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
       ),
