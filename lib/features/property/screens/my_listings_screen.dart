@@ -136,7 +136,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Premium light grey background
+      backgroundColor: const Color(0xFFF9F9F9),
       appBar: AppBar(
         title: Text(
           'My Listings',
