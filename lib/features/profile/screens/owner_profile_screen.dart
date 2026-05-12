@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
 import 'package:intl/intl.dart';
@@ -46,7 +47,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
   Future<void> _loadProfileData() async {
     try {
-      final results = await Future.wait([
+      final results = await Future.wait<dynamic>([
         VoteRepository.getVoteCount(widget.ownerId),
         Supabase.instance.client
             .from('profiles')
