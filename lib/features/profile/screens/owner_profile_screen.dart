@@ -253,10 +253,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                     _isLoadingVotes 
                                         ? '...' 
                                         : '$_voteCount',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 40,
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 44,
                                       fontWeight: FontWeight.w800,
                                       color: Colors.black,
+                                      letterSpacing: -1,
                                     ),
                                   ),
                                 ],
