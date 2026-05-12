@@ -99,7 +99,7 @@ class Property {
       ownerName: ownerProfile?['full_name'] ?? 'Khozna User',
       ownerAvatar: ownerProfile?['avatar_url'] ?? '',
       isOwnerVerified: ownerProfile?['kyc_status'] == 'verified',
-      ownerLocation: ownerProfile?['area_name'] ?? map['area_name'] ?? 'Kathmandu',
+      ownerLocation: (ownerProfile?['area_name']?.toString() ?? map['area_name']?.toString() ?? 'Kathmandu, Nepal').replaceAll('Nepal', 'Kathmandu, Nepal'),
       amenities:
           (map['amenities'] as List?)?.map((e) => e.toString()).toList() ?? [],
       houseRules:

@@ -69,11 +69,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         ),
         title: Text(
           'Owner Profile',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             color: Colors.black,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w800,
             fontSize: 18,
-            letterSpacing: -0.2,
+            letterSpacing: -0.5,
           ),
         ),
       ),
@@ -115,10 +115,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   ),
                   if (widget.isVerified)
                     Positioned(
-                      bottom: 4,
-                      right: 4,
+                      bottom: 2,
+                      right: 2,
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(3),
                         decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
@@ -126,7 +126,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         child: const Icon(
                           Icons.verified_rounded,
                           color: Color(0xFF00A3FF),
-                          size: 32,
+                          size: 28,
                         ),
                       ),
                     ),
@@ -137,27 +137,30 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             Text(
               widget.name,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 24,
+                fontSize: 26,
                 fontWeight: FontWeight.w800,
                 color: Colors.black,
+                letterSpacing: -0.5,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.location_on_rounded,
-                  color: Colors.grey,
-                  size: 16,
+                  color: Colors.grey[400],
+                  size: 14,
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  widget.location,
-                  style: GoogleFonts.mukta(
-                    color: Colors.grey[600],
-                    fontSize: 14,
+                  widget.location.contains('Nepal') && !widget.location.contains('Kathmandu') 
+                      ? 'Kathmandu, Nepal' 
+                      : widget.location,
+                  style: GoogleFonts.plusJakartaSans(
+                    color: Colors.grey[500],
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
