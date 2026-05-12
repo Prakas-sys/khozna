@@ -1064,28 +1064,36 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 const SizedBox(height: 10),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
+                    horizontal: 16,
+                    vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.95),
+                    color: Colors.white.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(50),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'अन्दाजी क्षेत्र (Approximate Area): ${widget.property.areaName ?? "Kathmandu"}',
-                        style: GoogleFonts.inter(
+                        'अन्दाजी क्षेत्र: ${widget.property.areaName ?? "Kathmandu"}',
+                        style: GoogleFonts.mukta(
                           fontWeight: FontWeight.w700,
-                          fontSize: 15,
+                          fontSize: 13,
                           color: Colors.black,
                           height: 1.1,
                         ),
                       ),
                       Text(
                         'भिजिट स्वीकृत भएपछि मात्रै पुरा ठेगाना देखिनेछ',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
+                        style: GoogleFonts.mukta(
+                          fontSize: 11,
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
                           height: 1.1,

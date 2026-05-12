@@ -277,7 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                       ProfileMenuItem(
                         icon: Icons.person_outline,
-                        title: 'Edit Profile',
+                        title: 'Edit Profi\u200cle',
                         subtitle: 'Update your personal info',
                         onTap: () {
                           if (!AuthGuard.checkAuth(context)) return;

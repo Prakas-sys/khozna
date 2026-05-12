@@ -68,7 +68,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Owner Profile',
+          'Owner Profi\u200cle',
           style: GoogleFonts.inter(
             color: Colors.black,
             fontWeight: FontWeight.w800,
@@ -173,24 +173,23 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                   ),
                               ],
                             ),
-                            Flexible(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      widget.name,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.black,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    widget.name,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.black,
                                     ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(width: 6),
-                                  const Icon(Icons.verified_rounded, color: Color(0xFF00A3FF), size: 18),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(width: 6),
+                                const Icon(Icons.verified_rounded, color: Color(0xFF00A3FF), size: 18),
+                              ],
                             ),
                             const SizedBox(height: 6),
                             Row(
@@ -281,8 +280,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                   fontWeight: FontWeight.w600,
                                   color: Colors.grey[500],
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ),
@@ -305,21 +302,19 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   ),
                   const SizedBox(height: 32),
                   // Bottom Row of Verifications
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        _buildHeaderStat('KYC Verified', Icons.verified_user_rounded),
-                        const SizedBox(width: 20),
-                        _buildHeaderStat('Phone Verified', Icons.phone_android_rounded),
-                        const SizedBox(width: 20),
-                        _buildHeaderStat('Responds Fast', Icons.access_time_rounded, subLabel: '< 1 hour'),
-                        const SizedBox(width: 20),
-                        _buildHeaderStat('Active Listings', Icons.inventory_2_rounded, subLabel: widget.totalListings.toString()),
-                      ],
-                    ),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 2.5,
+                    children: [
+                      _buildHeaderStatGrid('KYC Verified', Icons.verified_user_rounded),
+                      _buildHeaderStatGrid('Phone Verified', Icons.phone_android_rounded),
+                      _buildHeaderStatGrid('Responds Fast', Icons.access_time_rounded, subLabel: '< 1 hour'),
+                      _buildHeaderStatGrid('Active Listings', Icons.inventory_2_rounded, subLabel: widget.totalListings.toString()),
+                    ],
                   ),
                 ],
               ),
@@ -592,36 +587,45 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  Widget _buildHeaderStat(String label, IconData icon, {String? subLabel}) {
-    return Column(
+  Widget _buildHeaderStatGrid(String label, IconData icon, {String? subLabel}) {
+    return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: const Color(0xFF00A3FF).withOpacity(0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: const Color(0xFF00A3FF), size: 20),
+          child: Icon(icon, color: const Color(0xFF00A3FF), size: 16),
         ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 9,
-            fontWeight: FontWeight.w700,
-            color: Colors.black,
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (subLabel != null)
+                Text(
+                  subLabel,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[500],
+                  ),
+                ),
+            ],
           ),
         ),
-        if (subLabel != null)
-          Text(
-            subLabel,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 9,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[500],
-            ),
-          ),
       ],
     );
   }
