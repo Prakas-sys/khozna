@@ -29,6 +29,7 @@ class Property {
   final double priceMonth;
   final bool isVerified;
   final String cancellationPolicy;
+  final String? videoCaption;
 
   Property({
     required this.id,
@@ -61,6 +62,7 @@ class Property {
     this.priceMonth = 0,
     this.isVerified = false,
     this.cancellationPolicy = 'standard',
+    this.videoCaption,
   });
 
   /// First image URL, or a sensible fallback placeholder.
@@ -124,6 +126,7 @@ class Property {
       priceMonth: double.tryParse(map['price_month']?.toString() ?? '0') ?? 0,
       isVerified: map['is_verified'] ?? false,
       cancellationPolicy: map['cancellation_policy']?.toString() ?? 'standard',
+      videoCaption: map['video_caption']?.toString(),
     );
   }
 }

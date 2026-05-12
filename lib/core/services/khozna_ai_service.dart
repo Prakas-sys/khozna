@@ -236,6 +236,35 @@ BEHAVIOR RULES:
     );
   }
 
+  /// 5.1 AI Video Caption Generator (For Reels)
+  Future<String> generateVideoCaption({
+    required String category,
+    required String area,
+    required String landmark,
+    required String price,
+  }) async {
+    final String prompt = """
+    Generate a short, viral-style video caption for a property reel in Nepal.
+    Details:
+    - Type: $category
+    - Location: $area, near $landmark
+    - Price: ₹ $price
+    
+    The caption should:
+    1. Be very short (1-2 sentences).
+    2. Use high-energy emojis (e.g., 🏠, ✨, 📍).
+    3. Include a call to action (e.g., "DM for visit", "Don't miss out!").
+    4. MUST be written in a mix of Nepali and English (Romanized Nepali is fine).
+    5. Mention the price clearly with ₹ symbol.
+    6. ABSOLUTELY NO Hindi words.
+    """;
+
+    return _getAiResponse(
+      prompt,
+      systemPrompt: "You are a viral social media manager for a real estate app in Nepal. You write punchy, high-engagement captions. No Hindi.",
+    );
+  }
+
   /// 6. AI Location Expert (Verify & Nearby Analysis)
   Future<String> verifyLocation(String area, String landmark) async {
     String prompt =

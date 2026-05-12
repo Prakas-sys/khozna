@@ -40,6 +40,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final TextEditingController _bathroomsController = TextEditingController();
   final TextEditingController _floorController = TextEditingController();
   final TextEditingController _sqftController = TextEditingController();
+  final TextEditingController _videoCaptionController = TextEditingController();
 
   // Payout State
   String _selectedPayoutMethod = 'esewa';
@@ -68,6 +69,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   bool _isDistanceVerified = false;
   bool _isAnalyzingLocation = false;
   bool _isGeneratingDescription = false;
+  bool _isGeneratingVideoCaption = false;
   bool _showLocationNudge = false;
 
   @override
@@ -107,6 +109,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     _floorController.dispose();
     _sqftController.dispose();
     _payoutAccountController.dispose();
+    _videoCaptionController.dispose();
     _pageController.dispose();
     _mainScrollController.dispose();
     super.dispose();
@@ -312,6 +315,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         latitude: _latitude,
         longitude: _longitude,
         videoFile: _selectedVideo,
+        videoCaption: _videoCaptionController.text.trim(),
         priceNight: double.tryParse(_priceNightController.text) ?? 0.0,
         priceMonth: double.tryParse(_priceController.text) ?? 0.0,
       );
@@ -849,6 +853,81 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.red, size: 22),
                   onPressed: () => setState(() => _selectedVideo = null),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          PremiumFeatureCard(
+            icon: Icons.auto_awesome_rounded,
+            title: 'भिडियो क्याप्सन (AI Reel Caption)',
+            subtitle: 'भिडियोको लागि आकर्षक विवरण लेख्नुहोस्',
+            isLoading: _isGeneratingVideoCaption,
+            accentColor: Colors.blue,
+            child: Column(
+              children: [
+                TextField(
+                  controller: _videoCaptionController,
+                  maxLines: 3,
+                  style: GoogleFonts.notoSansDevanagari(
+                    fontSize: 14,
+                    color: Colors.black87,
+                    height: 1.4,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'भिडियोको बारेमा केही लेख्नुहोस्...',
+                    hintStyle: GoogleFonts.inter(fontSize: 13, color: Colors.grey[400]),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[200]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[200]!),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _isGeneratingVideoCaption
+                        ? null
+                        : () async {
+                            HapticFeedback.mediumImpact();
+                            setState(() => _isGeneratingVideoCaption = true);
+                            final caption = await _aiService.generateVideoCaption(
+                              category: _selectedCategory ?? 'Room',
+                              area: _areaController.text,
+                              landmark: _landmarkController.text,
+                              price: _priceController.text.isNotEmpty 
+                                  ? _priceController.text 
+                                  : _priceNightController.text,
+                            );
+                            setState(() {
+                              _videoCaptionController.text = caption;
+                              _isGeneratingVideoCaption = false;
+                            });
+                          },
+                    icon: const Icon(Icons.magic_button_rounded, size: 16),
+                    label: Text(
+                      'AI बाट क्याप्सन लेख्नुहोस्',
+                      style: GoogleFonts.notoSansDevanagari(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[600],
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

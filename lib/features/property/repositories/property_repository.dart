@@ -213,6 +213,7 @@ class PropertyRepository {
     File? videoFile,
     double priceNight = 0,
     double priceMonth = 0,
+    String? videoCaption,
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) throw 'User not authenticated';
@@ -225,6 +226,9 @@ class PropertyRepository {
       description,
       maxLength: 1000,
     );
+    final cleanVideoCaption = videoCaption != null 
+        ? SecurityUtils.sanitizeInput(videoCaption, maxLength: 500) 
+        : null;
 
     // 2. AI Scam Check (Fire and forget, non-blocking)
     final aiService = KhoznaAiService();
@@ -324,6 +328,7 @@ class PropertyRepository {
           'latitude': latitude,
           'longitude': longitude,
           'video_url': videoUrl,
+          'video_caption': cleanVideoCaption,
           'status': 'available',
           'is_verified': true,
           'nearby_landmarks': nearbyLandmarks,
