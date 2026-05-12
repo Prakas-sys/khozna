@@ -71,8 +71,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           'Owner Profile',
           style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w900,
             fontSize: 18,
+            letterSpacing: -0.2,
           ),
         ),
       ),
@@ -92,17 +93,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             : Colors.transparent,
                         width: 4,
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color:
-                              (widget.isVerified
-                                      ? const Color(0xFF00A3FF)
-                                      : Colors.black)
-                                  .withOpacity(0.1),
-                          blurRadius: 24,
-                          offset: const Offset(0, 12),
-                        ),
-                      ],
                     ),
                     child: CircleAvatar(
                       radius: 65,
@@ -194,13 +184,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: Colors.grey.shade200),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -218,11 +201,32 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            if (widget.isVerified)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F5E9),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.green.withOpacity(0.2)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.verified_user_rounded, color: Colors.green, size: 20),
+                    const SizedBox(width: 12),
+                    Text(
+                      'प्रमाणित घरधनी (KYC Verified Owner)',
+                      style: GoogleFonts.mukta(
+                        color: Colors.green[800],
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
-
-
-            const SizedBox(height: 48),
+            const SizedBox(height: 32),
 
             // Action Buttons
             Row(

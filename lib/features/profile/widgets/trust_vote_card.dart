@@ -113,19 +113,6 @@ class _TrustVoteCardState extends State<TrustVoteCard>
               color: AppTheme.brandColor,
               width: 1.5,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: (_hasVoted ? AppTheme.brandColor : Colors.black).withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-              if (_hasVoted)
-                BoxShadow(
-                  color: AppTheme.brandColor.withOpacity(0.2),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
