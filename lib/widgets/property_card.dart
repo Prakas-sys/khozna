@@ -80,12 +80,12 @@ class PropertyCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFF2F2F2)),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1), // Darker, more defined grey
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.05), // Increased shadow for more depth
+              blurRadius: 15,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -266,17 +266,20 @@ class PropertyCard extends StatelessWidget {
                 ],
               ),
               // --- Content below image ---
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  14,
-                  6,
-                  14,
-                  7,
-                ), // Restored to your original 7px bottom padding
+              // --- Info Section with subtle grey background ---
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF9FAFB), // Subtle grey tint for the info area
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Title + Price
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -286,15 +289,50 @@ class PropertyCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16.3,
-                              fontWeight:
-                                  FontWeight.w800, // Semi-solid / Stronger look
-                              color: const Color(0xFF1A1A2E),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: const Color(0xFF0F172A),
                               letterSpacing: -0.5,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 4),
+                        // Real-time View Count Badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9), // Deeper grey for badge
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.remove_red_eye_rounded,
+                                size: 12,
+                                color: Color(0xFF64748B),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${property.views}',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFF64748B),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    // Price + Amenities
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Transform.translate(
                           offset: const Offset(
                             0,

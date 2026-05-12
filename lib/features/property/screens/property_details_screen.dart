@@ -26,6 +26,7 @@ import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/favourite_button.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
 import 'package:khozna/core/utils/map_launcher.dart';
+import 'package:khozna/widgets/khozna_feedback.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final Property property;
@@ -160,13 +161,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Future<void> _openMap() async {
     if (_hasLocation) {
       if (!_isMyProperty && !_hasAcceptedVisit) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'घरबेटीले अवलोकन स्वीकार गरेपछि मात्र दिशा देखिनेछ। (Directions unlock after visit is accepted)',
-            ),
-            backgroundColor: AppTheme.brandColor,
-          ),
+        KhoznaFeedback.showError(
+          context,
+          'घरबेटीले अवलोकन स्वीकार गरेपछि मात्र दिशा देखिनेछ। (Directions unlock after visit is accepted)',
         );
         return;
       }

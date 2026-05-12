@@ -20,6 +20,7 @@ import 'core/utils/app_notifiers.dart';
 import 'package:khozna/screens/main_screen.dart';
 import 'core/guards/location_permission_screen.dart';
 import 'features/auth/screens/login_screen.dart';
+import 'widgets/khozna_error_screen.dart';
 // import 'screens/splash_screen.dart'; // Removed
 
 // Local Notifications Plugin
@@ -360,6 +361,11 @@ class _KhoznaAppState extends State<KhoznaApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       builder: (context, child) {
+        // 🛠️ CUSTOM ERROR BOUNDARY: Replace Red/Grey screen with Khozna Premium Error Screen
+        ErrorWidget.builder = (FlutterErrorDetails details) {
+          return KhoznaErrorScreen(details: details);
+        };
+
         // Remove native splash when the first real frame is ready
         WidgetsBinding.instance.addPostFrameCallback((_) {
           FlutterNativeSplash.remove();

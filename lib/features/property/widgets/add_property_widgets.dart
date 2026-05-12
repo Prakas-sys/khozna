@@ -160,7 +160,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAF9),
+                    color: const Color(0xFFF1F5F9), // Richer grey for summary
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: const Color(0xFFE5E7EB)),
                   ),
@@ -648,7 +648,7 @@ class PropertyFormField extends StatelessWidget {
             hintText: hint,
             hintStyle: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400]),
             filled: true,
-            fillColor: Colors.grey[50],
+            fillColor: const Color(0xFFF1F5F9), // More prominent grey for fields
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
@@ -709,7 +709,7 @@ class AmenitiesGrid extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              color: isSelected ? AppTheme.brandColor : Colors.white,
+              color: isSelected ? AppTheme.brandColor : const Color(0xFFF8FAFC), // Subtle grey for unselected
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,

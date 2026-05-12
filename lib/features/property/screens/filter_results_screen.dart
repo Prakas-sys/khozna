@@ -91,7 +91,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8FAFC), // Premium light grey background
       appBar: null,
       body: SafeArea(
         child: Column(

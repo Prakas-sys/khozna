@@ -32,7 +32,6 @@ class HomeScreenState extends State<HomeScreen> {
     (index) => Future.value(<Property>[]),
   );
   Position? _currentPosition;
-  String _currentLocationName = "Kathmandu, Nepal";
   final KhoznaAiService _aiService = KhoznaAiService();
 
   @override
@@ -46,8 +45,12 @@ class HomeScreenState extends State<HomeScreen> {
     final diskCache = await OfflineStorage.loadHomeCache();
     if (diskCache.isNotEmpty) {
       homeSectionCache.value = diskCache;
-      if (mounted) setState(() {});
     }
+    final cachedLocation = await OfflineStorage.loadLastLocation();
+    if (cachedLocation != null && mounted) {
+      currentLocationName.value = cachedLocation;
+    }
+    if (mounted) setState(() {});
     await _getCurrentLocation();
     if (mounted) _initializeFutures();
   }
@@ -202,7 +205,10 @@ class HomeScreenState extends State<HomeScreen> {
         area = "Khasibazar, Kirtipur";
       }
 
-      if (mounted) setState(() => _currentLocationName = area);
+      if (mounted) {
+        currentLocationName.value = area;
+        OfflineStorage.saveLastLocation(area);
+      }
     } catch (e) {
       debugPrint("Error fetching area name: $e");
     }
@@ -241,14 +247,21 @@ class HomeScreenState extends State<HomeScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: SafeArea(
-          child: HomeHeader(
-            locationName: _currentLocationName,
-            onLocationTap: _handleLocationTap,
-            onNotificationTap: () {
-              notificationBadgeCount.value = 0;
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          child: ValueListenableBuilder<String>(
+            valueListenable: currentLocationName,
+            builder: (context, location, _) {
+              return HomeHeader(
+                locationName: location,
+                onLocationTap: _handleLocationTap,
+                onNotificationTap: () {
+                  notificationBadgeCount.value = 0;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationsScreen(),
+                    ),
+                  );
+                },
               );
             },
           ),

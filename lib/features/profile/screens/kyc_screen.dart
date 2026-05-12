@@ -11,6 +11,7 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/features/profile/widgets/kyc_widgets.dart';
+import 'package:khozna/widgets/khozna_feedback.dart';
 
 class KycScreen extends StatefulWidget {
   const KycScreen({super.key});
@@ -120,9 +121,7 @@ class _KycScreenState extends State<KycScreen> {
       if (permission == LocationPermission.deniedForever ||
           permission == LocationPermission.denied) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Location permission denied.')),
-          );
+          KhoznaFeedback.showError(context, 'कृपया लोकेसन अनुमति दिनुहोस्। (Location permission denied)');
         }
         setState(() => _isLocating = false);
         return;
@@ -145,9 +144,7 @@ class _KycScreenState extends State<KycScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLocating = false);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        KhoznaFeedback.showError(context, 'Location Error: $e');
       }
     }
   }
@@ -219,16 +216,12 @@ class _KycScreenState extends State<KycScreen> {
 
   Future<void> _submit() async {
     if (_latitude == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please verify your location first')),
-      );
+      KhoznaFeedback.showError(context, 'लोकेसन प्रमाणित गर्नुहोस् (Please verify your location first)');
       return;
     }
 
     if (_frontImage == null || _backImage == null || _selfieImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please upload all required photos')),
-      );
+      KhoznaFeedback.showError(context, 'सबै फोटोहरू अपलोड गर्नुहोस् (Please upload all required photos)');
       return;
     }
 
@@ -287,66 +280,19 @@ class _KycScreenState extends State<KycScreen> {
 
       if (mounted) {
         setState(() => _isSubmitting = false);
-        HapticFeedback.mediumImpact();
-
-        showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (ctx) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            title: Row(
-              children: [
-                const Icon(
-                  Icons.check_circle_rounded,
-                  color: Colors.green,
-                  size: 28,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'कागजातहरू बुझाइयो',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            content: Text(
-              'तपाइँको कागजातहरू सफलतापूर्वक बुझाइएको छ! हाम्रो टोलीले आगामी ४८ घण्टा भित्र यी कागजातहरू प्रमाणीकरण गर्नेछ।\n\nप्रक्रिया पूरा भएपछि तपाइँलाई मोबाइलमा सूचना (Notification) पठाइनेछ।',
-              style: GoogleFonts.inter(height: 1.5),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  if (mounted) Navigator.pop(context);
-                },
-                child: Text(
-                  'हुन्छ, बुझें (Understood)',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.brandColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
+        KhoznaFeedback.showSuccess(
+          context,
+          'तपाइँको कागजातहरू सफलतापूर्वक बुझाइएको छ! हाम्रो टोलीले आगामी ४८ घण्टा भित्र प्रमाणीकरण गर्नेछ।',
         );
+        // Delay pop slightly so they see the success message
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) Navigator.pop(context);
+        });
       }
     } catch (e) {
       if (mounted) {
         setState(() => _isSubmitting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Submission failed: $e'),
-            backgroundColor: Colors.redAccent,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        KhoznaFeedback.showError(context, 'Submission failed: $e');
       }
     }
   }

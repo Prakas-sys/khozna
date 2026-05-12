@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class OfflineStorage {
   static const String _homeCacheKey = 'khozna_home_cache';
   static const String _profileCacheKey = 'khozna_profile_cache';
+  static const String _lastLocationKey = 'khozna_last_location';
 
   /// Save the home section cache to persistent storage
   static Future<void> saveHomeCache(
@@ -96,5 +97,26 @@ class OfflineStorage {
     } catch (e) {
       print('Error clearing profile cache: $e');
     }
+  }
+
+  /// Save the last known location name
+  static Future<void> saveLastLocation(String location) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_lastLocationKey, location);
+    } catch (e) {
+      print('Error saving last location: $e');
+    }
+  }
+
+  /// Load the last known location name
+  static Future<String?> loadLastLocation() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_lastLocationKey);
+    } catch (e) {
+      print('Error loading last location: $e');
+    }
+    return null;
   }
 }

@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:confetti/confetti.dart';
+import 'package:khozna/widgets/khozna_feedback.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
@@ -164,11 +165,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       if (permission == LocationPermission.deniedForever ||
           permission == LocationPermission.denied) {
         if (mounted)
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('कृपया सेटिङ्सबाट लोकेशन अन गर्नुहोस्।'),
-            ),
-          );
+          KhoznaFeedback.showError(context, 'कृपया सेटिङ्सबाट लोकेशन अन गर्नुहोस्।');
         setState(() => _isLocating = false);
         return;
       }
@@ -202,9 +199,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLocating = false);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        KhoznaFeedback.showError(context, 'Location Error: $e');
       }
     }
   }
@@ -1763,7 +1758,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       decoration: BoxDecoration(
         color: hasFile
             ? activeColor.withOpacity(0.04)
-            : const Color(0xFFF9FAFB),
+            : const Color(0xFFF1F5F9), // More prominent grey
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
           color: hasFile ? activeColor : const Color(0xFFE5E7EB),
