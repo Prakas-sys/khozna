@@ -159,7 +159,7 @@ class ProfileHeader extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: fullName ?? (isOwner ? 'Owner' : 'Guest'),
-                        style: GoogleFonts.mukta(
+                        style: GoogleFonts.inter(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -517,7 +517,7 @@ class ProfileMenuItem extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: GoogleFonts.mukta(
+        style: GoogleFonts.inter(
           fontSize: 15,
           fontWeight: FontWeight.w500,
           color: const Color(0xFF1E1E1E),
@@ -526,7 +526,7 @@ class ProfileMenuItem extends StatelessWidget {
       ),
       subtitle: Text(
         subtitle,
-        style: GoogleFonts.mukta(
+        style: GoogleFonts.inter(
           fontSize: 12,
           color: Colors.grey[500],
           fontWeight: FontWeight.w500,

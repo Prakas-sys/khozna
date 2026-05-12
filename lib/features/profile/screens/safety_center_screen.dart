@@ -14,7 +14,7 @@ class SafetyCenterScreen extends StatelessWidget {
       appBar: AppBar(
         title: RichText(
           text: TextSpan(
-            style: GoogleFonts.mukta(
+            style: GoogleFonts.inter(
               fontWeight: FontWeight.bold,
               fontSize: 17,
               color: Colors.black,
@@ -23,7 +23,7 @@ class SafetyCenterScreen extends StatelessWidget {
               const TextSpan(text: 'सुरक्षा केन्द्र '),
               TextSpan(
                 text: '(Safety Center)',
-                style: GoogleFonts.mukta(
+                style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: Colors.grey[500],
@@ -63,7 +63,7 @@ class SafetyCenterScreen extends StatelessWidget {
                   RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
-                      style: GoogleFonts.mukta(
+                      style: GoogleFonts.inter(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.red[800],
@@ -72,7 +72,7 @@ class SafetyCenterScreen extends StatelessWidget {
                         const TextSpan(text: 'ठगीबाट बच्नुहोस्\n'),
                         TextSpan(
                           text: '(Stay Safe from Scams)',
-                          style: GoogleFonts.mukta(
+                          style: GoogleFonts.inter(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                             color: Colors.red[600],
@@ -112,7 +112,7 @@ class SafetyCenterScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'यदि तपाईंलाई कुनै पनि प्रयोगकर्ता वा प्रोपर्टी शंकास्पद लाग्यो भने, प्रोफाइलमा गएर "Report" बटन थिच्नुहोस्। हाम्रो टिमले तुरुन्त समीक्षा गर्नेछ।',
-              style: GoogleFonts.mukta(
+              style: GoogleFonts.inter(
                 fontSize: 14,
                 color: airbnbGrey,
                 height: 1.6,
@@ -133,7 +133,7 @@ class SafetyCenterScreen extends StatelessWidget {
                 ),
                 child: Text(
                   'बुझेँ (I Understand)',
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.brandColor,
                   ),
@@ -149,7 +149,7 @@ class SafetyCenterScreen extends StatelessWidget {
   Widget _buildSectionTitle(String english, String nepali) {
     return RichText(
       text: TextSpan(
-        style: GoogleFonts.mukta(
+        style: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: Colors.black,
@@ -158,7 +158,7 @@ class SafetyCenterScreen extends StatelessWidget {
           TextSpan(text: '$nepali '),
           TextSpan(
             text: '($english)',
-            style: GoogleFonts.mukta(
+            style: GoogleFonts.inter(
               fontSize: 12,
               color: Colors.grey[500],
               fontWeight: FontWeight.w500,
@@ -195,7 +195,7 @@ class SafetyCenterScreen extends StatelessWidget {
               children: [
                 Text(
                   nepaliTitle,
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.inter(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                   ),
@@ -203,7 +203,7 @@ class SafetyCenterScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   nepaliDesc,
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.inter(
                     fontSize: 13,
                     color: Colors.grey[800],
                     height: 1.4,
@@ -212,7 +212,7 @@ class SafetyCenterScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   englishDesc,
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.inter(
                     fontSize: 12,
                     color: Colors.grey[500],
                   ),

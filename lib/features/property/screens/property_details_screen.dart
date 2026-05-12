@@ -292,7 +292,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Text(
                   widget.property.description ??
                       'सानेपाको शान्त वातावरणमा अवस्थित यो कोठा विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ।',
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.inter(
                     fontSize: 16,
                     color: _airbnbGrey,
                     height: 1.4,
@@ -1075,7 +1075,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     children: [
                       Text(
                         'अन्दाजी क्षेत्र (Approximate Area): ${widget.property.areaName ?? "Kathmandu"}',
-                        style: GoogleFonts.mukta(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.w700,
                           fontSize: 15,
                           color: Colors.black,
@@ -1084,7 +1084,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                       Text(
                         'भिजिट स्वीकृत भएपछि मात्रै पुरा ठेगाना देखिनेछ',
-                        style: GoogleFonts.mukta(
+                        style: GoogleFonts.inter(
                           fontSize: 13,
                           color: Colors.grey[600],
                           fontWeight: FontWeight.w500,
@@ -1149,7 +1149,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           const SizedBox(height: 8),
           Text(
             'ठगीबाट बच्न घर नहेरी अग्रिम पैसा नपठाउनुहोस्। (Never pay advance money before visiting the property in person.)',
-            style: GoogleFonts.mukta(
+            style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: isVerified ? Colors.blue[800] : Colors.orange[900],

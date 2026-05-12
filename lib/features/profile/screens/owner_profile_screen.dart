@@ -145,43 +145,52 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (widget.isVerified)
-                              Container(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE8F5E9),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.verified_user_rounded, color: Colors.green, size: 14),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'KYC Verified Owner',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.green[800],
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            Row(
+                            Wrap(
                               children: [
-                                Text(
-                                  widget.name,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.black,
+                                if (widget.isVerified)
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE8F5E9),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.verified_user_rounded, color: Colors.green, size: 14),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          'KYC Verified Owner',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            color: Colors.green[800],
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 6),
-                                const Icon(Icons.verified_rounded, color: Color(0xFF00A3FF), size: 18),
                               ],
+                            ),
+                            Flexible(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      widget.name,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.black,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  const Icon(Icons.verified_rounded, color: Color(0xFF00A3FF), size: 18),
+                                ],
+                              ),
                             ),
                             const SizedBox(height: 6),
                             Row(
@@ -230,49 +239,53 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Trust Score',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: [
-                                Text(
-                                  '92', // Static for now to match design
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 40,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.black,
-                                  ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Trust Score',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey[600],
                                 ),
-                                Text(
-                                  '%',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              'Trusted by the community',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey[500],
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 4),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text(
+                                    '92',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    '%',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                'Trusted by the community',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[500],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
                         // Shield Wreath Icon
                         Stack(
@@ -292,14 +305,21 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   ),
                   const SizedBox(height: 32),
                   // Bottom Row of Verifications
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildHeaderStat('KYC Verified', Icons.verified_user_rounded),
-                      _buildHeaderStat('Phone Verified', Icons.phone_android_rounded),
-                      _buildHeaderStat('Responds Fast', Icons.access_time_rounded, subLabel: '< 1 hour'),
-                      _buildHeaderStat('Active Listings', Icons.inventory_2_rounded, subLabel: widget.totalListings.toString()),
-                    ],
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        _buildHeaderStat('KYC Verified', Icons.verified_user_rounded),
+                        const SizedBox(width: 20),
+                        _buildHeaderStat('Phone Verified', Icons.phone_android_rounded),
+                        const SizedBox(width: 20),
+                        _buildHeaderStat('Responds Fast', Icons.access_time_rounded, subLabel: '< 1 hour'),
+                        const SizedBox(width: 20),
+                        _buildHeaderStat('Active Listings', Icons.inventory_2_rounded, subLabel: widget.totalListings.toString()),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -375,7 +395,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                           children: [
                             Text(
                               'प्रमाणित घरधनी (KYC Verified Owner)',
-                              style: GoogleFonts.mukta(
+                              style: GoogleFonts.notoSans(
                                 color: Colors.green[800],
                                 fontWeight: FontWeight.w700,
                                 fontSize: 16,
@@ -431,7 +451,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.chat_bubble_outline_rounded, size: 22),
+                    SvgPicture.asset(
+                      'assets/icons/message.svg',
+                      width: 22,
+                      height: 22,
+                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                    ),
                     const SizedBox(width: 12),
                     Text(
                       'Message Owner',
@@ -449,16 +474,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
             const SizedBox(height: 16),
 
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSecondaryButton('Call Owner', Icons.phone_rounded),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildSecondaryButton('Share Profile', Icons.share_rounded),
-                ),
-              ],
+            SizedBox(
+              width: double.infinity,
+              child: _buildSecondaryButton('Share Profile', Icons.share_rounded),
             ),
 
             const SizedBox(height: 48),
