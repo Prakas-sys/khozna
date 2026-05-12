@@ -274,7 +274,7 @@ class VerificationCard extends StatelessWidget {
                             : (isRejected
                                   ? 'KYC Rejected (अस्वीकृत)'
                                   : 'Verify Identity (पहिचान प्रमाणित)')),
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.notoSans(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                     color: Colors.black87,
@@ -288,10 +288,10 @@ class VerificationCard extends StatelessWidget {
                             : (isRejected
                                   ? 'कागजात अस्वीकृत भयो। फेरि प्रयास गर्नुहोस्।'
                                   : 'घरभाडामा राख्न केवाईसी भेरिफाइ गर्नुहोस्। 👉')),
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.notoSans(
                     fontSize: 11,
                     color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -392,10 +392,10 @@ class PostPropertyCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
-                    style: GoogleFonts.mukta(
+                    style: GoogleFonts.notoSans(
                       color: Colors.white.withOpacity(0.9),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 20),

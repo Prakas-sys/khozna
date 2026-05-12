@@ -1074,18 +1074,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   child: Column(
                     children: [
                       Text(
-                        'Approximate Area: ${widget.property.areaName ?? "Kathmandu"}',
-                        style: GoogleFonts.plusJakartaSans(
+                        'अन्दाजी क्षेत्र (Approximate Area): ${widget.property.areaName ?? "Kathmandu"}',
+                        style: GoogleFonts.notoSans(
                           fontWeight: FontWeight.w800,
-                          fontSize: 14,
+                          fontSize: 13,
                           color: Colors.black,
                         ),
                       ),
                       Text(
-                        'Exact location reveals after visit is accepted',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: Colors.grey,
+                        'भिजिट स्वीकृत भएपछि मात्रै पुरा ठेगाना देखिनेछ',
+                        style: GoogleFonts.notoSans(
+                          fontSize: 10,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],

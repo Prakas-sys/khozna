@@ -82,9 +82,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     'Messages',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 32,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: Colors.black,
-                      letterSpacing: -1.0,
+                      letterSpacing: -1.2,
                     ),
                   ),
                   Row(

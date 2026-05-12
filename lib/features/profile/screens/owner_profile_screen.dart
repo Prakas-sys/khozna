@@ -81,210 +81,381 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Center(
-              child: Stack(
+            // Top Header Card
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Column(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: widget.isVerified
-                            ? const Color(0xFF00A3FF).withOpacity(0.2)
-                            : Colors.transparent,
-                        width: 4,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Avatar with overlap badge
+                      Stack(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                            ),
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundColor: const Color(0xFFF1F5F9),
+                              backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
+                                  ? CachedNetworkImageProvider(widget.avatar)
+                                  : null,
+                              child: (widget.avatar.isEmpty || widget.avatar.contains('pravatar.cc'))
+                                  ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                                  : null,
+                            ),
+                          ),
+                          if (widget.isVerified)
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: Color(0xFF4CAF50),
+                                  size: 28,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
+                      const SizedBox(width: 20),
+                      // Info Column
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (widget.isVerified)
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE8F5E9),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.verified_user_rounded, color: Colors.green, size: 14),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'KYC Verified Owner',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.green[800],
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            Row(
+                              children: [
+                                Text(
+                                  widget.name,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                const Icon(Icons.verified_rounded, color: Color(0xFF00A3FF), size: 18),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Icon(Icons.location_on_rounded, color: Colors.grey[400], size: 14),
+                                const SizedBox(width: 4),
+                                Text(
+                                  widget.location,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    color: Colors.grey[500],
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                const Icon(Icons.circle, color: Color(0xFF4CAF50), size: 8),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Active this week',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    color: Colors.grey[500],
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  // Trust Score Section
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: const Color(0xFFF1F5F9)),
                     ),
-                    child: CircleAvatar(
-                      radius: 65,
-                      backgroundColor: Colors.grey[100],
-                      backgroundImage:
-                          (widget.avatar.isNotEmpty &&
-                              !widget.avatar.contains('pravatar.cc'))
-                          ? CachedNetworkImageProvider(widget.avatar)
-                          : null,
-                      child:
-                          (widget.avatar.isEmpty ||
-                              widget.avatar.contains('pravatar.cc'))
-                          ? Icon(
-                              Icons.person,
-                              size: 65,
-                              color: Colors.grey[400],
-                            )
-                          : null,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Trust Score',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text(
+                                  '92', // Static for now to match design
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                Text(
+                                  '%',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              'Trusted by the community',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
+                        // Shield Wreath Icon
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Icon(Icons.shield_rounded, color: const Color(0xFF00A3FF).withOpacity(0.1), size: 80),
+                            const Icon(Icons.star_rounded, color: Color(0xFF00A3FF), size: 32),
+                            // Simple wreath simulation
+                            CustomPaint(
+                              size: const Size(90, 90),
+                              painter: WreathPainter(),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  if (widget.isVerified)
-                    Positioned(
-                      bottom: 2,
-                      right: 2,
-                      child: Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.verified_rounded,
-                          color: Color(0xFF00A3FF),
-                          size: 28,
-                        ),
-                      ),
-                    ),
+                  const SizedBox(height: 32),
+                  // Bottom Row of Verifications
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildHeaderStat('KYC Verified', Icons.verified_user_rounded),
+                      _buildHeaderStat('Phone Verified', Icons.phone_android_rounded),
+                      _buildHeaderStat('Responds Fast', Icons.access_time_rounded, subLabel: '< 1 hour'),
+                      _buildHeaderStat('Active Listings', Icons.inventory_2_rounded, subLabel: widget.totalListings.toString()),
+                    ],
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              widget.name,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 26,
-                fontWeight: FontWeight.w800,
-                color: Colors.black,
-                letterSpacing: -0.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.location_on_rounded,
-                  color: Colors.grey[400],
-                  size: 14,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  widget.location.contains('Nepal') && !widget.location.contains('Kathmandu') 
-                      ? 'Kathmandu, Nepal' 
-                      : widget.location,
-                  style: GoogleFonts.plusJakartaSans(
-                    color: Colors.grey[500],
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
 
-            const SizedBox(height: 32),
-
-            // Trust Vote Card (Now higher up)
-            Center(
-              child: TrustVoteCard(
-                targetUserId: widget.ownerId,
-                targetName: widget.name,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Stats Row
+            // Stats Card (Listings, Trust, Joined)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.grey.shade200),
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatItem(
+                  _buildStatsRowItem(
                     'सूचीहरू (Listings)',
                     widget.totalListings.toString(),
+                    Icons.list_alt_rounded,
                   ),
-                  Container(height: 30, width: 1, color: Colors.grey[200]),
-                  _buildStatItem(
+                  Container(height: 40, width: 1, color: const Color(0xFFF1F5F9)),
+                  _buildStatsRowItem(
                     'भरोसा (Trust)',
                     _isLoadingVotes ? '...' : '$_voteCount',
+                    Icons.stars_rounded,
+                  ),
+                  Container(height: 40, width: 1, color: const Color(0xFFF1F5F9)),
+                  _buildStatsRowItem(
+                    'Joined',
+                    'May 2024',
+                    Icons.calendar_today_rounded,
+                    isJoined: true,
                   ),
                 ],
               ),
             ),
 
+            const SizedBox(height: 20),
+
+            // KYC Verified Banner
             if (widget.isVerified)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5E9),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.green.withOpacity(0.2)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.verified_user_rounded, color: Colors.green, size: 20),
-                    const SizedBox(width: 12),
-                    Text(
-                      'प्रमाणित घरधनी (KYC Verified Owner)',
-                      style: GoogleFonts.mukta(
-                        color: Colors.green[800],
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
+              GestureDetector(
+                onTap: () {},
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F5E9),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: Colors.green.withOpacity(0.1)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: const BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.check, color: Colors.white, size: 18),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'प्रमाणित घरधनी (KYC Verified Owner)',
+                              style: GoogleFonts.notoSans(
+                                color: Colors.green[800],
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Text(
+                              'This owner has completed identity verification.',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.green[700],
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.chevron_right_rounded, color: Colors.green[800]),
+                    ],
+                  ),
                 ),
               ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
             // Action Buttons
+            SizedBox(
+              width: double.infinity,
+              height: 64,
+              child: ElevatedButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => chat_page.ChatScreen(
+                        ownerId: widget.ownerId,
+                        name: widget.name,
+                        avatar: widget.avatar,
+                        online: true,
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.chat_bubble_outline_rounded, size: 22),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Message Owner',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const Spacer(),
+                    const Icon(Icons.chevron_right_rounded, size: 24),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
             Row(
               children: [
                 Expanded(
-                  child: SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => chat_page.ChatScreen(
-                              ownerId: widget.ownerId,
-                              name: widget.name,
-                              avatar: widget.avatar,
-                              online: true,
-                            ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.brandColor,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/message.svg',
-                            width: 20,
-                            height: 20,
-                            colorFilter: const ColorFilter.mode(
-                              Colors.white,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'MESSAGE OWNER',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  child: _buildSecondaryButton('Call Owner', Icons.phone_rounded),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildSecondaryButton('Share Profile', Icons.share_rounded),
                 ),
               ],
             ),
@@ -294,11 +465,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             // Safety Section
             TextButton.icon(
               onPressed: () => _showReportDialog(context),
-              icon: Icon(
-                Icons.gpp_maybe_rounded,
-                size: 14,
-                color: Colors.grey.shade400,
-              ),
+              icon: Icon(Icons.gpp_maybe_rounded, size: 16, color: Colors.grey.shade400),
               label: Text(
                 'Report Suspicious Activity',
                 style: GoogleFonts.plusJakartaSans(
@@ -307,14 +474,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   color: Colors.grey.shade500,
                   decoration: TextDecoration.underline,
                 ),
-              ),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
             const SizedBox(height: 40),
@@ -414,25 +573,143 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, String value) {
+  Widget _buildHeaderStat(String label, IconData icon, {String? subLabel}) {
     return Column(
       children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFF00A3FF).withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: const Color(0xFF00A3FF), size: 20),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+        ),
+        if (subLabel != null)
+          Text(
+            subLabel,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[500],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildStatsRowItem(String label, String value, IconData icon, {bool isJoined = false}) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFF00A3FF).withOpacity(0.05),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: const Color(0xFF00A3FF), size: 20),
+        ),
+        const SizedBox(height: 12),
         Text(
           value,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 24,
+            fontSize: isJoined ? 16 : 18,
             fontWeight: FontWeight.w800,
+            color: Colors.black,
           ),
         ),
         Text(
           label,
-          style: GoogleFonts.mukta(
-            fontSize: 13,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
+          textAlign: TextAlign.center,
+          style: isJoined ? GoogleFonts.notoSans(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey[500],
+          ) : GoogleFonts.mukta(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[500],
+            height: 1.2,
           ),
         ),
+        if (isJoined)
+          Text(
+            '(Joined)',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[500],
+            ),
+          ),
       ],
     );
   }
+
+  Widget _buildSecondaryButton(String label, IconData icon) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+      ),
+      child: InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 20, color: Colors.grey[700]),
+            const SizedBox(width: 10),
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: Colors.grey[800],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class WreathPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF00A3FF).withOpacity(0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    // Simple representation of wreath arcs
+    canvas.drawArc(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      0.6,
+      2.0,
+      false,
+      paint,
+    );
+    canvas.drawArc(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      3.6,
+      2.0,
+      false,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
