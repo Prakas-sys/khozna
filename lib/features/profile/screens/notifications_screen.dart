@@ -1424,8 +1424,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ],
               ],
             ),
-            const SizedBox(height: 8),
-            TrustBadge(badge: sender['trust_badge'] ?? 'new'),
+
             const SizedBox(height: 32),
             Container(
               padding: const EdgeInsets.all(20),

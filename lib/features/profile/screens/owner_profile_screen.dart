@@ -7,7 +7,6 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
-import 'package:khozna/widgets/trust_badge.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/features/profile/repositories/vote_repository.dart';
 
@@ -145,30 +144,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: widget.name,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black,
-                    ),
-                  ),
-                  if (widget.isVerified)
-                    WidgetSpan(
-                      alignment: PlaceholderAlignment.middle,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Icon(
-                          Icons.verified_rounded,
-                          color: const Color(0xFF00A3FF), // Verified Blue
-                          size: 22,
-                        ),
-                      ),
-                    ),
-                ],
+            Text(
+              widget.name,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
               ),
               textAlign: TextAlign.center,
             ),
@@ -183,7 +164,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'प्रमाणित प्रयोगकर्ता · ${widget.location}',
+                  widget.location,
                   style: GoogleFonts.mukta(
                     color: Colors.grey[600],
                     fontSize: 14,
@@ -193,19 +174,15 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            if (!_isLoadingVotes)
-              TrustBadge(
-                badge: _voteCount >= 30
-                    ? 'top'
-                    : (widget.isVerified ? 'trusted' : 'new'),
-                fontSize: 14,
-              ),
+
             const SizedBox(height: 32),
 
             // Trust Vote Card (Now higher up)
-            TrustVoteCard(
-              targetUserId: widget.ownerId,
-              targetName: widget.name,
+            Center(
+              child: TrustVoteCard(
+                targetUserId: widget.ownerId,
+                targetName: widget.name,
+              ),
             ),
 
             const SizedBox(height: 24),
@@ -243,71 +220,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
             const SizedBox(height: 24),
 
-            // KYC Status Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: widget.isVerified
-                    ? const Color(0xFFE8F5E9)
-                    : const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: widget.isVerified
-                      ? Colors.green.withOpacity(0.1)
-                      : Colors.grey.withOpacity(0.1),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: widget.isVerified ? Colors.green : Colors.blueGrey,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      widget.isVerified
-                          ? Icons.verified_user
-                          : Icons.lock_outline_rounded,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.isVerified
-                              ? 'KYC Verified · पहिचान प्रमाणित'
-                              : 'सम्पर्क विवरण सुरक्षित (Contact Gated)',
-                          style: GoogleFonts.mukta(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: widget.isVerified
-                                ? Colors.green[800]
-                                : Colors.blueGrey[800],
-                          ),
-                        ),
-                        Text(
-                          widget.isVerified
-                              ? 'पहिचान पूर्ण रूपमा प्रमाणित र भरोसायोग्य छ।'
-                              : 'सम्पर्क विवरणहरू भ्रमण अनुरोध स्वीकृत भएपछि मात्र देखिनेछन्। (Full details revealed after visit acceptance)',
-                          style: GoogleFonts.mukta(
-                            fontSize: 12,
-                            color: widget.isVerified
-                                ? Colors.green[700]
-                                : Colors.blueGrey[700],
-                            height: 1.2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
 
             const SizedBox(height: 48),
 
