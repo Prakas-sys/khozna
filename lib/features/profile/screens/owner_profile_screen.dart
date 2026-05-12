@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -75,6 +76,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             fontSize: 18,
             letterSpacing: -0.5,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
       body: SingleChildScrollView(
@@ -145,34 +148,31 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Wrap(
-                              children: [
-                                if (widget.isVerified)
-                                  Container(
-                                    margin: const EdgeInsets.only(bottom: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFE8F5E9),
-                                      borderRadius: BorderRadius.circular(10),
+                            if (widget.isVerified)
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE8F5E9),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.verified_user_rounded, color: Colors.green, size: 12),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'VERIFIED',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.green[800],
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 9,
+                                        letterSpacing: 0.5,
+                                      ),
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.verified_user_rounded, color: Colors.green, size: 14),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          'KYC Verified Owner',
-                                          style: GoogleFonts.plusJakartaSans(
-                                            color: Colors.green[800],
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
+                                  ],
+                                ),
+                              ),
                             Row(
                               children: [
                                 Flexible(
@@ -258,7 +258,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                   Text(
                                     _isLoadingVotes 
                                         ? '...' 
-                                        : '${(_voteCount > 0) ? (90 + (_voteCount > 10 ? 10 : _voteCount)).toInt() : 0}',
+                                        : '${_voteCount == 0 ? 0 : (min(60 + (_voteCount * 4), 100)).toInt()}',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 40,
                                       fontWeight: FontWeight.w800,
@@ -276,7 +276,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                 ],
                               ),
                               Text(
-                                'Trusted by the community',
+                                _voteCount <= 1 
+                                    ? '$_voteCount Community Trust' 
+                                    : '$_voteCount Community Votes',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -308,9 +310,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 2,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 2.5,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 2.2,
                     children: [
                       _buildHeaderStatGrid('KYC Verified', Icons.verified_user_rounded),
                       _buildHeaderStatGrid('Phone Verified', Icons.phone_android_rounded),
@@ -419,51 +421,58 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             const SizedBox(height: 24),
 
             // Action Buttons
-            SizedBox(
-              width: double.infinity,
-              height: 64,
-              child: ElevatedButton(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => chat_page.ChatScreen(
-                        ownerId: widget.ownerId,
-                        name: widget.name,
-                        avatar: widget.avatar,
-                        online: true,
-                      ),
+            GestureDetector(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => chat_page.ChatScreen(
+                      ownerId: widget.ownerId,
+                      name: widget.name,
+                      avatar: widget.avatar,
+                      online: true,
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.brandColor,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
                   ),
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF00A3FF), Color(0xFF0077FF)],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF00A3FF).withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SvgPicture.asset(
                       'assets/icons/message.svg',
-                      width: 22,
-                      height: 22,
+                      width: 20,
+                      height: 20,
                       colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'Message Owner',
+                      'Send Message',
                       style: GoogleFonts.plusJakartaSans(
                         fontWeight: FontWeight.w800,
                         fontSize: 16,
+                        color: Colors.white,
+                        letterSpacing: -0.2,
                       ),
                     ),
-                    const Spacer(),
-                    const Icon(Icons.chevron_right_rounded, size: 24),
                   ],
                 ),
               ),
