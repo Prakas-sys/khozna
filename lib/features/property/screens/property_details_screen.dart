@@ -662,35 +662,68 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF00C853).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: const Color(0xFF00C853).withOpacity(0.3),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.verified_rounded,
-                    color: Color(0xFF00C853),
-                    size: 14,
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.black.withOpacity(0.1)),
                   ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'VERIFIED',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF00C853),
-                      letterSpacing: 1,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.remove_red_eye_outlined,
+                        color: Colors.black54,
+                        size: 12,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${widget.property.views} VIEWS',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black54,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00C853).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: const Color(0xFF00C853).withOpacity(0.3),
                     ),
                   ),
-                ],
-              ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.verified_rounded,
+                        color: Color(0xFF00C853),
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'VERIFIED',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF00C853),
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),

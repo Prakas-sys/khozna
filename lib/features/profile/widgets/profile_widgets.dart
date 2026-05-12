@@ -383,7 +383,7 @@ class PostPropertyCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Ready to Rent Out?',
+                    'Ready To Rent Out?',
                     style: GoogleFonts.plusJakartaSans(
                       color: Colors.white,
                       fontSize: 22,

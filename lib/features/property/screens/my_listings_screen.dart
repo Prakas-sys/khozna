@@ -240,7 +240,6 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           }
         },
         onDelete: () => _deleteListing(item['id'].toString()),
-        views: item['views'] as int? ?? 0,
       ),
     );
   }

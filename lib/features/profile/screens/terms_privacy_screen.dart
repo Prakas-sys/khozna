@@ -46,8 +46,8 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
             _buildHeader(
               _isEnglish ? 'Terms of Service' : 'सेवाका सर्तहरू',
               _isEnglish
-                  ? 'Last Updated: April 2024'
-                  : 'अन्तिम अपडेट: अप्रिल २०२४',
+                  ? 'Last Updated: April 2026'
+                  : 'अन्तिम अपडेट: अप्रिल २०२६',
             ),
             const SizedBox(height: 24),
             _buildSection(
@@ -128,8 +128,8 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
             Center(
               child: Text(
                 _isEnglish
-                    ? '© 2024 Khozna Private Limited\nAll Rights Reserved'
-                    : '© २०२४ खोज्ना प्राइभेट लिमिटेड\nसबै अधिकार सुरक्षित',
+                    ? '© 2026 Khozna Private Limited\nAll Rights Reserved'
+                    : '© २०२६ खोज्ना प्राइभेट लिमिटेड\nसबै अधिकार सुरक्षित',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 12,

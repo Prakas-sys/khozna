@@ -30,6 +30,7 @@ class Property {
   final bool isVerified;
   final String cancellationPolicy;
   final String? videoCaption;
+  final int views;
 
   Property({
     required this.id,
@@ -63,6 +64,7 @@ class Property {
     this.isVerified = false,
     this.cancellationPolicy = 'standard',
     this.videoCaption,
+    this.views = 0,
   });
 
   /// First image URL, or a sensible fallback placeholder.
@@ -127,6 +129,7 @@ class Property {
       isVerified: map['is_verified'] ?? false,
       cancellationPolicy: map['cancellation_policy']?.toString() ?? 'standard',
       videoCaption: map['video_caption']?.toString(),
+      views: map['views'] as int? ?? 0,
     );
   }
 }

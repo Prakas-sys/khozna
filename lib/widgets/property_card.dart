@@ -21,7 +21,6 @@ class PropertyCard extends StatelessWidget {
   final bool isOwnerView;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
-  final int views;
   final double? width;
 
   const PropertyCard({
@@ -30,7 +29,6 @@ class PropertyCard extends StatelessWidget {
     this.isOwnerView = false,
     this.onEdit,
     this.onDelete,
-    this.views = 0,
     this.width,
   });
 
@@ -252,9 +250,9 @@ class PropertyCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              views > 999
-                                  ? '${(views / 1000).toStringAsFixed(1)}k'
-                                  : '$views',
+                              property.views > 999
+                                  ? '${(property.views / 1000).toStringAsFixed(1)}k'
+                                  : '${property.views}',
                               style: GoogleFonts.inter(
                                 color: Colors.white,
                                 fontSize: 11,
