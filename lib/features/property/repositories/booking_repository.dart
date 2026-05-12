@@ -144,13 +144,12 @@ class BookingRepository {
       final booking = await getBookingById(bookingId);
       if (booking != null) {
         debugPrint('Sending rejection notification to guest: ${booking.guestId}');
-        final reasonText = reason != null ? '\nकारण: $reason' : '';
+        final String displayReason = reason != null ? 'कारण: $reason' : 'घरधनीले यो समयमा भ्रमण व्यवस्था गर्न सक्नुभएन।';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
-          'title': '❌ भ्रमण हुन सकेन (Visit Update)',
-          'message':
-              'क्षमा गर्नुहोला, घरधनीले यो समयमा भ्रमण व्यवस्था गर्न सक्नुभएन।$reasonText',
+          'title': '❌ भ्रमण अस्वीकृत (Visit Rejected)',
+          'message': displayReason,
           'type': 'visit_alert',
           'property_id': booking.propertyId,
           'booking_id': bookingId,

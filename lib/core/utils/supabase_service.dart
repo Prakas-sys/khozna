@@ -107,7 +107,7 @@ class SupabaseService {
     String? reason,
   }) async {
     if (bookingId != null) {
-      await BookingRepository.rejectRequest(bookingId);
+      await BookingRepository.rejectWithReason(bookingId, reason: reason);
       if (notificationId != null) {
         await NotificationRepository.deleteNotification(notificationId);
       }

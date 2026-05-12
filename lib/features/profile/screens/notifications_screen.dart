@@ -72,8 +72,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
     if (message.contains('अस्वीकृत') ||
         message.contains('सक्नुभएन') ||
-        type == 'booking_rejected') {
-      return 'भ्रमण हुन सकेन (Visit Update)';
+        type == 'booking_rejected' ||
+        (note['title']?.toString() ?? '').contains('अस्वीकृत')) {
+      return 'भ्रमण अस्वीकृत (Visit Rejected): ';
     }
     if (type == 'chat' || type == 'message') {
       return '$name बाट नयाँ सन्देश (New Message)';
