@@ -664,35 +664,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.black.withOpacity(0.1)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.remove_red_eye_outlined,
-                        color: Colors.black54,
-                        size: 12,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${widget.property.views} VIEWS',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black54,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
                     color: const Color(0xFF00C853).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
@@ -855,17 +826,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildAmenityGrid() {
     final List<Widget> items = [];
 
-    // Core Stats
-    if (widget.property.bathrooms > 0) {
-      items.add(
-        PropertyStatItem(
-          icon: Icons.bathtub_outlined,
-          value: '${widget.property.bathrooms}',
-          label: 'Baths',
-          accentColor: Colors.cyan,
-        ),
-      );
-    }
+    // Core Stats (Removed Baths as it is in quick info row)
+
 
   (IconData, String, Color) _getFeatureData(String feature) {
     final k = feature.toLowerCase().trim();
@@ -930,6 +892,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final Map<IconData, String> uniqueItems = {};
     for (var feature in widget.property.amenities) {
       final data = _getFeatureData(feature);
+      // Skip bath-related features as they are in the quick info row
+      if (data.$1 == Icons.bathtub_outlined || data.$1 == Icons.bathroom_outlined) {
+        continue;
+      }
       // Only keep the first occurrence of each icon type
       if (!uniqueItems.containsKey(data.$1)) {
         uniqueItems[data.$1] = data.$2;
