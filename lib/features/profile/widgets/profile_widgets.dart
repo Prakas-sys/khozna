@@ -159,7 +159,7 @@ class ProfileHeader extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: fullName ?? (isOwner ? 'Owner' : 'Guest'),
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.mukta(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -274,10 +274,11 @@ class VerificationCard extends StatelessWidget {
                             : (isRejected
                                   ? 'KYC Rejected (अस्वीकृत)'
                                   : 'Verify Identity (पहिचान प्रमाणित)')),
-                  style: GoogleFonts.notoSans(
+                  style: GoogleFonts.mukta(
                     fontWeight: FontWeight.w700,
-                    fontSize: 13,
+                    fontSize: 14,
                     color: Colors.black87,
+                    height: 1.1,
                   ),
                 ),
                 Text(
@@ -288,10 +289,11 @@ class VerificationCard extends StatelessWidget {
                             : (isRejected
                                   ? 'कागजात अस्वीकृत भयो। फेरि प्रयास गर्नुहोस्।'
                                   : 'घरभाडामा राख्न केवाईसी भेरिफाइ गर्नुहोस्। 👉')),
-                  style: GoogleFonts.notoSans(
-                    fontSize: 11,
+                  style: GoogleFonts.mukta(
+                    fontSize: 12,
                     color: Colors.grey[600],
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
+                    height: 1.2,
                   ),
                 ),
               ],
@@ -392,10 +394,11 @@ class PostPropertyCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
-                    style: GoogleFonts.notoSans(
+                    style: GoogleFonts.mukta(
                       color: Colors.white.withOpacity(0.9),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      height: 1.1,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -514,7 +517,7 @@ class ProfileMenuItem extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: GoogleFonts.inter(
+        style: GoogleFonts.mukta(
           fontSize: 15,
           fontWeight: FontWeight.w500,
           color: const Color(0xFF1E1E1E),
@@ -523,7 +526,7 @@ class ProfileMenuItem extends StatelessWidget {
       ),
       subtitle: Text(
         subtitle,
-        style: GoogleFonts.inter(
+        style: GoogleFonts.mukta(
           fontSize: 12,
           color: Colors.grey[500],
           fontWeight: FontWeight.w500,

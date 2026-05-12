@@ -11,10 +11,11 @@ class DetailSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: GoogleFonts.inter(
-        fontSize: 19,
-        fontWeight: FontWeight.bold,
+      style: GoogleFonts.mukta(
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
         color: AppTheme.primaryTextColor,
+        height: 1.1,
       ),
     );
   }

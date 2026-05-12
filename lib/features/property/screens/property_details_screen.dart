@@ -292,10 +292,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Text(
                   widget.property.description ??
                       'सानेपाको शान्त वातावरणमा अवस्थित यो कोठा विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ।',
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
+                  style: GoogleFonts.mukta(
+                    fontSize: 16,
                     color: _airbnbGrey,
-                    height: 1.6,
+                    height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -1075,18 +1075,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     children: [
                       Text(
                         'अन्दाजी क्षेत्र (Approximate Area): ${widget.property.areaName ?? "Kathmandu"}',
-                        style: GoogleFonts.notoSans(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 13,
+                        style: GoogleFonts.mukta(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
                           color: Colors.black,
+                          height: 1.1,
                         ),
                       ),
                       Text(
                         'भिजिट स्वीकृत भएपछि मात्रै पुरा ठेगाना देखिनेछ',
-                        style: GoogleFonts.notoSans(
-                          fontSize: 10,
+                        style: GoogleFonts.mukta(
+                          fontSize: 13,
                           color: Colors.grey[600],
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
+                          height: 1.1,
                         ),
                       ),
                     ],
@@ -1147,11 +1149,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           const SizedBox(height: 8),
           Text(
             'ठगीबाट बच्न घर नहेरी अग्रिम पैसा नपठाउनुहोस्। (Never pay advance money before visiting the property in person.)',
-            style: GoogleFonts.inter(
-              fontSize: 12,
+            style: GoogleFonts.mukta(
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: isVerified ? Colors.blue[800] : Colors.orange[900],
-              height: 1.4,
+              height: 1.3,
             ),
           ),
         ],

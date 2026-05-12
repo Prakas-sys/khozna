@@ -375,10 +375,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                           children: [
                             Text(
                               'प्रमाणित घरधनी (KYC Verified Owner)',
-                              style: GoogleFonts.notoSans(
+                              style: GoogleFonts.mukta(
                                 color: Colors.green[800],
                                 fontWeight: FontWeight.w700,
-                                fontSize: 14,
+                                fontSize: 16,
+                                height: 1.1,
                               ),
                             ),
                             Text(

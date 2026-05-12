@@ -25,7 +25,7 @@ class HelpCenterScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
         title: Text(
           'Help Center',
-          style: GoogleFonts.inter(
+          style: GoogleFonts.mukta(
             fontSize: 18,
             fontWeight: FontWeight.w800,
             color: Colors.black,
@@ -93,7 +93,7 @@ class HelpCenterScreen extends StatelessWidget {
             Center(
               child: Text(
                 'v1.0.0 • Khozna Private Limited',
-                style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[400]),
+                style: GoogleFonts.mukta(fontSize: 12, color: Colors.grey[400]),
               ),
             ),
           ],
@@ -105,7 +105,7 @@ class HelpCenterScreen extends StatelessWidget {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: GoogleFonts.inter(
+      style: GoogleFonts.mukta(
         fontSize: 14,
         fontWeight: FontWeight.w800,
         color: Colors.grey[400],
@@ -157,7 +157,7 @@ class HelpCenterScreen extends StatelessWidget {
                   children: [
                     Text(
                       'Official Khozna Support',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.mukta(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -165,7 +165,7 @@ class HelpCenterScreen extends StatelessWidget {
                     ),
                     Text(
                       'Always active for you',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.mukta(
                         color: Colors.white.withOpacity(0.8),
                         fontSize: 13,
                       ),
@@ -178,7 +178,7 @@ class HelpCenterScreen extends StatelessWidget {
           const SizedBox(height: 20),
           Text(
             'Facing any struggle? Our team is here to solve it. Message us directly to report problems or provide feedback.',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.mukta(
               color: Colors.white,
               fontSize: 14,
               height: 1.5,
@@ -212,7 +212,7 @@ class HelpCenterScreen extends StatelessWidget {
               ),
               child: Text(
                 'Message Team (कुरा गर्नुहोस्)',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.mukta(
                   fontWeight: FontWeight.w900,
                   fontSize: 14,
                 ),
@@ -262,7 +262,7 @@ class HelpCenterScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.mukta(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -270,7 +270,7 @@ class HelpCenterScreen extends StatelessWidget {
                 ),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.mukta(
                     fontSize: 13,
                     color: Colors.grey[600],
                   ),
@@ -310,7 +310,7 @@ class HelpCenterScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.mukta(
               fontSize: 11,
               color: Colors.grey[600],
               fontWeight: FontWeight.w500,
