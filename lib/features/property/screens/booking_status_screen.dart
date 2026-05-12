@@ -1288,7 +1288,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         return _StatusConfig(
           Icons.cancel_rounded,
           Colors.red,
-          'Visit Declined ❌',
+          'Visit Declined',
           'यो भ्रमण अहिले सम्भव भएन',
         );
       case 'paid':

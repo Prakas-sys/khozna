@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
@@ -33,19 +34,28 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
   late AnimationController _animController;
   late Animation<double> _scaleAnim;
   late Animation<double> _fadeAnim;
+  late Animation<double> _spikeAnim;
 
   @override
   void initState() {
     super.initState();
+    HapticFeedback.heavyImpact();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 1000),
     );
     _scaleAnim = CurvedAnimation(
       parent: _animController,
-      curve: Curves.elasticOut,
+      curve: const Interval(0.0, 0.6, curve: Curves.elasticOut),
     );
-    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
+    _spikeAnim = CurvedAnimation(
+      parent: _animController,
+      curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
+    );
+    _fadeAnim = CurvedAnimation(
+      parent: _animController,
+      curve: const Interval(0.4, 1.0, curve: Curves.easeIn),
+    );
     _animController.forward();
   }
 
@@ -57,235 +67,311 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnim,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 32),
-                ScaleTransition(
-                  scale: _scaleAnim,
-                  child: Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [Colors.green.shade400, Colors.green.shade600],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.green.withOpacity(0.4),
-                          blurRadius: 30,
-                          offset: const Offset(0, 12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              const Spacer(flex: 2),
+
+              // ── Spike Green Circle ──────────────────────────────────────
+              AnimatedBuilder(
+                animation: _animController,
+                builder: (context, child) => Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Spikes layer
+                    CustomPaint(
+                      size: const Size(160, 160),
+                      painter: _SpikePainter(progress: _spikeAnim.value),
+                    ),
+                    // Main circle
+                    ScaleTransition(
+                      scale: _scaleAnim,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF22C55E).withOpacity(0.45),
+                              blurRadius: 28,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
                         ),
-                      ],
+                        child: const Icon(
+                          Icons.check_rounded,
+                          color: Colors.white,
+                          size: 54,
+                        ),
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.check_rounded,
-                      color: Colors.white,
-                      size: 70,
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              // ── Title ───────────────────────────────────────────────────
+              FadeTransition(
+                opacity: _fadeAnim,
+                child: Column(
+                  children: [
+                    Text(
+                      'Published!',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFF111827),
+                        letterSpacing: -1,
+                        height: 1.1,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Your property is now live on Khozna',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 28),
-                Text(
-                  'प्रकाशित भयो!',
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF111827),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Your property is now live on Khozna',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 36),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
+              ),
+
+              const SizedBox(height: 28),
+
+              // ── Compact Summary Card ────────────────────────────────────
+              FadeTransition(
+                opacity: _fadeAnim,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: BoxDecoration(
-                    color: Colors.grey[50],
+                    color: const Color(0xFFF8FAF9),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Listing Summary',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: Colors.grey[500],
-                          letterSpacing: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _detailRow(
-                        Icons.home_outlined,
-                        'Title',
+                      _summaryRow(
+                        Icons.home_rounded,
                         widget.title.isEmpty ? 'My Property' : widget.title,
+                        const Color(0xFF22C55E),
                       ),
-                      _detailRow(
-                        Icons.location_on_outlined,
-                        'Location',
+                      const Divider(height: 18, thickness: 0.8),
+                      _summaryRow(
+                        Icons.location_on_rounded,
                         widget.area,
+                        AppTheme.brandColor,
                       ),
-                      if (widget.landmark.isNotEmpty)
-                        _detailRow(
-                          Icons.place_outlined,
-                          'Landmark',
-                          widget.landmark,
+                      if (widget.price.isNotEmpty) ...[
+                        const Divider(height: 18, thickness: 0.8),
+                        _summaryRow(
+                          Icons.payments_rounded,
+                          '₹${widget.price}/mo',
+                          Colors.orange,
                         ),
-                      _detailRow(
-                        Icons.payments_outlined,
-                        'Monthly Rent',
-                        widget.price.isEmpty
-                            ? 'Not specified'
-                            : 'Rs. ${widget.price}/mo',
-                      ),
+                      ],
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // ── Live badge ──────────────────────────────────────────────
+              FadeTransition(
+                opacity: _fadeAnim,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                    color: const Color(0xFF22C55E).withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: const Color(0xFF22C55E).withOpacity(0.3),
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.verified, color: Colors.green, size: 18),
-                      const SizedBox(width: 8),
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF22C55E),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 7),
                       Text(
-                        'Listing is Live & Verified',
-                        style: GoogleFonts.inter(
-                          color: Colors.green[700],
-                          fontWeight: FontWeight.w600,
+                        'Live & Verified',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: const Color(0xFF16A34A),
+                          fontWeight: FontWeight.w700,
                           fontSize: 13,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 36),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.popUntil(context, (route) => route.isFirst);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.brandColor,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+              ),
+
+              const Spacer(flex: 3),
+
+              // ── Action Buttons ──────────────────────────────────────────
+              FadeTransition(
+                opacity: _fadeAnim,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: () =>
+                            Navigator.popUntil(context, (r) => r.isFirst),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.brandColor,
+                          elevation: 0,
+                          shadowColor: AppTheme.brandColor.withOpacity(0.35),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          'Go to Home',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
                       ),
-                      elevation: 4,
-                      shadowColor: AppTheme.brandColor.withOpacity(0.4),
                     ),
-                    child: Text(
-                      'गृहपृष्ठमा जानुहोस् (Go Home)',
-                      style: GoogleFonts.notoSansDevanagari(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: OutlinedButton(
+                        onPressed: () =>
+                            Navigator.popUntil(context, (r) => r.isFirst),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: Colors.grey.shade300,
+                            width: 1.5,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          'View My Listings',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: const Color(0xFF4B5563),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.popUntil(context, (route) => route.isFirst);
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(color: Colors.grey.shade300, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    child: Text(
-                      'View My Listings',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: const Color(0xFF4B5563),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _detailRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: AppTheme.brandColor),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[500],
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1F2937),
-                  ),
-                ),
-              ],
-            ),
+  Widget _summaryRow(IconData icon, String value, Color color) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(7),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
           ),
-        ],
-      ),
+          child: Icon(icon, size: 15, color: color),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            value,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1F2937),
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }
+
+
+// ── Spike / Starburst painter ─────────────────────────────────────────────────
+class _SpikePainter extends CustomPainter {
+  final double progress;
+  _SpikePainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (progress == 0) return;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    const spikeCount = 12;
+    const innerR = 56.0;
+    final outerR = 72.0 + (progress * 10);
+
+    // Outer glow ring
+    final glowPaint = Paint()
+      ..color = const Color(0xFF22C55E).withOpacity(0.06 * progress)
+      ..style = PaintingStyle.fill;
+    canvas.drawCircle(center, outerR + 4, glowPaint);
+
+    // Spikes
+    final spikePaint = Paint()
+      ..color = const Color(0xFF22C55E).withOpacity(0.22 * progress)
+      ..strokeWidth = 2.8
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    for (int i = 0; i < spikeCount; i++) {
+      final angle = (i * 2 * math.pi) / spikeCount;
+      final start = Offset(
+        center.dx + innerR * math.cos(angle),
+        center.dy + innerR * math.sin(angle),
+      );
+      final end = Offset(
+        center.dx + outerR * math.cos(angle),
+        center.dy + outerR * math.sin(angle),
+      );
+      canvas.drawLine(start, end, spikePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_SpikePainter old) => old.progress != progress;
+}
+
 
 class CategoryCard extends StatelessWidget {
   final String label;

@@ -22,7 +22,7 @@ class AddPropertyScreen extends StatefulWidget {
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
-  final int _totalSteps = 9;
+  final int _totalSteps = 10;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   final ScrollController _mainScrollController = ScrollController();
@@ -71,6 +71,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   bool _isGeneratingDescription = false;
   bool _isGeneratingVideoCaption = false;
   bool _showLocationNudge = false;
+
+  // AI Insights Step
+  bool _isLoadingAiInsights = false;
+  bool _aiInsightsLoaded = false;
+  String? _aiPriceAnalysis;
+  String? _aiNeighborhoodVibe;
 
   @override
   void initState() {
@@ -252,10 +258,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         if (_priceController.text.trim().isEmpty &&
             _priceNightController.text.trim().isEmpty) {
           errorMessage = "कृपया मासिक वा दैनिक भाडा राख्नुहोस्।";
-        } else
+        } else {
           isValid = true;
+          // Auto-trigger AI insights on price page exit
+          if (!_aiInsightsLoaded) _runAiInsights();
+        }
         break;
-      case 8: // Payout
+      case 8: // AI Insights — always passable
+        isValid = true;
+        break;
+      case 9: // Payout
         if (_payoutAccountController.text.trim().isEmpty) {
           errorMessage = "तपाईंले पेमेन्ट पाउनको लागि खाता नम्बर राख्नुहोस्।";
         } else
@@ -363,10 +375,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           child: Text(
             'सम्पत्ति राख्नुहोस्',
             style: GoogleFonts.notoSansDevanagari(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
               color: Colors.black,
               height: 1.2,
+              letterSpacing: -0.5,
             ),
           ),
         ),
@@ -393,17 +406,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.06),
+                color: AppTheme.brandColor.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 '${_currentStep + 1} / $_totalSteps',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w800,
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w900,
                   color: AppTheme.brandColor,
-                  fontSize: 12,
+                  fontSize: 16,
+                  letterSpacing: -0.5,
                 ),
               ),
             ),
@@ -451,6 +465,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     _buildStepVideo(),
                     _buildStepTitleDesc(),
                     _buildStepPricingRules(),
+                    _buildStepAiInsights(),
                     _buildStepPayout(),
                   ],
                 ),
@@ -705,7 +720,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             'balcony': Icons.balcony_rounded,
             'kitchen': Icons.kitchen_rounded,
             'furnished': Icons.chair_rounded,
-            'hot_water': Icons.solar_power_rounded,
             'parking_bike': Icons.motorcycle_rounded,
             'parking_car': Icons.directions_car_rounded,
             'security': Icons.security_rounded,
@@ -723,7 +737,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             'balcony': 'बालकोनी (Balcony)',
             'kitchen': 'छुट्टै भान्सा',
             'furnished': 'फर्निचर सहित',
-            'hot_water': 'सोलार / तातो पानी',
             'parking_bike': 'बाइक पार्किङ',
             'parking_car': 'कार पार्किङ',
             'security': 'सेक्युरिटी / CCTV',
@@ -1171,6 +1184,414 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           onToggle: _toggleRule,
         ),
       ],
+    );
+  }
+
+  // ─── AI Insights Helpers ─────────────────────────────────────────────────
+
+  Future<void> _runAiInsights() async {
+    if (_aiInsightsLoaded) return;
+    setState(() => _isLoadingAiInsights = true);
+    final price = _priceController.text.isNotEmpty
+        ? _priceController.text
+        : _priceNightController.text;
+    final bedrooms = int.tryParse(_bedroomsController.text) ?? 1;
+
+    final results = await Future.wait([
+      _aiService.estimatePrice(_areaController.text, bedrooms, _selectedCategory ?? 'Room'),
+      _aiService.verifyLocation(_areaController.text, _landmarkController.text),
+    ]);
+
+    if (mounted) {
+      setState(() {
+        _aiPriceAnalysis = results[0];
+        _aiNeighborhoodVibe = results[1];
+        _isLoadingAiInsights = false;
+        _aiInsightsLoaded = true;
+      });
+    }
+  }
+
+  int _calcListingScore() {
+    int score = 0;
+    if (_titleController.text.trim().length > 10) score += 15;
+    if (_descriptionController.text.trim().length > 50) score += 20;
+    if (_selectedImages.length >= 5) score += 20;
+    if (_selectedImages.length >= 8) score += 5;
+    if (_selectedVideo != null) score += 15;
+    if (_selectedAmenities.length >= 4) score += 10;
+    if (_latitude != null) score += 10;
+    if (_priceController.text.isNotEmpty || _priceNightController.text.isNotEmpty) score += 5;
+    return score.clamp(0, 100);
+  }
+
+  // ─── AI Insights Step ────────────────────────────────────────────────────
+
+  Widget _buildStepAiInsights() {
+    final score = _calcListingScore();
+    final Color scoreColor = score >= 80
+        ? const Color(0xFF22C55E)
+        : score >= 55
+        ? Colors.orange
+        : Colors.redAccent;
+
+    return StepLayout(
+      title: 'तपाईंको लिस्टिङ AI विश्लेषण',
+      subtitle: 'AI Review — Listing Quality, Price Check & Neighborhood Vibe',
+      content: [
+        // ── Listing Score Card ──────────────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                scoreColor.withOpacity(0.08),
+                scoreColor.withOpacity(0.02),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: scoreColor.withOpacity(0.25), width: 1.5),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: scoreColor.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.auto_awesome_rounded, color: scoreColor, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Listing Quality Score',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 17,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: score / 100),
+                duration: const Duration(milliseconds: 1200),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, _) => Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${(value * 100).round()}%',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w900,
+                            color: scoreColor,
+                            letterSpacing: -1,
+                          ),
+                        ),
+                        Text(
+                          score >= 80
+                              ? '🌟 Excellent!'
+                              : score >= 55
+                              ? '👍 Good'
+                              : '⚡ Needs Work',
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: scoreColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: value,
+                        minHeight: 10,
+                        backgroundColor: Colors.grey.shade200,
+                        valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Tips
+              ...[
+                if (_selectedImages.length < 5)
+                  _buildTip('📸', 'Add at least 5 photos to boost visibility'),
+                if (_selectedVideo == null)
+                  _buildTip('🎬', 'Add a video reel for 3× more enquiries'),
+                if (_descriptionController.text.trim().length < 50)
+                  _buildTip('✍️', 'Write a longer description to build trust'),
+                if (_selectedAmenities.length < 4)
+                  _buildTip('✅', 'Select more amenities guests look for'),
+                if (_latitude == null)
+                  _buildTip('📍', 'Set GPS location to unlock map directions'),
+                if (score >= 80)
+                  _buildTip('🎉', 'Your listing looks great! Ready to publish.'),
+              ],
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // ── AI Price Analysis Card ──────────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.10),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.price_check_rounded, color: AppTheme.brandColor, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'AI Price Analysis',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                          ),
+                        ),
+                        Text(
+                          'Based on your area & room type',
+                          style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (!_aiInsightsLoaded)
+                    GestureDetector(
+                      onTap: _runAiInsights,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppTheme.brandColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Run AI',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              if (_isLoadingAiInsights)
+                Center(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      const CircularProgressIndicator(
+                        color: AppTheme.brandColor,
+                        strokeWidth: 2.5,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Analyzing market prices...',
+                        style: GoogleFonts.inter(
+                          color: Colors.grey[500],
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else if (_aiPriceAnalysis != null)
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor.withOpacity(0.04),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    _aiPriceAnalysis!,
+                    style: GoogleFonts.notoSansDevanagari(
+                      fontSize: 13,
+                      color: Colors.black87,
+                      height: 1.5,
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  'Tap "Run AI" above to get a price recommendation.',
+                  style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[400]),
+                ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // ── Neighborhood Vibe Card ──────────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: Colors.purple.withOpacity(0.10),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.location_city_rounded, color: Colors.purple, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Neighborhood Vibe',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                          ),
+                        ),
+                        Text(
+                          'Nearby schools, hospitals & more',
+                          style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              if (_isLoadingAiInsights)
+                Center(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      const CircularProgressIndicator(
+                        color: Colors.purple,
+                        strokeWidth: 2.5,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Scanning neighborhood...',
+                        style: GoogleFonts.inter(color: Colors.grey[500], fontSize: 12),
+                      ),
+                    ],
+                  ),
+                )
+              else if (_aiNeighborhoodVibe != null)
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.withOpacity(0.04),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    _aiNeighborhoodVibe!,
+                    style: GoogleFonts.notoSansDevanagari(
+                      fontSize: 13,
+                      color: Colors.black87,
+                      height: 1.5,
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  'AI neighborhood analysis will appear here.',
+                  style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[400]),
+                ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // ── Skip hint ───────────────────────────────────────────────────────
+        Center(
+          child: Text(
+            'Tap "Continue" to proceed to payment setup →',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: Colors.grey[400],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTip(String emoji, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 14)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: Colors.grey[700],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

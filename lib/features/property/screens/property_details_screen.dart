@@ -18,6 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/property/screens/visit_request_screen.dart';
+import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:khozna/features/property/screens/discovery_map_screen.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:khozna/features/property/widgets/property_details_widgets.dart';
@@ -162,7 +163,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'मालिकले भ्रमण स्वीकार गरेपछि मात्र दिशा देखिनेछ। (Directions unlock after visit is accepted)',
+              'घरबेटीले अवलोकन स्वीकार गरेपछि मात्र दिशा देखिनेछ। (Directions unlock after visit is accepted)',
             ),
             backgroundColor: AppTheme.brandColor,
           ),
@@ -1082,7 +1083,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'अन्दाजी क्षेत्र: ${widget.property.areaName ?? "Kathmandu"}',
+                        'अनुमानित क्षेत्र: ${widget.property.areaName ?? "Kathmandu"}',
                         style: GoogleFonts.mukta(
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
@@ -1091,7 +1092,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ),
                       ),
                       Text(
-                        'भिजिट स्वीकृत भएपछि मात्रै पुरा ठेगाना देखिनेछ',
+                        'अवलोकन स्वीकृत भएपछि मात्रै पुरा ठेगाना देखिनेछ',
                         style: GoogleFonts.mukta(
                           fontSize: 11,
                           color: Colors.grey[600],
@@ -1486,6 +1487,90 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       return _buildDisabledButton('Booked');
     }
 
+    // --- Rejected: allow guest to try again ---
+    if (_pendingBookingStatus == 'rejected' ||
+        _pendingBookingStatus == 'visit_completed') {
+      return SizedBox(
+        height: 48,
+        child: ElevatedButton(
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => VisitRequestScreen(property: widget.property),
+            ),
+          ).then((v) => v == true ? _updateBookingStatus() : null),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppTheme.brandColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+          child: Text(
+            'SCHEDULE VISIT',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // --- Awaiting payment: show Pay Now button ---
+    if (_pendingBookingStatus == 'awaiting_payment') {
+      return SizedBox(
+        height: 48,
+        child: ElevatedButton.icon(
+          onPressed: () async {
+            if (_pendingBookingId == null) return;
+            final booking = await SupabaseService.getVisitById(
+              _pendingBookingId!,
+            );
+            if (booking != null && mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PaymentChoiceScreen(
+                    booking: booking,
+                    propertyTitle:
+                        booking.propertyTitle ?? widget.property.title,
+                  ),
+                ),
+              );
+            }
+          },
+          icon: const Icon(Icons.payment_rounded, size: 18),
+          label: Text(
+            'PAY NOW',
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF22C55E),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // --- Paid / Confirmed ---
+    if (_pendingBookingStatus == 'paid' ||
+        _pendingBookingStatus == 'confirmed') {
+      return _buildDisabledButton(
+        _pendingBookingStatus == 'confirmed' ? '✓ Confirmed' : 'Payment Sent',
+      );
+    }
+
     if (_userHasPendingBooking) {
       if (_pendingBookingStatus == 'pending_approval') {
         return Column(
@@ -1509,11 +1594,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         );
       }
 
-      return _buildDisabledButton(
-        _pendingBookingStatus == 'visit_accepted'
-            ? 'Visit Accepted'
-            : 'Visit Scheduled',
-      );
+      return _buildDisabledButton('Visit Accepted');
     }
 
     return SizedBox(

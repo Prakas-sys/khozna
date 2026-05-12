@@ -185,14 +185,28 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         }
 
                         // -- SPECIAL: Booking Approved (Guest) card --
-                        final isApproved =
-                            (note['title']?.toString().contains('स्वीकृत') ==
-                                true) ||
-                            (note['message']?.toString().contains('स्वीकृत') ==
-                                true);
-                        if (type == 'booking_approved' ||
-                            (type == 'visit_alert' && isApproved)) {
+                        final titleStr = note['title']?.toString() ?? '';
+                        final msgStr = note['message']?.toString() ?? '';
+                        final isRejected = titleStr.contains('अस्वीकृत') ||
+                            msgStr.contains('अस्वीकृत') ||
+                            type == 'booking_rejected';
+
+                        final isApproved = !isRejected &&
+                            (titleStr.contains('स्वीकृत') ||
+                                msgStr.contains('स्वीकृत') ||
+                                type == 'booking_approved');
+
+                        if (isApproved) {
                           return _buildBookingApprovedCard(
+                            note,
+                            id,
+                            index,
+                            sender,
+                          );
+                        }
+
+                        if (isRejected) {
+                          return _buildBookingRejectedCard(
                             note,
                             id,
                             index,
@@ -523,20 +537,57 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   children: [
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: 22,
-                          backgroundColor: Colors.grey[100],
-                          backgroundImage:
-                              sender != null && sender['avatar_url'] != null
-                              ? CachedNetworkImageProvider(sender['avatar_url'])
-                              : null,
-                          child: sender == null || sender['avatar_url'] == null
-                              ? Icon(
-                                  Icons.person,
-                                  color: Colors.grey[400],
-                                  size: 24,
-                                )
-                              : null,
+                        GestureDetector(
+                          onTap: () {
+                            if (sender != null) {
+                              _showGuestProfile(context, sender);
+                            }
+                          },
+                          child: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 24,
+                                backgroundColor: Colors.grey[100],
+                                backgroundImage:
+                                    sender != null &&
+                                        sender['avatar_url'] != null
+                                    ? CachedNetworkImageProvider(
+                                        sender['avatar_url'],
+                                      )
+                                    : null,
+                                child:
+                                    sender == null ||
+                                        sender['avatar_url'] == null
+                                    ? Icon(
+                                        Icons.person,
+                                        color: Colors.grey[400],
+                                        size: 24,
+                                      )
+                                    : null,
+                              ),
+                              // Tap-to-view hint badge
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.brandColor,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.person_search_rounded,
+                                    size: 9,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -867,6 +918,150 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Booking Rejected card — shown to the guest
+  Widget _buildBookingRejectedCard(
+    Map<String, dynamic> note,
+    String id,
+    int index,
+    dynamic sender,
+  ) {
+    final String title = (note['title'] ?? 'Visit Rejected')
+        .toString()
+        .replaceAll('❌', '')
+        .trim();
+    final String message =
+        (note['message'] ?? '').toString().replaceAll('❌', '').trim();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.red.withOpacity(0.15)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.red.withOpacity(0.06),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.cancel_rounded,
+                    color: Colors.red,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                          color: Colors.red, // Rejected text red
+                          height: 1.2,
+                        ),
+                      ),
+                      Text(
+                        _formatTime(note['created_at']),
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Body
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              message,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: Colors.grey[700],
+                height: 1.4,
+              ),
+            ),
+          ),
+          // Action button (Optional: Chat instead of Pay Now)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  if (sender != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => chat_page.ChatScreen(
+                          ownerId: sender['id']?.toString() ?? '',
+                          name: sender['full_name'] ?? 'Owner',
+                          avatar: sender['avatar_url'] ?? '',
+                          online: true,
+                        ),
+                      ),
+                    );
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const OwnerBookingsScreen(),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.chat_bubble_outline_rounded, size: 18),
+                label: Text(
+                  'घरधनीसँग कुरा गर्नुहोस् (Message Owner)',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.black87,
+                  side: BorderSide(color: Colors.grey.shade300),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
