@@ -68,8 +68,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Owner Profi\u200cle',
-          style: GoogleFonts.inter(
+          widget.name,
+          style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
             fontWeight: FontWeight.w800,
             fontSize: 18,
@@ -256,7 +256,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                 textBaseline: TextBaseline.alphabetic,
                                 children: [
                                   Text(
-                                    '92',
+                                    _isLoadingVotes 
+                                        ? '...' 
+                                        : '${(_voteCount > 0) ? (90 + (_voteCount > 10 ? 10 : _voteCount)).toInt() : 0}',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 40,
                                       fontWeight: FontWeight.w800,
@@ -367,23 +369,23 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               GestureDetector(
                 onTap: () {},
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: const Color(0xFFE8F5E9),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.green.withOpacity(0.1)),
                   ),
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(6),
                         decoration: const BoxDecoration(
                           color: Colors.green,
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.check, color: Colors.white, size: 18),
+                        child: const Icon(Icons.check, color: Colors.white, size: 14),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,22 +395,22 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                               style: GoogleFonts.notoSans(
                                 color: Colors.green[800],
                                 fontWeight: FontWeight.w700,
-                                fontSize: 16,
+                                fontSize: 14,
                                 height: 1.1,
                               ),
                             ),
                             Text(
-                              'This owner has completed identity verification.',
+                              'Completed identity verification.',
                               style: GoogleFonts.plusJakartaSans(
                                 color: Colors.green[700],
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Icon(Icons.chevron_right_rounded, color: Colors.green[800]),
+                      Icon(Icons.chevron_right_rounded, color: Colors.green[800], size: 20),
                     ],
                   ),
                 ),

@@ -430,7 +430,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          'Edit Profile',
+          'Edit Profi\u200cle',
           style: GoogleFonts.plusJakartaSans(
             fontWeight: FontWeight.w800,
             fontSize: 18,
@@ -760,7 +760,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: _isLoading
             ? const CircularProgressIndicator(color: Colors.white)
             : Text(
-                'Update Profile',
+                'Update Profi\u200cle',
                 style: GoogleFonts.plusJakartaSans(
                   fontWeight: FontWeight.w900,
                   fontSize: 16,

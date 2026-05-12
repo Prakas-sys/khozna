@@ -268,7 +268,7 @@ class VerificationCard extends StatelessWidget {
               children: [
                 Text(
                   isVerified
-                      ? 'Profile Verified (प्रमाणित)'
+                      ? 'Profi\u200cle Verified (प्रमाणित)'
                       : (isPending
                             ? 'Pending KYC (प्रमाणीकरण हुँदैछ)'
                             : (isRejected
