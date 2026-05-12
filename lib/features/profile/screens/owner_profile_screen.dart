@@ -187,8 +187,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                const SizedBox(width: 6),
-                                const Icon(Icons.verified_rounded, color: Color(0xFF00A3FF), size: 18),
                               ],
                             ),
                             const SizedBox(height: 6),
@@ -258,17 +256,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                   Text(
                                     _isLoadingVotes 
                                         ? '...' 
-                                        : '${_voteCount == 0 ? 0 : (min(60 + (_voteCount * 4), 100)).toInt()}',
+                                        : '$_voteCount',
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 40,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  Text(
-                                    '%',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 24,
                                       fontWeight: FontWeight.w800,
                                       color: Colors.black,
                                     ),
@@ -277,8 +267,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                               ),
                               Text(
                                 _voteCount <= 1 
-                                    ? '$_voteCount Community Trust' 
-                                    : '$_voteCount Community Votes',
+                                    ? 'Total Trust' 
+                                    : 'Total Trust Votes',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -440,19 +430,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF00A3FF), Color(0xFF0077FF)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
+                  color: AppTheme.brandColor,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF00A3FF).withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
