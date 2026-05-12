@@ -525,13 +525,16 @@ class PropertyFormField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              label,
-              style: GoogleFonts.notoSansDevanagari(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF374151),
+            Flexible(
+              child: Text(
+                label,
+                style: GoogleFonts.notoSansDevanagari(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF374151),
+                ),
               ),
             ),
             if (isRequired)
