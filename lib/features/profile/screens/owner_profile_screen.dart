@@ -8,7 +8,7 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:khozna/features/profile/repositories/vote_repository.dart';
 
 class OwnerProfileScreen extends StatefulWidget {
@@ -36,20 +36,39 @@ class OwnerProfileScreen extends StatefulWidget {
 class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   int _voteCount = 0;
   bool _isLoadingVotes = true;
+  String _joinedDate = '...';
 
   @override
   void initState() {
     super.initState();
-    _loadVoteCount();
+    _loadProfileData();
   }
 
-  Future<void> _loadVoteCount() async {
-    final count = await VoteRepository.getVoteCount(widget.ownerId);
-    if (mounted) {
-      setState(() {
-        _voteCount = count;
-        _isLoadingVotes = false;
-      });
+  Future<void> _loadProfileData() async {
+    try {
+      final results = await Future.wait([
+        VoteRepository.getVoteCount(widget.ownerId),
+        Supabase.instance.client
+            .from('profiles')
+            .select('created_at')
+            .eq('id', widget.ownerId)
+            .maybeSingle(),
+      ]);
+
+      if (mounted) {
+        setState(() {
+          _voteCount = results[0] as int;
+          final profileData = results[1] as Map<String, dynamic>?;
+          if (profileData != null && profileData['created_at'] != null) {
+            final date = DateTime.parse(profileData['created_at']);
+            _joinedDate = DateFormat.yMMMM().format(date);
+          }
+          _isLoadingVotes = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading profile data: $e');
+      if (mounted) setState(() => _isLoadingVotes = false);
     }
   }
 
@@ -148,31 +167,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (widget.isVerified)
-                              Container(
-                                margin: const EdgeInsets.only(bottom: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE8F5E9),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.verified_user_rounded, color: Colors.green, size: 12),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'VERIFIED',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.green[800],
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 9,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+
                             Row(
                               children: [
                                 Flexible(
@@ -304,10 +299,13 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     crossAxisSpacing: 12,
                     childAspectRatio: 2.2,
                     children: [
-                      _buildHeaderStatGrid('KYC Verified', Icons.verified_user_rounded),
+                      _buildHeaderStatGrid(
+                        'KYC Verified', 
+                        Icons.verified_user_rounded, 
+                        iconColor: Colors.green,
+                        bgColor: const Color(0xFFE8F5E9),
+                      ),
                       _buildHeaderStatGrid('Phone Verified', Icons.phone_android_rounded),
-                      _buildHeaderStatGrid('Responds Fast', Icons.access_time_rounded, subLabel: '< 1 hour'),
-                      _buildHeaderStatGrid('Active Listings', Icons.inventory_2_rounded, subLabel: widget.totalListings.toString()),
                     ],
                   ),
                 ],
@@ -335,80 +333,26 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   _buildStatsRowItem(
                     'सूचीहरू (Listings)',
                     widget.totalListings.toString(),
-                    Icons.list_alt_rounded,
+                    null,
                   ),
                   Container(height: 40, width: 1, color: const Color(0xFFF1F5F9)),
                   _buildStatsRowItem(
                     'भरोसा (Trust)',
                     _isLoadingVotes ? '...' : '$_voteCount',
-                    Icons.stars_rounded,
+                    null, // Icon removed as requested
                   ),
                   Container(height: 40, width: 1, color: const Color(0xFFF1F5F9)),
                   _buildStatsRowItem(
                     'Joined',
-                    'May 2024',
-                    Icons.calendar_today_rounded,
+                    _joinedDate,
+                    null,
                     isJoined: true,
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
-
-            // KYC Verified Banner
-            if (widget.isVerified)
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8F5E9),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.green.withOpacity(0.1)),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.check, color: Colors.white, size: 14),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'प्रमाणित घरधनी (KYC Verified Owner)',
-                              style: GoogleFonts.notoSans(
-                                color: Colors.green[800],
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                                height: 1.1,
-                              ),
-                            ),
-                            Text(
-                              'Completed identity verification.',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: Colors.green[700],
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(Icons.chevron_right_rounded, color: Colors.green[800], size: 20),
-                    ],
-                  ),
-                ),
-              ),
-
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
             // Action Buttons
             GestureDetector(
@@ -577,16 +521,16 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  Widget _buildHeaderStatGrid(String label, IconData icon, {String? subLabel}) {
+  Widget _buildHeaderStatGrid(String label, IconData icon, {String? subLabel, Color? iconColor, Color? bgColor}) {
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF00A3FF).withOpacity(0.1),
-            shape: BoxShape.circle,
+            color: bgColor ?? const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: const Color(0xFF00A3FF), size: 16),
+          child: Icon(icon, color: iconColor ?? const Color(0xFF64748B), size: 18),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -620,18 +564,19 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  Widget _buildStatsRowItem(String label, String value, IconData icon, {bool isJoined = false}) {
+  Widget _buildStatsRowItem(String label, String value, IconData? icon, {bool isJoined = false}) {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFF00A3FF).withOpacity(0.05),
-            shape: BoxShape.circle,
+        if (icon != null)
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00A3FF).withOpacity(0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: const Color(0xFF00A3FF), size: 20),
           ),
-          child: Icon(icon, color: const Color(0xFF00A3FF), size: 20),
-        ),
-        const SizedBox(height: 12),
+        if (icon != null) const SizedBox(height: 12),
         Text(
           value,
           style: GoogleFonts.plusJakartaSans(
@@ -654,15 +599,6 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             height: 1.2,
           ),
         ),
-        if (isJoined)
-          Text(
-            '(Joined)',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[500],
-            ),
-          ),
       ],
     );
   }
