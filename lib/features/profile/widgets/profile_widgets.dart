@@ -394,9 +394,9 @@ class PostPropertyCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
-                    style: GoogleFonts.mukta(
+                    style: GoogleFonts.notoSansDevanagari(
                       color: Colors.white.withOpacity(0.9),
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       height: 1.1,
                     ),
@@ -416,7 +416,7 @@ class PostPropertyCard extends StatelessWidget {
                       ),
                       child: Text(
                         'Post Now',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           color: const Color(0xFF0077AA),
                           fontSize: 14,
                           fontWeight: FontWeight.w800,

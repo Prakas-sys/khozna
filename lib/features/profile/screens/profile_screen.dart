@@ -369,7 +369,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       icon: const Icon(Icons.logout_rounded, color: Colors.red),
                       label: Text(
                         'Log Out From Account',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           color: Colors.red,
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
