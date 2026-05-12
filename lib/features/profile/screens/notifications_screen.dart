@@ -7,7 +7,6 @@ import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
-import 'package:khozna/widgets/trust_badge.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 
 class NotificationsScreen extends StatefulWidget {
@@ -552,92 +551,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   height: 1.4,
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.amber.shade50,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.amber.shade200,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text('⚠️', style: TextStyle(fontSize: 12)),
-                                    const SizedBox(width: 6),
-                                    Expanded(
-                                      child: Text(
-                                        'पहिला भेट गर्नुहोस्, त्यसपछि मात्र पैसा लिनुहोस्।',
-                                        style: GoogleFonts.mukta(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.amber.shade900,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              if (sender != null) ...[
-                                const SizedBox(height: 12),
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 8,
-                                  crossAxisAlignment: WrapCrossAlignment.center,
-                                  children: [
-                                    TrustBadge(
-                                      badge: sender['trust_badge'] ?? 'new',
-                                      fontSize: 10,
-                                    ),
-                                    if (sender['kyc_status'] == 'verified')
-                                      const Icon(
-                                        Icons.verified,
-                                        size: 14,
-                                        color: Colors.blue,
-                                      ),
-                                    InkWell(
-                                      onTap: () => _showGuestProfile(context, sender),
-                                      borderRadius: BorderRadius.circular(50),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFF00A3E1).withOpacity(0.08),
-                                          borderRadius: BorderRadius.circular(50),
-                                          border: Border.all(
-                                            color: const Color(0xFF00A3E1).withOpacity(0.15),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(
-                                              Icons.person_search_outlined,
-                                              size: 14,
-                                              color: Color(0xFF00A3E1),
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              'प्रोफाइल (Profile)',
-                                              style: GoogleFonts.inter(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w700,
-                                                color: const Color(0xFF00A3E1),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+
                             ],
                           ),
                         ),
@@ -694,7 +608,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 ),
                                 label: Text(
                                   'कुरा गर्नुहोस् (Message)',
-                                  style: GoogleFonts.mukta(
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 13,
                                   ),
@@ -739,7 +653,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 icon: const Icon(Icons.close_rounded, size: 16),
                                 label: Text(
                                   'अस्वीकार (Reject)',
-                                  style: GoogleFonts.mukta(
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 13,
                                   ),
@@ -788,7 +702,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 icon: const Icon(Icons.check_rounded, size: 16),
                                 label: Text(
                                   'स्वीकार (Approve)',
-                                  style: GoogleFonts.mukta(
+                                  style: GoogleFonts.plusJakartaSans(
                                     fontWeight: FontWeight.w700,
                                     fontSize: 13,
                                   ),

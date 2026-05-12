@@ -570,6 +570,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             bgColor: AppTheme.brandColor.withOpacity(0.08),
           ),
           _buildQuickStatItem(
+            icon: Icons.bathtub_outlined,
+            label: 'Bath',
+            value: widget.property.bathrooms.toString(),
+            color: const Color(0xFF7C3AED),
+            bgColor: const Color(0xFF7C3AED).withOpacity(0.08),
+          ),
+          _buildQuickStatItem(
             icon: Icons.layers_outlined,
             label: 'Floor',
             value: widget.property.floor,
