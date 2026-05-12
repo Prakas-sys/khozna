@@ -911,7 +911,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                               _isGeneratingVideoCaption = false;
                             });
                           },
-                    icon: const Icon(Icons.magic_button_rounded, size: 16),
+                    icon: const Icon(Icons.auto_awesome_rounded, size: 16),
                     label: Text(
                       'AI बाट क्याप्सन लेख्नुहोस्',
                       style: GoogleFonts.notoSansDevanagari(
