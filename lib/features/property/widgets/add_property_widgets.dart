@@ -402,13 +402,11 @@ class CategoryCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.brandColor.withOpacity(0.03)
-              : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
-            width: isSelected ? 2 : 1.5,
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
+            width: isSelected ? 2 : 1.2,
           ),
         ),
         child: Align(
@@ -655,11 +653,11 @@ class PropertyFormField extends StatelessWidget {
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: Colors.grey.shade200),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: Colors.grey.shade200),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
@@ -712,8 +710,8 @@ class AmenitiesGrid extends StatelessWidget {
               color: isSelected ? AppTheme.brandColor : Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
-                width: 1.5,
+                color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
+                width: 1.2,
               ),
               boxShadow: isSelected
                   ? [

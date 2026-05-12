@@ -406,17 +406,17 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: AppTheme.brandColor.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
                 '${_currentStep + 1} / $_totalSteps',
                 style: GoogleFonts.plusJakartaSans(
                   fontWeight: FontWeight.w900,
                   color: AppTheme.brandColor,
-                  fontSize: 16,
+                  fontSize: 14,
                   letterSpacing: -0.5,
                 ),
               ),
