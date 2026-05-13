@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { CreditCard, CheckCircle, XCircle, Clock, ExternalLink, Filter } from 'lucide-react';
+import { CreditCard, ExternalLink } from 'lucide-react';
 
 export const Payments = () => {
   const [payments, setPayments] = useState<any[]>([]);

@@ -8,6 +8,9 @@ import 'package:khozna/core/utils/formatters.dart';
 import 'package:intl/intl.dart';
 import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:khozna/core/services/cloudinary_service.dart';
 
 class PaymentChoiceScreen extends StatefulWidget {
   final BookingModel booking;
@@ -27,7 +30,27 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   final TextEditingController _transactionController = TextEditingController();
   bool _isSubmitting = false;
   bool _isLoadingOwner = true;
+  String _paymentDestination = 'khozna'; // 'khozna' or 'owner'
   UserModel? _ownerProfile;
+  File? _proofImage;
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    try {
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+      if (image != null) {
+        HapticFeedback.mediumImpact();
+        setState(() {
+          _proofImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
 
   @override
   void initState() {
@@ -82,6 +105,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSafetyWarning(),
+            const SizedBox(height: 24),
+            _buildPaymentStrategySelector(),
             const SizedBox(height: 32),
 
             Text(
@@ -99,24 +124,160 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             ),
 
             const SizedBox(height: 32),
-            if (_isLoadingOwner)
-              const Center(child: CircularProgressIndicator())
-            else if (_ownerProfile != null)
-              _buildOwnerPaymentInfo()
-            else
-              Text(
-                'Error loading payment details. Please chat with owner.',
-                style: GoogleFonts.inter(color: Colors.red, fontSize: 12),
-              ),
+            if (_paymentDestination == 'khozna') _buildKhoznaAccountSection(),
+            if (_paymentDestination == 'owner') ...[
+              if (_isLoadingOwner)
+                const Center(child: CircularProgressIndicator())
+              else if (_ownerProfile != null)
+                _buildOwnerPaymentInfo()
+              else
+                Text(
+                  'Error loading payment details. Please chat with owner.',
+                  style: GoogleFonts.inter(color: Colors.red, fontSize: 12),
+                ),
+            ],
 
-            const SizedBox(height: 32),
-            _buildUploadProofSection(),
+            if (_paymentDestination == 'khozna') ...[
+              const SizedBox(height: 32),
+              _buildUploadProofSection(),
+            ],
             const SizedBox(height: 40),
 
             _buildActionButtons(),
             const SizedBox(height: 40),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentStrategySelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Choose Payment Method',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStrategyCard(
+                id: 'khozna',
+                title: 'Secure Pay',
+                subtitle: 'via Khozna',
+                icon: Icons.shield_outlined,
+                color: Colors.blue,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStrategyCard(
+                id: 'owner',
+                title: 'Direct Pay',
+                subtitle: 'to Owner',
+                icon: Icons.person_outline,
+                color: Colors.orange,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStrategyCard({
+    required String id,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+  }) {
+    final isSelected = _paymentDestination == id;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        setState(() => _paymentDestination = id);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? color.withOpacity(0.08) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? color : Colors.grey.shade200,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: color.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            )
+          ] : null,
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: isSelected ? color : Colors.grey),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: isSelected ? color : Colors.black87,
+              ),
+            ),
+            Text(
+              subtitle,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildKhoznaAccountSection() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.blue.shade100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.verified_user, color: Colors.blue, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'KHOZNA OFFICIAL ACCOUNT',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                  color: Colors.blue.shade800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _paymentDetailItem('eSewa / Khalti ID', '9800000000', Colors.blue),
+          const SizedBox(height: 12),
+          _paymentDetailItem('Account Name', 'Khozna Rentals Pvt. Ltd.', Colors.blue),
+          const SizedBox(height: 12),
+          _paymentDetailItem('Payment Note', 'Ref: ${widget.booking.id.substring(0, 8)}', Colors.blue),
+        ],
       ),
     );
   }
@@ -323,9 +484,14 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           icon: const Icon(Icons.copy_rounded, size: 20, color: Colors.grey),
           onPressed: () {
             Clipboard.setData(ClipboardData(text: value));
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('$label copied!')));
+            HapticFeedback.lightImpact();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$label copied to clipboard'),
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 1),
+              ),
+            );
           },
         ),
       ],
@@ -349,35 +515,70 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           style: GoogleFonts.mukta(color: Colors.grey[600], fontSize: 13),
         ),
         const SizedBox(height: 16),
-        Container(
-          width: double.infinity,
-          height: 120,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.grey.shade300,
-              style: BorderStyle.solid,
+        GestureDetector(
+          onTap: _pickImage,
+          child: Container(
+            width: double.infinity,
+            height: 160,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: _proofImage != null
+                    ? AppTheme.brandColor
+                    : Colors.grey.shade300,
+                width: _proofImage != null ? 2 : 1,
+              ),
             ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.cloud_upload_outlined,
-                color: Colors.grey,
-                size: 32,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Upload Screenshot',
-                style: GoogleFonts.inter(
-                  color: Colors.grey,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+            child: _proofImage != null
+                ? Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: Image.file(
+                          _proofImage!,
+                          width: double.infinity,
+                          height: 160,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.black54,
+                          radius: 16,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.close,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            onPressed: () => setState(() => _proofImage = null),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.cloud_upload_outlined,
+                        color: Colors.grey,
+                        size: 32,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Upload Screenshot',
+                        style: GoogleFonts.inter(
+                          color: Colors.grey,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
         const SizedBox(height: 16),
@@ -425,16 +626,39 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       ],
     );
   }
-
   Future<void> _proceed() async {
     setState(() => _isSubmitting = true);
+    if (_paymentDestination == 'khozna' && _proofImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Please upload a payment screenshot first!',
+            style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      setState(() => _isSubmitting = false);
+      return;
+    }
+
     try {
+      String? imageUrl;
+      if (_paymentDestination == 'khozna') {
+        // 1. Upload to Cloudinary
+        imageUrl = await CloudinaryService.uploadImage(_proofImage!);
+        if (imageUrl == null) throw 'Failed to upload image. Please try again.';
+      }
+
+      // 2. Submit payment
       await BookingRepository.submitPayment(
         bookingId: widget.booking.id,
-        paymentType: 'direct', // Always direct now
+        paymentType: _paymentDestination,
         method: 'manual',
         amount: widget.booking.totalPrice,
         referenceId: _transactionController.text.trim(),
+        proofImageUrl: imageUrl,
       );
       if (mounted) {
         HapticFeedback.mediumImpact();

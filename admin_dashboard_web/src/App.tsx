@@ -117,7 +117,7 @@ const DashboardHome = () => {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [u, k, r, latestK] = await Promise.all([
+        const [u, k, r, p, latestK] = await Promise.all([
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('kyc_verifications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
           supabase.from('user_reports').select('*', { count: 'exact', head: true }),
