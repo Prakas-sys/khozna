@@ -40,7 +40,7 @@ class PostPropertyIntroScreen extends StatelessWidget {
                   children: [
                     const SizedBox(height: 32),
                     Text(
-                      'Khozna मा लिस्टिङ गर्नुहोस्',
+                      'KHOZNA मा लिस्टिङ गर्नुहोस्',
                       style: GoogleFonts.notoSansDevanagari(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,

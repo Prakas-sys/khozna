@@ -30,6 +30,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   late ConfettiController _confettiController;
 
   // Form State
+  final TextEditingController _otherCategoryController = TextEditingController();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _areaController = TextEditingController();
   final TextEditingController _landmarkController = TextEditingController();
@@ -98,6 +99,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   @override
   void dispose() {
     _confettiController.dispose();
+    _otherCategoryController.dispose();
     _titleController.dispose();
     _areaController.dispose();
     _landmarkController.dispose();
@@ -226,10 +228,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
     switch (_currentStep) {
       case 0:
-        if (_selectedCategory == null)
+        if (_selectedCategory == null) {
           errorMessage = "कृपया सम्पत्तिको प्रकार छान्नुहोस्।";
-        else
+        } else if (_selectedCategory == 'Other' && _otherCategoryController.text.trim().isEmpty) {
+          errorMessage = "कृपया सम्पत्तिको प्रकार लेख्नुहोस्।";
+        } else {
           isValid = true;
+        }
         break;
       case 1:
         if (_areaController.text.trim().isEmpty)
@@ -322,7 +327,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
       await PropertyRepository.createProperty(
         title: _titleController.text,
-        category: _selectedCategory ?? 'Room',
+        category: (_selectedCategory == 'Other' ? _otherCategoryController.text.trim() : _selectedCategory) ?? 'Room',
         areaName: _areaController.text,
         landmark: _landmarkController.text,
         price: double.tryParse(_priceController.text) ?? 0.0,
@@ -355,7 +360,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               title: _titleController.text,
               area: _areaController.text,
               landmark: _landmarkController.text,
-              category: _selectedCategory ?? 'Property',
+              category: (_selectedCategory == 'Other' ? _otherCategoryController.text.trim() : _selectedCategory) ?? 'Property',
               price: _priceController.text,
               submittedAt: DateTime.now(),
             ),
@@ -406,7 +411,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             padding: const EdgeInsets.only(right: 16),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(20),
@@ -541,15 +546,24 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               onSelect: (v) => setState(() => _selectedCategory = v),
             ),
             CategoryCard(
-              label: 'घर / House',
+              label: 'अन्य / Other',
               imagePath: 'assets/images/tiny house.png',
-              value: 'House',
+              value: 'Other',
               imageScale: 1.8,
               selectedValue: _selectedCategory,
               onSelect: (v) => setState(() => _selectedCategory = v),
             ),
           ],
         ),
+        if (_selectedCategory == 'Other') ...[
+          const SizedBox(height: 24),
+          PropertyFormField(
+            label: 'सम्पत्तिको प्रकार लेख्नुहोस्',
+            hint: 'उदा: सटर, गोदाम, आदि',
+            controller: _otherCategoryController,
+            icon: Icons.edit_note_rounded,
+          ),
+        ],
       ],
     );
   }
