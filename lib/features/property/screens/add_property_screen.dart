@@ -167,8 +167,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           permission == LocationPermission.denied) {
         if (mounted)
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('कृपया सेटिङ्सबाट लोकेशन अन गर्नुहोस्।'),
+            SnackBar(
+              content: Text(
+                'कृपया सेटिङ्सबाट लोकेशन अन गर्नुहोस्।',
+                style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w600),
+              ),
             ),
           );
         setState(() => _isLocating = false);
@@ -185,7 +188,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           _longitude = position.longitude;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('एआईले तपाईंको ठाउँ खोज्दैछ... 🤖')),
+          SnackBar(
+            content: Text(
+              'एआईले तपाईंको ठाउँ खोज्दैछ... 🤖',
+              style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w600),
+            ),
+          ),
         );
         final locData = await _aiService.autoDetectLocationArea(
           position.latitude,
@@ -285,7 +293,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     } else if (errorMessage.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMessage),
+          content: Text(
+            errorMessage,
+            style: GoogleFonts.notoSansDevanagari(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -1443,7 +1457,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       ),
                       decoration: InputDecoration(
                         hintText: 'आफ्नो प्रोपर्टीको बारेमा केही लेख्नुहोस्...',
-                        hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 14),
+                        hintStyle: GoogleFonts.notoSansDevanagari(color: Colors.grey[400], fontSize: 14),
                         border: InputBorder.none,
                       ),
                     ),
@@ -1479,7 +1493,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                           : const Icon(Icons.flash_on_rounded, size: 16),
                         label: Text(
                           _isGeneratingDescription ? 'लेख्दै छ...' : 'AI बाट विवरण लेख्नुहोस्',
-                          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
+                          style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w800, fontSize: 14),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.brandColor,

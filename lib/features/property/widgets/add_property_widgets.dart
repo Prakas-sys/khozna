@@ -104,9 +104,9 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF22C55E).withOpacity(0.45),
-                              blurRadius: 28,
-                              offset: const Offset(0, 10),
+                              color: const Color(0xFF22C55E).withOpacity(0.2),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
                           ],
                         ),
@@ -514,10 +514,11 @@ class StepLayout extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             subtitle,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: Colors.grey[500],
+            style: GoogleFonts.notoSansDevanagari(
+              fontSize: 15,
+              color: Colors.grey[600],
               fontWeight: FontWeight.w500,
+              height: 1.4,
             ),
           ),
           const SizedBox(height: 32),
@@ -652,7 +653,7 @@ class PropertyFormField extends StatelessWidget {
               child: Text(
                 label,
                 style: GoogleFonts.notoSansDevanagari(
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF374151),
                   letterSpacing: -0.2,
@@ -682,7 +683,11 @@ class PropertyFormField extends StatelessWidget {
           ),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400]),
+            hintStyle: GoogleFonts.notoSansDevanagari(
+              fontSize: 14,
+              color: Colors.grey[400],
+              fontWeight: FontWeight.w500,
+            ),
             filled: true,
             fillColor: const Color(0xFFF8FAFC),
             prefixIcon: prefixIcon != null 
