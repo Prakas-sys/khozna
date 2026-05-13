@@ -23,8 +23,10 @@ export const Payments = () => {
           bookings (
             id,
             guest_id,
+            owner_id,
             properties (title),
-            profiles!bookings_guest_id_fkey (full_name, rating)
+            guest:profiles!bookings_guest_id_fkey (full_name),
+            owner:profiles!bookings_owner_id_fkey (full_name, esewa_number, khalti_number, qr_code_url)
           )
         `)
         .order('created_at', { ascending: false });
@@ -137,7 +139,7 @@ export const Payments = () => {
                 <div>
                   <h4 className="text-[14px] font-bold text-[#0F172A]">{p.bookings?.properties?.title}</h4>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">{p.bookings?.profiles?.full_name}</span>
+                    <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">{p.bookings?.guest?.full_name}</span>
                     <span className="w-1 h-1 rounded-full bg-gray-300"></span>
                     <span className="text-[11px] font-medium text-[#94A3B8]">{new Date(p.created_at).toLocaleString()}</span>
                   </div>
@@ -197,14 +199,46 @@ export const Payments = () => {
                   <p className="text-[#64748B] text-sm font-medium">Verified by Prakash (System Admin)</p>
                 </div>
 
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center py-4 border-b border-gray-50">
-                    <span className="text-[13px] font-semibold text-[#64748B]">Guest</span>
-                    <span className="text-[13px] font-bold text-[#0F172A]">{selectedPayment.bookings?.profiles?.full_name}</span>
+                <div className="space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-2">Guest Detail</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[13px] font-semibold text-blue-900">Payer</span>
+                      <span className="text-[13px] font-bold text-blue-900">{selectedPayment.bookings?.guest?.full_name}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center py-4 border-b border-gray-50">
-                    <span className="text-[13px] font-semibold text-[#64748B]">Amount</span>
-                    <span className="text-[18px] font-black text-[#2563EB]">Rs. {selectedPayment.amount}</span>
+
+                  <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
+                    <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest block mb-3">Owner Payout Details</span>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[11px] font-semibold text-orange-800">Owner</span>
+                        <span className="text-[11px] font-bold text-orange-900">{selectedPayment.bookings?.owner?.full_name}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[11px] font-semibold text-orange-800">eSewa</span>
+                        <span className="text-[11px] font-bold text-orange-900">{selectedPayment.bookings?.owner?.esewa_number || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[11px] font-semibold text-orange-800">Khalti</span>
+                        <span className="text-[11px] font-bold text-orange-900">{selectedPayment.bookings?.owner?.khalti_number || 'N/A'}</span>
+                      </div>
+                      {selectedPayment.bookings?.owner?.qr_code_url && (
+                        <div className="mt-4 pt-4 border-t border-orange-100 flex flex-col items-center">
+                          <p className="text-[10px] font-bold text-orange-800 uppercase mb-2">Owner QR Code</p>
+                          <img 
+                            src={selectedPayment.bookings.owner.qr_code_url} 
+                            alt="Owner QR" 
+                            className="w-32 h-32 object-cover rounded-lg border border-orange-200"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center py-4 px-2">
+                    <span className="text-[13px] font-semibold text-[#64748B]">Total Amount</span>
+                    <span className="text-[20px] font-black text-[#0F172A]">Rs. {selectedPayment.amount}</span>
                   </div>
                 </div>
 

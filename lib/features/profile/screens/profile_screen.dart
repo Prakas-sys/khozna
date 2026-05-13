@@ -24,7 +24,7 @@ import 'package:khozna/core/guards/auth_guard.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/profile/widgets/profile_widgets.dart';
 import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
-import 'package:khozna/features/admin/screens/admin_dashboard_screen.dart';
+// Admin dashboard removed from mobile - focusing on Web Dashboard
 
 class ProfileScreen extends StatefulWidget {
   final bool isVerified;
@@ -302,20 +302,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                             context,
                             MaterialPageRoute(
                               builder: (_) => const SavedPropertiesScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      ProfileMenuItem(
-                        icon: Icons.admin_panel_settings_outlined,
-                        title: 'Admin Dashboard',
-                        subtitle: 'Verify payments \u0026 KYC',
-                        color: AppTheme.brandColor,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const AdminDashboardScreen(),
                             ),
                           );
                         },
