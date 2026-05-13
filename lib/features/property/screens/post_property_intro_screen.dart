@@ -64,25 +64,71 @@ class PostPropertyIntroScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Header
-                    Text(
-                      'Khozna मा लिस्टिङ गर्न\nएकदमै सजिलो छ',
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w900,
-                        color: const Color(0xFF0F172A),
-                        height: 1.2,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'आफ्नो प्रोपर्टीलाई १०/१० बनाउन यी चरणहरू पालना गर्नुहोस्। (Follow these steps to make your listing perfect.)',
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF64748B),
-                        height: 1.5,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'KHOZNA मा लिस्टिङ गर्न\nएकदमै सजिलो छ',
+                                style: GoogleFonts.notoSansDevanagari(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w900,
+                                  color: const Color(0xFF0F172A),
+                                  height: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'आफ्नो प्रोपर्टीलाई १०/१० बनाउन यी चरणहरू पालना गर्नुहोस्।',
+                                style: GoogleFonts.notoSansDevanagari(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF64748B),
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // ── Animated House Graphic ──────────────────────────
+                        SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(seconds: 2),
+                                builder: (context, value, child) {
+                                  return Transform.translate(
+                                    offset: Offset(0, -5 * value),
+                                    child: child,
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.brandColor.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.home_work_rounded,
+                                    color: AppTheme.brandColor,
+                                    size: 36,
+                                  ),
+                                ),
+                              ),
+                              // Floating 'dots' or elements to simulate 'building'
+                              ...List.generate(3, (i) => _buildFloatingElement(i)),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 48),
 
@@ -256,6 +302,30 @@ class PostPropertyIntroScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+  Widget _buildFloatingElement(int index) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: Duration(seconds: 1 + index),
+      builder: (context, value, child) {
+        double offset = (10 * (1 - value)) + (index * 5);
+        return Positioned(
+          top: 10 + (index * 15),
+          right: 10 + offset,
+          child: Opacity(
+            opacity: value.clamp(0.0, 1.0),
+            child: Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: AppTheme.brandColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
