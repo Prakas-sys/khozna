@@ -225,10 +225,12 @@ BEHAVIOR RULES:
     1. WRITING STYLE: Use a mix of Professional and Catchy marketing tone.
     2. LOCATION & LANDMARKS: You MUST emphasize the location ($area) and the nearby landmark ($landmark). Mention why this location is convenient (e.g., transport, safety, neighborhood vibe).
     3. PRICE & VALUE: Mention the rent clearly and highlight if it's a good deal for the features provided.
-    4. LANGUAGE (STRICT): Use ONLY English and Pure Nepali (Devanagari). 
-    5. NO HINDI: Strictly forbidden from using Hindi words like 'कमरा' (use 'कोठा'), 'मकान' (use 'घर'), 'बिस्तार' (use 'विवरण'). If a word feels like Hindi, use the English term instead.
-    6. LENGTH: 4-6 concise sentences.
-    7. CURRENCY: Always use ₹ symbol.
+    4. RENTAL ONLY: This is for a RENTAL listing. ABSOLUTELY FORBIDDEN to mention "Selling", "Buying", or "For Sale". Use terms like "Rent" (भाडा) only.
+    5. UNIT TYPE: Use specific terms like "कोठा" (Room) or "फ्ल्याट" (Flat) based on the category. Avoid calling it a "घर" (House) unless it's a whole house for rent.
+    6. LANGUAGE (STRICT): Use ONLY English and Pure Nepali (Devanagari). 
+    7. NO HINDI: Strictly forbidden from using Hindi words like 'कमरा' (use 'कोठा'), 'मकान', 'बिस्तार' (use 'विवरण'). If a word feels like Hindi, use the English term instead.
+    8. LENGTH: 4-6 concise sentences.
+    9. CURRENCY: Always use ₹ symbol.
     """;
 
     return _getAiResponse(

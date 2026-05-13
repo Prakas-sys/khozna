@@ -111,8 +111,56 @@ class _AiChatScreenState extends State<AiChatScreen> {
             ),
           ),
 
+          _buildSuggestions(),
           _buildInputArea(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSuggestions() {
+    final suggestions = [
+      'Baluwatar',
+      'Chabahil',
+      'Baneshwor',
+      'Lalitpur',
+      'Putalisadak'
+    ];
+    return Container(
+      height: 45,
+      padding: const EdgeInsets.only(bottom: 8),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: suggestions.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () {
+              _messageController.text =
+                  'Properties in ${suggestions[index]} near me';
+              _sendMessage();
+            },
+            child: Container(
+              margin: const EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Center(
+                child: Text(
+                  suggestions[index],
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

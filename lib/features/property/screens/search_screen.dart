@@ -275,7 +275,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      ...['Baluwatar', 'Sanepa', 'Lalitpur', 'Kirtipur', 'Baneshwor'].map((area) =>
+                      ...['Baluwatar', 'Lalitpur', 'Chabahil', 'Baneshwor'].map((area) =>
                         _buildSuggestedItem(
                           area,
                           'Browse properties in $area',
@@ -671,24 +671,14 @@ class _SearchScreenState extends State<SearchScreen> {
                     ],
                   ),
                   child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.auto_awesome,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        Text(
-                          'AI',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            height: 0.8,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      'AI',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -1,
+                      ),
                     ),
                   ),
                 ),

@@ -169,38 +169,42 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       }
       showModalBottomSheet(
         context: context,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
         builder: (context) => SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const SizedBox(height: 12),
               ListTile(
-                leading: const Icon(
-                  Icons.map_outlined,
-                  color: AppTheme.brandColor,
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.navigation_rounded,
+                    color: Colors.green,
+                    size: 22,
+                  ),
                 ),
-                title: const Text('View on Khozna Map'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => DiscoveryMapScreen(
-                        initialCenter: LatLng(
-                          widget.property.latitude!,
-                          widget.property.longitude!,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.navigation_outlined,
-                  color: Colors.green,
+                title: Text(
+                  'Come Here',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    color: const Color(0xFF111827),
+                  ),
                 ),
-                title: const Text('Get Directions (Google Maps)'),
+                subtitle: Text(
+                  'Open in Google Maps',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   MapLauncher.openMap(
@@ -210,7 +214,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -997,10 +1001,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: Text(
-                      'Open Maps',
+                      'Come Here',
                       style: GoogleFonts.inter(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15,
                         color: AppTheme.brandColor,
+                        letterSpacing: -0.5,
                       ),
                     ),
                   ),

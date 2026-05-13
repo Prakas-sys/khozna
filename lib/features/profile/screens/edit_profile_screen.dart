@@ -272,6 +272,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 _accountNameController.text,
               ),
               'qr_code_url': newQrUrl,
+              'phone_number': SecurityUtils.sanitizeInput(_phoneController.text),
               'area_name': SecurityUtils.sanitizeInput(_areaController.text),
               'user_type': SecurityUtils.sanitizeInput(_userTypeController.text),
               'bio': SecurityUtils.sanitizeInput(_bioController.text),
@@ -339,8 +340,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       'Phone Number',
                       _phoneController,
                       Icons.phone_android_rounded,
-                      enabled: false,
-                      subtitle: 'Used for secure verification',
+                      subtitle: 'Direct contact number for guests/owners',
+                      keyboardType: TextInputType.phone,
                     ),
                     const Divider(height: 1),
                     _buildInputField(
@@ -383,6 +384,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _esewaController,
                       Icons.account_balance_wallet_outlined,
                       subtitle: 'Guests will pay to this number',
+                      keyboardType: TextInputType.phone,
                     ),
                     const Divider(height: 1),
                     _buildInputField(
@@ -390,6 +392,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _khaltiController,
                       Icons.account_balance_wallet_rounded,
                       subtitle: 'Optional alternative payment',
+                      keyboardType: TextInputType.phone,
                     ),
                     const Divider(height: 1),
                     _buildInputField(
@@ -544,6 +547,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     bool enabled = true,
     String? subtitle,
     int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -574,6 +578,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   controller: controller,
                   enabled: enabled,
                   maxLines: maxLines,
+                  keyboardType: keyboardType,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
