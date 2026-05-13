@@ -149,34 +149,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     // --- BRAND & TITLE ---
                     Text(
                       'KHOZNA',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 24,
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
                         fontWeight: FontWeight.w900,
                         color: AppTheme.brandColor,
-                        letterSpacing: 2.0,
+                        letterSpacing: 1.5,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Join our community of\nHappy Renters.',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 32,
+                      'Join our community of\nHappy Renters & Owners',
+                      style: GoogleFonts.inter(
+                        fontSize: 20,
                         fontWeight: FontWeight.w800,
                         color: const Color(0xFF1A1A2E),
-                        height: 1.1,
-                        letterSpacing: -1.0,
+                        height: 1.2,
+                        letterSpacing: -0.4,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'नयाँ घर खोज्नुहोस् (Find your next home)',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     // --- FORM FIELDS ---
                     _buildPremiumInput(
@@ -343,32 +335,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             // --- FOOTER PUSHED TO BOTTOM ---
             Padding(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Already have an account? ",
+              padding: const EdgeInsets.only(bottom: 32, left: 24, right: 24),
+              child: GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Navigator.pop(context);
+                },
+                child: Text.rich(
+                  TextSpan(
                     style: GoogleFonts.inter(
-                      color: Colors.grey[500],
-                      fontSize: 15,
+                      fontSize: 14,
+                      color: Colors.grey[600],
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      'Login Here (स्वागत छ)',
-                      style: GoogleFonts.inter(
-                        color: AppTheme.brandColor,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
+                    children: [
+                      const TextSpan(text: "Already have an account? "),
+                      TextSpan(
+                        text: 'Login Here',
+                        style: TextStyle(
+                          color: AppTheme.brandColor,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
+                      TextSpan(
+                        text: ' (स्वागत छ)',
+                        style: GoogleFonts.notoSansDevanagari(
+                          color: AppTheme.brandColor.withOpacity(0.7),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],

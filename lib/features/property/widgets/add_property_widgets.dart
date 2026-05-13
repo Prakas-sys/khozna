@@ -130,7 +130,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                   children: [
                     Text(
                       'Published!',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.inter(
                         fontSize: 32,
                         fontWeight: FontWeight.w900,
                         color: const Color(0xFF111827),
@@ -141,7 +141,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                     const SizedBox(height: 6),
                     Text(
                       'Your property is now live on Khozna',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.inter(
                         fontSize: 14,
                         color: Colors.grey[500],
                         fontWeight: FontWeight.w500,
@@ -218,7 +218,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                       const SizedBox(width: 7),
                       Text(
                         'Live & Verified',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           color: const Color(0xFF16A34A),
                           fontWeight: FontWeight.w700,
                           fontSize: 13,
@@ -252,7 +252,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                         ),
                         child: Text(
                           'Go to Home',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.inter(
                             color: Colors.white,
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
@@ -279,7 +279,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
                         ),
                         child: Text(
                           'View My Listings',
-                          style: GoogleFonts.plusJakartaSans(
+                          style: GoogleFonts.inter(
                             color: const Color(0xFF4B5563),
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -313,7 +313,7 @@ class _PropertySuccessScreenState extends State<PropertySuccessScreen>
         Expanded(
           child: Text(
             value,
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF1F2937),
@@ -508,7 +508,6 @@ class StepLayout extends StatelessWidget {
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
               height: 1.2,
-              letterSpacing: -0.4,
             ),
           ),
           const SizedBox(height: 6),
@@ -656,7 +655,6 @@ class PropertyFormField extends StatelessWidget {
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF374151),
-                  letterSpacing: -0.2,
                 ),
               ),
             ),
@@ -890,10 +888,9 @@ class CounterField extends StatelessWidget {
         Text(
           label,
           style: GoogleFonts.notoSansDevanagari(
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF374151),
-            letterSpacing: -0.2,
           ),
         ),
         const SizedBox(height: 10),
@@ -920,7 +917,7 @@ class CounterField extends StatelessWidget {
                     child: Text(
                       value.isEmpty ? '0' : value,
                       key: ValueKey<String>(value),
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.inter(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
                         color: const Color(0xFF111827),
@@ -988,7 +985,6 @@ class FloorSelector extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF374151),
-            letterSpacing: -0.2,
           ),
         ),
         const SizedBox(height: 10),
@@ -1027,7 +1023,7 @@ class FloorSelector extends StatelessWidget {
                   ),
                   child: Text(
                     floor,
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                       color: isSelected ? Colors.white : const Color(0xFF4B5563),
@@ -1084,7 +1080,7 @@ class QuickSizeSelector extends StatelessWidget {
               ),
               child: Text(
                 e.key,
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: isSelected ? Colors.white : Colors.grey[600],
@@ -1121,7 +1117,6 @@ class PriceInputField extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w700,
             color: const Color(0xFF374151),
-            letterSpacing: -0.2,
           ),
         ),
         const SizedBox(height: 10),
@@ -1136,7 +1131,7 @@ class PriceInputField extends StatelessWidget {
             children: [
               Text(
                 'Rs.',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.inter(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                   color: AppTheme.brandColor,
@@ -1147,7 +1142,7 @@ class PriceInputField extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   keyboardType: TextInputType.number,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.inter(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
                     color: const Color(0xFF111827),
@@ -1155,7 +1150,7 @@ class PriceInputField extends StatelessWidget {
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: '0',
-                    hintStyle: GoogleFonts.plusJakartaSans(color: Colors.grey[300]),
+                    hintStyle: GoogleFonts.inter(color: Colors.grey[300]),
                   ),
                 ),
               ),
@@ -1168,7 +1163,7 @@ class PriceInputField extends StatelessWidget {
                 ),
                 child: Text(
                   suffix,
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                     color: Colors.grey[500],

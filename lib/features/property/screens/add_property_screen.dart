@@ -427,7 +427,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     const SizedBox(width: 6),
                     Text(
                       '${_currentStep + 1} / $_totalSteps',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.inter(
                         fontWeight: FontWeight.w900,
                         color: AppTheme.brandColor,
                         fontSize: 13,
@@ -701,7 +701,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           children: [
             Expanded(
               child: CounterField(
-                label: 'बेडरुम? (Beds)',
+                label: 'बेडरुम (Beds)',
                 icon: Icons.bed_rounded,
                 value: _bedroomsController.text,
                 onIncrement: () => _updateCount(_bedroomsController, 1),
@@ -711,7 +711,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: CounterField(
-                label: 'बाथरुम? (Baths)',
+                label: 'बाथरुम (Baths)',
                 icon: Icons.shower_rounded,
                 value: _bathroomsController.text,
                 onIncrement: () => _updateCount(_bathroomsController, 1),
@@ -840,7 +840,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       const SizedBox(width: 12),
                       Text(
                         isGoalMet ? 'न्यूनतम फोटो पुग्यो!' : 'फोटोको संख्या: $photoCount/5',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800,
                           fontSize: 15,
                           color: isGoalMet ? const Color(0xFF16A34A) : const Color(0xFF111827),
@@ -851,7 +851,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   if (photoCount > 0)
                     Text(
                       '${(progress * 100).toInt()}%',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.inter(
                         fontWeight: FontWeight.w900,
                         fontSize: 14,
                         color: isGoalMet ? const Color(0xFF22C55E) : AppTheme.brandColor,
@@ -924,7 +924,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   const SizedBox(height: 12),
                   Text(
                     'फोटोहरू थप्नुहोस् (Add Photos)',
-                    style: GoogleFonts.plusJakartaSans(
+                    style: GoogleFonts.inter(
                       fontWeight: FontWeight.w800,
                       fontSize: 16,
                       color: AppTheme.brandColor,
@@ -964,7 +964,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ),
                 child: Text(
                   '${_selectedImages.length}',
-                  style: GoogleFonts.plusJakartaSans(
+                  style: GoogleFonts.inter(
                     fontWeight: FontWeight.w800,
                     fontSize: 12,
                     color: Colors.grey[600],
@@ -1040,7 +1040,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                 const SizedBox(width: 4),
                                 Text(
                                   'MAIN',
-                                  style: GoogleFonts.plusJakartaSans(
+                                  style: GoogleFonts.inter(
                                     color: Colors.white,
                                     fontSize: 10,
                                     fontWeight: FontWeight.w900,
@@ -1277,7 +1277,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             if (isSelected) const SizedBox(width: 6),
             Text(
               title,
-              style: GoogleFonts.plusJakartaSans(
+              style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
@@ -1448,7 +1448,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     const SizedBox(width: 10),
                     Text(
                       'AI विवरण (AI Description)',
-                      style: GoogleFonts.plusJakartaSans(
+                      style: GoogleFonts.inter(
                         fontWeight: FontWeight.w800,
                         fontSize: 15,
                         color: AppTheme.brandColor,
@@ -1484,19 +1484,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                             : () async {
                                 HapticFeedback.mediumImpact();
                                 setState(() => _isGeneratingDescription = true);
-                                final desc = await _aiService.generateDescription(
-                                  title: _titleController.text,
-                                  category: _selectedCategory ?? 'Room',
-                                  area: _areaController.text,
-                                  landmark: _landmarkController.text,
-                                  price: _priceController.text,
-                                  bedrooms: _bedroomsController.text,
-                                  bathrooms: _bathroomsController.text,
-                                  floor: _floorController.text,
-                                  sqft: _sqftController.text,
-                                  isNegotiable: _isNegotiable,
-                                  amenities: [..._selectedAmenities, ..._selectedRules],
-                                );
+                                  final desc = await _aiService.generateDescription(
+                                    title: _titleController.text,
+                                    category: _selectedCategory ?? 'Room',
+                                    area: _areaController.text,
+                                    landmark: _landmarkController.text,
+                                    price: _priceController.text,
+                                    priceNight: _priceNightController.text,
+                                    bedrooms: _bedroomsController.text,
+                                    bathrooms: _bathroomsController.text,
+                                    floor: _floorController.text,
+                                    sqft: _sqftController.text,
+                                    isNegotiable: _isNegotiable,
+                                    amenities: [..._selectedAmenities, ..._selectedRules],
+                                  );
                                 setState(() {
                                   _descriptionController.text = desc;
                                   _isGeneratingDescription = false;

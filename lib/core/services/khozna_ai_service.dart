@@ -193,13 +193,13 @@ BEHAVIOR RULES:
     return {'text': aiText, 'properties': foundProperties};
   }
 
-  /// 5. AI Description Generator
   Future<String> generateDescription({
     required String title,
     required String category,
     required String area,
     required String landmark,
     required String price,
+    required String priceNight,
     required String bedrooms,
     required String bathrooms,
     required String floor,
@@ -210,29 +210,31 @@ BEHAVIOR RULES:
     final String prompt =
         """
     Generate a professional and catchy property description for a rental listing in Nepal.
-    Details:
+    
+    PROPERTY DATA:
     - Title: $title
     - Category: $category
-    - Location: $area, near $landmark
-    - Rent: ₹ $price per month (Negotiable: ${isNegotiable ? 'Yes' : 'No'})
-    - Size: ${bedrooms.isNotEmpty ? '$bedrooms Bedrooms' : ''}, ${bathrooms.isNotEmpty ? '$bathrooms Bathrooms' : ''}, Floor: $floor, Area: $sqft sq.ft
-    - Amenities: ${amenities.join(', ')}
+    - Location Area: $area
+    - Specific Landmark: $landmark
+    - Monthly Rent: ₹ $price (Negotiable: ${isNegotiable ? 'Yes' : 'No'})
+    - Daily Rent (if applicable): ${priceNight.isNotEmpty ? '₹ $priceNight' : 'N/A'}
+    - Features: ${bedrooms.isNotEmpty ? '$bedrooms Bedrooms' : ''}, ${bathrooms.isNotEmpty ? '$bathrooms Bathrooms' : ''}, Floor: $floor, Size: $sqft sq.ft
+    - Amenities & Rules: ${amenities.join(', ')}
     
-    The description should:
-    1. Have a catchy opening line.
-    2. Highlight the benefits of the location and nearby places (hospitals, schools, markets).
-    3. Mention the rent and key features so tenants know exactly what they are getting.
-    4. Mention it's a great opportunity for tenants.
-    5. Be around 3-4 sentences long.
-    6. MUST be written ONLY in Nepali (Devanagari) or a natural Nepali/English mix. 
-    7. ALWAYS use the ₹ symbol for currency (e.g., ₹15,000), NEVER use 'Rs.' or 'रु'.
-    8. ABSOLUTELY NO Hindi words. If you are unsure whether a word is Nepali or Hindi, write it in English instead.
+    INSTRUCTIONS:
+    1. WRITING STYLE: Use a mix of Professional and Catchy marketing tone.
+    2. LOCATION & LANDMARKS: You MUST emphasize the location ($area) and the nearby landmark ($landmark). Mention why this location is convenient (e.g., transport, safety, neighborhood vibe).
+    3. PRICE & VALUE: Mention the rent clearly and highlight if it's a good deal for the features provided.
+    4. LANGUAGE (STRICT): Use ONLY English and Pure Nepali (Devanagari). 
+    5. NO HINDI: Strictly forbidden from using Hindi words like 'कमरा' (use 'कोठा'), 'मकान' (use 'घर'), 'बिस्तार' (use 'विवरण'). If a word feels like Hindi, use the English term instead.
+    6. LENGTH: 4-6 concise sentences.
+    7. CURRENCY: Always use ₹ symbol.
     """;
 
     return _getAiResponse(
       prompt,
       systemPrompt:
-          "You are a premium real estate marketing expert for Nepal. You write ONLY in pure Nepali (Devanagari) or English. You NEVER use Hindi. STRICT RULE: Use 'कोठा' (Kotha) instead of 'कमरा' (Kamara). Any Hindi word like 'बिस्तार' or 'कमरा' or 'मकान' must be replaced by their proper Nepali equivalents. This is a 100% zero-tolerance policy against Hindi words.",
+          "You are a premium real estate copywriter in Nepal. You write descriptions that sell. You use a natural blend of Nepali and English. You have a zero-tolerance policy for Hindi words. You always focus on the convenience of the location and landmarks provided.",
     );
   }
 
@@ -254,14 +256,14 @@ BEHAVIOR RULES:
     1. Be very short (1-2 sentences).
     2. Use high-energy emojis (e.g., 🏠, ✨, 📍).
     3. Include a call to action (e.g., "DM for visit", "Don't miss out!").
-    4. MUST be written in a mix of Nepali and English (Romanized Nepali is fine).
-    5. Mention the price clearly with ₹ symbol.
-    6. ABSOLUTELY NO Hindi words.
+    4. LANGUAGE: Use a natural mix of English and Nepali (Devanagari or Romanized).
+    5. NO HINDI: Strictly forbidden from using any Hindi words.
+    6. Mention the price clearly with ₹ symbol.
     """;
 
     return _getAiResponse(
       prompt,
-      systemPrompt: "You are a viral social media manager for a real estate app in Nepal. You write punchy, high-engagement captions. No Hindi.",
+      systemPrompt: "You are a viral social media manager for a real estate app in Nepal. You write punchy, high-engagement captions. You ONLY use English and Nepali. NO HINDI allowed.",
     );
   }
 

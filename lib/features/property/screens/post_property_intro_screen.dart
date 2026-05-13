@@ -46,7 +46,6 @@ class PostPropertyIntroScreen extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                         color: const Color(0xFF1E293B),
                         height: 1.2,
-                        letterSpacing: -0.5,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -131,7 +130,7 @@ class PostPropertyIntroScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Get Started',
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.2,
