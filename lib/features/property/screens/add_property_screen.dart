@@ -488,9 +488,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildStepCategory() {
     return StepLayout(
       controller: _mainScrollController,
-      title: 'तपाईंको सम्पत्ति कस्तो प्रकारको हो?',
-      subtitle: 'Choose your property type',
+      title: 'सम्पत्तिको प्रकार?',
+      subtitle: 'Property type',
       content: [
+        const SizedBox(height: 8),
         GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

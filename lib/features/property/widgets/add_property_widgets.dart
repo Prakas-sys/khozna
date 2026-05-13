@@ -394,6 +394,12 @@ class CategoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = selectedValue == value;
+    
+    // Split label to stylize the slash
+    final parts = label.split(' / ');
+    final nepaliText = parts[0];
+    final englishText = parts.length > 1 ? parts[1] : '';
+
     return GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
@@ -405,9 +411,16 @@ class CategoryCard extends StatelessWidget {
           color: isSelected ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
-            width: isSelected ? 2 : 1.2,
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFCBD5E1),
+            width: isSelected ? 2 : 1.5,
           ),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: AppTheme.brandColor.withOpacity(0.1),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            )
+          ] : [],
         ),
         child: Align(
           alignment: Alignment.center,
@@ -418,22 +431,44 @@ class CategoryCard extends StatelessWidget {
                 scale: imageScale,
                 child: Image.asset(
                   imagePath,
-                  height: 105,
-                  width: 105,
+                  height: 100,
+                  width: 100,
                   fit: BoxFit.contain,
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.notoSansDevanagari(
-                  fontSize: 15,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                  color: isSelected
-                      ? AppTheme.brandColor
-                      : const Color(0xFF4B5563),
-                  height: 1.2,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: GoogleFonts.notoSansDevanagari(
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                      color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
+                      height: 1.2,
+                    ),
+                    children: [
+                      TextSpan(text: nepaliText),
+                      if (englishText.isNotEmpty) ...[
+                        TextSpan(
+                          text: ' / ',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isSelected ? AppTheme.brandColor.withOpacity(0.5) : Colors.grey[400],
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        TextSpan(
+                          text: englishText,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ],
