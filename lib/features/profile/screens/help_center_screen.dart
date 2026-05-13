@@ -92,7 +92,7 @@ class HelpCenterScreen extends StatelessWidget {
             const SizedBox(height: 48),
             Center(
               child: Text(
-                'v1.0.0 • Khozna Private Limited',
+                'v1.0.0 • KHOZNA Private Limited',
                 style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[400]),
               ),
             ),
@@ -156,7 +156,7 @@ class HelpCenterScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Official Khozna Support',
+                      'Official KHOZNA Support',
                       style: GoogleFonts.inter(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -194,7 +194,7 @@ class HelpCenterScreen extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => chat_page.ChatScreen(
                       ownerId: '8746409d-5644-4f4f-93ff-bbf9a19dd505',
-                      name: 'Khozna Official Support',
+                      name: 'KHOZNA Official Support',
                       avatar: 'https://khozna.com/logo.png',
                       online: true,
                     ),

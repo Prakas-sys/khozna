@@ -82,7 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Registration successful! Welcome to Khozna.'),
+              content: Text('Registration successful! Welcome to KHOZNA.'),
             ),
           );
           Navigator.pushAndRemoveUntil(

@@ -41,7 +41,7 @@ class ChatBanner extends StatelessWidget {
                 const Icon(Icons.shield_rounded, color: Colors.blue, size: 16),
                 const SizedBox(width: 8),
                 Text(
-                  'Use KHOZNA Safe Payment for 100% money protection. • खोज्ना सुरक्षित भुक्तानी प्रयोग गर्नुहोस्!',
+                  'Use KHOZNA Safe Payment for 100% money protection. • खोज्न सुरक्षित भुक्तानी प्रयोग गर्नुहोस्!',
                   style: GoogleFonts.inter(
                     color: Colors.blue[800],
                     fontWeight: FontWeight.w600,

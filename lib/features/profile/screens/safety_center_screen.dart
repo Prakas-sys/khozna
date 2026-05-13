@@ -91,19 +91,19 @@ class SafetyCenterScreen extends StatelessWidget {
             _buildSafetyTip(
               Icons.no_sim_outlined,
               'अग्रिम पैसा नपठाउनुहोस् (No Advance Payment)',
-              'प्रोपर्टी आफैंले नहेरी कसैलाई पनि बैना वा एडभान्स पैसा नपठाउनुहोस्। Khozna ले कहिल्यै पनि फोनमा पैसा माग्दैन।',
+              'प्रोपर्टी आफैंले नहेरी कसैलाई पनि बैना वा एडभान्स पैसा नपठाउनुहोस्। KHOZNA ले कहिल्यै पनि फोनमा पैसा माग्दैन।',
               'Never pay advance or "booking" money before visiting the property in person.',
             ),
             _buildSafetyTip(
               Icons.person_search_outlined,
               'एजेन्ट वा दलाल देखि सावधान (Beware of Brokers)',
-              'Khozna सिधै घरधनी र भाडामा बस्ने बीचको माध्यम हो। यदि कसैले एजेन्ट भन्दै पैसा माग्छ भने तुरुन्त रिपोर्ट गर्नुहोस्।',
-              'Khozna is for direct connection. Report anyone claiming to be an agent and asking for fees.',
+              'KHOZNA सिधै घरधनी र भाडामा बस्ने बीचको माध्यम हो। यदि कसैले एजेन्ट भन्दै पैसा माग्छ भने तुरुन्त रिपोर्ट गर्नुहोस्।',
+              'KHOZNA is for direct connection. Report anyone claiming to be an agent and asking for fees.',
             ),
             _buildSafetyTip(
               Icons.verified_user_outlined,
               'भेरिफाइड प्रयोगकर्ता मात्र (Trust Verified Users)',
-              'सधैं "Verified" ब्याच भएका प्रयोगकर्ताहरूसँग मात्र कुरा गर्नुहोस्। उनीहरूको विवरण Khozna ले प्रमाणित गरेको हुन्छ।',
+              'सधैं "Verified" ब्याच भएका प्रयोगकर्ताहरूसँग मात्र कुरा गर्नुहोस्। उनीहरूको विवरण KHOZNA ले प्रमाणित गरेको हुन्छ।',
               'Always prioritize chatting with users who have the Blue Verified Badge.',
             ),
             const SizedBox(height: 32),

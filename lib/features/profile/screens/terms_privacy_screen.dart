@@ -54,46 +54,46 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
               num: '1',
               title: _isEnglish ? 'Introduction' : 'परिचय',
               content: _isEnglish
-                  ? 'By accessing or using the Khozna platform, you agree to be bound by these Terms of Service. Khozna provides a digital environment to connect property owners with potential tenants or buyers in Nepal.'
-                  : 'खोज्ना प्रयोग गरेर, तपाईं यी सेवाका सर्तहरू पालना गर्न सहमत हुनुहुन्छ। खोज्नाले नेपालका घरधनी र कोठा खोज्नेहरूलाई जोड्ने डिजिटल माध्यम प्रदान गर्दछ।',
+                  ? 'By accessing or using the KHOZNA platform, you agree to be bound by these Terms of Service. KHOZNA provides a digital environment to connect property owners with potential tenants or buyers in Nepal.'
+                  : 'खोज्न प्रयोग गरेर, तपाईं यी सेवाका सर्तहरू पालना गर्न सहमत हुनुहुन्छ। खोज्नले नेपालका घरधनी र कोठा खोज्नेहरूलाई जोड्ने डिजिटल माध्यम प्रदान गर्दछ।',
             ),
             _buildSection(
               num: '2',
               title: _isEnglish ? 'Platform Scope' : 'प्लेटफर्मको क्षेत्र',
               content: _isEnglish
-                  ? 'Khozna acts strictly as a bridge and facilitator. We do not participate in, control, or take responsibility for the actual rental agreements, payments, or physical handovers between users.'
-                  : 'खोज्ना एउटा माध्यम र सहजकर्ता मात्र हो। हामी प्रयोगकर्ताहरू बीचको सम्झौता, भुक्तानी, वा भौतिक लेनदेनमा सहभागी हुँदैनौँ र यसको जिम्मेवारी पनि लिँदैनौं।',
+                  ? 'KHOZNA acts strictly as a bridge and facilitator. We do not participate in, control, or take responsibility for the actual rental agreements, payments, or physical handovers between users.'
+                  : 'खोज्न एउटा माध्यम र सहजकर्ता मात्र हो। हामी प्रयोगकर्ताहरू बीचको सम्झौता, भुक्तानी, वा भौतिक लेनदेनमा सहभागी हुँदैनौँ र यसको जिम्मेवारी पनि लिँदैनौं।',
             ),
             _buildSection(
               num: '3',
-              title: _isEnglish ? 'Verification Duty' : 'प्रमाणीकरण कर्तव्य',
+              title: _isEnglish ? 'User Safety & Verification' : 'प्रयोगकर्ता सुरक्षा र प्रमाणीकरण',
               content: _isEnglish
-                  ? 'It is the sole responsibility of the seeker to verify the legal status of the property and the identity of the owner. Similarly, owners must verify seekers.'
-                  : 'घर वा कोठाको कानुनी स्थिति र धनीको पहिचान प्रमाणित गर्ने पूर्ण जिम्मेवारी ग्राहकको हुनेछ। त्यसैगरी, धनीले पनि ग्राहकको पहिचान प्रमाणित गर्नुपर्नेछ।',
+                  ? 'It is the sole responsibility of the seeker to verify the legal status of the property and the identity of the owner. NEVER pay any "booking fee" or advance without visiting the property and meeting the owner in person.'
+                  : 'कोठा वा घर हेर्न जानु अघि कुनै पनि "बुकिङ शुल्क" वा एडभान्स रकम भुक्तानी नगर्नुहोस्। घरधनीको पहिचान र घरको कानुनी कागजातहरू आफैँले प्रमाणित गर्नुहोला।',
             ),
             _buildHighlightSection(
               title: _isEnglish
                   ? 'CRITICAL: Limitation of Liability'
                   : 'महत्त्वपूर्ण: उत्तरदायित्वको सीमा',
               content: _isEnglish
-                  ? 'Khozna provides the platform "as-is". We are NOT liable for any financial losses, fraud, or disputes. \n\nIMPORTANT: Khozna does NOT initiate police reports or legal cases for users. You must contact Nepal Police independently for any disputes.'
-                  : 'खोज्नाले यो प्लेटफर्म "जस्ताको तस्तै" उपलब्ध गराउँछ। हामी कुनै पनि आर्थिक हानि, ठगी वा विवादको लागि जिम्मेवार छैनौं। \n\nमहत्त्वपूर्ण: खोज्नाले प्रयोगकर्ताको तर्फबाट प्रहरी प्रतिवेदन वा कानुनी मुद्दा सुरु गर्दैन। कुनै पनि विवादको लागि तपाईंले आफैँ नेपाल प्रहरीमा सम्पर्क गर्नुपर्नेछ।',
+                  ? 'KHOZNA provides the platform "as-is". We are NOT liable for any financial losses, fraud, or disputes. \n\nIMPORTANT: KHOZNA does NOT initiate police reports or legal cases for users. You must contact Nepal Police independently for any disputes.'
+                  : 'खोज्नले यो प्लेटफर्म "जस्ताको तस्तै" उपलब्ध गराउँछ। हामी कुनै पनि आर्थिक हानि, ठगी वा विवादको लागि जिम्मेवार छैनौं। \n\nमहत्त्वपूर्ण: खोज्नले प्रयोगकर्ताको तर्फबाट प्रहरी प्रतिवेदन वा कानुनी मुद्दा सुरु गर्दैन। कुनै पनि विवादको लागि तपाईंले आफैँ नेपाल प्रहरीमा सम्पर्क गर्नुपर्नेछ।',
             ),
             _buildSection(
               num: '4',
               title: _isEnglish
-                  ? 'Moderation & Blocking'
-                  : 'परिमार्जन र ब्लकिङ',
+                  ? 'Moderation & Safety Enforcement'
+                  : 'परिमार्जन र सुरक्षा प्रवर्तन',
               content: _isEnglish
-                  ? 'Khozna reserves the right to block any user suspected of fraud or harassment. Blocking is our primary internal enforcement mechanism.'
-                  : 'खोज्नाले ठगी वा दुर्व्यवहारको शंका लागेमा कुनै पनि प्रयोगकर्तालाई ब्लक गर्ने अधिकार सुरक्षित राख्छ। ब्लक गर्नु हाम्रो मुख्य आन्तरिक कारबाही प्रक्रिया हो।',
+                  ? 'KHOZNA reserves the right to permanently block any user suspected of fraud, harassment, or providing misleading information. Your safety is our concern, but your vigilance is your primary defense.'
+                  : 'खोज्नले प्रयोगकर्ताहरूको सुरक्षालाई उच्च प्राथमिकता दिन्छ। ठगी, दुर्व्यवहार वा गलत जानकारी दिने जो कोहीलाई हामी तुरुन्तै र स्थायी रूपमा ब्लक गर्ने अधिकार सुरक्षित राख्छौं।',
             ),
             _buildSection(
               num: '5',
               title: _isEnglish ? 'Intellectual Property' : 'बौद्धिक सम्पत्ति',
               content: _isEnglish
-                  ? 'All digital assets, logos, and designs are the exclusive property of Khozna Private Limited.'
-                  : 'सबै डिजिटल सम्पत्ति, लोगो र डिजाइनहरू खोज्ना प्राइभेट लिमिटेडको विशेष सम्पत्ति हुन्।',
+                  ? 'All digital assets, logos, and designs are the exclusive property of KHOZNA Private Limited.'
+                  : 'सबै डिजिटल सम्पत्ति, लोगो र डिजाइनहरू खोज्न प्राइभेट लिमिटेडको विशेष सम्पत्ति हुन्।',
             ),
             const SizedBox(height: 32),
             _buildHeader(
@@ -128,8 +128,8 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
             Center(
               child: Text(
                 _isEnglish
-                    ? '© 2026 Khozna Private Limited\nAll Rights Reserved'
-                    : '© २०२६ खोज्ना प्राइभेट लिमिटेड\nसबै अधिकार सुरक्षित',
+                    ? '© 2026 KHOZNA Private Limited\nAll Rights Reserved'
+                    : '© २०२६ खोज्न प्राइभेट लिमिटेड\nसबै अधिकार सुरक्षित',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.inter(
                   fontSize: 12,
