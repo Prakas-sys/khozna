@@ -149,8 +149,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     // --- BRAND & TITLE ---
                     Text(
                       'KHOZNA',
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
+                      style: GoogleFonts.zenAntiqueSoft(
+                        fontSize: 36,
                         fontWeight: FontWeight.w900,
                         color: AppTheme.brandColor,
                         letterSpacing: 1.5,
@@ -318,7 +318,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               )
                             : Text(
-                                'Create Account (खाता बनाउनुहोस्)',
+                                'Create Account',
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
@@ -354,14 +354,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: TextStyle(
                           color: AppTheme.brandColor,
                           fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' (स्वागत छ)',
-                        style: GoogleFonts.notoSansDevanagari(
-                          color: AppTheme.brandColor.withOpacity(0.7),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
                         ),
                       ),
                     ],

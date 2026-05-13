@@ -670,11 +670,25 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ],
                   ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.auto_awesome,
-                      color: Colors.white,
-                      size: 24,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.auto_awesome,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        Text(
+                          'AI',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            height: 0.8,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
