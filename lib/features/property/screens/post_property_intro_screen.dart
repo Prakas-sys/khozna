@@ -14,78 +14,113 @@ class PostPropertyIntroScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+        scrolledUnderElevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.all(12),
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back_rounded, color: Colors.black, size: 18),
+            ),
+          ),
         ),
       ),
       body: SafeArea(
         child: Column(
           children: [
-            // Scrollable content
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 8),
-                    // Header
-                    Text(
-                      'It\'s easy to list\non Khozna',
-                      style: GoogleFonts.inter(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF111827),
-                        height: 1.1,
-                        letterSpacing: -1.0,
+                    const SizedBox(height: 12),
+                    // Badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandColor.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor, size: 14),
+                          const SizedBox(width: 6),
+                          Text(
+                            'KHOZNA PLATINUM',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.brandColor,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 16),
+                    // Header
+                    Text(
+                      'Khozna मा लिस्टिङ गर्न\nएकदमै सजिलो छ',
+                      style: GoogleFonts.notoSansDevanagari(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFF0F172A),
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'आफ्नो प्रोपर्टीलाई १०/१० बनाउन यी चरणहरू पालना गर्नुहोस्। (Follow these steps to make your listing perfect.)',
+                      style: GoogleFonts.notoSansDevanagari(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF64748B),
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 48),
 
                     _buildStep(
-                      stepNumber: '1',
-                      title: 'Basic Details',
-                      subtitle:
-                          'Tell us where it is and what type of property you have.',
-                      icon: Icons.maps_home_work_outlined,
+                      stepNumber: 1,
+                      title: 'आधारभूत विवरण (Basics)',
+                      subtitle: 'तपाईंको प्रोपर्टी कुन ठाउँमा छ र कस्तो प्रकारको हो, बताउनुहोस्।',
+                      icon: Icons.maps_home_work_rounded,
+                      color: const Color(0xFF3B82F6),
                     ),
-                    const Divider(color: Color(0xFFF3F4F6), height: 1),
                     _buildStep(
-                      stepNumber: '2',
-                      title: 'Property Features',
-                      subtitle:
-                          'Share how many beds, baths, and the area size.',
-                      icon: Icons.bed_outlined,
+                      stepNumber: 2,
+                      title: 'प्रोपर्टीको विशेषता (Features)',
+                      subtitle: 'बेडरुम, बाथरूम संख्या र क्षेत्रफलको बारेमा जानकारी दिनुहोस्।',
+                      icon: Icons.bed_rounded,
+                      color: const Color(0xFFF59E0B),
                     ),
-                    const Divider(color: Color(0xFFF3F4F6), height: 1),
                     _buildStep(
-                      stepNumber: '3',
-                      title: 'Amenities',
-                      subtitle: 'Let guests know what facilities are included.',
-                      icon: Icons.wifi_outlined,
+                      stepNumber: 3,
+                      title: 'सुविधाहरू र फोटो (Media)',
+                      subtitle: 'कम्तिमा ५ वटा राम्रो फोटो र उपलब्ध सुविधाहरू थप्नुहोस्।',
+                      icon: Icons.camera_rounded,
+                      color: const Color(0xFF10B981),
                     ),
-                    const Divider(color: Color(0xFFF3F4F6), height: 1),
                     _buildStep(
-                      stepNumber: '4',
-                      title: 'Media',
-                      subtitle: 'Add 5 or more photos and a video reel.',
-                      icon: Icons.camera_alt_outlined,
+                      stepNumber: 4,
+                      title: 'AI विवरण (AI Description)',
+                      subtitle: 'हाम्रो एआईले तपाईंको लागि उत्कृष्ट शीर्षक र विवरण लेख्नेछ।',
+                      icon: Icons.auto_awesome_rounded,
+                      color: const Color(0xFF8B5CF6),
                     ),
-                    const Divider(color: Color(0xFFF3F4F6), height: 1),
                     _buildStep(
-                      stepNumber: '5',
-                      title: 'AI Description',
-                      subtitle:
-                          'Our AI will craft a perfect title and description.',
-                      icon: Icons.auto_awesome_outlined,
-                    ),
-                    const Divider(color: Color(0xFFF3F4F6), height: 1),
-                    _buildStep(
-                      stepNumber: '6',
-                      title: 'Finish & Publish',
-                      subtitle: 'Set a starting price, rules, and go live.',
-                      icon: Icons.publish_outlined,
+                      stepNumber: 5,
+                      title: 'भाडा र भुक्तानी (Pricing)',
+                      subtitle: 'भाडा तोक्नुहोस् र पैसा लिने खाता नम्बर राख्नुहोस्।',
+                      icon: Icons.payments_rounded,
+                      color: const Color(0xFFEC4899),
+                      isLast: true,
                     ),
                     const SizedBox(height: 40),
                   ],
@@ -93,40 +128,54 @@ class PostPropertyIntroScreen extends StatelessWidget {
               ),
             ),
 
-            // CTA Button — pinned at bottom
+            // CTA Button
             Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.fromLTRB(28, 20, 28, 32),
               decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border(
-                  top: BorderSide(color: Colors.grey.shade100, width: 1),
-                ),
-              ),
-              child: ElevatedButton(
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const AddPropertyScreen(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.brandColor,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 20,
+                    offset: const Offset(0, -5),
                   ),
-                ),
-                child: Text(
-                  'Get started',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                ],
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: () {
+                    HapticFeedback.heavyImpact();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AddPropertyScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.brandColor,
+                    foregroundColor: Colors.white,
+                    elevation: 12,
+                    shadowColor: AppTheme.brandColor.withOpacity(0.4),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'अगाडि बढौँ (Get Started)',
+                        style: GoogleFonts.notoSansDevanagari(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Icon(Icons.arrow_forward_rounded, size: 20),
+                    ],
                   ),
                 ),
               ),
@@ -138,60 +187,73 @@ class PostPropertyIntroScreen extends StatelessWidget {
   }
 
   Widget _buildStep({
-    required String stepNumber,
+    required int stepNumber,
     required String title,
     required String subtitle,
     required IconData icon,
+    required Color color,
+    bool isLast = false,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+    return IntrinsicHeight(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Content
+          Column(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: color.withOpacity(0.2), width: 1.5),
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              if (!isLast)
+                Expanded(
+                  child: Container(
+                    width: 2,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [color.withOpacity(0.5), Colors.transparent],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '$stepNumber  ',
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF111827),
-                        ),
-                      ),
-                      TextSpan(
-                        text: title,
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF111827),
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 4),
+                Text(
+                  title,
+                  style: GoogleFonts.notoSansDevanagari(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF1E293B),
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w400,
-                    color: const Color(0xFF4B5563),
+                  style: GoogleFonts.notoSansDevanagari(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF64748B),
                     height: 1.4,
                   ),
                 ),
+                const SizedBox(height: 32),
               ],
             ),
           ),
-          const SizedBox(width: 24),
-          // Icon Box (Right aligned)
-          Icon(icon, color: const Color(0xFF4B5563), size: 36),
         ],
       ),
     );
