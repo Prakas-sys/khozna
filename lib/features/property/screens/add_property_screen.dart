@@ -72,8 +72,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   bool _isGeneratingVideoCaption = false;
   bool _showLocationNudge = false;
 
-  bool _isLocating = false;
-
   @override
   void initState() {
     super.initState();
@@ -624,8 +622,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _latitude != null
-                      ? Colors.green
                   backgroundColor: _latitude != null
                       ? const Color(0xFF22C55E)
                       : AppTheme.brandColor,
@@ -1186,6 +1182,82 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildStepTitleDesc() {
+    return StepLayout(
+      title: 'शीर्षक र विवरण',
+      subtitle: 'आफ्नो प्रोपर्टीको बारेमा बताउनुहोस्। (Title & Description)',
+      content: [
+        Text(
+          'आकर्षक शीर्षक छान्नुहोस् (Choose a Title)',
+          style: GoogleFonts.notoSansDevanagari(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF1F2937),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildAiTitleChip('कोठा भाडामा (Room for Rent)'),
+            _buildAiTitleChip('बबाल फ्ल्याट (Awesome Flat)'),
+            _buildAiTitleChip('Best Place in ${_areaController.text}'),
+            _buildAiTitleChip('Beautiful Room near ${_landmarkController.text}'),
+          ],
+        ),
+        const SizedBox(height: 20),
+        PropertyFormField(
+          label: 'शीर्षक (Title)',
+          hint: 'उदा: सानेपामा राम्रो कोठा भाडामा',
+          controller: _titleController,
+          isRequired: true,
+          prefixIcon: Icons.title_rounded,
+        ),
+        const SizedBox(height: 40),
+      ],
+    );
+  }
+
+  Widget _buildAiTitleChip(String title) {
+    bool isSelected = _titleController.text == title;
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        setState(() => _titleController.text = title);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.brandColor.withOpacity(0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSelected)
+              const Icon(Icons.check_circle_rounded,
+                  size: 14, color: AppTheme.brandColor),
+            if (isSelected) const SizedBox(width: 6),
+            Text(
+              title,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
