@@ -258,17 +258,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
 
 
-                      const SizedBox(height: 16),
-                      _buildSuggestedItem(
-                        'Find Nearby',
-                        'Show properties around your current location',
-                        Icons.near_me_rounded,
-                        onTap: () {
-                          HapticFeedback.mediumImpact();
-                          setState(() => _showNearbySection = true);
-                        },
-                      ),
-                      
                       const SizedBox(height: 8),
                       Text(
                         'Popular Areas',
@@ -280,7 +269,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                         ),
                       ),
                       const SizedBox(height: 8),
-                      ...['Lalitpur', 'Bhaktapur'].map((area) =>
+                      ...['Lalitpur', 'Bhaktapur', 'Basundhara'].map((area) =>
                         _buildSuggestedItem(
                           area,
                           'Browse properties in $area',
@@ -298,6 +287,17 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             );
                           },
                         ),
+                      ),
+                      
+                      const SizedBox(height: 24),
+                      _buildSuggestedItem(
+                        'Find Nearby',
+                        'Show properties around your current location',
+                        Icons.near_me_rounded,
+                        onTap: () {
+                          HapticFeedback.mediumImpact();
+                          setState(() => _showNearbySection = true);
+                        },
                       ),
 
                       const SizedBox(height: 32),
