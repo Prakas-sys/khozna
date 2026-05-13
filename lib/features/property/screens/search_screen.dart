@@ -24,7 +24,7 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderStateMixin {
   double _priceValue = 15000;
   final List<String> _recentSearches = [
     'Baluwatar',
@@ -51,6 +51,8 @@ class _SearchScreenState extends State<SearchScreen> {
   final MapController _miniMapController = MapController();
   final ScrollController _scrollController = ScrollController();
   bool _showMapPill = false;
+  late AnimationController _aiPulseController;
+  late Animation<double> _aiScaleAnimation;
 
   @override
   void initState() {
@@ -89,6 +91,18 @@ class _SearchScreenState extends State<SearchScreen> {
         setState(() => _showMapPill = shouldShow);
       }
     });
+
+    _aiPulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+    
+    _aiScaleAnimation = Tween<double>(begin: 1.0, end: 1.12).animate(
+      CurvedAnimation(
+        parent: _aiPulseController,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
   Future<void> _loadNearbyData() async {
@@ -118,6 +132,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
+    _aiPulseController.dispose();
     super.dispose();
   }
 
@@ -243,16 +258,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
 
 
-                      // 4. QUICK DISCOVERY
-                      Text(
-                        'Quick Discovery',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black87,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
                       const SizedBox(height: 16),
                       _buildSuggestedItem(
                         'Find Nearby',
@@ -275,7 +280,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      ...['Baluwatar', 'Lalitpur', 'Chabahil', 'Baneshwor'].map((area) =>
+                      ...['Lalitpur', 'Bhaktapur'].map((area) =>
                         _buildSuggestedItem(
                           area,
                           'Browse properties in $area',
@@ -642,42 +647,38 @@ class _SearchScreenState extends State<SearchScreen> {
             Positioned(
               bottom: 32,
               right: 24,
-              child: GestureDetector(
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AiChatScreen(),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppTheme.brandColor, AppTheme.brandColor],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.brandColor.withOpacity(0.3),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+              child: ScaleTransition(
+                scale: _aiScaleAnimation,
+                child: GestureDetector(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AiChatScreen(),
                       ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      'AI',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -1,
+                    );
+                  },
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppTheme.brandColor, AppTheme.brandColor],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        'AI',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -1,
+                        ),
                       ),
                     ),
                   ),

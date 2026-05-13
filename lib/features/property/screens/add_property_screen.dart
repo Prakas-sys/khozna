@@ -1201,12 +1201,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               const Icon(Icons.check_circle_rounded,
                   size: 14, color: AppTheme.brandColor),
             if (isSelected) const SizedBox(width: 6),
-            Text(
-              title,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
+            Flexible(
+              child: Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                  color: isSelected ? AppTheme.brandColor : const Color(0xFF4B5563),
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             ),
           ],

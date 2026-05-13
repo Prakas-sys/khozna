@@ -10,6 +10,8 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/features/profile/screens/kyc_screen.dart';
 import 'package:khozna/core/security/security_utils.dart';
+import 'package:khozna/core/utils/offline_storage.dart';
+import 'package:khozna/core/utils/app_notifiers.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -255,6 +257,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         );
 
+        // Update Table
         await Supabase.instance.client
             .from('profiles')
             .update({
@@ -279,8 +282,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               'organization':
                   SecurityUtils.sanitizeInput(_orgController.text),
               'student_id_url': newIdUrl,
+              'updated_at': DateTime.now().toIso8601String(),
             })
             .eq('id', user!.id);
+
+        // Sync local cache
+        final updatedCache = {
+          'full_name': _fullNameController.text,
+          'avatar_url': newImageUrl,
+          'phone_number': _phoneController.text,
+          'esewa_number': _esewaController.text,
+          'khalti_number': _khaltiController.text,
+          'area_name': _areaController.text,
+          'user_type': _userTypeController.text,
+          'bio': _bioController.text,
+          'organization': _orgController.text,
+        };
+        profileCache.value = {...(profileCache.value ?? {}), ...updatedCache};
+        await OfflineStorage.saveProfileCache(profileCache.value!);
 
         if (mounted) {
           HapticFeedback.mediumImpact();
@@ -431,10 +450,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 20),
         onPressed: () => Navigator.pop(context),
       ),
+      actions: [
+        if (!_isLoading)
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: TextButton(
+              onPressed: _updateProfile,
+              child: Text(
+                'Save',
+                style: GoogleFonts.plusJakartaSans(
+                  color: AppTheme.brandColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          'Edit Profi\u200cle',
-          style: GoogleFonts.plusJakartaSans(
+          'Edit Profile',
+          style: GoogleFonts.inter(
             fontWeight: FontWeight.w800,
             fontSize: 18,
             color: Colors.black,
@@ -765,8 +801,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: _isLoading
             ? const CircularProgressIndicator(color: Colors.white)
             : Text(
-                'Update Profi\u200cle',
-                style: GoogleFonts.plusJakartaSans(
+                'Save Changes',
+                style: GoogleFonts.inter(
                   fontWeight: FontWeight.w900,
                   fontSize: 16,
                   letterSpacing: 0.2,
