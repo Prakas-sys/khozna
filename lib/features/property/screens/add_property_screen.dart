@@ -22,7 +22,7 @@ class AddPropertyScreen extends StatefulWidget {
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
-  final int _totalSteps = 10;
+  final int _totalSteps = 9;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   final ScrollController _mainScrollController = ScrollController();
@@ -72,11 +72,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   bool _isGeneratingVideoCaption = false;
   bool _showLocationNudge = false;
 
-  // AI Insights Step
-  bool _isLoadingAiInsights = false;
-  bool _aiInsightsLoaded = false;
-  String? _aiPriceAnalysis;
-  String? _aiNeighborhoodVibe;
+  bool _isLocating = false;
 
   @override
   void initState() {
@@ -137,6 +133,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       else
         _selectedRules.add(rule);
     });
+  }
+
+  void _updateCount(TextEditingController controller, int delta) {
+    int current = int.tryParse(controller.text) ?? 0;
+    int next = current + delta;
+    if (next < 0) next = 0;
+    if (next > 20) next = 20;
+    setState(() => controller.text = next.toString());
   }
 
   Future<void> _pickImages() async {
@@ -260,14 +264,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           errorMessage = "कृपया मासिक वा दैनिक भाडा राख्नुहोस्।";
         } else {
           isValid = true;
-          // Auto-trigger AI insights on price page exit
-          if (!_aiInsightsLoaded) _runAiInsights();
         }
         break;
-      case 8: // AI Insights — always passable
-        isValid = true;
-        break;
-      case 9: // Payout
+      case 8: // Payout & Description
         if (_payoutAccountController.text.trim().isEmpty) {
           errorMessage = "तपाईंले पेमेन्ट पाउनको लागि खाता नम्बर राख्नुहोस्।";
         } else
@@ -370,19 +369,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Transform.translate(
-          offset: const Offset(0, 2),
-          child: Text(
-            'सम्पत्ति राख्नुहोस्',
-            style: GoogleFonts.notoSansDevanagari(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              color: Colors.black,
-              height: 1.2,
-              letterSpacing: -0.5,
-            ),
-          ),
-        ),
+        title: null,
         centerTitle: true,
         leadingWidth: 64,
         leading: Padding(
@@ -405,19 +392,32 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                '${_currentStep + 1} / $_totalSteps',
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.w900,
-                  color: AppTheme.brandColor,
-                  fontSize: 14,
-                  letterSpacing: -0.5,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.brandColor.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.auto_awesome_mosaic_rounded,
+                      size: 14,
+                      color: AppTheme.brandColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${_currentStep + 1} / $_totalSteps',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.brandColor,
+                        fontSize: 13,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -465,7 +465,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     _buildStepVideo(),
                     _buildStepTitleDesc(),
                     _buildStepPricingRules(),
-                    _buildStepAiInsights(),
                     _buildStepPayout(),
                   ],
                 ),
@@ -544,9 +543,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _buildStepLocation() {
     return StepLayout(
-      title: 'तपाईंको सम्पत्ति कहाँ छ?',
+      title: 'सम्पत्तिको स्थान छान्नुहोस्',
       subtitle:
-          'सही जानकारीले ग्राहकको विश्वास जित्न सजिलो हुन्छ। (Accurate location builds trust)',
+          'सही लोकेसनले ग्राहकलाई तपाईंको कोठा भेटाउन सजिलो बनाउँछ। (Accurate location helps guests find you easily)',
       content: [
         PremiumFeatureCard(
           icon: _latitude != null ? Icons.location_on : Icons.my_location,
@@ -562,25 +561,32 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             children: [
               if (_showLocationNudge && _latitude == null)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.back_hand,
-                        color: Colors.orange,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'पहिला यहाँ क्लिक गर्नुहोस्!',
-                        style: GoogleFonts.notoSansDevanagari(
-                          color: Colors.orange[800],
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.touch_app_rounded,
+                          color: Colors.orange,
+                          size: 18,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Text(
+                          'सुरुमा यहाँ थिच्नुहोस्!',
+                          style: GoogleFonts.notoSansDevanagari(
+                            color: Colors.orange[800],
+                            fontWeight: FontWeight.w800,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ElevatedButton.icon(
@@ -619,14 +625,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _latitude != null
                       ? Colors.green
+                  backgroundColor: _latitude != null
+                      ? const Color(0xFF22C55E)
                       : AppTheme.brandColor,
                   elevation: 0,
+                  shadowColor: (_latitude != null ? Colors.green : AppTheme.brandColor).withOpacity(0.3),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 14,
+                    horizontal: 24,
+                    vertical: 16,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  side: BorderSide(
+                    color: (_latitude != null ? Colors.green : AppTheme.brandColor).withOpacity(0.2),
+                    width: 1,
                   ),
                 ),
               ),
@@ -639,6 +652,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           hint: 'उदा: ललितपुर, सानेपा-२',
           controller: _areaController,
           isRequired: true,
+          prefixIcon: Icons.map_outlined,
         ),
         const SizedBox(height: 24),
         PropertyFormField(
@@ -646,6 +660,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           hint: 'उदा: सिभिल हस्पिटलको पछाडि',
           controller: _landmarkController,
           isRequired: true,
+          prefixIcon: Icons.explore_outlined,
         ),
       ],
     );
@@ -653,51 +668,51 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _buildStepBasics() {
     return StepLayout(
-      title: 'कोठाको विवरण राख्नुहोस्',
+      title: 'कोठा र तल्लाको विवरण',
       subtitle:
-          'यसले मानिसहरूलाई तपाईंको ठाउँको बारेमा जान्न मद्दत गर्छ। (Share the basics)',
+          'बेडरुम, बाथरुम र क्षेत्रफलको जानकारी दिनुहोस्। (Share the basics)',
       content: [
         Row(
           children: [
             Expanded(
-              child: PropertyFormField(
-                label: 'कतिवटा बेडरुम? (Beds)',
-                hint: 'उदा: २',
-                controller: _bedroomsController,
-                keyboardType: TextInputType.number,
+              child: CounterField(
+                label: 'बेडरुम? (Beds)',
+                icon: Icons.bed_rounded,
+                value: _bedroomsController.text,
+                onIncrement: () => _updateCount(_bedroomsController, 1),
+                onDecrement: () => _updateCount(_bedroomsController, -1),
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: PropertyFormField(
-                label: 'कतिवटा बाथरुम? (Baths)',
-                hint: 'उदा: १',
-                controller: _bathroomsController,
-                keyboardType: TextInputType.number,
+              child: CounterField(
+                label: 'बाथरुम? (Baths)',
+                icon: Icons.shower_rounded,
+                value: _bathroomsController.text,
+                onIncrement: () => _updateCount(_bathroomsController, 1),
+                onDecrement: () => _updateCount(_bathroomsController, -1),
               ),
             ),
           ],
         ),
         const SizedBox(height: 24),
-        Row(
-          children: [
-            Expanded(
-              child: PropertyFormField(
-                label: 'कुन तलामा छ? (Floor)',
-                hint: 'उदा: १',
-                controller: _floorController,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: PropertyFormField(
-                label: 'क्षेत्रफल (Area sq.ft)',
-                hint: 'उदा: ४००',
-                controller: _sqftController,
-                keyboardType: TextInputType.number,
-              ),
-            ),
-          ],
+        FloorSelector(
+          label: 'कुन तलामा छ? (Floor Level)',
+          selectedFloor: _floorController.text,
+          onSelect: (val) => setState(() => _floorController.text = val),
+        ),
+        const SizedBox(height: 24),
+        PropertyFormField(
+          label: 'क्षेत्रफल (Total Area sq.ft)',
+          hint: 'उदा: ४००',
+          controller: _sqftController,
+          keyboardType: TextInputType.number,
+          prefixIcon: Icons.straighten_rounded,
+        ),
+        const SizedBox(height: 12),
+        QuickSizeSelector(
+          currentValue: _sqftController.text,
+          onSelect: (val) => setState(() => _sqftController.text = val),
         ),
       ],
     );
@@ -752,64 +767,287 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   Widget _buildStepPhotos() {
+    final int photoCount = _selectedImages.length;
+    final double progress = (photoCount / 5).clamp(0.0, 1.0);
+    final bool isGoalMet = photoCount >= 5;
+
     return StepLayout(
       title: 'केही राम्रा फोटोहरू राख्नुहोस्',
-      subtitle:
-          'राम्रो उज्यालोमा खिचेको फोटोले छिटो भाडामा जान्छ। (Add at least 5 high-quality photos)',
+      subtitle: 'राम्रो उज्यालोमा खिचेको फोटोले छिटो भाडामा जान्छ।',
       content: [
-        GestureDetector(
-          onTap: _pickImages,
-          child: _buildMediaUploadBox(
-            icon: Icons.add_a_photo_outlined,
-            title: 'फोटोहरू थप्नुहोस् (Add Photos)',
-            desc: '५ वा सोभन्दा बढी फोटो राख्नुहोस्।',
-            isBlue: false,
+        // ── Photo Progress Tracker ──────────────────────────────────────────
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isGoalMet ? const Color(0xFF22C55E).withOpacity(0.3) : const Color(0xFFE2E8F0),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: (isGoalMet ? const Color(0xFF22C55E) : AppTheme.brandColor).withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isGoalMet ? Icons.check_circle_rounded : Icons.photo_library_rounded,
+                          color: isGoalMet ? const Color(0xFF22C55E) : AppTheme.brandColor,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        isGoalMet ? 'न्यूनतम फोटो पुग्यो!' : 'फोटोको संख्या: $photoCount/5',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          color: isGoalMet ? const Color(0xFF16A34A) : const Color(0xFF111827),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (photoCount > 0)
+                    Text(
+                      '${(progress * 100).toInt()}%',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                        color: isGoalMet ? const Color(0xFF22C55E) : AppTheme.brandColor,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 8,
+                  backgroundColor: const Color(0xFFF1F5F9),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isGoalMet ? const Color(0xFF22C55E) : AppTheme.brandColor,
+                  ),
+                ),
+              ),
+              if (!isGoalMet)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Text(
+                    'कम्तिमा ५ वटा फोटो भएमा कोठा छिटो भाडामा जान्छ।',
+                    style: GoogleFonts.notoSansDevanagari(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
-        if (_selectedImages.isNotEmpty) ...[
-          const SizedBox(height: 24),
-          Text(
-            'छानिएका फोटोहरू (${_selectedImages.length})',
-            style: GoogleFonts.notoSansDevanagari(fontSize: 16, fontWeight: FontWeight.bold),
+
+        const SizedBox(height: 24),
+
+        // ── Upload Button ──────────────────────────────────────────────────
+        GestureDetector(
+          onTap: _pickImages,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor.withOpacity(0.04),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: AppTheme.brandColor.withOpacity(0.2),
+                width: 2,
+                style: BorderStyle.solid,
+              ),
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppTheme.brandColor.withOpacity(0.15),
+                          blurRadius: 12,
+                        )
+                      ],
+                    ),
+                    child: const Icon(Icons.add_photo_alternate_rounded, color: AppTheme.brandColor, size: 28),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'फोटोहरू थप्नुहोस् (Add Photos)',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
+                      color: AppTheme.brandColor,
+                    ),
+                  ),
+                  Text(
+                    'बहु-चयन (Multi-select) गर्न मिल्छ',
+                    style: GoogleFonts.notoSansDevanagari(
+                      fontSize: 12,
+                      color: AppTheme.brandColor.withOpacity(0.6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 12),
+        ),
+
+        if (_selectedImages.isNotEmpty) ...[
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Text(
+                'तपाईंका फोटोहरू',
+                style: GoogleFonts.notoSansDevanagari(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${_selectedImages.length}',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 1,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.9,
             ),
             itemCount: _selectedImages.length,
             itemBuilder: (context, index) {
+              final isCover = index == 0;
               return Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(
-                    image: FileImage(_selectedImages[index]),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: GestureDetector(
-                    onTap: () =>
-                        setState(() => _selectedImages.removeAt(index)),
-                    child: Container(
-                      margin: const EdgeInsets.all(6),
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 16,
-                      ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.file(
+                        _selectedImages[index],
+                        fit: BoxFit.cover,
+                      ),
+                      // Gradient overlay for buttons
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withOpacity(0.3),
+                                Colors.transparent,
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.3),
+                              ],
+                              stops: const [0.0, 0.3, 0.7, 1.0],
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (isCover)
+                        Positioned(
+                          top: 10,
+                          left: 10,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF22C55E),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.star_rounded, color: Colors.white, size: 12),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'MAIN',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.mediumImpact();
+                            setState(() => _selectedImages.removeAt(index));
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -950,217 +1188,108 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildStepTitleDesc() {
-    return StepLayout(
-      title: 'आकर्षक शीर्षक र विवरण',
-      subtitle:
-          'तपाईंको प्रोपर्टीको बारेमा बताउनुहोस्। (Give it a catchy title and description)',
-      content: [
-        PropertyFormField(
-          label: 'आकर्षक शीर्षक राख्नुहोस् (Title)',
-          hint: 'e.g. Cozy 2-bedroom flat in Sanepa',
-          controller: _titleController,
-          isRequired: true,
-        ),
-        const SizedBox(height: 32),
-        PremiumFeatureCard(
-          icon: Icons.auto_awesome_rounded,
-          title: 'आकर्षक विवरण (AI Description)',
-          subtitle: 'एकै क्लिकमा राम्रो विवरण लेख्नुहोस्',
-          isLoading: _isGeneratingDescription,
-          accentColor: AppTheme.brandColor,
-          child: Column(
-            children: [
-              TextField(
-                controller: _descriptionController,
-                maxLines: 5,
-                style: GoogleFonts.notoSansDevanagari(
-                  fontSize: 15,
-                  color: Colors.black87,
-                  height: 1.5,
-                ),
-                decoration: InputDecoration(
-                  hintText:
-                      'आफ्नो प्रोपर्टीको बारेमा लेख्नुहोस् वा तल क्लिक गर्नुहोस्...',
-                  hintStyle: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.grey[400],
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(
-                      color: AppTheme.brandColor,
-                      width: 1.5,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isGeneratingDescription
-                      ? null
-                      : () async {
-                          HapticFeedback.mediumImpact();
-                          setState(() => _isGeneratingDescription = true);
-                          final desc = await _aiService.generateDescription(
-                            title: _titleController.text,
-                            category: _selectedCategory ?? 'Room',
-                            area: _areaController.text,
-                            landmark: _landmarkController.text,
-                            price: _priceController.text,
-                            bedrooms: _bedroomsController.text,
-                            bathrooms: _bathroomsController.text,
-                            floor: _floorController.text,
-                            sqft: _sqftController.text,
-                            isNegotiable: _isNegotiable,
-                            amenities: [
-                              ..._selectedAmenities,
-                              ..._selectedRules,
-                            ],
-                          );
-                          setState(() {
-                            _descriptionController.text = desc;
-                            _isGeneratingDescription = false;
-                          });
-                        },
-                  icon: const Icon(Icons.flash_on_rounded, size: 18),
-                  label: Text(
-                    'AI बाट लेख्नुहोस् (Auto Generate)',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandColor,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildStepPricingRules() {
     return StepLayout(
       title: 'भाडा र नियमहरू',
-      subtitle: 'Set your price and house rules.',
+      subtitle: 'मासिक भाडा र घरका नियमहरू तोक्नुहोस्। (Price & Rules)',
       content: [
-        PropertyFormField(
+        PriceInputField(
           label: 'मासिक भाडा (Monthly Rent)',
-          hint: 'उदा: ५०००',
           controller: _priceController,
-          keyboardType: TextInputType.number,
+          suffix: 'Per Month',
         ),
-        const SizedBox(height: 16),
-        PropertyFormField(
+        const SizedBox(height: 20),
+        PriceInputField(
           label: 'प्रति रात भाडा (Price Per Night)',
-          hint: 'उदा: ८०० (Optional)',
           controller: _priceNightController,
-          keyboardType: TextInputType.number,
+          suffix: 'Optional',
         ),
         const SizedBox(height: 24),
-        StatefulBuilder(
-          builder: (context, setInternalState) {
-            return GestureDetector(
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                setState(() => _isNegotiable = !_isNegotiable);
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: _isNegotiable
-                      ? AppTheme.brandColor.withOpacity(0.04)
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
+        GestureDetector(
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            setState(() => _isNegotiable = !_isNegotiable);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: _isNegotiable
+                  ? AppTheme.brandColor.withOpacity(0.04)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: _isNegotiable
+                    ? AppTheme.brandColor
+                    : const Color(0xFFE2E8F0),
+                width: _isNegotiable ? 2 : 1.2,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
                     color: _isNegotiable
                         ? AppTheme.brandColor
-                        : Colors.grey.shade200,
-                    width: _isNegotiable ? 2.5 : 1.5,
+                        : const Color(0xFFF1F5F9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.handshake_rounded,
+                    color: _isNegotiable ? Colors.white : Colors.grey[400],
+                    size: 20,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: _isNegotiable
-                            ? AppTheme.brandColor
-                            : Colors.grey.shade100,
-                        shape: BoxShape.circle,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'भाडा मिलाउन सकिने (Negotiable)',
+                        style: GoogleFonts.notoSansDevanagari(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          color: const Color(0xFF111827),
+                        ),
                       ),
-                      child: Icon(
-                        Icons.handshake_rounded,
-                        color: _isNegotiable ? Colors.white : Colors.grey[400],
-                        size: 22,
+                      Text(
+                        'भाडामा मोलमोलाई गर्न मिल्ने छ।',
+                        style: GoogleFonts.notoSansDevanagari(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'भाडा मिलाउन सकिने',
-                            style: GoogleFonts.notoSansDevanagari(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 17,
-                              color: const Color(0xFF111827),
-                              height: 1.2,
-                            ),
-                          ),
-                          Text(
-                            'Price is Negotiable',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Switch.adaptive(
-                      value: _isNegotiable,
-                      onChanged: (v) {
-                        HapticFeedback.mediumImpact();
-                        setState(() => _isNegotiable = v);
-                      },
-                      activeColor: AppTheme.brandColor,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+                Switch.adaptive(
+                  value: _isNegotiable,
+                  onChanged: (v) {
+                    HapticFeedback.mediumImpact();
+                    setState(() => _isNegotiable = v);
+                  },
+                  activeColor: AppTheme.brandColor,
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 40),
-        Text(
-          'घरका नियमहरू (House Rules)',
-          style: GoogleFonts.notoSansDevanagari(fontSize: 18, fontWeight: FontWeight.w800),
+        Row(
+          children: [
+            const Icon(Icons.rule_folder_rounded, color: Colors.orange, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'घरका नियमहरू (House Rules)',
+              style: GoogleFonts.notoSansDevanagari(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF111827),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         AmenitiesGrid(
@@ -1187,485 +1316,141 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  // ─── AI Insights Helpers ─────────────────────────────────────────────────
-
-  Future<void> _runAiInsights() async {
-    if (_aiInsightsLoaded) return;
-    setState(() => _isLoadingAiInsights = true);
-    final price = _priceController.text.isNotEmpty
-        ? _priceController.text
-        : _priceNightController.text;
-    final bedrooms = int.tryParse(_bedroomsController.text) ?? 1;
-
-    final results = await Future.wait([
-      _aiService.estimatePrice(_areaController.text, bedrooms, _selectedCategory ?? 'Room'),
-      _aiService.verifyLocation(_areaController.text, _landmarkController.text),
-    ]);
-
-    if (mounted) {
-      setState(() {
-        _aiPriceAnalysis = results[0];
-        _aiNeighborhoodVibe = results[1];
-        _isLoadingAiInsights = false;
-        _aiInsightsLoaded = true;
-      });
-    }
-  }
-
-  int _calcListingScore() {
-    int score = 0;
-    if (_titleController.text.trim().length > 10) score += 15;
-    if (_descriptionController.text.trim().length > 50) score += 20;
-    if (_selectedImages.length >= 5) score += 20;
-    if (_selectedImages.length >= 8) score += 5;
-    if (_selectedVideo != null) score += 15;
-    if (_selectedAmenities.length >= 4) score += 10;
-    if (_latitude != null) score += 10;
-    if (_priceController.text.isNotEmpty || _priceNightController.text.isNotEmpty) score += 5;
-    return score.clamp(0, 100);
-  }
-
-  // ─── AI Insights Step ────────────────────────────────────────────────────
-
-  Widget _buildStepAiInsights() {
-    final score = _calcListingScore();
-    final Color scoreColor = score >= 80
-        ? const Color(0xFF22C55E)
-        : score >= 55
-        ? Colors.orange
-        : Colors.redAccent;
-
+  Widget _buildStepPayout() {
     return StepLayout(
-      title: 'तपाईंको लिस्टिङ AI विश्लेषण',
-      subtitle: 'AI Review — Listing Quality, Price Check & Neighborhood Vibe',
+      title: 'अन्तिम विवरण र भुक्तानी',
+      subtitle: 'विवरण थप्नुहोस् र कसरी पैसा लिने रोज्नुहोस्। (Final Step)',
       content: [
-        // ── Listing Score Card ──────────────────────────────────────────────
+        // ── AI Description Section ──────────────────────────────────────────
         Container(
-          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                scoreColor.withOpacity(0.08),
-                scoreColor.withOpacity(0.02),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: scoreColor.withOpacity(0.25), width: 1.5),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
+          clipBehavior: Clip.antiAlias,
           child: Column(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: scoreColor.withOpacity(0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.auto_awesome_rounded, color: scoreColor, size: 22),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Listing Quality Score',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 17,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0, end: score / 100),
-                duration: const Duration(milliseconds: 1200),
-                curve: Curves.easeOutCubic,
-                builder: (context, value, _) => Column(
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                color: AppTheme.brandColor.withOpacity(0.05),
+                child: Row(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '${(value * 100).round()}%',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 36,
-                            fontWeight: FontWeight.w900,
-                            color: scoreColor,
-                            letterSpacing: -1,
-                          ),
-                        ),
-                        Text(
-                          score >= 80
-                              ? '🌟 Excellent!'
-                              : score >= 55
-                              ? '👍 Good'
-                              : '⚡ Needs Work',
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: scoreColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: LinearProgressIndicator(
-                        value: value,
-                        minHeight: 10,
-                        backgroundColor: Colors.grey.shade200,
-                        valueColor: AlwaysStoppedAnimation<Color>(scoreColor),
+                    const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      'AI विवरण (AI Description)',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: AppTheme.brandColor,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              // Tips
-              ...[
-                if (_selectedImages.length < 5)
-                  _buildTip('📸', 'Add at least 5 photos to boost visibility'),
-                if (_selectedVideo == null)
-                  _buildTip('🎬', 'Add a video reel for 3× more enquiries'),
-                if (_descriptionController.text.trim().length < 50)
-                  _buildTip('✍️', 'Write a longer description to build trust'),
-                if (_selectedAmenities.length < 4)
-                  _buildTip('✅', 'Select more amenities guests look for'),
-                if (_latitude == null)
-                  _buildTip('📍', 'Set GPS location to unlock map directions'),
-                if (score >= 80)
-                  _buildTip('🎉', 'Your listing looks great! Ready to publish.'),
-              ],
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _descriptionController,
+                      maxLines: 5,
+                      style: GoogleFonts.notoSansDevanagari(
+                        fontSize: 15,
+                        color: const Color(0xFF1F2937),
+                        height: 1.5,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'आफ्नो प्रोपर्टीको बारेमा केही लेख्नुहोस्...',
+                        hintStyle: GoogleFonts.inter(color: Colors.grey[400], fontSize: 14),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _isGeneratingDescription
+                            ? null
+                            : () async {
+                                HapticFeedback.mediumImpact();
+                                setState(() => _isGeneratingDescription = true);
+                                final desc = await _aiService.generateDescription(
+                                  title: _titleController.text,
+                                  category: _selectedCategory ?? 'Room',
+                                  area: _areaController.text,
+                                  landmark: _landmarkController.text,
+                                  price: _priceController.text,
+                                  bedrooms: _bedroomsController.text,
+                                  bathrooms: _bathroomsController.text,
+                                  floor: _floorController.text,
+                                  sqft: _sqftController.text,
+                                  isNegotiable: _isNegotiable,
+                                  amenities: [..._selectedAmenities, ..._selectedRules],
+                                );
+                                setState(() {
+                                  _descriptionController.text = desc;
+                                  _isGeneratingDescription = false;
+                                });
+                              },
+                        icon: _isGeneratingDescription 
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.flash_on_rounded, size: 16),
+                        label: Text(
+                          _isGeneratingDescription ? 'लेख्दै छ...' : 'AI बाट विवरण लेख्नुहोस्',
+                          style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.brandColor,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
 
+        const SizedBox(height: 40),
+
+        // ── Payout Section ────────────────────────────────────────────────
+        Text(
+          'तपाईं कसरी पैसा लिन चाहनुहुन्छ?',
+          style: GoogleFonts.notoSansDevanagari(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            color: const Color(0xFF111827),
+          ),
+        ),
         const SizedBox(height: 20),
-
-        // ── AI Price Analysis Card ──────────────────────────────────────────
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.shade200),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(9),
-                    decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withOpacity(0.10),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.price_check_rounded, color: AppTheme.brandColor, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'AI Price Analysis',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                          ),
-                        ),
-                        Text(
-                          'Based on your area & room type',
-                          style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (!_aiInsightsLoaded)
-                    GestureDetector(
-                      onTap: _runAiInsights,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppTheme.brandColor,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Run AI',
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              if (_isLoadingAiInsights)
-                Center(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      const CircularProgressIndicator(
-                        color: AppTheme.brandColor,
-                        strokeWidth: 2.5,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Analyzing market prices...',
-                        style: GoogleFonts.inter(
-                          color: Colors.grey[500],
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              else if (_aiPriceAnalysis != null)
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withOpacity(0.04),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    _aiPriceAnalysis!,
-                    style: GoogleFonts.notoSansDevanagari(
-                      fontSize: 13,
-                      color: Colors.black87,
-                      height: 1.5,
-                    ),
-                  ),
-                )
-              else
-                Text(
-                  'Tap "Run AI" above to get a price recommendation.',
-                  style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[400]),
-                ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // ── Neighborhood Vibe Card ──────────────────────────────────────────
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.shade200),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(9),
-                    decoration: BoxDecoration(
-                      color: Colors.purple.withOpacity(0.10),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.location_city_rounded, color: Colors.purple, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Neighborhood Vibe',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                          ),
-                        ),
-                        Text(
-                          'Nearby schools, hospitals & more',
-                          style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              if (_isLoadingAiInsights)
-                Center(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      const CircularProgressIndicator(
-                        color: Colors.purple,
-                        strokeWidth: 2.5,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Scanning neighborhood...',
-                        style: GoogleFonts.inter(color: Colors.grey[500], fontSize: 12),
-                      ),
-                    ],
-                  ),
-                )
-              else if (_aiNeighborhoodVibe != null)
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.purple.withOpacity(0.04),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    _aiNeighborhoodVibe!,
-                    style: GoogleFonts.notoSansDevanagari(
-                      fontSize: 13,
-                      color: Colors.black87,
-                      height: 1.5,
-                    ),
-                  ),
-                )
-              else
-                Text(
-                  'AI neighborhood analysis will appear here.',
-                  style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[400]),
-                ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // ── Skip hint ───────────────────────────────────────────────────────
-        Center(
-          child: Text(
-            'Tap "Continue" to proceed to payment setup →',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: Colors.grey[400],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTip(String emoji, String text) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(emoji, style: const TextStyle(fontSize: 14)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepPayout() {
-    return StepLayout(
-      title: 'तपाईं कसरी पैसा लिन चाहनुहुन्छ?',
-      subtitle:
-          'Choose how you want to receive payments from bookings. (Payout Method)',
-      content: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.08),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.account_balance_wallet_rounded,
-                color: Colors.blue,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'अतिथिले बुकिङ गर्दा, तपाईंको पैसा सिधै यो खातामा आउनेछ। (Booking payouts will go to this account automatically)',
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 14,
-                    height: 1.4,
-                    color: Colors.blue[900],
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 32),
         Row(
           children: [
-            _buildPayoutTypeSelector(
-              'eSewa',
-              'esewa',
-              Icons.account_balance_wallet,
-              const Color(0xFF60BB46),
-              'assets/images/esewa.webp',
-            ),
+            _buildPayoutTypeSelector('eSewa', 'esewa', Icons.account_balance_wallet_rounded, const Color(0xFF60BB46)),
             const SizedBox(width: 16),
-            _buildPayoutTypeSelector(
-              'Khalti',
-              'khalti',
-              Icons.account_balance_wallet,
-              const Color(0xFF5C2D91),
-              'assets/images/khalti.png',
-            ),
-            const SizedBox(width: 16),
-            _buildPayoutTypeSelector(
-              'Bank',
-              'bank',
-              Icons.account_balance,
-              Colors.blueGrey,
-            ),
+            _buildPayoutTypeSelector('Khalti', 'khalti', Icons.account_balance_wallet_rounded, const Color(0xFF5C2D91)),
           ],
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
         PropertyFormField(
-          label: _selectedPayoutMethod == 'bank'
-              ? 'बैंक खाता नम्बर (Bank Account No.)'
-              : 'खाताको नम्बर (${_selectedPayoutMethod.toUpperCase()} ID)',
-          hint: _selectedPayoutMethod == 'bank'
-              ? 'Account Number'
-              : 'e.g. 98XXXXXXXX',
+          label: '${_selectedPayoutMethod == 'esewa' ? 'eSewa' : 'Khalti'} नम्बर राख्नुहोस्',
+          hint: '98XXXXXXXX',
           controller: _payoutAccountController,
           isRequired: true,
-          keyboardType: TextInputType.text,
+          keyboardType: TextInputType.phone,
+          prefixIcon: Icons.phone_android_rounded,
         ),
         const SizedBox(height: 40),
         Container(
