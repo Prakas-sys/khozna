@@ -561,7 +561,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             label: 'सम्पत्तिको प्रकार लेख्नुहोस्',
             hint: 'उदा: सटर, गोदाम, आदि',
             controller: _otherCategoryController,
-            icon: Icons.edit_note_rounded,
+            prefixIcon: Icons.edit_note_rounded,
           ),
         ],
       ],
