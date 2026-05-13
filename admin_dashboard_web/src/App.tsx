@@ -117,7 +117,7 @@ const DashboardHome = () => {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [u, k, r, p, latestK] = await Promise.all([
+        const [usersRes, kycRes, reportsRes, paymentsRes, latestK] = await Promise.all([
           supabase.from('profiles').select('*', { count: 'exact', head: true }),
           supabase.from('kyc_verifications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
           supabase.from('user_reports').select('*', { count: 'exact', head: true }),
@@ -126,10 +126,10 @@ const DashboardHome = () => {
         ]);
         
         setStats({ 
-          users: u.count || 0, 
-          kyc: k.count || 0, 
-          reports: r.count || 0,
-          payments: p.count || 0
+          users: usersRes.count || 0, 
+          kyc: kycRes.count || 0, 
+          reports: reportsRes.count || 0,
+          payments: paymentsRes.count || 0
         });
 
         const combined = [
