@@ -215,6 +215,10 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     if (_latitude == null) {
       KhoznaFeedback.showError(context, 'लोकेसन प्रमाणित गर्नुहोस् (Please verify your location first)');
       return;
@@ -426,15 +430,8 @@ class _KycScreenState extends State<KycScreen> {
           isVerified: _isPhoneVerified,
           onChanged: () => setState(() {}),
         ),
-        const SizedBox(height: 20),
-        KycTextField(
-          controller: _citizenshipController,
-          label: 'Citizenship Number (नागरिकता नम्बर)',
-          icon: Icons.badge_outlined,
-          validator: (v) => v!.isEmpty ? 'Required' : null,
-          inputFormatters: [CitizenshipFormatter()],
-          onChanged: () => setState(() {}),
-        ),
+        const SizedBox(height: 32),
+        _buildLocationVerification(),
       ],
     );
   }
@@ -443,7 +440,14 @@ class _KycScreenState extends State<KycScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildLocationVerification(),
+        KycTextField(
+          controller: _citizenshipController,
+          label: 'Citizenship Number (नागरिकता नम्बर)',
+          icon: Icons.badge_outlined,
+          validator: (v) => v!.isEmpty ? 'Required' : null,
+          inputFormatters: [CitizenshipFormatter()],
+          onChanged: () => setState(() {}),
+        ),
         const SizedBox(height: 32),
         const KycSectionHeader(title: 'Citizenship Front (नागरिकताको अगाडि)'),
         const SizedBox(height: 12),

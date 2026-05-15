@@ -220,6 +220,36 @@ const KycCard = ({ kyc, onUpdate, processingId }: {
           </div>
         </div>
 
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-8 border-t border-b border-[#F4F2EE] my-8">
+          <div>
+            <p className="text-[10px] text-[#A1A1A1] font-bold uppercase tracking-widest mb-1">Email Address</p>
+            <p className="text-sm font-bold text-[#1A1A1A]">{kyc.email || '—'}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-[#A1A1A1] font-bold uppercase tracking-widest mb-1">Phone Number</p>
+            <p className="text-sm font-bold text-[#1A1A1A]">{kyc.phone_number || '—'}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-[#A1A1A1] font-bold uppercase tracking-widest mb-1">Citizenship No.</p>
+            <p className="text-sm font-bold text-[#1A1A1A]">{kyc.citizenship_number || '—'}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-[#A1A1A1] font-bold uppercase tracking-widest mb-1">GPS Location</p>
+            {kyc.latitude ? (
+              <a 
+                href={`https://www.google.com/maps?q=${kyc.latitude},${kyc.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-bold text-[#2563EB] hover:underline flex items-center gap-1"
+              >
+                {kyc.latitude.toFixed(4)}, {kyc.longitude.toFixed(4)}
+              </a>
+            ) : (
+              <p className="text-sm font-bold text-red-400">Not Verified</p>
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {images.map((img, i) => (
             <div 
