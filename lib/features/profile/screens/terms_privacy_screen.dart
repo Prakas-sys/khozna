@@ -99,26 +99,65 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
             _buildHeader(
               _isEnglish ? 'Privacy Policy' : 'गोपनीयता नीति',
               _isEnglish
-                  ? 'Your data security is our priority'
-                  : 'तपाईंको डाटाको सुरक्षा हाम्रो प्राथमिकता हो',
+                  ? 'Last Updated: May 13, 2026'
+                  : 'अन्तिम अपडेट: मे १३, २०२६',
+            ),
+            const SizedBox(height: 16),
+            Text(
+              _isEnglish
+                  ? 'Khozna ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and share information when you use our mobile application.'
+                  : 'खोज्न तपाईंको गोपनीयताको रक्षा गर्न प्रतिबद्ध छ। यस नीतिले तपाईंले हाम्रो मोबाइल एप प्रयोग गर्दा हामी कसरी जानकारी संकलन, प्रयोग र साझा गर्छौं भनेर वर्णन गर्दछ।',
+              style: GoogleFonts.mukta(
+                fontSize: 15,
+                color: Colors.grey[700],
+                height: 1.6,
+              ),
             ),
             const SizedBox(height: 24),
             _buildSection(
               num: '6',
-              title: _isEnglish ? 'Data Collection' : 'डाटा संकलन',
+              title: _isEnglish ? 'Information We Collect' : 'हामीले संकलन गर्ने जानकारी',
               content: _isEnglish
-                  ? 'We collect minimal data: Your phone number, location, and listing photos for platform functionality.'
-                  : 'हामी न्यूनतम डाटा मात्र संकलन गर्छौं: तपाईंको फोन नम्बर, स्थान (लोकेसन) र विज्ञापनका फोटोहरू।',
+                  ? '• Personal Info: Name, phone number, email address, and payment info (eSewa/Khalti).\n• Location Data: Precise GPS data to verify properties and provide nearby searches (required for KYC).\n• Media: Photos/videos of properties, profile pictures, and identity documents (ID/Student cards) for KYC.\n• Usage Data: Interactions with the App (searches, AI chat history, property views).'
+                  : '• व्यक्तिगत जानकारी: नाम, फोन नम्बर, इमेल, र भुक्तानी विवरण (eSewa/Khalti)।\n• स्थान डाटा: सम्पत्ति प्रमाणित गर्न र नजिकैको खोजहरूको लागि सही GPS डाटा।\n• मिडिया: सम्पत्तिका फोटो/भिडियोहरू, र KYC को लागि परिचयपत्रहरू।\n• उपयोग डाटा: एपमा गरिएका गतिविधिहरू (खोज, म्यासेज, आदि)।',
             ),
             _buildSection(
               num: '7',
-              title: _isEnglish ? 'Data Sharing' : 'डाटा साझेदारी',
+              title: _isEnglish ? 'How We Use Your Info' : 'तपाईंको जानकारीको प्रयोग',
               content: _isEnglish
-                  ? 'Your contact info is only revealed when you choose to message or call another user. We do not sell your data.'
-                  : 'तपाईंले अर्को प्रयोगकर्तालाई म्यासेज वा कल गर्दा मात्र तपाईंको सम्पर्क जानकारी देखिनेछ। हामी तपाईंको डाटा बिक्री गर्दैनौं।',
+                  ? '• Verification: To ensure safety by verifying properties and owner identities.\n• Communication: To facilitate chat and AI assistance.\n• Payments: To process transactions and owner payouts.\n• Security: To detect and prevent fraud, scams, and unauthorized access.'
+                  : '• प्रमाणीकरण: सुरक्षा सुनिश्चित गर्न घरधनी र घर प्रमाणित गर्न।\n• सञ्चार: च्याट र AI सहायता प्रदान गर्न।\n• भुक्तानी: कारोबार र भुक्तानी प्रक्रिया गर्न।\n• सुरक्षा: ठगी र अनधिकृत पहुँच रोक्न।',
             ),
             _buildSection(
               num: '8',
+              title: _isEnglish ? 'Data Sharing & Disclosure' : 'डाटा साझेदारी',
+              content: _isEnglish
+                  ? 'We do not sell your personal data. Your contact info (phone number) is shared ONLY when a visit is accepted or a booking is confirmed. Identity documents are strictly for internal KYC and are NEVER visible to other users.'
+                  : 'हामी तपाईंको डाटा बिक्री गर्दैनौं। तपाईंको फोन नम्बर बुकिङ वा भिजिट स्वीकृत भएपछि मात्र साझा गरिन्छ। परिचयपत्रहरू आन्तरिक KYC को लागि मात्र हुन् र अरूलाई देखाइँदैन।',
+            ),
+            _buildSection(
+              num: '9',
+              title: _isEnglish ? 'Data Security' : 'डाटा सुरक्षा',
+              content: _isEnglish
+                  ? 'We implement industry-standard security measures, including screenshot blocking on sensitive data and secure data transmission, to protect your information.'
+                  : 'तपाईंको जानकारी सुरक्षित राख्न हामीले संवेदनशील डाटामा स्क्रिनसट ब्लक गर्ने र सुरक्षित डाटा ट्रान्समिसन जस्ता सुरक्षा उपायहरू लागू गरेका छौं।',
+            ),
+            _buildSection(
+              num: '10',
+              title: _isEnglish ? 'Your Rights' : 'तपाईंका अधिकारहरू',
+              content: _isEnglish
+                  ? 'You have the right to access, update, or delete your personal information at any time via the "Edit Profile" section of the App.'
+                  : 'तपाईंलाई एपको "Edit Profile" खण्ड मार्फत कुनै पनि समय आफ्नो व्यक्तिगत जानकारी हेर्न, परिमार्जन गर्न वा मेटाउने अधिकार छ।',
+            ),
+            _buildSection(
+              num: '11',
+              title: _isEnglish ? 'Contact Us' : 'सम्पर्क गर्नुहोस्',
+              content: _isEnglish
+                  ? 'If you have any questions about this Privacy Policy, please contact us at support@khozna.com.'
+                  : 'यस गोपनीयता नीतिको बारेमा कुनै प्रश्न भएमा, कृपया support@khozna.com मा सम्पर्क गर्नुहोस्।',
+            ),
+            _buildSection(
+              num: '12',
               title: _isEnglish ? 'Governing Law' : 'लागू हुने कानुन',
               content: _isEnglish
                   ? 'These terms are governed by the laws of Nepal. Any disputes shall be handled in the courts of Kathmandu.'
