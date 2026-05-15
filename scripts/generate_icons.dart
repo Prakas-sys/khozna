@@ -9,7 +9,7 @@ void main() async {
     'mipmap-xxxhdpi': 192,
   };
 
-  final sourceFile = File('assets/images/logo.png');
+  final sourceFile = File('assets/images/original_logo.png');
   if (!await sourceFile.exists()) {
     print('Source file assets/images/logo.png does not exist.');
     return;

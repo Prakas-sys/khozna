@@ -51,14 +51,18 @@ export const UserManagement = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'verified':
-        return (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-green-100">
-            <UserCheck size={12} /> Verified
-          </div>
-        );
+  const getStatusBadge = (user: any) => {
+    const isFullyVerified = user.phone_number && (user.kyc_status === 'verified' || user.kyc_status === 'pending');
+
+    if (isFullyVerified) {
+      return (
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-green-100">
+          <UserCheck size={12} /> Verified
+        </div>
+      );
+    }
+
+    switch (user.kyc_status) {
       case 'pending':
         return (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-amber-100">
@@ -137,7 +141,7 @@ export const UserManagement = () => {
                         <p className="text-[11px] font-medium text-[#64748B]">{user.email || 'No Email'}</p>
                       </div>
                     </div>
-                    {getStatusBadge(user.status)}
+                    {getStatusBadge(user)}
                   </div>
 
                   <div className="space-y-3 mb-6 flex-1">

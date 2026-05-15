@@ -130,16 +130,16 @@ flutter:
 flutter_launcher_icons:
   android: "ic_launcher"
   ios: false
-  image_path: "assets/images/original logo.png"
+  image_path: "assets/images/original_logo.png"
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/images/original logo.png"
+  adaptive_icon_foreground: "assets/images/original_logo.png"
   # Significantly increased padding to ensure no overflow
   android_icon_padding: 0.95
   remove_alpha_ios: true
 
 flutter_native_splash:
   color: "#ffffff"
-  image: "assets/images/original logo.png"
+  image: "assets/images/original_logo.png"
   android: true
   ios: false
   android_gravity: center

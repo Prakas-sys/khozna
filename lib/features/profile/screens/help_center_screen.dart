@@ -195,7 +195,7 @@ class HelpCenterScreen extends StatelessWidget {
                     builder: (context) => chat_page.ChatScreen(
                       ownerId: '8746409d-5644-4f4f-93ff-bbf9a19dd505',
                       name: 'KHOZNA Official Support',
-                      avatar: 'https://khozna.com/logo.png',
+                      avatar: 'https://via.placeholder.com/150',
                       online: true,
                     ),
                   ),
