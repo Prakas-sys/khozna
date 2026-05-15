@@ -41,6 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   final ImagePicker _picker = ImagePicker();
   bool _isOwner = false;
   String? _avatarUrl;
+  String? _fullName;
   bool _isUploading = false;
   String _kycStatus = 'not_started';
   bool _isLoading = true;
@@ -62,6 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (profileCache.value != null) {
       final cache = profileCache.value!;
       _avatarUrl = cache['avatar_url'];
+      _fullName = cache['full_name'];
       _kycStatus = cache['kyc_status'] ?? 'not_started';
       _isOwner = cache['is_owner'] ?? false;
       _isLoading = false;
@@ -76,6 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (diskCache != null && mounted) {
       setState(() {
         _avatarUrl ??= diskCache['avatar_url'];
+        _fullName ??= diskCache['full_name'];
         if (_kycStatus == 'not_started') {
           _kycStatus = diskCache['kyc_status'] ?? 'not_started';
         }
@@ -97,17 +100,21 @@ class _ProfileScreenState extends State<ProfileScreen>
       try {
         final profile = await Supabase.instance.client
             .from('profiles')
-            .select('avatar_url, kyc_status, is_owner')
+            .select('full_name, avatar_url, kyc_status, is_owner')
             .eq('id', user!.id)
             .maybeSingle();
 
         if (mounted && profile != null) {
           setState(() {
             _avatarUrl = profile['avatar_url'];
+            _fullName = profile['full_name'] ??
+                user?.userMetadata?['full_name'] ??
+                user?.userMetadata?['name'];
             _kycStatus = profile['kyc_status'] ?? 'not_started';
             _isOwner = _isOwner || (profile['is_owner'] ?? false);
 
             final cacheData = {
+              'full_name': _fullName,
               'avatar_url': _avatarUrl,
               'kyc_status': _kycStatus,
               'is_owner': _isOwner,
@@ -204,7 +211,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             backgroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               background: ProfileHeader(
-                fullName:
+                fullName: _fullName ??
                     user?.userMetadata?['full_name'] ??
                     user?.userMetadata?['name'],
                 avatarUrl: _avatarUrl,
