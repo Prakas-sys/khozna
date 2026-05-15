@@ -121,7 +121,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               child: Column(
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Avatar with overlap badge
                       Stack(
@@ -133,7 +133,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                               border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
                             ),
                             child: CircleAvatar(
-                              radius: 50,
+                              radius: 46,
                               backgroundColor: const Color(0xFFF1F5F9),
                               backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
                                   ? CachedNetworkImageProvider(widget.avatar)
@@ -145,8 +145,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                           ),
                           if (widget.isVerified)
                             Positioned(
-                              bottom: 0,
-                              right: 0,
+                              bottom: 4,
+                              right: 4,
                               child: Container(
                                 padding: const EdgeInsets.all(4),
                                 decoration: const BoxDecoration(
@@ -156,7 +156,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                 child: const Icon(
                                   Icons.check_circle_rounded,
                                   color: Color(0xFF4CAF50),
-                                  size: 28,
+                                  size: 24,
                                 ),
                               ),
                             ),
@@ -187,6 +187,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             ),
                             const SizedBox(height: 6),
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Icon(Icons.location_on_rounded, color: Colors.grey[400], size: 14),
                                 const SizedBox(width: 4),
@@ -202,6 +203,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             ),
                             const SizedBox(height: 6),
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 const Icon(Icons.circle, color: Color(0xFF4CAF50), size: 8),
                                 const SizedBox(width: 6),
@@ -223,15 +225,48 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   const SizedBox(height: 32),
                   // Trust Score Section
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: const Color(0xFFF1F5F9)),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFF8FAFC), Color(0xFFF1F5F9)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF00A3FF).withOpacity(0.04),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // Premium Glowing Icon
+                        Container(
+                          height: 52,
+                          width: 52,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF00A3FF), Color(0xFF0077FF)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF00A3FF).withOpacity(0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 28),
+                        ),
+                        const SizedBox(width: 16),
+                        // Trust Score Info
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,70 +279,53 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                   color: Colors.grey[600],
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 2),
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.baseline,
                                 textBaseline: TextBaseline.alphabetic,
                                 children: [
                                   Text(
-                                    _isLoadingVotes 
-                                        ? '...' 
-                                        : '$_voteCount',
+                                    _isLoadingVotes ? '...' : '$_voteCount',
                                     style: GoogleFonts.outfit(
-                                      fontSize: 44,
+                                      fontSize: 28,
                                       fontWeight: FontWeight.w800,
                                       color: Colors.black,
-                                      letterSpacing: -1,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    _voteCount <= 1 ? 'Total Vote' : 'Total Votes',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[500],
                                     ),
                                   ),
                                 ],
                               ),
-                              Text(
-                                _voteCount <= 1 
-                                    ? 'Total Trust' 
-                                    : 'Total Trust Votes',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
                             ],
                           ),
-                        ),
-                        // Shield Wreath Icon
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Icon(Icons.shield_rounded, color: const Color(0xFF00A3FF).withOpacity(0.1), size: 80),
-                            const Icon(Icons.star_rounded, color: Color(0xFF00A3FF), size: 32),
-                            // Simple wreath simulation
-                            CustomPaint(
-                              size: const Size(90, 90),
-                              painter: WreathPainter(),
-                            ),
-                          ],
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 32),
                   // Bottom Row of Verifications
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 2.2,
+                  Row(
                     children: [
-                      _buildHeaderStatGrid(
-                        'KYC Verified', 
-                        Icons.verified_user_rounded, 
-                        iconColor: Colors.green,
-                        bgColor: const Color(0xFFE8F5E9),
+                      Expanded(
+                        child: _buildHeaderStatGrid(
+                          'KYC Verified', 
+                          Icons.verified_user_rounded, 
+                          iconColor: Colors.green,
+                          bgColor: const Color(0xFFE8F5E9),
+                        ),
                       ),
-                      _buildHeaderStatGrid('Phone Verified', Icons.phone_android_rounded),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildHeaderStatGrid('Phone Verified', Icons.phone_android_rounded),
+                      ),
                     ],
                   ),
                 ],
@@ -332,23 +350,29 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatsRowItem(
-                    'सूचीहरू (Listings)',
-                    widget.totalListings.toString(),
-                    null,
+                  Expanded(
+                    child: _buildStatsRowItem(
+                      'सूचीहरू (Listings)',
+                      widget.totalListings.toString(),
+                      null,
+                    ),
                   ),
                   Container(height: 40, width: 1, color: const Color(0xFFF1F5F9)),
-                  _buildStatsRowItem(
-                    'भरोसा (Trust)',
-                    _isLoadingVotes ? '...' : '$_voteCount',
-                    null, // Icon removed as requested
+                  Expanded(
+                    child: _buildStatsRowItem(
+                      'भरोसा (Trust)',
+                      _isLoadingVotes ? '...' : '$_voteCount',
+                      null, // Icon removed as requested
+                    ),
                   ),
                   Container(height: 40, width: 1, color: const Color(0xFFF1F5F9)),
-                  _buildStatsRowItem(
-                    'Joined',
-                    _joinedDate,
-                    null,
-                    isJoined: true,
+                  Expanded(
+                    child: _buildStatsRowItem(
+                      'Joined',
+                      _joinedDate,
+                      null,
+                      isJoined: true,
+                    ),
                   ),
                 ],
               ),
@@ -634,33 +658,4 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
       ),
     );
   }
-}
-
-class WreathPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF00A3FF).withOpacity(0.2)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    // Simple representation of wreath arcs
-    canvas.drawArc(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      0.6,
-      2.0,
-      false,
-      paint,
-    );
-    canvas.drawArc(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      3.6,
-      2.0,
-      false,
-      paint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
