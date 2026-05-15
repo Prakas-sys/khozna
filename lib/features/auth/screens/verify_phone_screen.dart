@@ -300,7 +300,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                               width: 24,
                               child: CircularProgressIndicator(
                                 color: Colors.white,
-                                strokeWidth: 2.5,
+                                strokeWidth: 3.0,
                               ),
                             )
                           : Text(

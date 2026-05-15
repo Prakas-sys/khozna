@@ -314,7 +314,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 width: 24,
                                 child: CircularProgressIndicator(
                                   color: Colors.white,
-                                  strokeWidth: 2,
+                                  strokeWidth: 3.0,
                                 ),
                               )
                             : Text(

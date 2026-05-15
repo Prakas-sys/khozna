@@ -119,13 +119,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.brandColor.withOpacity(0.35),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
@@ -249,7 +242,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 id: 'khozna',
                 title: 'Secure Pay',
                 subtitle: 'via KHOZNA',
-                icon: Icons.shield_outlined,
+                icon: 'assets/images/logo.png',
                 color: Colors.blue,
               ),
             ),
@@ -273,7 +266,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     required String id,
     required String title,
     required String subtitle,
-    required IconData icon,
+    required dynamic icon, // Can be IconData or String (asset path)
     required Color color,
   }) {
     final isSelected = _paymentDestination == id;
@@ -291,17 +284,16 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             color: isSelected ? color : Colors.grey.shade200,
             width: isSelected ? 2 : 1,
           ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: color.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            )
-          ] : null,
         ),
         child: Column(
           children: [
-            Icon(icon, color: isSelected ? color : Colors.grey),
+            if (icon is IconData)
+              Icon(icon, color: isSelected ? color : Colors.grey)
+            else if (icon is String)
+              Opacity(
+                opacity: isSelected ? 1.0 : 0.4,
+                child: Image.asset(icon, width: 26, height: 26),
+              ),
             const SizedBox(height: 8),
             Text(
               title,
@@ -326,35 +318,176 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
 
   Widget _buildKhoznaAccountSection() {
     return Container(
-      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.blue.shade100),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.verified_user, color: Colors.blue, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'KHOZNA OFFICIAL ACCOUNT',
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 12,
-                  color: Colors.blue.shade800,
+          // Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Row(
+              children: [
+                Image.asset('assets/images/logo.png', height: 28, width: 28),
+                const SizedBox(width: 10),
+                Text(
+                  'KHOZNA OFFICIAL ACCOUNT',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-              ),
+                const Spacer(),
+                const Icon(Icons.verified_rounded, color: Colors.white, size: 18),
+              ],
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                // eSewa row
+                _buildKhoznaPayRow(
+                  assetPath: 'assets/images/esewa.webp',
+                  label: 'eSewa ID',
+                  value: '9863590097',
+                  color: const Color(0xFF60BB46),
+                ),
+                const SizedBox(height: 12),
+
+                // Khalti row
+                _buildKhoznaPayRow(
+                  assetPath: 'assets/images/khalti.png',
+                  label: 'Khalti ID',
+                  value: '9863590097',
+                  color: const Color(0xFF5C2D91),
+                ),
+                const SizedBox(height: 12),
+
+                // Account Name
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Image.asset('assets/images/logo.png', height: 40, width: 40),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Account Name', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w600)),
+                          Text('Khozna Nepal Pvt. Ltd.', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.black87)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Reference ID
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.orange.shade100),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade100,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.tag_rounded, color: Colors.orange.shade700, size: 18),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Payment Note / Remark', style: GoogleFonts.inter(fontSize: 10, color: Colors.orange.shade700, fontWeight: FontWeight.w600)),
+                          Text('Ref: ${widget.booking.id.substring(0, 8).toUpperCase()}', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.orange.shade900)),
+                        ],
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: Icon(Icons.copy_rounded, size: 18, color: Colors.orange.shade400),
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: 'Ref: ${widget.booking.id.substring(0, 8).toUpperCase()}'));
+                          HapticFeedback.lightImpact();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Reference ID copied!'), duration: Duration(seconds: 1), behavior: SnackBarBehavior.floating),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKhoznaPayRow({
+    required String assetPath,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Image.asset(assetPath, width: 26, height: 26, fit: BoxFit.contain),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: GoogleFonts.inter(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w600)),
+              Text(value, style: GoogleFonts.sora(fontSize: 16, fontWeight: FontWeight.w800, color: color)),
             ],
           ),
-          const SizedBox(height: 20),
-          _paymentDetailItem('eSewa / Khalti ID', '9863590097', Colors.blue),
-          const SizedBox(height: 12),
-          _paymentDetailItem('Account Name', 'Khozna Rentals Pvt. Ltd.', Colors.blue),
-          const SizedBox(height: 12),
-          _paymentDetailItem('Payment Note', 'Ref: ${widget.booking.id.substring(0, 8)}', Colors.blue),
+          const Spacer(),
+          IconButton(
+            icon: Icon(Icons.copy_rounded, size: 18, color: color.withOpacity(0.6)),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: value));
+              HapticFeedback.lightImpact();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('$label copied!'), duration: const Duration(seconds: 1), behavior: SnackBarBehavior.floating),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -526,12 +659,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   color: Colors.white,
                   border: Border.all(color: Colors.grey.shade200),
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                    ),
-                  ],
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
@@ -730,7 +857,14 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               elevation: 0,
             ),
             child: _isSubmitting
-                ? const CircularProgressIndicator(color: Colors.white)
+                ? const SizedBox(
+                    height: 24,
+                    width: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 3.0,
+                    ),
+                  )
                 : Text(
                     _paymentDestination == 'owner'
                         ? 'Confirm Direct Payment'
