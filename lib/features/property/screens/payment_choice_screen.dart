@@ -109,17 +109,96 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             _buildPaymentStrategySelector(),
             const SizedBox(height: 32),
 
-            Text(
-              'Total Amount to Pay:',
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Rs. ${PriceFormatter.format(widget.booking.totalPrice.toString())}',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                color: AppTheme.brandColor,
+            // Premium Amount Card
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0F172A).withOpacity(0.2),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Stack(
+                  children: [
+                    // Decorative background money icon
+                    Positioned(
+                      right: -20,
+                      top: -10,
+                      child: Icon(
+                        Icons.payments_rounded,
+                        size: 140,
+                        color: Colors.white.withOpacity(0.05),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 20),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Total Amount to Pay',
+                                style: GoogleFonts.inter(
+                                  fontSize: 14, 
+                                  color: Colors.grey[300], 
+                                  fontWeight: FontWeight.w600
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Text(
+                                  '₹',
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF00FFB2),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                PriceFormatter.format(widget.booking.totalPrice.toString()),
+                                style: GoogleFonts.outfit(
+                                  fontSize: 48,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  letterSpacing: -1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -143,7 +222,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             ],
             const SizedBox(height: 40),
 
-            _buildActionButtons(),
+            if (_paymentDestination == 'khozna') _buildActionButtons(),
             const SizedBox(height: 40),
           ],
         ),
@@ -615,7 +694,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             child: _isSubmitting
                 ? const CircularProgressIndicator(color: Colors.white)
                 : Text(
-                    'Submit Payment Proof',
+                    _paymentDestination == 'owner'
+                        ? 'Confirm Direct Payment'
+                        : 'Submit Payment Proof',
                     style: GoogleFonts.plusJakartaSans(
                       fontWeight: FontWeight.w800,
                       fontSize: 16,
