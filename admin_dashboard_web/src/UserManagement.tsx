@@ -84,32 +84,6 @@ export const UserManagement = () => {
     }
   };
 
-  return (
-    <div className="flex-1 overflow-y-auto bg-[#F8FAFC]">
-      <div className="max-w-[1400px] mx-auto px-12 py-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
-          <div>
-            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-2">User Directory</h2>
-            <p className="text-[#64748B] text-sm font-medium">Manage and audit platform user profiles.</p>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
-              <input 
-                type="text" 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search users..." 
-                className="w-72 h-10 bg-white border border-[#E2E8F0] rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-[#2563EB] font-medium text-[12px] transition-all"
-              />
-            </div>
-            <button className="h-10 px-4 bg-white border border-[#E2E8F0] rounded-lg hover:bg-gray-50 flex items-center gap-2 text-[12px] font-bold text-[#475569] transition-all shadow-sm">
-              <Filter size={14} /> Filter
-            </button>
-          </div>
-        </div>
-
   const verifiedUsers = users.filter(u => u.phone_number && (u.kyc_status === 'verified' || u.kyc_status === 'pending'));
   const unverifiedUsers = users.filter(u => !(u.phone_number && (u.kyc_status === 'verified' || u.kyc_status === 'pending')));
 

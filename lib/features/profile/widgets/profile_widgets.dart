@@ -206,9 +206,7 @@ class VerificationCard extends StatelessWidget {
     final bool isPending = kycStatus == 'pending';
     final bool isRejected = kycStatus == 'rejected';
 
-    Color mainColor = isVerified
-        ? Colors.green
-        : (isRejected ? Colors.red : Colors.orange);
+    Color mainColor = isVerified ? Colors.green : Colors.red;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -233,14 +231,10 @@ class VerificationCard extends StatelessWidget {
                 colors: [
                   isVerified
                       ? Colors.green.shade50
-                      : (isRejected
-                            ? Colors.red.shade50
-                            : Colors.orange.shade50),
+                      : Colors.red.shade50,
                   isVerified
                       ? Colors.green.shade100
-                      : (isRejected
-                            ? Colors.red.shade100
-                            : Colors.orange.shade100),
+                      : Colors.red.shade100,
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -252,12 +246,10 @@ class VerificationCard extends StatelessWidget {
                   ? Icons.verified_user_rounded
                   : (isPending
                         ? Icons.hourglass_empty_rounded
-                        : (isRejected
-                              ? Icons.error_outline_rounded
-                              : Icons.gpp_maybe_rounded)),
+                        : Icons.gpp_maybe_rounded),
               color: isVerified
                   ? Colors.green.shade700
-                  : (isRejected ? Colors.red.shade700 : Colors.orange.shade700),
+                  : Colors.red.shade700,
               size: 20,
             ),
           ),
@@ -313,13 +305,6 @@ class VerificationCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.brandColor.withOpacity(0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
                 ),
                 child: Text(
                   isRejected ? 'Retry  ➔' : 'Verify  ➔',
