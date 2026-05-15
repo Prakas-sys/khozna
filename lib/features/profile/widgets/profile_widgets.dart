@@ -213,14 +213,9 @@ class VerificationCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: mainColor.withOpacity(0.08),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-        ],
-        border: Border.all(color: mainColor.withOpacity(0.1), width: 1),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Row(
         children: [
@@ -249,7 +244,7 @@ class VerificationCard extends StatelessWidget {
                         : Icons.gpp_maybe_rounded),
               color: isVerified
                   ? Colors.green.shade700
-                  : Colors.red.shade700,
+                  : Colors.red,
               size: 20,
             ),
           ),
@@ -259,35 +254,34 @@ class VerificationCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isVerified
-                      ? 'Profile Verified (प्रमाणित)'
+                  (isVerified
+                      ? 'Profile Verified'
                       : (isPending
-                            ? 'Pending KYC (प्रमाणीकरण हुँदैछ)'
+                            ? 'Pending KYC'
                             : (isRejected
-                                  ? 'KYC Rejected (अस्वीकृत)'
-                                  : 'Verify Identity (पहिचान प्रमाणित)')),
-                  style: GoogleFonts.mukta(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: Colors.black87,
-                    height: 1.1,
+                                  ? 'KYC Rejected'
+                                  : 'Verify Identity'))).toUpperCase(),
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                    color: Colors.black,
+                    letterSpacing: 0.5,
                   ),
                 ),
-                Text(
-                  isVerified
-                      ? 'तपाईंको पहिचान प्रमाणित भयो।'
-                      : (isPending
-                            ? 'तपाईंको कागजातहरू जाँच हुँदैछ।'
-                            : (isRejected
-                                  ? 'कागजात अस्वीकृत भयो। फेरि प्रयास गर्नुहोस्।'
-                                  : 'घरभाडामा राख्न केवाईसी भेरिफाइ गर्नुहोस्। 👉')),
-                  style: GoogleFonts.mukta(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                    height: 1.2,
+                if (!isVerified)
+                  Text(
+                    isPending
+                          ? '(प्रमाणीकरण हुँदैछ)'
+                          : (isRejected
+                                ? '(अस्वीकृत)'
+                                : '(पहिचान प्रमाणित)'),
+                    style: GoogleFonts.mukta(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: Colors.black87,
+                      height: 1.1,
+                    ),
                   ),
-                ),
               ],
             ),
           ),
