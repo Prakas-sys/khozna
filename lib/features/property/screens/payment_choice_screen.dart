@@ -113,15 +113,15 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+                gradient: LinearGradient(
+                  colors: [AppTheme.brandColor, AppTheme.brandColor.withOpacity(0.75)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF0F172A).withOpacity(0.2),
+                    color: AppTheme.brandColor.withOpacity(0.35),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -138,7 +138,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       child: Icon(
                         Icons.payments_rounded,
                         size: 140,
-                        color: Colors.white.withOpacity(0.05),
+                        color: Colors.white.withOpacity(0.1),
                       ),
                     ),
                     Padding(
@@ -151,7 +151,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
+                                  color: Colors.white.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 20),
@@ -160,36 +160,35 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                               Text(
                                 'Total Amount to Pay',
                                 style: GoogleFonts.inter(
-                                  fontSize: 14, 
-                                  color: Colors.grey[300], 
-                                  fontWeight: FontWeight.w600
+                                  fontSize: 14,
+                                  color: Colors.white.withOpacity(0.85),
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 20),
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 6),
-                                child: Text(
-                                  '₹',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF00FFB2),
-                                  ),
+                              Text(
+                                '₹',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 44,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  height: 1,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 6),
                               Text(
                                 PriceFormatter.format(widget.booking.totalPrice.toString()),
                                 style: GoogleFonts.outfit(
-                                  fontSize: 48,
+                                  fontSize: 52,
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
-                                  letterSpacing: -1.5,
+                                  letterSpacing: -2,
+                                  height: 1,
                                 ),
                               ),
                             ],
@@ -249,7 +248,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               child: _buildStrategyCard(
                 id: 'khozna',
                 title: 'Secure Pay',
-                subtitle: 'via Khozna',
+                subtitle: 'via KHOZNA',
                 icon: Icons.shield_outlined,
                 color: Colors.blue,
               ),
@@ -260,7 +259,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 id: 'owner',
                 title: 'Direct Pay',
                 subtitle: 'to Owner',
-                icon: Icons.person_outline,
+                icon: Icons.account_circle_rounded,
                 color: Colors.orange,
               ),
             ),
@@ -351,7 +350,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          _paymentDetailItem('eSewa / Khalti ID', '9800000000', Colors.blue),
+          _paymentDetailItem('eSewa / Khalti ID', '9863590097', Colors.blue),
           const SizedBox(height: 12),
           _paymentDetailItem('Account Name', 'Khozna Rentals Pvt. Ltd.', Colors.blue),
           const SizedBox(height: 12),
@@ -380,11 +379,11 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           Expanded(
             child: Text(
               'Send payment only after agreement with owner.\nकोठा हेरेर घरबेटीसँग पक्का भएपछि मात्र पैसा पठाउनुहोला।',
-              style: GoogleFonts.mukta(
+              style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: Colors.red.shade900,
-                height: 1.2,
+                height: 1.4,
               ),
             ),
           ),
@@ -397,53 +396,92 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
+        color: Colors.orange.shade50,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Colors.orange.shade100),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Owner identity row
           Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.orange.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
-                  Icons.badge_rounded,
-                  color: Colors.blue,
-                  size: 20,
+                  Icons.account_circle_rounded,
+                  color: Colors.orange,
+                  size: 26,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Account Holder Name',
+                    'PROPERTY OWNER',
                     style: GoogleFonts.inter(
-                      fontSize: 11,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 10,
+                      color: Colors.orange.shade700,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
                     ),
                   ),
                   Text(
-                    _ownerProfile?.accountHolderName ??
-                        _ownerProfile?.fullName ??
-                        'Not provided',
+                    _ownerProfile?.fullName ?? 'Owner',
                     style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
                       color: Colors.black,
+                      letterSpacing: -0.5,
                     ),
                   ),
                 ],
               ),
             ],
           ),
+          if ((_ownerProfile?.accountHolderName ?? '').isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.shade100),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.badge_rounded, size: 16, color: Colors.orange),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Account Holder Name',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        _ownerProfile!.accountHolderName!,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
 
           const Divider(height: 32),
 
