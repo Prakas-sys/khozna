@@ -103,10 +103,9 @@ class KycGuard {
                   : 'घरधनीहरूलाई सन्देश पठाउन र अवलोकन तालिका बनाउन, तपाईंले आफ्नो पहिचान प्रमाणित गर्न आवश्यक छ। यसले घरधनीहरूलाई तपाईं एक वास्तविक भाडामा बस्ने व्यक्तिको रूपमा विश्वास गर्न मद्दत गर्दछ।',
               textAlign: TextAlign.center,
               style: GoogleFonts.notoSansDevanagari(
-                fontSize: 14,
+                fontSize: 13,
                 color: const Color(0xFF6B7280),
-                height: 1.6,
-                fontWeight: FontWeight.w500,
+                height: 1.45,
               ),
             ),
             const SizedBox(height: 24),
