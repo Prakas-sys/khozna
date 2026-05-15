@@ -256,9 +256,18 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                       ),
                       const SizedBox(height: 32),
 
+                      _buildSuggestedItem(
+                        'Find Nearby',
+                        'Show properties around your current location',
+                        Icons.near_me_rounded,
+                        onTap: () {
+                          HapticFeedback.mediumImpact();
+                          setState(() => _showNearbySection = true);
+                        },
+                      ),
+                      
+                      const SizedBox(height: 24),
 
-
-                      const SizedBox(height: 8),
                       Text(
                         'Popular Areas',
                         style: GoogleFonts.plusJakartaSans(
@@ -287,17 +296,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             );
                           },
                         ),
-                      ),
-                      
-                      const SizedBox(height: 24),
-                      _buildSuggestedItem(
-                        'Find Nearby',
-                        'Show properties around your current location',
-                        Icons.near_me_rounded,
-                        onTap: () {
-                          HapticFeedback.mediumImpact();
-                          setState(() => _showNearbySection = true);
-                        },
                       ),
 
                       const SizedBox(height: 32),
