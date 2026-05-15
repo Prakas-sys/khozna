@@ -557,7 +557,7 @@ class _KycScreenState extends State<KycScreen> {
           Padding(
             padding: EdgeInsets.fromLTRB(
               24,
-              MediaQuery.of(context).padding.top + 20,
+              MediaQuery.of(context).padding.top + 4,
               24,
               20,
             ),
