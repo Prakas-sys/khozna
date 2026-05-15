@@ -38,10 +38,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   int _voteCount = 0;
   bool _isLoadingVotes = true;
   String _joinedDate = '...';
+  late String _realLocation;
 
   @override
   void initState() {
     super.initState();
+    _realLocation = widget.location;
     _loadProfileData();
   }
 
@@ -51,7 +53,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         VoteRepository.getVoteCount(widget.ownerId),
         Supabase.instance.client
             .from('profiles')
-            .select('created_at')
+            .select('created_at, area_name')
             .eq('id', widget.ownerId)
             .maybeSingle(),
       ]);
@@ -60,9 +62,14 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         setState(() {
           _voteCount = results[0] as int;
           final profileData = results[1] as Map<String, dynamic>?;
-          if (profileData != null && profileData['created_at'] != null) {
-            final date = DateTime.parse(profileData['created_at']);
-            _joinedDate = DateFormat.yMMMM().format(date);
+          if (profileData != null) {
+            if (profileData['created_at'] != null) {
+              final date = DateTime.parse(profileData['created_at']);
+              _joinedDate = DateFormat.yMMMM().format(date);
+            }
+            if (profileData['area_name'] != null && profileData['area_name'].toString().isNotEmpty) {
+              _realLocation = profileData['area_name'].toString();
+            }
           }
           _isLoadingVotes = false;
         });
@@ -192,7 +199,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                 Icon(Icons.location_on_rounded, color: Colors.grey[400], size: 14),
                                 const SizedBox(width: 4),
                                 Text(
-                                  widget.location,
+                                  _realLocation,
                                   style: GoogleFonts.plusJakartaSans(
                                     color: Colors.grey[500],
                                     fontSize: 12,
