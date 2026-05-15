@@ -242,7 +242,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 id: 'khozna',
                 title: 'Secure Pay',
                 subtitle: 'via KHOZNA',
-                icon: 'assets/images/logo.png',
+                icon: 'assets/images/original_logo.png',
                 color: Colors.blue,
               ),
             ),
@@ -384,7 +384,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   ),
                   child: Row(
                     children: [
-                      Image.asset('assets/images/logo.png', height: 40, width: 40),
+                      Image.asset('assets/images/original_logo.png', height: 40, width: 40),
                       const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

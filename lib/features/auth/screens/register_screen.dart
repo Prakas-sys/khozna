@@ -134,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                   ),
-                  Image.asset('assets/images/original logo.png', height: 50),
+                  Image.asset('assets/images/original_logo.png', height: 50),
                 ],
               ),
             ),
