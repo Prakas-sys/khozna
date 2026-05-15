@@ -124,7 +124,7 @@ export const UserManagement = () => {
         </div>
         <div className="flex items-center gap-3 text-[#64748B]">
           <Shield size={14} className="text-[#94A3B8]" />
-          <span className="text-[12px] font-medium capitalize">{user.role || 'User'}</span>
+          <span className="text-[12px] font-medium capitalize">{user.is_owner ? 'Owner' : (user.role || 'User')}</span>
         </div>
       </div>
 
