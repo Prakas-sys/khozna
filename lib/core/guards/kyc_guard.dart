@@ -88,23 +88,25 @@ class KycGuard {
             const SizedBox(height: 20),
 
             Text(
-              isPending ? 'Verification in Progress' : 'Verify Your Identity',
+              isPending ? 'VERIFICATION IN PROGRESS' : 'VERIFY YOUR IDENTITY',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF111827),
+                letterSpacing: 0.5,
               ),
             ),
             const SizedBox(height: 10),
             Text(
               isPending
-                  ? 'Your KYC documents are under review. This usually takes 24–48 hours. You\'ll be able to message owners once approved.'
-                  : 'To message owners and schedule property visits, you need to verify your identity. This helps owners trust you as a genuine tenant.',
+                  ? 'तपाईंको KYC कागजातहरू समीक्षा भइरहेका छन्। यसलाई सामान्यतया २४–४८ घण्टा लाग्छ। स्वीकृत भएपछि तपाईंले घरधनीहरूलाई सन्देश पठाउन सक्नुहुनेछ।'
+                  : 'घरधनीहरूलाई सन्देश पठाउन र अवलोकन तालिका बनाउन, तपाईंले आफ्नो पहिचान प्रमाणित गर्न आवश्यक छ। यसले घरधनीहरूलाई तपाईं एक वास्तविक भाडामा बस्ने व्यक्तिको रूपमा विश्वास गर्न मद्दत गर्दछ।',
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.notoSansDevanagari(
                 fontSize: 14,
                 color: const Color(0xFF6B7280),
                 height: 1.6,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 24),
