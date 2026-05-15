@@ -222,7 +222,10 @@ class _MainScreenState extends State<MainScreen> {
           child: Scaffold(
             backgroundColor: _currentIndex == 1 ? Colors.black : Colors.white,
             extendBody: false, // Changed from true to false for solid navbar
-            body: _pages[_currentIndex],
+            body: IndexedStack(
+              index: _currentIndex,
+              children: _pages,
+            ),
             bottomNavigationBar: Container(
               decoration: BoxDecoration(
                 color: _currentIndex == 1 ? Colors.black : Colors.white,
