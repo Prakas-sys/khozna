@@ -442,7 +442,7 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
             duration: const Duration(milliseconds: 200),
             transform: Matrix4.translationValues(0, isSelected ? 2.5 : 0, 0),
             decoration: BoxDecoration(
-              color: isSelected ? AppTheme.brandColor.withOpacity(0.06) : Colors.white,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
