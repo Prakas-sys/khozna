@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:safe_device/safe_device.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -14,6 +15,7 @@ class SecurityUtils {
   /// Prevents screenshots and screen recordings on sensitive screens.
   /// Call with [enable] = true on Login/KYC screens.
   static Future<void> setSecure(bool enable) async {
+    if (kIsWeb) return;
     try {
       await _platform.invokeMethod('setSecure', enable);
     } on PlatformException catch (_) {
@@ -25,6 +27,7 @@ class SecurityUtils {
   /// 2. Root/Jailbreak & Integrity Detection (The "Anti-Hacker" Defense)
   /// Checks if the device is rooted, an emulator, or using mock locations.
   static Future<SecurityStatus> getDeviceStatus() async {
+    if (kIsWeb) return SecurityStatus.safe;
     try {
       final bool isRooted = await SafeDevice.isJailBroken;
       final bool isRealDevice = await SafeDevice.isRealDevice;

@@ -143,8 +143,8 @@ class MessageBubble extends StatelessWidget {
                       ),
                       child: KhoznaImage(
                         imageUrl: message.imageUrl!,
-                        width: 220,
-                        height: 180,
+                        width: MediaQuery.sizeOf(context).width * 0.6,
+                        height: MediaQuery.sizeOf(context).width * 0.5,
                         fit: BoxFit.cover,
                       ),
                     )

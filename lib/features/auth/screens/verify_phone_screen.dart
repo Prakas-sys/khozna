@@ -267,8 +267,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(
                       6,
-                      (index) => Flexible(
-                        flex: 1,
+                      (index) => Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4.0),
                           child: _buildOtpBox(index),
@@ -355,7 +354,6 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
 
   Widget _buildOtpBox(int index) {
     return Container(
-      width: 48,
       height: 60,
       decoration: BoxDecoration(
         color: Colors.grey[200],

@@ -361,7 +361,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: Column(
         children: [
           SizedBox(
-            height: 380,
+            height: MediaQuery.sizeOf(context).height * 0.45,
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -971,9 +971,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         onTap: _openMap,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
-          child: Container(
-            height: 200,
-            decoration: BoxDecoration(
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Container(
+              decoration: BoxDecoration(
               color: Colors.grey[200],
               border: Border.all(color: Colors.black.withOpacity(0.05)),
             ),
@@ -1015,12 +1016,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ),
         ),
+        )
       );
+
     }
 
     // Locked state — approximate area only
-    return Container(
-      height: 200,
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Container(
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(24),
@@ -1110,7 +1114,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildSafetyBanner() {
