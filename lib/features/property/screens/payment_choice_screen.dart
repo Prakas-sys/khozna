@@ -11,6 +11,7 @@ import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:khozna/core/services/cloudinary_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PaymentChoiceScreen extends StatefulWidget {
   final BookingModel booking;
@@ -90,7 +91,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Owner Payment Details',
+          'Payment Details',
           style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
             fontWeight: FontWeight.w800,
@@ -203,23 +204,6 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                                     ),
                                   ],
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.lock_outline, color: Colors.white, size: 12),
-                                    const SizedBox(width: 6),
-                                    Text('SSL Encrypted', style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)),
-                                  ],
-                                ),
-                              ),
                             ],
                           ),
                         ],
@@ -388,13 +372,10 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               ),
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF60BB46),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Text('e-', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                  Image.asset(
+                    'assets/images/esewa.webp',
+                    width: 28,
+                    height: 28,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -417,6 +398,33 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     },
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () async {
+                  final Uri url = Uri.parse('esewa://');
+                  try {
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Could not launch eSewa. Please open it manually.')),
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.open_in_new_rounded, size: 16, color: Color(0xFF60BB46)),
+                label: Text(
+                  'Open eSewa App',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF60BB46)),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: const Color(0xFF60BB46).withOpacity(0.5)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -914,7 +922,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       await BookingRepository.submitPayment(
         bookingId: widget.booking.id,
         paymentType: _paymentDestination,
-        method: 'manual',
+        method: 'bank_transfer',
         amount: widget.booking.totalPrice,
         referenceId: _transactionController.text.trim(),
         proofImageUrl: imageUrl,
