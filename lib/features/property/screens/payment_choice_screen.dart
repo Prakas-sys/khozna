@@ -113,75 +113,105 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppTheme.brandColor, AppTheme.brandColor.withOpacity(0.75)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
+                color: AppTheme.brandColor,
+                borderRadius: BorderRadius.circular(16),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(16),
                 child: Stack(
                   children: [
                     // Decorative background money icon
                     Positioned(
                       right: -20,
-                      top: -10,
-                      child: Icon(
-                        Icons.payments_rounded,
-                        size: 140,
-                        color: Colors.white.withOpacity(0.1),
+                      top: 10,
+                      child: Opacity(
+                        opacity: 0.1,
+                        child: const Icon(Icons.account_balance_wallet_rounded, size: 120, color: Colors.white),
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(6),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 20),
+                                child: const Icon(Icons.account_balance_wallet_rounded, color: Colors.white, size: 18),
                               ),
                               const SizedBox(width: 12),
                               Text(
                                 'Total Amount to Pay',
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
-                                  color: Colors.white.withOpacity(0.85),
+                                  color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 16),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
                                 '₹',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 44,
-                                  fontWeight: FontWeight.w900,
+                                style: GoogleFonts.inter(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w600,
                                   color: Colors.white,
                                   height: 1,
                                 ),
                               ),
-                              const SizedBox(width: 6),
+                              const SizedBox(width: 8),
                               Text(
                                 PriceFormatter.format(widget.booking.totalPrice.toString()),
-                                style: GoogleFonts.outfit(
-                                  fontSize: 52,
-                                  fontWeight: FontWeight.w900,
+                                style: GoogleFonts.inter(
+                                  fontSize: 44,
+                                  fontWeight: FontWeight.w700,
                                   color: Colors.white,
-                                  letterSpacing: -2,
+                                  letterSpacing: -1,
                                   height: 1,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Divider(color: Colors.white.withOpacity(0.2), height: 1),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.verified_user_outlined, color: Colors.white, size: 18),
+                                  const SizedBox(width: 8),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('100% Secure Payment', style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                                      Text('Your payment is protected', style: GoogleFonts.inter(color: Colors.white, fontSize: 11)),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.lock_outline, color: Colors.white, size: 12),
+                                    const SizedBox(width: 6),
+                                    Text('SSL Encrypted', style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500)),
+                                  ],
                                 ),
                               ),
                             ],
@@ -320,175 +350,95 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.blue.shade100),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            decoration: BoxDecoration(
-              color: AppTheme.brandColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            child: Row(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset('assets/images/logo.png', height: 28, width: 28),
-                const SizedBox(width: 10),
                 Text(
-                  'KHOZNA OFFICIAL ACCOUNT',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
+                  'Send to eSewa',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Colors.black87,
                   ),
                 ),
-                const Spacer(),
-                const Icon(Icons.verified_rounded, color: Colors.white, size: 18),
+                Image.asset('assets/images/esewa.webp', height: 24),
               ],
             ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                // eSewa row
-                _buildKhoznaPayRow(
-                  assetPath: 'assets/images/esewa.webp',
-                  label: 'eSewa ID',
-                  value: '9863590097',
-                  color: const Color(0xFF60BB46),
-                ),
-                const SizedBox(height: 12),
-
-                // Khalti row
-                _buildKhoznaPayRow(
-                  assetPath: 'assets/images/khalti.png',
-                  label: 'Khalti ID',
-                  value: '9863590097',
-                  color: const Color(0xFF5C2D91),
-                ),
-                const SizedBox(height: 12),
-
-                // Account Name
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.grey.shade200),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF60BB46).withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF60BB46).withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF60BB46),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Text('e-', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                   ),
-                  child: Row(
-                    children: [
-                      Image.asset('assets/images/original_logo.png', height: 40, width: 40),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Account Name', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w600)),
-                          Text('Khozna Nepal Pvt. Ltd.', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.black87)),
-                        ],
-                      ),
-                    ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('eSewa ID', style: GoogleFonts.inter(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500)),
+                        Text('9863590097', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF60BB46))),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 12),
-
-                // Reference ID
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.shade50,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.orange.shade100),
+                  IconButton(
+                    icon: const Icon(Icons.copy_rounded, size: 20, color: Color(0xFF60BB46)),
+                    onPressed: () {
+                      Clipboard.setData(const ClipboardData(text: '9863590097'));
+                      HapticFeedback.lightImpact();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('eSewa ID copied!'), duration: Duration(seconds: 1), behavior: SnackBarBehavior.floating),
+                      );
+                    },
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.shade100,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.tag_rounded, color: Colors.orange.shade700, size: 18),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Payment Note / Remark', style: GoogleFonts.inter(fontSize: 10, color: Colors.orange.shade700, fontWeight: FontWeight.w600)),
-                          Text('Ref: ${widget.booking.id.substring(0, 8).toUpperCase()}', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.orange.shade900)),
-                        ],
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: Icon(Icons.copy_rounded, size: 18, color: Colors.orange.shade400),
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: 'Ref: ${widget.booking.id.substring(0, 8).toUpperCase()}'));
-                          HapticFeedback.lightImpact();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Reference ID copied!'), duration: Duration(seconds: 1), behavior: SnackBarBehavior.floating),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildKhoznaPayRow({
-    required String assetPath,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline_rounded, color: AppTheme.brandColor, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'After payment, please upload the payment screenshot.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AppTheme.brandColor.withOpacity(0.8),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Image.asset(assetPath, width: 26, height: 26, fit: BoxFit.contain),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: GoogleFonts.inter(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.w600)),
-              Text(value, style: GoogleFonts.sora(fontSize: 16, fontWeight: FontWeight.w800, color: color)),
-            ],
-          ),
-          const Spacer(),
-          IconButton(
-            icon: Icon(Icons.copy_rounded, size: 18, color: color.withOpacity(0.6)),
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: value));
-              HapticFeedback.lightImpact();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('$label copied!'), duration: const Duration(seconds: 1), behavior: SnackBarBehavior.floating),
-              );
-            },
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -845,36 +795,63 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       children: [
         SizedBox(
           width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
+          height: 52,
+          child: ElevatedButton.icon(
             onPressed: _isSubmitting ? null : _proceed,
+            icon: _isSubmitting
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
+                  )
+                : const Icon(Icons.lock_rounded, size: 18, color: Colors.white),
+            label: Text(
+              _paymentDestination == 'owner'
+                  ? 'Confirm Direct Payment'
+                  : 'I have agreed with the owner & want to pay',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.brandColor,
-              foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(12),
               ),
               elevation: 0,
             ),
-            child: _isSubmitting
-                ? const SizedBox(
-                    height: 24,
-                    width: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 3.0,
-                    ),
-                  )
-                : Text(
-                    _paymentDestination == 'owner'
-                        ? 'Confirm Direct Payment'
-                        : 'Submit Payment Proof',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.verified_user_outlined, size: 14, color: Colors.grey),
+            const SizedBox(width: 6),
+            RichText(
+              text: TextSpan(
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: Colors.grey,
+                ),
+                children: [
+                  const TextSpan(text: 'By proceeding, you agree to our '),
+                  TextSpan(
+                    text: 'Terms & Privacy Policy.',
+                    style: TextStyle(
+                      color: AppTheme.brandColor,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-          ),
+                ],
+              ),
+            ),
+          ],
         ),
       ],
     );

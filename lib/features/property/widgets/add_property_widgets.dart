@@ -373,7 +373,7 @@ class _SpikePainter extends CustomPainter {
 }
 
 
-class CategoryCard extends StatelessWidget {
+class CategoryCard extends StatefulWidget {
   final String label;
   final String imagePath;
   final String value;
@@ -392,86 +392,132 @@ class CategoryCard extends StatelessWidget {
   });
 
   @override
+  State<CategoryCard> createState() => _CategoryCardState();
+}
+
+class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isSelected = selectedValue == value;
+    final isSelected = widget.selectedValue == widget.value;
     
     // Split label to stylize the slash
-    final parts = label.split(' / ');
+    final parts = widget.label.split(' / ');
     final nepaliText = parts[0];
     final englishText = parts.length > 1 ? parts[1] : '';
 
     return GestureDetector(
-      onTap: () {
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) {
+        _controller.reverse();
         HapticFeedback.selectionClick();
-        onSelect(value);
+        widget.onSelect(widget.value);
       },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: isSelected ? AppTheme.brandColor : const Color(0xFFCBD5E1),
-            width: isSelected ? 2 : 1.5,
-          ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: AppTheme.brandColor.withOpacity(0.1),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            )
-          ] : [],
-        ),
-        child: Align(
-          alignment: Alignment.center,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Transform.scale(
-                scale: imageScale,
-                child: Image.asset(
-                  imagePath,
-                  height: 100,
-                  width: 100,
-                  fit: BoxFit.contain,
-                ),
+      onTapCancel: () => _controller.reverse(),
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) => Transform.scale(
+          scale: _scaleAnimation.value,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              color: isSelected ? AppTheme.brandColor.withOpacity(0.04) : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: isSelected ? AppTheme.brandColor : const Color(0xFFCBD5E1),
+                width: isSelected ? 2 : 1.5,
               ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    style: GoogleFonts.notoSansDevanagari(
-                      fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                      color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
-                      height: 1.2,
+              boxShadow: [
+                // 3D Push Button Shadow
+                BoxShadow(
+                  color: isSelected 
+                      ? AppTheme.brandColor.withOpacity(0.5) 
+                      : const Color(0xFFCBD5E1),
+                  offset: isSelected ? const Offset(0, 1.5) : const Offset(0, 4),
+                  blurRadius: 0,
+                ),
+                // Soft glow when selected
+                if (isSelected)
+                  BoxShadow(
+                    color: AppTheme.brandColor.withOpacity(0.15),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  )
+              ],
+            ),
+            child: Align(
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Transform.scale(
+                    scale: widget.imageScale,
+                    child: Image.asset(
+                      widget.imagePath,
+                      height: 100,
+                      width: 100,
+                      fit: BoxFit.contain,
                     ),
-                    children: [
-                      TextSpan(text: nepaliText),
-                      if (englishText.isNotEmpty) ...[
-                        TextSpan(
-                          text: ' / ',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: isSelected ? AppTheme.brandColor.withOpacity(0.5) : Colors.grey[400],
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        TextSpan(
-                          text: englishText,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ],
                   ),
-                ),
+                  const SizedBox(height: 6),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: GoogleFonts.notoSansDevanagari(
+                          fontSize: 14,
+                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
+                          height: 1.2,
+                        ),
+                        children: [
+                          TextSpan(text: nepaliText),
+                          if (englishText.isNotEmpty) ...[
+                            TextSpan(
+                              text: ' / ',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isSelected ? AppTheme.brandColor.withOpacity(0.5) : Colors.grey[400],
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            TextSpan(
+                              text: englishText,
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                letterSpacing: -0.2,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -484,6 +530,7 @@ class StepLayout extends StatelessWidget {
   final String subtitle;
   final List<Widget> content;
   final ScrollController? controller;
+  final Widget? topWidget;
 
   const StepLayout({
     super.key,
@@ -491,6 +538,7 @@ class StepLayout extends StatelessWidget {
     required this.subtitle,
     required this.content,
     this.controller,
+    this.topWidget,
   });
 
   @override
@@ -501,6 +549,10 @@ class StepLayout extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (topWidget != null) ...[
+            topWidget!,
+            const SizedBox(height: 12),
+          ],
           Text(
             title,
             style: GoogleFonts.notoSansDevanagari(

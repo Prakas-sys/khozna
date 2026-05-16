@@ -244,6 +244,7 @@ class HomeScreenState extends State<HomeScreen> {
           child: HomeHeader(
             locationName: _currentLocationName,
             onLocationTap: _handleLocationTap,
+            onLogoTap: refreshData,
             onNotificationTap: () {
               notificationBadgeCount.value = 0;
               Navigator.push(
@@ -255,14 +256,7 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          HapticFeedback.mediumImpact();
-          await OfflineStorage.clearHomeCache();
-          homeSectionCache.value = {};
-          await _getCurrentLocation();
-          _initializeFutures();
-          await Future.wait(_sectionFutures);
-        },
+        onRefresh: refreshData,
         color: AppTheme.brandColor,
         child: ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
@@ -347,5 +341,14 @@ class HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(builder: (_) => const DiscoveryMapScreen()),
     );
+  }
+
+  Future<void> refreshData() async {
+    HapticFeedback.mediumImpact();
+    await OfflineStorage.clearHomeCache();
+    homeSectionCache.value = {};
+    await _getCurrentLocation();
+    _initializeFutures();
+    await Future.wait(_sectionFutures);
   }
 }

@@ -433,7 +433,7 @@ class _MainScreenState extends State<MainScreen> {
 
                             // If a property was successfully published, refresh the home screen
                             if (result == true) {
-                              // _homeKey.currentState?.refreshData();
+                              _homeKey.currentState?.refreshData();
                               setState(
                                 () => _currentIndex = 0,
                               ); // Ensure we are on Home tab

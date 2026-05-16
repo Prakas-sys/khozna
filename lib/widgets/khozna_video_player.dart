@@ -10,6 +10,7 @@ class KhoznaVideoPlayer extends StatefulWidget {
   final String? thumbnailUrl;
   final bool autoPlay;
   final bool loop;
+  final VoidCallback? onVideoEnded;
 
   const KhoznaVideoPlayer({
     super.key,
@@ -17,6 +18,7 @@ class KhoznaVideoPlayer extends StatefulWidget {
     this.thumbnailUrl,
     this.autoPlay = true,
     this.loop = true,
+    this.onVideoEnded,
   });
 
   @override
@@ -27,11 +29,29 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
   late VideoPlayerController _controller;
   bool _isInitialized = false;
   bool _hasError = false;
+  bool _hasEnded = false;
 
   @override
   void initState() {
     super.initState();
     _initializePlayer();
+  }
+
+  void _videoListener() {
+    if (!_controller.value.isInitialized) return;
+    final position = _controller.value.position;
+    final duration = _controller.value.duration;
+
+    if (position >= duration && duration > Duration.zero) {
+      if (!_hasEnded) {
+        _hasEnded = true;
+        if (widget.onVideoEnded != null) {
+          widget.onVideoEnded!();
+        }
+      }
+    } else if (position < duration) {
+      _hasEnded = false;
+    }
   }
 
   Future<void> _initializePlayer() async {
@@ -41,6 +61,7 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
     }
 
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    _controller.addListener(_videoListener);
 
     try {
       await _controller.initialize();
@@ -65,6 +86,7 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
 
   @override
   void dispose() {
+    _controller.removeListener(_videoListener);
     _controller.dispose();
     super.dispose();
   }

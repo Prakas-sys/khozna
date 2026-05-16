@@ -14,12 +14,14 @@ class HomeHeader extends StatelessWidget {
   final String locationName;
   final VoidCallback onLocationTap;
   final VoidCallback onNotificationTap;
+  final VoidCallback? onLogoTap;
 
   const HomeHeader({
     super.key,
     required this.locationName,
     required this.onLocationTap,
     required this.onNotificationTap,
+    this.onLogoTap,
   });
 
   @override
@@ -28,10 +30,13 @@ class HomeHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Row(
         children: [
-          Image.asset(
-            'assets/images/original_logo.png',
-            height: 48,
-            fit: BoxFit.contain,
+          GestureDetector(
+            onTap: onLogoTap,
+            child: Image.asset(
+              'assets/images/original_logo.png',
+              height: 48,
+              fit: BoxFit.contain,
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(

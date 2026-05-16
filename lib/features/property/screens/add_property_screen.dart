@@ -570,122 +570,244 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _buildStepLocation() {
     return StepLayout(
+      topWidget: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: AppTheme.brandColor.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.brandColor),
+            const SizedBox(width: 4),
+            Text(
+              'स्थान जानकारी',
+              style: GoogleFonts.notoSansDevanagari(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.brandColor,
+              ),
+            ),
+          ],
+        ),
+      ),
       title: 'सम्पत्तिको स्थान छान्नुहोस्',
       subtitle:
-          'सही लोकेसनले ग्राहकलाई तपाईंको कोठा भेटाउन सजिलो बनाउँछ। (Accurate location helps guests find you easily)',
+          'सही लोकेसनले ग्राहकलाई तपाईंको कोठा भेटाउन सजिलो बनाउँछ।\nAccurate location helps guests find you easily.',
       content: [
-        PremiumFeatureCard(
-          icon: _latitude != null ? Icons.location_on : Icons.my_location,
-          title: _latitude != null
-              ? 'लोकेशन प्रमाणित भयो'
-              : 'नक्सामा ठाउँ देखाउनुहोस्',
-          subtitle: _latitude != null
-              ? 'GPS verified location detected'
-              : 'Use GPS for maximum listing trust',
-          accentColor: _latitude != null ? Colors.green : AppTheme.brandColor,
-          isLoading: _isLocating,
-          child: Column(
+        Container(
+          width: double.infinity,
+          height: 260,
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9), // Light grayish for map background
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+          ),
+          child: Stack(
+            alignment: Alignment.bottomCenter,
             children: [
-              if (_showLocationNudge && _latitude == null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.touch_app_rounded,
-                          color: Colors.orange,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'सुरुमा यहाँ थिच्नुहोस्!',
-                          style: GoogleFonts.notoSansDevanagari(
-                            color: Colors.orange[800],
-                            fontWeight: FontWeight.w800,
-                            fontSize: 13,
+              // Custom map lines background
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: CustomPaint(
+                    painter: _MapPatternPainter(),
+                  ),
+                ),
+              ),
+              // Location pin in center
+              Positioned(
+                top: 40,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.brandColor.withOpacity(0.3),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.home_rounded, color: Colors.white, size: 28),
+                ),
+              ),
+              // The bottom card
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 15,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppTheme.brandColor.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.gps_fixed_rounded, color: AppTheme.brandColor, size: 20),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'हालको स्थान प्रयोग गर्नुहोस्',
+                                  style: GoogleFonts.notoSansDevanagari(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color(0xFF1E293B),
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'GPS प्रयोग गर्दा तपाईंको सूचीमा विश्वास बढ्छ र ग्राहकलाई सजिलो भेटिन्छ।',
+                                  style: GoogleFonts.notoSansDevanagari(
+                                    fontSize: 11,
+                                    color: const Color(0xFF64748B),
+                                    height: 1.3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (_showLocationNudge && _latitude == null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            'कृपया नक्सामा लोकेशन सेट गर्नुहोस्!',
+                            style: GoogleFonts.notoSansDevanagari(
+                              color: Colors.orange[800],
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              ElevatedButton.icon(
-                onPressed: _isLocating
-                    ? null
-                    : () {
-                        setState(() => _showLocationNudge = false);
-                        _detectLocation();
-                      },
-                icon: _isLocating
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton.icon(
+                          onPressed: _isLocating
+                              ? null
+                              : () {
+                                  setState(() => _showLocationNudge = false);
+                                  _detectLocation();
+                                },
+                          icon: _isLocating
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                )
+                              : Icon(
+                                  _latitude != null ? Icons.check_circle_outline_rounded : Icons.near_me_outlined, 
+                                  size: 18, 
+                                  color: Colors.white
+                                ),
+                          label: Text(
+                            _isLocating ? 'खोज्दै छ...' : (_latitude != null ? 'स्थान प्रमाणित भयो' : 'मेरो हालको स्थान प्रयोग गर्नुहोस्'),
+                            style: GoogleFonts.notoSansDevanagari(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _latitude != null ? const Color(0xFF22C55E) : AppTheme.brandColor,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
                         ),
-                      )
-                    : Icon(
-                        _latitude != null ? Icons.refresh : Icons.gps_fixed,
-                        size: 20,
-                        color: Colors.white,
                       ),
-                label: Text(
-                  _isLocating
-                      ? 'खोज्दै छ...'
-                      : _latitude != null
-                      ? 'फेरि खोज्नुहोस्'
-                      : 'मेरो ठाउँ खोज्नुहोस्',
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _latitude != null
-                      ? const Color(0xFF22C55E)
-                      : AppTheme.brandColor,
-                  elevation: 0,
-                  shadowColor: (_latitude != null ? Colors.green : AppTheme.brandColor).withOpacity(0.3),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  side: BorderSide(
-                    color: (_latitude != null ? Colors.green : AppTheme.brandColor).withOpacity(0.2),
-                    width: 1,
+                    ],
                   ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1.2)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'वा',
+                style: GoogleFonts.notoSansDevanagari(
+                  color: Colors.grey.shade400,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1.2)),
+          ],
+        ),
+        const SizedBox(height: 24),
         PropertyFormField(
           label: 'टोल वा ठाउँको नाम (Area Name)',
           hint: 'उदा: ललितपुर, सानेपा-२',
           controller: _areaController,
           isRequired: true,
-          prefixIcon: Icons.map_outlined,
+          prefixIcon: Icons.location_on_outlined,
         ),
         const SizedBox(height: 24),
         PropertyFormField(
           label: 'चिनिने ठाउँ (Landmark)',
-          hint: 'उदा: सिभिल हस्पिटलको पछाडि',
+          hint: 'उदा: सिभिल अस्पतालको पछाडि',
           controller: _landmarkController,
           isRequired: true,
-          prefixIcon: Icons.explore_outlined,
+          prefixIcon: Icons.business_outlined,
+        ),
+        const SizedBox(height: 32),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppTheme.brandColor.withOpacity(0.06),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.security_rounded, color: AppTheme.brandColor, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'आफ्नो ठेगाना सुरक्षित छ। यो जानकारी सार्वजनिक गरिने छैन।',
+                  style: GoogleFonts.notoSansDevanagari(
+                    fontSize: 12,
+                    color: const Color(0xFF475569),
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -1722,4 +1844,35 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       ),
     );
   }
+}
+
+class _MapPatternPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+    // Horizontal-ish lines
+    path.moveTo(0, size.height * 0.3);
+    path.quadraticBezierTo(size.width * 0.5, size.height * 0.2, size.width, size.height * 0.4);
+
+    path.moveTo(0, size.height * 0.7);
+    path.quadraticBezierTo(size.width * 0.5, size.height * 0.8, size.width, size.height * 0.6);
+
+    // Vertical-ish lines
+    path.moveTo(size.width * 0.3, 0);
+    path.quadraticBezierTo(size.width * 0.4, size.height * 0.5, size.width * 0.2, size.height);
+
+    path.moveTo(size.width * 0.7, 0);
+    path.quadraticBezierTo(size.width * 0.6, size.height * 0.5, size.width * 0.8, size.height);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

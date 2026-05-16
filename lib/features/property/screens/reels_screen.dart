@@ -23,8 +23,22 @@ class ReelsScreen extends StatefulWidget {
 class _ReelsScreenState extends State<ReelsScreen> {
   final PageController _pageController = PageController();
   bool isImageView = true;
+  bool isAutoScrollEnabled = false;
   List<Property> reels = [];
   bool _isLoading = true;
+
+  void _scrollToNext() {
+    if (_pageController.hasClients) {
+      final int nextPage = _pageController.page!.round() + 1;
+      if (nextPage < reels.length) {
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -141,8 +155,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         vertical: 8,
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          const SizedBox(width: 40), // Placeholder for balance
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
@@ -171,6 +186,35 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 ),
                               ],
                             ),
+                          ),
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            onSelected: (value) {
+                              if (value == 'auto_scroll') {
+                                setState(() => isAutoScrollEnabled = !isAutoScrollEnabled);
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text(isAutoScrollEnabled ? 'Auto Scroll Enabled' : 'Auto Scroll Disabled'),
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: const Duration(seconds: 1),
+                                ));
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'auto_scroll',
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.swipe_down_rounded, color: Colors.black87, size: 20),
+                                    const SizedBox(width: 12),
+                                    Text('Auto Scroll', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black87)),
+                                    const Spacer(),
+                                    Icon(isAutoScrollEnabled ? Icons.toggle_on : Icons.toggle_off, color: isAutoScrollEnabled ? AppTheme.brandColor : Colors.grey, size: 32),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -633,6 +677,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
     return KhoznaVideoPlayer(
       videoUrl: property.videoUrl,
       thumbnailUrl: property.imageUrl,
+      loop: !isAutoScrollEnabled,
+      onVideoEnded: isAutoScrollEnabled ? _scrollToNext : null,
     );
   }
 }
