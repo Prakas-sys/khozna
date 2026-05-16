@@ -15,13 +15,9 @@ class SecurityUtils {
   /// Prevents screenshots and screen recordings on sensitive screens.
   /// Call with [enable] = true on Login/KYC screens.
   static Future<void> setSecure(bool enable) async {
-    if (kIsWeb) return;
-    try {
-      await _platform.invokeMethod('setSecure', enable);
-    } on PlatformException catch (_) {
-      // Platform doesn't support this or threw an error.
-      // In production, log this silently.
-    }
+    // Screenshot restriction has been temporarily removed
+    // to allow screenshots for testing/sharing purposes.
+    return;
   }
 
   /// 2. Root/Jailbreak & Integrity Detection (The "Anti-Hacker" Defense)

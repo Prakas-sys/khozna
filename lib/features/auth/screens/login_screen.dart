@@ -41,9 +41,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(
-      true,
-    ); // 🔐 Screen Shield: blocks screenshots/recordings on login
     _startCarouselTimer();
   }
 
@@ -61,7 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    SecurityUtils.setSecure(false); // Disable when leaving screen
     _carouselTimer?.cancel();
     _illustrationPageController.dispose();
     _phoneFocusNode.dispose();
