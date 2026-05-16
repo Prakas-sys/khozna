@@ -27,6 +27,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
   List<Property> reels = [];
   bool _isLoading = true;
 
+  List<Property> get displayReels => isImageView
+      ? reels
+      : reels.where((p) => p.videoUrl.isNotEmpty).toList();
+
   void _scrollToNext() {
     if (_pageController.hasClients) {
       final int nextPage = _pageController.page!.round() + 1;
@@ -105,7 +109,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
           ? const Center(
               child: CircularProgressIndicator(color: AppTheme.brandColor),
             )
-          : reels.isEmpty
+          : displayReels.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -137,9 +141,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                     controller: _pageController,
                     scrollDirection: Axis.vertical,
                     physics: const BouncingScrollPhysics(),
-                    itemCount: reels.length,
+                    itemCount: displayReels.length,
                     itemBuilder: (context, index) {
-                      return _buildReelItem(reels[index]);
+                      return _buildReelItem(displayReels[index]);
                     },
                   ),
                 ),
@@ -174,15 +178,19 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   title: 'Photos',
                                   icon: Icons.image_rounded,
                                   isSelected: isImageView,
-                                  onTap: () =>
-                                      setState(() => isImageView = true),
+                                  onTap: () {
+                                      setState(() => isImageView = true);
+                                      if (_pageController.hasClients) _pageController.jumpToPage(0);
+                                  },
                                 ),
                                 _buildSegmentButton(
                                   title: 'Videos',
                                   icon: Icons.play_circle_fill,
                                   isSelected: !isImageView,
-                                  onTap: () =>
-                                      setState(() => isImageView = false),
+                                  onTap: () {
+                                      setState(() => isImageView = false);
+                                      if (_pageController.hasClients) _pageController.jumpToPage(0);
+                                  },
                                 ),
                               ],
                             ),

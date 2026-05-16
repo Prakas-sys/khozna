@@ -160,15 +160,15 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                '₹',
+                                'Rs. ',
                                 style: GoogleFonts.inter(
-                                  fontSize: 32,
+                                  fontSize: 24,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.white,
                                   height: 1,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: 4),
                               Text(
                                 PriceFormatter.format(widget.booking.totalPrice.toString()),
                                 style: GoogleFonts.inter(
@@ -187,19 +187,24 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.verified_user_outlined, color: Colors.white, size: 18),
-                                  const SizedBox(width: 8),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('100% Secure Payment', style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
-                                      Text('Your payment is protected', style: GoogleFonts.inter(color: Colors.white, fontSize: 11)),
-                                    ],
-                                  ),
-                                ],
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.verified_user_outlined, color: Colors.white, size: 18),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('100% Secure Payment', style: GoogleFonts.inter(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                          Text('Your payment is protected', style: GoogleFonts.inter(color: Colors.white, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
+                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                 decoration: BoxDecoration(
@@ -207,6 +212,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Icon(Icons.lock_outline, color: Colors.white, size: 12),
                                     const SizedBox(width: 6),
@@ -447,27 +453,50 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red.shade50,
+        color: const Color(0xFFFEF2F2),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.red.shade200),
+        border: Border.all(color: const Color(0xFFFECACA), width: 1.5),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
-            Icons.gpp_maybe_rounded,
-            color: Colors.red,
-            size: 24,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFEE2E2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.shield_outlined,
+              color: Color(0xFFDC2626),
+              size: 20,
+            ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
-            child: Text(
-              'Send payment only after agreement with owner.\nकोठा हेरेर घरबेटीसँग पक्का भएपछि मात्र पैसा पठाउनुहोला।',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: Colors.red.shade900,
-                height: 1.4,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Safety First',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF991B1B),
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Send payment only after agreement with owner. कोठा हेरेर पक्का भएपछि मात्र पैसा पठाउनुहोला।',
+                  style: GoogleFonts.notoSansDevanagari(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF991B1B),
+                    height: 1.5,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -811,7 +840,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             label: Text(
               _paymentDestination == 'owner'
                   ? 'Confirm Direct Payment'
-                  : 'I have agreed with the owner & want to pay',
+                  : 'Submit Payment Proof',
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w600,
                 fontSize: 14,

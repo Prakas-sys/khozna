@@ -506,7 +506,30 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     return StepLayout(
       controller: _mainScrollController,
       title: 'सम्पत्तिको प्रकार?',
-      subtitle: 'Property type',
+      titleWidget: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Text(
+            'सम्पत्तिको प्रकार?',
+            style: GoogleFonts.notoSansDevanagari(
+              fontSize: 21,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF111827),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Property type',
+            style: GoogleFonts.inter(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[400],
+            ),
+          ),
+        ],
+      ),
+      subtitle: '',
       content: [
         const SizedBox(height: 8),
         GridView.count(
@@ -593,12 +616,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ),
       ),
       title: 'सम्पत्तिको स्थान छान्नुहोस्',
-      subtitle:
-          'सही लोकेसनले ग्राहकलाई तपाईंको कोठा भेटाउन सजिलो बनाउँछ।\nAccurate location helps guests find you easily.',
+      subtitle: 'सही लोकेसनले ग्राहकलाई तपाईंको कोठा भेटाउन सजिलो बनाउँछ।',
       content: [
         Container(
           width: double.infinity,
-          height: 260,
+          height: 180,
           decoration: BoxDecoration(
             color: const Color(0xFFF1F5F9), // Light grayish for map background
             borderRadius: BorderRadius.circular(24),
@@ -816,8 +838,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildStepBasics() {
     return StepLayout(
       title: 'कोठा र तल्लाको विवरण',
-      subtitle:
-          'बेडरुम, बाथरुम र क्षेत्रफलको जानकारी दिनुहोस्। (Share the basics)',
+      subtitle: 'बेडरुम, बाथरुम र क्षेत्रफलको जानकारी दिनुहोस्।',
       content: [
         Row(
           children: [
@@ -868,8 +889,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildStepAmenities() {
     return StepLayout(
       title: 'के-के सुविधाहरू छन्?',
-      subtitle:
-          'राम्रो सुविधाहरूले धेरै ग्राहक आकर्षित गर्छ। (Amenities attract better tenants)',
+      subtitle: 'राम्रो सुविधाहरूले धेरै ग्राहक आकर्षित गर्छ।',
       content: [
         AmenitiesGrid(
           selectedItems: _selectedAmenities,
@@ -1208,8 +1228,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildStepVideo() {
     return StepLayout(
       title: 'भिडियोले अझै धेरैलाई आकर्षित गर्छ',
-      subtitle:
-          'कोठाको छोटो भिडियो (Reel) राख्नुहोस्। (Optional but highly recommended)',
+      subtitle: 'कोठाको छोटो भिडियो (Reel) राख्नुहोस्।',
       content: [
         GestureDetector(
           onTap: _pickVideo,
@@ -1264,7 +1283,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildStepTitleDesc() {
     return StepLayout(
       title: 'शीर्षक र विवरण',
-      subtitle: 'आफ्नो प्रोपर्टीको बारेमा बताउनुहोस्। (Title & Description)',
+      subtitle: 'आफ्नो प्रोपर्टीको बारेमा बताउनुहोस्।',
       content: [
         Text(
           'आकर्षक शीर्षक छान्नुहोस् (Choose a Title)',
@@ -1344,7 +1363,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildStepPricingRules() {
     return StepLayout(
       title: 'भाडा र नियमहरू',
-      subtitle: 'मासिक भाडा र घरका नियमहरू तोक्नुहोस्। (Price & Rules)',
+      subtitle: 'मासिक भाडा र घरका नियमहरू तोक्नुहोस्।',
       content: [
         PriceInputField(
           label: 'मासिक भाडा (Monthly Rent)',
@@ -1472,7 +1491,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   Widget _buildStepPayout() {
     return StepLayout(
       title: 'अन्तिम विवरण र भुक्तानी',
-      subtitle: 'विवरण थप्नुहोस् र कसरी पैसा लिने रोज्नुहोस्। (Final Step)',
+      subtitle: 'विवरण थप्नुहोस् र कसरी पैसा लिने रोज्नुहोस्।',
       content: [
         // ── AI Description Section ──────────────────────────────────────────
         Container(

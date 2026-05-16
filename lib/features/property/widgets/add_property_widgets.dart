@@ -440,83 +440,94 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
           scale: _scaleAnimation.value,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
+            transform: Matrix4.translationValues(0, isSelected ? 2.5 : 0, 0),
             decoration: BoxDecoration(
-              color: isSelected ? AppTheme.brandColor.withOpacity(0.04) : Colors.white,
+              color: isSelected ? AppTheme.brandColor.withOpacity(0.06) : Colors.white,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: isSelected ? AppTheme.brandColor : const Color(0xFFCBD5E1),
+                color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
                 width: isSelected ? 2 : 1.5,
               ),
               boxShadow: [
                 // 3D Push Button Shadow
                 BoxShadow(
                   color: isSelected 
-                      ? AppTheme.brandColor.withOpacity(0.5) 
-                      : const Color(0xFFCBD5E1),
+                      ? AppTheme.brandColor.withOpacity(0.3) 
+                      : const Color(0xFFE2E8F0),
                   offset: isSelected ? const Offset(0, 1.5) : const Offset(0, 4),
                   blurRadius: 0,
                 ),
-                // Soft glow when selected
-                if (isSelected)
-                  BoxShadow(
-                    color: AppTheme.brandColor.withOpacity(0.15),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  )
               ],
             ),
-            child: Align(
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Transform.scale(
-                    scale: widget.imageScale,
-                    child: Image.asset(
-                      widget.imagePath,
-                      height: 100,
-                      width: 100,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        style: GoogleFonts.notoSansDevanagari(
-                          fontSize: 14,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
-                          height: 1.2,
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Transform.scale(
+                        scale: widget.imageScale,
+                        child: Image.asset(
+                          widget.imagePath,
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.contain,
                         ),
-                        children: [
-                          TextSpan(text: nepaliText),
-                          if (englishText.isNotEmpty) ...[
-                            TextSpan(
-                              text: ' / ',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: isSelected ? AppTheme.brandColor.withOpacity(0.5) : Colors.grey[400],
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            TextSpan(
-                              text: englishText,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                letterSpacing: -0.2,
-                              ),
-                            ),
-                          ],
-                        ],
                       ),
+                      const SizedBox(height: 6),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: GoogleFonts.notoSansDevanagari(
+                              fontSize: 14,
+                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
+                              height: 1.2,
+                            ),
+                            children: [
+                              TextSpan(text: nepaliText),
+                              if (englishText.isNotEmpty) ...[
+                                TextSpan(
+                                  text: ' / ',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isSelected ? AppTheme.brandColor.withOpacity(0.5) : Colors.grey[400],
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: englishText,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                    letterSpacing: -0.2,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isSelected)
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppTheme.brandColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.check_rounded, color: Colors.white, size: 14),
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
           ),
         ),
@@ -527,6 +538,7 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
 
 class StepLayout extends StatelessWidget {
   final String title;
+  final Widget? titleWidget;
   final String subtitle;
   final List<Widget> content;
   final ScrollController? controller;
@@ -535,6 +547,7 @@ class StepLayout extends StatelessWidget {
   const StepLayout({
     super.key,
     required this.title,
+    this.titleWidget,
     required this.subtitle,
     required this.content,
     this.controller,
@@ -553,7 +566,7 @@ class StepLayout extends StatelessWidget {
             topWidget!,
             const SizedBox(height: 12),
           ],
-          Text(
+          titleWidget ?? Text(
             title,
             style: GoogleFonts.notoSansDevanagari(
               fontSize: 21,
@@ -562,16 +575,18 @@ class StepLayout extends StatelessWidget {
               height: 1.2,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: GoogleFonts.notoSansDevanagari(
-              fontSize: 15,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-              height: 1.4,
+          if (subtitle.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              subtitle,
+              style: GoogleFonts.notoSansDevanagari(
+                fontSize: 15,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+                height: 1.4,
+              ),
             ),
-          ),
+          ],
           const SizedBox(height: 32),
           ...content,
         ],
