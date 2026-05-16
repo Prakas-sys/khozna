@@ -204,6 +204,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                                     ),
                                   ],
                                 ),
+                              ),
                             ],
                           ),
                         ],
