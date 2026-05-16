@@ -1016,9 +1016,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ),
         ),
-        )
-      );
-
+      ),
+    );
+      
     }
 
     // Locked state — approximate area only
