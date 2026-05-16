@@ -675,7 +675,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
         imageUrl: images[0],
         width: double.infinity,
         height: double.infinity,
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
       );
     }
     return _MultiImageCarousel(images: images);
@@ -725,7 +725,7 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
             imageUrl: widget.images[i],
             width: double.infinity,
             height: double.infinity,
-            fit: BoxFit.cover,
+            fit: BoxFit.contain,
           ),
         ),
         // Horizontal dot indicators at the bottom center
