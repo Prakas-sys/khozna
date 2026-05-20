@@ -13,6 +13,8 @@ import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
 import 'package:khozna/core/utils/formatters.dart';
 
+import 'package:khozna/core/utils/app_notifiers.dart';
+
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
 
@@ -48,6 +50,14 @@ class _ReelsScreenState extends State<ReelsScreen> {
   void initState() {
     super.initState();
     _fetchReels();
+    refreshTrigger.addListener(_onGlobalRefresh);
+  }
+
+  void _onGlobalRefresh() {
+    if (mounted) {
+      debugPrint('ReelsScreen: Global refresh triggered, refetching reels...');
+      _fetchReels();
+    }
   }
 
   Future<void> _fetchReels() async {
@@ -97,6 +107,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
 
   @override
   void dispose() {
+    refreshTrigger.removeListener(_onGlobalRefresh);
     _pageController.dispose();
     super.dispose();
   }

@@ -40,6 +40,19 @@ class HomeScreenState extends State<HomeScreen> {
     super.initState();
     _initializeFutures();
     _fetchInitialData();
+    refreshTrigger.addListener(_onGlobalRefresh);
+  }
+
+  @override
+  void dispose() {
+    refreshTrigger.removeListener(_onGlobalRefresh);
+    super.dispose();
+  }
+
+  void _onGlobalRefresh() {
+    if (mounted) {
+      refreshData();
+    }
   }
 
   Future<void> _fetchInitialData() async {

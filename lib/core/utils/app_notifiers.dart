@@ -54,3 +54,7 @@ final ValueNotifier<Map<String, dynamic>?> profileCache =
 /// Used to trigger Success/Rejection popups across the app.
 final ValueNotifier<Map<String, dynamic>?> lastKycNotification =
     ValueNotifier<Map<String, dynamic>?>(null);
+
+/// Global notifier to trigger a refresh of listings/reels across screens.
+final ValueNotifier<int> refreshTrigger = ValueNotifier<int>(0);
+

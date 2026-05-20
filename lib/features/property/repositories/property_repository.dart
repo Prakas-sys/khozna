@@ -351,6 +351,9 @@ class PropertyRepository {
     // 6. Update User Role
     await _client.from('profiles').update({'is_owner': true}).eq('id', user.id);
 
+    // 7. Trigger Global Refresh
+    refreshTrigger.value++;
+
     return propertyId;
   }
 }

@@ -6,6 +6,7 @@ import 'package:khozna/features/property/screens/add_property_screen.dart';
 import 'package:khozna/features/property/screens/edit_property_screen.dart';
 import 'package:khozna/widgets/property_card.dart';
 import 'package:khozna/core/models/property_model.dart';
+import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 
 class MyListingsScreen extends StatefulWidget {
@@ -24,6 +25,19 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   void initState() {
     super.initState();
     _fetchListings();
+    refreshTrigger.addListener(_onGlobalRefresh);
+  }
+
+  @override
+  void dispose() {
+    refreshTrigger.removeListener(_onGlobalRefresh);
+    super.dispose();
+  }
+
+  void _onGlobalRefresh() {
+    if (mounted) {
+      _fetchListings();
+    }
   }
 
   Future<void> _fetchListings() async {
@@ -118,6 +132,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       try {
         await Supabase.instance.client.from('properties').delete().eq('id', id);
         _fetchListings(); // Refresh UI
+        refreshTrigger.value++; // Trigger global refresh
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Property deleted permanently.')),
@@ -237,6 +252,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           );
           if (result == true) {
             _fetchListings();
+            refreshTrigger.value++; // Trigger global refresh
           }
         },
         onDelete: () => _deleteListing(item['id'].toString()),
