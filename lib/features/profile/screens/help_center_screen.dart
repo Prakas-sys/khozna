@@ -75,7 +75,7 @@ class HelpCenterScreen extends StatelessWidget {
                 _buildSocialIcon(
                   FontAwesomeIcons.instagram,
                   'Instagram',
-                  'https://www.instagram.com/khozna_/',
+                  'https://www.instagram.com/khozna.np/',
                 ),
                 _buildSocialIcon(
                   FontAwesomeIcons.tiktok,

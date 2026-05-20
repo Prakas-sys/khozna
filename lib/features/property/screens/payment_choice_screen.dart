@@ -406,14 +406,21 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () async {
-                  final Uri url = Uri.parse('esewa://');
+                  final Uri appUrl = Uri.parse('esewa://');
+                  final Uri webUrl = Uri.parse('https://esewa.com.np');
                   try {
-                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                    // Try to launch the app first
+                    await launchUrl(appUrl, mode: LaunchMode.externalApplication);
                   } catch (e) {
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Could not launch eSewa. Please open it manually.')),
-                      );
+                    // Fallback to the original web link
+                    try {
+                      await launchUrl(webUrl, mode: LaunchMode.externalApplication);
+                    } catch (e2) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Could not launch eSewa. Please open it manually.')),
+                        );
+                      }
                     }
                   }
                 },
