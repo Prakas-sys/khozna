@@ -541,26 +541,6 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                   },
             isLoading: _isSubmitting,
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.lock_outline_rounded,
-                size: 12,
-                color: Colors.grey,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'भ्रमण गर्नु अघि सम्पूर्ण विवरण पुष्टि गर्नुहोस्',
-                style: GoogleFonts.notoSansDevanagari(
-                  fontSize: 11,
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
