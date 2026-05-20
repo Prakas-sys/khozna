@@ -570,27 +570,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               : null,
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (svgIcon != null)
-              SvgPicture.asset(
-                svgIcon,
-                width: 20,
-                height: 20,
-                colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-              )
-            else if (icon != null)
-              Icon(icon, color: iconColor, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: GoogleFonts.notoSansDevanagari(
-                  color: isOutlined ? color : Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 15,
-                ),
-              ),
-            ),
             if (isLoading)
               SizedBox(
                 width: 20,
@@ -600,8 +581,26 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                   strokeWidth: 2,
                 ),
               )
-            else
-              Icon(Icons.chevron_right, color: iconColor, size: 20),
+            else ...[
+              if (svgIcon != null)
+                SvgPicture.asset(
+                  svgIcon,
+                  width: 20,
+                  height: 20,
+                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                )
+              else if (icon != null)
+                Icon(icon, color: iconColor, size: 20),
+              if (svgIcon != null || icon != null) const SizedBox(width: 12),
+              Text(
+                label,
+                style: GoogleFonts.notoSansDevanagari(
+                  color: isOutlined ? color : Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+              ),
+            ],
           ],
         ),
       ),

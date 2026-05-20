@@ -767,6 +767,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   backgroundColor: const Color(0xFF22C55E),
                                   foregroundColor: Colors.white,
                                   elevation: 0,
+                                  side: BorderSide(
+                                    color: Colors.green.shade800.withOpacity(0.2),
+                                    width: 2,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(50),
                                   ),
