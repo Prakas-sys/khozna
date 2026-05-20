@@ -63,7 +63,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
             children: [
               Text(
                 'अस्वीकार गर्नुको कारण',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.notoSansDevanagari(
                   fontWeight: FontWeight.w900,
                   fontSize: 20,
                 ),
@@ -77,7 +77,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                 (r) => RadioListTile<String>(
                   title: Text(
                     r,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.notoSansDevanagari(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -106,7 +106,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                   ),
                   child: Text(
                     'Confirm Decline',
-                    style: GoogleFonts.mukta(
+                    style: GoogleFonts.notoSansDevanagari(
                       fontWeight: FontWeight.w800,
                       fontSize: 15,
                     ),
@@ -133,7 +133,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
           SnackBar(
             content: Text(
               'भ्रमण अस्वीकृत गरियो (Visit Declined)',
-              style: GoogleFonts.mukta(fontWeight: FontWeight.bold),
+              style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.bold),
             ),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
@@ -205,7 +205,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
       appBar: AppBar(
         title: Text(
           'भ्रमण अनुरोधहरू (Visit Requests)',
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.notoSansDevanagari(
             fontWeight: FontWeight.w800,
             fontSize: 18,
             letterSpacing: -0.5,
@@ -363,9 +363,9 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                 const Spacer(),
                 Expanded(
                   child: Text(
-                    'Time: Flexible', // Defaulting to flexible if not specified
+                    'Time: ${DateFormat('hh:mm a').format(checkIn)}',
                     textAlign: TextAlign.right,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.notoSansDevanagari(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: Colors.grey[700],
@@ -472,7 +472,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                             ),
                             child: Text(
                               'Confirm',
-                              style: GoogleFonts.mukta(
+                              style: GoogleFonts.notoSansDevanagari(
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -495,7 +495,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
       children: [
         Text(
           label,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.notoSansDevanagari(
             fontSize: 11,
             color: Colors.grey[600],
             fontWeight: FontWeight.w600,
@@ -554,7 +554,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
       ),
       child: Text(
         label.toUpperCase(),
-        style: GoogleFonts.inter(
+        style: GoogleFonts.notoSansDevanagari(
           fontSize: 10,
           fontWeight: FontWeight.w800,
           color: color,

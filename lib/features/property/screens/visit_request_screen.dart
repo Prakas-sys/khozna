@@ -77,7 +77,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           children: [
             Text(
               'भ्रमण अनुरोध',
-              style: GoogleFonts.mukta(
+              style: GoogleFonts.notoSansDevanagari(
                 color: const Color(0xFF1A1A2E),
                 fontWeight: FontWeight.w800,
                 fontSize: 18,
@@ -116,7 +116,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 const SizedBox(width: 4),
                 Text(
                   'सुरक्षित',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.notoSansDevanagari(
                     fontSize: 10,
                     fontWeight: FontWeight.w900,
                     color: const Color(0xFF00C853),
@@ -151,8 +151,6 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             ),
             const SizedBox(height: 16),
             _buildRentCard(),
-            const SizedBox(height: 16),
-            _buildSafetyBanner(),
             const SizedBox(height: 40),
           ],
         ),
@@ -282,7 +280,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.notoSansDevanagari(
                     fontSize: 10,
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w700,
@@ -295,7 +293,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                     Flexible(
                       child: Text(
                         value,
-                        style: GoogleFonts.plusJakartaSans(
+                        style: GoogleFonts.notoSansDevanagari(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: const Color(0xFF1A1A2E),
@@ -309,7 +307,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                       Expanded( // Allow subtitle to wrap or be flexible
                         child: Text(
                           '· $subtitle',
-                          style: GoogleFonts.mukta(
+                          style: GoogleFonts.notoSansDevanagari(
                             fontSize: 13,
                             color: Colors.grey[500],
                             fontWeight: FontWeight.w600,
@@ -353,7 +351,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'बदल्नुहोस्',
-                      style: GoogleFonts.mukta(
+                      style: GoogleFonts.notoSansDevanagari(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey[700],
@@ -406,7 +404,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               children: [
                 Text(
                   rentLabel,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.notoSansDevanagari(
                     fontSize: 10,
                     color: Colors.grey[600],
                     fontWeight: FontWeight.w700,
@@ -440,7 +438,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 ),
                 Text(
                   'अन्तिम मूल्य भ्रमणपछि छलफल गरिनेछ',
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.notoSansDevanagari(
                     fontSize: 10,
                     color: Colors.grey[500],
                     fontWeight: FontWeight.w500,
@@ -465,7 +463,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 ),
                 child: Text(
                   'बजेटमै राम्रो',
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.notoSansDevanagari(
                     fontSize: 9,
                     color: const Color(0xFF00C853),
                     fontWeight: FontWeight.w800,
@@ -479,59 +477,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     );
   }
 
-  Widget _buildSafetyBanner() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0F7FF),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.blue.shade100),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: Colors.blue.withOpacity(0.1), blurRadius: 10),
-              ],
-            ),
-            child: const Icon(
-              Icons.verified_user_rounded,
-              color: Colors.blue,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'तपाईंको जानकारी सुरक्षित छ',
-                  style: GoogleFonts.mukta(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.blue[900],
-                  ),
-                ),
-                Text(
-                  'हामी विवरणलाई पूर्ण रूपमा गोप्य राख्छौं',
-                  style: GoogleFonts.mukta(
-                    fontSize: 12,
-                    color: Colors.blue[700],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildBottomCTA() {
     return Container(
@@ -551,7 +497,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         children: [
           Text(
             'अब के गर्न चाहनुहुन्छ? (What\'s next?)',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.notoSansDevanagari(
               fontWeight: FontWeight.w700,
               fontSize: 13,
               color: Colors.grey[800],
@@ -583,7 +529,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               const SizedBox(width: 4),
               Text(
                 'भ्रमण गर्नु अघि सम्पूर्ण विवरण पुष्टि गर्नुहोस्',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.notoSansDevanagari(
                   fontSize: 11,
                   color: Colors.grey,
                   fontWeight: FontWeight.w500,
@@ -634,7 +580,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             Expanded(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.notoSansDevanagari(
                   color: isOutlined ? color : Colors.white,
                   fontWeight: FontWeight.w800,
                   fontSize: 15,
@@ -749,7 +695,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           children: [
             Text(
               'आउने संख्या चयन गर्नुहोस्',
-              style: GoogleFonts.mukta(
+              style: GoogleFonts.notoSansDevanagari(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),

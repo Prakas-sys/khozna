@@ -455,7 +455,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                     ),
                     Text(
                       cfg.subtitle,
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.notoSansDevanagari(
                         fontSize: 13,
                         color: cfg.color.withOpacity(0.8),
                       ),
@@ -488,7 +488,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                   Expanded(
                     child: Text(
                       'सुरक्षित रहनुहोस्: कोठा हेरेर मन परेपछि मात्र भुक्तानी विवरण खुल्नेछ। (Payment unlocks after visit)',
-                      style: GoogleFonts.mukta(
+                      style: GoogleFonts.notoSansDevanagari(
                         fontSize: 12,
                         color: Colors.blue.shade900,
                         fontWeight: FontWeight.bold,
@@ -550,7 +550,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'Visit: ${DateFormat('EEE, MMM dd, yyyy').format(_booking.checkIn)}',
+                'Visit: ${DateFormat('EEE, MMM dd, yyyy \'at\' hh:mm a').format(_booking.checkIn)}',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -711,7 +711,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
               const SizedBox(width: 8),
               Text(
                 'कोठाको स्थान (Room Location)',
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.notoSansDevanagari(
                   fontWeight: FontWeight.w800,
                   fontSize: 15,
                 ),
@@ -774,7 +774,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
               icon: const Icon(Icons.directions_rounded),
               label: Text(
                 'बाटो हेर्नुहोस् (Get Directions)',
-                style: GoogleFonts.mukta(fontWeight: FontWeight.w800),
+                style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w800),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF00A3E1),
@@ -829,7 +829,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
               Expanded(
                 child: Text(
                   'मालिकको जवाफको प्रतीक्षा गर्दैछौं…\n(Waiting for owner response)',
-                  style: GoogleFonts.mukta(fontSize: 14, height: 1.4),
+                  style: GoogleFonts.notoSansDevanagari(fontSize: 14, height: 1.4),
                 ),
               ),
             ],
@@ -865,7 +865,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             ),
             child: Text(
               '👀 कोठा हेर्न जानुभयो? (Did you visit the room?)',
-              style: GoogleFonts.mukta(
+              style: GoogleFonts.notoSansDevanagari(
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
               ),
@@ -915,14 +915,14 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                 const SizedBox(height: 8),
                 Text(
                   'भ्रमण स्वीकृत भयो!',
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.notoSansDevanagari(
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
                   ),
                 ),
                 Text(
                   'कोठा हेर्न जानुहोस् र मन पराएपछि मात्र भुक्तानी गर्नुहोस्।',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.notoSansDevanagari(
                     fontSize: 12,
                     color: Colors.grey.shade700,
                   ),
@@ -950,7 +950,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             children: [
               Text(
                 'मालिकले भ्रमण स्वीकार गर्न सक्नुभएन।',
-                style: GoogleFonts.mukta(
+                style: GoogleFonts.notoSansDevanagari(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
                 ),
@@ -959,7 +959,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                 const SizedBox(height: 6),
                 Text(
                   'कारण: ${_booking.rejectionReason}',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.notoSansDevanagari(
                     color: Colors.red.shade700,
                     fontSize: 13,
                   ),
@@ -989,7 +989,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         children: [
           Text(
             'भ्रमण पूरा भयो। धन्यवाद!',
-            style: GoogleFonts.mukta(fontWeight: FontWeight.w700, fontSize: 16),
+            style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w700, fontSize: 16),
           ),
           const SizedBox(height: 8),
           _actionBtn(
@@ -1034,7 +1034,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           const SizedBox(height: 16),
           Text(
             '🚶‍♂️ कोठा हेर्न जानुभयो?',
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.notoSansDevanagari(
               fontWeight: FontWeight.w900,
               fontSize: 20,
               letterSpacing: -0.5,
@@ -1108,7 +1108,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           const SizedBox(height: 16),
           Text(
             'कोठा मन पर्यो?',
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.notoSansDevanagari(
               fontWeight: FontWeight.w900,
               fontSize: 20,
               letterSpacing: -0.5,
@@ -1131,7 +1131,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             ),
             child: Text(
               'कोठा मन परेमा, यहाँबाट भुक्तानीको प्रक्रिया अगाडि बढाउन सक्नुहुन्छ।',
-              style: GoogleFonts.mukta(
+              style: GoogleFonts.notoSansDevanagari(
                 fontSize: 12,
                 color: const Color(0xFF1B5E20),
                 fontWeight: FontWeight.bold,
@@ -1259,7 +1259,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.mukta(
+          style: GoogleFonts.notoSansDevanagari(
             color: outlined ? color : Colors.white,
             fontWeight: FontWeight.w800,
             fontSize: 15,

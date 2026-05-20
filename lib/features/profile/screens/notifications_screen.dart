@@ -600,7 +600,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             children: [
                               Text(
                                 _getHumanMessage(note, sender),
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.notoSansDevanagari(
                                   fontSize: 16,
                                   color: Colors.black,
                                   fontWeight: FontWeight.w600,
@@ -1245,7 +1245,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             const SizedBox(height: 24),
             Text(
               'अस्वीकार गर्नुको कारण (Select Reason)',
-              style: GoogleFonts.mukta(
+              style: GoogleFonts.notoSansDevanagari(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -1255,7 +1255,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               (reason) => ListTile(
                 title: Text(
                   reason,
-                  style: GoogleFonts.mukta(
+                  style: GoogleFonts.notoSansDevanagari(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
@@ -1510,7 +1510,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     child: Text(
                       'विवरण हेर्नुहोस् (View Details)',
-                      style: GoogleFonts.mukta(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -1628,7 +1628,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   Expanded(
                     child: Text(
                       'सुरक्षाको लागि फोन नम्बर भ्रमण स्वीकृत भएपछि मात्र देखाइनेछ। (Phone number hidden for privacy)',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.notoSansDevanagari(
                         fontSize: 12,
                         color: Colors.amber.shade900,
                         fontWeight: FontWeight.w500,
@@ -1677,7 +1677,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             children: [
               Text(
                 label,
-                style: GoogleFonts.inter(
+                style: GoogleFonts.notoSansDevanagari(
                   fontSize: 11,
                   color: Colors.grey[500],
                   fontWeight: FontWeight.w600,
@@ -1685,7 +1685,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
               Text(
                 value,
-                style: GoogleFonts.plusJakartaSans(
+                style: GoogleFonts.notoSansDevanagari(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
