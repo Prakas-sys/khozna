@@ -254,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // --- ILLUSTRATION CAROUSEL ---
                       SizedBox(
                         width: double.infinity,
-                        height: MediaQuery.of(context).size.height * 0.26,
+                        height: constraints.maxHeight * 0.28,
                         child: PageView.builder(
                           controller: _illustrationPageController,
                           onPageChanged: (index) {
@@ -264,7 +264,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           itemBuilder: (context, index) {
                             return Image.asset(
                               _illustrations[index],
-                              fit: BoxFit.contain,
+                              fit: BoxFit.cover,
+                              alignment: const Alignment(1.0, 1.0),
                             );
                           },
                         ),
