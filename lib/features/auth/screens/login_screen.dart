@@ -308,7 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Text(
                             'Welcome Back To',
                             style: GoogleFonts.zenAntiqueSoft(
-                              fontSize: 26,
+                              fontSize: 26.5,
                               fontWeight: FontWeight.w500,
                               color: const Color(0xFF1D1D1D).withOpacity(0.8),
                             ),
