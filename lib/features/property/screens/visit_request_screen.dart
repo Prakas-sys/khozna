@@ -370,6 +370,14 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
   }
 
   Widget _buildRentCard() {
+    final isNightly = widget.property.priceNight > 0;
+    final rentLabel = isNightly ? 'प्रति रात भाडा · Rent/Night' : 'मासिक भाडा · Rent/Month';
+    final rentPrice = isNightly 
+        ? widget.property.priceNight.toStringAsFixed(0) 
+        : (widget.property.priceMonth > 0 
+            ? widget.property.priceMonth.toStringAsFixed(0) 
+            : widget.property.price);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -397,7 +405,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'मासिक भाडा · Rent',
+                  rentLabel,
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     color: Colors.grey[600],
@@ -420,7 +428,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      widget.property.price,
+                      rentPrice,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
@@ -543,7 +551,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         children: [
           Text(
             'अब के गर्न चाहनुहुन्छ? (What\'s next?)',
-            style: GoogleFonts.plusJakartaSans(
+            style: GoogleFonts.inter(
               fontWeight: FontWeight.w700,
               fontSize: 13,
               color: Colors.grey[800],
@@ -563,27 +571,6 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                   },
             isLoading: _isSubmitting,
           ),
-          const SizedBox(height: 12),
-          _largeButton(
-            label: 'कुरा गर्नुहोस् (Chat)',
-            svgIcon: 'assets/icons/message.svg',
-            color: AppTheme.brandColor,
-            isOutlined: true,
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => chat_page.ChatScreen(
-                    ownerId: widget.property.ownerId,
-                    name: widget.property.ownerName,
-                    avatar: widget.property.ownerAvatar,
-                    online: true,
-                  ),
-                ),
-              );
-            },
-          ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -596,7 +583,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               const SizedBox(width: 4),
               Text(
                 'भ्रमण गर्नु अघि सम्पूर्ण विवरण पुष्टि गर्नुहोस्',
-                style: GoogleFonts.mukta(
+                style: GoogleFonts.inter(
                   fontSize: 11,
                   color: Colors.grey,
                   fontWeight: FontWeight.w500,
@@ -647,7 +634,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             Expanded(
               child: Text(
                 label,
-                style: GoogleFonts.mukta(
+                style: GoogleFonts.inter(
                   color: isOutlined ? color : Colors.white,
                   fontWeight: FontWeight.w800,
                   fontSize: 15,
@@ -672,7 +659,10 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
   }
 
   String _getFormattedDate(DateTime date) {
-    return '${date.day} ${_getMonthName(date.month)}, ${date.year}';
+    final String period = date.hour >= 12 ? 'PM' : 'AM';
+    final int hour = date.hour > 12 ? date.hour - 12 : (date.hour == 0 ? 12 : date.hour);
+    final String minute = date.minute.toString().padLeft(2, '0');
+    return '${date.day} ${_getMonthName(date.month)}, ${date.year} at $hour:$minute $period';
   }
 
   String _getMonthName(int month) {
@@ -696,7 +686,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
   }
 
   Future<void> _selectVisitDate() async {
-    final DateTime? picked = await showDatePicker(
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: _visitDate,
       firstDate: DateTime.now(),
@@ -714,7 +704,36 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         );
       },
     );
-    if (picked != null) setState(() => _visitDate = picked);
+    if (pickedDate != null) {
+      if (!mounted) return;
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_visitDate),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: AppTheme.brandColor,
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+      if (pickedTime != null) {
+        setState(() {
+          _visitDate = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
+    }
   }
 
   void _showVisitingPicker() {
@@ -779,13 +798,19 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
   Future<void> _submit() async {
     setState(() => _isSubmitting = true);
     try {
+      final isNightly = widget.property.priceNight > 0;
+      final finalPrice = isNightly 
+          ? widget.property.priceNight 
+          : (widget.property.priceMonth > 0 
+              ? widget.property.priceMonth 
+              : double.tryParse(widget.property.price.replaceAll(',', '')) ?? 0);
+
       await BookingRepository.createBookingRequest(
         propertyId: widget.property.id,
         ownerId: widget.property.ownerId,
         checkIn: _visitDate,
         checkOut: _visitDate.add(const Duration(days: 30)),
-        totalPrice:
-            double.tryParse(widget.property.price.replaceAll(',', '')) ?? 0,
+        totalPrice: finalPrice,
         message:
             'भ्रमण मिति: ${_getFormattedDate(_visitDate)} (${_getDayName(_visitDate)}), जम्मा व्यक्ति: $_visitingCount',
       );

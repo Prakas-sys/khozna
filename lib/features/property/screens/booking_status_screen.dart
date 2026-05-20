@@ -52,14 +52,23 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     final visitTime = _booking.checkIn;
     if (visitTime.isAfter(now)) {
       _timeUntilVisit = visitTime.difference(now);
-      _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
         final remaining = _booking.checkIn.difference(DateTime.now());
-        if (mounted)
-          setState(
-            () => _timeUntilVisit = remaining.isNegative
-                ? Duration.zero
-                : remaining,
-          );
+        if (remaining.isNegative || remaining == Duration.zero) {
+          timer.cancel();
+          if (mounted) {
+            setState(() {
+              _timeUntilVisit = Duration.zero;
+              _checkPostVisit();
+            });
+          }
+        } else {
+          if (mounted) {
+            setState(() {
+              _timeUntilVisit = remaining;
+            });
+          }
+        }
       });
     }
   }
