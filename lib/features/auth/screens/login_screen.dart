@@ -196,6 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
@@ -209,48 +210,90 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 16),
-
-                    // --- ILLUSTRATION CAROUSEL ---
-                    SizedBox(
-                      width: double.infinity,
-                      height: MediaQuery.of(context).size.height * 0.26,
-                      child: PageView.builder(
-                        controller: _illustrationPageController,
-                        onPageChanged: (index) {
-                          setState(() => _currentIllustrationPage = index);
-                        },
-                        itemCount: _illustrations.length,
-                        itemBuilder: (context, index) {
-                          return Image.asset(
-                            _illustrations[index],
-                            fit: BoxFit.contain,
-                          );
-                        },
+                    if (!isKeyboardVisible) ...[
+                      // --- TOP BAR ---
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: () {},
+                              child: Image.asset(
+                                'assets/images/original_logo.png',
+                                height: 48,
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const MainScreen(),
+                                ),
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor.withOpacity(0.08),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: AppTheme.brandColor,
+                                  size: 24,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    // Dot Indicators (below image)
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        _illustrations.length,
-                        (index) => AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 3),
-                          width: _currentIllustrationPage == index ? 18 : 7,
-                          height: 7,
-                          decoration: BoxDecoration(
-                            color: _currentIllustrationPage == index
-                                ? AppTheme.brandColor
-                                : Colors.grey.withOpacity(0.4),
-                            borderRadius: BorderRadius.circular(4),
+                      const SizedBox(height: 35),
+
+                      // --- ILLUSTRATION CAROUSEL ---
+                      SizedBox(
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.height * 0.26,
+                        child: PageView.builder(
+                          controller: _illustrationPageController,
+                          onPageChanged: (index) {
+                            setState(() => _currentIllustrationPage = index);
+                          },
+                          itemCount: _illustrations.length,
+                          itemBuilder: (context, index) {
+                            return Image.asset(
+                              _illustrations[index],
+                              fit: BoxFit.contain,
+                            );
+                          },
+                        ),
+                      ),
+
+                      // Dot Indicators (below image)
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          _illustrations.length,
+                          (index) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            width: _currentIllustrationPage == index ? 18 : 7,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              color: _currentIllustrationPage == index
+                                  ? AppTheme.brandColor
+                                  : Colors.grey.withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
+                    ] else ...[
+                      const SizedBox(height: 24),
+                    ],
 
                     // --- WELCOME TEXT ---
                     Padding(
