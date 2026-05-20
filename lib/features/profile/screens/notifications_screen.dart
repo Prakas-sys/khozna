@@ -163,24 +163,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             msgText.contains('visit request');
 
                         if (isBookingRequest) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: _buildBookingRequestCard(
-                              note,
-                              id,
-                              index,
-                              sender,
+                          return GestureDetector(
+                            onLongPress: () => _confirmDelete(id, index),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _buildBookingRequestCard(
+                                note,
+                                id,
+                                index,
+                                sender,
+                              ),
                             ),
                           );
                         }
 
                         // -- SPECIAL: Payment Received card --
                         if (type == 'payment_received') {
-                          return _buildPaymentReceivedCard(
-                            note,
-                            id,
-                            index,
-                            sender,
+                          return GestureDetector(
+                            onLongPress: () => _confirmDelete(id, index),
+                            child: _buildPaymentReceivedCard(
+                              note,
+                              id,
+                              index,
+                              sender,
+                            ),
                           );
                         }
 
@@ -197,20 +203,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 type == 'booking_approved');
 
                         if (isApproved) {
-                          return _buildBookingApprovedCard(
-                            note,
-                            id,
-                            index,
-                            sender,
+                          return GestureDetector(
+                            onLongPress: () => _confirmDelete(id, index),
+                            child: _buildBookingApprovedCard(
+                              note,
+                              id,
+                              index,
+                              sender,
+                            ),
                           );
                         }
 
                         if (isRejected) {
-                          return _buildBookingRejectedCard(
-                            note,
-                            id,
-                            index,
-                            sender,
+                          return GestureDetector(
+                            onLongPress: () => _confirmDelete(id, index),
+                            child: _buildBookingRejectedCard(
+                              note,
+                              id,
+                              index,
+                              sender,
+                            ),
                           );
                         }
 
@@ -768,7 +780,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   side: BorderSide(
-                                    color: Colors.green.shade800.withOpacity(0.2),
+                                    color: Colors.white.withOpacity(0.5), // White glass effect
                                     width: 2,
                                   ),
                                   shape: RoundedRectangleBorder(
