@@ -262,10 +262,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                           itemCount: _illustrations.length,
                           itemBuilder: (context, index) {
-                            return Image.asset(
-                              _illustrations[index],
-                              fit: BoxFit.cover,
-                              alignment: const Alignment(1.0, 1.0),
+                            return Transform.translate(
+                              offset: Offset(constraints.maxWidth * 0.05, 0), // Push slightly to the right to center illustration
+                              child: Image.asset(
+                                _illustrations[index],
+                                fit: BoxFit.cover,
+                                alignment: const Alignment(1.0, 1.0),
+                              ),
                             );
                           },
                         ),
