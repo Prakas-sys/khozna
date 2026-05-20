@@ -529,18 +529,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'अब के गर्न चाहनुहुन्छ? (What\'s next?)',
-            style: GoogleFonts.notoSansDevanagari(
-              fontWeight: FontWeight.w700,
-              fontSize: 13,
-              color: Colors.grey[800],
-              letterSpacing: 0.1,
-            ),
-          ),
-          const SizedBox(height: 16),
           _largeButton(
-            label: 'भ्रमण गर्नुहोस् (Schedule Visit)',
+            label: 'भ्रमण अनुरोध गर्नुहोस्',
             icon: Icons.calendar_today_rounded,
             color: AppTheme.brandColor,
             onPressed: _isSubmitting
