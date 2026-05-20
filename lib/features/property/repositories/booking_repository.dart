@@ -173,7 +173,7 @@ class BookingRepository {
         await _client.from('notifications').insert({
           'user_id': booking.ownerId,
           'sender_id': user?.id,
-          'title': '🔔 भ्रमण अनुरोध याद दिलाउँदै (Visit Reminder)',
+          'title': 'भ्रमण अनुरोध याद दिलाउँदै (Visit Reminder)',
           'message': '$name ले तपाइँको जवाफको लागि प्रतीक्षा गर्दैछ।',
           'type': 'visit_reminder',
           'property_id': booking.propertyId,

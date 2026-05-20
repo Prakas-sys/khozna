@@ -502,7 +502,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
                 child: Row(
                   children: [
-                    Text('⏳', style: TextStyle(fontSize: 18)),
+                    const Icon(
+                      Icons.pending_actions_rounded,
+                      color: Color(0xFF00A3E1),
+                      size: 24,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -512,7 +516,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             'भ्रमण अनुरोध (New Visit Request)',
                             style: GoogleFonts.plusJakartaSans(
                               fontWeight: FontWeight.w800,
-                              fontSize: 13,
+                              fontSize: 16,
                               color: Colors.black,
                             ),
                           ),
@@ -597,7 +601,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               Text(
                                 _getHumanMessage(note, sender),
                                 style: GoogleFonts.inter(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   color: Colors.black,
                                   fontWeight: FontWeight.w600,
                                   height: 1.4,
