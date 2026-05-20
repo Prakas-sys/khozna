@@ -132,25 +132,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         child: Column(
           children: [
             _buildPropertyHeader(),
-            const SizedBox(height: 24),
-            _buildActionRow(
-              icon: Icons.calendar_month_rounded,
-              iconColor: AppTheme.brandColor,
-              label: 'भ्रमणको मिति · Date',
-              value: _getFormattedDate(_visitDate),
-              subtitle: _getDayName(_visitDate),
-              onTap: () => _selectVisitDate(),
-            ),
             const SizedBox(height: 16),
-            _buildActionRow(
-              icon: Icons.group_outlined,
-              iconColor: AppTheme.brandColor,
-              label: 'आउने संख्या · Visiting',
-              value: 'तपाईं / $_visitingCount जना',
-              onTap: () => _showVisitingPicker(),
-            ),
-            const SizedBox(height: 16),
-            _buildRentCard(),
+            _buildCombinedDetailsCard(),
             const SizedBox(height: 40),
           ],
         ),
@@ -248,126 +231,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     );
   }
 
-  Widget _buildActionRow({
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required String value,
-    String? subtitle,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Icon(icon, color: iconColor, size: 22),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 10,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        value,
-                        style: GoogleFonts.notoSansDevanagari(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A1A2E),
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.visible, // Don't truncate date
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(width: 6),
-                      Expanded( // Allow subtitle to wrap or be flexible
-                        child: Text(
-                          '· $subtitle',
-                          style: GoogleFonts.notoSansDevanagari(
-                            fontSize: 13,
-                            color: Colors.grey[500],
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                onTap();
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.edit_calendar_rounded,
-                      size: 14,
-                      color: Colors.grey[700],
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      'बदल्नुहोस्',
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRentCard() {
+  Widget _buildCombinedDetailsCard() {
     final isNightly = widget.property.priceNight > 0;
     final rentLabel = isNightly ? 'प्रति रात भाडा · Rent/Night' : 'मासिक भाडा · Rent/Month';
     final rentPrice = isNightly 
@@ -377,100 +241,270 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             : widget.property.price);
 
     return Container(
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.shade200, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.brandColor.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(
-              Icons.account_balance_wallet_rounded,
-              color: AppTheme.brandColor,
-              size: 24,
+          // 1. Visit Date & Time Row
+          InkWell(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _selectVisitDate();
+            },
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.calendar_month_rounded,
+                      color: AppTheme.brandColor,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'भ्रमणको मिति र समय · Date & Time',
+                          style: GoogleFonts.notoSansDevanagari(
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          _getFormattedDate(_visitDate),
+                          style: GoogleFonts.notoSansDevanagari(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF1A1A2E),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _getDayName(_visitDate),
+                          style: GoogleFonts.notoSansDevanagari(
+                            fontSize: 12,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_calendar_rounded, size: 12, color: Colors.grey[700]),
+                        const SizedBox(width: 4),
+                        Text(
+                          'बदल्नुहोस्',
+                          style: GoogleFonts.notoSansDevanagari(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          
+          Divider(height: 1, color: Colors.grey.shade100, indent: 20, endIndent: 20),
+
+          // 2. Visiting Count Row
+          InkWell(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _showVisitingPicker();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.group_outlined,
+                      color: AppTheme.brandColor,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'आउने संख्या · Visiting',
+                          style: GoogleFonts.notoSansDevanagari(
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'तपाईं / $_visitingCount जना',
+                          style: GoogleFonts.notoSansDevanagari(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF1A1A2E),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_rounded, size: 12, color: Colors.grey[700]),
+                        const SizedBox(width: 4),
+                        Text(
+                          'बदल्नुहोस्',
+                          style: GoogleFonts.notoSansDevanagari(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          Divider(height: 1, color: Colors.grey.shade100, indent: 20, endIndent: 20),
+
+          // 3. Rent Details Row
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
               children: [
-                Text(
-                  rentLabel,
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 10,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.brandColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.account_balance_wallet_rounded,
+                    color: AppTheme.brandColor,
+                    size: 22,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text(
-                      '₹',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.brandColor,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        rentLabel,
+                        style: GoogleFonts.notoSansDevanagari(
+                          fontSize: 10,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      rentPrice,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: AppTheme.brandColor,
-                        letterSpacing: -1,
+                      const SizedBox(height: 6),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            '₹ ',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              color: AppTheme.brandColor,
+                            ),
+                          ),
+                          Text(
+                            rentPrice,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.brandColor,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00C853).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: Text(
+                              'बजेटमै राम्रो',
+                              style: GoogleFonts.notoSansDevanagari(
+                                fontSize: 9,
+                                color: const Color(0xFF00C853),
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                Text(
-                  'अन्तिम मूल्य भ्रमणपछि छलफल गरिनेछ',
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 10,
-                    color: Colors.grey[500],
-                    fontWeight: FontWeight.w500,
+                      const SizedBox(height: 4),
+                      Text(
+                        'अन्तिम मूल्य भ्रमणपछि छलफल गरिनेछ',
+                        style: GoogleFonts.notoSansDevanagari(
+                          fontSize: 10,
+                          color: Colors.grey[500],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-          Column(
-            children: [
-              const Icon(
-                Icons.verified_rounded,
-                color: Color(0xFF00C853),
-                size: 24,
-              ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00C853).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: Text(
-                  'बजेटमै राम्रो',
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 9,
-                    color: const Color(0xFF00C853),
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
