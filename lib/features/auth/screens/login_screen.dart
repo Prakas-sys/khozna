@@ -209,50 +209,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    // --- TOP BAR ---
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {},
-                            child: Image.asset(
-                              'assets/images/original_logo.png',
-                              height: 48,
-                            ),
-                          ),
-                          InkWell(
-                            onTap: () => Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const MainScreen(),
-                              ),
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppTheme.brandColor.withOpacity(0.08),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.arrow_forward_rounded,
-                                color: AppTheme.brandColor,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 35),
+                    const SizedBox(height: 16),
 
                     // --- ILLUSTRATION CAROUSEL ---
                     SizedBox(
                       width: double.infinity,
-                      height: constraints.maxHeight * 0.28,
+                      height: MediaQuery.of(context).size.height * 0.26,
                       child: PageView.builder(
                         controller: _illustrationPageController,
                         onPageChanged: (index) {
@@ -262,8 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         itemBuilder: (context, index) {
                           return Image.asset(
                             _illustrations[index],
-                            fit: BoxFit.cover,
-                            alignment: const Alignment(1.0, 1.0),
+                            fit: BoxFit.contain,
                           );
                         },
                       ),
