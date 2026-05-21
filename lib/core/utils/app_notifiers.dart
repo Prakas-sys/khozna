@@ -58,3 +58,7 @@ final ValueNotifier<Map<String, dynamic>?> lastKycNotification =
 /// Global notifier to trigger a refresh of listings/reels across screens.
 final ValueNotifier<int> refreshTrigger = ValueNotifier<int>(0);
 
+/// Global notifier to track whether the Reels tab is currently visible.
+/// Used to pause/resume video playback when the user switches tabs.
+final ValueNotifier<bool> reelsTabActive = ValueNotifier<bool>(false);
+

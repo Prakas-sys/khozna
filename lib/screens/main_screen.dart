@@ -193,6 +193,8 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _currentIndex = index;
     });
+    // Pause/resume reel videos based on tab visibility
+    reelsTabActive.value = (index == 1);
     if (index == 2) messageBadgeCount.value = 0;
   }
 

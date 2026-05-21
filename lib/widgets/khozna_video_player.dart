@@ -4,6 +4,7 @@ import 'package:video_player/video_player.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/widgets/khozna_image.dart';
+import 'package:khozna/core/utils/app_notifiers.dart';
 
 class KhoznaVideoPlayer extends StatefulWidget {
   final String videoUrl;
@@ -30,11 +31,28 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
   bool _isInitialized = false;
   bool _hasError = false;
   bool _hasEnded = false;
+  bool _wasPlayingBeforeTabSwitch = false;
 
   @override
   void initState() {
     super.initState();
     _initializePlayer();
+    // Listen for tab visibility changes to pause/resume video
+    reelsTabActive.addListener(_onReelsTabChanged);
+  }
+
+  void _onReelsTabChanged() {
+    if (!_isInitialized) return;
+    if (reelsTabActive.value) {
+      // Returned to Reels tab — resume if it was playing before
+      if (_wasPlayingBeforeTabSwitch) {
+        _controller.play();
+      }
+    } else {
+      // Left Reels tab — pause the video
+      _wasPlayingBeforeTabSwitch = _controller.value.isPlaying;
+      _controller.pause();
+    }
   }
 
   void _videoListener() {
@@ -69,7 +87,7 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
         setState(() {
           _isInitialized = true;
         });
-        if (widget.autoPlay) {
+        if (widget.autoPlay && reelsTabActive.value) {
           _controller.play();
         }
         if (widget.loop) {
@@ -86,6 +104,7 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
 
   @override
   void dispose() {
+    reelsTabActive.removeListener(_onReelsTabChanged);
     _controller.removeListener(_videoListener);
     _controller.dispose();
     super.dispose();
