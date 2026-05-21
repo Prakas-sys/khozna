@@ -311,7 +311,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Discover Rooms, Apartments and Houses Easily',
+                            'Discover Rooms, Apartments and Villas Easily',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.poppins(
                               fontSize: 12,
