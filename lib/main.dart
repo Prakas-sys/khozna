@@ -342,11 +342,6 @@ class _KhoznaAppState extends State<KhoznaApp> {
       debugPrint('Location check error: $e');
     }
 
-    if (mounted) {
-      setState(() {
-        _isInitializing = false;
-      });
-    }
     debugPrint('--- _initApp END ---');
   }
 
