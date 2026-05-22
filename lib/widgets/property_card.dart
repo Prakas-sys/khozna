@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter/services.dart';
@@ -7,12 +6,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/screens/property_details_screen.dart';
-import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/guards/kyc_guard.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/formatters.dart';
 import 'favourite_button.dart';
-import 'skeleton_card.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
@@ -44,9 +41,9 @@ class PropertyCard extends StatelessWidget {
   String get floor => property.floor;
   String get description => property.description;
   String get ownerId => property.ownerId;
-  String get ownerName => property.ownerName ?? 'Khozna User';
-  String get ownerAvatar => property.ownerAvatar ?? '';
-  bool get isOwnerVerified => property.isOwnerVerified ?? false;
+  String get ownerName => property.ownerName;
+  String get ownerAvatar => property.ownerAvatar;
+  bool get isOwnerVerified => property.isOwnerVerified;
   String get status => property.status;
   List<String> get amenities => property.amenities;
   List<String> get houseRules => property.houseRules;
@@ -440,9 +437,9 @@ class PropertyCard extends StatelessWidget {
                                     MaterialPageRoute(
                                       builder: (_) => chat_page.ChatScreen(
                                         ownerId: ownerId,
-                                        name: ownerName ?? 'Khozna User',
-                                        avatar: ownerAvatar ?? '',
-                                        isVerified: isOwnerVerified ?? false,
+                                        name: ownerName,
+                                        avatar: ownerAvatar,
+                                        isVerified: isOwnerVerified,
                                         online: true,
                                       ),
                                     ),
@@ -578,8 +575,6 @@ class PropertyCard extends StatelessWidget {
       'smoking_allowed': Icons.smoke_free,
       'alcohol_allowed': Icons.local_bar,
     };
-
-    List<Widget> items = [];
 
     // 1. Build Location Widget
     Widget locationWidget = Flexible(
