@@ -15,6 +15,7 @@ import 'package:khozna/features/profile/screens/notifications_screen.dart';
 import 'package:khozna/features/property/screens/search_screen.dart';
 import 'package:khozna/features/property/screens/filter_results_screen.dart';
 import 'package:khozna/features/property/screens/discovery_map_screen.dart';
+import 'package:khozna/core/guards/auth_guard.dart';
 import '../widgets/home_widgets.dart';
 
 import 'package:khozna/core/services/khozna_ai_service.dart';
@@ -282,11 +283,23 @@ class HomeScreenState extends State<HomeScreen> {
                 const HomeHeroSection(),
                 const SizedBox(height: 24),
                 HomeSearchBar(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SearchScreen()),
-                  ),
+                  onTap: () {
+                    if (!AuthGuard.checkAuth(
+                      context,
+                      title: 'Search Properties',
+                      message: 'Log in to search and discover matching properties.',
+                    )) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SearchScreen()),
+                    );
+                  },
                   onVoiceResult: (text) {
+                    if (!AuthGuard.checkAuth(
+                      context,
+                      title: 'Search Properties',
+                      message: 'Log in to search and discover matching properties.',
+                    )) return;
                     Navigator.pop(context);
                     Navigator.push(
                       context,

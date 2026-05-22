@@ -15,6 +15,7 @@ import 'favourite_button.dart';
 import 'skeleton_card.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/models/property_model.dart';
+import 'package:khozna/core/guards/auth_guard.dart';
 
 class PropertyCard extends StatelessWidget {
   final Property property;
@@ -64,6 +65,11 @@ class PropertyCard extends StatelessWidget {
           ? null // Owners can always tap their own cards
           : () async {
               HapticFeedback.lightImpact();
+              if (!AuthGuard.checkAuth(
+                context,
+                title: 'View Details',
+                message: 'Log in to view complete details of this property.',
+              )) return;
               final allowed = await KycGuard.check(context);
               if (!allowed) return;
               if (context.mounted) {
@@ -363,6 +369,11 @@ class PropertyCard extends StatelessWidget {
                             child: ElevatedButton(
                               onPressed: () async {
                                 HapticFeedback.lightImpact();
+                                if (!AuthGuard.checkAuth(
+                                  context,
+                                  title: 'Visit Property',
+                                  message: 'Log in to view complete details of this property.',
+                                )) return;
                                 final allowed = await KycGuard.check(context);
                                 if (!allowed) return;
                                 if (context.mounted) {
@@ -416,6 +427,11 @@ class PropertyCard extends StatelessWidget {
                             child: OutlinedButton(
                               onPressed: () async {
                                 HapticFeedback.lightImpact();
+                                if (!AuthGuard.checkAuth(
+                                  context,
+                                  title: 'Chat with Owner',
+                                  message: 'Log in to direct message the property owner.',
+                                )) return;
                                 final allowed = await KycGuard.check(context);
                                 if (!allowed) return;
                                 if (context.mounted) {

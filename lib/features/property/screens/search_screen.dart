@@ -15,6 +15,7 @@ import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/widgets/property_card.dart';
 import 'package:khozna/features/property/screens/discovery_map_screen.dart';
+import 'package:khozna/core/guards/auth_guard.dart';
 
 class SearchScreen extends StatefulWidget {
   final String? initialQuery;
@@ -59,8 +60,19 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     super.initState();
     _searchController = TextEditingController();
 
-    // Auto-fill from voice search or constructor
+    // Guard search screen for guest users
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Supabase.instance.client.auth.currentUser == null) {
+        AuthGuard.showLoginPrompt(
+          context,
+          title: 'Search Properties',
+          message: 'Log in to search and discover matching properties.',
+        );
+        Navigator.pop(context);
+        return;
+      }
+
+      // Auto-fill from voice search or constructor
       if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
         setState(() {
           _searchController.text = widget.initialQuery!;

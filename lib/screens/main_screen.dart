@@ -15,6 +15,7 @@ import 'package:khozna/features/property/screens/add_property_screen.dart';
 import 'package:khozna/features/property/screens/post_property_intro_screen.dart';
 import 'package:khozna/features/profile/screens/kyc_screen.dart';
 import 'package:khozna/features/profile/screens/profile_screen.dart';
+import 'package:khozna/core/guards/auth_guard.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -187,8 +188,18 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onTabTapped(int index) {
     HapticFeedback.lightImpact();
-    // strict Auth Wall: No guest access to any tab
-    // Removed mandatory Auth Wall for guest exploration
+    
+    if (index == 2) {
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user == null) {
+        AuthGuard.showLoginPrompt(
+          context,
+          title: 'Messages',
+          message: 'Log in to view your messages and chat with property owners.',
+        );
+        return;
+      }
+    }
 
     setState(() {
       _currentIndex = index;
@@ -280,7 +291,14 @@ class _MainScreenState extends State<MainScreen> {
                         onTap: () async {
                           final user =
                               Supabase.instance.client.auth.currentUser;
-                          if (user == null) return;
+                          if (user == null) {
+                            AuthGuard.showLoginPrompt(
+                              context,
+                              title: 'List Property',
+                              message: 'Log in to list and post properties on Khozna.',
+                            );
+                            return;
+                          }
 
                           // Instant reaction if cached
                           if (_isKycVerified) {

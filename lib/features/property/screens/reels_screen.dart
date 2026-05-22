@@ -14,6 +14,7 @@ import 'package:khozna/widgets/khozna_video_player.dart';
 import 'package:khozna/core/utils/formatters.dart';
 
 import 'package:khozna/core/utils/app_notifiers.dart';
+import 'package:khozna/core/guards/auth_guard.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});
@@ -553,6 +554,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.lightImpact();
+                                if (!AuthGuard.checkAuth(
+                                  context,
+                                  title: 'Visit Property',
+                                  message: 'Log in to view complete details of this property.',
+                                )) return;
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -597,6 +603,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
                             GestureDetector(
                               onTap: () {
                                 HapticFeedback.mediumImpact();
+                                if (!AuthGuard.checkAuth(
+                                  context,
+                                  title: 'Chat with Owner',
+                                  message: 'Log in to direct message the property owner.',
+                                )) return;
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

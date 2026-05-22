@@ -80,12 +80,12 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
     final phone = _phoneController.text.trim();
-    if (phone.length < 10) {
+    if (phone.isEmpty) {
       _phoneFocusNode.requestFocus();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Please enter a valid phone number',
+            'Please enter a phone number',
             style: GoogleFonts.inter(),
           ),
           backgroundColor: Colors.redAccent,

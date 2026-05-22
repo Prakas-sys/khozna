@@ -419,13 +419,12 @@ class _KycScreenState extends State<KycScreen> {
           icon: Icons.phone_android_rounded,
           validator: (v) {
             if (v == null || v.isEmpty) return 'Required';
-            if (v.length != 10) return 'Must be 10 digits';
             return null;
           },
           keyboardType: TextInputType.phone,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(10),
+            LengthLimitingTextInputFormatter(30),
           ],
           isVerified: _isPhoneVerified,
           onChanged: () => setState(() {}),

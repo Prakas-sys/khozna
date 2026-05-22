@@ -9,6 +9,7 @@ import 'package:khozna/widgets/skeleton_card.dart';
 import 'package:khozna/widgets/voice_search_overlay.dart';
 import 'package:khozna/features/property/screens/search_screen.dart';
 import 'package:khozna/features/property/screens/filter_results_screen.dart';
+import 'package:khozna/core/guards/auth_guard.dart';
 
 class HomeHeader extends StatelessWidget {
   final String locationName;
@@ -247,6 +248,11 @@ class HomeSearchBar extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 4),
                   child: InkWell(
                     onTap: () {
+                      if (!AuthGuard.checkAuth(
+                        context,
+                        title: 'Search Properties',
+                        message: 'Log in to search and discover matching properties.',
+                      )) return;
                       showModalBottomSheet(
                         context: context,
                         backgroundColor: Colors.transparent,
