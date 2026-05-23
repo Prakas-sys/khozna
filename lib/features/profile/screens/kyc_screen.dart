@@ -663,15 +663,6 @@ class _KycScreenState extends State<KycScreen> {
                     : AppTheme.brandColor.withOpacity(0.3),
                 width: isVerified ? 1.5 : 2.0,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: isVerified
-                      ? Colors.green.withOpacity(0.1)
-                      : AppTheme.brandColor.withOpacity(0.08),
-                  blurRadius: 15,
-                  offset: const Offset(0, 8),
-                ),
-              ],
             ),
             child: Row(
               children: [

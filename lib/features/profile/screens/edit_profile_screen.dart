@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/features/profile/screens/kyc_screen.dart';
@@ -154,6 +155,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       );
 
+      // Attempt reverse geocoding to pre-fill area name if empty
+      String? localityName;
+      try {
+        final placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+        if (placemarks.isNotEmpty) {
+          final p = placemarks.first;
+          localityName = [p.subLocality, p.locality].where((e) => e != null && e.isNotEmpty).join(', ');
+        }
+      } catch (_) {
+        debugPrint('Geocoding failed');
+      }
+
       // Update in DB (kyc_verifications)
       await Supabase.instance.client
           .from('kyc_verifications')
@@ -167,6 +180,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         setState(() {
           _latitude = position.latitude;
           _longitude = position.longitude;
+          
+          if (_areaController.text.trim().isEmpty && localityName != null && localityName.isNotEmpty) {
+            _areaController.text = localityName;
+          }
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('GPS Location updated successfully!')),
@@ -300,6 +317,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         };
         profileCache.value = {...(profileCache.value ?? {}), ...updatedCache};
         await OfflineStorage.saveProfileCache(profileCache.value!);
+
+        // Sync phone number to KYC record if it exists
+        final phone = SecurityUtils.sanitizeInput(_phoneController.text);
+        if (phone.isNotEmpty) {
+          await Supabase.instance.client
+              .from('kyc_verifications')
+              .update({'phone_number': phone})
+              .eq('user_id', user!.id);
+        }
 
         if (mounted) {
           HapticFeedback.mediumImpact();

@@ -11,6 +11,7 @@ class ProfileHeader extends StatelessWidget {
   final bool isOwner;
   final bool isUploading;
   final VoidCallback onPickImage;
+  final VoidCallback? onTapAvatar;
 
   const ProfileHeader({
     super.key,
@@ -20,6 +21,7 @@ class ProfileHeader extends StatelessWidget {
     required this.isOwner,
     required this.isUploading,
     required this.onPickImage,
+    this.onTapAvatar,
   });
 
   @override
@@ -56,7 +58,9 @@ class ProfileHeader extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Center(
-                  child: Stack(
+                  child: GestureDetector(
+                onTap: onTapAvatar,
+                child: Stack(
                     children: [
                       Container(
                         padding: const EdgeInsets.all(3),
@@ -151,6 +155,7 @@ class ProfileHeader extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
                   ),
                 ),
                 const SizedBox(height: 12),

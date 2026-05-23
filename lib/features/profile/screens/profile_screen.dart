@@ -219,6 +219,17 @@ class _ProfileScreenState extends State<ProfileScreen>
                 isOwner: _isOwner,
                 isUploading: _isUploading,
                 onPickImage: _pickImage,
+                onTapAvatar: () {
+                  if (!AuthGuard.checkAuth(context)) return;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EditProfileScreen(),
+                    ),
+                  ).then((value) {
+                    if (value == true) _loadProfile();
+                  });
+                },
               ),
             ),
             actions: [
@@ -270,20 +281,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: 'OVERVIEW',
                     items: [
                       ProfileMenuItem(
-                        icon: Icons.list_alt_rounded,
-                        title: 'My Listings',
-                        subtitle: 'Properties you posted',
-                        onTap: () {
-                          if (!AuthGuard.checkAuth(context)) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const MyListingsScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      ProfileMenuItem(
                         icon: Icons.person_outline,
                         title: 'Edit Profile',
                         subtitle: 'Update your personal info',
@@ -297,6 +294,20 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ).then((value) {
                             if (value == true) _loadProfile();
                           });
+                        },
+                      ),
+                      ProfileMenuItem(
+                        icon: Icons.list_alt_rounded,
+                        title: 'My Listings',
+                        subtitle: 'Properties you posted',
+                        onTap: () {
+                          if (!AuthGuard.checkAuth(context)) return;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const MyListingsScreen(),
+                            ),
+                          );
                         },
                       ),
                       ProfileMenuItem(

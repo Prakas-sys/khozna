@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
+
 
 class HelpCenterScreen extends StatelessWidget {
   const HelpCenterScreen({super.key});
@@ -80,7 +80,7 @@ class HelpCenterScreen extends StatelessWidget {
                 _buildSocialIcon(
                   FontAwesomeIcons.tiktok,
                   'TikTok',
-                  'https://www.tiktok.com/@khozna_',
+                  'https://www.tiktok.com/@khozna.np',
                 ),
                 _buildSocialIcon(
                   FontAwesomeIcons.linkedin,
@@ -189,17 +189,7 @@ class HelpCenterScreen extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => chat_page.ChatScreen(
-                      ownerId: '8746409d-5644-4f4f-93ff-bbf9a19dd505',
-                      name: 'KHOZNA Official Support',
-                      avatar: 'https://via.placeholder.com/150',
-                      online: true,
-                    ),
-                  ),
-                );
+                _launchUrl('https://wa.me/9779705278379');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -210,12 +200,19 @@ class HelpCenterScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              child: Text(
-                'Message Team (कुरा गर्नुहोस्)',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 14,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(FontAwesomeIcons.whatsapp, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Message Team (कुरा गर्नुहोस्)',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
