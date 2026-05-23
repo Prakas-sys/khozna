@@ -7,6 +7,8 @@ class ReviewModel {
   final int rating;
   final String? comment;
   final DateTime createdAt;
+  final String? reviewerName;
+  final String? reviewerAvatar;
 
   ReviewModel({
     required this.id,
@@ -17,6 +19,8 @@ class ReviewModel {
     required this.rating,
     this.comment,
     required this.createdAt,
+    this.reviewerName,
+    this.reviewerAvatar,
   });
 
   factory ReviewModel.fromMap(Map<String, dynamic> map) {
@@ -29,6 +33,8 @@ class ReviewModel {
       rating: map['rating'] ?? 5,
       comment: map['comment'],
       createdAt: DateTime.parse(map['created_at']),
+      reviewerName: map['reviewer_name'],
+      reviewerAvatar: map['reviewer_avatar'],
     );
   }
 }

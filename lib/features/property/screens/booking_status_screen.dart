@@ -279,142 +279,298 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
     int rating = 5;
     final commentCtrl = TextEditingController();
     bool isSubmitting = false;
+    final Set<String> selectedTags = {};
+
+    final negativeTags = [
+      'पानीको अभाव (No Water)',
+      'होहल्ला हुने (Noisy)',
+      'फोहोर कोठा (Dirty)',
+      'नराम्रो बानी (Rude Owner)',
+      'तस्वीर भन्दा फरक (Mismatch)',
+    ];
+
+    final positiveTags = [
+      'सफा कोठा (Clean Room)',
+      'भद्र घरबेटी (Polite Landlord)',
+      'पानीको सुविधा (Water Available)',
+      'शान्त वातावरण (Quiet Area)',
+      'सही तस्वीर (Accurate Photos)',
+    ];
+
+    String _getEmoji(int r) {
+      switch (r) {
+        case 1:
+          return '😞';
+        case 2:
+          return '😕';
+        case 3:
+          return '🙂';
+        case 4:
+          return '😊';
+        case 5:
+        default:
+          return '😍';
+      }
+    }
+
+    String _getNepaliFeedbackText(int r) {
+      switch (r) {
+        case 1:
+          return 'मन परेन (Disappointed)';
+        case 2:
+          return 'ठीकै थियो (Fair)';
+        case 3:
+          return 'राम्रो थियो (Good)';
+        case 4:
+          return 'धेरै राम्रो (Very Good)';
+        case 5:
+        default:
+          return 'एकदमै उत्कृष्ट! (Excellent)';
+      }
+    }
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setS) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-          ),
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-            top: 32,
-            left: 24,
-            right: 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 48,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Rate Your Visit',
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 22,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'How was your experience with the owner?',
-                style: GoogleFonts.inter(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(5, (index) {
-                  return IconButton(
-                    iconSize: 40,
-                    icon: Icon(
-                      index < rating ? Icons.star_rounded : Icons.star_border_rounded,
-                      color: Colors.amber,
-                    ),
-                    onPressed: () => setS(() => rating = index + 1),
-                  );
-                }),
-              ),
-              const SizedBox(height: 24),
-              TextField(
-                controller: commentCtrl,
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Write a review (optional)',
-                  hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: AppTheme.brandColor),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: isSubmitting
-                      ? null
-                      : () async {
-                          setS(() => isSubmitting = true);
-                          try {
-                            await BookingRepository.submitReview(
-                              bookingId: _booking.id,
-                              propertyId: _booking.propertyId,
-                              ownerId: _booking.ownerId,
-                              rating: rating,
-                              comment: commentCtrl.text,
-                            );
-                            if (mounted) {
-                              Navigator.pop(ctx);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Review submitted successfully!'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                              if (_booking.visitLiked != true) {
-                                Navigator.pop(context); // Go back if not liked
-                              }
-                            }
-                          } catch (_) {
-                            setS(() => isSubmitting = false);
-                          }
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+        builder: (ctx, setS) {
+          final activeTags = rating <= 2 ? negativeTags : positiveTags;
+
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+              top: 32,
+              left: 24,
+              right: 24,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: isSubmitting
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(
-                          'Submit Review',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
+                  const SizedBox(height: 24),
+                  Text(
+                    'Rate Your Visit',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 22,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'घरबेटी र कोठाको अवलोकन कस्तो भयो? समीक्षा गर्नुहोस्।',
+                    style: GoogleFonts.mukta(
+                      color: Colors.grey[600],
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  // Emoji response display
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 200),
+                    child: Column(
+                      key: ValueKey<int>(rating),
+                      children: [
+                        Text(
+                          _getEmoji(rating),
+                          style: const TextStyle(fontSize: 48),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _getNepaliFeedbackText(rating),
+                          style: GoogleFonts.mukta(
                             fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: rating <= 2 ? Colors.redAccent : AppTheme.brandColor,
                           ),
                         ),
-                ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Stars
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      final starIdx = index + 1;
+                      final isSelected = starIdx <= rating;
+                      return GestureDetector(
+                        onTap: () {
+                          HapticFeedback.mediumImpact();
+                          setS(() {
+                            rating = starIdx;
+                            // Clear tag selections when rating type switches (positive vs negative)
+                            selectedTags.clear();
+                          });
+                        },
+                        child: AnimatedScale(
+                          scale: isSelected ? 1.15 : 1.0,
+                          duration: const Duration(milliseconds: 150),
+                          child: Icon(
+                            Icons.star_rounded,
+                            color: isSelected ? Colors.amber : Colors.grey[200],
+                            size: 46,
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 24),
+                  // Tag selection chips
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Quick Tags (ट्यागहरू रोज्नुहोस्):',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.start,
+                    children: activeTags.map((tag) {
+                      final isSelected = selectedTags.contains(tag);
+                      return ChoiceChip(
+                        label: Text(
+                          tag,
+                          style: GoogleFonts.mukta(
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                            color: isSelected ? Colors.white : Colors.grey[700],
+                          ),
+                        ),
+                        selected: isSelected,
+                        selectedColor: rating <= 2 ? Colors.redAccent : AppTheme.brandColor,
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        checkmarkColor: Colors.white,
+                        onSelected: (selected) {
+                          HapticFeedback.selectionClick();
+                          setS(() {
+                            if (selected) {
+                              selectedTags.add(tag);
+                            } else {
+                              selectedTags.remove(tag);
+                            }
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 24),
+                  TextField(
+                    controller: commentCtrl,
+                    maxLines: 3,
+                    style: GoogleFonts.inter(fontSize: 14),
+                    decoration: InputDecoration(
+                      hintText: 'थप केही भन्तर चाहनुहुन्छ? (Write a comment...)',
+                      hintStyle: GoogleFonts.mukta(color: Colors.grey[400], fontSize: 13),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: isSubmitting
+                          ? null
+                          : () async {
+                              setS(() => isSubmitting = true);
+                              try {
+                                // Combine chips with comment
+                                String finalComment = commentCtrl.text.trim();
+                                if (selectedTags.isNotEmpty) {
+                                  final cleanTags = selectedTags.map((t) => '[${t.split(' (')[0]}]').join(' ');
+                                  finalComment = finalComment.isNotEmpty
+                                      ? '$cleanTags\n$finalComment'
+                                      : cleanTags;
+                                }
+
+                                await BookingRepository.submitReview(
+                                  bookingId: _booking.id,
+                                  propertyId: _booking.propertyId,
+                                  ownerId: _booking.ownerId,
+                                  rating: rating,
+                                  comment: finalComment.isNotEmpty ? finalComment : null,
+                                );
+                                if (mounted) {
+                                  Navigator.pop(ctx);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Review submitted successfully! धन्यवाद।',
+                                        style: GoogleFonts.mukta(fontWeight: FontWeight.bold),
+                                      ),
+                                      backgroundColor: Colors.green,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                  if (_booking.visitLiked != true) {
+                                    Navigator.pop(context); // Go back if not liked
+                                  }
+                                }
+                              } catch (_) {
+                                setS(() => isSubmitting = false);
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: rating <= 2 ? Colors.redAccent : AppTheme.brandColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 2,
+                        shadowColor: (rating <= 2 ? Colors.redAccent : AppTheme.brandColor).withOpacity(0.4),
+                      ),
+                      child: isSubmitting
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              'Submit Review',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

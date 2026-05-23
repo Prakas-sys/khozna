@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/models/property_model.dart';
+import 'package:khozna/core/models/review_model.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
@@ -47,6 +48,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Timer? _visitTimer;
   Duration _timeUntilVisit = Duration.zero;
   Map<String, dynamic>? _ownerData;
+  List<ReviewModel> _reviews = [];
+  bool _isLoadingReviews = true;
 
   String get _currentUserId =>
       Supabase.instance.client.auth.currentUser?.id ?? '';
@@ -91,6 +94,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
     _incrementViews();
     _updateBookingStatus();
+    _loadReviews();
   }
 
   @override
@@ -192,6 +196,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           .maybeSingle();
       if (mounted) setState(() => _ownerData = data);
     } catch (_) {}
+  }
+
+  Future<void> _loadReviews() async {
+    try {
+      final reviews = await BookingRepository.fetchReviewsForProperty(widget.property.id);
+      if (mounted) {
+        setState(() {
+          _reviews = reviews;
+          _isLoadingReviews = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoadingReviews = false);
+    }
   }
 
   Future<void> _openMap() async {
@@ -302,6 +320,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   _buildOwnerCard(),
                   const SizedBox(height: 12),
                 ],
+                const DetailSectionTitle(title: 'समीक्षाहरू (Reviews)'),
+                const SizedBox(height: 12),
+                _buildReviewsSection(),
+                const SizedBox(height: 24),
                 if (widget.property.houseRules.isNotEmpty) ...[
                   const DetailSectionTitle(title: 'नियमहरू (House Rules)'),
                   const SizedBox(height: 12),
@@ -706,6 +728,32 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       letterSpacing: -0.5,
                     ),
                   ),
+                  if (_reviews.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${(_reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length).toStringAsFixed(1)}',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '(${_reviews.length} ${_reviews.length == 1 ? "review" : "reviews"})',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: _airbnbGrey,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -1393,6 +1441,376 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildReviewsSection() {
+    if (_isLoadingReviews) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 20),
+          child: CircularProgressIndicator(color: AppTheme.brandColor),
+        ),
+      );
+    }
+
+    if (_reviews.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.rate_review_outlined,
+              color: Colors.grey,
+              size: 36,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No reviews yet',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'अवलोकन गरेपछि पहिलो समीक्षा लेख्नुहोस्। (Be the first to leave a review after visiting!)',
+              style: GoogleFonts.mukta(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    final double avgRating = _reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Rating Summary Card
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFF8FAFC), Color(0xFFF1F5F9)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    avgRating.toStringAsFixed(1),
+                    style: GoogleFonts.outfit(
+                      fontSize: 48,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black,
+                      height: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: List.generate(5, (index) {
+                      return Icon(
+                        index < avgRating.round() ? Icons.star_rounded : Icons.star_border_rounded,
+                        color: Colors.amber,
+                        size: 20,
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Based on ${_reviews.length} ${_reviews.length == 1 ? "review" : "reviews"}',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              // Mini progress bars for visual pop
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: List.generate(5, (index) {
+                  final starCount = 5 - index;
+                  final count = _reviews.where((r) => r.rating == starCount).length;
+                  final percentage = _reviews.isEmpty ? 0.0 : count / _reviews.length;
+                  return Row(
+                    children: [
+                      Text(
+                        '$starCount',
+                        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey[600]),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.star_rounded, color: Colors.amber, size: 12),
+                      const SizedBox(width: 6),
+                      Container(
+                        width: 80,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: percentage,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: AppTheme.brandColor,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Review Card list
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          itemCount: _reviews.length > 3 ? 3 : _reviews.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final review = _reviews[index];
+            final String name = review.reviewerName ?? 'Khozna Renter';
+            final String avatar = review.reviewerAvatar ?? '';
+            final String formattedDate = DateFormat('MMM dd, yyyy').format(review.createdAt);
+
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFF1F5F9)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.01),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
+                            ? NetworkImage(avatar)
+                            : null,
+                        child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
+                            ? const Icon(Icons.person, size: 18, color: Colors.grey)
+                            : null,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              name,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              formattedDate,
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        children: List.generate(5, (starIdx) {
+                          return Icon(
+                            starIdx < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
+                            color: Colors.amber,
+                            size: 14,
+                          );
+                        }),
+                      ),
+                    ],
+                  ),
+                  if (review.comment != null && review.comment!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      review.comment!,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: Colors.grey[800],
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
+        ),
+        if (_reviews.length > 3) ...[
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () => _showAllReviewsModal(),
+              child: Text(
+                'Show all ${_reviews.length} reviews',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.brandColor,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _showAllReviewsModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'समीक्षाहरू (${_reviews.length} Reviews)',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.only(bottom: 24),
+                itemCount: _reviews.length,
+                separatorBuilder: (context, index) => const Divider(height: 24),
+                itemBuilder: (context, index) {
+                  final review = _reviews[index];
+                  final String name = review.reviewerName ?? 'Khozna Renter';
+                  final String avatar = review.reviewerAvatar ?? '';
+                  final String formattedDate = DateFormat('MMM dd, yyyy').format(review.createdAt);
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: const Color(0xFFF1F5F9),
+                            backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
+                                ? NetworkImage(avatar)
+                                : null,
+                            child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
+                                ? const Icon(Icons.person, size: 20, color: Colors.grey)
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  name,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  formattedDate,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    color: Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Row(
+                            children: List.generate(5, (starIdx) {
+                              return Icon(
+                                starIdx < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
+                                color: Colors.amber,
+                                size: 14,
+                              );
+                            }),
+                          ),
+                        ],
+                      ),
+                      if (review.comment != null && review.comment!.trim().isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        Text(
+                          review.comment!,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: Colors.grey[800],
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

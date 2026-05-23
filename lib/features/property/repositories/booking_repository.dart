@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/core/models/booking_model.dart';
+import 'package:khozna/core/models/review_model.dart';
 import 'package:khozna/core/models/payment_model.dart';
 import 'package:khozna/core/security/security_utils.dart';
 
@@ -420,6 +421,52 @@ class BookingRepository {
     } catch (e) {
       debugPrint('Submit review error: $e');
       rethrow;
+    }
+  }
+
+  /// Fetch all reviews for a property (with reviewer profiles)
+  static Future<List<ReviewModel>> fetchReviewsForProperty(String propertyId) async {
+    try {
+      final response = await _client
+          .from('reviews')
+          .select('*, profiles!reviews_reviewer_id_fkey(full_name, avatar_url)')
+          .eq('property_id', propertyId)
+          .order('created_at', ascending: false);
+
+      return (response as List).map((e) {
+        final map = Map<String, dynamic>.from(e);
+        if (e['profiles'] != null) {
+          map['reviewer_name'] = e['profiles']['full_name'];
+          map['reviewer_avatar'] = e['profiles']['avatar_url'];
+        }
+        return ReviewModel.fromMap(map);
+      }).toList();
+    } catch (e) {
+      debugPrint('Error fetching property reviews: $e');
+      return [];
+    }
+  }
+
+  /// Fetch all reviews targeting an owner/landlord (with reviewer profiles)
+  static Future<List<ReviewModel>> fetchReviewsForOwner(String ownerId) async {
+    try {
+      final response = await _client
+          .from('reviews')
+          .select('*, profiles!reviews_reviewer_id_fkey(full_name, avatar_url)')
+          .eq('target_id', ownerId)
+          .order('created_at', ascending: false);
+
+      return (response as List).map((e) {
+        final map = Map<String, dynamic>.from(e);
+        if (e['profiles'] != null) {
+          map['reviewer_name'] = e['profiles']['full_name'];
+          map['reviewer_avatar'] = e['profiles']['avatar_url'];
+        }
+        return ReviewModel.fromMap(map);
+      }).toList();
+    } catch (e) {
+      debugPrint('Error fetching owner reviews: $e');
+      return [];
     }
   }
 }
