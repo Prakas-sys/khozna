@@ -90,14 +90,20 @@ class BookingRepository {
   }
 
   /// 2. Owner approves request -> moves to Visit Accepted
-  static Future<void> approveRequest(String bookingId) async {
+  static Future<void> approveRequest(String bookingId, {DateTime? newCheckIn}) async {
     try {
+      final updates = <String, dynamic>{
+        'status': 'visit_accepted',
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      };
+      
+      if (newCheckIn != null) {
+        updates['check_in'] = newCheckIn.toIso8601String();
+      }
+
       await _client
           .from('bookings')
-          .update({
-            'status': 'visit_accepted',
-            'updated_at': DateTime.now().toUtc().toIso8601String(),
-          })
+          .update(updates)
           .eq('id', bookingId);
 
       // Fetch booking to notify guest

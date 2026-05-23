@@ -150,13 +150,173 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     }
   }
 
+  Future<void> _showApproveTimePicker(Map<String, dynamic> booking) async {
+    DateTime currentCheckIn = DateTime.parse(booking['check_in']);
+    DateTime selectedDate = currentCheckIn;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setS) => Padding(
+          padding: const EdgeInsets.fromLTRB(24, 28, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 48,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+              Text(
+                'Confirm Visit Time',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 22,
+                  color: const Color(0xFF1A1A2E),
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'भ्रमणको समय पक्का गर्नुहोस्',
+                style: GoogleFonts.notoSansDevanagari(
+                  color: Colors.grey.shade600,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 28),
+              InkWell(
+                onTap: () async {
+                  final DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(const Duration(days: 30)),
+                  );
+                  if (pickedDate != null) {
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.fromDateTime(selectedDate),
+                    );
+                    if (pickedTime != null) {
+                      setS(() {
+                        selectedDate = DateTime(
+                          pickedDate.year,
+                          pickedDate.month,
+                          pickedDate.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        );
+                      });
+                    }
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_month_rounded, color: AppTheme.brandColor),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Visit Time',
+                              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+                            ),
+                            Text(
+                              DateFormat('MMM dd, yyyy - hh:mm a').format(selectedDate),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.edit_rounded, size: 20, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(ctx, selectedDate);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.brandColor,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                  child: Text(
+                    'Confirm & Accept',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ).then((finalDate) async {
+      if (finalDate != null) {
+        setState(() => _isLoading = true);
+        try {
+          await BookingRepository.approveRequest(booking['id'], newCheckIn: finalDate);
+          await _fetchBookings();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Visit Approved successfully!')),
+            );
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to approve: $e')),
+            );
+          }
+        } finally {
+          if (mounted) setState(() => _isLoading = false);
+        }
+      }
+    });
+  }
+
   Future<void> _handleAction(String bookingId, String action) async {
     HapticFeedback.mediumImpact();
     setState(() => _isLoading = true);
     try {
-      if (action == 'approve') {
-        await BookingRepository.approveRequest(bookingId);
-      } else if (action == 'suggest_time') {
+      if (action == 'suggest_time') {
         // Find the booking to get guest details
         final b = _bookings.firstWhere((element) => element['id'] == bookingId);
         final guest = b['guest'];
@@ -405,7 +565,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () =>
-                                _handleAction(booking['id'], 'approve'),
+                                _showApproveTimePicker(booking),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.brandColor,
                               foregroundColor: Colors.white,
