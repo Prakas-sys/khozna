@@ -27,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final FocusNode _phoneFocusNode = FocusNode();
   int _bossTaps = 0;
+  bool _imagesPreloaded = false;
 
   // --- CAROUSEL ---
   final PageController _illustrationPageController = PageController();
@@ -42,6 +43,19 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     _startCarouselTimer();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_imagesPreloaded) {
+      _imagesPreloaded = true;
+      // Preload all carousel images + logo so they appear instantly with no white flash
+      for (final path in _illustrations) {
+        precacheImage(AssetImage(path), context);
+      }
+      precacheImage(const AssetImage('assets/images/original_logo.png'), context);
+    }
   }
 
   void _startCarouselTimer() {
@@ -244,6 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: constraints.maxHeight * 0.28,
                         child: PageView.builder(
                           controller: _illustrationPageController,
+                          physics: const BouncingScrollPhysics(), // Smooth swipe with spring effect
                           onPageChanged: (index) {
                             setState(() => _currentIllustrationPage = index);
                           },
@@ -255,6 +270,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 _illustrations[index],
                                 fit: BoxFit.cover,
                                 alignment: const Alignment(1.0, 1.0),
+                                gaplessPlayback: true, // No white flash between slides
                               ),
                             );
                           },

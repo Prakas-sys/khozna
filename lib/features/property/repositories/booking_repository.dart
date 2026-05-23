@@ -389,4 +389,31 @@ class BookingRepository {
         .order('created_at', ascending: false);
     return List<Map<String, dynamic>>.from(response);
   }
+
+  /// Guest submits a review after visiting
+  static Future<void> submitReview({
+    required String bookingId,
+    required String propertyId,
+    required String ownerId,
+    required int rating,
+    String? comment,
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('User not logged in');
+    try {
+      await _client.from('reviews').insert({
+        'booking_id': bookingId,
+        'property_id': propertyId,
+        'reviewer_id': user.id,
+        'target_id': ownerId,
+        'rating': rating,
+        'comment': comment,
+        'created_at': DateTime.now().toUtc().toIso8601String(),
+      });
+      debugPrint('Review submitted: $rating stars for property $propertyId');
+    } catch (e) {
+      debugPrint('Submit review error: $e');
+      rethrow;
+    }
+  }
 }

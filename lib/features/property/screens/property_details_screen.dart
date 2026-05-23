@@ -1,10 +1,12 @@
 import 'dart:ui';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
+import 'package:intl/intl.dart';
 
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
@@ -18,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/features/property/screens/visit_request_screen.dart';
+import 'package:khozna/features/property/screens/booking_status_screen.dart';
 import 'package:khozna/features/property/screens/payment_choice_screen.dart';
 import 'package:khozna/features/property/screens/discovery_map_screen.dart';
 import 'package:share_plus/share_plus.dart';
@@ -44,6 +47,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   bool _hasAcceptedVisit = false;
   String? _pendingBookingId;
   String _pendingBookingStatus = '';
+  DateTime? _pendingBookingCheckIn;
+  Timer? _visitTimer;
+  Duration _timeUntilVisit = Duration.zero;
   Map<String, dynamic>? _ownerData;
 
   String get _currentUserId =>
@@ -91,6 +97,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     _updateBookingStatus();
   }
 
+  @override
+  void dispose() {
+    _visitTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
   Future<void> _incrementViews() async {
     if (widget.property.id.contains('demo') || _isMyProperty) return;
     try {
@@ -101,12 +114,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     } catch (_) {}
   }
 
+  DateTime? _pendingBookingCheckIn;
+
   Future<void> _updateBookingStatus() async {
     if (widget.property.id.contains('demo') || _currentUserId.isEmpty) return;
     try {
       final result = await Supabase.instance.client
           .from('bookings')
-          .select('id, status')
+          .select('id, status, check_in')
           .eq('property_id', widget.property.id)
           .eq('guest_id', _currentUserId)
           .order('created_at', ascending: false)
@@ -118,6 +133,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             final status = result[0]['status'];
             _pendingBookingId = result[0]['id'];
             _pendingBookingStatus = status;
+            if (result[0]['check_in'] != null) {
+              _pendingBookingCheckIn = DateTime.tryParse(result[0]['check_in']);
+              _startVisitTimer();
+            }
 
             // Define which statuses count as "pending" or "active" for the bottom bar
             _userHasPendingBooking = [
@@ -139,11 +158,34 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             _userHasPendingBooking = false;
             _pendingBookingId = null;
             _pendingBookingStatus = '';
+            _pendingBookingCheckIn = null;
             _hasAcceptedVisit = false;
+            _visitTimer?.cancel();
           }
         });
       }
     } catch (_) {}
+  }
+
+  void _startVisitTimer() {
+    _visitTimer?.cancel();
+    if (_pendingBookingCheckIn == null) return;
+    
+    final now = DateTime.now();
+    if (_pendingBookingCheckIn!.isAfter(now)) {
+      _timeUntilVisit = _pendingBookingCheckIn!.difference(now);
+      _visitTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        final remaining = _pendingBookingCheckIn!.difference(DateTime.now());
+        if (remaining.isNegative || remaining == Duration.zero) {
+          timer.cancel();
+          if (mounted) setState(() => _timeUntilVisit = Duration.zero);
+        } else {
+          if (mounted) setState(() => _timeUntilVisit = remaining);
+        }
+      });
+    } else {
+      _timeUntilVisit = Duration.zero;
+    }
   }
 
   Future<void> _fetchOwnerData() async {
@@ -1597,6 +1639,53 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ),
             ),
           ],
+        );
+      }
+      
+      if (_pendingBookingStatus == 'visit_accepted') {
+        final h = _timeUntilVisit.inHours;
+        final m = _timeUntilVisit.inMinutes % 60;
+        final s = _timeUntilVisit.inSeconds % 60;
+        final isEnded = _timeUntilVisit == Duration.zero && _pendingBookingCheckIn != null && DateTime.now().isAfter(_pendingBookingCheckIn!);
+
+        String label = isEnded ? 'REVIEW VISIT' :
+          (h > 24 ? 'Visit on ${DateFormat('EEE, hh:mm a').format(_pendingBookingCheckIn!)}' :
+           h > 0 ? 'Visit in ${h}h ${m}m' : 'Visit in ${m}m ${s}s');
+
+        return SizedBox(
+          height: 48,
+          child: ElevatedButton.icon(
+            onPressed: () async {
+              if (_pendingBookingId == null) return;
+              final booking = await SupabaseService.getVisitById(_pendingBookingId!);
+              if (booking != null && mounted) {
+                // We navigate to BookingStatusScreen instead of a disabled button
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BookingStatusScreen(booking: booking),
+                  ),
+                ).then((_) => _updateBookingStatus());
+              }
+            },
+            icon: Icon(isEnded ? Icons.rate_review_rounded : Icons.timer_outlined, size: 18),
+            label: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isEnded ? AppTheme.brandColor : Colors.orange.shade400,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+          ),
         );
       }
 

@@ -250,6 +250,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           liked: false,
           feedbackReason: selected,
         );
+        _showReviewSheet();
       } catch (_) {
       } finally {
         if (mounted) {
@@ -267,10 +268,155 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       setState(() {
         _showLikedQuestion = false;
       });
+      _showReviewSheet();
     } catch (_) {
     } finally {
       if (mounted) setState(() => _isActing = false);
     }
+  }
+
+  void _showReviewSheet() {
+    int rating = 5;
+    final commentCtrl = TextEditingController();
+    bool isSubmitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setS) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+            top: 32,
+            left: 24,
+            right: 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Rate Your Visit',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 22,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'How was your experience with the owner?',
+                style: GoogleFonts.inter(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  return IconButton(
+                    iconSize: 40,
+                    icon: Icon(
+                      index < rating ? Icons.star_rounded : Icons.star_border_rounded,
+                      color: Colors.amber,
+                    ),
+                    onPressed: () => setS(() => rating = index + 1),
+                  );
+                }),
+              ),
+              const SizedBox(height: 24),
+              TextField(
+                controller: commentCtrl,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  hintText: 'Write a review (optional)',
+                  hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
+                  filled: true,
+                  fillColor: Colors.grey[50],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: Colors.grey[200]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: AppTheme.brandColor),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          setS(() => isSubmitting = true);
+                          try {
+                            await BookingRepository.submitReview(
+                              bookingId: _booking.id,
+                              propertyId: _booking.propertyId,
+                              ownerId: _booking.ownerId,
+                              rating: rating,
+                              comment: commentCtrl.text,
+                            );
+                            if (mounted) {
+                              Navigator.pop(ctx);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Review submitted successfully!'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              if (_booking.visitLiked != true) {
+                                Navigator.pop(context); // Go back if not liked
+                              }
+                            }
+                          } catch (_) {
+                            setS(() => isSubmitting = false);
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.brandColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  child: isSubmitting
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                          'Submit Review',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
