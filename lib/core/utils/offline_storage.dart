@@ -119,4 +119,30 @@ class OfflineStorage {
     }
     return null;
   }
+
+  static const String _lastActiveKey = 'khozna_last_active';
+
+  /// Save the last active time (for 1 week login expiry)
+  static Future<void> saveLastActiveTime() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_lastActiveKey, DateTime.now().toIso8601String());
+    } catch (e) {
+      print('Error saving last active time: $e');
+    }
+  }
+
+  /// Load the last active time
+  static Future<DateTime?> loadLastActiveTime() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final timeStr = prefs.getString(_lastActiveKey);
+      if (timeStr != null) {
+        return DateTime.parse(timeStr);
+      }
+    } catch (e) {
+      print('Error loading last active time: $e');
+    }
+    return null;
+  }
 }

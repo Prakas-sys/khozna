@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
-import 'package:khozna/screens/main_screen.dart';
+import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/security/security_utils.dart';
 
@@ -79,17 +79,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (response.user != null) {
         await SupabaseService.syncUserWithSupabase(response.user!);
+        // Persist login time for session freshness tracking
+        await OfflineStorage.saveLastActiveTime();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Registration successful! Welcome to KHOZNA.'),
             ),
           );
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => const MainScreen()),
-            (route) => false,
-          );
+          // Pop all routes back to root — KhoznaApp's onAuthStateChange
+          // listener will automatically rebuild home: to show MainScreen.
+          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       }
     } catch (e) {

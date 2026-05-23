@@ -10,6 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/security/security_utils.dart';
+import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/screens/main_screen.dart';
 import 'package:khozna/features/auth/screens/register_screen.dart';
 import 'package:khozna/features/auth/screens/verify_phone_screen.dart';
@@ -180,13 +181,15 @@ class _LoginScreenState extends State<LoginScreen> {
         accessToken: accessToken,
       );
 
+      // Persist login time for session freshness tracking
+      await OfflineStorage.saveLastActiveTime();
+
       // 3. Stop loading and navigate
       if (mounted) {
         setState(() => _isLoading = false);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MainScreen()),
-        );
+        // Pop all routes back to root — KhoznaApp's onAuthStateChange
+        // listener will automatically rebuild home: to show MainScreen.
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       setState(() => _isLoading = false);

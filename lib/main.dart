@@ -342,6 +342,20 @@ class _KhoznaAppState extends State<KhoznaApp> {
       debugPrint('Location check error: $e');
     }
 
+    // 🛡️ SAFETY FALLBACK: If onAuthStateChange hasn't fired 'initialSession'
+    // within 5 seconds (e.g. very slow cold start), forcibly unblock the UI
+    // using the currentSession snapshot already captured above. Without this,
+    // the app would show a blank white screen indefinitely.
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted && _isInitializing) {
+        debugPrint('--- [AUTH] Safety timeout: forcing _isInitializing=false ---');
+        setState(() {
+          _isInitializing = false;
+          // _session already set above from currentSession snapshot
+        });
+      }
+    });
+
     debugPrint('--- _initApp END ---');
   }
 

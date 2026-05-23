@@ -7,7 +7,7 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/core/security/app_logger.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
-import 'package:khozna/screens/main_screen.dart';
+import 'package:khozna/core/utils/offline_storage.dart';
 
 class VerifyPhoneScreen extends StatefulWidget {
   final String phoneNumber;
@@ -142,6 +142,8 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
       if (response.user != null) {
         // Sync with Supabase (using our internal profile table)
         await SupabaseService.syncUserWithSupabase(response.user!);
+        // Persist login time for session freshness tracking
+        await OfflineStorage.saveLastActiveTime();
 
         AppLogger.logAuthAttempt(
           method: 'OTP Verify',
@@ -150,12 +152,11 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
         );
 
         if (mounted) {
-          // Take user to home screen
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const MainScreen()),
-            (route) => false,
-          );
+          // Pop all routes back to root — KhoznaApp's onAuthStateChange
+          // listener will automatically rebuild home: to show MainScreen
+          // now that the session is set. Manually pushing MainScreen here
+          // would create a duplicate screen behind the auth listener's one.
+          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       }
     } catch (e) {
