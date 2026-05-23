@@ -209,57 +209,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         );
         return;
       }
-      showModalBottomSheet(
-        context: context,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        builder: (context) => SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.navigation_rounded,
-                    color: Colors.green,
-                    size: 22,
-                  ),
-                ),
-                title: Text(
-                  'Come Here',
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    color: const Color(0xFF111827),
-                  ),
-                ),
-                subtitle: Text(
-                  'Open in Google Maps',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.grey[500],
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  MapLauncher.openMap(
-                    widget.property.latitude!,
-                    widget.property.longitude!,
-                    widget.property.title,
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
+      MapLauncher.openMap(
+        widget.property.latitude!,
+        widget.property.longitude!,
+        widget.property.title,
       );
     }
   }
