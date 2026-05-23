@@ -110,8 +110,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     } catch (_) {}
   }
 
-  DateTime? _pendingBookingCheckIn;
-
   Future<void> _updateBookingStatus() async {
     if (widget.property.id.contains('demo') || _currentUserId.isEmpty) return;
     try {
