@@ -218,12 +218,13 @@ class HomeSearchBar extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.grey.shade200, width: 1.2),
+              border: Border.all(color: const Color(0xFFD8DCE0), width: 0.5),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: 16,
+                  spreadRadius: 1,
+                  offset: const Offset(1, 0),
                 ),
               ],
             ),
