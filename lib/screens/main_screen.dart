@@ -264,34 +264,34 @@ class _MainScreenState extends State<MainScreen> {
                 color: Colors.transparent,
                 surfaceTintColor: Colors.transparent,
                 padding: EdgeInsets.zero,
-                height: 62,
+                height: 68,
                 elevation: 0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildNavItem(
                       0,
-                      'assets/icons/menue search.svg',
-                      42,
-                      44,
+                      'assets/icons/Search list new.svg',
+                      24,
+                      24,
                       activeColor,
                       inactiveColor,
                       0,
                     ),
                     _buildNavItem(
                       1,
-                      'assets/icons/Menue reel.svg',
-                      32,
-                      46,
+                      'assets/icons/Vector reel.svg',
+                      24,
+                      24,
                       activeColor,
                       inactiveColor,
                       0,
                     ),
                     _buildNavItem(
                       -1,
-                      'assets/icons/menue list.svg',
-                      43,
-                      48,
+                      'assets/icons/Vector list.svg',
+                      38,
+                      24,
                       activeColor,
                       inactiveColor,
                       0,
@@ -470,18 +470,18 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     _buildNavItem(
                       2,
-                      'assets/icons/menue message.svg',
-                      52,
-                      46,
+                      'assets/icons/Vector message.svg',
+                      24,
+                      24,
                       activeColor,
                       inactiveColor,
                       mBadge,
                     ),
                     _buildNavItem(
                       3,
-                      'assets/icons/Menue profile.svg',
-                      37,
-                      42,
+                      'assets/icons/Vector profile.svg',
+                      24,
+                      24,
                       activeColor,
                       inactiveColor,
                       0,
@@ -507,6 +507,13 @@ class _MainScreenState extends State<MainScreen> {
     VoidCallback? onTap,
   }) {
     final bool isSelected = _currentIndex == index;
+
+    String label = '';
+    if (index == 0) label = 'Explore';
+    else if (index == 1) label = 'Reels';
+    else if (index == -1) label = 'List';
+    else if (index == 2) label = 'Messages';
+    else if (index == 3) label = 'Profile';
 
     return Expanded(
       child: InkWell(
@@ -541,16 +548,16 @@ class _MainScreenState extends State<MainScreen> {
             // SVG icon with badge
             Center(
               child: SizedBox(
-                width: width,
-                height: height,
+                width: index == -1 ? 38 : 24,
+                height: 24,
                 child: Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
                   children: [
                     SvgPicture.asset(
                       iconPath,
-                      width: width,
-                      height: height,
+                      width: index == -1 ? 38 : 24,
+                      height: 24,
                       colorFilter: index == -1
                           ? null
                           : ColorFilter.mode(
@@ -594,6 +601,18 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                   ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Center(
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                  color: isSelected ? activeColor : inactiveColor,
+                  letterSpacing: 0.1,
                 ),
               ),
             ),
