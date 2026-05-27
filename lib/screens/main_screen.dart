@@ -554,16 +554,19 @@ class _MainScreenState extends State<MainScreen> {
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
                   children: [
-                    SvgPicture.asset(
-                      iconPath,
-                      width: index == -1 ? 44 : 24,
-                      height: index == -1 ? 28 : 24,
-                      colorFilter: index == -1
-                          ? null
-                          : ColorFilter.mode(
-                              isSelected ? activeColor : inactiveColor,
-                              BlendMode.srcIn,
-                            ),
+                    Transform.translate(
+                      offset: Offset(0, index == -1 ? -4.0 : 0.0),
+                      child: SvgPicture.asset(
+                        iconPath,
+                        width: index == -1 ? 44 : 24,
+                        height: index == -1 ? 28 : 24,
+                        colorFilter: index == -1
+                            ? null
+                            : ColorFilter.mode(
+                                isSelected ? activeColor : inactiveColor,
+                                BlendMode.srcIn,
+                              ),
+                      ),
                     ),
                     // Premium red badge
                     if (badgeCount > 0)
