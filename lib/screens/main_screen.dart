@@ -264,31 +264,34 @@ class _MainScreenState extends State<MainScreen> {
                 color: Colors.transparent,
                 surfaceTintColor: Colors.transparent,
                 padding: EdgeInsets.zero,
-                height: 58,
+                height: 62,
                 elevation: 0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildNavItem(
                       0,
-                      'Khozna',
                       'assets/icons/menue search.svg',
+                      42,
+                      44,
                       activeColor,
                       inactiveColor,
                       0,
                     ),
                     _buildNavItem(
                       1,
-                      'Reels',
                       'assets/icons/Menue reel.svg',
+                      32,
+                      46,
                       activeColor,
                       inactiveColor,
                       0,
                     ),
                     _buildNavItem(
                       -1,
-                      'List',
                       'assets/icons/menue list.svg',
+                      43,
+                      48,
                       activeColor,
                       inactiveColor,
                       0,
@@ -467,16 +470,18 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     _buildNavItem(
                       2,
-                      'Messages',
                       'assets/icons/menue message.svg',
+                      52,
+                      46,
                       activeColor,
                       inactiveColor,
                       mBadge,
                     ),
                     _buildNavItem(
                       3,
-                      'Profile',
                       'assets/icons/Menue profile.svg',
+                      37,
+                      42,
                       activeColor,
                       inactiveColor,
                       0,
@@ -493,8 +498,9 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNavItem(
     int index,
-    String label,
     String iconPath,
+    double width,
+    double height,
     Color activeColor,
     Color inactiveColor,
     int badgeCount, {
@@ -509,73 +515,85 @@ class _MainScreenState extends State<MainScreen> {
         highlightColor: Colors.transparent,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Spacer(),
-            // Outer container for icon + badge
-            SizedBox(
-              width: 36,
-              height: 28,
-              child: Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
-                children: [
-                  SvgPicture.asset(
-                    iconPath,
-                    width: 24,
-                    height: 24,
-                    colorFilter: ColorFilter.mode(
-                      isSelected ? activeColor : inactiveColor,
-                      BlendMode.srcIn,
+            // Top indicator line (LinkedIn-style)
+            Center(
+              child: Transform.translate(
+                offset: Offset(index == 0 ? -3.0 : 0.0, 0.0),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  height: 2.5,
+                  width: isSelected && index != -1 ? 40 : 0,
+                  decoration: BoxDecoration(
+                    color: isSelected && index != -1
+                        ? activeColor
+                        : Colors.transparent,
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(2),
                     ),
                   ),
-                  // Premium red badge
-                  if (badgeCount > 0)
-                    Positioned(
-                      top: -4,
-                      right: -2,
-                      child: Container(
-                        constraints: const BoxConstraints(
-                          minWidth: 18,
-                          minHeight: 18,
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 1,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF0000), // Pure vibrant red
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 1.5,
-                          ), // Pure white border for contrast
-                        ),
-                        child: Center(
-                          child: Text(
-                            badgeCount > 99 ? '99+' : '$badgeCount',
-                            style: GoogleFonts.inter(
+                ),
+              ),
+            ),
+            const Spacer(),
+            // SVG icon with badge
+            Center(
+              child: SizedBox(
+                width: width,
+                height: height,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      iconPath,
+                      width: width,
+                      height: height,
+                      colorFilter: index == -1
+                          ? null
+                          : ColorFilter.mode(
+                              isSelected ? activeColor : inactiveColor,
+                              BlendMode.srcIn,
+                            ),
+                    ),
+                    // Premium red badge
+                    if (badgeCount > 0)
+                      Positioned(
+                        top: -2,
+                        right: -6,
+                        child: Container(
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 1,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF0000),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
                               color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w900,
-                              height: 1.0,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              badgeCount > 99 ? '99+' : '$badgeCount',
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                                height: 1.0,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-            ),
-            // Minimal gap and slight upward pull for text
-            Transform.translate(
-              offset: const Offset(0, -3.5),
-              child: Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500, // Medium font size/weight
-                  color: isSelected ? activeColor : inactiveColor,
-                  letterSpacing: 0.1,
+                  ],
                 ),
               ),
             ),
