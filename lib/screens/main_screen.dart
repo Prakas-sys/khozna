@@ -289,7 +289,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     _buildNavItem(
                       -1,
-                      'assets/icons/Vector list.svg',
+                      'assets/icons/Vector list go.svg',
                       38,
                       24,
                       activeColor,
@@ -548,16 +548,16 @@ class _MainScreenState extends State<MainScreen> {
             // SVG icon with badge
             Center(
               child: SizedBox(
-                width: index == -1 ? 38 : 24,
-                height: 24,
+                width: index == -1 ? 44 : 24,
+                height: index == -1 ? 28 : 24,
                 child: Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
                   children: [
                     SvgPicture.asset(
                       iconPath,
-                      width: index == -1 ? 38 : 24,
-                      height: 24,
+                      width: index == -1 ? 44 : 24,
+                      height: index == -1 ? 28 : 24,
                       colorFilter: index == -1
                           ? null
                           : ColorFilter.mode(
@@ -609,8 +609,8 @@ class _MainScreenState extends State<MainScreen> {
               child: Text(
                 label,
                 style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w400,
                   color: isSelected ? activeColor : inactiveColor,
                   letterSpacing: 0.1,
                 ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
@@ -230,10 +231,14 @@ class HomeSearchBar extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(
-                  CupertinoIcons.search,
-                  color: AppTheme.brandColor,
-                  size: 26,
+                SvgPicture.asset(
+                  'assets/icons/Search vector.svg',
+                  width: 26,
+                  height: 26,
+                  colorFilter: const ColorFilter.mode(
+                    AppTheme.brandColor,
+                    BlendMode.srcIn,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(

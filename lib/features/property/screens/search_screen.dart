@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
@@ -213,10 +214,14 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             ),
                             child: Row(
                               children: [
-                                const Icon(
-                                  CupertinoIcons.search,
-                                  color: Colors.black,
-                                  size: 24,
+                                SvgPicture.asset(
+                                  'assets/icons/Search vector.svg',
+                                  width: 24,
+                                  height: 24,
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.black,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
