@@ -548,24 +548,30 @@ class _MainScreenState extends State<MainScreen> {
             // SVG icon with badge
             Center(
               child: SizedBox(
-                width: index == -1 ? 52 : 24,
+                width: index == -1 ? 48 : 24,
                 height: 24,
                 child: Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
                   children: [
                     Transform.translate(
-                      offset: Offset(0, index == -1 ? -6.0 : 0.0),
-                      child: SvgPicture.asset(
-                        iconPath,
-                        width: index == -1 ? 52 : 24,
-                        height: index == -1 ? 34 : 24,
-                        colorFilter: index == -1
-                            ? null
-                            : ColorFilter.mode(
-                                isSelected ? activeColor : inactiveColor,
-                                BlendMode.srcIn,
-                              ),
+                      offset: Offset(0, index == -1 ? -3.0 : 0.0),
+                      child: OverflowBox(
+                        minWidth: 0,
+                        maxWidth: index == -1 ? 48 : 24,
+                        minHeight: 0,
+                        maxHeight: index == -1 ? 31 : 24,
+                        child: SvgPicture.asset(
+                          iconPath,
+                          width: index == -1 ? 48 : 24,
+                          height: index == -1 ? 31 : 24,
+                          colorFilter: index == -1
+                              ? null
+                              : ColorFilter.mode(
+                                  isSelected ? activeColor : inactiveColor,
+                                  BlendMode.srcIn,
+                                ),
+                        ),
                       ),
                     ),
                     // Premium red badge
