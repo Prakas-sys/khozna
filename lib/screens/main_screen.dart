@@ -271,7 +271,7 @@ class _MainScreenState extends State<MainScreen> {
                   children: [
                     _buildNavItem(
                       0,
-                      'assets/icons/Search list new.svg',
+                      'assets/icons/Search vector.svg',
                       24,
                       24,
                       activeColor,
@@ -509,10 +509,10 @@ class _MainScreenState extends State<MainScreen> {
     final bool isSelected = _currentIndex == index;
 
     String label = '';
-    if (index == 0) label = 'Explore';
+    if (index == 0) label = 'Khozna';
     else if (index == 1) label = 'Reels';
     else if (index == -1) label = 'List';
-    else if (index == 2) label = 'Messages';
+    else if (index == 2) label = 'Message';
     else if (index == 3) label = 'Profile';
 
     return Expanded(
