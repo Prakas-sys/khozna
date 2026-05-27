@@ -1457,20 +1457,27 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
     if (_reviews.isEmpty) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Column(
           children: [
-            const Icon(
-              Icons.rate_review_outlined,
-              color: Colors.grey,
-              size: 36,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.rate_review_outlined,
+                color: Colors.grey,
+                size: 32,
+              ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Text(
               'No reviews yet',
               style: GoogleFonts.plusJakartaSans(
@@ -1485,6 +1492,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               style: GoogleFonts.mukta(
                 fontSize: 12,
                 color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
             ),
@@ -1509,6 +1517,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.01),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -1596,87 +1611,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           itemCount: _reviews.length > 3 ? 3 : _reviews.length,
           separatorBuilder: (context, index) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
-            final review = _reviews[index];
-            final String name = review.reviewerName ?? 'Khozna Renter';
-            final String avatar = review.reviewerAvatar ?? '';
-            final String formattedDate = DateFormat('MMM dd, yyyy').format(review.createdAt);
-
-            return Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFF1F5F9)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.01),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: const Color(0xFFF1F5F9),
-                        backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
-                            ? NetworkImage(avatar)
-                            : null,
-                        child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
-                            ? const Icon(Icons.person, size: 18, color: Colors.grey)
-                            : null,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              name,
-                              style: GoogleFonts.plusJakartaSans(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              formattedDate,
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Row(
-                        children: List.generate(5, (starIdx) {
-                          return Icon(
-                            starIdx < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
-                            color: Colors.amber,
-                            size: 14,
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                  if (review.comment != null && review.comment!.trim().isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      review.comment!,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: Colors.grey[800],
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            );
+            return _buildReviewCard(_reviews[index]);
           },
         ),
         if (_reviews.length > 3) ...[
@@ -1685,6 +1620,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             width: double.infinity,
             child: TextButton(
               onPressed: () => _showAllReviewsModal(),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
+              ),
               child: Text(
                 'Show all ${_reviews.length} reviews',
                 style: GoogleFonts.plusJakartaSans(
@@ -1697,6 +1639,150 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildReviewCard(ReviewModel review) {
+    final String name = review.reviewerName ?? 'Khozna Renter';
+    final String avatar = review.reviewerAvatar ?? '';
+    final String formattedDate = DateFormat('MMM dd, yyyy').format(review.createdAt);
+    final bool isKycVerified = review.reviewerKycStatus == 'verified';
+
+    // Parse out tags like [Clean Room] or [सफा कोठा] from comment
+    final comment = review.comment ?? '';
+    final List<String> tags = [];
+    String description = comment;
+    
+    final tagRegex = RegExp(r'\[(.*?)\]');
+    final matches = tagRegex.allMatches(comment);
+    for (var m in matches) {
+      if (m.group(1) != null) {
+        tags.add(m.group(1)!);
+      }
+    }
+    description = comment.replaceAll(tagRegex, '').trim();
+
+    final isPositive = review.rating >= 3;
+    final tagBgColor = isPositive ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE);
+    final tagTextColor = isPositive ? const Color(0xFF2E7D32) : const Color(0xFFC62828);
+    final tagBorderColor = isPositive ? const Color(0xFFC8E6C9) : const Color(0xFFFFCDD2);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.015),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: const Color(0xFFF1F5F9),
+                backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
+                    ? NetworkImage(avatar)
+                    : null,
+                child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
+                    ? const Icon(Icons.person, size: 18, color: Colors.grey)
+                    : null,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            name,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                              color: const Color(0xFF1E293B),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isKycVerified) ...[
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.verified_rounded,
+                            color: Colors.blue,
+                            size: 15,
+                          ),
+                        ],
+                      ],
+                    ),
+                    Text(
+                      formattedDate,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                children: List.generate(5, (starIdx) {
+                  return Icon(
+                    starIdx < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
+                    color: Colors.amber,
+                    size: 14,
+                  );
+                }),
+              ),
+            ],
+          ),
+          if (tags.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: tags.map((t) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: tagBgColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: tagBorderColor, width: 0.8),
+                ),
+                child: Text(
+                  t,
+                  style: GoogleFonts.mukta(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: tagTextColor,
+                  ),
+                ),
+              )).toList(),
+            ),
+          ],
+          if (description.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              description,
+              style: GoogleFonts.inter(
+                fontSize: 13.5,
+                color: const Color(0xFF334155),
+                height: 1.45,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -1740,72 +1826,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 itemCount: _reviews.length,
                 separatorBuilder: (context, index) => const Divider(height: 24),
                 itemBuilder: (context, index) {
-                  final review = _reviews[index];
-                  final String name = review.reviewerName ?? 'Khozna Renter';
-                  final String avatar = review.reviewerAvatar ?? '';
-                  final String formattedDate = DateFormat('MMM dd, yyyy').format(review.createdAt);
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: const Color(0xFFF1F5F9),
-                            backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
-                                ? NetworkImage(avatar)
-                                : null,
-                            child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
-                                ? const Icon(Icons.person, size: 20, color: Colors.grey)
-                                : null,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  name,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                Text(
-                                  formattedDate,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    color: Colors.grey[500],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Row(
-                            children: List.generate(5, (starIdx) {
-                              return Icon(
-                                starIdx < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
-                                color: Colors.amber,
-                                size: 14,
-                              );
-                            }),
-                          ),
-                        ],
-                      ),
-                      if (review.comment != null && review.comment!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 10),
-                        Text(
-                          review.comment!,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: Colors.grey[800],
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ],
-                  );
+                  return _buildReviewCard(_reviews[index]);
                 },
               ),
             ),

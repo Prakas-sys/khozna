@@ -429,7 +429,7 @@ class BookingRepository {
     try {
       final response = await _client
           .from('reviews')
-          .select('*, profiles!reviews_reviewer_id_fkey(full_name, avatar_url)')
+          .select('*, profiles!reviews_reviewer_id_fkey(full_name, avatar_url, kyc_status)')
           .eq('property_id', propertyId)
           .order('created_at', ascending: false);
 
@@ -438,6 +438,7 @@ class BookingRepository {
         if (e['profiles'] != null) {
           map['reviewer_name'] = e['profiles']['full_name'];
           map['reviewer_avatar'] = e['profiles']['avatar_url'];
+          map['reviewer_kyc_status'] = e['profiles']['kyc_status'];
         }
         return ReviewModel.fromMap(map);
       }).toList();
@@ -452,7 +453,7 @@ class BookingRepository {
     try {
       final response = await _client
           .from('reviews')
-          .select('*, profiles!reviews_reviewer_id_fkey(full_name, avatar_url)')
+          .select('*, profiles!reviews_reviewer_id_fkey(full_name, avatar_url, kyc_status)')
           .eq('target_id', ownerId)
           .order('created_at', ascending: false);
 
@@ -461,6 +462,7 @@ class BookingRepository {
         if (e['profiles'] != null) {
           map['reviewer_name'] = e['profiles']['full_name'];
           map['reviewer_avatar'] = e['profiles']['avatar_url'];
+          map['reviewer_kyc_status'] = e['profiles']['kyc_status'];
         }
         return ReviewModel.fromMap(map);
       }).toList();

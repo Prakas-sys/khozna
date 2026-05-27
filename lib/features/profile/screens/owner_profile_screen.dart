@@ -759,83 +759,154 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             itemCount: _ownerReviews.length,
             separatorBuilder: (context, index) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
-              final review = _ownerReviews[index];
-              final String name = review.reviewerName ?? 'Khozna Renter';
-              final String avatar = review.reviewerAvatar ?? '';
-              final String dateStr = DateFormat('MMMM yyyy').format(review.createdAt);
+              return _buildReviewCard(_ownerReviews[index]);
+            },
+          ),
+      ],
+    );
+  }
 
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFF1F5F9)),
-                ),
+  Widget _buildReviewCard(ReviewModel review) {
+    final String name = review.reviewerName ?? 'Khozna Renter';
+    final String avatar = review.reviewerAvatar ?? '';
+    final String dateStr = DateFormat('MMMM yyyy').format(review.createdAt);
+    final bool isKycVerified = review.reviewerKycStatus == 'verified';
+
+    // Parse out tags like [Clean Room] or [सफा कोठा] from comment
+    final comment = review.comment ?? '';
+    final List<String> tags = [];
+    String description = comment;
+    
+    final tagRegex = RegExp(r'\[(.*?)\]');
+    final matches = tagRegex.allMatches(comment);
+    for (var m in matches) {
+      if (m.group(1) != null) {
+        tags.add(m.group(1)!);
+      }
+    }
+    description = comment.replaceAll(tagRegex, '').trim();
+
+    final isPositive = review.rating >= 3;
+    final tagBgColor = isPositive ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE);
+    final tagTextColor = isPositive ? const Color(0xFF2E7D32) : const Color(0xFFC62828);
+    final tagBorderColor = isPositive ? const Color(0xFFC8E6C9) : const Color(0xFFFFCDD2);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.015),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 16,
+                backgroundColor: const Color(0xFFF1F5F9),
+                backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
+                    ? NetworkImage(avatar)
+                    : null,
+                child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
+                    ? const Icon(Icons.person, size: 16, color: Colors.grey)
+                    : null,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        CircleAvatar(
-                          radius: 16,
-                          backgroundColor: const Color(0xFFF1F5F9),
-                          backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
-                              ? NetworkImage(avatar)
-                              : null,
-                          child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
-                              ? const Icon(Icons.person, size: 16, color: Colors.grey)
-                              : null,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                name,
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              Text(
-                                dateStr,
-                                style: GoogleFonts.inter(
-                                  fontSize: 10,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
+                        Flexible(
+                          child: Text(
+                            name,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 13,
+                              color: const Color(0xFF1E293B),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        Row(
-                          children: List.generate(5, (starIdx) {
-                            return Icon(
-                              starIdx < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
-                              color: Colors.amber,
-                              size: 14,
-                            );
-                          }),
-                        ),
+                        if (isKycVerified) ...[
+                          const SizedBox(width: 4),
+                          const Icon(
+                            Icons.verified_rounded,
+                            color: Colors.blue,
+                            size: 15,
+                          ),
+                        ],
                       ],
                     ),
-                    if (review.comment != null && review.comment!.trim().isNotEmpty) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        review.comment!,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: Colors.grey[850],
-                          height: 1.4,
-                        ),
+                    Text(
+                      dateStr,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
                       ),
-                    ],
+                    ),
                   ],
                 ),
-              );
-            },
+              ),
+              Row(
+                children: List.generate(5, (starIdx) {
+                  return Icon(
+                    starIdx < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
+                    color: Colors.amber,
+                    size: 13,
+                  );
+                }),
+              ),
+            ],
           ),
-      ],
+          if (tags.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: tags.map((t) => Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: tagBgColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: tagBorderColor, width: 0.8),
+                ),
+                child: Text(
+                  t,
+                  style: GoogleFonts.mukta(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: tagTextColor,
+                  ),
+                ),
+              )).toList(),
+            ),
+          ],
+          if (description.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Text(
+              description,
+              style: GoogleFonts.inter(
+                fontSize: 13.5,
+                color: const Color(0xFF334155),
+                height: 1.45,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
