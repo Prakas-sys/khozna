@@ -272,7 +272,7 @@ class _MainScreenState extends State<MainScreen> {
                     _buildNavItem(
                       0,
                       'Khozna',
-                      'assets/icons/explore.svg',
+                      'assets/icons/menue search.svg',
                       activeColor,
                       inactiveColor,
                       0,
@@ -280,221 +280,195 @@ class _MainScreenState extends State<MainScreen> {
                     _buildNavItem(
                       1,
                       'Reels',
-                      'assets/icons/reels.svg',
+                      'assets/icons/Menue reel.svg',
                       activeColor,
                       inactiveColor,
                       0,
                     ),
-                    // Central add button
-                    Expanded(
-                      child: InkWell(
-                        onTap: () async {
-                          final user =
-                              Supabase.instance.client.auth.currentUser;
-                          if (user == null) {
-                            AuthGuard.showLoginPrompt(
-                              context,
-                              title: 'List Property',
-                              message: 'Log in to list and post properties on Khozna.',
+                    _buildNavItem(
+                      -1,
+                      'List',
+                      'assets/icons/menue list.svg',
+                      activeColor,
+                      inactiveColor,
+                      0,
+                      onTap: () async {
+                        final user =
+                            Supabase.instance.client.auth.currentUser;
+                        if (user == null) {
+                          AuthGuard.showLoginPrompt(
+                            context,
+                            title: 'List Property',
+                            message: 'Log in to list and post properties on Khozna.',
+                          );
+                          return;
+                        }
+
+                        // Instant reaction if cached
+                        if (_isKycVerified) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PostPropertyIntroScreen(),
+                            ),
+                          );
+                          return;
+                        }
+
+                        // If not cached-verified, show a quick check or go to KYC
+                        if (_isCheckingKyc) {
+                          // Wait for the initial check to finish if it's currently running
+                          int retries = 0;
+                          while (_isCheckingKyc && retries < 10) {
+                            await Future.delayed(
+                              const Duration(milliseconds: 200),
                             );
-                            return;
+                            retries++;
                           }
+                        }
 
-                          // Instant reaction if cached
-                          if (_isKycVerified) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const PostPropertyIntroScreen(),
-                              ),
-                            );
-                            return;
-                          }
-
-                          // If not cached-verified, show a quick check or go to KYC
-                          if (_isCheckingKyc) {
-                            // Wait for the initial check to finish if it's currently running
-                            int retries = 0;
-                            while (_isCheckingKyc && retries < 10) {
-                              await Future.delayed(
-                                const Duration(milliseconds: 200),
-                              );
-                              retries++;
-                            }
-                          }
-
-                          // Double check in case they just got verified
-                          if (!_isKycVerified) {
-                            try {
-                              final data = await Supabase.instance.client
-                                  .from('profiles')
-                                  .select('kyc_status')
-                                  .eq('id', user.id)
-                                  .maybeSingle();
-                              if (data != null &&
-                                  data['kyc_status'] == 'verified') {
-                                setState(() => _isKycVerified = true);
-                              }
-                            } catch (e) {
-                              debugPrint('KYC Re-check error: $e');
-                            }
-                          }
-
-                          if (!mounted) return;
-
-                          // Fetch fresh status to distinguish pending vs not_started
-                          String freshStatus = _kycStatus;
+                        // Double check in case they just got verified
+                        if (!_isKycVerified) {
                           try {
-                            final freshData = await Supabase.instance.client
+                            final data = await Supabase.instance.client
                                 .from('profiles')
                                 .select('kyc_status')
                                 .eq('id', user.id)
                                 .maybeSingle();
-                            freshStatus =
-                                freshData?['kyc_status'] ?? 'not_started';
-                            setState(() => _kycStatus = freshStatus);
-                          } catch (_) {}
-
-                          if (!mounted) return;
-
-                          if (!_isKycVerified) {
-                            if (freshStatus == 'pending') {
-                              // Show pending info dialog — do NOT open KYC form again
-                              showDialog(
-                                context: context,
-                                builder: (ctx) => AlertDialog(
-                                  backgroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(24),
-                                  ),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const SizedBox(height: 8),
-                                      Container(
-                                        padding: const EdgeInsets.all(18),
-                                        decoration: BoxDecoration(
-                                          color: Colors.orange.shade50,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(
-                                          Icons.hourglass_top_rounded,
-                                          color: Colors.orange.shade700,
-                                          size: 40,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      Text(
-                                        'Verification in Progress',
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Your documents are being reviewed.\nVerification takes up to 48 hours.',
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 13,
-                                          color: Colors.grey[600],
-                                          height: 1.5,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton(
-                                          onPressed: () => Navigator.pop(ctx),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                AppTheme.brandColor,
-                                            foregroundColor: Colors.white,
-                                            elevation: 0,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(14),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 14,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            'Got it',
-                                            style: GoogleFonts.inter(
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            } else {
-                              // Not started — open KYC form
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const KycScreen(),
-                                ),
-                              );
+                            if (data != null &&
+                                data['kyc_status'] == 'verified') {
+                              setState(() => _isKycVerified = true);
                             }
-                          } else {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const PostPropertyIntroScreen(),
+                          } catch (e) {
+                            debugPrint('KYC Re-check error: $e');
+                          }
+                        }
+
+                        if (!mounted) return;
+
+                        // Fetch fresh status to distinguish pending vs not_started
+                        String freshStatus = _kycStatus;
+                        try {
+                          final freshData = await Supabase.instance.client
+                              .from('profiles')
+                              .select('kyc_status')
+                              .eq('id', user.id)
+                              .maybeSingle();
+                          freshStatus =
+                              freshData?['kyc_status'] ?? 'not_started';
+                          setState(() => _kycStatus = freshStatus);
+                        } catch (_) {}
+
+                        if (!mounted) return;
+
+                        if (!_isKycVerified) {
+                          if (freshStatus == 'pending') {
+                            // Show pending info dialog — do NOT open KYC form again
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                backgroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const SizedBox(height: 8),
+                                    Container(
+                                      padding: const EdgeInsets.all(18),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.shade50,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.hourglass_top_rounded,
+                                        color: Colors.orange.shade700,
+                                        size: 40,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Text(
+                                      'Verification in Progress',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Your documents are being reviewed.\nVerification takes up to 48 hours.',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 13,
+                                        color: Colors.grey[600],
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              AppTheme.brandColor,
+                                          foregroundColor: Colors.white,
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 14,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Got it',
+                                          style: GoogleFonts.inter(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
-
-                            // If a property was successfully published, refresh the home screen
-                            if (result == true) {
-                              _homeKey.currentState?.refreshData();
-                              setState(
-                                () => _currentIndex = 0,
-                              ); // Ensure we are on Home tab
-                            }
-                          }
-                        },
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            const Spacer(),
-                            Transform.translate(
-                              offset: const Offset(0, -4),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.brandColor,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: const Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                  size: 22,
-                                  weight: 700,
-                                ),
+                          } else {
+                            // Not started — open KYC form
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const KycScreen(),
                               ),
+                            );
+                          }
+                        } else {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const PostPropertyIntroScreen(),
                             ),
-                            const Spacer(),
-                          ],
-                        ),
-                      ),
+                          );
+
+                          // If a property was successfully published, refresh the home screen
+                          if (result == true) {
+                            _homeKey.currentState?.refreshData();
+                            setState(
+                              () => _currentIndex = 0,
+                            ); // Ensure we are on Home tab
+                          }
+                        }
+                      },
                     ),
                     _buildNavItem(
                       2,
                       'Messages',
-                      'assets/icons/message.svg',
+                      'assets/icons/menue message.svg',
                       activeColor,
                       inactiveColor,
                       mBadge,
@@ -502,7 +476,7 @@ class _MainScreenState extends State<MainScreen> {
                     _buildNavItem(
                       3,
                       'Profile',
-                      'assets/icons/profile.svg',
+                      'assets/icons/Menue profile.svg',
                       activeColor,
                       inactiveColor,
                       0,
@@ -523,31 +497,19 @@ class _MainScreenState extends State<MainScreen> {
     String iconPath,
     Color activeColor,
     Color inactiveColor,
-    int badgeCount,
-  ) {
+    int badgeCount, {
+    VoidCallback? onTap,
+  }) {
     final bool isSelected = _currentIndex == index;
 
     return Expanded(
       child: InkWell(
-        onTap: () => _onTabTapped(index),
+        onTap: onTap ?? () => _onTabTapped(index),
         splashColor: Colors.transparent,
         highlightColor: Colors.transparent,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // Top Indicator Line
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              height: 3.0,
-              width: isSelected ? 45 : 0,
-              decoration: BoxDecoration(
-                color: isSelected ? AppTheme.brandColor : Colors.transparent,
-                borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(3),
-                ),
-              ),
-            ),
             const Spacer(),
             // Outer container for icon + badge
             SizedBox(
@@ -557,41 +519,13 @@ class _MainScreenState extends State<MainScreen> {
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: [
-                  // Icon with simulated stroke for "bold" look when selected
-                  AnimatedScale(
-                    scale: isSelected ? 1.05 : 1.0,
-                    duration: const Duration(milliseconds: 200),
-                    child: Stack(
-                      children: [
-                        if (isSelected) ...[
-                          // Simulated stroke layers (offsets to thicken the SVG lines)
-                          for (double i = -0.4; i <= 0.4; i += 0.4)
-                            for (double j = -0.4; j <= 0.4; j += 0.4)
-                              if (i != 0 || j != 0)
-                                Transform.translate(
-                                  offset: Offset(i, j),
-                                  child: SvgPicture.asset(
-                                    iconPath,
-                                    width: 24,
-                                    height: 24,
-                                    colorFilter: ColorFilter.mode(
-                                      activeColor,
-                                      BlendMode.srcIn,
-                                    ),
-                                  ),
-                                ),
-                        ],
-                        // Main Icon Layer
-                        SvgPicture.asset(
-                          iconPath,
-                          width: 24,
-                          height: 24,
-                          colorFilter: ColorFilter.mode(
-                            isSelected ? activeColor : inactiveColor,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ],
+                  SvgPicture.asset(
+                    iconPath,
+                    width: 24,
+                    height: 24,
+                    colorFilter: ColorFilter.mode(
+                      isSelected ? activeColor : inactiveColor,
+                      BlendMode.srcIn,
                     ),
                   ),
                   // Premium red badge
@@ -639,7 +573,7 @@ class _MainScreenState extends State<MainScreen> {
                 label,
                 style: GoogleFonts.inter(
                   fontSize: 10,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  fontWeight: FontWeight.w500, // Medium font size/weight
                   color: isSelected ? activeColor : inactiveColor,
                   letterSpacing: 0.1,
                 ),
