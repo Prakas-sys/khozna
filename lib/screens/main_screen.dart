@@ -548,18 +548,18 @@ class _MainScreenState extends State<MainScreen> {
             // SVG icon with badge
             Center(
               child: SizedBox(
-                width: index == -1 ? 44 : 24,
+                width: index == -1 ? 52 : 24,
                 height: 24,
                 child: Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
                   children: [
                     Transform.translate(
-                      offset: Offset(0, index == -1 ? -4.0 : 0.0),
+                      offset: Offset(0, index == -1 ? -6.0 : 0.0),
                       child: SvgPicture.asset(
                         iconPath,
-                        width: index == -1 ? 44 : 24,
-                        height: index == -1 ? 28 : 24,
+                        width: index == -1 ? 52 : 24,
+                        height: index == -1 ? 34 : 24,
                         colorFilter: index == -1
                             ? null
                             : ColorFilter.mode(

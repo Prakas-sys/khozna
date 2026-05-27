@@ -1435,7 +1435,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         end: Alignment.bottomRight,
                       ).createShader(bounds),
                       child: SvgPicture.asset(
-                        'assets/icons/message.svg',
+                        'assets/icons/Message neww.svg',
                         width: 18,
                         height: 18,
                         colorFilter: const ColorFilter.mode(

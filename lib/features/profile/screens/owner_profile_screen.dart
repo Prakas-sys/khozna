@@ -431,7 +431,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SvgPicture.asset(
-                      'assets/icons/message.svg',
+                      'assets/icons/Message neww.svg',
                       width: 20,
                       height: 20,
                       colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),

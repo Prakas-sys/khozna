@@ -639,7 +639,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     SvgPicture.asset(
-                                      'assets/icons/message.svg',
+                                      'assets/icons/Message neww.svg',
                                       width: 14,
                                       height: 14,
                                       colorFilter: const ColorFilter.mode(

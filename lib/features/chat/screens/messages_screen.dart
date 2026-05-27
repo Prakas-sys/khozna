@@ -239,7 +239,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 shape: BoxShape.circle,
               ),
               child: SvgPicture.asset(
-                'assets/icons/menue message.svg',
+                'assets/icons/Message neww.svg',
                 width: 64,
                 height: 64,
                 colorFilter: const ColorFilter.mode(
