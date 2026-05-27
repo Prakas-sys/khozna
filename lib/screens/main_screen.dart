@@ -549,7 +549,7 @@ class _MainScreenState extends State<MainScreen> {
             Center(
               child: SizedBox(
                 width: index == -1 ? 44 : 24,
-                height: index == -1 ? 28 : 24,
+                height: 24,
                 child: Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
