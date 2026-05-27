@@ -793,12 +793,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   RichText(
                     text: TextSpan(
                       children: [
-                        TextSpan(
-                          text: '₹',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.brandColor,
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 4.0, bottom: 3.0),
+                            child: SvgPicture.asset(
+                              'assets/icons/vector of ruppes.svg',
+                              width: 17,
+                              height: 19,
+                              colorFilter: const ColorFilter.mode(
+                                AppTheme.brandColor,
+                                BlendMode.srcIn,
+                              ),
+                            ),
                           ),
                         ),
                         TextSpan(
@@ -827,12 +834,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   RichText(
                     text: TextSpan(
                       children: [
-                        TextSpan(
-                          text: '₹',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.brandColor,
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 4.0, bottom: 3.0),
+                            child: SvgPicture.asset(
+                              'assets/icons/vector of ruppes.svg',
+                              width: 17,
+                              height: 19,
+                              colorFilter: const ColorFilter.mode(
+                                AppTheme.brandColor,
+                                BlendMode.srcIn,
+                              ),
+                            ),
                           ),
                         ),
                         TextSpan(
@@ -1858,12 +1872,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     overflow: TextOverflow.ellipsis,
                     text: TextSpan(
                       children: [
-                        TextSpan(
-                          text: '₹',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 3.0, bottom: 2.0),
+                            child: SvgPicture.asset(
+                              'assets/icons/vector of ruppes.svg',
+                              width: 13,
+                              height: 15,
+                              colorFilter: const ColorFilter.mode(
+                                Colors.black,
+                                BlendMode.srcIn,
+                              ),
+                            ),
                           ),
                         ),
                         TextSpan(

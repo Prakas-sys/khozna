@@ -306,13 +306,19 @@ class PropertyCard extends StatelessWidget {
                           child: RichText(
                             text: TextSpan(
                               children: [
-                                TextSpan(
-                                  text: '₹',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.brandColor,
-                                    letterSpacing: 0.3,
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 3.0, bottom: 2.0),
+                                    child: SvgPicture.asset(
+                                      'assets/icons/vector of ruppes.svg',
+                                      width: 12,
+                                      height: 14,
+                                      colorFilter: const ColorFilter.mode(
+                                        AppTheme.brandColor,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 TextSpan(
