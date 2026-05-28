@@ -341,9 +341,9 @@ class PostPropertyCard extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF0077AA), Color(0xFF00A3E1)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+          colors: [AppTheme.brandColor, Color(0xFF80D8FF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         // Shadow removed as requested

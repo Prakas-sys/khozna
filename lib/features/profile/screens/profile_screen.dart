@@ -297,7 +297,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         },
                       ),
                       ProfileMenuItem(
-                        svgPath: 'assets/icons/Vector list go.svg',
+                        icon: Icons.home_work_outlined,
                         title: 'My Listings',
                         subtitle: 'Properties you posted',
                         onTap: () {
