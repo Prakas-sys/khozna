@@ -292,7 +292,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 const SizedBox(height: 12),
                 _buildQuickInfoRow(),
                 const SizedBox(height: 32),
-                const DetailSectionTitle(title: 'सुविधाहरू (Amenities)'),
+                const DetailSectionTitle(title: 'Our Facilities'),
                 const SizedBox(height: 20),
                 _buildAmenityGrid(),
                 const SizedBox(height: 44),
@@ -485,44 +485,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ? displayImages.length + 1
                         : displayImages.length) >
                     1) ...[
-                  Positioned(
-                    left: 20,
-                    top: 0,
-                    bottom: 0,
-                    child: Center(
-                      child: GlassCircle(
-                        icon: Icons.chevron_left_rounded,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          _pageController.previousPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        },
-                        iconSize: 16,
-                        size: 26,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: 20,
-                    top: 0,
-                    bottom: 0,
-                    child: Center(
-                      child: GlassCircle(
-                        icon: Icons.chevron_right_rounded,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        },
-                        iconSize: 16,
-                        size: 26,
-                      ),
-                    ),
-                  ),
                   Positioned(
                     bottom: 24,
                     left: 0,
@@ -878,18 +840,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildAmenityGrid() {
-    final List<Widget> items = [];
+  bool _showAllAmenities = false;
 
-    // Core Stats (Removed Baths as it is in quick info row)
-
-
-  (IconData, String, Color) _getFeatureData(String feature) {
+  (IconData, String, Color) _getAmenityDisplayData(String feature) {
     final k = feature.toLowerCase().trim();
     if (k.contains('water'))
       return (Icons.water_drop_outlined, 'Water', Colors.lightBlue);
     if (k.contains('wifi') || k.contains('internet'))
-      return (Icons.wifi, 'Internet', Colors.blue);
+      return (Icons.wifi, 'Wifi', Colors.blue);
     if (k.contains('bike'))
       return (Icons.motorcycle_rounded, 'Bike Parking', Colors.blueGrey);
     if (k.contains('car'))
@@ -919,8 +877,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('pool')) return (Icons.pool_rounded, 'Pool', Colors.blue);
     if (k.contains('lift') || k.contains('elevat'))
       return (Icons.elevator_rounded, 'Lift', Colors.grey);
-
-    // House Rule Specifics
     if (k.contains('smoke') || k.contains('smoking'))
       return (Icons.smoke_free_rounded, 'No Smoking', Colors.redAccent);
     if (k.contains('pet'))
@@ -928,10 +884,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('party') || k.contains('event'))
       return (Icons.celebration_rounded, 'No Parties', Colors.purpleAccent);
     if (k.contains('couple'))
-      return (Icons.people_outline_rounded, 'Couples Allowed', Colors.pinkAccent);
+      return (Icons.people_outline_rounded, 'Couples', Colors.pinkAccent);
     if (k.contains('girl'))
       return (Icons.woman_rounded, 'Girls Only', Colors.pink);
     if (k.contains('boy')) return (Icons.man_rounded, 'Boys Only', Colors.indigo);
+    if (k.contains('power') || k.contains('backup'))
+      return (Icons.electric_bolt_rounded, 'Power Backup', Colors.amber);
+    if (k.contains('waste'))
+      return (Icons.delete_outline_rounded, 'Waste Mgmt', Colors.green);
+    if (k.contains('peaceful') || k.contains('quiet'))
+      return (Icons.nature_people_rounded, 'Peaceful', Colors.green);
+    if (k.contains('boring'))
+      return (Icons.waves_rounded, 'Boring Water', Colors.cyan);
 
     String formatted = feature.replaceAll('_', ' ');
     if (formatted.isNotEmpty) {
@@ -944,45 +908,95 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-    final Map<IconData, String> uniqueItems = {};
+  Widget _buildAmenityGrid() {
+    // Collect unique amenities
+    final List<(IconData, String, Color)> uniqueAmenities = [];
+    final Set<IconData> seenIcons = {};
     for (var feature in widget.property.amenities) {
-      final data = _getFeatureData(feature);
-      // Skip bath-related features as they are in the quick info row
+      final data = _getAmenityDisplayData(feature);
       if (data.$1 == Icons.bathtub_outlined || data.$1 == Icons.bathroom_outlined) {
         continue;
       }
-      // Only keep the first occurrence of each icon type
-      if (!uniqueItems.containsKey(data.$1)) {
-        uniqueItems[data.$1] = data.$2;
+      if (!seenIcons.contains(data.$1)) {
+        seenIcons.add(data.$1);
+        uniqueAmenities.add(data);
       }
     }
 
-    for (var entry in uniqueItems.entries) {
-      items.add(
-        PropertyStatItem(
-          icon: entry.key,
-          value: '',
-          label: entry.value,
-          accentColor: AppTheme.brandColor,
+    if (uniqueAmenities.isEmpty) return const SizedBox.shrink();
+
+    final int displayCount = _showAllAmenities ? uniqueAmenities.length : (uniqueAmenities.length > 8 ? 8 : uniqueAmenities.length);
+    final bool hasMore = uniqueAmenities.length > 8;
+
+    return Column(
+      children: [
+        Wrap(
+          spacing: 10,
+          runSpacing: 12,
+          children: uniqueAmenities.take(displayCount).map((data) {
+            return _buildFacilityChip(data.$1, data.$2, data.$3);
+          }).toList(),
         ),
-      );
-    }
+        if (hasMore && !_showAllAmenities) ...[
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () => setState(() => _showAllAmenities = true),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'See More',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF222222),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF222222)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
 
-    if (items.isEmpty) return const SizedBox.shrink();
-
+  Widget _buildFacilityChip(IconData icon, String label, Color color) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+      width: 82,
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE0E0E0), width: 1),
       ),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 20,
-        alignment: WrapAlignment.center,
-        children: items.map((e) => SizedBox(width: 80, child: e)).toList(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 26),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF222222),
+            ),
+          ),
+        ],
       ),
     );
   }
