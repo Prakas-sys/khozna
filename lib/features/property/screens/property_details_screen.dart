@@ -249,7 +249,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildHeader(),
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
+                const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
+                _buildOwnerRow(),
+                const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
+                const SizedBox(height: 24),
                 const DetailSectionTitle(title: 'Our Facilities'),
                 const SizedBox(height: 20),
                 _buildAmenityGrid(),
@@ -271,14 +275,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 _buildLocationDetails(),
                 const SizedBox(height: 12),
                 _buildMapPreview(),
-                const SizedBox(height: 24),
-                const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
-                _buildOwnerRow(),
-                const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
-                const SizedBox(height: 24),
-                const DetailSectionTitle(title: 'समीक्षाहरू (Reviews)'),
-                const SizedBox(height: 12),
-                _buildReviewsSection(),
                 const SizedBox(height: 24),
                 if (widget.property.houseRules.isNotEmpty) ...[
                   const DetailSectionTitle(title: 'नियमहरू (House Rules)'),
@@ -439,9 +435,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     child: Container(
                       width: 42,
                       height: 42,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
                       child: const Icon(
                         Icons.arrow_back_rounded,
@@ -465,9 +469,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         child: Container(
                           width: 42,
                           height: 42,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
                           child: const Icon(
                             Icons.ios_share_rounded,
@@ -482,15 +494,24 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       Container(
                         width: 42,
                         height: 42,
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
+                          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         alignment: Alignment.center,
                         child: FavouriteButton(
                           propertyId: widget.property.id,
                           size: 22,
                           showShadow: false,
+                          color: Colors.black87,
                         ),
                       ),
                     ],
@@ -563,21 +584,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF2E7D32), width: 1.5),
+                border: Border.all(color: const Color(0xFF22C55E), width: 1.5),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(
                     Icons.check_circle_rounded,
-                    color: Color(0xFF2E7D32),
+                    color: Color(0xFF22C55E),
                     size: 15,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     'Verified',
                     style: GoogleFonts.inter(
-                      color: const Color(0xFF2E7D32),
+                      color: const Color(0xFF22C55E),
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
@@ -1007,7 +1028,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: Text(
-                      'Come Here',
+                      'Open Map',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w900,
                         fontSize: 15,
@@ -1739,27 +1760,43 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     overflow: TextOverflow.ellipsis,
                     text: TextSpan(
                       children: [
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 4.0, bottom: 2.0),
+                            child: SvgPicture.asset(
+                              'assets/icons/vector of ruppes.svg',
+                              width: 16,
+                              height: 18,
+                              colorFilter: const ColorFilter.mode(
+                                Colors.black,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                        ),
                         TextSpan(
-                          text: 'रु ${PriceFormatter.format(price.toString())} ',
+                          text: PriceFormatter.format(price.toString()),
                           style: GoogleFonts.inter(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
                         ),
-                        TextSpan(
-                          text: unit,
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: Colors.black54,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 2),
+                  Text(
+                    unit,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.black54,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                   Container(
-                    margin: const EdgeInsets.only(top: 4),
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF1F5F9),

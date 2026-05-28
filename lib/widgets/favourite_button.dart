@@ -214,6 +214,16 @@ class _FavouriteButtonState extends State<FavouriteButton> {
       valueListenable: savedPropertiesStore,
       builder: (context, savedIds, _) {
         final bool isLiked = savedIds.contains(widget.propertyId);
+        final String strokeColor = isLiked
+            ? '#FF385C'
+            : (widget.color != null
+                ? '#${widget.color!.value.toRadixString(16).padLeft(8, '0').substring(2)}'
+                : '#ffffff');
+        final String fillColor = isLiked
+            ? '#FF385C'
+            : (widget.color != null
+                ? 'transparent'
+                : 'rgba(0, 0, 0, 0.4)');
 
         return GestureDetector(
           onTap: () async {
@@ -241,7 +251,7 @@ class _FavouriteButtonState extends State<FavouriteButton> {
             decoration: const BoxDecoration(shape: BoxShape.circle),
             child: SvgPicture.string(
               '''
-              <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display: block; fill: ${isLiked ? '#FF385C' : 'rgba(0, 0, 0, 0.4)'}; height: ${widget.size}px; width: ${widget.size}px; stroke: #ffffff; stroke-width: 2.2; overflow: visible;">
+              <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="display: block; fill: $fillColor; height: ${widget.size}px; width: ${widget.size}px; stroke: $strokeColor; stroke-width: 2.2; overflow: visible;">
                 <path d="M16 28c7-4.733 14-10 14-17 0-4.418-3.582-8-8-8a7.965 7.965 0 0 0-6 2.733A7.965 7.965 0 0 0 10 3c-4.418 0-8 3.582-8 8 0 7 7 12.267 14 17z"></path>
               </svg>
               ''',
