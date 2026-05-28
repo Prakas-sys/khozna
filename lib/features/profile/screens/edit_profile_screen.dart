@@ -13,6 +13,7 @@ import 'package:khozna/features/profile/screens/kyc_screen.dart';
 import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -370,7 +371,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     _buildInputField(
                       'Full Name',
                       _fullNameController,
-                      Icons.person_outline_rounded,
+                      null,
+                      svgPath: 'assets/icons/Vector profile.svg',
                     ),
                     const Divider(height: 1),
                     _buildInputField(
@@ -535,10 +537,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ? KhoznaImage(imageUrl: _avatarUrl!, fit: BoxFit.cover)
                     : Container(
                         color: AppTheme.brandColor.withOpacity(0.1),
-                        child: const Icon(
-                          Icons.person_rounded,
-                          size: 50,
-                          color: AppTheme.brandColor,
+                        padding: const EdgeInsets.all(24),
+                        child: SvgPicture.asset(
+                          'assets/icons/Vector profile.svg',
+                          colorFilter: const ColorFilter.mode(
+                            AppTheme.brandColor,
+                            BlendMode.srcIn,
+                          ),
                         ),
                       ),
               ),
@@ -605,7 +610,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildInputField(
     String label,
     TextEditingController controller,
-    IconData icon, {
+    IconData? icon, {
+    String? svgPath,
     bool enabled = true,
     String? subtitle,
     int maxLines = 1,
@@ -621,7 +627,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               color: AppTheme.brandColor.withOpacity(0.08),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: AppTheme.brandColor, size: 20),
+            child: svgPath != null
+                ? SvgPicture.asset(
+                    svgPath,
+                    width: 20,
+                    height: 20,
+                    colorFilter: const ColorFilter.mode(
+                      AppTheme.brandColor,
+                      BlendMode.srcIn,
+                    ),
+                  )
+                : Icon(icon ?? Icons.help_outline, color: AppTheme.brandColor, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(

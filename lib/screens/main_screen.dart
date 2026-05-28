@@ -272,8 +272,8 @@ class _MainScreenState extends State<MainScreen> {
                     _buildNavItem(
                       0,
                       'assets/icons/Search vector.svg',
-                      25,
-                      25,
+                      28,
+                      28,
                       activeColor,
                       inactiveColor,
                       0,

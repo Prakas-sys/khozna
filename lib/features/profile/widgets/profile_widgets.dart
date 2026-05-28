@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ProfileHeader extends StatelessWidget {
   final String? fullName;
@@ -119,10 +120,16 @@ class ProfileHeader extends StatelessWidget {
                                         end: Alignment.bottomRight,
                                       ),
                                     ),
-                                    child: Icon(
-                                      Icons.person_rounded,
-                                      size: 54,
-                                      color: Colors.grey[400],
+                                    child: Center(
+                                      child: SvgPicture.asset(
+                                        'assets/icons/Vector profile.svg',
+                                        width: 48,
+                                        height: 48,
+                                        colorFilter: ColorFilter.mode(
+                                          Colors.grey[400]!,
+                                          BlendMode.srcIn,
+                                        ),
+                                      ),
                                     ),
                                   ),
                           ),
@@ -465,7 +472,8 @@ class ProfileMenuSection extends StatelessWidget {
 }
 
 class ProfileMenuItem extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? svgPath;
   final String title;
   final String subtitle;
   final VoidCallback? onTap;
@@ -473,7 +481,8 @@ class ProfileMenuItem extends StatelessWidget {
 
   const ProfileMenuItem({
     super.key,
-    required this.icon,
+    this.icon,
+    this.svgPath,
     required this.title,
     required this.subtitle,
     this.onTap,
@@ -494,7 +503,17 @@ class ProfileMenuItem extends StatelessWidget {
           color: (color ?? AppTheme.brandColor).withOpacity(0.1),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: color ?? AppTheme.brandColor, size: 20),
+        child: svgPath != null
+            ? SvgPicture.asset(
+                svgPath!,
+                width: 20,
+                height: 20,
+                colorFilter: ColorFilter.mode(
+                  color ?? AppTheme.brandColor,
+                  BlendMode.srcIn,
+                ),
+              )
+            : Icon(icon ?? Icons.person_outline, color: color ?? AppTheme.brandColor, size: 20),
       ),
       title: Text(
         title,

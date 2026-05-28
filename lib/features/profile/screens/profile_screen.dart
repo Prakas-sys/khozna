@@ -281,7 +281,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     title: 'OVERVIEW',
                     items: [
                       ProfileMenuItem(
-                        icon: Icons.person_outline,
+                        svgPath: 'assets/icons/Vector profile.svg',
                         title: 'Edit Profile',
                         subtitle: 'Update your personal info',
                         onTap: () {
@@ -297,7 +297,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         },
                       ),
                       ProfileMenuItem(
-                        icon: Icons.list_alt_rounded,
+                        svgPath: 'assets/icons/Vector list go.svg',
                         title: 'My Listings',
                         subtitle: 'Properties you posted',
                         onTap: () {
