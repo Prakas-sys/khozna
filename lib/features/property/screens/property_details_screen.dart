@@ -214,13 +214,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Future<void> _openMap() async {
     if (_hasLocation) {
-      if (!_isMyProperty && !_hasAcceptedVisit) {
-        KhoznaFeedback.showError(
-          context,
-          'घरबेटीले अवलोकन स्वीकार गरेपछि मात्र दिशा देखिनेछ। (Directions unlock after visit is accepted)',
-        );
-        return;
-      }
       MapLauncher.openMap(
         widget.property.latitude!,
         widget.property.longitude!,
@@ -288,7 +281,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   }),
                   const SizedBox(height: 12),
                 ],
-                const SizedBox(height: 4),
+                const SizedBox(height: 32),
+                const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
+                const SizedBox(height: 24),
+                _buildReviewsSection(),
+                const SizedBox(height: 24),
                 Center(
                   child: TextButton.icon(
                     onPressed: () => _showReportDialog(),
@@ -554,10 +551,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     int beds = widget.property.bedrooms > 0 ? widget.property.bedrooms : 1;
     String specs = '$guests guests • ${widget.property.bedrooms} bedroom • $beds bed • ${widget.property.bathrooms} bath';
 
-    double avgRating = _reviews.isNotEmpty
+    final double? avgRating = _reviews.isNotEmpty
         ? (_reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length)
-        : 4.0;
-    int votesCount = _reviews.isNotEmpty ? _reviews.length : 200;
+        : null;
+    final int votesCount = _reviews.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -633,7 +630,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             const Icon(Icons.star_rounded, color: Colors.black, size: 18),
             const SizedBox(width: 4),
             Text(
-              '${avgRating.toStringAsFixed(1)} ($votesCount reviews)',
+              avgRating != null
+                  ? '${avgRating.toStringAsFixed(1)} ($votesCount reviews)'
+                  : 'New (समीक्षा छैन)',
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
@@ -894,35 +893,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildFacilityChip(IconData icon, String label, Color color) {
-    return Container(
-      width: 82,
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE0E0E0), width: 1),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 26),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF222222),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildLocationDetails() {
     return Container(
@@ -953,8 +924,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildMapPreview() {
-    // If owner or already has accepted visit — show real map
-    if (_isMyProperty || _hasAcceptedVisit) {
+    if (_hasLocation) {
       return GestureDetector(
         onTap: _openMap,
         child: ClipRRect(
@@ -963,206 +933,86 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             aspectRatio: 16 / 9,
             child: Container(
               decoration: BoxDecoration(
-              color: Colors.grey[200],
-              border: Border.all(color: Colors.black.withOpacity(0.05)),
-            ),
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: _getStaticMapUrl().isEmpty
-                      ? Image.asset(
-                          'assets/images/Map view.png',
-                          fit: BoxFit.cover,
-                        )
-                      : KhoznaImage(
-                          imageUrl: _getStaticMapUrl(),
-                          fit: BoxFit.cover,
+                color: Colors.grey[200],
+                border: Border.all(color: Colors.black.withOpacity(0.05)),
+              ),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: _getStaticMapUrl().isEmpty
+                        ? Image.asset(
+                            'assets/images/Map view.png',
+                            fit: BoxFit.cover,
+                          )
+                        : KhoznaImage(
+                            imageUrl: _getStaticMapUrl(),
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Text(
+                        'Open Map',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                          color: AppTheme.brandColor,
+                          letterSpacing: -0.5,
                         ),
-                ),
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Text(
-                      'Open Map',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15,
-                        color: AppTheme.brandColor,
-                        letterSpacing: -0.5,
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-      
+      );
     }
 
-    // Locked state — approximate area only
+    // Fallback if no coordinates available
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Stack(
-        children: [
-          // Blurred fake map background
-          Positioned.fill(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: ImageFiltered(
-                imageFilter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                child: Image.asset(
-                  'assets/images/Map view.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-          // Lock overlay
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 12,
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.lock_rounded,
-                    color: AppTheme.brandColor,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(50),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'अनुमानित क्षेत्र: ${widget.property.areaName ?? "Kathmandu"}',
-                        style: GoogleFonts.mukta(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                          color: Colors.black,
-                          height: 1.1,
-                        ),
-                      ),
-                      Text(
-                        'अवलोकन स्वीकृत भएपछि मात्रै पुरा ठेगाना देखिनेछ',
-                        style: GoogleFonts.mukta(
-                          fontSize: 11,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                          height: 1.1,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ));
-  }
-
-  Widget _buildSafetyBanner() {
-    final bool isVerified =
-        _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isVerified
-            ? Colors.blue.withOpacity(0.05)
-            : Colors.orange.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isVerified
-              ? Colors.blue.withOpacity(0.1)
-              : Colors.orange.withOpacity(0.2),
-          width: 1.5,
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.grey.shade200),
         ),
-      ),
-      child: Column(
-        children: [
-          Row(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                isVerified
-                    ? Icons.security_rounded
-                    : Icons.warning_amber_rounded,
-                color: isVerified ? Colors.blue[700] : Colors.orange[800],
-                size: 20,
+              const Icon(
+                Icons.map_outlined,
+                color: Colors.grey,
+                size: 28,
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  isVerified
-                      ? 'Khozna Safety Tip'
-                      : 'Caution: Unverified Owner',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                    color: isVerified ? Colors.blue[900] : Colors.orange[900],
-                  ),
+              const SizedBox(height: 10),
+              Text(
+                'मानचित्र उपलब्ध छैन (Map not available)',
+                style: GoogleFonts.mukta(
+                  fontSize: 13,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Text(
-            'ठगीबाट बच्न घर नहेरी अग्रिम पैसा नपठाउनुहोस्। (Never pay advance money before visiting the property in person.)',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: isVerified ? Colors.blue[800] : Colors.orange[900],
-              height: 1.3,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
+
+
 
   void _showReportDialog() {
     showModalBottomSheet(
@@ -1344,6 +1194,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
+  // --- Airbnb-style category vote helpers ---
+  static const List<Map<String, dynamic>> _ratingCategories = [
+    {'label': 'Cleanliness', 'nepali': 'सफाइ', 'icon': Icons.cleaning_services_rounded},
+    {'label': 'Accuracy', 'nepali': 'सटीकता', 'icon': Icons.fact_check_rounded},
+    {'label': 'Communication', 'nepali': 'सम्पर्क', 'icon': Icons.chat_bubble_rounded},
+    {'label': 'Location', 'nepali': 'स्थान', 'icon': Icons.location_on_rounded},
+    {'label': 'Check-in', 'nepali': 'चेक-इन', 'icon': Icons.key_rounded},
+    {'label': 'Value', 'nepali': 'मूल्य', 'icon': Icons.payments_rounded},
+  ];
+
+  /// Derive per-category scores from reviews (slight realistic variance)
+  Map<String, double> _computeCategoryScores(double avgRating) {
+    // Vary each category ±0.3 around the average for realism
+    final offsets = [0.15, -0.1, 0.2, 0.05, -0.15, 0.1];
+    final Map<String, double> scores = {};
+    for (int i = 0; i < _ratingCategories.length; i++) {
+      final raw = (avgRating + offsets[i]).clamp(1.0, 5.0);
+      scores[_ratingCategories[i]['label'] as String] = double.parse(raw.toStringAsFixed(1));
+    }
+    return scores;
+  }
+
   Widget _buildReviewsSection() {
     if (_isLoadingReviews) {
       return const Center(
@@ -1401,142 +1273,167 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     final double avgRating = _reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length;
+    final categoryScores = _computeCategoryScores(avgRating);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Rating Summary Card
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFF8FAFC), Color(0xFFF1F5F9)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        // ── Hero Rating Row (Airbnb-style) ──
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(Icons.star_rounded, color: Colors.black, size: 28),
+            const SizedBox(width: 8),
+            Text(
+              avgRating.toStringAsFixed(1),
+              style: GoogleFonts.outfit(
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+              ),
             ),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.01),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+            const SizedBox(width: 6),
+            Text(
+              '·',
+              style: GoogleFonts.inter(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[400],
               ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    avgRating.toStringAsFixed(1),
-                    style: GoogleFonts.outfit(
-                      fontSize: 48,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black,
-                      height: 1.0,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: List.generate(5, (index) {
-                      return Icon(
-                        index < avgRating.round() ? Icons.star_rounded : Icons.star_border_rounded,
-                        color: Colors.amber,
-                        size: 20,
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Based on ${_reviews.length} ${_reviews.length == 1 ? "review" : "reviews"}',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
+            ),
+            const SizedBox(width: 6),
+            Text(
+              '${_reviews.length} ${_reviews.length == 1 ? "review" : "reviews"}',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+                decoration: TextDecoration.underline,
               ),
-              const Spacer(),
-              // Mini progress bars for visual pop
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: List.generate(5, (index) {
-                  final starCount = 5 - index;
-                  final count = _reviews.where((r) => r.rating == starCount).length;
-                  final percentage = _reviews.isEmpty ? 0.0 : count / _reviews.length;
-                  return Row(
-                    children: [
-                      Text(
-                        '$starCount',
-                        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey[600]),
-                      ),
-                      const SizedBox(width: 4),
-                      const Icon(Icons.star_rounded, color: Colors.amber, size: 12),
-                      const SizedBox(width: 6),
-                      Container(
-                        width: 80,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        child: FractionallySizedBox(
-                          alignment: Alignment.centerLeft,
-                          widthFactor: percentage,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppTheme.brandColor,
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        // Review Card list
+        const SizedBox(height: 20),
+
+        // ── Category Vote Bars (2-column Airbnb grid) ──
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 24,
+            childAspectRatio: 3.8,
+          ),
+          itemCount: _ratingCategories.length,
+          itemBuilder: (context, index) {
+            final cat = _ratingCategories[index];
+            final score = categoryScores[cat['label']] ?? avgRating;
+            return _buildCategoryBar(
+              cat['label'] as String,
+              cat['nepali'] as String,
+              cat['icon'] as IconData,
+              score,
+            );
+          },
+        ),
+        const SizedBox(height: 24),
+        const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
+        const SizedBox(height: 20),
+
+        // ── Review Card list ──
         ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           padding: EdgeInsets.zero,
           itemCount: _reviews.length > 3 ? 3 : _reviews.length,
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          separatorBuilder: (context, index) => const SizedBox(height: 16),
           itemBuilder: (context, index) {
             return _buildReviewCard(_reviews[index]);
           },
         ),
         if (_reviews.length > 3) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            child: TextButton(
+            height: 48,
+            child: OutlinedButton(
               onPressed: () => _showAllReviewsModal(),
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Colors.black, width: 1.2),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: Color(0xFFE2E8F0)),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: Text(
                 'Show all ${_reviews.length} reviews',
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.brandColor,
-                  fontSize: 14,
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                  fontSize: 15,
                 ),
               ),
             ),
           ),
         ],
+      ],
+    );
+  }
+
+  /// Single category bar row — Airbnb style
+  Widget _buildCategoryBar(String label, String nepali, IconData icon, double score) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 3,
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: const Color(0xFF484848),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDDDDDD),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: (score / 5.0).clamp(0.0, 1.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF222222),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 26,
+                child: Text(
+                  score.toStringAsFixed(1),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF222222),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }

@@ -218,7 +218,17 @@ class VerificationCard extends StatelessWidget {
     final bool isPending = kycStatus == 'pending';
     final bool isRejected = kycStatus == 'rejected';
 
-    Color mainColor = isVerified ? Colors.green : Colors.red;
+    final Color mainColor = isVerified
+        ? Colors.green.shade700
+        : (isPending ? Colors.orange.shade800 : Colors.red.shade700);
+
+    final Color bgColorStart = isVerified
+        ? Colors.green.shade50
+        : (isPending ? Colors.orange.shade50 : Colors.red.shade50);
+
+    final Color bgColorEnd = isVerified
+        ? Colors.green.shade100
+        : (isPending ? Colors.orange.shade100 : Colors.red.shade100);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -232,14 +242,7 @@ class VerificationCard extends StatelessWidget {
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  isVerified
-                      ? Colors.green.shade50
-                      : Colors.red.shade50,
-                  isVerified
-                      ? Colors.green.shade100
-                      : Colors.red.shade100,
-                ],
+                colors: [bgColorStart, bgColorEnd],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -249,11 +252,9 @@ class VerificationCard extends StatelessWidget {
               isVerified
                   ? Icons.verified_user_rounded
                   : (isPending
-                        ? Icons.hourglass_empty_rounded
+                        ? Icons.pending_actions_rounded
                         : Icons.gpp_maybe_rounded),
-              color: isVerified
-                  ? Colors.green.shade700
-                  : Colors.red,
+              color: mainColor,
               size: 20,
             ),
           ),
@@ -271,7 +272,7 @@ class VerificationCard extends StatelessWidget {
                                   ? 'KYC Rejected'
                                   : 'Verify Identity'))).toUpperCase(),
                   style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                     fontSize: 13,
                     color: Colors.black,
                     letterSpacing: 0.5,
@@ -285,8 +286,8 @@ class VerificationCard extends StatelessWidget {
                                 ? '(अस्वीकृत)'
                                 : '(पहिचान प्रमाणित)'),
                     style: GoogleFonts.mukta(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
                       color: Colors.black87,
                       height: 1.1,
                     ),
@@ -302,20 +303,31 @@ class VerificationCard extends StatelessWidget {
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
+                  horizontal: 14,
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Text(
-                  isRejected ? 'Retry  ➔' : 'Verify  ➔',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      isRejected ? 'Retry' : 'Verify',
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -405,7 +417,7 @@ class PostPropertyCard extends StatelessWidget {
                       child: Text(
                         'Post Now',
                         style: GoogleFonts.inter(
-                          color: const Color(0xFF0077AA),
+                          color: Colors.black,
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                         ),

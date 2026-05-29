@@ -6,7 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/screens/property_details_screen.dart';
-import 'package:khozna/core/guards/kyc_guard.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/formatters.dart';
 import 'favourite_button.dart';
@@ -67,8 +66,6 @@ class PropertyCard extends StatelessWidget {
                 title: 'View Details',
                 message: 'Log in to view complete details of this property.',
               )) return;
-              final allowed = await KycGuard.check(context);
-              if (!allowed) return;
               if (context.mounted) {
                 Navigator.push(
                   context,
@@ -377,8 +374,6 @@ class PropertyCard extends StatelessWidget {
                                   title: 'Visit Property',
                                   message: 'Log in to view complete details of this property.',
                                 )) return;
-                                final allowed = await KycGuard.check(context);
-                                if (!allowed) return;
                                 if (context.mounted) {
                                   Navigator.push(
                                     context,
@@ -435,8 +430,6 @@ class PropertyCard extends StatelessWidget {
                                   title: 'Chat with Owner',
                                   message: 'Log in to direct message the property owner.',
                                 )) return;
-                                final allowed = await KycGuard.check(context);
-                                if (!allowed) return;
                                 if (context.mounted) {
                                   Navigator.push(
                                     context,
