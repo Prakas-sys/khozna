@@ -545,84 +545,92 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             const Spacer(),
-            // SVG icon with badge
-            Center(
-              child: SizedBox(
-                width: index == -1 ? 48 : width,
-                height: height,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.center,
-                  children: [
-                    Transform.translate(
-                      offset: Offset(0, index == -1 ? -3.0 : 0.0),
-                      child: OverflowBox(
-                        minWidth: 0,
-                        maxWidth: index == -1 ? 48 : width,
-                        minHeight: 0,
-                        maxHeight: index == -1 ? 31 : height,
-                        child: SvgPicture.asset(
-                          iconPath,
-                          width: index == -1 ? 48 : width,
-                          height: index == -1 ? 31 : height,
-                          colorFilter: index == -1
-                              ? null
-                              : ColorFilter.mode(
-                                  isSelected ? activeColor : inactiveColor,
-                                  BlendMode.srcIn,
-                                ),
-                        ),
-                      ),
-                    ),
-                    // Premium red badge
-                    if (badgeCount > 0)
-                      Positioned(
-                        top: -2,
-                        right: -6,
-                        child: Container(
-                          constraints: const BoxConstraints(
-                            minWidth: 16,
-                            minHeight: 16,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 1,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF0000),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              badgeCount > 99 ? '99+' : '$badgeCount',
-                              style: GoogleFonts.inter(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.w900,
-                                height: 1.0,
+            // SVG icon and text translated slightly up for index == 0 (Khozna)
+            Transform.translate(
+              offset: Offset(0, index == 0 ? -1.5 : 0.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: SizedBox(
+                      width: index == -1 ? 48 : width,
+                      height: height,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.center,
+                        children: [
+                          Transform.translate(
+                            offset: Offset(0, index == -1 ? -3.0 : 0.0),
+                            child: OverflowBox(
+                              minWidth: 0,
+                              maxWidth: index == -1 ? 48 : width,
+                              minHeight: 0,
+                              maxHeight: index == -1 ? 31 : height,
+                              child: SvgPicture.asset(
+                                iconPath,
+                                width: index == -1 ? 48 : width,
+                                height: index == -1 ? 31 : height,
+                                colorFilter: index == -1
+                                    ? null
+                                    : ColorFilter.mode(
+                                        isSelected ? activeColor : inactiveColor,
+                                        BlendMode.srcIn,
+                                      ),
                               ),
                             ),
                           ),
-                        ),
+                          // Premium red badge
+                          if (badgeCount > 0)
+                            Positioned(
+                              top: -2,
+                              right: -6,
+                              child: Container(
+                                constraints: const BoxConstraints(
+                                  minWidth: 16,
+                                  minHeight: 16,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 1,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFF0000),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    badgeCount > 99 ? '99+' : '$badgeCount',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w900,
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 1.5),
-            Center(
-              child: Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w400,
-                  color: isSelected ? activeColor : inactiveColor,
-                  letterSpacing: 0.1,
-                ),
+                    ),
+                  ),
+                  const SizedBox(height: 1.5),
+                  Center(
+                    child: Text(
+                      label,
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w400,
+                        color: isSelected ? activeColor : inactiveColor,
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const Spacer(),

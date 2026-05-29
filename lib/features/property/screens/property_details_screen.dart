@@ -1697,28 +1697,31 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              // Right Side: Action Button
-              Expanded(
-                flex: 1,
-                child: _isMyProperty
-                    ? Container(
-                        height: 48,
+              // Right Side: Compact Action Button (Airbnb Style)
+              _isMyProperty
+                  ? SizedBox(
+                      width: 130,
+                      height: 40,
+                      child: Container(
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           'Book Now',
                           style: GoogleFonts.inter(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey[600],
                           ),
                         ),
-                      )
-                    : _buildBottomActionButtons(context),
-              ),
+                      ),
+                    )
+                  : SizedBox(
+                      width: 130,
+                      child: _buildBottomActionButtons(context),
+                    ),
             ],
           ),
         ),
@@ -1735,7 +1738,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (_pendingBookingStatus == 'rejected' ||
         _pendingBookingStatus == 'visit_completed') {
       return SizedBox(
-        height: 48,
+        height: 40,
         child: ElevatedButton(
           onPressed: () => Navigator.push(
             context,
@@ -1746,16 +1749,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF00A3E1),
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
           child: Text(
             'Book Now',
             style: GoogleFonts.inter(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -1766,7 +1769,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     // --- Awaiting payment: show Pay Now button ---
     if (_pendingBookingStatus == 'awaiting_payment') {
       return SizedBox(
-        height: 48,
+        height: 40,
         child: ElevatedButton.icon(
           onPressed: () async {
             if (_pendingBookingId == null) return;
@@ -1786,21 +1789,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               );
             }
           },
-          icon: const Icon(Icons.payment_rounded, size: 18),
+          icon: const Icon(Icons.payment_rounded, size: 16),
           label: Text(
             'PAY NOW',
             style: GoogleFonts.inter(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
             ),
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF22C55E),
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             elevation: 0,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ),
@@ -1820,14 +1823,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildDisabledButton('Pending Approval'),
+            _buildDisabledButton('Pending'),
             const SizedBox(height: 4),
             GestureDetector(
               onTap: _cancelRequest,
               child: Text(
                 'Cancel Request',
                 style: GoogleFonts.inter(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: Colors.red[400],
                   fontWeight: FontWeight.w600,
                   decoration: TextDecoration.underline,
@@ -1844,12 +1847,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         final s = _timeUntilVisit.inSeconds % 60;
         final isEnded = _timeUntilVisit == Duration.zero && _pendingBookingCheckIn != null && DateTime.now().isAfter(_pendingBookingCheckIn!);
 
-        String label = isEnded ? 'REVIEW VISIT' :
-          (h > 24 ? 'Visit on ${DateFormat('EEE, hh:mm a').format(_pendingBookingCheckIn!)}' :
-           h > 0 ? 'Visit in ${h}h ${m}m' : 'Visit in ${m}m ${s}s');
+        String label = isEnded ? 'REVIEW' :
+          (h > 24 ? 'Visit ${DateFormat('E, h:mm a').format(_pendingBookingCheckIn!)}' :
+           h > 0 ? 'Visit in ${h}h' : 'Visit in ${m}m');
 
         return SizedBox(
-          height: 48,
+          height: 40,
           child: ElevatedButton.icon(
             onPressed: () async {
               if (_pendingBookingId == null) return;
@@ -1863,32 +1866,32 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ).then((_) => _updateBookingStatus());
               }
             },
-            icon: Icon(isEnded ? Icons.rate_review_rounded : Icons.timer_outlined, size: 18),
+            icon: Icon(isEnded ? Icons.rate_review_rounded : Icons.timer_outlined, size: 15),
             label: Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 16,
+                fontSize: 11.5,
                 fontWeight: FontWeight.bold,
               ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: isEnded ? const Color(0xFF00A3E1) : Colors.orange.shade400,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
           ),
         );
       }
 
-      return _buildDisabledButton('Visit Accepted');
+      return _buildDisabledButton('Accepted');
     }
 
     return SizedBox(
-      height: 48,
+      height: 40,
       child: ElevatedButton(
         onPressed: () => Navigator.push(
           context,
@@ -1899,16 +1902,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF00A3E1),
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
         child: Text(
           'Book Now',
           style: GoogleFonts.inter(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -1918,16 +1921,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildDisabledButton(String label) {
     return Container(
-      height: 48,
+      height: 40,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
         label,
         style: GoogleFonts.inter(
-          fontSize: 16,
+          fontSize: 13,
           fontWeight: FontWeight.w800,
           color: Colors.grey[500],
         ),
