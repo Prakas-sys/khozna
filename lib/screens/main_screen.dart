@@ -613,7 +613,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 1.5),
             Center(
               child: Text(
                 label,

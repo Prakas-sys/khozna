@@ -243,9 +243,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               delegate: SliverChildListDelegate([
                 _buildHeader(),
                 const SizedBox(height: 16),
-                const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
+                const Divider(height: 1, thickness: 0.5, color: Color(0xFFE2E8F0)),
                 _buildOwnerRow(),
-                const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
+                const Divider(height: 1, thickness: 0.5, color: Color(0xFFE2E8F0)),
                 const SizedBox(height: 24),
                 const DetailSectionTitle(title: 'Our Facilities'),
                 const SizedBox(height: 20),
@@ -282,7 +282,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   const SizedBox(height: 12),
                 ],
                 const SizedBox(height: 32),
-                const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
+                const Divider(height: 1, thickness: 0.5, color: Color(0xFFE2E8F0)),
                 const SizedBox(height: 24),
                 _buildReviewsSection(),
                 const SizedBox(height: 24),
@@ -1339,7 +1339,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           },
         ),
         const SizedBox(height: 24),
-        const Divider(height: 1, thickness: 1, color: Color(0xFFE2E8F0)),
+        const Divider(height: 1, thickness: 0.5, color: Color(0xFFE2E8F0)),
         const SizedBox(height: 20),
 
         // ── Review Card list ──
