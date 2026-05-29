@@ -699,11 +699,47 @@ class _ReelsScreenState extends State<ReelsScreen> {
       );
     }
     if (images.length == 1) {
-      return KhoznaImage(
-        imageUrl: images[0],
-        width: double.infinity,
-        height: double.infinity,
-        fit: BoxFit.contain,
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          // Blurred background
+          ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: KhoznaImage(
+              imageUrl: images[0],
+              fit: BoxFit.cover,
+            ),
+          ),
+          Container(color: Colors.black.withOpacity(0.35)), // Darken overlay
+          // Sharp centered 3:4 card
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.4),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: AspectRatio(
+                    aspectRatio: 0.75, // 3:4 aspect ratio
+                    child: KhoznaImage(
+                      imageUrl: images[0],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       );
     }
     return _MultiImageCarousel(images: images);
@@ -719,7 +755,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
   }
 }
 
-// Horizontal image carousel for multiple property photos
+// Horizontal image carousel for multiple property photos with blurred background
 class _MultiImageCarousel extends StatefulWidget {
   final List<String> images;
   const _MultiImageCarousel({required this.images});
@@ -743,40 +779,74 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        PageView.builder(
-          controller: _ctrl,
-          scrollDirection: Axis.horizontal,
-          physics: const ClampingScrollPhysics(),
-          itemCount: widget.images.length,
-          onPageChanged: (i) => setState(() => _current = i),
-          itemBuilder: (context, i) => KhoznaImage(
-            imageUrl: widget.images[i],
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.contain,
+        // Blurred background of current active image
+        ImageFiltered(
+          imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: KhoznaImage(
+            imageUrl: widget.images[_current],
+            fit: BoxFit.cover,
           ),
         ),
-        // Horizontal dot indicators at the bottom center
-        Positioned(
-          bottom:
-              MediaQuery.of(context).padding.bottom +
-              185, // Positioned above the info card
-          left: 0,
-          right: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(widget.images.length, (i) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                width: _current == i ? 12 : 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: _current == i ? Colors.white : Colors.white38,
-                  borderRadius: BorderRadius.circular(10),
+        Container(color: Colors.black.withOpacity(0.35)), // Darken overlay
+        // Sharp centered 3:4 card
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.4),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: AspectRatio(
+                  aspectRatio: 0.75, // 3:4 aspect ratio
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      PageView.builder(
+                        controller: _ctrl,
+                        scrollDirection: Axis.horizontal,
+                        physics: const ClampingScrollPhysics(),
+                        itemCount: widget.images.length,
+                        onPageChanged: (i) => setState(() => _current = i),
+                        itemBuilder: (context, i) => KhoznaImage(
+                          imageUrl: widget.images[i],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      // Dot indicators inside the card
+                      Positioned(
+                        bottom: 12,
+                        left: 0,
+                        right: 0,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(widget.images.length, (i) {
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              margin: const EdgeInsets.symmetric(horizontal: 3),
+                              width: _current == i ? 12 : 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: _current == i ? Colors.white : Colors.white38,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            }),
+              ),
+            ),
           ),
         ),
       ],
