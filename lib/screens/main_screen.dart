@@ -272,8 +272,8 @@ class _MainScreenState extends State<MainScreen> {
                     _buildNavItem(
                       0,
                       'assets/icons/Search vector.svg',
-                      28,
-                      28,
+                      27,
+                      27,
                       activeColor,
                       inactiveColor,
                       0,
@@ -527,7 +527,7 @@ class _MainScreenState extends State<MainScreen> {
             // Top indicator line (LinkedIn-style)
             Center(
               child: Transform.translate(
-                offset: Offset(index == 0 ? -3.0 : 0.0, 0.0),
+                offset: const Offset(0.0, 0.0),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeInOut,

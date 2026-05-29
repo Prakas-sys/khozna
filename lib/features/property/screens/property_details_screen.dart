@@ -554,37 +554,43 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     int beds = widget.property.bedrooms > 0 ? widget.property.bedrooms : 1;
     String specs = '$guests guests • ${widget.property.bedrooms} bedroom • $beds bed • ${widget.property.bathrooms} bath';
 
+    double avgRating = _reviews.isNotEmpty
+        ? (_reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length)
+        : 4.0;
+    int votesCount = _reviews.isNotEmpty ? _reviews.length : 200;
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Badge Row
+        // Badge Row - Start Aligned
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             // Flat Badge
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF00A3E1), width: 1.5),
+                border: Border.all(color: const Color(0xFF00A3E1), width: 1.2),
               ),
               child: Text(
                 widget.property.category,
                 style: GoogleFonts.inter(
                   color: const Color(0xFF00A3E1),
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontSize: 11,
                 ),
               ),
             ),
+            const SizedBox(width: 8),
             // Verified Badge
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF22C55E), width: 1.5),
+                border: Border.all(color: const Color(0xFF22C55E), width: 1.2),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -592,7 +598,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   const Icon(
                     Icons.check_circle_rounded,
                     color: Color(0xFF22C55E),
-                    size: 15,
+                    size: 13,
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -600,7 +606,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     style: GoogleFonts.inter(
                       color: const Color(0xFF22C55E),
                       fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                      fontSize: 11,
                     ),
                   ),
                 ],
@@ -608,108 +614,64 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        // Title
+        const SizedBox(height: 12),
+        // Title - Left Aligned
         Text(
           widget.property.title,
-          textAlign: TextAlign.center,
+          textAlign: TextAlign.left,
           style: GoogleFonts.inter(
-            fontSize: 26,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
             color: Colors.black,
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 8),
-        // Subtitle / Location
+        const SizedBox(height: 10),
+        // Subtitle / Rating & Location Row - Airbnb Style
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.location_on_rounded,
-              color: Color(0xFF00A3E1),
-              size: 18,
-            ),
+            const Icon(Icons.star_rounded, color: Colors.black, size: 18),
             const SizedBox(width: 4),
             Text(
-              widget.property.location,
+              '${avgRating.toStringAsFixed(1)} ($votesCount reviews)',
               style: GoogleFonts.inter(
-                fontSize: 15,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '•',
+              style: TextStyle(color: Colors.grey[400]),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.location_on_rounded, color: Color(0xFF00A3E1), size: 16),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                widget.property.location,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        // Specs Line
+        // Specs Line - Left Aligned
         Text(
           specs,
-          textAlign: TextAlign.center,
+          textAlign: TextAlign.left,
           style: GoogleFonts.inter(
             fontSize: 14,
-            color: Colors.grey[700],
+            color: Colors.grey[600],
             fontWeight: FontWeight.w500,
           ),
-        ),
-        const SizedBox(height: 16),
-        // Rating & Votes Row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Left: Rating
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _reviews.isNotEmpty
-                      ? (_reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length).toStringAsFixed(1)
-                      : '4.0',
-                  style: GoogleFonts.inter(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: List.generate(5, (index) {
-                    double avg = _reviews.isNotEmpty
-                        ? (_reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length)
-                        : 4.0;
-                    return Icon(
-                      index < avg.round() ? Icons.star : Icons.star_border,
-                      color: Colors.black,
-                      size: 16,
-                    );
-                  }),
-                ),
-              ],
-            ),
-            // Right: Votes
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  _reviews.isNotEmpty ? '${_reviews.length}' : '200',
-                  style: GoogleFonts.inter(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Votes',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ],
         ),
       ],
     );
@@ -1287,59 +1249,97 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildOwnerRow() {
     final String name = _ownerData?['full_name'] ?? widget.property.ownerName ?? 'Khozna User';
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Row(
-        children: [
-          // Rotated Blue Diamond Brand Icon
-          Transform.rotate(
-            angle: 3.14159 / 4,
-            child: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: const Color(0xFF00A3E1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Transform.rotate(
-                angle: -3.14159 / 4,
-                child: Center(
-                  child: SvgPicture.asset(
-                    'assets/icons/Search vector.svg',
-                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    width: 18,
-                    height: 18,
-                  ),
-                ),
-              ),
+    final String? avatarUrl = _ownerData?['avatar_url'] ?? widget.property.ownerAvatar;
+    final bool isVerified = _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
+
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OwnerProfileScreen(
+              ownerId: widget.property.ownerId,
+              name: name,
+              avatar: avatarUrl ?? '',
+              isVerified: isVerified,
+              location: _ownerData?['area_name'] ?? widget.property.location,
+              totalListings: 1,
             ),
           ),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        );
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Row(
+          children: [
+            Stack(
               children: [
-                Text(
-                  'Owner is $name',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppTheme.brandColor, width: 2),
+                  ),
+                  child: CircleAvatar(
+                    radius: 24,
+                    backgroundColor: const Color(0xFFF1F5F9),
+                    backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty && !avatarUrl.contains('pravatar.cc'))
+                        ? NetworkImage(avatarUrl)
+                        : null,
+                    child: (avatarUrl == null || avatarUrl.isEmpty || avatarUrl.contains('pravatar.cc'))
+                        ? const Icon(Icons.person, size: 24, color: Colors.grey)
+                        : null,
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '1 year as Owner',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
+                if (isVerified)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check_circle_rounded,
+                        color: Colors.blue,
+                        size: 16,
+                      ),
+                    ),
                   ),
-                ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Stay with $name',
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Host Profile & Reviews',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
@@ -1740,106 +1740,90 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final String unit = widget.property.priceNight > 0 ? 'per night' : 'per month';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Colors.grey.shade200)),
       ),
       child: SafeArea(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Left Side: Price Details
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    text: TextSpan(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Left Side: Price Details
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        WidgetSpan(
-                          alignment: PlaceholderAlignment.middle,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 4.0, bottom: 2.0),
-                            child: SvgPicture.asset(
-                              'assets/icons/vector of ruppes.svg',
-                              width: 16,
-                              height: 18,
-                              colorFilter: const ColorFilter.mode(
-                                Colors.black,
-                                BlendMode.srcIn,
-                              ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 3.0, bottom: 5.0),
+                          child: SvgPicture.asset(
+                            'assets/icons/vector of ruppes.svg',
+                            width: 15,
+                            height: 17,
+                            colorFilter: const ColorFilter.mode(
+                              Colors.black,
+                              BlendMode.srcIn,
                             ),
                           ),
                         ),
-                        TextSpan(
-                          text: PriceFormatter.format(price.toString()),
+                        Text(
+                          PriceFormatter.format(price.toString()),
                           style: GoogleFonts.inter(
                             fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w800,
                             color: Colors.black,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.black38,
+                            decorationThickness: 1.5,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 3.0),
+                          child: Text(
+                            unit,
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    unit,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: Colors.black54,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      '✓ free cancelation',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-
-            const SizedBox(width: 8),
-
-            // Right Side: Action Button
-            Expanded(
-              flex: 1,
-              child: _isMyProperty
-                  ? Container(
-                      height: 48,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      child: Text(
-                        'Book Now',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[600],
+              const SizedBox(width: 12),
+              // Right Side: Action Button
+              Expanded(
+                flex: 1,
+                child: _isMyProperty
+                    ? Container(
+                        height: 48,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                      ),
-                    )
-                  : _buildBottomActionButtons(context),
-            ),
-          ],
+                        child: Text(
+                          'Book Now',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      )
+                    : _buildBottomActionButtons(context),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1874,7 +1858,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           child: Text(
             'Book Now',
             style: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -1909,7 +1893,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           label: Text(
             'PAY NOW',
             style: GoogleFonts.inter(
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -1946,7 +1930,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               child: Text(
                 'Cancel Request',
                 style: GoogleFonts.inter(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: Colors.red[400],
                   fontWeight: FontWeight.w600,
                   decoration: TextDecoration.underline,
@@ -1986,7 +1970,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             label: Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -2027,7 +2011,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         child: Text(
           'Book Now',
           style: GoogleFonts.inter(
-            fontSize: 14,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -2046,7 +2030,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: Text(
         label,
         style: GoogleFonts.inter(
-          fontSize: 14,
+          fontSize: 16,
           fontWeight: FontWeight.w800,
           color: Colors.grey[500],
         ),

@@ -3,15 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
-import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/core/models/property_model.dart';
-import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
+import 'package:khozna/core/utils/formatters.dart';
 
 class VisitRequestScreen extends StatefulWidget {
   final Property property;
@@ -23,16 +21,37 @@ class VisitRequestScreen extends StatefulWidget {
 }
 
 class _VisitRequestScreenState extends State<VisitRequestScreen> {
-  DateTime _visitDate = DateTime.now().add(const Duration(days: 1));
+  int _currentStep = 0; // 0: Schedule, 1: Guests, 2: Review
+  DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
+  String _selectedTimeSlot = "11:00 AM";
   int _visitingCount = 1;
   bool _isSubmitting = false;
   UserModel? _ownerProfile;
   bool _isLoadingOwner = true;
 
+  final List<String> _stepTitles = [
+    'भ्रमण मिति · Schedule',
+    'व्यक्ति संख्या · Guests',
+    'पुष्टि गर्नुहोस् · Review',
+  ];
+
+  final List<String> _timeSlots = [
+    "09:00 AM",
+    "11:00 AM",
+    "01:00 PM",
+    "03:00 PM",
+    "05:00 PM",
+    "07:00 PM"
+  ];
+
+  late List<DateTime> _upcomingDates;
+
   @override
   void initState() {
     super.initState();
     _fetchOwnerProfile();
+    // Generate dates for the next 14 days
+    _upcomingDates = List.generate(14, (i) => DateTime.now().add(Duration(days: i + 1)));
   }
 
   Future<void> _fetchOwnerProfile() async {
@@ -51,27 +70,35 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     }
   }
 
+  DateTime get _visitDateTime {
+    final format = DateFormat("hh:mm a");
+    final parsedTime = format.parse(_selectedTimeSlot);
+    return DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      parsedTime.hour,
+      parsedTime.minute,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFBFDFF),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey.shade200),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
+          onPressed: () {
+            if (_currentStep > 0) {
+              setState(() => _currentStep--);
+            } else {
+              Navigator.pop(context);
+            }
+          },
         ),
         title: Column(
           children: [
@@ -80,16 +107,15 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               style: GoogleFonts.notoSansDevanagari(
                 color: const Color(0xFF1A1A2E),
                 fontWeight: FontWeight.w800,
-                fontSize: 18,
+                fontSize: 16,
               ),
             ),
             Text(
-              'Visit Details',
+              'Visit Request Wizard',
               style: GoogleFonts.plusJakartaSans(
                 color: Colors.grey,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                letterSpacing: 0.2,
               ),
             ),
           ],
@@ -111,13 +137,13 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 const Icon(
                   Icons.verified_user_rounded,
                   color: Color(0xFF00C853),
-                  size: 14,
+                  size: 13,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   'सुरक्षित',
                   style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 10,
+                    fontSize: 9,
                     fontWeight: FontWeight.w900,
                     color: const Color(0xFF00C853),
                   ),
@@ -127,55 +153,688 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            _buildPropertyHeader(),
-            const SizedBox(height: 16),
-            _buildCombinedDetailsCard(),
-            const SizedBox(height: 40),
-          ],
-        ),
+      body: Column(
+        children: [
+          _buildProgressBar(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+                child: _buildStepContent(),
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: _buildBottomCTA(),
     );
   }
 
-  Widget _buildPropertyHeader() {
+  Widget _buildProgressBar() {
     return Container(
-      padding: const EdgeInsets.all(12),
+      width: double.infinity,
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(3, (index) {
+              final isCompleted = _currentStep > index;
+              final isCurrent = _currentStep == index;
+              return Row(
+                children: [
+                  Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isCompleted
+                          ? const Color(0xFF00C853)
+                          : (isCurrent ? AppTheme.brandColor : Colors.grey[200]),
+                      boxShadow: isCurrent
+                          ? [
+                              BoxShadow(
+                                color: AppTheme.brandColor.withOpacity(0.3),
+                                blurRadius: 6,
+                                offset: const Offset(0, 3),
+                              )
+                            ]
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: isCompleted
+                        ? const Icon(Icons.check, color: Colors.white, size: 14)
+                        : Text(
+                            '${index + 1}',
+                            style: GoogleFonts.inter(
+                              color: isCurrent ? Colors.white : Colors.grey[600],
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    _stepTitles[index].split(' · ').last,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: isCurrent || isCompleted
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      color: isCurrent || isCompleted
+                          ? Colors.black87
+                          : Colors.grey[400],
+                    ),
+                  ),
+                  if (index < 2) ...[
+                    const SizedBox(width: 10),
+                    Container(
+                      width: 20,
+                      height: 1.5,
+                      color: _currentStep > index ? const Color(0xFF00C853) : Colors.grey[300],
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                ],
+              );
+            }),
+          ),
+          const SizedBox(height: 14),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: (_currentStep + 1) / 3,
+              backgroundColor: Colors.grey[100],
+              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.brandColor),
+              minHeight: 4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepContent() {
+    switch (_currentStep) {
+      case 0:
+        return _buildScheduleStep();
+      case 1:
+        return _buildGuestsStep();
+      case 2:
+        return _buildReviewStep();
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildScheduleStep() {
+    return Column(
+      key: const ValueKey(0),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildPropertyHeaderMini(),
+        const SizedBox(height: 24),
+        Text(
+          'Select Date',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 12),
+        // Horizontal custom calendar list
+        SizedBox(
+          height: 86,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _upcomingDates.length,
+            itemBuilder: (context, index) {
+              final date = _upcomingDates[index];
+              final isSelected = _selectedDate.day == date.day &&
+                  _selectedDate.month == date.month &&
+                  _selectedDate.year == date.year;
+              final dayName = DateFormat('E').format(date).toUpperCase();
+              final dayNum = DateFormat('d').format(date);
+              final monthName = DateFormat('MMM').format(date);
+
+              return GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  setState(() => _selectedDate = date);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 62,
+                  margin: const EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppTheme.brandColor : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
+                      width: 1.5,
+                    ),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppTheme.brandColor.withOpacity(0.25),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            )
+                          ]
+                        : null,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        dayName,
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: isSelected ? Colors.white.withOpacity(0.8) : Colors.grey[500],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        dayNum,
+                        style: GoogleFonts.outfit(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: isSelected ? Colors.white : Colors.black87,
+                          height: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        monthName,
+                        style: GoogleFonts.inter(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: isSelected ? Colors.white.withOpacity(0.8) : Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 32),
+        Text(
+          'Select Time',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 12),
+        // Time slot grid
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 2.1,
+          ),
+          itemCount: _timeSlots.length,
+          itemBuilder: (context, index) {
+            final slot = _timeSlots[index];
+            final isSelected = _selectedTimeSlot == slot;
+            return GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                setState(() => _selectedTimeSlot = slot);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.white : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
+                    width: isSelected ? 2 : 1,
+                  ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: AppTheme.brandColor.withOpacity(0.1),
+                            blurRadius: 10,
+                          )
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  slot,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                    color: isSelected ? AppTheme.brandColor : Colors.black87,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 28),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.blue.withOpacity(0.04),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.blue.withOpacity(0.1)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.info_outline_rounded, color: AppTheme.brandColor, size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Landlords usually accept requests faster when scheduled during daytime hours.',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.blue[900],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGuestsStep() {
+    return Column(
+      key: const ValueKey(1),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildPropertyHeaderMini(),
+        const SizedBox(height: 32),
+        Text(
+          'How many visitors are coming?',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'यस कोठाको अवलोकनका लागि आउने व्यक्तिको संख्या चयन गर्नुहोस्।',
+          style: GoogleFonts.notoSansDevanagari(
+            fontSize: 12,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 24),
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.shade100),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.015),
+                blurRadius: 10,
+              )
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Visitors Count',
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Limit: Up to 5 people',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  // Minus Button
+                  GestureDetector(
+                    onTap: () {
+                      if (_visitingCount > 1) {
+                        HapticFeedback.lightImpact();
+                        setState(() => _visitingCount--);
+                      }
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: _visitingCount > 1 ? Colors.grey.shade300 : Colors.grey.shade100,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.remove,
+                        color: _visitingCount > 1 ? Colors.black87 : Colors.grey[300],
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    '$_visitingCount',
+                    style: GoogleFonts.outfit(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Plus Button
+                  GestureDetector(
+                    onTap: () {
+                      if (_visitingCount < 5) {
+                        HapticFeedback.lightImpact();
+                        setState(() => _visitingCount++);
+                      }
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: _visitingCount < 5 ? AppTheme.brandColor : Colors.grey.shade100,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: _visitingCount < 5 ? AppTheme.brandColor : Colors.grey[300],
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 28),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFEF3C7),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFFDE68A)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.shield_outlined, color: Color(0xFFD97706), size: 20),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Polite Reminder',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF92400E),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Please ensure guests remain respectful of neighborhood house rules during physical viewings.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: const Color(0xFFB45309),
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReviewStep() {
+    final isNightly = widget.property.priceNight > 0;
+    final rentLabel = isNightly ? 'Rent / Night' : 'Rent / Month';
+    final rentPrice = isNightly 
+        ? widget.property.priceNight.toStringAsFixed(0) 
+        : (widget.property.priceMonth > 0 
+            ? widget.property.priceMonth.toStringAsFixed(0) 
+            : widget.property.price);
+
+    return Column(
+      key: const ValueKey(2),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Confirm Trip Details',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
+            letterSpacing: -0.5,
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Airbnb-style Trip Summary Card
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.shade100),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              )
+            ],
+          ),
+          child: Column(
+            children: [
+              // Mini Property Card info
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: KhoznaImage(
+                        imageUrl: widget.property.imageUrl,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.property.category,
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.brandColor,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.property.title,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black87,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_rounded, color: Colors.grey, size: 12),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  widget.property.location,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              // Schedule Details list
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Column(
+                  children: [
+                    _buildSummaryDetailRow(
+                      Icons.calendar_today_rounded,
+                      'Visit Date',
+                      DateFormat('EEE, MMMM d, yyyy').format(_selectedDate),
+                    ),
+                    const SizedBox(height: 14),
+                    _buildSummaryDetailRow(
+                      Icons.access_time_rounded,
+                      'Time Slot',
+                      _selectedTimeSlot,
+                    ),
+                    const SizedBox(height: 14),
+                    _buildSummaryDetailRow(
+                      Icons.group_outlined,
+                      'Visitors Count',
+                      '$_visitingCount Persons',
+                    ),
+                    const SizedBox(height: 14),
+                    _buildSummaryDetailRow(
+                      Icons.account_balance_wallet_outlined,
+                      rentLabel,
+                      'Rs. ${PriceFormatter.format(rentPrice)}',
+                      valueColor: AppTheme.brandColor,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 28),
+        // Khozna Trust Safety Card
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: const Color(0xFFDBEAFE)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.gpp_good_rounded, color: AppTheme.brandColor, size: 22),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Khozna Safety Protection',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue[900],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Our safety policy strictly forbids landlords from demanding advanced booking fees prior to physically visiting properties. Do not pay first.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.blue[700],
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPropertyHeaderMini() {
+    return Container(
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: Colors.grey.shade100),
       ),
       child: Row(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white, width: 4),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: KhoznaImage(
-                imageUrl: widget.property.imageUrl,
-                width: 70,
-                height: 70,
-                fit: BoxFit.cover,
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: KhoznaImage(
+              imageUrl: widget.property.imageUrl,
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,324 +842,20 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 Text(
                   widget.property.title,
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF1A1A2E),
-                    letterSpacing: -0.5,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black87,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 9,
-                      backgroundColor: Colors.grey[100],
-                      backgroundImage: _ownerProfile?.avatarUrl != null
-                          ? NetworkImage(_ownerProfile!.avatarUrl!)
-                          : null,
-                      child: _ownerProfile?.avatarUrl == null
-                          ? const Icon(
-                              Icons.person,
-                              size: 10,
-                              color: Colors.grey,
-                            )
-                          : null,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        'Owned by ${_ownerProfile?.fullName ?? widget.property.ownerName}',
-                        style: GoogleFonts.inter(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCombinedDetailsCard() {
-    final isNightly = widget.property.priceNight > 0;
-    final rentLabel = isNightly ? 'प्रति रात भाडा · Rent/Night' : 'मासिक भाडा · Rent/Month';
-    final rentPrice = isNightly 
-        ? widget.property.priceNight.toStringAsFixed(0) 
-        : (widget.property.priceMonth > 0 
-            ? widget.property.priceMonth.toStringAsFixed(0) 
-            : widget.property.price);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade200, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // 1. Visit Date & Time Row
-          InkWell(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _selectVisitDate();
-            },
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.calendar_month_rounded,
-                      color: AppTheme.brandColor,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'भ्रमणको मिति र समय · Date & Time',
-                          style: GoogleFonts.notoSansDevanagari(
-                            fontSize: 10,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          _getFormattedDate(_visitDate),
-                          style: GoogleFonts.notoSansDevanagari(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF1A1A2E),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _getDayName(_visitDate),
-                          style: GoogleFonts.notoSansDevanagari(
-                            fontSize: 12,
-                            color: Colors.grey[500],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit_calendar_rounded, size: 12, color: Colors.grey[700]),
-                        const SizedBox(width: 4),
-                        Text(
-                          'बदल्नुहोस्',
-                          style: GoogleFonts.notoSansDevanagari(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          Divider(height: 1, color: Colors.grey.shade100, indent: 20, endIndent: 20),
-
-          // 2. Visiting Count Row
-          InkWell(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _showVisitingPicker();
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.group_outlined,
-                      color: AppTheme.brandColor,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'आउने संख्या · Visiting',
-                          style: GoogleFonts.notoSansDevanagari(
-                            fontSize: 10,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'तपाईं / $_visitingCount जना',
-                          style: GoogleFonts.notoSansDevanagari(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF1A1A2E),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit_rounded, size: 12, color: Colors.grey[700]),
-                        const SizedBox(width: 4),
-                        Text(
-                          'बदल्नुहोस्',
-                          style: GoogleFonts.notoSansDevanagari(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          Divider(height: 1, color: Colors.grey.shade100, indent: 20, endIndent: 20),
-
-          // 3. Rent Details Row
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(
-                    Icons.account_balance_wallet_rounded,
-                    color: AppTheme.brandColor,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        rentLabel,
-                        style: GoogleFonts.notoSansDevanagari(
-                          fontSize: 10,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            '₹ ',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.brandColor,
-                            ),
-                          ),
-                          Text(
-                            rentPrice,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w900,
-                              color: AppTheme.brandColor,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF00C853).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: Text(
-                              'बजेटमै राम्रो',
-                              style: GoogleFonts.notoSansDevanagari(
-                                fontSize: 9,
-                                color: const Color(0xFF00C853),
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'अन्तिम मूल्य भ्रमणपछि छलफल गरिनेछ',
-                        style: GoogleFonts.notoSansDevanagari(
-                          fontSize: 10,
-                          color: Colors.grey[500],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 2),
+                Text(
+                  'Stay with ${_ownerProfile?.fullName ?? widget.property.ownerName ?? "Khozna Landlord"}',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -511,233 +866,111 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     );
   }
 
-
+  Widget _buildSummaryDetailRow(IconData icon, String title, String value, {Color? valueColor}) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: Colors.grey[400]),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            color: Colors.grey[600],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: GoogleFonts.inter(
+            fontSize: 13.5,
+            color: valueColor ?? Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildBottomCTA() {
+    final bool isLastStep = _currentStep == 2;
     return Container(
-      padding: const EdgeInsets.fromLTRB(36, 16, 36, 32),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
       decoration: BoxDecoration(
         color: Colors.white,
+        border: Border(top: BorderSide(color: Colors.grey.shade100)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(0, -8),
-          ),
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          )
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _largeButton(
-            label: 'भ्रमण अनुरोध गर्नुहोस्',
-            icon: Icons.calendar_today_rounded,
-            color: AppTheme.brandColor,
-            onPressed: _isSubmitting
-                ? null
-                : () {
-                    HapticFeedback.mediumImpact();
-                    _submit();
-                  },
-            isLoading: _isSubmitting,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _largeButton({
-    required String label,
-    IconData? icon,
-    String? svgIcon,
-    required Color color,
-    required VoidCallback? onPressed,
-    bool isOutlined = false,
-    bool isLoading = false,
-  }) {
-    final iconColor = isOutlined ? color : Colors.white;
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(50),
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          color: isOutlined ? Colors.white : color,
-          borderRadius: BorderRadius.circular(50),
-          border: isOutlined
-              ? Border.all(color: color.withOpacity(0.2), width: 1.5)
-              : null,
-        ),
+      child: SafeArea(
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (isLoading)
-              SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  color: iconColor,
-                  strokeWidth: 2,
-                ),
-              )
-            else ...[
-              if (svgIcon != null)
-                SvgPicture.asset(
-                  svgIcon,
-                  width: 20,
-                  height: 20,
-                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-                )
-              else if (icon != null)
-                Icon(icon, color: iconColor, size: 20),
-              if (svgIcon != null || icon != null) const SizedBox(width: 12),
-              Text(
-                label,
-                style: GoogleFonts.notoSansDevanagari(
-                  color: isOutlined ? color : Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
+            if (_currentStep > 0) ...[
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  setState(() => _currentStep--);
+                },
+                child: Container(
+                  height: 52,
+                  width: 52,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade200, width: 1.5),
+                  ),
+                  child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Colors.black87),
                 ),
               ),
             ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _getFormattedDate(DateTime date) {
-    final String period = date.hour >= 12 ? 'PM' : 'AM';
-    final int hour = date.hour > 12 ? date.hour - 12 : (date.hour == 0 ? 12 : date.hour);
-    final String minute = date.minute.toString().padLeft(2, '0');
-    return '${date.day} ${_getMonthName(date.month)}, ${date.year} at $hour:$minute $period';
-  }
-
-  String _getMonthName(int month) {
-    return [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ][month - 1];
-  }
-
-  String _getDayName(DateTime date) {
-    const days = [
-      'आइतबार (Sun)',
-      'सोमबार (Mon)',
-      'मंगलबार (Tue)',
-      'बुधबार (Wed)',
-      'बिहीबार (Thu)',
-      'शुक्रबार (Fri)',
-      'शनिबार (Sat)',
-    ];
-    return days[date.weekday % 7];
-  }
-
-  Future<void> _selectVisitDate() async {
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: _visitDate,
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 30)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppTheme.brandColor,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (pickedDate != null) {
-      if (!mounted) return;
-      final TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(_visitDate),
-        builder: (context, child) {
-          return Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: AppTheme.brandColor,
-                onPrimary: Colors.white,
-                onSurface: Colors.black,
-              ),
-            ),
-            child: child!,
-          );
-        },
-      );
-      if (pickedTime != null) {
-        setState(() {
-          _visitDate = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
-        });
-      }
-    }
-  }
-
-  void _showVisitingPicker() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'आउने संख्या चयन गर्नुहोस्',
-              style: GoogleFonts.notoSansDevanagari(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [1, 2, 3, 4, 5]
-                  .map(
-                    (n) => InkWell(
-                      onTap: () {
-                        setState(() => _visitingCount = n);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        width: 50,
-                        height: 50,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: _visitingCount == n
-                              ? AppTheme.brandColor
-                              : Colors.grey[100],
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '$n',
-                          style: TextStyle(
-                            color: _visitingCount == n
-                                ? Colors.white
-                                : Colors.black,
+            Expanded(
+              child: SizedBox(
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: _isSubmitting
+                      ? null
+                      : () {
+                          HapticFeedback.mediumImpact();
+                          if (isLastStep) {
+                            _submit();
+                          } else {
+                            setState(() => _currentStep++);
+                          }
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.brandColor,
+                    disabledBackgroundColor: AppTheme.brandColor.withOpacity(0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : Text(
+                          isLastStep ? 'भेजन्नुहोस् · Confirm Request' : 'जारी राख्नुहोस् · Continue',
+                          style: GoogleFonts.notoSansDevanagari(
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
+                            fontSize: 15,
                           ),
                         ),
-                      ),
-                    ),
-                  )
-                  .toList(),
+                ),
+              ),
             ),
-            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -754,25 +987,28 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               ? widget.property.priceMonth 
               : double.tryParse(widget.property.price.replaceAll(',', '')) ?? 0);
 
+      final fullVisitDate = _visitDateTime;
+
       await BookingRepository.createBookingRequest(
         propertyId: widget.property.id,
         ownerId: widget.property.ownerId,
-        checkIn: _visitDate,
-        checkOut: _visitDate.add(const Duration(days: 30)),
+        checkIn: fullVisitDate,
+        checkOut: fullVisitDate.add(const Duration(days: 30)),
         totalPrice: finalPrice,
-        message:
-            'भ्रमण मिति: ${_getFormattedDate(_visitDate)} (${_getDayName(_visitDate)}), जम्मा व्यक्ति: $_visitingCount',
+        message: 'भ्रमण मिति: ${DateFormat('yyyy-MM-dd HH:mm').format(fullVisitDate)}, जम्मा व्यक्ति: $_visitingCount',
       );
+
       if (mounted) {
         HapticFeedback.heavyImpact();
         await BookingRepository.fetchBookedPropertyIds(); // Update global store
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.redAccent),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

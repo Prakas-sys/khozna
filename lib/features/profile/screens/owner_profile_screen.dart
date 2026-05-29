@@ -49,10 +49,18 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   List<ReviewModel> _ownerReviews = [];
   bool _isLoadingReviews = true;
 
+  String? _bio;
+  String? _phoneNumber;
+  String? _email;
+  String? _userType;
+  String? _organization;
+  bool _isProfileVerified = false;
+
   @override
   void initState() {
     super.initState();
     _realLocation = widget.location;
+    _isProfileVerified = widget.isVerified;
     _loadProfileData();
   }
 
@@ -62,7 +70,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         VoteRepository.getVoteCount(widget.ownerId),
         Supabase.instance.client
             .from('profiles')
-            .select('created_at, area_name')
+            .select('created_at, area_name, bio, phone_number, email, user_type, organization, is_verified')
             .eq('id', widget.ownerId)
             .maybeSingle(),
         BookingRepository.fetchReviewsForOwner(widget.ownerId),
@@ -75,11 +83,17 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           if (profileData != null) {
             if (profileData['created_at'] != null) {
               final date = DateTime.parse(profileData['created_at']);
-              _joinedDate = DateFormat.yMMMM().format(date);
+              _joinedDate = DateFormat('MMMM yyyy').format(date);
             }
             if (profileData['area_name'] != null && profileData['area_name'].toString().isNotEmpty) {
               _realLocation = profileData['area_name'].toString();
             }
+            _bio = profileData['bio'] as String?;
+            _phoneNumber = profileData['phone_number'] as String?;
+            _email = profileData['email'] as String?;
+            _userType = profileData['user_type'] as String?;
+            _organization = profileData['organization'] as String?;
+            _isProfileVerified = (profileData['is_verified'] as bool?) ?? widget.isVerified;
           }
           _ownerReviews = results[2] as List<ReviewModel>;
           _isLoadingReviews = false;
@@ -99,11 +113,16 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double avgRating = _ownerReviews.isNotEmpty
+        ? (_ownerReviews.map((e) => e.rating).reduce((a, b) => a + b) / _ownerReviews.length)
+        : 4.0;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -113,366 +132,311 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          widget.name,
+          'Host Profile',
           style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
             fontWeight: FontWeight.w800,
             fontSize: 18,
             letterSpacing: -0.5,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Header Card
+            // Airbnb-style Host Passport Card
             Container(
-              padding: const EdgeInsets.all(24),
+              width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withOpacity(0.06),
                     blurRadius: 20,
-                    offset: const Offset(0, 10),
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Avatar with overlap badge
-                      Stack(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Row(
+                  children: [
+                    // Passport Left: Large Photo with overlapping verified badge
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-                            ),
-                            child: CircleAvatar(
-                              radius: 46,
-                              backgroundColor: const Color(0xFFF1F5F9),
-                              backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
-                                  ? CachedNetworkImageProvider(widget.avatar)
-                                  : null,
-                              child: (widget.avatar.isEmpty || widget.avatar.contains('pravatar.cc'))
-                                  ? const Icon(Icons.person, size: 40, color: Colors.grey)
-                                  : null,
-                            ),
-                          ),
-                          if (widget.isVerified)
-                            Positioned(
-                              bottom: 4,
-                              right: 4,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(3),
                                 decoration: const BoxDecoration(
-                                  color: Colors.white,
                                   shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [AppTheme.brandColor, Color(0xFF00C853)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
                                 ),
-                                child: const Icon(
-                                  Icons.check_circle_rounded,
-                                  color: Color(0xFF4CAF50),
-                                  size: 24,
+                                child: CircleAvatar(
+                                  radius: 46,
+                                  backgroundColor: const Color(0xFFF1F5F9),
+                                  backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
+                                      ? CachedNetworkImageProvider(widget.avatar)
+                                      : null,
+                                  child: (widget.avatar.isEmpty || widget.avatar.contains('pravatar.cc'))
+                                      ? const Icon(Icons.person, size: 44, color: Colors.grey)
+                                      : null,
                                 ),
                               ),
+                              if (_isProfileVerified)
+                                Positioned(
+                                  bottom: 0,
+                                  right: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.verified_rounded,
+                                      color: AppTheme.brandColor,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            widget.name,
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black,
+                              height: 1.1,
                             ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: AppTheme.brandColor.withOpacity(0.08),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              'Verified Owner',
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.brandColor,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      const SizedBox(width: 20),
-                      // Info Column
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    widget.name,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.black,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(Icons.location_on_rounded, color: Colors.grey[400], size: 14),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _realLocation,
-                                  style: GoogleFonts.plusJakartaSans(
-                                    color: Colors.grey[500],
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.circle, color: Color(0xFF4CAF50), size: 8),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Active this week',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    color: Colors.grey[500],
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
-                  // Trust Score Section
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFF8FAFC), Color(0xFFF1F5F9)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF00A3FF).withOpacity(0.04),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
                     ),
-                    child: Row(
-                      children: [
-                        // Premium Glowing Icon
-                        Container(
-                          height: 52,
-                          width: 52,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF00A3FF), Color(0xFF0077FF)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF00A3FF).withOpacity(0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
+                    const SizedBox(width: 16),
+                    Container(height: 120, width: 1, color: Colors.grey.shade200),
+                    const SizedBox(width: 16),
+                    // Passport Right: Passport Stats Blocks
+                    Expanded(
+                      flex: 5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildPassportStat('${_ownerReviews.length}', 'Reviews'),
+                          const SizedBox(height: 16),
+                          _buildPassportStat(
+                            avgRating.toStringAsFixed(1),
+                            'Rating',
+                            suffixIcon: const Icon(Icons.star_rounded, color: Colors.black, size: 16),
                           ),
-                          child: const Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 28),
-                        ),
-                        const SizedBox(width: 16),
-                        // Trust Score Info
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Trust Score',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.baseline,
-                                textBaseline: TextBaseline.alphabetic,
-                                children: [
-                                  Text(
-                                    _isLoadingVotes ? '...' : '$_voteCount',
-                                    style: GoogleFonts.outfit(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.black,
-                                      letterSpacing: -0.5,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    _voteCount <= 1 ? 'Total Vote' : 'Total Votes',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.grey[500],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                          const SizedBox(height: 16),
+                          _buildPassportStat(
+                            _voteCount.toString(),
+                            'Trust Score',
+                            suffixIcon: const Icon(Icons.verified_user_outlined, color: Colors.black, size: 14),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  // Bottom Row of Verifications
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildHeaderStatGrid(
-                          'KYC Verified', 
-                          Icons.verified_user_rounded, 
-                          iconColor: Colors.green,
-                          bgColor: const Color(0xFFE8F5E9),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildHeaderStatGrid('Phone Verified', Icons.phone_android_rounded),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Stats Card (Listings, Trust, Joined)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(32),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Expanded(
-                    child: _buildStatsRowItem(
-                      'सूचीहरू (Listings)',
-                      widget.totalListings.toString(),
-                      null,
-                    ),
-                  ),
-                  Container(height: 40, width: 1, color: const Color(0xFFF1F5F9)),
-                  Expanded(
-                    child: _buildStatsRowItem(
-                      'भरोसा (Trust)',
-                      _isLoadingVotes ? '...' : '$_voteCount',
-                      null, // Icon removed as requested
-                    ),
-                  ),
-                  Container(height: 40, width: 1, color: const Color(0xFFF1F5F9)),
-                  Expanded(
-                    child: _buildStatsRowItem(
-                      'Joined',
-                      _joinedDate,
-                      null,
-                      isJoined: true,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Action Buttons
-            GestureDetector(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => chat_page.ChatScreen(
-                      ownerId: widget.ownerId,
-                      name: widget.name,
-                      avatar: widget.avatar,
-                      online: true,
-                    ),
-                  ),
-                );
-              },
-              child: Container(
-                width: double.infinity,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: AppTheme.brandColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/Message neww.svg',
-                      width: 20,
-                      height: 20,
-                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Send Message',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                        color: Colors.white,
-                        letterSpacing: -0.2,
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-
-            const SizedBox(height: 16),
-
-            SizedBox(
-              width: double.infinity,
-              child: _buildSecondaryButton('Share Profile', Icons.share_rounded),
-            ),
-
             const SizedBox(height: 32),
+
+            // About the Owner Section
+            Text(
+              'About ${widget.name}',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey.shade100),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    (_bio != null && _bio!.trim().isNotEmpty)
+                        ? _bio!
+                        : "Hi, I'm ${widget.name}. I am committed to sharing safe, clean, and comfortable apartments and rooms on Khozna with students, professionals, and families. Please reach out to chat or plan a physical viewing!",
+                    style: GoogleFonts.inter(
+                      fontSize: 14.5,
+                      color: const Color(0xFF475569),
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  _buildAboutMetaItem(Icons.location_on_outlined, 'Lives in $_realLocation'),
+                  const SizedBox(height: 12),
+                  _buildAboutMetaItem(
+                    Icons.work_outline_rounded,
+                    _organization != null && _organization!.isNotEmpty
+                        ? _organization!
+                        : 'Independent Owner',
+                  ),
+                  const SizedBox(height: 12),
+                  _buildAboutMetaItem(Icons.calendar_month_outlined, 'Joined in $_joinedDate'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            // Confirmed Information Section
+            Text(
+              '${widget.name}\'s Confirmed Info',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.grey.shade100),
+              ),
+              child: Column(
+                children: [
+                  _buildConfirmedInfoRow('Identity Verified', true),
+                  const SizedBox(height: 14),
+                  _buildConfirmedInfoRow('Phone Number Confirmed', _phoneNumber != null && _phoneNumber!.isNotEmpty),
+                  const SizedBox(height: 14),
+                  _buildConfirmedInfoRow('Email Address Confirmed', _email != null && _email!.isNotEmpty),
+                  const SizedBox(height: 14),
+                  _buildConfirmedInfoRow('Active Property Listings', widget.totalListings > 0),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+
+            // Send Message & Action Buttons
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 56,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => chat_page.ChatScreen(
+                              ownerId: widget.ownerId,
+                              name: widget.name,
+                              avatar: widget.avatar,
+                              online: true,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: SvgPicture.asset(
+                        'assets/icons/Message neww.svg',
+                        width: 18,
+                        height: 18,
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      ),
+                      label: Text(
+                        'Send Message',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.brandColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  height: 56,
+                  width: 56,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.share_outlined, color: Colors.black87, size: 20),
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      // Share implementation
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 36),
+            const Divider(),
+            const SizedBox(height: 24),
+
             _buildReviewsSection(),
-            const SizedBox(height: 48),
+            const SizedBox(height: 40),
 
             // Safety Section
-            TextButton.icon(
-              onPressed: () => _showReportDialog(context),
-              icon: Icon(Icons.gpp_maybe_rounded, size: 16, color: Colors.grey.shade400),
-              label: Text(
-                'Report Suspicious Activity',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade500,
-                  decoration: TextDecoration.underline,
+            Center(
+              child: TextButton.icon(
+                onPressed: () => _showReportDialog(context),
+                icon: Icon(Icons.gpp_maybe_rounded, size: 16, color: Colors.grey.shade400),
+                label: Text(
+                  'Report this landlord',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade500,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
             ),
@@ -480,6 +444,80 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPassportStat(String value, String label, {Widget? suffixIcon}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              value,
+              style: GoogleFonts.outfit(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+                height: 1,
+              ),
+            ),
+            if (suffixIcon != null) ...[
+              const SizedBox(width: 4),
+              suffixIcon,
+            ],
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 11,
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAboutMetaItem(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.grey[600], size: 20),
+        const SizedBox(width: 12),
+        Text(
+          text,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF334155),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConfirmedInfoRow(String text, bool isConfirmed) {
+    return Row(
+      children: [
+        Icon(
+          isConfirmed ? Icons.check_circle_rounded : Icons.radio_button_off_rounded,
+          color: isConfirmed ? const Color(0xFF00C853) : Colors.grey[300],
+          size: 20,
+        ),
+        const SizedBox(width: 12),
+        Text(
+          text,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            color: isConfirmed ? const Color(0xFF1E293B) : Colors.grey[500],
+            fontWeight: isConfirmed ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 
