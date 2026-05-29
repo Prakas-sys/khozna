@@ -1216,7 +1216,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'भ्रमण स्वीकृत भयो!',
+                  'अवलोकन स्वीकृत भयो!',
                   style: GoogleFonts.notoSansDevanagari(
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
@@ -1251,7 +1251,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'मालिकले भ्रमण स्वीकार गर्न सक्नुभएन।',
+                'मालिकले अवलोकन स्वीकार गर्न सक्नुभएन।',
                 style: GoogleFonts.notoSansDevanagari(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
@@ -1290,7 +1290,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       child: Column(
         children: [
           Text(
-            'भ्रमण पूरा भयो। धन्यवाद!',
+            'अवलोकन पूरा भयो। धन्यवाद!',
             style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w700, fontSize: 16),
           ),
           const SizedBox(height: 8),
@@ -1578,14 +1578,14 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           Icons.hourglass_top_rounded,
           Colors.orange,
           'Pending Response',
-          'मालिकले भ्रमण स्वीकृत गर्न बाँकी छ',
+          'मालिकले अवलोकन स्वीकृत गर्न बाँकी छ',
         );
       case 'visit_accepted':
         return _StatusConfig(
           Icons.check_circle_rounded,
           Colors.blue,
           'Visit Accepted',
-          'भ्रमण स्वीकृत — कोठा हेर्न जानुहोस्',
+          'अवलोकन स्वीकृत — कोठा हेर्न जानुहोस्',
         );
       case 'awaiting_payment':
       case 'visit_liked':
@@ -1600,7 +1600,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           Icons.cancel_rounded,
           Colors.red,
           'Visit Declined',
-          'यो भ्रमण अहिले सम्भव भएन',
+          'यो अवलोकन अहिले सम्भव भएन',
         );
       case 'paid':
         return _StatusConfig(
@@ -1621,7 +1621,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
           Icons.done_all_rounded,
           Colors.grey,
           'Visit Completed',
-          'भ्रमण सम्पन्न',
+          'अवलोकन सम्पन्न',
         );
       default:
         return _StatusConfig(Icons.info_rounded, Colors.grey, status, '');

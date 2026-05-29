@@ -132,7 +132,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'भ्रमण अस्वीकृत गरियो (Visit Declined)',
+              'अवलोकन अस्वीकृत गरियो (Visit Declined)',
               style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.bold),
             ),
             backgroundColor: Colors.red,
@@ -190,7 +190,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'भ्रमणको समय पक्का गर्नुहोस्',
+                'अवलोकनको समय पक्का गर्नुहोस्',
                 style: GoogleFonts.notoSansDevanagari(
                   color: Colors.grey.shade600,
                   fontSize: 14,
@@ -364,7 +364,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: Text(
-          'भ्रमण अनुरोधहरू (Visit Requests)',
+          'अवलोकन अनुरोधहरू (Visit Requests)',
           style: GoogleFonts.notoSansDevanagari(
             fontWeight: FontWeight.w800,
             fontSize: 18,
@@ -513,7 +513,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                _buildDateInfo('भ्रमण गर्ने मिति (Visit Date)', checkIn),
+                _buildDateInfo('अवलोकन गर्ने मिति (Visit Date)', checkIn),
                 const Spacer(),
                 const Icon(
                   Icons.calendar_today_rounded,
@@ -678,11 +678,11 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
     switch (status) {
       case 'pending_approval':
         color = Colors.orange;
-        label = 'भ्रमण अनुरोध (Visit Requested)';
+        label = 'अवलोकन अनुरोध (Visit Requested)';
         break;
       case 'visit_accepted':
         color = Colors.blue;
-        label = 'भ्रमण स्वीकृत (Visit Approved)';
+        label = 'अवलोकन स्वीकृत (Visit Approved)';
         break;
       case 'awaiting_payment':
         color = Colors.indigo;

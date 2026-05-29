@@ -148,9 +148,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   }
 
   Widget _buildTripSummaryCard() {
-    final checkInStr = widget.booking.checkIn != null 
-        ? DateFormat('EEE, MMM d, yyyy').format(DateTime.parse(widget.booking.checkIn!))
-        : 'Not Scheduled';
+    final checkInStr = DateFormat('EEE, MMM d, yyyy').format(widget.booking.checkIn);
         
     return Container(
       width: double.infinity,

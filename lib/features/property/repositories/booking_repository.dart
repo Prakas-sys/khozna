@@ -75,7 +75,7 @@ class BookingRepository {
       await _client.from('notifications').insert({
         'user_id': ownerId,
         'sender_id': user.id,
-        'title': 'नयाँ भ्रमण अनुरोध (New Visit Request!)',
+        'title': 'नयाँ अवलोकन अनुरोध (New Visit Request!)',
         'message':
             '$name ले तपाइँको कोठा हेर्न अनुरोध गर्नुभएको छ। ${message ?? ""}',
         'type': 'visit_request',
@@ -114,9 +114,9 @@ class BookingRepository {
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
-          'title': 'भ्रमण स्वीकृत (Visit Approved!)',
+          'title': 'अवलोकन स्वीकृत (Visit Approved!)',
           'message':
-              'तपाइँको भ्रमण अनुरोध स्वीकृत भएको छ। कोठा हेरेर मन पराएपछि मात्र भुक्तानीको प्रक्रिया हुनेछ।',
+              'तपाइँको अवलोकन अनुरोध स्वीकृत भएको छ। कोठा हेरेर मन पराएपछि मात्र भुक्तानीको प्रक्रिया हुनेछ।',
           'type': 'visit_alert',
           'property_id': booking.propertyId,
           'booking_id': bookingId,
@@ -151,11 +151,11 @@ class BookingRepository {
       final booking = await getBookingById(bookingId);
       if (booking != null) {
         debugPrint('Sending rejection notification to guest: ${booking.guestId}');
-        final String displayReason = reason != null ? 'कारण: $reason' : 'घरधनीले यो समयमा भ्रमण व्यवस्था गर्न सक्नुभएन।';
+        final String displayReason = reason != null ? 'कारण: $reason' : 'घरधनीले यो समयमा अवलोकन व्यवस्था गर्न सक्नुभएन।';
         await _client.from('notifications').insert({
           'user_id': booking.guestId,
           'sender_id': _client.auth.currentUser?.id,
-          'title': 'भ्रमण अस्वीकृत (Visit Rejected)',
+          'title': 'अवलोकन अस्वीकृत (Visit Rejected)',
           'message': displayReason,
           'type': 'visit_alert',
           'property_id': booking.propertyId,
@@ -180,7 +180,7 @@ class BookingRepository {
         await _client.from('notifications').insert({
           'user_id': booking.ownerId,
           'sender_id': user?.id,
-          'title': 'भ्रमण अनुरोध याद दिलाउँदै (Visit Reminder)',
+          'title': 'अवलोकन अनुरोध याद दिलाउँदै (Visit Reminder)',
           'message': '$name ले तपाइँको जवाफको लागि प्रतीक्षा गर्दैछ।',
           'type': 'visit_reminder',
           'property_id': booking.propertyId,

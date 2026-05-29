@@ -68,13 +68,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     if (type == 'booking_approved' ||
         message.contains('स्वीकृत') ||
         type == 'visit_alert' && message.contains('स्वीकृत')) {
-      return 'तपाईंको भ्रमण अनुरोध स्वीकृत भयो! (Visit Accepted!)';
+      return 'तपाईंको अवलोकन अनुरोध स्वीकृत भयो! (Visit Accepted!)';
     }
     if (message.contains('अस्वीकृत') ||
         message.contains('सक्नुभएन') ||
         type == 'booking_rejected' ||
         (note['title']?.toString() ?? '').contains('अस्वीकृत')) {
-      return 'भ्रमण अस्वीकृत (Visit Rejected): ';
+      return 'अवलोकन अस्वीकृत (Visit Rejected): ';
     }
     if (type == 'chat' || type == 'message') {
       return '$name बाट नयाँ सन्देश (New Message)';
@@ -525,7 +525,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'भ्रमण अनुरोध (New Visit Request)',
+                            'अवलोकन अनुरोध (New Visit Request)',
                             style: GoogleFonts.plusJakartaSans(
                               fontWeight: FontWeight.w800,
                               fontSize: 16,
@@ -1643,7 +1643,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'सुरक्षाको लागि फोन नम्बर भ्रमण स्वीकृत भएपछि मात्र देखाइनेछ। (Phone number hidden for privacy)',
+                      'सुरक्षाको लागि फोन नम्बर अवलोकन स्वीकृत भएपछि मात्र देखाइनेछ। (Phone number hidden for privacy)',
                       style: GoogleFonts.notoSansDevanagari(
                         fontSize: 12,
                         color: Colors.amber.shade900,

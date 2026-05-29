@@ -30,7 +30,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
   bool _isLoadingOwner = true;
 
   final List<String> _stepTitles = [
-    'भ्रमण मिति · Schedule',
+    'अवलोकन मिति · Schedule',
     'व्यक्ति संख्या · Guests',
     'पुष्टि गर्नुहोस् · Review',
   ];
@@ -103,7 +103,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         title: Column(
           children: [
             Text(
-              'भ्रमण अनुरोध',
+              'अवलोकन अनुरोध',
               style: GoogleFonts.notoSansDevanagari(
                 color: const Color(0xFF1A1A2E),
                 fontWeight: FontWeight.w800,
@@ -995,7 +995,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         checkIn: fullVisitDate,
         checkOut: fullVisitDate.add(const Duration(days: 30)),
         totalPrice: finalPrice,
-        message: 'भ्रमण मिति: ${DateFormat('yyyy-MM-dd HH:mm').format(fullVisitDate)}, जम्मा व्यक्ति: $_visitingCount',
+        message: 'अवलोकन मिति: ${DateFormat('yyyy-MM-dd HH:mm').format(fullVisitDate)}, जम्मा व्यक्ति: $_visitingCount',
       );
 
       if (mounted) {

@@ -63,13 +63,13 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             _buildPropertyHeader(),
             const SizedBox(height: 32),
             _buildDatePicker(
-              label: 'पस्ने मिति (CHECK-IN)',
+              label: 'पस्ने मिति (MOVE-IN)',
               date: _checkIn,
               onTap: () => _selectDate(true),
             ),
             const SizedBox(height: 16),
             _buildDatePicker(
-              label: 'निस्कने मिति (CHECK-OUT)',
+              label: 'जाने मिति (MOVE-OUT)',
               date: _checkOut,
               onTap: () => _selectDate(false),
             ),
@@ -312,10 +312,11 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
       );
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
