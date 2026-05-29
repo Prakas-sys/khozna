@@ -1706,7 +1706,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(30),
                         ),
                         child: Text(
                           'Book Now',
