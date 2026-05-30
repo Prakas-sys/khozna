@@ -28,11 +28,12 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppTheme.brandColor, AppTheme.brandColor.withOpacity(0.8)],
+          colors: [Color(0xFF0A1628), Color(0xFF153B5C), Color(0xFF00A3E1)],
+          stops: [0.0, 0.55, 1.0],
         ),
       ),
       child: Stack(
@@ -353,7 +354,7 @@ class PostPropertyCard extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [AppTheme.brandColor, Color(0xFF80D8FF)],
+          colors: [Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -417,7 +418,7 @@ class PostPropertyCard extends StatelessWidget {
                       child: Text(
                         'Post Now',
                         style: GoogleFonts.inter(
-                          color: Colors.black,
+                          color: AppTheme.brandColor,
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                         ),

@@ -250,18 +250,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 const DetailSectionTitle(title: 'Our Facilities'),
                 const SizedBox(height: 20),
                 _buildAmenityGrid(),
-                const SizedBox(height: 44),
-                const DetailSectionTitle(title: 'Description'),
-                const SizedBox(height: 12),
-                Text(
-                  widget.property.description ??
-                      'सानेपाको शान्त वातावरणमा अवस्थित यो कोठा विद्यार्थी वा सानो परिवारको लागि उपयुक्त छ।',
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: _airbnbGrey,
-                    height: 1.4,
-                  ),
-                ),
                 const SizedBox(height: 32),
                 const DetailSectionTitle(title: 'Location'),
                 const SizedBox(height: 12),
@@ -1643,7 +1631,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1657,11 +1645,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(right: 3.0, bottom: 5.0),
+                          padding: const EdgeInsets.only(right: 2.0, bottom: 3.0),
                           child: SvgPicture.asset(
                             'assets/icons/vector of ruppes.svg',
-                            width: 15,
-                            height: 17,
+                            width: 14,
+                            height: 15,
                             colorFilter: const ColorFilter.mode(
                               Colors.black,
                               BlendMode.srcIn,
@@ -1671,7 +1659,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         Text(
                           PriceFormatter.format(price.toString()),
                           style: GoogleFonts.inter(
-                            fontSize: 22,
+                            fontSize: 20,
                             fontWeight: FontWeight.w800,
                             color: Colors.black,
                             decoration: TextDecoration.underline,
@@ -1681,11 +1669,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ),
                         const SizedBox(width: 4),
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 3.0),
+                          padding: const EdgeInsets.only(bottom: 2.0),
                           child: Text(
                             unit,
                             style: GoogleFonts.inter(
-                              fontSize: 13,
+                              fontSize: 12,
                               color: Colors.black54,
                               fontWeight: FontWeight.w500,
                             ),
@@ -1700,8 +1688,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               // Right Side: Compact Action Button (Airbnb Style)
               _isMyProperty
                   ? SizedBox(
-                      width: 130,
-                      height: 40,
+                      width: 120,
+                      height: 36,
                       child: Container(
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
@@ -1719,7 +1707,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                     )
                   : SizedBox(
-                      width: 130,
+                      width: 120,
                       child: _buildBottomActionButtons(context),
                     ),
             ],
@@ -1738,7 +1726,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (_pendingBookingStatus == 'rejected' ||
         _pendingBookingStatus == 'visit_completed') {
       return SizedBox(
-        height: 40,
+        height: 36,
         child: ElevatedButton(
           onPressed: () => Navigator.push(
             context,
@@ -1769,7 +1757,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     // --- Awaiting payment: show Pay Now button ---
     if (_pendingBookingStatus == 'awaiting_payment') {
       return SizedBox(
-        height: 40,
+        height: 36,
         child: ElevatedButton.icon(
           onPressed: () async {
             if (_pendingBookingId == null) return;
@@ -1852,7 +1840,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
            h > 0 ? 'Visit in ${h}h' : 'Visit in ${m}m');
 
         return SizedBox(
-          height: 40,
+          height: 36,
           child: ElevatedButton.icon(
             onPressed: () async {
               if (_pendingBookingId == null) return;
@@ -1891,7 +1879,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     return SizedBox(
-      height: 40,
+      height: 36,
       child: ElevatedButton(
         onPressed: () => Navigator.push(
           context,
@@ -1921,7 +1909,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildDisabledButton(String label) {
     return Container(
-      height: 40,
+      height: 36,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.grey[200],

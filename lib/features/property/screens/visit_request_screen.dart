@@ -197,15 +197,6 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                       color: isCompleted
                           ? const Color(0xFF00C853)
                           : (isCurrent ? AppTheme.brandColor : Colors.grey[200]),
-                      boxShadow: isCurrent
-                          ? [
-                              BoxShadow(
-                                color: AppTheme.brandColor.withOpacity(0.3),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              )
-                            ]
-                          : null,
                     ),
                     alignment: Alignment.center,
                     child: isCompleted
@@ -283,15 +274,15 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         Text(
           'Select Date',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: FontWeight.w800,
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         // Horizontal custom calendar list
         SizedBox(
-          height: 86,
+          height: 92,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: _upcomingDates.length,
@@ -311,7 +302,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: 62,
+                  width: 68,
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
                     color: isSelected ? AppTheme.brandColor : Colors.white,
@@ -345,7 +336,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                       Text(
                         dayNum,
                         style: GoogleFonts.outfit(
-                          fontSize: 20,
+                          fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: isSelected ? Colors.white : Colors.black87,
                           height: 1,
@@ -371,7 +362,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         Text(
           'Select Time',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: FontWeight.w800,
             color: Colors.black87,
           ),
@@ -385,7 +376,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             crossAxisCount: 3,
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
-            childAspectRatio: 2.1,
+            childAspectRatio: 2.0,
           ),
           itemCount: _timeSlots.length,
           itemBuilder: (context, index) {
@@ -466,7 +457,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         Text(
           'How many visitors are coming?',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
+            fontSize: 20,
             fontWeight: FontWeight.w900,
             color: Colors.black,
             letterSpacing: -0.5,
@@ -829,8 +820,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             borderRadius: BorderRadius.circular(12),
             child: KhoznaImage(
               imageUrl: widget.property.imageUrl,
-              width: 50,
-              height: 50,
+              width: 56,
+              height: 56,
               fit: BoxFit.cover,
             ),
           ),
@@ -842,7 +833,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 Text(
                   widget.property.title,
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: Colors.black87,
                   ),
