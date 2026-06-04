@@ -311,7 +311,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
                 stops: const [0.0, 0.2, 0.55, 1.0],
               ),
             ),
-          // Bottom info overlay
+            ),
+          ),
+        ),
+
+        // Bottom info overlay
         Positioned(
           left: 16,
           right: 16,
