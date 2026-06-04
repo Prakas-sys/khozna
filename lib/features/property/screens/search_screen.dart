@@ -224,50 +224,70 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                Expanded(
-                                  child: TextField(
-                                    controller: _searchController,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: 'Location, Area or City',
-                                      hintStyle: GoogleFonts.plusJakartaSans(
-                                        color: Colors.grey[400],
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _searchController,
+                                      style: GoogleFonts.plusJakartaSans(
                                         fontSize: 16,
-                                        fontWeight: FontWeight.w500,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black,
                                       ),
-                                      border: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      errorBorder: InputBorder.none,
-                                      disabledBorder: InputBorder.none,
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                            vertical: 12,
-                                          ),
+                                      decoration: InputDecoration(
+                                        hintText: 'Location, Area or City',
+                                        hintStyle: GoogleFonts.plusJakartaSans(
+                                          color: Colors.grey[400],
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        border: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        errorBorder: InputBorder.none,
+                                        disabledBorder: InputBorder.none,
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              vertical: 12,
+                                            ),
+                                      ),
+                                      onSubmitted: (val) {
+                                        if (val.isNotEmpty) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  FilterResultsScreen(
+                                                    location: val,
+                                                    priceRange:
+                                                        'Up to ₹ ${_priceValue.toInt()}',
+                                                  ),
+                                            ),
+                                          );
+                                        }
+                                      },
                                     ),
-                                    onSubmitted: (val) {
-                                      if (val.isNotEmpty) {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                FilterResultsScreen(
-                                                  location: val,
-                                                  priceRange:
-                                                      'Up to ₹ ${_priceValue.toInt()}',
-                                                ),
-                                          ),
-                                        );
-                                      }
-                                    },
                                   ),
-                                ),
-                              ],
-                            ),
+                                  // --- AIRBNB STYLE FILTER ICON ---
+                                  Container(
+                                    height: 32,
+                                    width: 1.5,
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                    ),
+                                    color: Colors.grey.withOpacity(0.12),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+                                      HapticFeedback.lightImpact();
+                                      _showFilterOptions(context);
+                                    },
+                                    icon: const Icon(
+                                      Icons.tune_rounded, // 2-3 Layer premium filter icon
+                                      color: Colors.black,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ),
                         ),
                       ),
@@ -971,6 +991,180 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             ),
           ),
         ],
+      ),
+  }
+
+  void _showFilterOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.75,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Filters',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => setModalState(() {
+                          _priceValue = 15000;
+                          _activeCategory = 'Room';
+                        }),
+                        child: Text(
+                          'Reset',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    children: [
+                      Text(
+                        'Price Range',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Up to रू ${_priceValue.toInt()}',
+                        style: GoogleFonts.inter(
+                          color: AppTheme.brandColor,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 20,
+                        ),
+                      ),
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: AppTheme.brandColor,
+                          inactiveTrackColor: AppTheme.brandColor.withOpacity(0.12),
+                          thumbColor: Colors.white,
+                          overlayColor: AppTheme.brandColor.withOpacity(0.1),
+                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12, elevation: 4),
+                        ),
+                        child: Slider(
+                          value: _priceValue,
+                          min: 1000,
+                          max: 100000,
+                          divisions: 99,
+                          onChanged: (val) {
+                            setModalState(() => _priceValue = val);
+                            setState(() {}); // Sync with parent state
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      Text(
+                        'Property Type',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: ['Room', 'Flat', 'House', 'Apartment', 'Office'].map((cat) {
+                          bool isSelected = _activeCategory == cat;
+                          return GestureDetector(
+                            onTap: () {
+                              setModalState(() => _activeCategory = cat);
+                              setState(() => _activeCategory = cat);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: isSelected ? Colors.black : Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: isSelected ? Colors.black : Colors.grey.shade300,
+                                ),
+                              ),
+                              child: Text(
+                                cat,
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: isSelected ? Colors.white : Colors.black,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FilterResultsScreen(
+                              location: _searchController.text.isNotEmpty ? _searchController.text : _activeCategory,
+                              priceRange: 'Up to रू ${_priceValue.toInt()}',
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.brandColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: Text(
+                        'Show Results',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
