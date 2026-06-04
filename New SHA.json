@@ -1,0 +1,43 @@
+{
+  "project_info": {
+    "project_number": "543455945266",
+    "project_id": "khozna-746e2",
+    "storage_bucket": "khozna-746e2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:543455945266:android:9795706b72d42449e0122b",
+        "android_client_info": {
+          "package_name": "com.khozna.khozna"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "543455945266-gcbv7t2gfi5fkq89374ffq7u8sgitgen.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.khozna.khozna",
+            "certificate_hash": "ba39362666b72ecad887a4491cf30f4ab05e41f9"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGN1NLX1VBpcAbR3rlAHhPABNYo1Hj-ic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "543455945266-or43hs9ptlqi3kgb5ippi4cvqafk9115.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
