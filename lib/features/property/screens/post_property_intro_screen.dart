@@ -34,10 +34,10 @@ class PostPropertyIntroScreen extends StatelessWidget {
                   children: [
                     const SizedBox(height: 20),
                     Text(
-                      'Start listing on Khozna',
+                      'Start Listing on Khozna',
                       style: GoogleFonts.inter(
                         fontSize: 32,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.bold,
                         color: const Color(0xFF222222),
                         height: 1.15,
                         letterSpacing: -0.8,
@@ -47,21 +47,21 @@ class PostPropertyIntroScreen extends StatelessWidget {
                     
                     _buildStep(
                       stepNumber: 1,
-                      title: 'Room details',
+                      title: 'Property details',
                       subtitle: 'Add location and room info.',
                       imagePath: 'assets/icons/1.png',
                     ),
                     
                     _buildStep(
                       stepNumber: 2,
-                      title: 'Add photos',
-                      subtitle: 'Upload photos and description.',
+                      title: 'Add photos and Videos',
+                      subtitle: 'Upload photos, videos and description.',
                       imagePath: 'assets/icons/2.png',
                     ),
                     
                     _buildStep(
                       stepNumber: 3,
-                      title: 'Post your room',
+                      title: 'Post your property',
                       subtitle: 'Set price and publish.',
                       imagePath: 'assets/icons/3.png',
                       isLast: true,
@@ -101,16 +101,23 @@ class PostPropertyIntroScreen extends StatelessWidget {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    'Get started',
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.2,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Get Started',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward_rounded, size: 24),
+                    ],
                   ),
                 ),
               ),
