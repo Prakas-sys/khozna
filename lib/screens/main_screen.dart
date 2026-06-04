@@ -544,40 +544,34 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             const Spacer(),
-            // SVG icon and text translated slightly up for index == 0 (Khozna)
-            Transform.translate(
-              offset: Offset(0, index == 0 ? -1.5 : 0.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Center(
-                    child: SizedBox(
-                      width: index == -1 ? 48 : width,
-                      height: height,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.center,
-                        children: [
-                          Transform.translate(
-                            offset: Offset(0, index == -1 ? -3.0 : 0.0),
-                            child: OverflowBox(
-                              minWidth: 0,
-                              maxWidth: index == -1 ? 48 : width,
-                              minHeight: 0,
-                              maxHeight: index == -1 ? 31 : height,
-                              child: SvgPicture.asset(
-                                iconPath,
-                                width: index == -1 ? 48 : width,
-                                height: index == -1 ? 31 : height,
-                                colorFilter: index == -1
-                                    ? null
-                                    : ColorFilter.mode(
-                                        isSelected ? activeColor : inactiveColor,
-                                        BlendMode.srcIn,
-                                      ),
-                              ),
-                            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: SizedBox(
+                    width: index == -1 ? 48 : width,
+                    height: height,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.center,
+                      children: [
+                        OverflowBox(
+                          minWidth: 0,
+                          maxWidth: index == -1 ? 48 : width,
+                          minHeight: 0,
+                          maxHeight: index == -1 ? 31 : height,
+                          child: SvgPicture.asset(
+                            iconPath,
+                            width: index == -1 ? 48 : width,
+                            height: index == -1 ? 31 : height,
+                            colorFilter: index == -1
+                                ? null
+                                : ColorFilter.mode(
+                                    isSelected ? activeColor : inactiveColor,
+                                    BlendMode.srcIn,
+                                  ),
                           ),
+                        ),
                           // Premium red badge
                           if (badgeCount > 0)
                             Positioned(

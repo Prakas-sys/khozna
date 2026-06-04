@@ -1721,10 +1721,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ),
           child: Text(
-            'Book Now',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+            'Visit Now',
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
             ),
           ),
         ),
@@ -1875,7 +1876,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         ),
         child: Text(
-          'Book Now',
+          'Visit Now',
           style: GoogleFonts.plusJakartaSans(
             fontSize: 16,
             fontWeight: FontWeight.w800,

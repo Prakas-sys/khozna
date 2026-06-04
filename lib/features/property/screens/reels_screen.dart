@@ -284,284 +284,313 @@ class _ReelsScreenState extends State<ReelsScreen> {
   Widget _buildReelItem(Property property) {
     final List<String> allImages = property.images.isNotEmpty
         ? property.images
-        : (property.imageUrl.isNotEmpty ? [property.imageUrl] : []);
+        : (property.imageUrl.isNotEmpty ? [p    final screenHeight = MediaQuery.of(context).size.height;
+    final mediaHeight = screenHeight * 0.65; // Take up 65% of screen for media
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // BACKGROUND CONTENT
-        isImageView
-            ? _buildImageCarousel(allImages)
-            : _buildVideoPlaceholder(property),
-
-        // Gradient overlay
-        IgnorePointer(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withOpacity(0.5),
-                  Colors.transparent,
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.85),
-                ],
-                stops: const [0.0, 0.2, 0.55, 1.0],
-              ),
-            ),
-          ),
-        ),
-
-        // Bottom info overlay
-        Positioned(
-          left: 16,
-          right: 16,
-          bottom: MediaQuery.of(context).padding.bottom + 20,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Logo and Brand Inline
-              Row(
+    return Container(
+      color: Colors.black,
+      child: Stack(
+        children: [
+          // 1. TOP MEDIA SECTION (65% height)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: mediaHeight,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(30)),
+              child: Stack(
+                fit: StackFit.expand,
                 children: [
+                  isImageView
+                      ? _buildImageCarousel(allImages)
+                      : _buildVideoPlaceholder(property),
+                  // Subtle top gradient for visibility of controls
                   Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: ClipOval(
-                      child: Image.asset(
-                         'assets/images/logo of khozna app.png',
-                         width: 28,
-                         height: 28,
-                         fit: BoxFit.cover,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.4),
+                          Colors.transparent,
+                        ],
+                        stops: const [0.0, 0.3],
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Khozna app',
-                    style: GoogleFonts.plusJakartaSans(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                    ),
+                ],
+              ),
+            ),
+          ),
+
+          // 2. BOTTOM INFO SECTION
+          Positioned(
+            top: mediaHeight - 40, // Overlap slightly with the media
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF121212),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    blurRadius: 20,
+                    offset: const Offset(0, -10),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              
-              // Main Metadata Card
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // LEFT: Property Info (8px vertical gaps)
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+              child: SingleChildScrollView(
+                physics: const NeverScrollableScrollPhysics(), // Prevent inner scroll
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Handle-like indicator
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.white24,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Brand Info
+                    Row(
                       children: [
-                        Text(
-                          property.title,
-                          style: GoogleFonts.plusJakartaSans(
+                        Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
                             color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 24,
-                            letterSpacing: -0.8,
+                            shape: BoxShape.circle,
+                          ),
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/images/logo of khozna app.png',
+                              width: 24,
+                              height: 24,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.location_on_rounded,
-                              color: AppTheme.brandColor,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                property.location,
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              WidgetSpan(
-                                child: SvgPicture.asset(
-                                  'assets/icons/vector of ruppes.svg',
-                                  width: 16,
-                                  height: 16,
-                                  colorFilter: const ColorFilter.mode(
-                                    Colors.white,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ),
-                              const TextSpan(text: ' '),
-                              TextSpan(
-                                text: PriceFormatter.format(property.price),
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              TextSpan(
-                                text: '/month',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white.withOpacity(0.7),
-                                ),
-                              ),
-                            ],
+                        const SizedBox(width: 8),
+                        Text(
+                          'Khozna app',
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.white.withOpacity(0.9),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  
-                  // RIGHT: Action Buttons
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                           HapticFeedback.mediumImpact();
-                           Navigator.push(
-                             context,
-                             MaterialPageRoute(
-                               builder: (_) => chat_page.ChatScreen(
-                                 ownerId: property.ownerId,
-                                 name: property.ownerName,
-                                 avatar: property.ownerAvatar,
-                                 online: true,
-                               ),
-                             ),
-                           );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.white.withOpacity(0.2)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                    const SizedBox(height: 12),
+
+                    // Main Info Row
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // LEFT: Title and Location
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SvgPicture.asset(
-                                'assets/icons/Message neww.svg',
-                                width: 18,
-                                height: 18,
-                                colorFilter: const ColorFilter.mode(
-                                  Colors.white,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
                               Text(
-                                'CHAT',
+                                property.title,
                                 style: GoogleFonts.plusJakartaSans(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 13,
-                                  letterSpacing: 0.5,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 22,
+                                  letterSpacing: -0.5,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.location_on_rounded,
+                                    color: AppTheme.brandColor,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Flexible(
+                                    child: Text(
+                                      property.location,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.white70,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              
+                              // Price (with fallback if 0)
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    WidgetSpan(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(bottom: 2),
+                                        child: SvgPicture.asset(
+                                          'assets/icons/vector of ruppes.svg',
+                                          width: 14,
+                                          height: 14,
+                                          colorFilter: const ColorFilter.mode(
+                                            Colors.white,
+                                            BlendMode.srcIn,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const TextSpan(text: ' '),
+                                    TextSpan(
+                                      text: PriceFormatter.format(
+                                        (property.price == '0' || property.price.isEmpty)
+                                            ? property.priceMonth.toStringAsFixed(0)
+                                            : property.price
+                                      ),
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: '/month',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white54,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      GestureDetector(
-                        onTap: () {
-                          HapticFeedback.heavyImpact();
-                          Navigator.push(
-                             context,
-                             MaterialPageRoute(
-                               builder: (_) => VisitRequestScreen(property: property),
-                             ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: AppTheme.brandColor,
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppTheme.brandColor.withOpacity(0.4),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.bookmark_add_rounded, color: Colors.white, size: 18),
-                              const SizedBox(width: 8),
-                              Text(
-                                'BOOK NOW',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 13,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      GestureDetector(
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          Navigator.push(
-                             context,
-                             MaterialPageRoute(
-                               builder: (_) => PropertyDetailsScreen(property: property),
-                             ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.white.withOpacity(0.2)),
-                          ),
-                          child: Text(
-                            'DETAILS',
-                            style: GoogleFonts.plusJakartaSans(
-                              color: Colors.white70,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 11,
-                              letterSpacing: 1,
+
+                        // RIGHT: Action Column
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildActionButton(
+                              iconPath: 'assets/icons/Vectorproepty card meeasge.svg', // Original SVG
+                              label: 'CHAT',
+                              onTap: () {
+                                HapticFeedback.mediumImpact();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => chat_page.ChatScreen(
+                                      ownerId: property.ownerId,
+                                      name: property.ownerName,
+                                      avatar: property.ownerAvatar,
+                                      online: true,
+                                    ),
+                                  ),
+                                );
+                              },
+                              isPrimary: false,
                             ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    // Details Button
+                    InkWell(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PropertyDetailsScreen(property: property),
                           ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            Text(
+                              'SEE DETAILS',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: AppTheme.brandColor,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.brandColor, size: 12),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
-            ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    String? iconPath,
+    IconData? iconData,
+    required String label,
+    required VoidCallback onTap,
+    required bool isPrimary,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 100, // Fixed width to prevent overflow
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: isPrimary ? AppTheme.brandColor : Colors.white.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(15),
+          border: isPrimary ? null : Border.all(color: Colors.white.withOpacity(0.1)),
         ),
-      ],
+        child: Column(
+          children: [
+            if (iconPath != null)
+              SvgPicture.asset(
+                iconPath,
+                width: 18,
+                height: 18,
+                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              )
+            else if (iconData != null)
+              Icon(iconData, color: Colors.white, size: 18),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: 11,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
