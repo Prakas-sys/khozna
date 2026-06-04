@@ -161,64 +161,60 @@ class _ReelsScreenState extends State<ReelsScreen> {
                 ),
                 // Top Toggle (Photos/Videos)
                 Positioned(
-                  top: 10,
+                  top: 0,
                   left: 0,
                   right: 0,
                   child: SafeArea(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 8,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const SizedBox(width: 40), // Placeholder for balance
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.15),
+                          const SizedBox(width: 48), // Balance for Menu icon
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(30),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(color: Colors.white.withOpacity(0.15)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    _buildSegmentButton(
+                                      title: 'Photos',
+                                      icon: Icons.image_rounded,
+                                      isSelected: isImageView,
+                                      onTap: () {
+                                        setState(() => isImageView = true);
+                                        if (_pageController.hasClients) _pageController.jumpToPage(0);
+                                      },
+                                    ),
+                                    _buildSegmentButton(
+                                      title: 'Videos',
+                                      icon: Icons.play_circle_fill,
+                                      isSelected: !isImageView,
+                                      onTap: () {
+                                        setState(() => isImageView = false);
+                                        if (_pageController.hasClients) _pageController.jumpToPage(0);
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _buildSegmentButton(
-                                  title: 'Photos',
-                                  icon: Icons.image_rounded,
-                                  isSelected: isImageView,
-                                  onTap: () {
-                                      setState(() => isImageView = true);
-                                      if (_pageController.hasClients) _pageController.jumpToPage(0);
-                                  },
-                                ),
-                                _buildSegmentButton(
-                                  title: 'Videos',
-                                  icon: Icons.play_circle_fill,
-                                  isSelected: !isImageView,
-                                  onTap: () {
-                                      setState(() => isImageView = false);
-                                      if (_pageController.hasClients) _pageController.jumpToPage(0);
-                                  },
-                                ),
-                              ],
                             ),
                           ),
                           PopupMenuButton<String>(
-                            icon: const Icon(Icons.more_vert_rounded, color: Colors.white),
+                            icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 28),
                             color: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             onSelected: (value) {
                               if (value == 'auto_scroll') {
                                 setState(() => isAutoScrollEnabled = !isAutoScrollEnabled);
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text(isAutoScrollEnabled ? 'Auto Scroll Enabled' : 'Auto Scroll Disabled'),
-                                  behavior: SnackBarBehavior.floating,
-                                  duration: const Duration(seconds: 1),
-                                ));
                               }
                             },
                             itemBuilder: (context) => [
@@ -315,360 +311,205 @@ class _ReelsScreenState extends State<ReelsScreen> {
                 stops: const [0.0, 0.2, 0.55, 1.0],
               ),
             ),
-          ),
-        ),
-
-        // Bottom info overlay
+          // Bottom info overlay
         Positioned(
-          left: 12,
-          right: 12,
-          bottom: MediaQuery.of(context).padding.bottom + 16,
+          left: 16,
+          right: 16,
+          bottom: MediaQuery.of(context).padding.bottom + 20,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Owner row
-              Padding(
-                padding: const EdgeInsets.only(left: 4, bottom: 10),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => OwnerProfileScreen(
-                            ownerId: property.ownerId,
-                            name: property.ownerName,
-                            avatar: property.ownerAvatar,
-                            location: property.ownerLocation,
-                            totalListings: 1,
-                          ),
-                        ),
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppTheme.brandColor,
-                            width: 2,
-                          ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.grey[200],
-                          child: ClipOval(
-                            child: KhoznaImage(
-                              imageUrl: property.ownerAvatar,
-                              width: 40,
-                              height: 40,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
+              // Logo and Brand Inline
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                         'assets/images/logo of khozna app.png',
+                         width: 28,
+                         height: 28,
+                         fit: BoxFit.cover,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                property.ownerName.isNotEmpty
-                                    ? property.ownerName
-                                    : 'Owner',
-                                style: GoogleFonts.inter(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
-                                  shadows: [
-                                    const Shadow(
-                                      color: Colors.black54,
-                                      blurRadius: 6,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              if (property.isOwnerVerified) ...[
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.verified,
-                                  color: AppTheme.brandColor,
-                                  size: 14,
-                                ),
-                              ],
-                            ],
-                          ),
-                          Text(
-                            property.category.toUpperCase(),
-                            style: GoogleFonts.inter(
-                              color: Colors.white60,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Khozna app',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
                     ),
-                    // Image count badge (Photos mode only)
-                    if (isImageView && allImages.length > 1)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              
+              // Main Metadata Card
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // LEFT: Property Info (8px vertical gaps)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          property.title,
+                          style: GoogleFonts.plusJakartaSans(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 24,
+                            letterSpacing: -0.8,
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white24),
-                        ),
-                        child: Row(
+                        const SizedBox(height: 8),
+                        Row(
                           children: [
                             const Icon(
-                              Icons.photo_library_rounded,
-                              color: Colors.white70,
-                              size: 12,
+                              Icons.location_on_rounded,
+                              color: AppTheme.brandColor,
+                              size: 16,
                             ),
                             const SizedBox(width: 4),
-                            Text(
-                              '${allImages.length}',
-                              style: GoogleFonts.inter(
-                                color: Colors.white70,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
+                            Flexible(
+                              child: Text(
+                                property.location,
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                  ],
-                ),
-              ),
-
-              // Main glass info card
-              ClipRRect(
-                borderRadius: BorderRadius.circular(28),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.12)),
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        // LEFT: Property Info
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
+                        const SizedBox(height: 8),
+                        RichText(
+                          text: TextSpan(
                             children: [
-                              Text(
-                                property.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              TextSpan(
+                                text: 'Rs. ${PriceFormatter.format(property.price)}',
                                 style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 18,
-                                  letterSpacing: -0.5,
                                 ),
                               ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.location_on,
-                                    color: AppTheme.brandColor,
-                                    size: 13,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      property.location,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.inter(
-                                        color: Colors.white70,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              // Amenities removed as requested
-                              const SizedBox(height: 4),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    WidgetSpan(
-                                      alignment: PlaceholderAlignment.middle,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(right: 4.0, bottom: 2.0),
-                                        child: SvgPicture.asset(
-                                          'assets/icons/vector of ruppes.svg',
-                                          width: 13,
-                                          height: 15,
-                                          colorFilter: const ColorFilter.mode(
-                                            AppTheme.brandColor,
-                                            BlendMode.srcIn,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: PriceFormatter.format(
-                                        property.priceNight > 0
-                                            ? property.priceNight.toString()
-                                            : property.price,
-                                      ),
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppTheme.brandColor,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: property.priceNight > 0
-                                          ? ' /night'
-                                          : ' /mo',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppTheme.brandColor.withOpacity(
-                                          0.8,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                              TextSpan(
+                                text: '/month',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white.withOpacity(0.7),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        // RIGHT: VISIT & CHAT BUTTONS
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                HapticFeedback.lightImpact();
-                                if (!AuthGuard.checkAuth(
-                                  context,
-                                  title: 'Visit Property',
-                                  message: 'Log in to view complete details of this property.',
-                                )) return;
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => PropertyDetailsScreen(
-                                      property: property,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.directions_walk_rounded,
-                                      color: Colors.black,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'VISIT',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 10,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            GestureDetector(
-                              onTap: () {
-                                HapticFeedback.mediumImpact();
-                                if (!AuthGuard.checkAuth(
-                                  context,
-                                  title: 'Chat with Owner',
-                                  message: 'Log in to direct message the property owner.',
-                                )) return;
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => chat_page.ChatScreen(
-                                      ownerId: property.ownerId,
-                                      name: property.ownerName,
-                                      avatar: property.ownerAvatar,
-                                      online: true,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.brandColor,
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/icons/Message neww.svg',
-                                      width: 14,
-                                      height: 14,
-                                      colorFilter: const ColorFilter.mode(
-                                        Colors.white,
-                                        BlendMode.srcIn,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'CHAT',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 10,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
                   ),
-                ),
+                  
+                  // RIGHT: Action Buttons
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                           HapticFeedback.mediumImpact();
+                           Navigator.push(
+                             context,
+                             MaterialPageRoute(
+                               builder: (_) => chat_page.ChatScreen(
+                                 ownerId: property.ownerId,
+                                 name: property.ownerName,
+                                 avatar: property.ownerAvatar,
+                                 online: true,
+                               ),
+                             ),
+                           );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(color: Colors.white.withOpacity(0.2)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 16),
+                              const SizedBox(width: 8),
+                              Text(
+                                'CHAT',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 13,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.heavyImpact();
+                          Navigator.push(
+                             context,
+                             MaterialPageRoute(
+                               builder: (_) => PropertyDetailsScreen(property: property),
+                             ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: AppTheme.brandColor,
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.brandColor.withOpacity(0.4),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.directions_walk_rounded, color: Colors.white, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                'VISIT',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 13,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
+          ),
+        ),
           ),
         ),
       ],
@@ -698,50 +539,16 @@ class _ReelsScreenState extends State<ReelsScreen> {
         ),
       );
     }
+    
     if (images.length == 1) {
-      return Stack(
-        fit: StackFit.expand,
-        children: [
-          // Blurred background
-          ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: KhoznaImage(
-              imageUrl: images[0],
-              fit: BoxFit.cover,
-            ),
-          ),
-          Container(color: Colors.black.withOpacity(0.35)), // Darken overlay
-          // Sharp centered 3:4 card
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.4),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: AspectRatio(
-                    aspectRatio: 0.75, // 3:4 aspect ratio
-                    child: KhoznaImage(
-                      imageUrl: images[0],
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+      return KhoznaImage(
+        imageUrl: images[0],
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
       );
     }
+    
     return _MultiImageCarousel(images: images);
   }
 
@@ -779,75 +586,18 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Blurred background of current active image
-        ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: KhoznaImage(
-            imageUrl: widget.images[_current],
-            fit: BoxFit.cover,
-          ),
-        ),
-        Container(color: Colors.black.withOpacity(0.35)), // Darken overlay
-        // Sharp centered 3:4 card
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.4),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: AspectRatio(
-                  aspectRatio: 0.75, // 3:4 aspect ratio
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      PageView.builder(
-                        controller: _ctrl,
-                        scrollDirection: Axis.horizontal,
-                        physics: const ClampingScrollPhysics(),
-                        itemCount: widget.images.length,
-                        onPageChanged: (i) => setState(() => _current = i),
-                        itemBuilder: (context, i) => KhoznaImage(
-                          imageUrl: widget.images[i],
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      // Dot indicators inside the card
-                      Positioned(
-                        bottom: 12,
-                        left: 0,
-                        right: 0,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(widget.images.length, (i) {
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
-                              margin: const EdgeInsets.symmetric(horizontal: 3),
-                              width: _current == i ? 12 : 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                color: _current == i ? Colors.white : Colors.white38,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+        PageView.builder(
+          controller: _ctrl,
+          itemCount: widget.images.length,
+          onPageChanged: (idx) => setState(() => _current = idx),
+          itemBuilder: (context, index) {
+            return KhoznaImage(
+              imageUrl: widget.images[index],
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            );
+          },
         ),
       ],
     );
