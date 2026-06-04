@@ -410,7 +410,7 @@ class PostPropertyCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Text(
-                        'Post Now',
+                        'List Now',
                         style: GoogleFonts.inter(
                           color: Colors.white, // White Font
                           fontSize: 14,
