@@ -610,7 +610,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     children: List.generate(5, (index) {
                       return Icon(
                         Icons.star_rounded,
-                        color: Colors.grey.shade300,
+                        color: Colors.grey.shade400,
                         size: 20,
                       );
                     }),
