@@ -6,7 +6,7 @@ void main() async {
 
   // We recommend the user runs the following SQL in their Supabase SQL Editor
   // if this script hits a local connectivity issue:
-  const sql = """
+  const sql = '''
     BEGIN;
     -- 1. Enable Realtime for key tables
     ALTER PUBLICATION supabase_realtime ADD TABLE public.kyc_verifications;
@@ -18,7 +18,7 @@ void main() async {
     ALTER TABLE public.user_reports REPLICA IDENTITY FULL;
     ALTER TABLE public.notifications REPLICA IDENTITY FULL;
     COMMIT;
-  """;
+  ''';
 
   print('--- 📡 SQL Ready for Execution ---');
   print(sql);

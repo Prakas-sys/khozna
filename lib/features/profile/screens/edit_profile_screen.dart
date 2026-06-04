@@ -9,7 +9,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
-import 'package:khozna/features/profile/screens/kyc_screen.dart';
 import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';

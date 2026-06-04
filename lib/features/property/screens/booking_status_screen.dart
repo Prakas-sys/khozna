@@ -297,7 +297,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       'सही तस्वीर (Accurate Photos)',
     ];
 
-    String _getEmoji(int r) {
+    String getEmoji(int r) {
       switch (r) {
         case 1:
           return '😞';
@@ -313,7 +313,7 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
       }
     }
 
-    String _getNepaliFeedbackText(int r) {
+    String getNepaliFeedbackText(int r) {
       switch (r) {
         case 1:
           return 'मन परेन (Disappointed)';
@@ -387,12 +387,12 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
                       key: ValueKey<int>(rating),
                       children: [
                         Text(
-                          _getEmoji(rating),
+                          getEmoji(rating),
                           style: const TextStyle(fontSize: 48),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _getNepaliFeedbackText(rating),
+                          getNepaliFeedbackText(rating),
                           style: GoogleFonts.mukta(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -638,8 +638,9 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
 
   Widget _buildStepProgress() {
     int currentStep = 0;
-    if (_booking.status == 'pending_approval') currentStep = 0;
-    else if (_booking.status == 'visit_accepted') currentStep = 1;
+    if (_booking.status == 'pending_approval') {
+      currentStep = 0;
+    } else if (_booking.status == 'visit_accepted') currentStep = 1;
     else if (_booking.status == 'awaiting_payment' || _booking.visitLiked == true) currentStep = 2;
     else if (_booking.status == 'confirmed') currentStep = 3;
     else if (_booking.status == 'paid') currentStep = 3;
@@ -1094,10 +1095,11 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
   }
 
   Widget _buildActionArea() {
-    if (_isActing)
+    if (_isActing) {
       return const Center(
         child: CircularProgressIndicator(color: AppTheme.brandColor),
       );
+    }
 
     switch (_booking.status) {
       case 'pending_approval':

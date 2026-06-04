@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,11 +7,9 @@ import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:intl/intl.dart';
 
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/models/review_model.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
-import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/core/utils/formatters.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +23,6 @@ import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/favourite_button.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
 import 'package:khozna/core/utils/map_launcher.dart';
-import 'package:khozna/widgets/khozna_feedback.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final Property property;
@@ -637,58 +633,83 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   (IconData, String, Color) _getAmenityDisplayData(String feature) {
     final k = feature.toLowerCase().trim();
-    if (k.contains('water'))
+    if (k.contains('water')) {
       return (Icons.water_drop_outlined, 'Water', Colors.lightBlue);
-    if (k.contains('wifi') || k.contains('internet'))
+    }
+    if (k.contains('wifi') || k.contains('internet')) {
       return (Icons.wifi, 'Wifi', Colors.blue);
-    if (k.contains('bike'))
+    }
+    if (k.contains('bike')) {
       return (Icons.motorcycle_rounded, 'Bike Parking', Colors.blueGrey);
-    if (k.contains('car'))
+    }
+    if (k.contains('car')) {
       return (Icons.directions_car_filled_rounded, 'Car Parking', Colors.indigo);
-    if (k.contains('parking'))
+    }
+    if (k.contains('parking')) {
       return (Icons.local_parking_rounded, 'Parking', Colors.indigo);
-    if (k.contains('sunny'))
+    }
+    if (k.contains('sunny')) {
       return (Icons.wb_sunny_outlined, 'Sunny', Colors.amber);
-    if (k.contains('cctv') || k.contains('security'))
+    }
+    if (k.contains('cctv') || k.contains('security')) {
       return (Icons.videocam_outlined, 'CCTV', Colors.redAccent);
-    if (k.contains('balcony'))
+    }
+    if (k.contains('balcony')) {
       return (Icons.balcony_outlined, 'Balcony', Colors.teal);
-    if (k.contains('hot water'))
+    }
+    if (k.contains('hot water')) {
       return (Icons.hot_tub_outlined, 'Hot Water', Colors.orangeAccent);
-    if (k.contains('bath'))
+    }
+    if (k.contains('bath')) {
       return (Icons.bathroom_outlined, 'Bath', Colors.cyan);
-    if (k.contains('family'))
+    }
+    if (k.contains('family')) {
       return (Icons.family_restroom_outlined, 'Family', Colors.purple);
-    if (k.contains('kitchen'))
+    }
+    if (k.contains('kitchen')) {
       return (Icons.kitchen_outlined, 'Kitchen', Colors.orange);
-    if (k.contains('ac') || k.contains('air cond'))
+    }
+    if (k.contains('ac') || k.contains('air cond')) {
       return (Icons.ac_unit_rounded, 'AC', Colors.blueGrey);
-    if (k.contains('furnish'))
+    }
+    if (k.contains('furnish')) {
       return (Icons.chair_rounded, 'Furnished', Colors.brown);
-    if (k.contains('gym') || k.contains('fitness'))
+    }
+    if (k.contains('gym') || k.contains('fitness')) {
       return (Icons.fitness_center_rounded, 'Gym', Colors.blueGrey);
+    }
     if (k.contains('pool')) return (Icons.pool_rounded, 'Pool', Colors.blue);
-    if (k.contains('lift') || k.contains('elevat'))
+    if (k.contains('lift') || k.contains('elevat')) {
       return (Icons.elevator_rounded, 'Lift', Colors.grey);
-    if (k.contains('smoke') || k.contains('smoking'))
+    }
+    if (k.contains('smoke') || k.contains('smoking')) {
       return (Icons.smoke_free_rounded, 'No Smoking', Colors.redAccent);
-    if (k.contains('pet'))
+    }
+    if (k.contains('pet')) {
       return (Icons.pets_rounded, 'Pets Allowed', Colors.brown);
-    if (k.contains('party') || k.contains('event'))
+    }
+    if (k.contains('party') || k.contains('event')) {
       return (Icons.celebration_rounded, 'No Parties', Colors.purpleAccent);
-    if (k.contains('couple'))
+    }
+    if (k.contains('couple')) {
       return (Icons.people_outline_rounded, 'Couples', Colors.pinkAccent);
-    if (k.contains('girl'))
+    }
+    if (k.contains('girl')) {
       return (Icons.woman_rounded, 'Girls Only', Colors.pink);
+    }
     if (k.contains('boy')) return (Icons.man_rounded, 'Boys Only', Colors.indigo);
-    if (k.contains('power') || k.contains('backup'))
+    if (k.contains('power') || k.contains('backup')) {
       return (Icons.electric_bolt_rounded, 'Power Backup', Colors.amber);
-    if (k.contains('waste'))
+    }
+    if (k.contains('waste')) {
       return (Icons.delete_outline_rounded, 'Waste Mgmt', Colors.green);
-    if (k.contains('peaceful') || k.contains('quiet'))
+    }
+    if (k.contains('peaceful') || k.contains('quiet')) {
       return (Icons.nature_people_rounded, 'Peaceful', Colors.green);
-    if (k.contains('boring'))
+    }
+    if (k.contains('boring')) {
       return (Icons.waves_rounded, 'Boring Water', Colors.cyan);
+    }
 
     String formatted = feature.replaceAll('_', ' ');
     if (formatted.isNotEmpty) {
@@ -1916,21 +1937,27 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   (IconData, String) _getFeatureData(String feature) {
     final f = feature.toLowerCase();
-    if (f.contains('wifi') || f.contains('internet'))
+    if (f.contains('wifi') || f.contains('internet')) {
       return (Icons.wifi_rounded, 'Free Wi-Fi');
-    if (f.contains('park') || f.contains('garage'))
+    }
+    if (f.contains('park') || f.contains('garage')) {
       return (Icons.local_parking_rounded, 'Parking');
-    if (f.contains('water') || f.contains('shower'))
+    }
+    if (f.contains('water') || f.contains('shower')) {
       return (Icons.water_drop_rounded, '24/7 Water');
-    if (f.contains('power') || f.contains('backup'))
+    }
+    if (f.contains('power') || f.contains('backup')) {
       return (Icons.battery_charging_full_rounded, 'Power Backup');
-    if (f.contains('student'))
+    }
+    if (f.contains('student')) {
       return (Icons.school_rounded, 'Student Friendly');
+    }
     if (f.contains('family')) return (Icons.family_restroom_rounded, 'Families');
     if (f.contains('no smok')) return (Icons.smoke_free_rounded, 'No Smoking');
     if (f.contains('pet')) return (Icons.pets_rounded, 'Pets Allowed');
-    if (f.contains('security') || f.contains('cctv'))
+    if (f.contains('security') || f.contains('cctv')) {
       return (Icons.security_rounded, 'Security');
+    }
 
     // Default
     return (Icons.check_circle_outline_rounded, feature);

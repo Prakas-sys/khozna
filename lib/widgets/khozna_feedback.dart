@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:khozna/core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 
 class KhoznaFeedback {

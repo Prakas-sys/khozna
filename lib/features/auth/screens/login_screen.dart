@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:google_sign_in/google_sign_in.dart';
@@ -9,7 +8,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/core/security/security_utils.dart';
 import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/screens/main_screen.dart';
 import 'package:khozna/features/auth/screens/register_screen.dart';
@@ -27,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   final TextEditingController _phoneController = TextEditingController();
   final FocusNode _phoneFocusNode = FocusNode();
-  int _bossTaps = 0;
+  final int _bossTaps = 0;
   bool _imagesPreloaded = false;
 
   // --- CAROUSEL ---
@@ -776,7 +774,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
                   title: Text(
-                    "Show technical details",
+                    'Show technical details',
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

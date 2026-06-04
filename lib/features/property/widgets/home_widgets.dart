@@ -8,8 +8,6 @@ import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/widgets/property_card.dart';
 import 'package:khozna/widgets/skeleton_card.dart';
 import 'package:khozna/widgets/voice_search_overlay.dart';
-import 'package:khozna/features/property/screens/search_screen.dart';
-import 'package:khozna/features/property/screens/filter_results_screen.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -258,7 +256,9 @@ class HomeSearchBar extends StatelessWidget {
                         context,
                         title: 'Search Properties',
                         message: 'Log in to search and discover matching properties.',
-                      )) return;
+                      )) {
+                        return;
+                      }
                       showModalBottomSheet(
                         context: context,
                         backgroundColor: Colors.transparent,
@@ -342,13 +342,15 @@ class HomeHorizontalSection extends StatelessWidget {
         FutureBuilder<List<Property>>(
           future: future,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting)
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return _buildSkeletonList();
+            }
             final properties = snapshot.data ?? [];
-            if (properties.isEmpty)
+            if (properties.isEmpty) {
               return snapshot.hasError
                   ? _buildErrorState()
                   : _buildSkeletonList();
+            }
 
             return SizedBox(
               height: 290,
@@ -382,7 +384,7 @@ class HomeHorizontalSection extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: 3,
-        itemBuilder: (_, __) => const Padding(
+        itemBuilder: (_, _) => const Padding(
           padding: EdgeInsets.only(right: 16),
           child: SkeletonCard(),
         ),

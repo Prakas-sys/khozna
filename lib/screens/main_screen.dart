@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,7 +10,6 @@ import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/property/screens/home_screen.dart';
 import 'package:khozna/features/property/screens/reels_screen.dart';
 import 'package:khozna/features/chat/screens/messages_screen.dart';
-import 'package:khozna/features/property/screens/add_property_screen.dart';
 import 'package:khozna/features/property/screens/post_property_intro_screen.dart';
 import 'package:khozna/features/profile/screens/kyc_screen.dart';
 import 'package:khozna/features/profile/screens/profile_screen.dart';
@@ -509,8 +507,9 @@ class _MainScreenState extends State<MainScreen> {
     final bool isSelected = _currentIndex == index;
 
     String label = '';
-    if (index == 0) label = 'Khozna';
-    else if (index == 1) label = 'Reels';
+    if (index == 0) {
+      label = 'Khozna';
+    } else if (index == 1) label = 'Reels';
     else if (index == -1) label = 'List';
     else if (index == 2) label = 'Message';
     else if (index == 3) label = 'Profile';

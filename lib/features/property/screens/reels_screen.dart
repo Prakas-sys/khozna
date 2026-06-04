@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/core/theme/app_theme.dart';
-import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/screens/property_details_screen.dart';
 import 'package:khozna/core/models/property_model.dart';
@@ -15,7 +14,6 @@ import 'package:khozna/core/utils/formatters.dart';
 import 'package:khozna/features/property/screens/visit_request_screen.dart';
 
 import 'package:khozna/core/utils/app_notifiers.dart';
-import 'package:khozna/core/guards/auth_guard.dart';
 
 class ReelsScreen extends StatefulWidget {
   const ReelsScreen({super.key});

@@ -142,10 +142,11 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
         );
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Failed: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

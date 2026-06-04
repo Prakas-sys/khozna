@@ -15,7 +15,7 @@ void main() {
         return;
       }
     }
-    print("No exception found.");
+    print('No exception found.');
   } catch (e) {
     print(e);
   }

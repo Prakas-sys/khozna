@@ -16,14 +16,11 @@ import 'package:khozna/features/profile/screens/settings_screen.dart';
 import 'package:khozna/features/auth/screens/login_screen.dart';
 import 'package:khozna/features/profile/screens/edit_profile_screen.dart';
 import 'package:khozna/features/property/screens/add_property_screen.dart';
-import 'package:khozna/features/property/screens/booking_status_screen.dart';
-import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/profile/widgets/profile_widgets.dart';
-import 'package:khozna/features/property/screens/owner_bookings_screen.dart';
 // Admin dashboard removed from mobile - focusing on Web Dashboard
 
 class ProfileScreen extends StatefulWidget {

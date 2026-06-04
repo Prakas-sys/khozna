@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:geocoding/geocoding.dart' as geo;
@@ -33,7 +31,7 @@ class HomeScreenState extends State<HomeScreen> {
     (index) => Future.value(<Property>[]),
   );
   Position? _currentPosition;
-  String _currentLocationName = "Kathmandu, Nepal";
+  String _currentLocationName = 'Kathmandu, Nepal';
   final KhoznaAiService _aiService = KhoznaAiService();
 
   @override
@@ -69,8 +67,9 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> _getCurrentLocation() async {
     try {
       LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied)
+      if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
+      }
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
         final position = await Geolocator.getCurrentPosition(
@@ -84,7 +83,7 @@ class HomeScreenState extends State<HomeScreen> {
         }
       }
     } catch (e) {
-      debugPrint("Error fetching location: $e");
+      debugPrint('Error fetching location: $e');
     }
   }
 
@@ -153,21 +152,21 @@ class HomeScreenState extends State<HomeScreen> {
       String area = '';
       try {
         debugPrint(
-          "Location Debug - Lat: ${position.latitude}, Lng: ${position.longitude}",
+          'Location Debug - Lat: ${position.latitude}, Lng: ${position.longitude}',
         );
         final aiPolished = await _aiService.refineLocationWithAI(
           lat: position.latitude,
           lng: position.longitude,
           rawAddress:
-              "Native Specific: $micro, Native City: $macro, Full OSM: $rawDisplayName",
+              'Native Specific: $micro, Native City: $macro, Full OSM: $rawDisplayName',
         );
-        debugPrint("AI Location Response: $aiPolished");
+        debugPrint('AI Location Response: $aiPolished');
 
         if (aiPolished.isNotEmpty && aiPolished.contains(',')) {
           area = aiPolished;
         }
       } catch (e) {
-        debugPrint("AI Location refinement failed: $e");
+        debugPrint('AI Location refinement failed: $e');
       }
 
       // Fallback/Cleanup
@@ -213,12 +212,12 @@ class HomeScreenState extends State<HomeScreen> {
           lat > 27.65 && lat < 27.70 && lng > 85.25 && lng < 85.30;
       if (isInKirtipur &&
           (area.toLowerCase().contains('sanga') || area.contains('सा:गा'))) {
-        area = "Khasibazar, Kirtipur";
+        area = 'Khasibazar, Kirtipur';
       }
 
       if (mounted) setState(() => _currentLocationName = area);
     } catch (e) {
-      debugPrint("Error fetching area name: $e");
+      debugPrint('Error fetching area name: $e');
     }
   }
 
@@ -288,7 +287,9 @@ class HomeScreenState extends State<HomeScreen> {
                       context,
                       title: 'Search Properties',
                       message: 'Log in to search and discover matching properties.',
-                    )) return;
+                    )) {
+                      return;
+                    }
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const SearchScreen()),
@@ -299,7 +300,9 @@ class HomeScreenState extends State<HomeScreen> {
                       context,
                       title: 'Search Properties',
                       message: 'Log in to search and discover matching properties.',
-                    )) return;
+                    )) {
+                      return;
+                    }
                     Navigator.pop(context);
                     Navigator.push(
                       context,

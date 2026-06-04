@@ -65,7 +65,9 @@ class PropertyCard extends StatelessWidget {
                 context,
                 title: 'View Details',
                 message: 'Log in to view complete details of this property.',
-              )) return;
+              )) {
+                return;
+              }
               if (context.mounted) {
                 Navigator.push(
                   context,
@@ -177,8 +179,9 @@ class PropertyCard extends StatelessWidget {
 
                             if (!isBooked &&
                                 !isPending &&
-                                status != 'available')
+                                status != 'available') {
                               return const SizedBox.shrink();
+                            }
 
                             return Container(
                               padding: const EdgeInsets.symmetric(
@@ -373,7 +376,9 @@ class PropertyCard extends StatelessWidget {
                                   context,
                                   title: 'Visit Property',
                                   message: 'Log in to view complete details of this property.',
-                                )) return;
+                                )) {
+                                  return;
+                                }
                                 if (context.mounted) {
                                   Navigator.push(
                                     context,
@@ -429,7 +434,9 @@ class PropertyCard extends StatelessWidget {
                                   context,
                                   title: 'Chat with Owner',
                                   message: 'Log in to direct message the property owner.',
-                                )) return;
+                                )) {
+                                  return;
+                                }
                                 if (context.mounted) {
                                   Navigator.push(
                                     context,

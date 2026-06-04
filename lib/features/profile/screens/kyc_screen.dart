@@ -63,10 +63,12 @@ class _KycScreenState extends State<KycScreen> {
           _emailController.text = user.email ?? '';
           _phoneController.text = user.phone ?? '';
 
-          if (user.email != null && user.email!.isNotEmpty)
+          if (user.email != null && user.email!.isNotEmpty) {
             _isEmailVerified = true;
-          if (user.phone != null && user.phone!.isNotEmpty)
+          }
+          if (user.phone != null && user.phone!.isNotEmpty) {
             _isPhoneVerified = true;
+          }
         });
       }
 

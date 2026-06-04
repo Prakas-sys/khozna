@@ -322,7 +322,7 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
                       Text(
                         _canResend
                             ? "Didn't receive the code?"
-                            : "Resend code in $_timerSeconds seconds",
+                            : 'Resend code in $_timerSeconds seconds',
                         style: GoogleFonts.inter(
                           color: AppTheme.secondaryTextColor,
                           fontSize: 14,

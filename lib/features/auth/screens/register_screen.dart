@@ -348,7 +348,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       color: Colors.grey[600],
                     ),
                     children: [
-                      const TextSpan(text: "Already have an account? "),
+                      const TextSpan(text: 'Already have an account? '),
                       TextSpan(
                         text: 'Login Here',
                         style: TextStyle(
@@ -412,7 +412,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
-          if (suffixIcon != null) suffixIcon,
+          ?suffixIcon,
         ],
       ),
     );

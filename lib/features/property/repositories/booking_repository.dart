@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
-import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/core/models/booking_model.dart';
 import 'package:khozna/core/models/review_model.dart';
-import 'package:khozna/core/models/payment_model.dart';
 import 'package:khozna/core/security/security_utils.dart';
 
 class BookingRepository {

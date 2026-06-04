@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:safe_device/safe_device.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -30,7 +30,10 @@ class SecurityUtils {
       final bool isMockLocation = await SafeDevice.isMockLocation;
 
       if (isRooted) return SecurityStatus.rooted;
-      if (!isRealDevice) return SecurityStatus.emulator;
+      
+      // 🚀 DEVELOPER FIX: Allow emulators only in debug mode for testing
+      if (!isRealDevice && kReleaseMode) return SecurityStatus.emulator;
+      
       if (isMockLocation) return SecurityStatus.mockLocation;
 
       return SecurityStatus.safe;

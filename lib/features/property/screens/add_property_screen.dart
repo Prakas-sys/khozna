@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:confetti/confetti.dart';
-import 'package:geocoding/geocoding.dart' as geo;
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
 import 'package:khozna/features/property/widgets/add_property_widgets.dart';
@@ -64,13 +62,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   // AI & Checks
   final KhoznaAiService _aiService = KhoznaAiService();
-  bool _isEstimatingPrice = false;
+  final bool _isEstimatingPrice = false;
   String? _aiPriceSuggestion;
-  double _distanceFromLandmark = 0.0;
-  bool _isDistanceVerified = false;
-  bool _isAnalyzingLocation = false;
+  final double _distanceFromLandmark = 0.0;
+  final bool _isDistanceVerified = false;
+  final bool _isAnalyzingLocation = false;
   bool _isGeneratingDescription = false;
-  bool _isGeneratingVideoCaption = false;
+  final bool _isGeneratingVideoCaption = false;
   bool _showLocationNudge = false;
 
   @override
@@ -119,19 +117,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   void _toggleAmenity(String amenity) {
     setState(() {
-      if (_selectedAmenities.contains(amenity))
+      if (_selectedAmenities.contains(amenity)) {
         _selectedAmenities.remove(amenity);
-      else
+      } else {
         _selectedAmenities.add(amenity);
+      }
     });
   }
 
   void _toggleRule(String rule) {
     setState(() {
-      if (_selectedRules.contains(rule))
+      if (_selectedRules.contains(rule)) {
         _selectedRules.remove(rule);
-      else
+      } else {
         _selectedRules.add(rule);
+      }
     });
   }
 
@@ -163,11 +163,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     setState(() => _isLocating = true);
     try {
       LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied)
+      if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
+      }
       if (permission == LocationPermission.deniedForever ||
           permission == LocationPermission.denied) {
-        if (mounted)
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -176,6 +177,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               ),
             ),
           );
+        }
         setState(() => _isLocating = false);
         return;
       }
@@ -203,10 +205,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         );
         if (mounted) {
           setState(() {
-            if (locData['area']?.isNotEmpty == true)
+            if (locData['area']?.isNotEmpty == true) {
               _areaController.text = locData['area']!;
-            if (locData['landmark']?.isNotEmpty == true)
+            }
+            if (locData['landmark']?.isNotEmpty == true) {
               _landmarkController.text = locData['landmark']!;
+            }
             _isLocating = false;
           });
         }
@@ -223,27 +227,27 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   void _nextStep() {
     bool isValid = false;
-    String errorMessage = "";
+    String errorMessage = '';
     FocusScope.of(context).unfocus();
 
     switch (_currentStep) {
       case 0:
         if (_selectedCategory == null) {
-          errorMessage = "कृपया सम्पत्तिको प्रकार छान्नुहोस्।";
+          errorMessage = 'कृपया सम्पत्तिको प्रकार छान्नुहोस्।';
         } else if (_selectedCategory == 'Other' && _otherCategoryController.text.trim().isEmpty) {
-          errorMessage = "कृपया सम्पत्तिको प्रकार लेख्नुहोस्।";
+          errorMessage = 'कृपया सम्पत्तिको प्रकार लेख्नुहोस्।';
         } else {
           isValid = true;
         }
         break;
       case 1:
-        if (_areaController.text.trim().isEmpty)
-          errorMessage = "कृपया टोलको नाम राख्नुहोस्।";
-        else if (_landmarkController.text.trim().isEmpty)
-          errorMessage = "कृपया नजिकैको प्रख्यात ठाउँ राख्नुहोस्।";
+        if (_areaController.text.trim().isEmpty) {
+          errorMessage = 'कृपया टोलको नाम राख्नुहोस्।';
+        } else if (_landmarkController.text.trim().isEmpty)
+          errorMessage = 'कृपया नजिकैको प्रख्यात ठाउँ राख्नुहोस्।';
         else if (_latitude == null) {
           setState(() => _showLocationNudge = true);
-          errorMessage = "कृपया नक्सामा लोकेशन सेट गर्नुहोस्।";
+          errorMessage = 'कृपया नक्सामा लोकेशन सेट गर्नुहोस्।';
         } else
           isValid = true;
         break;
@@ -254,34 +258,37 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         isValid = true; // Amenities are optional
         break;
       case 4:
-        if (_selectedImages.length < 5)
+        if (_selectedImages.length < 5) {
           errorMessage =
-              "कृपया कम्तिमा ५ वटा फोटोहरू राख्नुहोस्। (At least 5 photos required)";
-        else
+              'कृपया कम्तिमा ५ वटा फोटोहरू राख्नुहोस्। (At least 5 photos required)';
+        } else {
           isValid = true;
+        }
         break;
       case 5:
         isValid = true; // Video is optional
         break;
       case 6:
-        if (_titleController.text.trim().isEmpty)
-          errorMessage = "कृपया प्रोपर्टीको आकर्षक शीर्षक राख्नुहोस्।";
-        else
+        if (_titleController.text.trim().isEmpty) {
+          errorMessage = 'कृपया प्रोपर्टीको आकर्षक शीर्षक राख्नुहोस्।';
+        } else {
           isValid = true;
+        }
         break;
       case 7:
         if (_priceController.text.trim().isEmpty &&
             _priceNightController.text.trim().isEmpty) {
-          errorMessage = "कृपया मासिक वा दैनिक भाडा राख्नुहोस्।";
+          errorMessage = 'कृपया मासिक वा दैनिक भाडा राख्नुहोस्।';
         } else {
           isValid = true;
         }
         break;
       case 8: // Payout & Description
         if (_payoutAccountController.text.trim().isEmpty) {
-          errorMessage = "तपाईंले पेमेन्ट पाउनको लागि खाता नम्बर राख्नुहोस्।";
-        } else
+          errorMessage = 'तपाईंले पेमेन्ट पाउनको लागि खाता नम्बर राख्नुहोस्।';
+        } else {
           isValid = true;
+        }
         break;
     }
 
@@ -368,10 +375,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         );
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Publishing failed: $e')));
+      }
     } finally {
       if (mounted) setState(() => _isPublishing = false);
     }

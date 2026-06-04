@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/property/repositories/booking_repository.dart';
 import 'package:khozna/widgets/khozna_image.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/models/user_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
@@ -23,7 +22,7 @@ class VisitRequestScreen extends StatefulWidget {
 class _VisitRequestScreenState extends State<VisitRequestScreen> {
   int _currentStep = 0; // 0: Schedule, 1: Guests, 2: Review
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
-  String _selectedTimeSlot = "11:00 AM";
+  String _selectedTimeSlot = '11:00 AM';
   int _visitingCount = 1;
   bool _isSubmitting = false;
   UserModel? _ownerProfile;
@@ -36,12 +35,12 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
   ];
 
   final List<String> _timeSlots = [
-    "09:00 AM",
-    "11:00 AM",
-    "01:00 PM",
-    "03:00 PM",
-    "05:00 PM",
-    "07:00 PM"
+    '09:00 AM',
+    '11:00 AM',
+    '01:00 PM',
+    '03:00 PM',
+    '05:00 PM',
+    '07:00 PM'
   ];
 
   late List<DateTime> _upcomingDates;
@@ -71,7 +70,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
   }
 
   DateTime get _visitDateTime {
-    final format = DateFormat("hh:mm a");
+    final format = DateFormat('hh:mm a');
     final parsedTime = format.parse(_selectedTimeSlot);
     return DateTime(
       _selectedDate.year,

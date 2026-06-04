@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,7 +7,6 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
 import 'package:khozna/features/property/screens/filter_results_screen.dart';
 import 'package:khozna/features/chat/screens/ai_chat_screen.dart';
-import 'package:khozna/core/utils/formatters.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
@@ -504,11 +502,12 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                             // Airbnb-style Price Markers
                                             ..._nearbyProperties.map((p) {
                                               if (p.latitude == null ||
-                                                  p.longitude == null)
+                                                  p.longitude == null) {
                                                 return Marker(
                                                   point: const LatLng(0, 0),
                                                   child: const SizedBox(),
                                                 );
+                                              }
                                               return Marker(
                                                 point: LatLng(
                                                   p.latitude!,
@@ -558,7 +557,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                                   ),
                                                 ),
                                               );
-                                            }).toList(),
+                                            }),
                                           ],
                                         ),
                                     ],

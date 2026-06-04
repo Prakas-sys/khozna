@@ -1,9 +1,3 @@
-import 'dart:math';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +7,6 @@ import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
-import 'package:khozna/features/profile/widgets/trust_vote_card.dart';
 import 'package:intl/intl.dart';
 import 'package:khozna/core/models/review_model.dart';
 import 'package:khozna/features/profile/repositories/vote_repository.dart';

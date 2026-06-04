@@ -17,7 +17,7 @@ class MapLauncher {
         }
       } else {
         // Android
-        final String googleMapUri = "google.navigation:q=$lat,$lng";
+        final String googleMapUri = 'google.navigation:q=$lat,$lng';
         if (await canLaunchUrl(Uri.parse(googleMapUri))) {
           await launchUrl(Uri.parse(googleMapUri));
         } else {

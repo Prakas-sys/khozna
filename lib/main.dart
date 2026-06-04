@@ -9,7 +9,6 @@ import 'package:firebase_core/firebase_core.dart';
 // firebase_auth import removed
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
@@ -41,10 +40,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       }
     }
   } catch (e) {
-    debugPrint("Background badge error: $e");
+    debugPrint('Background badge error: $e');
   }
 
-  debugPrint("Background message received: ${message.messageId}");
+  debugPrint('Background message received: ${message.messageId}');
 }
 
 void main() async {
@@ -53,10 +52,10 @@ void main() async {
 
   // Load environment variables for security
   try {
-    await dotenv.load(fileName: ".env");
-    if (kDebugMode) debugPrint("--- .ENV LOADED SUCCESSFULLY ---");
+    await dotenv.load(fileName: '.env');
+    if (kDebugMode) debugPrint('--- .ENV LOADED SUCCESSFULLY ---');
   } catch (e) {
-    if (kDebugMode) debugPrint("--- ERROR LOADING .ENV: $e ---");
+    if (kDebugMode) debugPrint('--- ERROR LOADING .ENV: $e ---');
   }
 
   // 🔐 SECURITY: Block rooted/jailbroken devices
@@ -286,7 +285,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
     SupabaseService.fetchUnreadNotificationCount();
 
     // 🧹 AUTO-CLEAR RED BADGE ON OPEN - Reset internal counters only if needed
-    debugPrint("Initializing badges on app open");
+    debugPrint('Initializing badges on app open');
     // We don't want to force reset to 0 here because it might clear the launcher badge
     // before the fetchUnread... calls complete.
     // Instead, we let the fetch calls update the values.

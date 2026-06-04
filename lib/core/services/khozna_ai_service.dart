@@ -46,12 +46,12 @@ class KhoznaAiService {
         final data = jsonDecode(response.body);
         return data['choices'][0]['message']['content'];
       } else if (response.statusCode == 401) {
-        return "Invalid API Key. Please check your Groq API key in the .env file.";
+        return 'Invalid API Key. Please check your Groq API key in the .env file.';
       } else {
-        return "AI is busy at the moment. Please try again in a few seconds.";
+        return 'AI is busy at the moment. Please try again in a few seconds.';
       }
     } catch (e) {
-      return "Connectivity issue. Please check your internet and try again.";
+      return 'Connectivity issue. Please check your internet and try again.';
     }
   }
 
@@ -65,7 +65,7 @@ class KhoznaAiService {
           (p) =>
               "ID: ${p['id']}, Title: ${p['title']}, Price: ${p['price']}, Location: ${p['area_name']}",
         )
-        .join("\n");
+        .join('\n');
 
     String prompt =
         """
@@ -84,25 +84,25 @@ class KhoznaAiService {
     return _getAiResponse(
       prompt,
       systemPrompt:
-          "You are a strict property matcher. You ONLY use provided data. You do NOT hallucinate.",
+          'You are a strict property matcher. You ONLY use provided data. You do NOT hallucinate.',
     );
   }
 
   /// 2. AI Scam Detector
   Future<String> detectScam(String title, String price, String area) async {
     String prompt =
-        "Title: $title, Price: $price. Scam check for Nepal. Tell me if it looks suspicious.";
+        'Title: $title, Price: $price. Scam check for Nepal. Tell me if it looks suspicious.';
     return _getAiResponse(
       prompt,
       systemPrompt:
-          "Security expert. Answer ONLY in Nepali followed by English in parentheses. NO HINDI.",
+          'Security expert. Answer ONLY in Nepali followed by English in parentheses. NO HINDI.',
     );
   }
 
   /// 3. AI Price Estimator
   Future<String> estimatePrice(String location, int rooms, String type) async {
     String prompt =
-        "$rooms room $type in $location, Nepal. Estimate a fair monthly rent in NPR. Be concise.";
+        '$rooms room $type in $location, Nepal. Estimate a fair monthly rent in NPR. Be concise.';
     return _getAiResponse(
       prompt,
       systemPrompt:
@@ -113,7 +113,7 @@ class KhoznaAiService {
   /// 4. AI Chatbot
   Future<Map<String, dynamic>> getChatbotResponse(String message) async {
     // 1. Fetch live context from the database
-    String liveContext = "Currently, there are no active listings on Khozna.";
+    String liveContext = 'Currently, there are no active listings on Khozna.';
     List<dynamic> foundProperties = [];
     try {
       // We try to find properties matching words in the message
@@ -130,7 +130,7 @@ class KhoznaAiService {
 
       if (keywords.isNotEmpty) {
         String filter = keywords
-            .map((k) => "area_name.ilike.%$k%,title.ilike.%$k%")
+            .map((k) => 'area_name.ilike.%$k%,title.ilike.%$k%')
             .join(',');
         query = query.or(filter);
       }
@@ -140,7 +140,7 @@ class KhoznaAiService {
       if ((response as List).isNotEmpty) {
         foundProperties = response;
         liveContext =
-            "Here is the CURRENT LIVE INVENTORY on Khozna relevant to the query. Use this exact data to answer the user:\n";
+            'Here is the CURRENT LIVE INVENTORY on Khozna relevant to the query. Use this exact data to answer the user:\n';
         for (var p in response) {
           liveContext +=
               "- ${p['category']} in ${p['area_name']} for ₹ ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
@@ -156,7 +156,7 @@ class KhoznaAiService {
 
         if ((fallback as List).isNotEmpty) {
           liveContext =
-              "No direct match found for the specific query, but here are some overall available properties on Khozna:\n";
+              'No direct match found for the specific query, but here are some overall available properties on Khozna:\n';
           for (var p in fallback) {
             liveContext +=
                 "- ${p['category']} in ${p['area_name']} for ₹ ${p['price']}/mo. Title: ${p['title']}\n";
@@ -236,7 +236,7 @@ BEHAVIOR RULES:
     return _getAiResponse(
       prompt,
       systemPrompt:
-          "You are a premium real estate copywriter in Nepal. You write descriptions that sell. You use a natural blend of Nepali and English. You have a zero-tolerance policy for Hindi words. You always focus on the convenience of the location and landmarks provided.",
+          'You are a premium real estate copywriter in Nepal. You write descriptions that sell. You use a natural blend of Nepali and English. You have a zero-tolerance policy for Hindi words. You always focus on the convenience of the location and landmarks provided.',
     );
   }
 
@@ -265,7 +265,7 @@ BEHAVIOR RULES:
 
     return _getAiResponse(
       prompt,
-      systemPrompt: "You are a viral social media manager for a real estate app in Nepal. You write punchy, high-engagement captions. You ONLY use English and Nepali. NO HINDI allowed.",
+      systemPrompt: 'You are a viral social media manager for a real estate app in Nepal. You write punchy, high-engagement captions. You ONLY use English and Nepali. NO HINDI allowed.',
     );
   }
 
@@ -356,8 +356,9 @@ BEHAVIOR RULES:
         // Skip Plus Codes like "H9Q2+X4"
         if (input.contains('+') && input.length < 12) return '';
         // Skip purely numeric codes/house numbers (like "42" or "101")
-        if (RegExp(r'^\d*[a-zA-Z]?$').hasMatch(input.replaceAll(' ', '')))
+        if (RegExp(r'^\d*[a-zA-Z]?$').hasMatch(input.replaceAll(' ', ''))) {
           return '';
+        }
         return input;
       }
 
@@ -422,7 +423,7 @@ BEHAVIOR RULES:
     final String response = await _getAiResponse(
       prompt,
       systemPrompt:
-          "You are a local geography expert for Nepal. You return ONLY clean JSON. No preamble, no explanation.",
+          'You are a local geography expert for Nepal. You return ONLY clean JSON. No preamble, no explanation.',
     );
 
     try {
@@ -482,6 +483,6 @@ BEHAVIOR RULES:
     );
 
     // Clean up any quotes or extra whitespace the AI might return
-    return response.replaceAll('"', '').replaceAll("'", "").trim();
+    return response.replaceAll('"', '').replaceAll("'", '').trim();
   }
 }

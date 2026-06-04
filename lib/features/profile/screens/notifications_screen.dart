@@ -45,10 +45,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final diff = now.difference(date);
 
       if (diff.inMinutes < 1) return 'भर्खरै (Just now)';
-      if (diff.inMinutes < 60)
+      if (diff.inMinutes < 60) {
         return '${diff.inMinutes}मि अघि (${diff.inMinutes}m)';
-      if (diff.inHours < 24)
+      }
+      if (diff.inHours < 24) {
         return '${diff.inHours}घण्टा अघि (${diff.inHours}h)';
+      }
       return '${diff.inDays}दिन अघि (${diff.inDays}d)';
     } catch (_) {
       return '';
@@ -710,10 +712,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       notificationId: id,
                                       reason: reason,
                                     );
-                                    if (mounted)
+                                    if (mounted) {
                                       setState(
                                         () => _notifications.removeAt(index),
                                       );
+                                    }
                                   } catch (_) {
                                     setCardState(() => acting = false);
                                   }
@@ -759,10 +762,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                       ownerName: ownerName,
                                       notificationId: id,
                                     );
-                                    if (mounted)
+                                    if (mounted) {
                                       setState(
                                         () => _notifications.removeAt(index),
                                       );
+                                    }
                                   } catch (_) {
                                     setCardState(() => acting = false);
                                   }

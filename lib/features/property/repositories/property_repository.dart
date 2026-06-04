@@ -235,11 +235,11 @@ class PropertyRepository {
     aiService
         .detectScam(cleanTitle, price.toString(), cleanArea)
         .then((scamResult) {
-          if (scamResult.toLowerCase().contains("scam")) {
-            debugPrint("AI SCAM WARNING: $scamResult");
+          if (scamResult.toLowerCase().contains('scam')) {
+            debugPrint('AI SCAM WARNING: $scamResult');
           }
         })
-        .catchError((e) => debugPrint("AI Scam Check Error: $e"));
+        .catchError((e) => debugPrint('AI Scam Check Error: $e'));
 
     // 3. Concurrent Media Uploads & AI Landmark Detection
     Future<String?> videoUploadFuture = videoFile != null
@@ -251,7 +251,7 @@ class PropertyRepository {
     Future<List<Map<String, dynamic>>> landmarksFuture = aiService
         .getNearbyLandmarks(cleanArea, cleanLandmark)
         .catchError((e) {
-          debugPrint("AI Landmarks Error: $e");
+          debugPrint('AI Landmarks Error: $e');
           return <Map<String, dynamic>>[];
         });
 

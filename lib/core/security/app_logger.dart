@@ -12,7 +12,7 @@ class AppLogger {
     String? error,
   }) {
     final timestamp = DateTime.now().toIso8601String();
-    final status = success ? "SUCCESS" : "FAILED";
+    final status = success ? 'SUCCESS' : 'FAILED';
     debugPrint(
       '[AUTH_LOG] [$timestamp] Method: $method | Status: $status | User: ${userId ?? 'Unknown'} | Error: ${error ?? 'None'}',
     );

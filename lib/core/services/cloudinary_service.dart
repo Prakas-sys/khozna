@@ -116,8 +116,9 @@ class CloudinaryService {
   static Future<String?> uploadVideo(File videoFile) async {
     // 🔐 Strict File Validation
     final fileSize = await videoFile.length();
-    if (fileSize > 50 * 1024 * 1024)
+    if (fileSize > 50 * 1024 * 1024) {
       throw Exception('Video exceeds 50MB limit');
+    }
 
     final ext = path.extension(videoFile.path).toLowerCase();
     if (!['.mp4', '.mov'].contains(ext)) {

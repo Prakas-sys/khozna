@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/models/chat_model.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
@@ -42,9 +41,9 @@ class ChatRepository {
     for (var chat in chatsData) {
       final u1 = chat['user1_id']?.toString();
       final u2 = chat['user2_id']?.toString();
-      if (u1 != null && u1 != user.id)
+      if (u1 != null && u1 != user.id) {
         otherUserIds.add(u1);
-      else if (u2 != null && u2 != user.id)
+      } else if (u2 != null && u2 != user.id)
         otherUserIds.add(u2);
     }
 

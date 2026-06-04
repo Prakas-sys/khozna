@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:khozna/core/theme/app_theme.dart';
@@ -129,8 +128,9 @@ class _ChatScreenState extends State<ChatScreen> {
             curve: Curves.linear,
           );
           await Future.delayed(const Duration(seconds: 1));
-          if (_bannerScrollController.hasClients)
+          if (_bannerScrollController.hasClients) {
             _bannerScrollController.jumpTo(0);
+          }
         }
       }
     }
@@ -159,8 +159,9 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     setState(() => _optimisticMessages.insert(0, tempMsg));
-    if (_activeChatId == null && widget.ownerId.isNotEmpty)
+    if (_activeChatId == null && widget.ownerId.isNotEmpty) {
       await _initializeChat();
+    }
 
     if (_activeChatId != null) {
       ChatRepository.sendMessage(_activeChatId!, msgText).catchError((e) {
@@ -175,15 +176,17 @@ class _ChatScreenState extends State<ChatScreen> {
       imageQuality: 80,
     );
     if (picked == null) return;
-    if (_activeChatId == null && widget.ownerId.isNotEmpty)
+    if (_activeChatId == null && widget.ownerId.isNotEmpty) {
       await _initializeChat();
+    }
     if (_activeChatId == null) return;
 
     setState(() => _isSendingImage = true);
     try {
       final url = await CloudinaryService.uploadImage(File(picked.path));
-      if (url != null)
+      if (url != null) {
         await ChatRepository.sendImageMessage(_activeChatId!, url);
+      }
     } finally {
       if (mounted) setState(() => _isSendingImage = false);
     }
