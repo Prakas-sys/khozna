@@ -485,7 +485,7 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Rs. ${NumberFormat('#,##,###').format(total)}',
+                      'Rs. ${PriceFormatter.format(total.toString())}',
                       style: GoogleFonts.plusJakartaSans(
                         fontWeight: FontWeight.w900,
                         fontSize: 18,

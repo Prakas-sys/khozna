@@ -569,35 +569,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
               ),
             ),
-            
-            // Verified Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFFDCFCE7), // Subtle green fill
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF22C55E), width: 1.0),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.verified_rounded,
-                    color: Color(0xFF22C55E),
-                    size: 14,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Verified',
-                    style: GoogleFonts.inter(
-                      color: const Color(0xFF166534), // Darker green text
-                      fontWeight: FontWeight.w800,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -1665,14 +1636,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
                       children: [
-                        Text(
-                          'रू ${PriceFormatter.format(price.toString())}',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 22,
-                            color: Colors.black,
-                            letterSpacing: -0.5,
-                          ),
+                        Row(
+                          children: [
+                            SvgPicture.asset(
+                              'assets/icons/vector of ruppes.svg',
+                              width: 18,
+                              height: 18,
+                              colorFilter: const ColorFilter.mode(
+                                Colors.black,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              PriceFormatter.format(price.toString()),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 24,
+                                color: Colors.black,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(width: 4),
                         Text(
@@ -1700,10 +1685,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               
               // Right Side: Action Button
               _isMyProperty
-                  ? const SizedBox() // Don't show booking button on own property
-                  : SizedBox(
-                      height: 52,
-                      width: 160,
+                  ? const SizedBox() 
+                  : Expanded(
+                      flex: 2,
                       child: _buildBottomActionButtons(context),
                     ),
             ],
@@ -1875,7 +1859,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     return SizedBox(
-      height: 36,
+      height: 54,
+      width: double.infinity,
       child: ElevatedButton(
         onPressed: () => Navigator.push(
           context,
@@ -1884,19 +1869,20 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         ).then((v) => v == true ? _updateBookingStatus() : null),
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF00A3E1),
+          backgroundColor: AppTheme.brandColor,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          elevation: 0,
+          elevation: 4,
+          shadowColor: AppTheme.brandColor.withOpacity(0.4),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(16),
           ),
         ),
         child: Text(
           'Book Now',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
           ),
         ),
       ),

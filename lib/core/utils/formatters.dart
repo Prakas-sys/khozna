@@ -19,8 +19,7 @@ class PriceFormatter {
         return '${formatted.toStringAsFixed(formatted.truncateToDouble() == formatted ? 0 : 1)} Lakh';
       } else {
         // Thousands / Normal
-        final formatter = NumberFormat('#,##,###');
-        return formatter.format(price);
+        return price.toInt().toString();
       }
     } catch (e) {
       return priceStr;

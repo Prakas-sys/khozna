@@ -12,6 +12,7 @@ import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
 import 'package:khozna/core/utils/formatters.dart';
+import 'package:khozna/features/property/screens/visit_request_screen.dart';
 
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
@@ -398,7 +399,20 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: 'Rs. ${PriceFormatter.format(property.price)}',
+                              WidgetSpan(
+                                child: SvgPicture.asset(
+                                  'assets/icons/vector of ruppes.svg',
+                                  width: 16,
+                                  height: 16,
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.white,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
+                              const TextSpan(text: ' '),
+                              TextSpan(
+                                text: PriceFormatter.format(property.price),
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w900,
@@ -449,7 +463,15 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.chat_bubble_outline_rounded, color: Colors.white, size: 16),
+                              SvgPicture.asset(
+                                'assets/icons/Message neww.svg',
+                                width: 18,
+                                height: 18,
+                                colorFilter: const ColorFilter.mode(
+                                  Colors.white,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 'CHAT',
@@ -471,7 +493,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           Navigator.push(
                              context,
                              MaterialPageRoute(
-                               builder: (_) => PropertyDetailsScreen(property: property),
+                               builder: (_) => VisitRequestScreen(property: property),
                              ),
                           );
                         },
@@ -491,10 +513,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.directions_walk_rounded, color: Colors.white, size: 18),
+                              const Icon(Icons.bookmark_add_rounded, color: Colors.white, size: 18),
                               const SizedBox(width: 8),
                               Text(
-                                'VISIT',
+                                'BOOK NOW',
                                 style: GoogleFonts.plusJakartaSans(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w900,
@@ -503,6 +525,35 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      GestureDetector(
+                        onTap: () {
+                          HapticFeedback.lightImpact();
+                          Navigator.push(
+                             context,
+                             MaterialPageRoute(
+                               builder: (_) => PropertyDetailsScreen(property: property),
+                             ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(color: Colors.white.withOpacity(0.2)),
+                          ),
+                          child: Text(
+                            'DETAILS',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: Colors.white70,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 11,
+                              letterSpacing: 1,
+                            ),
                           ),
                         ),
                       ),
