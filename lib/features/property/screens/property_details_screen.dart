@@ -547,31 +547,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Badge Row - Start Aligned
-        // Badge Row - Perfectly Aligned right below image
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Flat Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF00A3E1), width: 1.5),
-              ),
-              child: Text(
-                widget.property.category,
-                style: GoogleFonts.inter(
-                  color: const Color(0xFF00A3E1),
-                  fontWeight: FontWeight.w800,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
         // Title Section
         Center(
           child: Text(
@@ -617,32 +592,46 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         // Ratings & Views Row
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Text(
-                  avgRating?.toStringAsFixed(1) ?? '0.0',
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 16,
+        // Ratings & Views Row
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    avgRating?.toStringAsFixed(1) ?? '0.0',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(Icons.star_rounded, color: Colors.black, size: 20),
-                const Icon(Icons.star_rounded, color: Colors.black, size: 20),
-                const Icon(Icons.star_rounded, color: Colors.black, size: 20),
-                const Icon(Icons.star_rounded, color: Colors.black, size: 20),
-              ],
-            ),
-            Text(
-              '$votesCount Votes',
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: Colors.black54,
+                  const SizedBox(width: 6),
+                  Row(
+                    children: List.generate(5, (index) {
+                      return Icon(
+                        Icons.star_rounded,
+                        color: Colors.grey.shade300,
+                        size: 20,
+                      );
+                    }),
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                '$votesCount Votes',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+        ),
         ),
       ],
     );
@@ -1670,15 +1659,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ),
                       ],
                     ),
-                    if (widget.property.isVerified)
-                      Text(
-                        'free cancellation',
-                        style: GoogleFonts.inter(
-                          color: const Color(0xFF22C55E),
-                          fontSize: 11,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
                   ],
                 ),
               ),
