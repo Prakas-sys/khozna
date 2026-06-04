@@ -398,7 +398,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         RichText(
                           text: TextSpan(
                             children: [
-                              TextSpan(
                               WidgetSpan(
                                 child: SvgPicture.asset(
                                   'assets/icons/vector of ruppes.svg',
