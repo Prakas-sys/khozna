@@ -30,10 +30,9 @@ class ProfileHeader extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0A1628), Color(0xFF153B5C), Color(0xFF00A3E1)],
-          stops: [0.0, 0.55, 1.0],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF0A1628), Color(0xFF152A44)], // Darker, cleaner secondary colors
         ),
       ),
       child: Stack(
@@ -468,7 +467,7 @@ class ProfileMenuSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withOpacity(0.02), // Subtler shadow for 60% neutral background
                 blurRadius: 40,
                 offset: const Offset(0, 10),
               ),
@@ -513,7 +512,7 @@ class ProfileMenuItem extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: (color ?? AppTheme.brandColor).withOpacity(0.1),
+          color: const Color(0xFFF1F5F9), // 30% Secondary color (Soft Slate)
           shape: BoxShape.circle,
         ),
         child: svgPath != null
