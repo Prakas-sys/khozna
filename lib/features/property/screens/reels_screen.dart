@@ -11,7 +11,7 @@ import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
 import 'package:khozna/core/utils/formatters.dart';
-import 'package:khozna/features/property/screens/visit_request_screen.dart';
+
 
 import 'package:khozna/core/utils/app_notifiers.dart';
 
@@ -493,7 +493,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   ),
                                 );
                               },
-                              isPrimary: false,
+
                             ),
                           ],
                         ),
@@ -552,33 +552,28 @@ class _ReelsScreenState extends State<ReelsScreen> {
   }
 
   Widget _buildActionButton({
-    String? iconPath,
-    IconData? iconData,
+    required String iconPath,
     required String label,
     required VoidCallback onTap,
-    required bool isPrimary,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 100, // Fixed width to prevent overflow
+        width: 90,
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isPrimary ? AppTheme.brandColor : Colors.white.withOpacity(0.08),
+          color: Colors.white.withOpacity(0.08),
           borderRadius: BorderRadius.circular(15),
-          border: isPrimary ? null : Border.all(color: Colors.white.withOpacity(0.1)),
+          border: Border.all(color: Colors.white.withOpacity(0.1)),
         ),
         child: Column(
           children: [
-            if (iconPath != null)
-              SvgPicture.asset(
-                iconPath,
-                width: 18,
-                height: 18,
-                colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-              )
-            else if (iconData != null)
-              Icon(iconData, color: Colors.white, size: 18),
+            SvgPicture.asset(
+              iconPath,
+              width: 18,
+              height: 18,
+              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
             const SizedBox(height: 4),
             Text(
               label,
