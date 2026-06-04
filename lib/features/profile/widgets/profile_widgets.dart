@@ -30,9 +30,9 @@ class ProfileHeader extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF0A1628), Color(0xFF152A44)], // Darker, cleaner secondary colors
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF00A3E1), Color(0xFF00B4F1)], // Original Blue & Sky Blue
         ),
       ),
       child: Stack(
@@ -173,8 +173,8 @@ class ProfileHeader extends StatelessWidget {
                         text: fullName ?? (isOwner ? 'Owner' : 'Guest'),
                         style: GoogleFonts.inter(
                           fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white, // White text for blue header
                         ),
                       ),
                       if (kycStatus == 'verified')
@@ -352,13 +352,9 @@ class PostPropertyCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white, // White Background for card
         borderRadius: BorderRadius.circular(20),
-        // Shadow removed as requested
+        border: Border.all(color: Colors.grey.withOpacity(0.15)), // Subtle border
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -385,7 +381,7 @@ class PostPropertyCard extends StatelessWidget {
                   Text(
                     'READY TO RENT OUT',
                     style: GoogleFonts.plusJakartaSans(
-                      color: Colors.white,
+                      color: const Color(0xFF1A1A1A), // Black Text
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -0.5,
@@ -395,7 +391,7 @@ class PostPropertyCard extends StatelessWidget {
                   Text(
                     'आफ्नो प्रोपर्टी लिस्ट गर्नुहोस्',
                     style: GoogleFonts.notoSansDevanagari(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.grey[700], // Darker Grey Subtitle
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       height: 1.1,
@@ -410,14 +406,13 @@ class PostPropertyCard extends StatelessWidget {
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppTheme.brandColor, // Blue Button
                         borderRadius: BorderRadius.circular(30),
-                        // Button shadow removed
                       ),
                       child: Text(
                         'Post Now',
                         style: GoogleFonts.inter(
-                          color: AppTheme.brandColor,
+                          color: Colors.white, // White Font
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
                         ),
@@ -512,7 +507,7 @@ class ProfileMenuItem extends StatelessWidget {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9), // 30% Secondary color (Soft Slate)
+          color: AppTheme.brandColor.withOpacity(0.08),
           shape: BoxShape.circle,
         ),
         child: svgPath != null

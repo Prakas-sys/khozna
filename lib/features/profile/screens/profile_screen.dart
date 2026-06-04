@@ -200,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFFAF9F6), // Sophisticated Cream White
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -208,7 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             floating: false,
             pinned: true,
             elevation: 0,
-            backgroundColor: const Color(0xFF0A1628), // Dark Navy Secondary
+            backgroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               background: ProfileHeader(
                 fullName: _fullName ??
