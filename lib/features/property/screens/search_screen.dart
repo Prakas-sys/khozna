@@ -1141,6 +1141,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                           MaterialPageRoute(
                             builder: (context) => FilterResultsScreen(
                               location: _searchController.text.isNotEmpty ? _searchController.text : _activeCategory,
+                              category: _activeCategory,
                               priceRange: 'Up to रू ${_priceValue.toInt()}',
                             ),
                           ),

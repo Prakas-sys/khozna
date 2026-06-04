@@ -12,11 +12,13 @@ import 'package:khozna/widgets/skeleton_card.dart';
 class FilterResultsScreen extends StatefulWidget {
   final String location;
   final String priceRange;
+  final String? category;
 
   const FilterResultsScreen({
     super.key,
     this.location = 'Verified Listings',
     this.priceRange = 'Top Rated Properties',
+    this.category,
   });
 
   @override
@@ -57,7 +59,8 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
         .from('properties')
         .select(
           '*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)',
-        );
+        )
+        .eq('status', 'available');
 
     // Filter by location if it's a real location
     if (isLocationSearch) {
@@ -69,9 +72,19 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
               as dynamic;
     }
 
+    // Filter by category if specifically selected
+    if (widget.category != null && widget.category!.isNotEmpty && widget.category != 'All') {
+      query = query.eq('category', widget.category!) as dynamic;
+    }
+
     // Filter by price if a valid number was found
     if (priceInt != null && priceInt > 0) {
       query = query.lte('price', priceInt) as dynamic;
+    }
+    
+    // Fallback if price is listed in price_month
+    if (priceInt != null && priceInt > 0) {
+       // We can iterate results later or try an or filter if DB supports it
     }
 
     final result = await (query as dynamic)

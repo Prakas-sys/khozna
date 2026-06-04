@@ -238,7 +238,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         slivers: [
           _buildImageSection(),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildHeader(),
@@ -537,7 +537,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildHeader() {
     int guests = widget.property.bedrooms * 2 > 0 ? widget.property.bedrooms * 2 : 2;
     int beds = widget.property.bedrooms > 0 ? widget.property.bedrooms : 1;
-    String specs = '$guests guests • ${widget.property.bedrooms} bedroom • $beds bed • ${widget.property.bathrooms} bath';
+    String specs = '$guests guests  •  ${widget.property.bedrooms} bedroom  •  $beds bed  •  ${widget.property.bathrooms} bath';
 
     final double? avgRating = _reviews.isNotEmpty
         ? (_reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length)
@@ -548,50 +548,51 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Badge Row - Start Aligned
+        // Badge Row - Perfectly Aligned right below image
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Flat Badge
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF00A3E1), width: 1.2),
+                border: Border.all(color: const Color(0xFF00A3E1), width: 1.5),
               ),
               child: Text(
                 widget.property.category,
                 style: GoogleFonts.inter(
                   color: const Color(0xFF00A3E1),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            
             // Verified Badge
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color(0xFFDCFCE7), // Subtle green fill
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF22C55E), width: 1.2),
+                border: Border.all(color: const Color(0xFF22C55E), width: 1.0),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(
-                    Icons.check_circle_rounded,
+                    Icons.verified_rounded,
                     color: Color(0xFF22C55E),
-                    size: 13,
+                    size: 14,
                   ),
                   const SizedBox(width: 4),
                   Text(
                     'Verified',
                     style: GoogleFonts.inter(
-                      color: const Color(0xFF22C55E),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
+                      color: const Color(0xFF166534), // Darker green text
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -599,66 +600,78 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 12),
-        // Title - Left Aligned
-        Text(
-          widget.property.title,
-          textAlign: TextAlign.left,
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-            letterSpacing: -0.5,
+        const SizedBox(height: 16),
+        // Title Section
+        Center(
+          child: Text(
+            widget.property.title,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 26,
+              fontWeight: FontWeight.w900,
+              color: Colors.black,
+              letterSpacing: -0.8,
+            ),
           ),
         ),
-        const SizedBox(height: 10),
-        // Subtitle / Rating & Location Row - Airbnb Style
+        const SizedBox(height: 8),
+        // Location Inline
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.star_rounded, color: Colors.black, size: 18),
+            const Icon(Icons.location_on_rounded, color: Color(0xFF00A3E1), size: 18),
             const SizedBox(width: 4),
             Text(
-              avgRating != null
-                  ? '${avgRating.toStringAsFixed(1)} ($votesCount reviews)'
-                  : 'New (समीक्षा छैन)',
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '•',
-              style: TextStyle(color: Colors.grey[400]),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.location_on_rounded, color: Color(0xFF00A3E1), size: 16),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Text(
-                widget.property.location,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: Colors.grey[700],
-                  fontWeight: FontWeight.w600,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              widget.property.location,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 15,
+                color: const Color(0xFF64748B),
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        // Specs Line - Left Aligned
-        Text(
-          specs,
-          textAlign: TextAlign.left,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
+        // Specs Stacked Cleanly
+        Center(
+          child: Text(
+            specs,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: const Color(0xFF94A3B8),
+              fontWeight: FontWeight.w600,
+            ),
           ),
+        ),
+        const SizedBox(height: 16),
+        // Ratings & Views Row
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(
+                  avgRating?.toStringAsFixed(1) ?? '0.0',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.star_rounded, color: Colors.black, size: 20),
+                const Icon(Icons.star_rounded, color: Colors.black, size: 20),
+                const Icon(Icons.star_rounded, color: Colors.black, size: 20),
+                const Icon(Icons.star_rounded, color: Colors.black, size: 20),
+              ],
+            ),
+            Text(
+              '$votesCount Votes',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -831,9 +844,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           itemCount: displayCount,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 0.85,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 0.95,
           ),
           itemBuilder: (context, index) {
             final item = items[index];
@@ -1622,16 +1635,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildBottomActionBar(BuildContext context) {
     final double price = widget.property.priceNight > 0 ? widget.property.priceNight : double.tryParse(widget.property.price) ?? 0;
-    final String unit = widget.property.priceNight > 0 ? 'per night' : 'per month';
+    final String unit = widget.property.priceNight > 0 ? 'night' : 'month';
 
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade200)),
+        border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, -5),
+          ),
+        ],
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1642,72 +1662,48 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 2.0, bottom: 3.0),
-                          child: SvgPicture.asset(
-                            'assets/icons/vector of ruppes.svg',
-                            width: 14,
-                            height: 15,
-                            colorFilter: const ColorFilter.mode(
-                              Colors.black,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        ),
                         Text(
-                          PriceFormatter.format(price.toString()),
-                          style: GoogleFonts.inter(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
+                          'रू ${PriceFormatter.format(price.toString())}',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 22,
                             color: Colors.black,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.black38,
-                            decorationThickness: 1.5,
+                            letterSpacing: -0.5,
                           ),
                         ),
                         const SizedBox(width: 4),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 2.0),
-                          child: Text(
-                            unit,
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.black54,
-                              fontWeight: FontWeight.w500,
-                            ),
+                        Text(
+                          '/$unit',
+                          style: GoogleFonts.inter(
+                            color: const Color(0xFF64748B),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
+                    if (widget.property.isVerified)
+                      Text(
+                        'free cancellation',
+                        style: GoogleFonts.inter(
+                          color: const Color(0xFF22C55E),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              // Right Side: Compact Action Button (Airbnb Style)
+              
+              // Right Side: Action Button
               _isMyProperty
-                  ? SizedBox(
-                      width: 120,
-                      height: 36,
-                      child: Container(
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Text(
-                          'Book Now',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                    )
+                  ? const SizedBox() // Don't show booking button on own property
                   : SizedBox(
-                      width: 120,
+                      height: 52,
+                      width: 160,
                       child: _buildBottomActionButtons(context),
                     ),
             ],
