@@ -589,10 +589,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        // Ratings & Views Row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        // Ratings & Views Row
+        // Ratings & Views
         Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -631,7 +628,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ),
             ],
           ),
-        ),
         ),
       ],
     );
