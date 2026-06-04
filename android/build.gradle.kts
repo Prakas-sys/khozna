@@ -33,7 +33,7 @@ subprojects {
             fixPlugin()
             // Force all plugins to use the same SDK version as the main app
             val androidExt = extensions.findByName("android") as? com.android.build.gradle.BaseExtension
-            androidExt?.compileSdkVersion(35)
+            androidExt?.compileSdkVersion(36)
         }
     }
 
