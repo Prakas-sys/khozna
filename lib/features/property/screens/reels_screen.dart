@@ -284,14 +284,16 @@ class _ReelsScreenState extends State<ReelsScreen> {
   Widget _buildReelItem(Property property) {
     final List<String> allImages = property.images.isNotEmpty
         ? property.images
-        : (property.imageUrl.isNotEmpty ? [p    final screenHeight = MediaQuery.of(context).size.height;
-    final mediaHeight = screenHeight * 0.65; // Take up 65% of screen for media
+        : (property.imageUrl.isNotEmpty ? [property.imageUrl] : []);
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final mediaHeight = screenWidth * 1.1; // 1.1 ratio for "medium" vertical feel
 
     return Container(
       color: Colors.black,
       child: Stack(
         children: [
-          // 1. TOP MEDIA SECTION (65% height)
+          // 1. TOP MEDIA SECTION (Medium Aspect Ratio)
           Positioned(
             top: 0,
             left: 0,
@@ -305,7 +307,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                   isImageView
                       ? _buildImageCarousel(allImages)
                       : _buildVideoPlaceholder(property),
-                  // Subtle top gradient for visibility of controls
+                  // Top gradient
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -326,40 +328,31 @@ class _ReelsScreenState extends State<ReelsScreen> {
 
           // 2. BOTTOM INFO SECTION
           Positioned(
-            top: mediaHeight - 40, // Overlap slightly with the media
+            top: mediaHeight - 20, // Reduced overlap
             left: 0,
             right: 0,
             bottom: 0,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
               decoration: BoxDecoration(
                 color: const Color(0xFF121212),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    blurRadius: 20,
-                    offset: const Offset(0, -10),
-                  ),
-                ],
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
               ),
-              child: SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(), // Prevent inner scroll
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Handle-like indicator
-                    Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                   // Handle
+                   Center(
                       child: Container(
-                        width: 40,
+                        width: 32,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: Colors.white24,
+                          color: Colors.white12,
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 12),
 
                     // Brand Info
                     Row(
@@ -372,9 +365,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           ),
                           child: ClipOval(
                             child: Image.asset(
-                              'assets/images/logo of khozna app.png',
-                              width: 24,
-                              height: 24,
+                              'assets/images/KHOZNA_app_icon_512x512.png', // Fixed asset path
+                              width: 20,
+                              height: 20,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -383,20 +376,20 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         Text(
                           'Khozna app',
                           style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withOpacity(0.8),
                             fontWeight: FontWeight.w700,
-                            fontSize: 14,
+                            fontSize: 13,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
 
-                    // Main Info Row
+                    // Main Row - using Row with constrained right side to prevent overflow
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        // LEFT: Title and Location
+                        // LEFT SIDE
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -409,17 +402,13 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   fontSize: 22,
                                   letterSpacing: -0.5,
                                 ),
-                                maxLines: 1,
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 6),
                               Row(
                                 children: [
-                                  const Icon(
-                                    Icons.location_on_rounded,
-                                    color: AppTheme.brandColor,
-                                    size: 14,
-                                  ),
+                                  const Icon(Icons.location_on_rounded, color: AppTheme.brandColor, size: 14),
                                   const SizedBox(width: 4),
                                   Flexible(
                                     child: Text(
@@ -427,7 +416,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       style: GoogleFonts.plusJakartaSans(
                                         color: Colors.white70,
                                         fontSize: 13,
-                                        fontWeight: FontWeight.w500,
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -437,7 +425,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               ),
                               const SizedBox(height: 12),
                               
-                              // Price (with fallback if 0)
+                              // Price logic
                               RichText(
                                 text: TextSpan(
                                   children: [
@@ -458,8 +446,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     const TextSpan(text: ' '),
                                     TextSpan(
                                       text: PriceFormatter.format(
-                                        (property.price == '0' || property.price.isEmpty)
-                                            ? property.priceMonth.toStringAsFixed(0)
+                                        (property.price == '0' || property.price.isEmpty || property.price == '₹0')
+                                            ? (property.priceMonth > 0 ? property.priceMonth.toStringAsFixed(0) : 'Call for price')
                                             : property.price
                                       ),
                                       style: GoogleFonts.plusJakartaSans(
@@ -469,7 +457,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: '/month',
+                                      text: property.priceMonth > 0 ? '/month' : '',
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
@@ -483,12 +471,13 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           ),
                         ),
 
-                        // RIGHT: Action Column
+                        // RIGHT SIDE - Action Buttons fixed width
+                        const SizedBox(width: 12),
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             _buildActionButton(
-                              iconPath: 'assets/icons/Vectorproepty card meeasge.svg', // Original SVG
+                              iconPath: 'assets/icons/Vectorproepty card meeasge.svg',
                               label: 'CHAT',
                               onTap: () {
                                 HapticFeedback.mediumImpact();
@@ -510,33 +499,44 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     
-                    // Details Button
-                    InkWell(
-                      onTap: () {
-                        HapticFeedback.lightImpact();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PropertyDetailsScreen(property: property),
+                    // SEE DETAILS FULL WIDTH BUTTON
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PropertyDetailsScreen(property: property),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white.withOpacity(0.08),
+                          foregroundColor: AppTheme.brandColor,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(color: Colors.white.withOpacity(0.1)),
                           ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        ),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               'SEE DETAILS',
                               style: GoogleFonts.plusJakartaSans(
-                                color: AppTheme.brandColor,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 13,
+                                fontSize: 14,
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            const Icon(Icons.arrow_forward_ios_rounded, color: AppTheme.brandColor, size: 12),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.arrow_forward_ios_rounded, size: 14),
                           ],
                         ),
                       ),
