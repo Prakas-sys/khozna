@@ -12,7 +12,7 @@ import java.io.FileInputStream
 
 android {
     namespace = "com.khozna.khozna"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

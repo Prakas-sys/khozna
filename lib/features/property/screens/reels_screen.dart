@@ -311,7 +311,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
                 stops: const [0.0, 0.2, 0.55, 1.0],
               ),
             ),
-            ),
           ),
         ),
 
@@ -512,8 +511,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
                 ],
               ),
             ],
-          ),
-        ),
           ),
         ),
       ],

@@ -992,6 +992,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
           ),
         ],
       ),
+    );
   }
 
   void _showFilterOptions(BuildContext context) {
