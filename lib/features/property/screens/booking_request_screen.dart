@@ -44,8 +44,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'बुकिङ अनुरोध (Request Booking)',
-          style: GoogleFonts.mukta(
+          'Request Booking',
+          style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
             fontWeight: FontWeight.w800,
             fontSize: 18,
@@ -60,13 +60,13 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             _buildPropertyHeader(),
             const SizedBox(height: 32),
             _buildDatePicker(
-              label: 'पस्ने मिति (MOVE-IN)',
+              label: 'MOVE-IN',
               date: _checkIn,
               onTap: () => _selectDate(true),
             ),
             const SizedBox(height: 16),
             _buildDatePicker(
-              label: 'जाने मिति (MOVE-OUT)',
+              label: 'MOVE-OUT',
               date: _checkOut,
               onTap: () => _selectDate(false),
             ),
@@ -220,7 +220,7 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
             child: Divider(height: 1),
           ),
           Text(
-            'मालिकले तपाईंको अनुरोध स्वीकृत गरेपछि भुक्तानी गर्ने विकल्प आउनेछ।\n(Payment option will appear after the owner approves your request.)',
+            'Payment option will appear after the owner approves your request.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 12,
@@ -261,8 +261,8 @@ class _BookingRequestScreenState extends State<BookingRequestScreen> {
           child: _isSubmitting
               ? const CircularProgressIndicator(color: Colors.white)
               : Text(
-                  'अनुरोध पठाउनुहोस् (SEND REQUEST)',
-                  style: GoogleFonts.mukta(
+                  'SEND REQUEST',
+                  style: GoogleFonts.plusJakartaSans(
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
                   ),

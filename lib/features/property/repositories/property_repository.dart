@@ -206,11 +206,13 @@ class PropertyRepository {
     required bool isNegotiable,
     required List<String> amenities,
     required List<String> houseRules,
-    required List<File> images,
+    List<File> images,
     required String description,
     double? latitude,
     double? longitude,
     File? videoFile,
+    List<String>? preUploadedImageUrls,
+    String? preUploadedVideoUrl,
     double priceNight = 0,
     double priceMonth = 0,
     String? videoCaption,
@@ -242,12 +244,45 @@ class PropertyRepository {
         .catchError((e) => debugPrint('AI Scam Check Error: $e'));
 
     // 3. Concurrent Media Uploads & AI Landmark Detection
-    Future<String?> videoUploadFuture = videoFile != null
+    // Filter out images that are already pre-uploaded
+    final List<File> imagesToUpload = [];
+    final List<String> finalImageUrls = preUploadedImageUrls ?? [];
+    
+    if (preUploadedImageUrls == null || preUploadedImageUrls.length < images.length) {
+      // Find which ones need uploading
+      // For simplicity, if preUploadedImageUrls is provided, we assume they match the first N images
+      // A better way is to check the path, but preUploadedImageUrls are just strings.
+      // So let's re-verify or just upload the missing ones.
+      // In our current AddPropertyScreen logic, we pass ALREADY UPLOADED ones.
+      
+      for (var file in images) {
+        // If we don't have this file's URL in our pre-uploaded list, add to upload queue
+        // (This is a bit tricky without path mapping in repository, 
+        // but UploadManager.instance.getUrl(file.path) can be used here too)
+        final url = CloudinaryService.uploadImage(file);
+        imagesToUpload.add(file);
+      }
+    }
+
+    Future<String?> videoUploadFuture = (videoFile != null && preUploadedVideoUrl == null)
         ? CloudinaryService.uploadVideo(videoFile)
-        : Future.value(null);
+        : Future.value(preUploadedVideoUrl);
+
+    // We only upload images that weren't captured by the background uploader
+    // Actually, to keep it simple and robust:
     Future<List<String?>> imagesUploadFuture = Future.wait(
-      images.map((file) => CloudinaryService.uploadImage(file)),
+      images.map((file) {
+        final existingUrl = preUploadedImageUrls?.firstWhere(
+          (url) => false, // We can't easily match URL to File here without path context
+          orElse: () => '',
+        );
+        // Let's use UploadManager here too for consistency
+        final managerUrl = UploadManager.instance.getUrl(file.path);
+        if (managerUrl != null) return Future.value(managerUrl);
+        return CloudinaryService.uploadImage(file);
+      }),
     );
+
     Future<List<Map<String, dynamic>>> landmarksFuture = aiService
         .getNearbyLandmarks(cleanArea, cleanLandmark)
         .catchError((e) {

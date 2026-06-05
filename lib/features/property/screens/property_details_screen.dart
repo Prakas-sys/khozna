@@ -23,6 +23,8 @@ import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/favourite_button.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
 import 'package:khozna/core/utils/map_launcher.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final Property property;
@@ -65,32 +67,30 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         widget.property.status == 'booked' ||
         widget.property.status == 'pending_approval';
 
-    if (widget.property.ownerName != null ||
-        widget.property.ownerAvatar != null) {
-      _ownerData = {
-        'full_name': widget.property.ownerName,
-        'avatar_url': widget.property.ownerAvatar,
-        'is_verified': widget.property.isOwnerVerified ?? false,
-      };
-    }
-
-    _fetchOwnerData();
+    // 🚀 Performance: Optimize all images for delivery immediately
     displayImages = widget.property.images.isNotEmpty
         ? widget.property.images
               .map(
                 (url) => url.contains('cloudinary.com')
                     ? url.replaceAll(
                         '/upload/',
-                        '/upload/q_auto,f_auto,w_1200,c_limit/',
+                        '/upload/f_auto,q_auto,w_1080,c_limit/',
                       )
                     : url,
               )
               .toList()
-        : [widget.property.imageUrl];
+        : [widget.property.imageUrl.contains('cloudinary.com') 
+            ? widget.property.imageUrl.replaceAll('/upload/', '/upload/f_auto,q_auto,w_1080,c_limit/')
+            : widget.property.imageUrl];
 
+    // 🚀 Performance: Load everything in parallel
+    Future.wait([
+      _fetchOwnerData(),
+      _updateBookingStatus(),
+      _loadReviews(),
+    ]);
+    
     _incrementViews();
-    _updateBookingStatus();
-    _loadReviews();
   }
 
   @override
@@ -940,91 +940,102 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildMapPreview() {
-    if (_hasLocation) {
-      return GestureDetector(
-        onTap: _openMap,
-        child: ClipRRect(
+    final LatLng position = _hasLocation 
+        ? LatLng(widget.property.latitude!, widget.property.longitude!)
+        : const LatLng(27.7172, 85.3240); // Fallback to Kathmandu center
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
           borderRadius: BorderRadius.circular(24),
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                border: Border.all(color: Colors.black.withOpacity(0.05)),
-              ),
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: _getStaticMapUrl().isEmpty
-                        ? Image.asset(
-                            'assets/images/Map view.png',
-                            fit: BoxFit.cover,
-                          )
-                        : KhoznaImage(
-                            imageUrl: _getStaticMapUrl(),
-                            fit: BoxFit.cover,
-                          ),
+          child: Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Stack(
+              children: [
+                FlutterMap(
+                  options: MapOptions(
+                    initialCenter: position,
+                    initialZoom: 15.0,
+                    interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
                   ),
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+                  children: [
+                    TileLayer(
+                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.khozna.app',
+                    ),
+                    if (_hasLocation)
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                            point: position,
+                            width: 80,
+                            height: 80,
+                            child: const Icon(
+                              Icons.location_on_rounded,
+                              color: AppTheme.brandColor,
+                              size: 40,
+                            ),
+                          ),
+                        ],
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Text(
-                        'Open Map',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15,
-                          color: AppTheme.brandColor,
-                          letterSpacing: -0.5,
+                  ],
+                ),
+                // Overlay to make it clickable but not draggable in detail view
+                Positioned.fill(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _openMap,
+                      child: Container(
+                        alignment: Alignment.bottomCenter,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.4),
+                            ],
+                          ),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            'Open in Google Maps',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
-      );
-    }
-
-    // Fallback if no coordinates available
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.map_outlined,
-                color: Colors.grey,
-                size: 28,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'मानचित्र उपलब्ध छैन (Map not available)',
-                style: GoogleFonts.mukta(
-                  fontSize: 13,
-                  color: Colors.grey[600],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      ],
     );
   }
 
@@ -1716,7 +1727,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.brandColor,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
             elevation: 0,
           ),
           child: Text(
@@ -1751,7 +1762,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF22C55E),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
             elevation: 0,
           ),
         ),
@@ -1797,7 +1808,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: isEnded ? AppTheme.brandColor : Colors.orange.shade400,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
               elevation: 0,
             ),
           ),

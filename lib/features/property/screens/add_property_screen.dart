@@ -13,6 +13,7 @@ import 'package:khozna/features/property/repositories/property_repository.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
+import 'package:khozna/core/services/upload_manager.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
@@ -37,7 +38,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final TextEditingController _landmarkController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _priceNightController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _bedroomsController = TextEditingController();
   final TextEditingController _bathroomsController = TextEditingController();
   final TextEditingController _floorController = TextEditingController();
@@ -94,7 +94,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final double _distanceFromLandmark = 0.0;
   final bool _isDistanceVerified = false;
   final bool _isAnalyzingLocation = false;
-  bool _isGeneratingDescription = false;
+  final bool _isAnalyzingLocation = false;
   final bool _isGeneratingVideoCaption = false;
   bool _showLocationNudge = false;
 
@@ -104,7 +104,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 3),
     );
+    UploadManager.instance.addListener(_onUploadStatusChanged);
     _loadExistingPayoutDetails();
+  }
+
+  void _onUploadStatusChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadExistingPayoutDetails() async {
@@ -130,7 +135,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     _landmarkController.dispose();
     _priceController.dispose();
     _priceNightController.dispose();
-    _descriptionController.dispose();
     _bedroomsController.dispose();
     _bathroomsController.dispose();
     _floorController.dispose();
@@ -139,6 +143,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     _videoCaptionController.dispose();
     _pageController.dispose();
     _mainScrollController.dispose();
+    UploadManager.instance.removeListener(_onUploadStatusChanged);
     super.dispose();
   }
 
@@ -177,13 +182,22 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       maxHeight: 1920,
     );
     if (images.isNotEmpty) {
-      setState(() => _selectedImages.addAll(images.map((x) => File(x.path))));
+      final newFiles = images.map((x) => File(x.path)).toList();
+      setState(() => _selectedImages.addAll(newFiles));
+      // Start background uploads immediately
+      for (var file in newFiles) {
+        UploadManager.instance.startUpload(file);
+      }
     }
   }
 
   Future<void> _pickVideo() async {
-    final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
-    if (video != null) setState(() => _selectedVideo = File(video.path));
+    if (video != null) {
+      final file = File(video.path);
+      setState(() => _selectedVideo = file);
+      // Start background upload for video (includes compression)
+      UploadManager.instance.startUpload(file, isVideo: true);
+    }
   }
 
   Future<void> _detectLocation() async {
@@ -347,27 +361,26 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     setState(() => _isPublishing = true);
 
     try {
-      // 1. Upload Payout Screenshot if exists
+      // 1. Wait for Payout Screenshot if it exists
       String? qrUrl;
       if (_payoutQrImage != null) {
-        qrUrl = await CloudinaryService.uploadImage(_payoutQrImage!);
+        qrUrl = UploadManager.instance.getUrl(_payoutQrImage!.path);
+        if (qrUrl == null) {
+          // If not uploaded yet, do it now
+          qrUrl = await CloudinaryService.uploadImage(_payoutQrImage!);
+        }
       }
 
       // 2. Update Profile with Payout Details
       Map<String, dynamic> payoutUpdates = {};
-
       if (_selectedPayoutMethod == 'esewa') {
         payoutUpdates['esewa_number'] = _payoutAccountController.text.trim();
       } else if (_selectedPayoutMethod == 'khalti') {
         payoutUpdates['khalti_number'] = _payoutAccountController.text.trim();
       } else if (_selectedPayoutMethod == 'bank') {
-        // Since dedicated bank columns don't exist yet, we'll store the summary in account_holder_name
         payoutUpdates['account_holder_name'] = '${_selectedBank}: ${_payoutAccountController.text.trim()}';
       }
-      
-      if (qrUrl != null) {
-        payoutUpdates['qr_code_url'] = qrUrl;
-      }
+      if (qrUrl != null) payoutUpdates['qr_code_url'] = qrUrl;
 
       if (payoutUpdates.isNotEmpty) {
         await Supabase.instance.client
@@ -376,7 +389,19 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             .eq('id', user.id);
       }
 
-      // 3. Create Property
+      // 3. Collect uploaded media URLs
+      // If they are not in UploadManager, they will be uploaded in createProperty (fallback)
+      final List<String> preUploadedImageUrls = [];
+      for (var file in _selectedImages) {
+        final url = UploadManager.instance.getUrl(file.path);
+        if (url != null) preUploadedImageUrls.add(url);
+      }
+      
+      final String? preUploadedVideoUrl = _selectedVideo != null 
+          ? UploadManager.instance.getUrl(_selectedVideo!.path) 
+          : null;
+
+      // 4. Create Property
       await PropertyRepository.createProperty(
         title: _titleController.text,
         category: (_selectedCategory == 'Other' ? _otherCategoryController.text.trim() : _selectedCategory) ?? 'Room',
@@ -391,16 +416,19 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         amenities: _selectedAmenities,
         houseRules: _selectedRules,
         images: _selectedImages,
-        description: _descriptionController.text,
+        description: '', // Description removed as requested
         latitude: _latitude,
         longitude: _longitude,
         videoFile: _selectedVideo,
+        preUploadedVideoUrl: preUploadedVideoUrl,
+        preUploadedImageUrls: preUploadedImageUrls,
         videoCaption: _videoCaptionController.text.trim(),
         priceNight: double.tryParse(_priceNightController.text) ?? 0.0,
         priceMonth: double.tryParse(_priceController.text) ?? 0.0,
       );
 
       _confettiController.play();
+      UploadManager.instance.clear(); // Clear cache after success
       await Future.delayed(const Duration(milliseconds: 600));
 
       if (mounted) {
@@ -421,9 +449,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Publishing failed: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Publishing failed: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _isPublishing = false);
@@ -1555,112 +1586,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ],
         const SizedBox(height: 40),
 
-        // ── Description Section ──────────────────────────────────────────
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                color: AppTheme.brandColor.withOpacity(0.05),
-                child: Row(
-                  children: [
-                    const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor, size: 20),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'Professional Description',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 15,
-                          color: AppTheme.brandColor,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _descriptionController,
-                      maxLines: 5,
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontSize: 15,
-                        color: const Color(0xFF1F2937),
-                        height: 1.5,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'आफ्नो प्रोपर्टीको बारेमा केही लेख्नुहोस्...',
-                        hintStyle: GoogleFonts.notoSansDevanagari(color: Colors.grey[400], fontSize: 14),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _isGeneratingDescription
-                            ? null
-                            : () async {
-                                HapticFeedback.mediumImpact();
-                                setState(() => _isGeneratingDescription = true);
-                                  final desc = await _aiService.generateDescription(
-                                    title: _titleController.text,
-                                    category: _selectedCategory ?? 'Room',
-                                    area: _areaController.text,
-                                    landmark: _landmarkController.text,
-                                    price: _priceController.text,
-                                    priceNight: _priceNightController.text,
-                                    bedrooms: _bedroomsController.text,
-                                    bathrooms: _bathroomsController.text,
-                                    floor: _floorController.text,
-                                    sqft: _sqftController.text,
-                                    isNegotiable: _isNegotiable,
-                                    amenities: [..._selectedAmenities, ..._selectedRules],
-                                  );
-                                setState(() {
-                                  _descriptionController.text = desc;
-                                  _isGeneratingDescription = false;
-                                });
-                              },
-                        icon: _isGeneratingDescription 
-                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : const Icon(Icons.auto_fix_high_rounded, size: 18),
-                        label: Text(
-                          _isGeneratingDescription ? 'लेख्दै छ...' : 'AI ले विवरण लेख्नुहोस्',
-                          style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w800, fontSize: 14),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.brandColor,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
         const SizedBox(height: 32),
       ],
     );

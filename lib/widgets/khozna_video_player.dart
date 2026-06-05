@@ -78,7 +78,16 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
       return;
     }
 
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    // 🔥 Optimization: Use Cloudinary's auto-format and auto-quality
+    String optimizedUrl = widget.videoUrl;
+    if (optimizedUrl.contains('cloudinary.com')) {
+      optimizedUrl = optimizedUrl.replaceAll('/upload/', '/upload/f_auto,q_auto/');
+    }
+
+    _controller = VideoPlayerController.networkUrl(
+      Uri.parse(optimizedUrl),
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    );
     _controller.addListener(_videoListener);
 
     try {

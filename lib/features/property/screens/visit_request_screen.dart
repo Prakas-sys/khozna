@@ -29,9 +29,9 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
   bool _isLoadingOwner = true;
 
   final List<String> _stepTitles = [
-    'अवलोकन मिति · Schedule',
-    'व्यक्ति संख्या · Guests',
-    'पुष्टि गर्नुहोस् · Review',
+    'Schedule',
+    'Guests',
+    'Review',
   ];
 
   final List<String> _timeSlots = [
@@ -102,8 +102,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         title: Column(
           children: [
             Text(
-              'अवलोकन अनुरोध',
-              style: GoogleFonts.notoSansDevanagari(
+              'Visit Request',
+              style: GoogleFonts.plusJakartaSans(
                 color: const Color(0xFF1A1A2E),
                 fontWeight: FontWeight.w800,
                 fontSize: 16,
@@ -140,8 +140,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'सुरक्षित',
-                  style: GoogleFonts.notoSansDevanagari(
+                  'SECURE',
+                  style: GoogleFonts.plusJakartaSans(
                     fontSize: 9,
                     fontWeight: FontWeight.w900,
                     color: const Color(0xFF00C853),
@@ -470,8 +470,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'यस कोठाको अवलोकनका लागि आउने व्यक्तिको संख्या चयन गर्नुहोस्।',
-          style: GoogleFonts.notoSansDevanagari(
+          'Select the number of people visiting this property.',
+          style: GoogleFonts.plusJakartaSans(
             fontSize: 12,
             color: Colors.grey[600],
           ),
@@ -974,8 +974,9 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                           ),
                         )
                       : Text(
-                          isLastStep ? 'भेजन्नुहोस् · Confirm Request' : 'जारी राख्नुहोस् · Continue',
-                          style: GoogleFonts.notoSansDevanagari(
+                      : Text(
+                          isLastStep ? 'Confirm Request' : 'Continue',
+                          style: GoogleFonts.plusJakartaSans(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
