@@ -20,7 +20,7 @@ class AddPropertyScreen extends StatefulWidget {
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
-  final int _totalSteps = 7;
+  final int _totalSteps = 8;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   final ScrollController _mainScrollController = ScrollController();
@@ -257,24 +257,29 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       case 3:
         isValid = true; // Amenities
         break;
-      case 4: // Pricing & Media (Step 5)
+      case 4: // Pricing (Step 5)
         if (_priceController.text.trim().isEmpty &&
             _priceNightController.text.trim().isEmpty) {
           errorMessage = 'कृपया मासिक वा दैनिक भाडा राख्नुहोस्।';
-        } else if (_selectedImages.length < 5) {
+        } else {
+          isValid = true;
+        }
+        break;
+      case 5: // Photos (Step 6)
+        if (_selectedImages.length < 5) {
           errorMessage = 'कृपया कम्तिमा ५ वटा फोटोहरू राख्नुहोस्।';
         } else {
           isValid = true;
         }
         break;
-      case 5: // Marketing (Title + Video + Desc)
+      case 6: // Marketing (Title + Video + Desc)
         if (_titleController.text.trim().isEmpty) {
           errorMessage = 'कृपया एउटा आकर्षक शीर्षक राख्नुहोस्।';
         } else {
           isValid = true;
         }
         break;
-      case 6: // Payout
+      case 7: // Payout
         if (_payoutAccountController.text.trim().isEmpty) {
           errorMessage = 'कृपया आफ्नो पेमेन्ट खाता नम्बर राख्नुहोस्।';
         } else {
@@ -434,7 +439,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         value: value,
                         strokeWidth: 3.5,
                         strokeCap: StrokeCap.round,
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF22C55E)),
+                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF22C55E)),
+                      ),
                     ),
                   ),
                   Text(
@@ -476,7 +482,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     _buildStepLocation(),
                     _buildStepBasics(),
                     _buildStepAmenities(),
-                    _buildStepPricingMedia(),
+                    _buildStepPricingRules(),
+                    _buildStepPhotos(),
                     _buildStepMarketing(),
                     _buildStepPayout(),
                   ],
@@ -1022,16 +1029,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildStepPricingMedia() {
-    final int photoCount = _selectedImages.length;
-    final double progress = (photoCount / 5).clamp(0.0, 1.0);
-    final bool isGoalMet = photoCount >= 5;
-
+  Widget _buildStepPricingRules() {
     return StepLayout(
-      title: 'भाडा र फोटोहरू (Rent & Photos)',
-      subtitle: 'मासिक भाडा तोक्नुहोस् र कम्तिमा ५ वटा फोटोहरू राख्नुहोस्।',
+      title: 'भाडा र नियमहरू (Pricing & Rules)',
+      subtitle: 'मासिक भाडा तोक्नुहोस् र घरका नियमहरू मिलाउनुहोस्।',
       content: [
-         // ── Pricing Section ────────────────────────────────────────────────
+        // ── Pricing Section ────────────────────────────────────────────────
         PriceInputField(
           label: 'मासिक भाडा (Monthly Rent)',
           controller: _priceController,
@@ -1111,22 +1114,56 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ),
         const SizedBox(height: 48),
 
-        // ── Photo Selection Section ──────────────────────────────────────────
+        // ── Rules Section ──────────────────────────────────────────────────
         Row(
           children: [
-            const Icon(Icons.photo_library_rounded, color: AppTheme.brandColor, size: 20),
+            const Icon(Icons.rule_folder_rounded, color: Colors.orange, size: 20),
             const SizedBox(width: 8),
             Text(
-              'फोटोहरू थप्नुहोस् (Photos)',
-              style: GoogleFonts.inter(
+              'घरका नियमहरू (House Rules)',
+              style: GoogleFonts.notoSansDevanagari(
                 fontSize: 18,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w800,
                 color: const Color(0xFF111827),
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
+        AmenitiesGrid(
+          selectedItems: _selectedRules,
+          icons: const {
+            'family_only': Icons.family_restroom_rounded,
+            'boys_allowed': Icons.man_rounded,
+            'girls_allowed': Icons.woman_rounded,
+            'pets_allowed': Icons.pets_rounded,
+            'smoking_allowed': Icons.smoke_free_rounded,
+            'alcohol_allowed': Icons.local_bar_rounded,
+          },
+          labels: const {
+            'family_only': 'परिवार मात्र',
+            'boys_allowed': 'केटा मात्र',
+            'girls_allowed': 'केटी मात्र',
+            'pets_allowed': 'जनावर राख्न पाईने',
+            'smoking_allowed': 'चुरोट पिउन पाईने',
+            'alcohol_allowed': 'मदिरा पिउन पाईने',
+          },
+          onToggle: _toggleRule,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStepPhotos() {
+    final int photoCount = _selectedImages.length;
+    final double progress = (photoCount / 5).clamp(0.0, 1.0);
+    final bool isGoalMet = photoCount >= 5;
+
+    return StepLayout(
+      title: 'फोटोहरू थप्नुहोस् (Add Photos)',
+      subtitle: 'राम्रो उज्यालोमा खिचिएका फोटोहरू प्रयोग गर्नुहोस्।',
+      content: [
+        // ── Photo Progress Tracker ──────────────────────────────────────────
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -1272,44 +1309,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             },
           ),
         ],
-        const SizedBox(height: 48),
-
-        // ── Rules Section ──────────────────────────────────────────────────
-        Row(
-          children: [
-            const Icon(Icons.rule_folder_rounded, color: Colors.orange, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              'घरका नियमहरू (House Rules)',
-              style: GoogleFonts.notoSansDevanagari(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF111827),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        AmenitiesGrid(
-          selectedItems: _selectedRules,
-          icons: const {
-            'family_only': Icons.family_restroom_rounded,
-            'boys_allowed': Icons.man_rounded,
-            'girls_allowed': Icons.woman_rounded,
-            'pets_allowed': Icons.pets_rounded,
-            'smoking_allowed': Icons.smoke_free_rounded,
-            'alcohol_allowed': Icons.local_bar_rounded,
-          },
-          labels: const {
-            'family_only': 'परिवार मात्र',
-            'boys_allowed': 'केटा मात्र',
-            'girls_allowed': 'केटी मात्र',
-            'pets_allowed': 'जनावर राख्न पाईने',
-            'smoking_allowed': 'चुरोट पिउन पाईने',
-            'alcohol_allowed': 'मदिरा पिउन पाईने',
-          },
-          onToggle: _toggleRule,
-        ),
       ],
     );
   }
