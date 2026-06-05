@@ -757,7 +757,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                     _buildSummaryDetailRow(
                       Icons.account_balance_wallet_outlined,
                       rentLabel,
-                      'Rs. ${PriceFormatter.format(rentPrice)}',
+                      'रू ${PriceFormatter.format(rentPrice)}/-',
                       valueColor: AppTheme.brandColor,
                     ),
                   ],
@@ -960,7 +960,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                     backgroundColor: AppTheme.brandColor,
                     disabledBackgroundColor: AppTheme.brandColor.withOpacity(0.5),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(100),
                     ),
                     elevation: 0,
                   ),

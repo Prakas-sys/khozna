@@ -143,7 +143,7 @@ class KhoznaAiService {
             'Here is the CURRENT LIVE INVENTORY on Khozna relevant to the query. Use this exact data to answer the user:\n';
         for (var p in response) {
           liveContext +=
-              "- ${p['category']} in ${p['area_name']} for ₹ ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
+              "- ${p['category']} in ${p['area_name']} for रू ${p['price']}/mo (${p['bedrooms'] ?? 1} bedrooms). Title: ${p['title']}\n";
         }
       } else {
         // Fallback: fetch most recent available if no keyword match
@@ -159,7 +159,7 @@ class KhoznaAiService {
               'No direct match found for the specific query, but here are some overall available properties on Khozna:\n';
           for (var p in fallback) {
             liveContext +=
-                "- ${p['category']} in ${p['area_name']} for ₹ ${p['price']}/mo. Title: ${p['title']}\n";
+                "- ${p['category']} in ${p['area_name']} for रू ${p['price']}/mo. Title: ${p['title']}\n";
           }
         }
       }
@@ -216,8 +216,8 @@ BEHAVIOR RULES:
     - Category: $category
     - Location Area: $area
     - Specific Landmark: $landmark
-    - Monthly Rent: ₹ $price (Negotiable: ${isNegotiable ? 'Yes' : 'No'})
-    - Daily Rent (if applicable): ${priceNight.isNotEmpty ? '₹ $priceNight' : 'N/A'}
+    - Monthly Rent: रू $price (Negotiable: ${isNegotiable ? 'Yes' : 'No'})
+    - Daily Rent (if applicable): ${priceNight.isNotEmpty ? 'रू $priceNight' : 'N/A'}
     - Features: ${bedrooms.isNotEmpty ? '$bedrooms Bedrooms' : ''}, ${bathrooms.isNotEmpty ? '$bathrooms Bathrooms' : ''}, Floor: $floor, Size: $sqft sq.ft
     - Amenities & Rules: ${amenities.join(', ')}
     
@@ -226,11 +226,11 @@ BEHAVIOR RULES:
     2. LOCATION & LANDMARKS: You MUST emphasize the location ($area) and the nearby landmark ($landmark). Mention why this location is convenient (e.g., transport, safety, neighborhood vibe).
     3. PRICE & VALUE: Mention the rent clearly and highlight if it's a good deal for the features provided.
     4. RENTAL ONLY: This is for a RENTAL listing. ABSOLUTELY FORBIDDEN to mention "Selling", "Buying", or "For Sale". Use terms like "Rent" (भाडा) only.
-    5. UNIT TYPE: Use specific terms like "कोठा" (Room) or "फ्ल्याट" (Flat) based on the category. Avoid calling it a "घर" (House) unless it's a whole house for rent.
+    5. UNIT TYPE: Use specific terms like "कोठा" (Room) or "फ्ल्याट" (Flat) based on the category. Avoid calling it a "Cottage" unless it's a whole cottage for rent.
     6. LANGUAGE (STRICT): Use ONLY English and Pure Nepali (Devanagari). 
     7. NO HINDI: Strictly forbidden from using Hindi words like 'कमरा' (use 'कोठा'), 'मकान', 'बिस्तार' (use 'विवरण'). If a word feels like Hindi, use the English term instead.
     8. LENGTH: 4-6 concise sentences.
-    9. CURRENCY: Always use ₹ symbol.
+    9. CURRENCY: Always use रू symbol.
     """;
 
     return _getAiResponse(
@@ -252,7 +252,7 @@ BEHAVIOR RULES:
     Details:
     - Type: $category
     - Location: $area, near $landmark
-    - Price: ₹ $price
+    - Price: रू $price
     
     The caption should:
     1. Be very short (1-2 sentences).
@@ -260,7 +260,7 @@ BEHAVIOR RULES:
     3. Include a call to action (e.g., "DM for visit", "Don't miss out!").
     4. LANGUAGE: Use a natural mix of English and Nepali (Devanagari or Romanized).
     5. NO HINDI: Strictly forbidden from using any Hindi words.
-    6. Mention the price clearly with ₹ symbol.
+    6. Mention the price clearly with रू symbol.
     """;
 
     return _getAiResponse(

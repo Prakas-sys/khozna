@@ -455,28 +455,27 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 2),
-                                      child: SvgPicture.asset(
-                                        'assets/icons/vector of ruppes.svg',
-                                        width: 14,
-                                        height: 14,
-                                        colorFilter: const ColorFilter.mode(
-                                          Color(0xFF00A3DA),
-                                          BlendMode.srcIn,
-                                        ),
+                                    Text(
+                                      'रू ',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                        color: const Color(0xFF00A3DA),
                                       ),
                                     ),
                                     const SizedBox(width: 6),
                                     Flexible(
                                       child: Text(
-                                        PriceFormatter.format(
-                                          property.priceMonth > 0
-                                              ? property.priceMonth.toInt().toString()
-                                              : (property.priceNight > 0 
-                                                  ? property.priceNight.toInt().toString() 
-                                                  : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
-                                        ),
+                                        (() {
+                                          final val = PriceFormatter.format(
+                                            property.priceMonth > 0
+                                                ? property.priceMonth.toInt().toString()
+                                                : (property.priceNight > 0 
+                                                    ? property.priceNight.toInt().toString() 
+                                                    : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
+                                          );
+                                          return val == 'Negotiable' ? val : '$val/-';
+                                        })(),
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 19,
                                           fontWeight: FontWeight.w900,
@@ -571,7 +570,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isPrimary ? const Color(0xFF00A3DA) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(100),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

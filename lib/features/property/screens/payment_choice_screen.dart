@@ -935,7 +935,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               backgroundColor: AppTheme.brandColor,
               disabledBackgroundColor: AppTheme.brandColor.withOpacity(0.5),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(100),
               ),
               elevation: 0,
             ),

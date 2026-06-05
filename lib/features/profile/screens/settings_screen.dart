@@ -21,14 +21,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => _isDeleting = true);
 
     try {
-      // Call the Edge Function
-      await Supabase.instance.client.functions.invoke('delete-account');
+      // Direct call to our new permanent delete function
+      await Supabase.instance.client.rpc('delete_own_account');
 
-      // Sign out locally
+      // Clear local auth state
       await Supabase.instance.client.auth.signOut();
 
       if (mounted) {
-        // Clear navigation stack and go to LoginScreen
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const LoginScreen()),
           (route) => false,
@@ -37,7 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              'Account permanently deleted. We are sorry to see you go.',
+              'Account permanently deleted. All data has been cleared from our database.',
             ),
             backgroundColor: Colors.black,
           ),
@@ -47,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text('Deletion failed: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -156,11 +155,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           textAlign: TextAlign.center,
         ),
         content: Text(
-          'Are you 100% sure?\nAll your listed properties and earnings history will be lost forever.',
+          'ARE YOU 100% SURE?\n\nThis action is PERMANENT and NOT RECOVERABLE.\n\nAll your listed properties, profile data, and earnings history will be wiped from our servers forever.',
           style: GoogleFonts.inter(
             color: Colors.grey[700],
             fontSize: 14,
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w600,
           ),
           textAlign: TextAlign.center,
         ),
@@ -289,8 +288,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
 
               if (response.user != null) {
-                // 2. Invoke the delete-account Edge Function
-                await Supabase.instance.client.functions.invoke('delete-account');
+                // 2. Invoke the permanent delete RPC
+                await Supabase.instance.client.rpc('delete_own_account');
 
                 // 3. Clear auth and caches
                 await Supabase.instance.client.auth.signOut();
@@ -306,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
-                        'Account permanently deleted. We are sorry to see you go.',
+                        'Account permanently deleted. This action is not recoverable.',
                       ),
                       backgroundColor: Colors.black,
                     ),

@@ -2161,7 +2161,7 @@ class _OtherCategoryScreenState extends State<OtherCategoryScreen> {
     'Office Space',
     'Shutter',
     'Godown/Warehouse',
-    'Farm House',
+    'Farm Cottage',
     'Event Hall',
   ];
 

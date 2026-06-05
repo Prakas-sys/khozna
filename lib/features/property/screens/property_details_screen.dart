@@ -1348,7 +1348,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.black, width: 1.2),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(100),
                 ),
               ),
               child: Text(
@@ -1660,21 +1660,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2), // Align with price
-                        child: SvgPicture.asset(
-                          'assets/icons/vector of ruppes.svg',
-                          width: 18,
-                          height: 18,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.black,
-                            BlendMode.srcIn,
-                          ),
+                      Text(
+                        'रू ',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
+                        isNegotiable ? 'Negotiable' : '${PriceFormatter.format(price.toStringAsFixed(0))}/-',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: isNegotiable ? 18 : 22,
                           fontWeight: FontWeight.w900,
@@ -1828,7 +1824,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppTheme.brandColor, width: 1.5),
                 foregroundColor: AppTheme.brandColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                 padding: EdgeInsets.zero,
               ),
               child: Text('Visit', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
@@ -1848,7 +1844,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.brandColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                 elevation: 0,
               ),
               child: Text(
@@ -1868,7 +1864,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(100),
       ),
       child: Text(
         label,

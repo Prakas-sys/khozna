@@ -143,7 +143,10 @@ class SupabaseService {
       final response = await Supabase.instance.client
           .from('properties')
           .select()
-          .order('created_at', ascending: false);
+          .eq('status', 'available')
+          .not('id', 'ilike', '%demo%')
+          .order('created_at', ascending: false)
+          .limit(20);
       return (response as List).map((p) => Property.fromMap(p)).toList();
     } catch (e) {
       debugPrint('Error fetching all properties: $e');

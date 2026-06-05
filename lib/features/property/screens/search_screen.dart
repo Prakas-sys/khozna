@@ -347,7 +347,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                   builder: (context) => FilterResultsScreen(
                                     location: _searchController.text,
                                     priceRange:
-                                        'Up to ₹ ${_priceValue.toInt()}',
+                                        'रू ${_priceValue.toInt()}',
                                   ),
                                 ),
                               );
@@ -545,7 +545,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                                   ),
                                                   child: Center(
                                                     child: Text(
-                                                      '₹ ${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}',
+                                                      'रू ${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}/-',
                                                       style:
                                                           GoogleFonts.plusJakartaSans(
                                                             color: Colors.black,
@@ -643,15 +643,8 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1A1A2E),
+                      color: Colors.black,
                       borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -1098,7 +1091,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                       Wrap(
                         spacing: 12,
                         runSpacing: 12,
-                        children: ['Room', 'Flat', 'House', 'Apartment', 'Office'].map((cat) {
+                        children: ['Room', 'Flat', 'Cottage', 'Apartment', 'Office'].map((cat) {
                           bool isSelected = _activeCategory == cat;
                           return GestureDetector(
                             onTap: () {

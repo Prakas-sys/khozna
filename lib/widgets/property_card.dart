@@ -308,27 +308,26 @@ class PropertyCard extends StatelessWidget {
                               children: [
                                 WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 3.0, bottom: 2.0),
-                                    child: SvgPicture.asset(
-                                      'assets/icons/vector of ruppes.svg',
-                                      width: 12,
-                                      height: 14,
-                                      colorFilter: const ColorFilter.mode(
-                                        AppTheme.brandColor,
-                                        BlendMode.srcIn,
-                                      ),
+                                  child: Text(
+                                    'रू ',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppTheme.brandColor,
                                     ),
                                   ),
                                 ),
                                 TextSpan(
-                                  text: PriceFormatter.format(
-                                    property.priceMonth > 0
-                                        ? property.priceMonth.toString()
-                                        : (property.priceNight > 0 
-                                            ? property.priceNight.toString() 
-                                            : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
-                                  ),
+                                  text: (() {
+                                    final val = PriceFormatter.format(
+                                      property.priceMonth > 0
+                                          ? property.priceMonth.toString()
+                                          : (property.priceNight > 0 
+                                              ? property.priceNight.toString() 
+                                              : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
+                                    );
+                                    return val == 'Negotiable' ? val : '$val/-';
+                                  })(),
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -348,7 +347,7 @@ class PropertyCard extends StatelessWidget {
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
-                                        color: Colors.black54,
+                                        color: AppTheme.brandColor.withOpacity(0.54),
                                       ),
                                     ),
                                   ),
@@ -400,7 +399,7 @@ class PropertyCard extends StatelessWidget {
                                 ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
+                                  borderRadius: BorderRadius.circular(100),
                                 ),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
@@ -464,7 +463,7 @@ class PropertyCard extends StatelessWidget {
                                   vertical: 10.5,
                                 ),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
+                                  borderRadius: BorderRadius.circular(100),
                                 ),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
