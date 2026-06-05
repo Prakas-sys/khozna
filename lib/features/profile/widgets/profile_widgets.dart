@@ -62,27 +62,18 @@ class ProfileHeader extends StatelessWidget {
                 child: Stack(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.white.withOpacity(0.5),
-                              Colors.white.withOpacity(0.2),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.12),
+                                blurRadius: 30,
+                                offset: const Offset(0, 15),
+                              ),
                             ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
                           ),
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.12),
-                              blurRadius: 30,
-                              offset: const Offset(0, 15),
-                            ),
-                          ],
-                        ),
                         child: Container(
-                          padding: const EdgeInsets.all(2),
+                          padding: EdgeInsets.zero,
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -159,35 +150,7 @@ class ProfileHeader extends StatelessWidget {
                           ),
                         ),
                       ),
-                      // ── QR Code Icon (Top Left of avatar) ──
-                      if (qrCodeUrl != null && qrCodeUrl!.isNotEmpty)
-                        Positioned(
-                          top: 4,
-                          left: 4,
-                          child: GestureDetector(
-                            onTap: () => _showFullQR(context),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 10,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.qr_code_2_rounded,
-                                color: Color(0xFF1E293B),
-                                size: 18,
-                              ),
-                            ),
-                          ),
-                        ),
+
                     ],
                   ),
                   ),
