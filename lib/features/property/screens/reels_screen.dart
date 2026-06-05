@@ -761,5 +761,3 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
     );
   }
 }
-
-
