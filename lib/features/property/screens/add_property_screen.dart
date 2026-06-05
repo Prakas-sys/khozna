@@ -350,32 +350,31 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       // 1. Upload Payout Screenshot if exists
       String? qrUrl;
       if (_payoutQrImage != null) {
-        final cloudinary = CloudinaryService();
-        qrUrl = await cloudinary.uploadImage(_payoutQrImage!.path);
+        qrUrl = await CloudinaryService.uploadImage(_payoutQrImage!);
       }
 
       // 2. Update Profile with Payout Details
-      Map<String, dynamic> payoutUpdates = {
-        'selected_payout_method': _selectedPayoutMethod,
-      };
+      Map<String, dynamic> payoutUpdates = {};
 
       if (_selectedPayoutMethod == 'esewa') {
         payoutUpdates['esewa_number'] = _payoutAccountController.text.trim();
       } else if (_selectedPayoutMethod == 'khalti') {
         payoutUpdates['khalti_number'] = _payoutAccountController.text.trim();
       } else if (_selectedPayoutMethod == 'bank') {
-        payoutUpdates['bank_name'] = _selectedBank;
-        payoutUpdates['bank_account_number'] = _payoutAccountController.text.trim();
+        // Since dedicated bank columns don't exist yet, we'll store the summary in account_holder_name
+        payoutUpdates['account_holder_name'] = '${_selectedBank}: ${_payoutAccountController.text.trim()}';
       }
       
       if (qrUrl != null) {
         payoutUpdates['qr_code_url'] = qrUrl;
       }
 
-      await Supabase.instance.client
-          .from('profiles')
-          .update(payoutUpdates)
-          .eq('id', user.id);
+      if (payoutUpdates.isNotEmpty) {
+        await Supabase.instance.client
+            .from('profiles')
+            .update(payoutUpdates)
+            .eq('id', user.id);
+      }
 
       // 3. Create Property
       await PropertyRepository.createProperty(
@@ -1885,7 +1884,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           controller: _payoutAccountController,
           isRequired: true,
           keyboardType: TextInputType.text,
+          onChanged: (_) => setState(() {}),
           prefixIcon: _selectedPayoutMethod == 'bank' ? Icons.numbers_rounded : Icons.phone_android_rounded,
+          suffix: _payoutAccountController.text.length > 8 
+            ? const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 18)
+            : null,
         ),
         
         const SizedBox(height: 24),
