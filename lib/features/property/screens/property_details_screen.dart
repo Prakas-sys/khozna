@@ -872,28 +872,47 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
 
   Widget _buildLocationDetails() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
+    if (widget.property.landmark.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LocationInfoRow(
-            icon: Icons.location_on_rounded,
-            label: 'Area',
-            value: widget.property.location,
-          ),
-          if (widget.property.landmark.isNotEmpty) ...[
-            const Divider(height: 16),
-            LocationInfoRow(
-              icon: Icons.assistant_navigation,
-              label: 'Landmark',
-              value: widget.property.landmark,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
-          ],
+            child: Row(
+              children: [
+                const Icon(Icons.assistant_navigation, color: Color(0xFF64748B), size: 18),
+                const SizedBox(width: 10),
+                Text(
+                  'प्राथमिक स्थान (Landmark): ',
+                  style: GoogleFonts.notoSansDevanagari(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    widget.property.landmark,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

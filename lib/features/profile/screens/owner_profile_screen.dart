@@ -246,7 +246,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildPassportStat('${_ownerReviews.length}', 'Votes'),
+                          _buildPassportStat('${_ownerReviews.length}', 'Recommendations'),
                           const SizedBox(height: 16),
                           _buildPassportStat(
                             avgRating.toStringAsFixed(1),
@@ -724,7 +724,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'घरबेटीको भोटहरू (Landlord Votes)',
+              'पाहुनाहरूको सिफारिस (Guest Recommendations)',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -744,38 +744,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         ),
         const SizedBox(height: 16),
         if (_ownerReviews.isEmpty)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              children: [
-                Icon(Icons.rate_review_outlined, color: Colors.grey[400], size: 36),
-                const SizedBox(height: 12),
-                Text(
-                  'No reviews yet',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'यस घरबेटीको अहिलेसम्म कुनै समीक्षा छैन। (This landlord has no reviews yet.)',
-                  style: GoogleFonts.mukta(
-                    fontSize: 11,
-                    color: Colors.grey[500],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          )
+           const SizedBox.shrink()
         else
           ListView.separated(
             shrinkWrap: true,
