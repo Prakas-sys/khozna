@@ -8,6 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:confetti/confetti.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
+import 'package:khozna/features/property/widgets/add_property_widgets.dart';
+import 'package:khozna/features/property/repositories/property_repository.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
@@ -1238,12 +1240,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 24),
 
         DottedBorder(
-          color: AppTheme.brandColor.withOpacity(0.3),
-          strokeWidth: 2,
-          padding: EdgeInsets.zero,
-          borderType: BorderType.RRect,
-          radius: const Radius.circular(24),
-          dashPattern: const [8, 4],
+          options: RoundedRectDottedBorderOptions(
+            radius: const Radius.circular(24),
+            strokeWidth: 2,
+            color: AppTheme.brandColor.withOpacity(0.3),
+            dashPattern: const [8, 4],
+            padding: EdgeInsets.zero,
+          ),
           child: GestureDetector(
             onTap: _pickImages,
             child: AnimatedContainer(
