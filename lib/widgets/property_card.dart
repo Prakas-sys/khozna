@@ -614,7 +614,7 @@ class PropertyCard extends StatelessWidget {
       ),
     );
 
-    // 2. Build Amenities (Max 3 total items)
+    // 2. Build Amenities (Max 2 total items)
     List<Widget> amenityItems = [];
     int count = 0;
 
@@ -628,7 +628,7 @@ class PropertyCard extends StatelessWidget {
     final combinedFeatures = [...amenities, ...houseRules];
 
     for (var feature in combinedFeatures) {
-      if (count >= 3) break; // Maximum 3 items allowed
+      if (count >= 2) break; // Maximum 2 items allowed
       if (featureIcons.containsKey(feature)) {
         if (amenityItems.isNotEmpty) {
           amenityItems.add(const SizedBox(width: 12));
