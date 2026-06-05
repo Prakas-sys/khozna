@@ -192,6 +192,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   Future<void> _pickVideo() async {
+    final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
     if (video != null) {
       final file = File(video.path);
       setState(() => _selectedVideo = file);
