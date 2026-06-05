@@ -365,7 +365,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                   builder: (context) => FilterResultsScreen(
                                     location: _searchController.text,
                                     priceRange:
-                                        'रू ${_priceValue.toInt()}',
+                                        '₹ ${_priceValue.toInt()}',
                                   ),
                                 ),
                               );
@@ -832,7 +832,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             MaterialPageRoute(
               builder: (context) => FilterResultsScreen(
                 location: title.split(',')[0],
-                priceRange: 'रू ${_priceValue.toInt()}',
+                priceRange: '₹ ${_priceValue.toInt()}',
               ),
             ),
           );
@@ -1092,13 +1092,35 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        'Up to रू ${_priceValue.toInt()}',
-                        style: GoogleFonts.inter(
-                          color: AppTheme.brandColor,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 20,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            'Up to ',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: AppTheme.brandColor,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 20,
+                            ),
+                          ),
+                          SvgPicture.asset(
+                            'assets/icons/vector of ruppes.svg',
+                            width: 16,
+                            height: 16,
+                            colorFilter: const ColorFilter.mode(
+                              AppTheme.brandColor,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${_priceValue.toInt()}',
+                            style: GoogleFonts.inter(
+                              color: AppTheme.brandColor,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
                       ),
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
@@ -1175,7 +1197,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             builder: (context) => FilterResultsScreen(
                               location: _searchController.text.isNotEmpty ? _searchController.text : _activeCategory,
                               category: _activeCategory,
-                              priceRange: 'Up to रू ${_priceValue.toInt()}',
+                              priceRange: 'Up to ₹ ${_priceValue.toInt()}',
                             ),
                           ),
                         );

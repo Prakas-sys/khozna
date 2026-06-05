@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
@@ -138,11 +139,34 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           color: Colors.black,
                         ),
                       ),
-                      Text(
-                        widget.priceRange,
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: Colors.grey[600],
+                      RichText(
+                        text: TextSpan(
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: Colors.grey[600],
+                          ),
+                          children: [
+                            if (widget.priceRange.contains(RegExp(r'(रू|Rs\.|₹)'))) ...[
+                              TextSpan(text: widget.priceRange.split(RegExp(r'(रू|Rs\.|₹)'))[0]),
+                              WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                                  child: SvgPicture.asset(
+                                    'assets/icons/vector of ruppes.svg',
+                                    width: 10,
+                                    height: 10,
+                                    colorFilter: ColorFilter.mode(
+                                      Colors.grey[600]!,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TextSpan(text: widget.priceRange.split(RegExp(r'(रू|Rs\.|₹)'))[1].trim()),
+                            ] else
+                              TextSpan(text: widget.priceRange),
+                          ],
                         ),
                       ),
                     ],
