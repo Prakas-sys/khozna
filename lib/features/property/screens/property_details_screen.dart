@@ -612,6 +612,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ],
               ),
               const SizedBox(height: 4),
+              Text(
                 '$votesCount Votes',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,

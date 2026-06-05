@@ -199,7 +199,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       ),
                                       _buildSegmentButton(
                                         title: 'Videos',
-                                        icon: Icons.play_cycle_fill,
+                                        icon: Icons.play_circle_fill,
                                         isSelected: !isImageView,
                                         onTap: () {
                                           setState(() => isImageView = false);
