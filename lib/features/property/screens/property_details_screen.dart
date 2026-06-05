@@ -950,81 +950,61 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ClipRRect(
           borderRadius: BorderRadius.circular(24),
           child: Container(
-            height: 200,
+            height: 180,
             width: double.infinity,
             decoration: BoxDecoration(
               color: const Color(0xFFF1F5F9),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: const Color(0xFFF1F5F9)),
             ),
             child: Stack(
               children: [
-                FlutterMap(
-                  options: MapOptions(
-                    initialCenter: position,
-                    initialZoom: 15.0,
-                    interactionOptions: const InteractionOptions(flags: InteractiveFlag.none),
+                // Background map image
+                Positioned.fill(
+                  child: Image.asset(
+                    'assets/images/Map view.png',
+                    fit: BoxFit.cover,
                   ),
-                  children: [
-                    TileLayer(
-                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.khozna.app',
-                    ),
-                    if (_hasLocation)
-                      MarkerLayer(
-                        markers: [
-                          Marker(
-                            point: position,
-                            width: 80,
-                            height: 80,
-                            child: const Icon(
-                              Icons.location_on_rounded,
-                              color: AppTheme.brandColor,
-                              size: 40,
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
                 ),
-                // Overlay to make it clickable but not draggable in detail view
+                // Centered Open Map Button
                 Positioned.fill(
                   child: Material(
-                    color: Colors.transparent,
+                    color: Colors.black.withOpacity(0.05),
                     child: InkWell(
                       onTap: _openMap,
-                      child: Container(
-                        alignment: Alignment.bottomCenter,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.4),
-                            ],
-                          ),
-                        ),
+                      child: Center(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(100),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
+                                color: Colors.black.withOpacity(0.15),
+                                blurRadius: 20,
+                                offset: const Offset(0, 4),
                               ),
                             ],
+                            border: Border.all(color: AppTheme.brandColor.withOpacity(0.1), width: 1),
                           ),
-                          child: Text(
-                            'Open in Google Maps',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.map_rounded,
+                                color: AppTheme.brandColor,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                'Open Map',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.black,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
