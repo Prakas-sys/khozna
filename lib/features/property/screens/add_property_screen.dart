@@ -20,7 +20,7 @@ class AddPropertyScreen extends StatefulWidget {
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int _currentStep = 0;
-  final int _totalSteps = 9;
+  final int _totalSteps = 7;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
   final ScrollController _mainScrollController = ScrollController();
@@ -252,40 +252,31 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           isValid = true;
         break;
       case 2:
-        isValid = true; // Basics are optional
+        isValid = true; // Basics
         break;
       case 3:
-        isValid = true; // Amenities are optional
+        isValid = true; // Amenities
         break;
-      case 4:
-        if (_selectedImages.length < 5) {
-          errorMessage =
-              'कृपया कम्तिमा ५ वटा फोटोहरू राख्नुहोस्। (At least 5 photos required)';
-        } else {
-          isValid = true;
-        }
-        break;
-      case 5:
-        isValid = true; // Video is optional
-        break;
-      case 6:
-        if (_titleController.text.trim().isEmpty) {
-          errorMessage = 'कृपया प्रोपर्टीको आकर्षक शीर्षक राख्नुहोस्।';
-        } else {
-          isValid = true;
-        }
-        break;
-      case 7:
+      case 4: // Pricing & Media (Step 5)
         if (_priceController.text.trim().isEmpty &&
             _priceNightController.text.trim().isEmpty) {
           errorMessage = 'कृपया मासिक वा दैनिक भाडा राख्नुहोस्।';
+        } else if (_selectedImages.length < 5) {
+          errorMessage = 'कृपया कम्तिमा ५ वटा फोटोहरू राख्नुहोस्।';
         } else {
           isValid = true;
         }
         break;
-      case 8: // Payout & Description
+      case 5: // Marketing (Title + Video + Desc)
+        if (_titleController.text.trim().isEmpty) {
+          errorMessage = 'कृपया एउटा आकर्षक शीर्षक राख्नुहोस्।';
+        } else {
+          isValid = true;
+        }
+        break;
+      case 6: // Payout
         if (_payoutAccountController.text.trim().isEmpty) {
-          errorMessage = 'तपाईंले पेमेन्ट पाउनको लागि खाता नम्बर राख्नुहोस्।';
+          errorMessage = 'कृपया आफ्नो पेमेन्ट खाता नम्बर राख्नुहोस्।';
         } else {
           isValid = true;
         }
@@ -418,32 +409,44 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.brandColor.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.auto_awesome_mosaic_rounded,
-                      size: 14,
-                      color: AppTheme.brandColor,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                   // Background track
+                  SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: CircularProgressIndicator(
+                      value: 1.0,
+                      strokeWidth: 3.5,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.grey.withOpacity(0.1)),
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${_currentStep + 1} / $_totalSteps',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w900,
-                        color: AppTheme.brandColor,
-                        fontSize: 13,
-                        letterSpacing: -0.2,
+                   ),
+                  // Active progress
+                  SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0, end: (_currentStep + 1) / _totalSteps),
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeOutBack,
+                      builder: (context, value, _) => CircularProgressIndicator(
+                        value: value,
+                        strokeWidth: 3.5,
+                        strokeCap: StrokeCap.round,
+                        valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.brandColor),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  Text(
+                    '${_currentStep + 1}',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.brandColor,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -452,27 +455,66 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: SizedBox(
-                height: 8,
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween<double>(
-                    begin: 0,
-                    end: (_currentStep + 1) / _totalSteps,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(_totalSteps, (index) {
+                final bool isCompleted = index < _currentStep;
+                final bool isActive = index == _currentStep;
+                
+                return Expanded(
+                  child: Row(
+                    children: [
+                      // The Circle
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 400),
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: (isActive || isCompleted) ? AppTheme.brandColor : Colors.white,
+                          border: Border.all(
+                            color: (isActive || isCompleted) ? AppTheme.brandColor : Colors.grey[300]!,
+                            width: 2,
+                          ),
+                          boxShadow: isActive ? [
+                            BoxShadow(
+                              color: AppTheme.brandColor.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
+                            )
+                          ] : null,
+                        ),
+                        child: Center(
+                          child: isCompleted
+                            ? const Icon(Icons.check, size: 14, color: Colors.white)
+                            : Text(
+                                '${index + 1}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w900,
+                                  color: (isActive || isCompleted) ? Colors.white : Colors.grey[400],
+                                ),
+                              ),
+                        ),
+                      ),
+                      // Line to next circle
+                      if (index < _totalSteps - 1)
+                        Expanded(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 400),
+                            height: 2.5,
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            decoration: BoxDecoration(
+                              color: isCompleted ? AppTheme.brandColor : Colors.grey[200],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOutCubic,
-                  builder: (context, value, child) => LinearProgressIndicator(
-                    value: value,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      AppTheme.brandColor,
-                    ),
-                  ),
-                ),
-              ),
+                );
+              }),
             ),
           ),
           Expanded(
@@ -486,10 +528,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     _buildStepLocation(),
                     _buildStepBasics(),
                     _buildStepAmenities(),
-                    _buildStepPhotos(),
-                    _buildStepVideo(),
-                    _buildStepTitleDesc(),
-                    _buildStepPricingRules(),
+                    _buildStepPricingMedia(),
+                    _buildStepMarketing(),
                     _buildStepPayout(),
                   ],
                 ),
@@ -1034,16 +1074,111 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildStepPhotos() {
+  Widget _buildStepPricingMedia() {
     final int photoCount = _selectedImages.length;
     final double progress = (photoCount / 5).clamp(0.0, 1.0);
     final bool isGoalMet = photoCount >= 5;
 
     return StepLayout(
-      title: 'केही राम्रा फोटोहरू राख्नुहोस्',
-      subtitle: 'राम्रो उज्यालोमा खिचेको फोटोले छिटो भाडामा जान्छ।',
+      title: 'भाडा र फोटोहरू (Rent & Photos)',
+      subtitle: 'मासिक भाडा तोक्नुहोस् र कम्तिमा ५ वटा फोटोहरू राख्नुहोस्।',
       content: [
-        // ── Photo Progress Tracker ──────────────────────────────────────────
+         // ── Pricing Section ────────────────────────────────────────────────
+        PriceInputField(
+          label: 'मासिक भाडा (Monthly Rent)',
+          controller: _priceController,
+          suffix: 'Per Month',
+        ),
+        const SizedBox(height: 20),
+        PriceInputField(
+          label: 'प्रति रात भाडा (Price Per Night)',
+          controller: _priceNightController,
+          suffix: 'Optional',
+        ),
+        const SizedBox(height: 24),
+        GestureDetector(
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            setState(() => _isNegotiable = !_isNegotiable);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: _isNegotiable ? AppTheme.brandColor.withOpacity(0.04) : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: _isNegotiable ? AppTheme.brandColor : const Color(0xFFE2E8F0),
+                width: _isNegotiable ? 2 : 1.2,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: _isNegotiable ? AppTheme.brandColor : const Color(0xFFF1F5F9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.handshake_rounded,
+                    color: _isNegotiable ? Colors.white : Colors.grey[400],
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'भाडा मिलाउन सकिने (Negotiable)',
+                        style: GoogleFonts.notoSansDevanagari(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          color: const Color(0xFF111827),
+                        ),
+                      ),
+                      Text(
+                        'भाडामा मोलमोलाई गर्न मिल्ने छ।',
+                        style: GoogleFonts.notoSansDevanagari(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Switch.adaptive(
+                  value: _isNegotiable,
+                  onChanged: (v) {
+                    HapticFeedback.mediumImpact();
+                    setState(() => _isNegotiable = v);
+                  },
+                  activeColor: AppTheme.brandColor,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 48),
+
+        // ── Photo Selection Section ──────────────────────────────────────────
+        Row(
+          children: [
+            const Icon(Icons.photo_library_rounded, color: AppTheme.brandColor, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'फोटोहरू थप्नुहोस् (Photos)',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFF111827),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -1053,13 +1188,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               color: isGoalMet ? const Color(0xFF22C55E).withOpacity(0.3) : const Color(0xFFE2E8F0),
               width: 1.5,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
-              ),
-            ],
           ),
           child: Column(
             children: [
@@ -1082,7 +1210,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        isGoalMet ? 'न्यूनतम फोटो पुग्यो!' : 'फोटोको संख्या: $photoCount/5',
+                        isGoalMet ? 'Photo goal met!' : 'Photos count: $photoCount/5',
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800,
                           fontSize: 15,
@@ -1114,25 +1242,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   ),
                 ),
               ),
-              if (!isGoalMet)
-                Padding(
-                  padding: const EdgeInsets.only(top: 12),
-                  child: Text(
-                    'कम्तिमा ५ वटा फोटो भएमा कोठा छिटो भाडामा जान्छ।',
-                    style: GoogleFonts.notoSansDevanagari(
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
 
         const SizedBox(height: 24),
 
-        // ── Upload Button ──────────────────────────────────────────────────
         GestureDetector(
           onTap: _pickImages,
           child: AnimatedContainer(
@@ -1144,7 +1259,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               border: Border.all(
                 color: AppTheme.brandColor.withOpacity(0.2),
                 width: 2,
-                style: BorderStyle.solid,
+                style: BorderStyle.dashed,
               ),
             ),
             child: Center(
@@ -1156,29 +1271,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       color: Colors.white,
                       shape: BoxShape.circle,
                       boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.brandColor.withOpacity(0.15),
-                          blurRadius: 12,
-                        )
+                        BoxShadow(color: AppTheme.brandColor.withOpacity(0.1), blurRadius: 10)
                       ],
                     ),
                     child: const Icon(Icons.add_photo_alternate_rounded, color: AppTheme.brandColor, size: 28),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'फोटोहरू थप्नुहोस् (Add Photos)',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                      color: AppTheme.brandColor,
-                    ),
-                  ),
-                  Text(
-                    'बहु-चयन (Multi-select) गर्न मिल्छ',
-                    style: GoogleFonts.notoSansDevanagari(
-                      fontSize: 12,
-                      color: AppTheme.brandColor.withOpacity(0.6),
-                    ),
+                    'Upload Photos',
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16, color: AppTheme.brandColor),
                   ),
                 ],
               ),
@@ -1187,143 +1288,183 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ),
 
         if (_selectedImages.isNotEmpty) ...[
-          const SizedBox(height: 32),
-          Row(
-            children: [
-              Text(
-                'तपाईंका फोटोहरू',
-                style: GoogleFonts.notoSansDevanagari(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF111827),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '${_selectedImages.length}',
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 0.9,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1,
             ),
             itemCount: _selectedImages.length,
             itemBuilder: (context, index) {
-              final isCover = index == 0;
-              return Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.file(_selectedImages[index], fit: BoxFit.cover),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selectedImages.removeAt(index)),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
+                          child: const Icon(Icons.close_rounded, color: Colors.white, size: 16),
+                        ),
+                      ),
                     ),
                   ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.file(
-                        _selectedImages[index],
-                        fit: BoxFit.cover,
-                      ),
-                      // Gradient overlay for buttons
-                      Positioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.black.withOpacity(0.3),
-                                Colors.transparent,
-                                Colors.transparent,
-                                Colors.black.withOpacity(0.3),
-                              ],
-                              stops: const [0.0, 0.3, 0.7, 1.0],
-                            ),
-                          ),
-                        ),
-                      ),
-                      if (isCover)
-                        Positioned(
-                          top: 10,
-                          left: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF22C55E),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.star_rounded, color: Colors.white, size: 12),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'MAIN',
-                                  style: GoogleFonts.inter(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: GestureDetector(
-                          onTap: () {
-                            HapticFeedback.mediumImpact();
-                            setState(() => _selectedImages.removeAt(index));
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.close_rounded,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               );
             },
           ),
         ],
-        const SizedBox(height: 32),
-        // ── Professional Description Section ──────────────────────────────
+        const SizedBox(height: 48),
+
+        // ── Rules Section ──────────────────────────────────────────────────
+        Row(
+          children: [
+            const Icon(Icons.rule_folder_rounded, color: Colors.orange, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'घरका नियमहरू (House Rules)',
+              style: GoogleFonts.notoSansDevanagari(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF111827),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        AmenitiesGrid(
+          selectedItems: _selectedRules,
+          icons: const {
+            'family_only': Icons.family_restroom_rounded,
+            'boys_allowed': Icons.man_rounded,
+            'girls_allowed': Icons.woman_rounded,
+            'pets_allowed': Icons.pets_rounded,
+            'smoking_allowed': Icons.smoke_free_rounded,
+            'alcohol_allowed': Icons.local_bar_rounded,
+          },
+          labels: const {
+            'family_only': 'परिवार मात्र',
+            'boys_allowed': 'केटा मात्र',
+            'girls_allowed': 'केटी मात्र',
+            'pets_allowed': 'जनावर राख्न पाईने',
+            'smoking_allowed': 'चुरोट पिउन पाईने',
+            'alcohol_allowed': 'मदिरा पिउन पाईने',
+          },
+          onToggle: _toggleRule,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStepMarketing() {
+    return StepLayout(
+      title: 'अन्तिम सजावट (Final Touches)',
+      subtitle: 'आफ्नो विज्ञापनलाई अझ आकर्षक बनाउनुहोस्।',
+      content: [
+        // ── Title Section ──────────────────────────────────────────────────
+        Text(
+          'एक राम्रो शीर्षक छान्नुहोस् (Property Title)',
+          style: GoogleFonts.inter(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF111827),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildSmartTitleChip('कोठा भाडामा (Room for Rent)'),
+            _buildSmartTitleChip('बबाल फ्ल्याट (Awesome Flat)'),
+            _buildSmartTitleChip('Best Place in ${_areaController.text}'),
+            _buildSmartTitleChip('Beautiful Room near ${_landmarkController.text}'),
+          ],
+        ),
+        const SizedBox(height: 20),
+        PropertyFormField(
+          label: 'शीर्षक (Title)',
+          hint: 'उदा: सानेपामा राम्रो कोठा भाडामा',
+          controller: _titleController,
+          isRequired: true,
+          prefixIcon: Icons.title_rounded,
+        ),
+        const SizedBox(height: 40),
+
+        // ── Video Section ──────────────────────────────────────────────────
+        Row(
+          children: [
+            const Icon(Icons.videocam_rounded, color: Colors.redAccent, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'भिडियो राख्नुहोस् (Upload Reel)',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF111827),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        GestureDetector(
+          onTap: _pickVideo,
+          child: _buildMediaUploadBox(
+            icon: Icons.videocam_outlined,
+            title: _selectedVideo != null
+                ? 'भिडियो छानियो ✓'
+                : 'Upload Property Reel',
+            desc: _selectedVideo != null
+                ? 'भिडियो परिवर्तन गर्न क्लिक गर्नुहोस्'
+                : 'भिडियो राख्दा ३ गुणा बढी ग्राहक आउँछन्!',
+            isBlue: true,
+            hasFile: _selectedVideo != null,
+          ),
+        ),
+        if (_selectedVideo != null) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.video_file, color: Colors.blue, size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Video: ${_selectedVideo!.path.split('/').last}',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.blue[900],
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.red, size: 22),
+                  onPressed: () => setState(() => _selectedVideo = null),
+                ),
+              ],
+            ),
+          ),
+        ],
+        const SizedBox(height: 40),
+
+        // ── Description Section ──────────────────────────────────────────
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -1347,12 +1488,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   children: [
                     const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor, size: 20),
                     const SizedBox(width: 10),
-                    Text(
-                      'राम्रो विवरण (Professional Description)',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
-                        color: AppTheme.brandColor,
+                    Expanded(
+                      child: Text(
+                        'Professional Description',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          color: AppTheme.brandColor,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -1406,17 +1550,17 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                               },
                         icon: _isGeneratingDescription 
                           ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : const Icon(Icons.flash_on_rounded, size: 16),
+                          : const Icon(Icons.auto_fix_high_rounded, size: 18),
                         label: Text(
-                          _isGeneratingDescription ? 'लेख्दै छ...' : 'रोचक विवरण लेख्नुहोस्',
+                          _isGeneratingDescription ? 'लेख्दै छ...' : 'AI ले विवरण लेख्नुहोस्',
                           style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w800, fontSize: 14),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppTheme.brandColor,
                           foregroundColor: Colors.white,
                           elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         ),
                       ),
                     ),
@@ -1426,98 +1570,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             ],
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildStepVideo() {
-    return StepLayout(
-      title: 'भिडियोले अझै धेरैलाई आकर्षित गर्छ',
-      subtitle: 'कोठाको छोटो भिडियो (Reel) राख्नुहोस्।',
-      content: [
-        GestureDetector(
-          onTap: _pickVideo,
-          child: _buildMediaUploadBox(
-            icon: Icons.videocam_outlined,
-            title: _selectedVideo != null
-                ? 'भिडियो छानियो ✓'
-                : 'भिडियो राख्नुहोस् (Upload Reel)',
-            desc: _selectedVideo != null
-                ? 'भिडियो परिवर्तन गर्न यहाँ क्लिक गर्नुहोस्'
-                : 'भिडियो राख्दा ३ गुणा बढी ग्राहक आउँछन्!',
-            isBlue: true,
-            hasFile: _selectedVideo != null,
-          ),
-        ),
-        if (_selectedVideo != null) ...[
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.video_file, color: Colors.blue, size: 28),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Video: ${_selectedVideo!.path.split('/').last}',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: Colors.blue[900],
-                      fontWeight: FontWeight.w600,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.red, size: 22),
-                  onPressed: () => setState(() => _selectedVideo = null),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildStepTitleDesc() {
-    return StepLayout(
-      title: 'शीर्षक र विवरण',
-      subtitle: 'आफ्नो प्रोपर्टीको बारेमा बताउनुहोस्।',
-      content: [
-        Text(
-          'आकर्षक शीर्षक छान्नुहोस् (Choose a Title)',
-          style: GoogleFonts.notoSansDevanagari(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF1F2937),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            _buildSmartTitleChip('कोठा भाडामा (Room for Rent)'),
-            _buildSmartTitleChip('बबाल फ्ल्याट (Awesome Flat)'),
-            _buildSmartTitleChip('Best Place in ${_areaController.text}'),
-            _buildSmartTitleChip('Beautiful Room near ${_landmarkController.text}'),
-          ],
-        ),
-        const SizedBox(height: 20),
-        PropertyFormField(
-          label: 'शीर्षक (Title)',
-          hint: 'उदा: सानेपामा राम्रो कोठा भाडामा',
-          controller: _titleController,
-          isRequired: true,
-          prefixIcon: Icons.title_rounded,
-        ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 32),
       ],
     );
   }
@@ -1565,144 +1618,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildStepPricingRules() {
-    return StepLayout(
-      title: 'भाडा र नियमहरू',
-      subtitle: 'मासिक भाडा र घरका नियमहरू तोक्नुहोस्।',
-      content: [
-        PriceInputField(
-          label: 'मासिक भाडा (Monthly Rent)',
-          controller: _priceController,
-          suffix: 'Per Month',
-        ),
-        const SizedBox(height: 20),
-        PriceInputField(
-          label: 'प्रति रात भाडा (Price Per Night)',
-          controller: _priceNightController,
-          suffix: 'Optional',
-        ),
-        const SizedBox(height: 24),
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.mediumImpact();
-            setState(() => _isNegotiable = !_isNegotiable);
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: _isNegotiable
-                  ? AppTheme.brandColor.withOpacity(0.04)
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: _isNegotiable
-                    ? AppTheme.brandColor
-                    : const Color(0xFFE2E8F0),
-                width: _isNegotiable ? 2 : 1.2,
-              ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: _isNegotiable
-                        ? AppTheme.brandColor
-                        : const Color(0xFFF1F5F9),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.handshake_rounded,
-                    color: _isNegotiable ? Colors.white : Colors.grey[400],
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'भाडा मिलाउन सकिने (Negotiable)',
-                        style: GoogleFonts.notoSansDevanagari(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 15,
-                          color: const Color(0xFF111827),
-                        ),
-                      ),
-                      Text(
-                        'भाडामा मोलमोलाई गर्न मिल्ने छ।',
-                        style: GoogleFonts.notoSansDevanagari(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Switch.adaptive(
-                  value: _isNegotiable,
-                  onChanged: (v) {
-                    HapticFeedback.mediumImpact();
-                    setState(() => _isNegotiable = v);
-                  },
-                  activeColor: AppTheme.brandColor,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 40),
-        Row(
-          children: [
-            const Icon(Icons.rule_folder_rounded, color: Colors.orange, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              'घरका नियमहरू (House Rules)',
-              style: GoogleFonts.notoSansDevanagari(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF111827),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        AmenitiesGrid(
-          selectedItems: _selectedRules,
-          icons: const {
-            'family_only': Icons.family_restroom_rounded,
-            'boys_allowed': Icons.man_rounded,
-            'girls_allowed': Icons.woman_rounded,
-            'pets_allowed': Icons.pets_rounded,
-            'smoking_allowed': Icons.smoke_free_rounded,
-            'alcohol_allowed': Icons.local_bar_rounded,
-          },
-          labels: const {
-            'family_only': 'परिवार मात्र',
-            'boys_allowed': 'केटा मात्र',
-            'girls_allowed': 'केटी मात्र',
-            'pets_allowed': 'जनावर राख्न पाईने',
-            'smoking_allowed': 'चुरोट पिउन पाईने',
-            'alcohol_allowed': 'मदिरा पिउन पाईने',
-          },
-          onToggle: _toggleRule,
-        ),
-      ],
-    );
-  }
-
   Widget _buildStepPayout() {
     return StepLayout(
-      title: 'अन्तिम विवरण र भुक्तानी',
-      subtitle: 'विवरण थप्नुहोस् र कसरी पैसा लिने रोज्नुहोस्।',
+      title: 'भुक्तानी प्राप्त गर्ने (Receiving Payouts)',
+      subtitle: 'आफूले पैसा प्राप्त गर्ने भुक्तानी पद्धति रोज्नुहोस्।',
       content: [
         const SizedBox(height: 40),
 
         // ── Payout Section ────────────────────────────────────────────────
         Text(
-          'तपाईं कसरी पैसा लिन चाहनुहुन्छ?',
+          'तपाईं पैसा कसरी प्राप्त गर्न चाहनुहुन्छ?',
           style: GoogleFonts.notoSansDevanagari(
             fontSize: 20,
             fontWeight: FontWeight.w900,
@@ -1922,52 +1847,57 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             if (_currentStep > 0) const SizedBox(width: 12),
             Expanded(
               flex: 2,
-              child: ElevatedButton(
-                onPressed: _currentStep == (_totalSteps - 1)
-                    ? (_isPublishing ? null : _nextStep)
-                    : () {
-                        HapticFeedback.lightImpact();
-                        _nextStep();
-                      },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: _currentStep == (_totalSteps - 1)
-                      ? Colors.green
-                      : AppTheme.brandColor,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                child: _isPublishing
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2.5,
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _currentStep == (_totalSteps - 1) ? 'Publish Now' : 'Next Step',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 16,
-                              color: Colors.white,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            _currentStep == (_totalSteps - 1) ? Icons.check_circle_outline_rounded : Icons.arrow_forward_rounded,
+                child: ElevatedButton(
+                  onPressed: _currentStep == (_totalSteps - 1)
+                      ? (_isPublishing ? null : _nextStep)
+                      : () {
+                          HapticFeedback.lightImpact();
+                          _nextStep();
+                        },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: _currentStep == (_totalSteps - 1)
+                        ? Colors.green
+                        : AppTheme.brandColor,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: _isPublishing
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
                             color: Colors.white,
-                            size: 20,
+                            strokeWidth: 2.5,
                           ),
-                        ],
-                      ),
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _currentStep == (_totalSteps - 1) ? 'Publish Now' : 'Next Step',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 16,
+                                color: Colors.white,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              _currentStep == (_totalSteps - 1) ? Icons.check_circle_outline_rounded : Icons.arrow_forward_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                ),
               ),
             ),
           ],
