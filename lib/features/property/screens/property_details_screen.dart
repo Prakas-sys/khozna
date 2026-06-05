@@ -1660,17 +1660,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'रू ',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.black,
+                      SvgPicture.asset(
+                        'assets/icons/vector of ruppes.svg',
+                        width: 16,
+                        height: 16,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.black,
+                          BlendMode.srcIn,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: 6),
                       Text(
-                        isNegotiable ? 'Negotiable' : '${PriceFormatter.format(price.toStringAsFixed(0))}/-',
+                        isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: isNegotiable ? 18 : 22,
                           fontWeight: FontWeight.w900,

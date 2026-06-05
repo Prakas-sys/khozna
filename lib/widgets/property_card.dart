@@ -308,32 +308,36 @@ class PropertyCard extends StatelessWidget {
                               children: [
                                 WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
-                                  child: Text(
-                                    'रू ',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w800,
-                                      color: AppTheme.brandColor,
-                                    ),
+                                  child: SvgPicture.asset(
+                                  'assets/icons/vector of ruppes.svg',
+                                  width: 13,
+                                  height: 13,
+                                  colorFilter: const ColorFilter.mode(
+                                    AppTheme.brandColor,
+                                    BlendMode.srcIn,
                                   ),
                                 ),
-                                TextSpan(
-                                  text: (() {
-                                    final val = PriceFormatter.format(
-                                      property.priceMonth > 0
-                                          ? property.priceMonth.toString()
-                                          : (property.priceNight > 0 
-                                              ? property.priceNight.toString() 
-                                              : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
-                                    );
-                                    return val == 'Negotiable' ? val : '$val/-';
-                                  })(),
-                                  style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.brandColor,
-                                  ),
+                              ),
+                              TextSpan(
+                                text: ' ', // Add space after SVG
+                              ),
+                              TextSpan(
+                                text: (() {
+                                  final val = PriceFormatter.format(
+                                    property.priceMonth > 0
+                                        ? property.priceMonth.toString()
+                                        : (property.priceNight > 0 
+                                            ? property.priceNight.toString() 
+                                            : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
+                                  );
+                                  return val;
+                                })(),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.brandColor,
                                 ),
+                              ),
                                 WidgetSpan(
                                   child: Transform.translate(
                                     offset: const Offset(
