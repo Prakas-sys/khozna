@@ -116,131 +116,131 @@ class _ReelsScreenState extends State<ReelsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppTheme.brandColor),
-            )
-          : displayReels.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: Stack(
+        children: [
+          _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: AppTheme.brandColor),
+                )
+              : (displayReels.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.video_library_outlined,
+                            color: Colors.white38,
+                            size: 64,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            isImageView 
+                                ? 'अहिले कुनै Reel छैन।\n(No reels yet)' 
+                                : 'भिडियो उपलब्ध छैन।\n(No videos found)',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.mukta(
+                              color: Colors.white60,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _fetchReels,
+                      color: AppTheme.brandColor,
+                      backgroundColor: Colors.white,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        scrollDirection: Axis.vertical,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: displayReels.length,
+                        itemBuilder: (context, index) {
+                          return _buildReelItem(displayReels[index]);
+                        },
+                      ),
+                    )),
+          
+          // Top Toggle (Photos/Videos) - ALWAYS VISIBLE
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: SafeArea(
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  const Icon(
-                    Icons.video_library_outlined,
-                    color: Colors.white38,
-                    size: 64,
+                  Positioned(
+                    left: 0,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
+                      onPressed: () => Navigator.pop(context),
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'अहिले कुनै Reel छैन।\n(No reels yet)',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.mukta(
-                      color: Colors.white60,
-                      fontSize: 16,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(35),
+                          border: Border.all(color: Colors.white.withOpacity(0.1), width: 0.5),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildSegmentButton(
+                              title: 'Photos',
+                              icon: Icons.image_rounded,
+                              isSelected: isImageView,
+                              onTap: () => setState(() => isImageView = true),
+                            ),
+                            _buildSegmentButton(
+                              title: 'Videos',
+                              icon: Icons.play_circle_fill,
+                              isSelected: !isImageView,
+                              onTap: () => setState(() => isImageView = false),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    right: 0,
+                    child: PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 24),
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      onSelected: (value) {
+                        if (value == 'auto_scroll') {
+                          setState(() => isAutoScrollEnabled = !isAutoScrollEnabled);
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'auto_scroll',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.swipe_down_rounded, color: Colors.black87, size: 20),
+                              const SizedBox(width: 12),
+                              Text('Auto Scroll', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black87)),
+                              const Spacer(),
+                              Icon(isAutoScrollEnabled ? Icons.toggle_on : Icons.toggle_off, color: isAutoScrollEnabled ? AppTheme.brandColor : Colors.grey, size: 32),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            )
-          : Stack(
-              children: [
-                RefreshIndicator(
-                  onRefresh: _fetchReels,
-                  color: AppTheme.brandColor,
-                  backgroundColor: Colors.white,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    scrollDirection: Axis.vertical,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: displayReels.length,
-                    itemBuilder: (context, index) {
-                      return _buildReelItem(displayReels[index]);
-                    },
-                  ),
-                ),
-                // Top Toggle (Photos/Videos)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(30),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                                child: Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF262626), // Solid dark grey to match screenshot
-                                    borderRadius: BorderRadius.circular(35),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.4),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      )
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                      _buildSegmentButton(
-                                        title: 'Photos',
-                                        icon: Icons.image_rounded,
-                                        isSelected: isImageView,
-                                        onTap: () {
-                                          setState(() => isImageView = true);
-                                        },
-                                      ),
-                                      _buildSegmentButton(
-                                        title: 'Videos',
-                                        icon: Icons.play_circle_fill,
-                                        isSelected: !isImageView,
-                                        onTap: () {
-                                          setState(() => isImageView = false);
-                                        },
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          PopupMenuButton<String>(
-                            icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 28),
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            onSelected: (value) {
-                              if (value == 'auto_scroll') {
-                                setState(() => isAutoScrollEnabled = !isAutoScrollEnabled);
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                value: 'auto_scroll',
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.swipe_down_rounded, color: Colors.black87, size: 20),
-                                    const SizedBox(width: 12),
-                                    Text('Auto Scroll', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black87)),
-                                    const Spacer(),
-                                    Icon(isAutoScrollEnabled ? Icons.toggle_on : Icons.toggle_off, color: isAutoScrollEnabled ? AppTheme.brandColor : Colors.grey, size: 32),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -466,10 +466,10 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     Flexible(
                                       child: Text(
                                         (property.priceMonth > 0 
-                                          ? property.priceMonth.toInt().toString() 
-                                          : (property.price != '0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
+                                          ? PriceFormatter.format(property.priceMonth.toInt().toString()) 
+                                          : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? PriceFormatter.format(property.price) : 'Negotiable')),
                                         style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 17, // Reduced from 20
+                                          fontSize: 17,
                                           fontWeight: FontWeight.w900,
                                           color: const Color(0xFF00A3DA),
                                         ),
@@ -594,51 +594,13 @@ class _ReelsScreenState extends State<ReelsScreen> {
   Widget _buildImageCarousel(List<String> images) {
     if (images.isEmpty) {
       return Container(
-        color: Colors.grey[900],
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.home_work_rounded, size: 80, color: Colors.white24),
-              const SizedBox(height: 16),
-              Text(
-                'No photos available',
-                style: GoogleFonts.inter(color: Colors.white38, fontSize: 14),
-              ),
-            ],
-          ),
-        ),
+        color: Colors.black,
+        child: const Center(child: Icon(Icons.home_work_rounded, size: 80, color: Colors.white10)),
       );
     }
     
-    return PageView.builder(
-      itemCount: images.length,
-      itemBuilder: (context, index) {
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            // Blurred background
-            KhoznaImage(
-              imageUrl: images[index],
-              fit: BoxFit.cover,
-            ),
-            Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                child: Container(color: Colors.black.withOpacity(0.3)),
-              ),
-            ),
-            // Centered foreground (original aspect ratio)
-            KhoznaImage(
-              imageUrl: images[index],
-              fit: BoxFit.contain,
-            ),
-          ],
-        );
-      },
-    );
+    return _MultiImageCarousel(images: images);
   }
-
   Widget _buildVideoPlaceholder(Property property) {
     return KhoznaVideoPlayer(
       videoUrl: property.videoUrl,
@@ -649,7 +611,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
   }
 }
 
-// Horizontal image carousel for multiple property photos with blurred background
 class _MultiImageCarousel extends StatefulWidget {
   final List<String> images;
   const _MultiImageCarousel({required this.images});
@@ -659,14 +620,7 @@ class _MultiImageCarousel extends StatefulWidget {
 }
 
 class _MultiImageCarouselState extends State<_MultiImageCarousel> {
-  final PageController _ctrl = PageController();
   int _current = 0;
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -674,19 +628,47 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
       fit: StackFit.expand,
       children: [
         PageView.builder(
-          controller: _ctrl,
           itemCount: widget.images.length,
           onPageChanged: (idx) => setState(() => _current = idx),
           itemBuilder: (context, index) {
-            return KhoznaImage(
-              imageUrl: widget.images[index],
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                KhoznaImage(imageUrl: widget.images[index], fit: BoxFit.cover),
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: Container(color: Colors.black.withOpacity(0.3)),
+                  ),
+                ),
+                KhoznaImage(imageUrl: widget.images[index], fit: BoxFit.contain),
+              ],
             );
           },
         ),
+        if (widget.images.length > 1)
+          Positioned(
+            bottom: 120,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: widget.images.asMap().entries.map((entry) {
+                return Container(
+                  width: 6.0,
+                  height: 6.0,
+                  margin: const EdgeInsets.symmetric(horizontal: 3.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(_current == entry.key ? 0.9 : 0.4),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
       ],
     );
   }
 }
+
+

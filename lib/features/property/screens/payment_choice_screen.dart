@@ -159,16 +159,18 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             const SizedBox(height: 24),
             _buildSafetyGuarantee(),
             const SizedBox(height: 28),
-            Text(
-              'Select Payment Method',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: Colors.black,
-                letterSpacing: -0.5,
+            Center(
+              child: Text(
+                'Select Payment Method',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black,
+                  letterSpacing: -0.5,
+                ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             _isLoadingOwner
                 ? const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: AppTheme.brandColor)))
                 : _buildVerticalPaymentMethods(),
@@ -205,6 +207,15 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             padding: const EdgeInsets.all(20),
             child: Row(
               children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: widget.property?.imageUrl != null
+                      ? Image.network(widget.property!.imageUrl, width: 80, height: 80, fit: BoxFit.cover)
+                      : (widget.booking?.propertyId != null 
+                          ? KhoznaImage(imageUrl: '', width: 80, height: 80) // Fallback handled by widget
+                          : Container(width: 80, height: 80, color: Colors.grey[100], child: const Icon(Icons.home_work_rounded, color: Colors.grey))),
+                ),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +229,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                           letterSpacing: 0.8,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         _currentTitle,
                         style: GoogleFonts.plusJakartaSans(
@@ -226,13 +237,13 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                           fontWeight: FontWeight.w800,
                           color: Colors.black87,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today_rounded, size: 12, color: Colors.grey[500]),
+                          Icon(Icons.calendar_today_rounded, size: 13, color: Colors.grey[500]),
                           const SizedBox(width: 6),
                           Text(
                             checkInStr,
@@ -255,8 +266,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppTheme.brandColor.withOpacity(0.04),
+              color: const Color(0xFFF1F5F9), 
               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(24)),
+              border: Border(top: BorderSide(color: Colors.grey.shade100)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -273,17 +285,17 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: 'Rs. ',
+                        text: 'NPR. ',
                         style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[500],
                         ),
                       ),
                       TextSpan(
                         text: PriceFormatter.format(_currentBooking.totalPrice.toString()),
                         style: GoogleFonts.outfit(
-                          fontSize: 24,
+                          fontSize: 26,
                           fontWeight: FontWeight.w900,
                           color: Colors.black,
                         ),

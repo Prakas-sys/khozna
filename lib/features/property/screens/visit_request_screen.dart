@@ -125,7 +125,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             margin: const EdgeInsets.only(right: 16),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFF00C853).withOpacity(0.08),
+              color: const Color(0xFFF1F5F9),
               borderRadius: BorderRadius.circular(100),
               border: Border.all(
                 color: const Color(0xFF00C853).withOpacity(0.2),
@@ -640,7 +640,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Confirm Trip Details',
+          'Confirm Visit Details',
           style: GoogleFonts.plusJakartaSans(
             fontSize: 20,
             fontWeight: FontWeight.w900,
@@ -769,17 +769,34 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
         const SizedBox(height: 28),
         // Khozna Trust Safety Card
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: const Color(0xFFEFF6FF),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFDBEAFE)),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFDBEAFE), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              )
+            ],
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.gpp_good_rounded, color: AppTheme.brandColor, size: 22),
-              const SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Colors.blue.withOpacity(0.1), blurRadius: 4),
+                  ],
+                ),
+                child: const Icon(Icons.gpp_good_rounded, color: AppTheme.brandColor, size: 20),
+              ),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -787,18 +804,18 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                     Text(
                       'Khozna Safety Protection',
                       style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue[900],
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF1E3A8A),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       'Our safety policy strictly forbids landlords from demanding advanced booking fees prior to physically visiting properties. Do not pay first.',
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: Colors.blue[700],
-                        height: 1.4,
+                        color: const Color(0xFF1E40AF),
+                        height: 1.5,
                       ),
                     ),
                   ],
