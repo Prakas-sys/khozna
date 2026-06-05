@@ -327,7 +327,7 @@ class PropertyCard extends StatelessWidget {
                                         ? property.priceMonth.toString()
                                         : (property.priceNight > 0 
                                             ? property.priceNight.toString() 
-                                            : (property.price != '0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
+                                            : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
                                   ),
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,

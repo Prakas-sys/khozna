@@ -1570,10 +1570,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     
     final price = widget.property.priceMonth > 0
         ? widget.property.priceMonth
-        : (double.tryParse(widget.property.price) ?? 0);
-    final unit = widget.property.priceMonth > 0 || (double.tryParse(widget.property.price) ?? 0) > 0 
-        ? (widget.property.priceMonth > 0 ? 'month' : 'night') 
-        : 'month';
+        : (widget.property.priceNight > 0 
+            ? widget.property.priceNight 
+            : (double.tryParse(widget.property.price) ?? 0));
+            
+    final unit = widget.property.priceMonth > 0 
+        ? 'month' 
+        : (widget.property.priceNight > 0 ? 'night' : 'month');
+
+    // If final price is still 0, we can use a fallback flag for the UI
+    final bool isNegotiable = price <= 0;
 
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
@@ -1616,9 +1622,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        PriceFormatter.format(price.toStringAsFixed(0)),
+                        isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 22,
+                          fontSize: isNegotiable ? 18 : 22,
                           fontWeight: FontWeight.w900,
                           color: Colors.black,
                         ),
