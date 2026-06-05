@@ -552,51 +552,123 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               label: 'कोठा / Room',
               imagePath: 'assets/images/Room New.png',
               value: 'Room',
-              imageScale: 2.2,
+              imageScale: 1.6,
               selectedValue: _selectedCategory,
-              onSelect: (v) => setState(() => _selectedCategory = v),
+              onSelect: (v) {
+                setState(() => _selectedCategory = v);
+                HapticFeedback.mediumImpact();
+                Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
+              },
             ),
             CategoryCard(
               label: 'फ्ल्याट / Flat',
               imagePath: 'assets/images/flat (2).png',
               value: 'Flat',
-              imageScale: 1.8,
+              imageScale: 1.5,
               selectedValue: _selectedCategory,
-              onSelect: (v) => setState(() => _selectedCategory = v),
+              onSelect: (v) {
+                setState(() => _selectedCategory = v);
+                HapticFeedback.mediumImpact();
+                Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
+              },
             ),
             CategoryCard(
               label: 'कटेज / Cottage',
               imagePath: 'assets/images/cottage (2).png',
               value: 'Cottage',
-              imageScale: 1.8,
+              imageScale: 1.5,
               selectedValue: _selectedCategory,
-              onSelect: (v) => setState(() => _selectedCategory = v),
+              onSelect: (v) {
+                setState(() => _selectedCategory = v);
+                HapticFeedback.mediumImpact();
+                Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
+              },
             ),
             CategoryCard(
               label: 'होस्टल / Hostel',
               imagePath: 'assets/images/Hotel.png',
               value: 'Hostel',
-              imageScale: 1.8,
+              imageScale: 1.5,
               selectedValue: _selectedCategory,
-              onSelect: (v) => setState(() => _selectedCategory = v),
+              onSelect: (v) {
+                setState(() => _selectedCategory = v);
+                HapticFeedback.mediumImpact();
+                Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
+              },
             ),
             CategoryCard(
               label: 'अन्य / Other',
               imagePath: 'assets/images/other image.png',
               value: 'Other',
-              imageScale: 1.8,
+              imageScale: 1.1,
               selectedValue: _selectedCategory,
-              onSelect: (v) => setState(() => _selectedCategory = v),
+              onSelect: (v) async {
+                HapticFeedback.lightImpact();
+                final result = await Navigator.push<String>(
+                  context,
+                  MaterialPageRoute(builder: (_) => const OtherCategoryScreen()),
+                );
+                if (result != null && result.isNotEmpty) {
+                  setState(() {
+                    _selectedCategory = 'Other';
+                    _otherCategoryController.text = result;
+                  });
+                  Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
+                }
+              },
             ),
           ],
         ),
         if (_selectedCategory == 'Other') ...[
           const SizedBox(height: 24),
-          PropertyFormField(
-            label: 'सम्पत्तिको प्रकार लेख्नुहोस्',
-            hint: 'उदा: सटर, गोदाम, आदि',
-            controller: _otherCategoryController,
-            prefixIcon: Icons.edit_note_rounded,
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppTheme.brandColor.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppTheme.brandColor.withOpacity(0.1)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.stars_rounded, color: AppTheme.brandColor),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Selected Type',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.brandColor.withOpacity(0.6),
+                        ),
+                      ),
+                      Text(
+                        _otherCategoryController.text,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: AppTheme.brandColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final result = await Navigator.push<String>(
+                      context,
+                      MaterialPageRoute(builder: (_) => const OtherCategoryScreen()),
+                    );
+                    if (result != null && result.isNotEmpty) {
+                      setState(() => _otherCategoryController.text = result);
+                    }
+                  },
+                  child: const Text('Change'),
+                ),
+              ],
+            ),
           ),
         ],
       ],
@@ -908,37 +980,53 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           selectedItems: _selectedAmenities,
           icons: const {
             'water_24_7': Icons.water_drop_rounded,
-            'water_boring': Icons.waves_rounded,
-            'ac': Icons.ac_unit_rounded,
             'internet': Icons.wifi_rounded,
-            'sunny_room': Icons.wb_sunny_rounded,
-            'balcony': Icons.balcony_rounded,
-            'kitchen': Icons.kitchen_rounded,
-            'furnished': Icons.chair_rounded,
             'parking_bike': Icons.motorcycle_rounded,
             'parking_car': Icons.directions_car_rounded,
+            'ac': Icons.ac_unit_rounded,
+            'furnished': Icons.chair_rounded,
+            'attached_bathroom': Icons.bathtub_rounded,
+            'kitchen': Icons.kitchen_rounded,
+            'hot_water': Icons.hot_tub_rounded,
+            'sunny_room': Icons.wb_sunny_rounded,
+            'balcony': Icons.balcony_rounded,
+            'swimming_pool': Icons.pool_rounded,
+            'gym': Icons.fitness_center_rounded,
+            'garden': Icons.yard_rounded,
+            'cctv': Icons.videocam_rounded,
             'security': Icons.security_rounded,
             'elevator': Icons.elevator_rounded,
             'power_backup': Icons.electric_bolt_rounded,
+            'solar': Icons.solar_power_rounded,
+            'laundry': Icons.local_laundry_service_rounded,
             'waste_mgmt': Icons.delete_outline_rounded,
             'peaceful': Icons.nature_people_rounded,
+            'rooftop': Icons.roofing_rounded,
           },
           labels: const {
             'water_24_7': '२४ सै घण्टा पानी',
-            'water_boring': 'बोरिङको पानी',
-            'ac': 'एसी (AC)',
-            'internet': 'इन्टरनेट',
-            'sunny_room': 'घाम लाग्ने कोठा',
-            'balcony': 'बालकोनी (Balcony)',
-            'kitchen': 'छुट्टै भान्सा',
-            'furnished': 'फर्निचर सहित',
+            'internet': 'इन्टरनेट (WiFi)',
             'parking_bike': 'बाइक पार्किङ',
             'parking_car': 'कार पार्किङ',
-            'security': 'सेक्युरिटी / CCTV',
+            'ac': 'एसी (AC)',
+            'furnished': 'फर्निचर सहित',
+            'attached_bathroom': 'एट्याच्ड बाथरुम',
+            'kitchen': 'छुट्टै भान्सा',
+            'hot_water': 'तातो पानी',
+            'sunny_room': 'घाम लाग्ने कोठा',
+            'balcony': 'बालकोनी (Balcony)',
+            'swimming_pool': 'पौडी पोखरी (Pool)',
+            'gym': 'जिम (Gym)',
+            'garden': 'बगैचा / Garden',
+            'cctv': 'CC क्यामेरा',
+            'security': 'सेक्युरिटी गार्ड',
             'elevator': 'लिफ्ट (Elevator)',
             'power_backup': 'पावर ब्याकअप',
+            'solar': 'सोलार सुबिधा',
+            'laundry': 'लुगा धुने ठाउँ',
             'waste_mgmt': 'फोहोर उठाउने',
             'peaceful': 'शान्त वातावरण',
+            'rooftop': 'छत (Rooftop)',
           },
           onToggle: _toggleAmenity,
         ),
@@ -1815,7 +1903,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     setState(() => _currentStep--);
                   },
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     side: BorderSide(color: Colors.grey.shade300, width: 1.5),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
@@ -1825,7 +1913,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     'Back',
                     style: GoogleFonts.inter(
                       color: const Color(0xFF4B5563),
-                      fontSize: 14,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -1842,7 +1930,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         _nextStep();
                       },
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   backgroundColor: _currentStep == (_totalSteps - 1)
                       ? Colors.green
                       : AppTheme.brandColor,
@@ -1853,21 +1941,32 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ),
                 child: _isPublishing
                     ? const SizedBox(
-                        width: 20,
-                        height: 20,
+                        width: 22,
+                        height: 22,
                         child: CircularProgressIndicator(
                           color: Colors.white,
                           strokeWidth: 2.5,
                         ),
                       )
-                    : Text(
-                        _currentStep == (_totalSteps - 1) ? 'Publish' : 'Next',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                          color: Colors.white,
-                        ),
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _currentStep == (_totalSteps - 1) ? 'Publish Now' : 'Next Step',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: Colors.white,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            _currentStep == (_totalSteps - 1) ? Icons.check_circle_outline_rounded : Icons.arrow_forward_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ],
                       ),
               ),
             ),
@@ -1907,4 +2006,153 @@ class _MapPatternPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class OtherCategoryScreen extends StatefulWidget {
+  const OtherCategoryScreen({super.key});
+
+  @override
+  State<OtherCategoryScreen> createState() => _OtherCategoryScreenState();
+}
+
+class _OtherCategoryScreenState extends State<OtherCategoryScreen> {
+  final TextEditingController _customController = TextEditingController();
+  final List<String> _suggestions = [
+    'Villa',
+    'Hotel',
+    'Office Space',
+    'Shutter',
+    'Godown/Warehouse',
+    'Farm House',
+    'Event Hall',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.close_rounded, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'अन्य सङ्कुल (Other Type)',
+          style: GoogleFonts.plusJakartaSans(
+            color: Colors.black,
+            fontWeight: FontWeight.w800,
+            fontSize: 18,
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'What type of property is this?',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+                color: const Color(0xFF1A1A2E),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Specify the exact type for better matching.',
+              style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 14),
+            ),
+            const SizedBox(height: 32),
+            TextField(
+              controller: _customController,
+              autofocus: true,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
+                hintText: 'Enter property type...',
+                hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
+                filled: true,
+                fillColor: const Color(0xFFF9FAFB),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.all(20),
+                prefixIcon: const Icon(Icons.edit_note_rounded, color: AppTheme.brandColor),
+              ),
+              onSubmitted: (v) {
+                if (v.isNotEmpty) Navigator.pop(context, v);
+              },
+            ),
+            const SizedBox(height: 40),
+            Text(
+              'Suggestions',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey[400],
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: _suggestions.map((s) => InkWell(
+                onTap: () => Navigator.pop(context, s),
+                borderRadius: BorderRadius.circular(30),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                  ),
+                  child: Text(
+                    s,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF374151),
+                    ),
+                  ),
+                ),
+              )).toList(),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: ElevatedButton(
+            onPressed: () {
+              if (_customController.text.isNotEmpty) {
+                Navigator.pop(context, _customController.text);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.brandColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              elevation: 0,
+            ),
+            child: Text(
+              'Confirm Type',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

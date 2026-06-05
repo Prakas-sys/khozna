@@ -405,7 +405,7 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
@@ -439,7 +439,6 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
           scale: _scaleAnimation.value,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            transform: Matrix4.translationValues(0, isSelected ? 2.5 : 0, 0),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(24),
@@ -448,13 +447,12 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                 width: isSelected ? 2 : 1.5,
               ),
               boxShadow: [
-                // 3D Push Button Shadow
                 BoxShadow(
                   color: isSelected 
-                      ? AppTheme.brandColor.withOpacity(0.3) 
-                      : const Color(0xFFE2E8F0),
-                  offset: isSelected ? const Offset(0, 1.5) : const Offset(0, 4),
-                  blurRadius: 0,
+                      ? AppTheme.brandColor.withOpacity(0.1) 
+                      : Colors.black.withOpacity(0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -474,7 +472,7 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                           fit: BoxFit.contain,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: widget.value == 'Hostel' ? 10 : 6),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: RichText(
@@ -545,7 +543,7 @@ class StepLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       controller: controller,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -574,7 +572,7 @@ class StepLayout extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: 32),
+          const SizedBox(height: 12),
           ...content,
         ],
       ),
