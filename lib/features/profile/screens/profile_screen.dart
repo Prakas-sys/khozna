@@ -21,6 +21,7 @@ import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/features/profile/widgets/profile_widgets.dart';
+import 'package:khozna/core/services/push_notification_service.dart';
 // Admin dashboard removed from mobile - focusing on Web Dashboard
 
 class ProfileScreen extends StatefulWidget {
@@ -82,6 +83,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         _isOwner = _isOwner || (diskCache['is_owner'] ?? false);
         _isLoading = false;
         profileCache.value ??= diskCache;
+        PushNotificationService.updateKycStatus(_kycStatus);
       });
     }
   }
@@ -109,6 +111,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                 user?.userMetadata?['name'];
             _kycStatus = profile['kyc_status'] ?? 'not_started';
             _isOwner = _isOwner || (profile['is_owner'] ?? false);
+
+            PushNotificationService.updateKycStatus(_kycStatus);
 
             final cacheData = {
               'full_name': _fullName,

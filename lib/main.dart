@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:khozna/core/services/push_notification_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:firebase_core/firebase_core.dart';
 // firebase_auth import removed
@@ -16,22 +17,16 @@ import 'core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'core/security/security_utils.dart';
 import 'core/utils/app_notifiers.dart';
+import 'package:khozna/core/services/push_notification_service.dart';
 import 'package:khozna/screens/main_screen.dart';
 import 'core/guards/location_permission_screen.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'widgets/khozna_error_screen.dart';
-// import 'screens/splash_screen.dart'; // Removed
 
-// Local Notifications Plugin
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
-
-// Handle Background Push Messages
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-
-  // Try to update badge count if data is present
+  // We can let the OS handle the basic notification, or update badge count
   try {
     if (message.data.containsKey('badge')) {
       int? badge = int.tryParse(message.data['badge'].toString());
@@ -42,7 +37,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   } catch (e) {
     debugPrint('Background badge error: $e');
   }
-
   debugPrint('Background message received: ${message.messageId}');
 }
 
@@ -162,7 +156,7 @@ Future<void> _initializeServices() async {
   // Firebase Core is now pre-initialized in main()
   debugPrint('--- SETTING UP FIREBASE SERVICES ---');
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  _setupNotifications();
+  await PushNotificationService.initialize();
 
   await Future.delayed(const Duration(milliseconds: 150));
   await GoogleFonts.pendingFonts([
@@ -174,84 +168,6 @@ Future<void> _initializeServices() async {
   debugPrint('--- PARALLEL INITIALIZATION COMPLETE ---');
 }
 
-Future<void> _setupNotifications() async {
-  final messaging = FirebaseMessaging.instance;
-  await messaging.requestPermission(alert: true, badge: true, sound: true);
-  final token = await messaging.getToken();
-  if (token != null) {
-    await SupabaseService.saveDeviceToken(token);
-  }
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    final currentUserId =
-        supabase.Supabase.instance.client.auth.currentUser?.id;
-    final senderId = message.data['sender_id'];
-
-    // 🛡️ SECURITY: Don't show notifications or increment badges for our own messages!
-    if (senderId != null && senderId == currentUserId) {
-      debugPrint('--- [PUSH] Ignoring self-sent message notification ---');
-      return;
-    }
-
-    RemoteNotification? notification = message.notification;
-    // Check if it's a chat message based on data payload
-    final bool isChatMessage =
-        message.data['table'] == 'messages' || message.data['type'] == 'chat';
-
-    if (notification != null) {
-      if (isChatMessage) {
-        // Update the Messages tab badge
-        messageBadgeCount.value += 1;
-      } else {
-        // Update the global notification badge
-        notificationBadgeCount.value += 1;
-      }
-      int total = messageBadgeCount.value + notificationBadgeCount.value;
-      _showLocalNotification(
-        notification.title ?? '',
-        notification.body ?? '',
-        total,
-      );
-    }
-  });
-}
-
-void _showLocalNotification(String title, String body, int badgeCount) async {
-  // Update native badge explicitly as well
-  FlutterAppBadger.updateBadgeCount(badgeCount);
-
-  // FIX: Generate unique ID every time to prevent old ones from disappearing
-  final int notificationId = DateTime.now().millisecondsSinceEpoch.remainder(
-    100000,
-  );
-
-  final AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
-        'high_importance_channel',
-        'High Importance Notifications',
-        importance: Importance.max,
-        priority: Priority.high,
-        showWhen: true,
-        number:
-            badgeCount, // This sets the badge/number on some Android launchers
-        // FIX: Enable BigText so long messages aren't cut off
-        styleInformation: BigTextStyleInformation(
-          body,
-          contentTitle: title,
-          summaryText: 'Khozna Alert',
-        ),
-      );
-
-  final NotificationDetails platformChannelSpecifics = NotificationDetails(
-    android: androidPlatformChannelSpecifics,
-  );
-
-  await flutterLocalNotificationsPlugin.show(
-    notificationId,
-    title,
-    body,
-    platformChannelSpecifics,
-  );
-}
 
 class KhoznaApp extends StatefulWidget {
   const KhoznaApp({super.key});
