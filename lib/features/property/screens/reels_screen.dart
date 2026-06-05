@@ -458,7 +458,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                       WidgetSpan(
                                         alignment: PlaceholderAlignment.middle,
                                         child: Transform.translate(
-                                          offset: const Offset(0, 0.2), // Smaller and higher
+                                          offset: const Offset(0, -1.2), // Pushed higher per user request
                                           child: SvgPicture.asset(
                                             'assets/icons/vector of ruppes.svg',
                                             width: 16.0,

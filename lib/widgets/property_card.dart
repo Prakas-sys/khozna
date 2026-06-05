@@ -309,7 +309,7 @@ class PropertyCard extends StatelessWidget {
                                 WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
                                   child: Transform.translate(
-                                    offset: const Offset(0, -0.6), // Pushed higher per user request
+                                    offset: const Offset(0, -1.5), // Pushed even higher per user request
                                     child: SvgPicture.asset(
                                       'assets/icons/vector of ruppes.svg',
                                       width: 14.5,
