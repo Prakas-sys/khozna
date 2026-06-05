@@ -544,12 +544,12 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             const Spacer(),
-            Transform.translate(
-              offset: Offset(0, index == -1 ? -6 : 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Center(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Transform.translate(
+                  offset: Offset(0, index == -1 ? -6 : 0),
+                  child: Center(
                     child: SizedBox(
                       width: index == -1 ? 48 : width,
                       height: index == 0 ? 24 : height,
@@ -613,20 +613,20 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 1.5),
-                  Center(
-                    child: Text(
-                      label,
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w400,
-                        color: isSelected ? activeColor : inactiveColor,
-                        letterSpacing: 0.1,
-                      ),
+                ),
+                const SizedBox(height: 1.5),
+                Center(
+                  child: Text(
+                    label,
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                      color: isSelected ? activeColor : inactiveColor,
+                      letterSpacing: 0.1,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             const Spacer(),
           ],
