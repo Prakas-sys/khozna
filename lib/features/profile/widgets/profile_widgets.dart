@@ -500,6 +500,7 @@ class ProfileMenuItem extends StatelessWidget {
         onTap?.call();
       },
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.grey[100], // Neutral background for icons
