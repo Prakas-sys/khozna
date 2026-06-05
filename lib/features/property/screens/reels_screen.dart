@@ -174,15 +174,21 @@ class _ReelsScreenState extends State<ReelsScreen> {
                             borderRadius: BorderRadius.circular(30),
                             child: BackdropFilter(
                               filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(30),
-                                  border: Border.all(color: Colors.white.withOpacity(0.15)),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF262626), // Solid dark grey to match screenshot
+                                    borderRadius: BorderRadius.circular(35),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.4),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      )
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                   children: [
                                     _buildSegmentButton(
                                       title: 'Photos',
@@ -253,26 +259,36 @@ class _ReelsScreenState extends State<ReelsScreen> {
         onTap();
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(26),
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  )
+                ]
+              : [],
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 16,
-              color: isSelected ? Colors.black87 : Colors.white70,
+              size: 20,
+              color: isSelected ? Colors.black : Colors.white,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 10),
             Text(
               title,
-              style: GoogleFonts.inter(
-                color: isSelected ? Colors.black87 : Colors.white70,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 13,
+              style: GoogleFonts.plusJakartaSans(
+                color: isSelected ? Colors.black : Colors.white,
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                fontSize: 16,
               ),
             ),
           ],
@@ -287,247 +303,271 @@ class _ReelsScreenState extends State<ReelsScreen> {
         : (property.imageUrl.isNotEmpty ? [property.imageUrl] : []);
 
     return Container(
-      color: const Color(0xFF1A1A1A), // Dark slate background to match screenshot
+      color: const Color(0xFF121212), // Deep dark background
       child: Stack(
         children: [
-          // 1. TOP TOGGLE is handled in the parent Stack for efficiency
-
-          // 2. MIDDLE MEDIA SECTION
+          // 1. MIDDLE MEDIA SECTION (Takes up top portion)
           Positioned(
             top: 0,
             left: 0,
             right: 0,
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.65,
+              height: MediaQuery.of(context).size.height * 0.64,
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
               ),
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(bottom: Radius.circular(40)),
-                child: isImageView
-                    ? _buildImageCarousel(allImages)
-                    : _buildVideoPlaceholder(property),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
+                    ),
+                  ),
+                  child: isImageView
+                      ? _buildImageCarousel(allImages)
+                      : _buildVideoPlaceholder(property),
+                ),
               ),
             ),
           ),
 
-          // 3. OWNER & BOTTOM CARD SECTION
+          // 2. CONTENT OVERLAY
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.60,
+            bottom: 20, // Distance from bottom navigation
             left: 0,
             right: 0,
-            bottom: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Owner Info Header
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                        child: ClipOval(
-                          child: Image.asset(
-                            'assets/images/KHOZNA_app_icon_512x512.png',
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 20),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/images/KHOZNA_app_icon_512x512.png',
+                              width: 52,
+                              height: 52,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Khozna app',
-                            style: GoogleFonts.plusJakartaSans(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 20,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1E88E5).withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              property.category.toUpperCase(),
-                              style: GoogleFonts.inter(
-                                color: const Color(0xFF64B5F6),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
+                        const SizedBox(width: 14),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Khozna app',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 22,
+                                letterSpacing: -0.2,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00A3DA).withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                property.category.toUpperCase(),
+                                style: GoogleFonts.inter(
+                                  color: const Color(0xFF00A3DA),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 24),
                   
-                  // Bottom Info Card
+                  // Property Info Glass Card
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2D2D2D), // Matching the dark card in screenshot
-                      borderRadius: BorderRadius.circular(35),
-                      border: Border.all(color: Colors.white10, width: 1.5),
+                      color: const Color(0xFF2A2A2A), // Matching screenshot grey
+                      borderRadius: BorderRadius.circular(45),
+                      border: Border.all(color: Colors.white.withOpacity(0.12), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                        // Left: Property Text Info
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                property.title,
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 26,
+                                  letterSpacing: -0.5,
+                                  height: 1.1,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
                                 children: [
-                                  Text(
-                                    property.title,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 24,
-                                      letterSpacing: -0.5,
+                                  const Icon(Icons.location_on_rounded, color: Color(0xFF00A3DA), size: 18),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      property.location,
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.white70,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.location_on_rounded, color: Color(0xFF00A3DA), size: 16),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        property.location,
-                                        style: GoogleFonts.plusJakartaSans(
-                                          color: Colors.white60,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  // Price Alignment
-                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 2),
-                                        child: SvgPicture.asset(
-                                          'assets/icons/vector of ruppes.svg',
-                                          width: 20,
-                                          height: 20,
-                                          colorFilter: const ColorFilter.mode(Color(0xFF00A3DA), BlendMode.srcIn),
-                                        ),
-                                      ),
-                                      Text(
-                                        PriceFormatter.format(
-                                          (property.price == '0' || property.price.isEmpty || property.price == '₹0')
-                                              ? (property.priceMonth > 0 ? property.priceMonth.toStringAsFixed(0) : 'Call for price')
-                                              : property.price
-                                        ).replaceAll('₹', ''),
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 26,
-                                          fontWeight: FontWeight.w900,
-                                          color: const Color(0xFF00A3DA), // Cyan blue price
-                                        ),
-                                      ),
-                                      Text(
-                                        '/month',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white54,
-                                        ),
-                                      ),
-                                    ],
                                   ),
                                 ],
                               ),
-                            ),
-                            
-                            // Side-by-side Action Buttons
-                            Column(
-                              children: [
-                                // CHAT BUTTON (WHITE PILL)
-                                GestureDetector(
-                                  onTap: () {
-                                    HapticFeedback.mediumImpact();
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => chat_page.ChatScreen(
-                                          ownerId: property.ownerId,
-                                          name: property.ownerName,
-                                          avatar: property.ownerAvatar,
-                                          online: true,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF00A3DA), size: 14),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          'CHAT',
-                                          style: GoogleFonts.inter(
-                                            color: const Color(0xFF00A3DA),
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w900,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                // VISIT BUTTON (BLUE PILL)
-                                GestureDetector(
-                                  onTap: () {
-                                    HapticFeedback.lightImpact();
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property)),
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                    decoration: BoxDecoration(
+                              const SizedBox(height: 16),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    'रु', // Nepali Rupee symbol
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w900,
                                       color: const Color(0xFF00A3DA),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.directions_run_rounded, color: Colors.white, size: 14),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          'VISIT',
-                                          style: GoogleFonts.inter(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w900,
-                                          ),
-                                        ),
-                                      ],
+                                      height: 1.2,
                                     ),
                                   ),
+                                  Text(
+                                    (property.priceMonth > 0 ? property.priceMonth.toInt().toString() : 'Negotiable'),
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w900,
+                                      color: const Color(0xFF00A3DA),
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    '/month',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        const SizedBox(width: 16),
+
+                        // Right: Vertical Action Buttons
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // CHAT BUTTON
+                            GestureDetector(
+                              onTap: () {
+                                HapticFeedback.mediumImpact();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => chat_page.ChatScreen(
+                                      ownerId: property.ownerId,
+                                      name: property.ownerName,
+                                      avatar: property.ownerAvatar,
+                                      online: true,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(22),
                                 ),
-                              ],
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF00A3DA), size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'CHAT',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: const Color(0xFF00A3DA),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            // VISIT BUTTON
+                            GestureDetector(
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property)),
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF00A3DA),
+                                  borderRadius: BorderRadius.circular(22),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.directions_run_rounded, color: Colors.white, size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'VISIT',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -543,44 +583,6 @@ class _ReelsScreenState extends State<ReelsScreen> {
     );
   }
 
-  Widget _buildActionButton({
-    required String iconPath,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 90,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: Colors.white.withOpacity(0.1)),
-        ),
-        child: Column(
-          children: [
-            SvgPicture.asset(
-              iconPath,
-              width: 18,
-              height: 18,
-              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: GoogleFonts.plusJakartaSans(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: 11,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildImageCarousel(List<String> images) {
     if (images.isEmpty) {
       return Container(
@@ -589,11 +591,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.home_work_rounded,
-                size: 80,
-                color: Colors.white24,
-              ),
+              const Icon(Icons.home_work_rounded, size: 80, color: Colors.white24),
               const SizedBox(height: 16),
               Text(
                 'No photos available',
@@ -605,16 +603,17 @@ class _ReelsScreenState extends State<ReelsScreen> {
       );
     }
     
-    if (images.length == 1) {
-      return KhoznaImage(
-        imageUrl: images[0],
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-      );
-    }
-    
-    return _MultiImageCarousel(images: images);
+    return PageView.builder(
+      itemCount: images.length,
+      itemBuilder: (context, index) {
+        return KhoznaImage(
+          imageUrl: images[index],
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        );
+      },
+    );
   }
 
   Widget _buildVideoPlaceholder(Property property) {

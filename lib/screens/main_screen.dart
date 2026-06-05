@@ -270,8 +270,8 @@ class _MainScreenState extends State<MainScreen> {
                     _buildNavItem(
                       0,
                       'assets/icons/Search vector.svg',
-                      25.5,
-                      25.5,
+                      24,
+                      24,
                       activeColor,
                       inactiveColor,
                       0,
@@ -544,34 +544,36 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             const Spacer(),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Center(
-                  child: SizedBox(
-                    width: index == -1 ? 48 : width,
-                    height: height,
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.center,
-                      children: [
-                        OverflowBox(
-                          minWidth: 0,
-                          maxWidth: index == -1 ? 48 : width,
-                          minHeight: 0,
-                          maxHeight: index == -1 ? 31 : height,
-                          child: SvgPicture.asset(
-                            iconPath,
-                            width: index == -1 ? 48 : width,
-                            height: index == -1 ? 31 : height,
-                            colorFilter: index == -1
-                                ? null
-                                : ColorFilter.mode(
-                                    isSelected ? activeColor : inactiveColor,
-                                    BlendMode.srcIn,
-                                  ),
+            Transform.translate(
+              offset: Offset(0, index == -1 ? -6 : 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: SizedBox(
+                      width: index == -1 ? 48 : width,
+                      height: index == 0 ? 24 : height,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.center,
+                        children: [
+                          OverflowBox(
+                            minWidth: 0,
+                            maxWidth: index == -1 ? 48 : width,
+                            minHeight: 0,
+                            maxHeight: index == -1 ? 31 : (index == 0 ? 24 : height),
+                            child: SvgPicture.asset(
+                              iconPath,
+                              width: index == -1 ? 48 : width,
+                              height: index == -1 ? 31 : (index == 0 ? 24 : height),
+                              colorFilter: index == -1
+                                  ? null
+                                  : ColorFilter.mode(
+                                      isSelected ? activeColor : inactiveColor,
+                                      BlendMode.srcIn,
+                                    ),
+                            ),
                           ),
-                        ),
                           // Premium red badge
                           if (badgeCount > 0)
                             Positioned(
@@ -625,6 +627,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ],
               ),
+            ),
             const Spacer(),
           ],
         ),
