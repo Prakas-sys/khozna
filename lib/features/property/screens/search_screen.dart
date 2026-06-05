@@ -635,11 +635,53 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                   itemCount: _nearbyProperties.length,
                                   itemBuilder: (context, index) {
                                     final p = _nearbyProperties[index];
+                                    String distanceLabel = '';
+                                    if (_userLocation != null && p.latitude != null && p.longitude != null) {
+                                      const Distance distance = Distance();
+                                      double meters = distance.as(LengthUnit.Meter, _userLocation!, LatLng(p.latitude!, p.longitude!));
+                                      if (meters < 1000) {
+                                        distanceLabel = '${meters.toInt()}m away';
+                                      } else {
+                                        distanceLabel = '${(meters / 1000).toStringAsFixed(1)}km away';
+                                      }
+                                    }
+                                    
                                     return Padding(
                                       padding: const EdgeInsets.only(
                                         bottom: 24,
                                       ),
-                                      child: PropertyCard(property: p),
+                                      child: Stack(
+                                        children: [
+                                          PropertyCard(property: p),
+                                          if (distanceLabel.isNotEmpty)
+                                            Positioned(
+                                              top: 12,
+                                              right: 12,
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black.withOpacity(0.7),
+                                                  borderRadius: BorderRadius.circular(20),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    const Icon(Icons.near_me_rounded, color: Colors.white, size: 12),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      distanceLabel,
+                                                      style: GoogleFonts.inter(
+                                                        color: Colors.white,
+                                                        fontSize: 11,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
                                     );
                                   },
                                 ),
@@ -659,7 +701,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             ),
           ),
           // Floating Map Pill (Airbnb-style) - only in Nearby section
-          if (_showNearbySection)
+          if (_showNearbySection && _nearbyProperties.isNotEmpty)
             Positioned(
               bottom: 28,
               left: 0,

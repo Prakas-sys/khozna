@@ -355,7 +355,7 @@ class PropertyCard extends StatelessWidget {
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
-                                        color: AppTheme.brandColor.withOpacity(0.54),
+                                        color: Colors.grey[600],
                                       ),
                                     ),
                                   ),
