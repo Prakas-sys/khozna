@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
@@ -73,35 +74,53 @@ class _DiscoveryMapScreenState extends State<DiscoveryMapScreen> {
               return Marker(
                 point: LatLng(p.latitude!, p.longitude!),
                 width: 80,
-                height: 36,
+                height: 38,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _navigateToDetails(p),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
+                      horizontal: 8,
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
+                          color: Colors.black.withOpacity(0.12),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
                       ],
-                      border: Border.all(color: Colors.grey.shade200, width: 1),
+                      border: Border.all(color: Colors.grey.shade200, width: 1.5),
                     ),
                     child: Center(
-                      child: Text(
-                        priceLabel,
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 12,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/vector of ruppes.svg',
+                            width: 10,
+                            height: 10,
+                            colorFilter: const ColorFilter.mode(
+                              Colors.black,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            price > 999
+                                ? '${(price / 1000).toStringAsFixed(0)}K'
+                                : price.toInt().toString(),
+                            style: GoogleFonts.plusJakartaSans(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 13,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

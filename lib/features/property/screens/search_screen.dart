@@ -117,23 +117,41 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   }
 
   Future<void> _loadNearbyData() async {
+    LatLng? currentLoc;
     try {
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        desiredAccuracy: LocationAccuracy.medium,
       );
+      currentLoc = LatLng(position.latitude, position.longitude);
       if (mounted) {
         setState(() {
-          _userLocation = LatLng(position.latitude, position.longitude);
+          _userLocation = currentLoc;
         });
+        _miniMapController.move(currentLoc!, 13.0);
       }
     } catch (e) {
       debugPrint('Error getting location: $e');
     }
 
     final properties = await SupabaseService.getAllProperties();
+    
+    // 📍 FILTER & SORT BY DISTANCE
+    if (currentLoc != null) {
+      const Distance distance = Distance();
+      properties.sort((a, b) {
+        if (a.latitude == null || a.longitude == null) return 1;
+        if (b.latitude == null || b.longitude == null) return -1;
+        
+        final dA = distance.as(LengthUnit.Meter, currentLoc!, LatLng(a.latitude!, a.longitude!));
+        final dB = distance.as(LengthUnit.Meter, currentLoc!, LatLng(b.latitude!, b.longitude!));
+        return dA.compareTo(dB);
+      });
+    }
+
     if (mounted) {
       setState(() {
-        _nearbyProperties = properties.take(5).toList();
+        // Take the closest 10 properties
+        _nearbyProperties = properties.take(10).toList();
         _isLoadingNearby = false;
       });
     }
@@ -641,7 +659,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             ),
           ),
           // Floating Map Pill (Airbnb-style) - only in Nearby section
-          if (_showNearbySection && _showMapPill)
+          if (_showNearbySection)
             Positioned(
               bottom: 28,
               left: 0,
@@ -653,7 +671,9 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => const DiscoveryMapScreen(),
+                        builder: (_) => DiscoveryMapScreen(
+                          initialCenter: _userLocation,
+                        ),
                       ),
                     );
                   },
