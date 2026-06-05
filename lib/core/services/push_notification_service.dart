@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
-import 'package:flutter_app_badger/flutter_app_badger.dart';
 
 class PushNotificationService {
   static final FirebaseMessaging _messaging = FirebaseMessaging.instance;
@@ -138,7 +137,6 @@ class PushNotificationService {
   }
 
   static void _showLocalNotification(String title, String body, int badgeCount) async {
-    FlutterAppBadger.updateBadgeCount(badgeCount);
 
     final int notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
 
