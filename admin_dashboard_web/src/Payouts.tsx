@@ -1,290 +1,322 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from './lib/supabase';
 import { 
   Landmark, ArrowRight, Wallet, CheckCircle2, 
   AlertCircle, ChevronDown, Filter, FileText, 
-  Send, XCircle, ArrowLeft, Building2 
+  Send, XCircle, ArrowLeft, Building2, Loader2,
+  TrendingUp, Circle
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const Payouts = () => {
   const [selectedPayout, setSelectedPayout] = useState<any>(null);
   const [filter, setFilter] = useState('pending');
+  const [payouts, setPayouts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy data based on the HTML provided
-  const payouts = [
-    { id: '1', providerName: 'Himalayan Base Camp Lodge', providerId: 'PRV-8821', bookingRef: 'BKG-2023-11A', amount: '125,500', method: 'Bank Transfer', bankName: 'Nabil Bank', accountName: 'Himalayan Retreat Pvt Ltd', accNumber: '010101******221', status: 'Pending', baseAmount: '139,444', fee: '13,944' },
-    { id: '2', providerName: 'Kathmandu Heritage Stays', providerId: 'PRV-9012', bookingRef: 'BKG-2023-12A', amount: '45,200', method: 'eSewa', bankName: 'eSewa Wallet', accountName: 'Ktm Heritage', accNumber: '9841******21', status: 'Pending', baseAmount: '50,222', fee: '5,022' },
-    { id: '3', providerName: 'Pokhara Lakeside Retreat', providerId: 'PRV-7734', bookingRef: 'BKG-2023-14C', amount: '210,000', method: 'Bank Transfer', bankName: 'Standard Chartered', accountName: 'Lakeside Co', accNumber: '020202******511', status: 'On Hold', baseAmount: '233,333', fee: '23,333' },
-    { id: '4', providerName: 'Chitwan Safari Eco Lodge', providerId: 'PRV-6522', bookingRef: 'BKG-2023-09C', amount: '69,500', method: 'Khalti', bankName: 'Khalti Wallet', accountName: 'Chitwan Safaris', accNumber: '9801******99', status: 'Pending', baseAmount: '77,222', fee: '7,722' },
-  ];
+  // KPIs
+  const [kpiTotalPending, setKpiTotalPending] = useState(0);
+  const [kpiAwaitingVerify, setKpiAwaitingVerify] = useState(0);
 
-  const filteredPayouts = filter === 'all' ? payouts : filter === 'on hold' ? payouts.filter(p => p.status === 'On Hold') : payouts.filter(p => p.status === 'Pending');
+  useEffect(() => {
+    fetchPayouts();
+  }, [filter]);
+
+  const fetchPayouts = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .select(`
+          id,
+          amount,
+          status,
+          created_at,
+          bookings (
+            id,
+            owner:profiles!bookings_owner_id_fkey (full_name, id)
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      const realData = data || [];
+      setKpiTotalPending(realData.filter(d => d.status === 'verified').reduce((acc, curr) => acc + (curr.amount || 0), 0));
+      setKpiAwaitingVerify(realData.filter(d => d.status === 'pending').length);
+      setPayouts(realData);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredPayouts = payouts.filter(p => p.status === (filter === 'pending' ? 'verified' : filter === 'all' ? p.status : 'awaiting'));
 
   return (
-    <div className="flex-1 overflow-y-auto px-12 py-12 bg-[#F8FAFC]">
-      {/* ─── MAIN LIST VIEW ────────────────────────────────────────────── */}
-      {!selectedPayout ? (
-        <>
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <h2 className="text-3xl font-bold text-[#0F172A] tracking-tight mb-2">Service Provider Payouts Overview</h2>
-              <p className="text-[#64748B] text-sm font-medium">List of settlements awaiting execution for property owners.</p>
-            </div>
-            <div className="flex gap-4 items-center">
-              <button className="px-6 py-2.5 bg-[#2563EB] text-white rounded-lg text-[13px] font-bold hover:bg-blue-700 transition-all shadow-sm flex items-center gap-2">
-                <Landmark size={18} />
-                Execute Batch
-              </button>
-            </div>
-          </div>
-
-          {/* KPI CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="card-pro p-6 flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-4 text-[#64748B]">
-                <span className="text-[11px] font-bold uppercase tracking-wider">Total Pending Payouts</span>
-                <Wallet size={18} />
-              </div>
+    <div className="flex-1 overflow-y-auto px-8 py-8 bg-[#FAFAFA]">
+      <AnimatePresence mode="wait">
+        {!selectedPayout ? (
+          <motion.div
+            key="list"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+          >
+            <div className="flex items-center justify-between mb-8">
               <div>
-                <p className="text-3xl font-black text-[#0F172A]">Rs. 450,200</p>
-                <div className="flex items-center gap-2 mt-2 text-[#2563EB] text-[12px] font-bold">
-                  <ArrowRight size={14} className="-rotate-45" />
-                  +12% vs last week
-                </div>
+                <h2 className="text-[22px] font-semibold text-[#171717] tracking-tight mb-1">Service Payouts</h2>
+                <p className="text-[#737373] text-[13px]">Manage settlements and batches for property owners.</p>
               </div>
-            </div>
-
-            <div className="card-pro p-6 flex flex-col justify-between border-[#EF4444]/20 bg-red-50/10">
-              <div className="flex items-center justify-between mb-4 text-red-500">
-                <span className="text-[11px] font-bold uppercase tracking-wider">Awaiting Verification</span>
-                <AlertCircle size={18} />
-              </div>
-              <div>
-                <p className="text-3xl font-black text-[#0F172A]">12</p>
-                <p className="text-[12px] font-medium text-[#64748B] mt-2">Requires manual compliance check</p>
-              </div>
-            </div>
-
-            <div className="card-pro p-6 flex flex-col justify-between">
-              <div className="flex items-center justify-between mb-4 text-[#059669]">
-                <span className="text-[11px] font-bold uppercase tracking-wider">Processed This Month</span>
-                <CheckCircle2 size={18} />
-              </div>
-              <div>
-                <p className="text-3xl font-black text-[#0F172A]">Rs. 1.2M</p>
-                <p className="text-[12px] font-medium text-[#64748B] mt-2">Across 145 transactions</p>
-              </div>
-            </div>
-          </div>
-
-          {/* TABLE SECTION */}
-          <div className="card-pro overflow-hidden">
-            <div className="p-4 border-b border-[#E2E8F0] bg-white flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <select className="appearance-none bg-[#F8FAFC] border border-[#E2E8F0] text-[12px] font-semibold text-[#0F172A] rounded-md py-2 pl-4 pr-10 focus:outline-none focus:border-[#2563EB]">
-                    <option>All Payment Methods</option>
-                    <option>Bank Transfer</option>
-                    <option>eSewa</option>
-                    <option>Khalti</option>
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
-                </div>
-                <div className="relative">
-                  <select 
-                    value={filter} 
-                    onChange={(e) => setFilter(e.target.value)}
-                    className="appearance-none bg-[#F8FAFC] border border-[#E2E8F0] text-[12px] font-semibold text-[#0F172A] rounded-md py-2 pl-4 pr-10 focus:outline-none focus:border-[#2563EB]"
-                  >
-                    <option value="all">All Statuses</option>
-                    <option value="pending">Status: Pending</option>
-                    <option value="on hold">Status: On Hold</option>
-                  </select>
-                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
-                </div>
-              </div>
-              <button className="flex items-center gap-2 text-[12px] font-bold text-[#64748B] hover:text-[#0F172A] px-4 py-2 border border-[#E2E8F0] rounded-md hover:bg-[#F8FAFC] transition-colors">
-                <Filter size={14} /> More Filters
+              <button className="h-10 px-5 bg-[#171717] text-white rounded-lg text-[12px] font-semibold hover:bg-[#0A0A0A] transition-all shadow-sm flex items-center gap-2">
+                <Landmark size={16} strokeWidth={1.5} />
+                Execute Global Batch
               </button>
             </div>
 
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0]">
-                <tr>
-                  <th className="py-4 px-6 text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Provider Name</th>
-                  <th className="py-4 px-6 text-[11px] font-bold text-[#64748B] uppercase tracking-wider text-right">Amount (NPR)</th>
-                  <th className="py-4 px-6 text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Payment Method</th>
-                  <th className="py-4 px-6 text-[11px] font-bold text-[#64748B] uppercase tracking-wider text-center">Status</th>
-                  <th className="py-4 px-6 text-[11px] font-bold text-[#64748B] uppercase tracking-wider text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E2E8F0]">
-                {filteredPayouts.map((p) => (
-                  <tr key={p.id} className="hover:bg-[#F8FAFC] transition-colors">
-                    <td className="py-4 px-6">
-                      <div className="font-bold text-[#0F172A] text-sm">{p.providerName}</div>
-                      <div className="text-[12px] font-medium text-[#64748B] mt-0.5">ID: {p.providerId}</div>
-                    </td>
-                    <td className="py-4 px-6 text-right font-black text-[#0F172A] text-[15px]">
-                      Rs. {p.amount}
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2 text-[13px] font-semibold text-[#475569]">
-                        {p.method === 'Bank Transfer' ? <Landmark size={14} className="text-[#94A3B8]" /> : <Wallet size={14} className="text-[#94A3B8]" />}
-                        {p.method}
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 text-center">
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                        p.status === 'Pending' ? 'bg-[#EFF6FF] text-[#2563EB]' : 'bg-[#FEF2F2] text-[#EF4444]'
-                      }`}>
-                        {p.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      <button 
-                        onClick={() => setSelectedPayout(p)}
-                        className="text-[12px] font-bold text-[#2563EB] hover:text-white border border-[#2563EB] hover:bg-[#2563EB] px-4 py-1.5 rounded-md transition-colors"
+            {/* KPI CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <div className="card-minimal p-6 border-b-2 border-b-[#171717]">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Pending Settlement</span>
+                  <Wallet size={16} strokeWidth={1.5} className="text-[#A3A3A3]" />
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-[24px] font-semibold text-[#171717]">NPR {kpiTotalPending.toLocaleString()}</p>
+                </div>
+                <p className="text-[11px] text-[#A3A3A3] mt-1.5 flex items-center gap-1">
+                  <TrendingUp size={10} /> 12 active releases
+                </p>
+              </div>
+
+              <div className="card-minimal p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Awaiting Verification</span>
+                  <AlertCircle size={16} strokeWidth={1.5} className="text-[#A3A3A3]" />
+                </div>
+                <p className="text-[24px] font-semibold text-[#171717]">{kpiAwaitingVerify}</p>
+                <p className="text-[11px] text-[#A3A3A3] mt-1.5">Compliance check required</p>
+              </div>
+
+              <div className="card-minimal p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Settled (Monthly)</span>
+                  <CheckCircle2 size={16} strokeWidth={1.5} className="text-[#A3A3A3]" />
+                </div>
+                <p className="text-[24px] font-semibold text-[#171717]">NPR 0</p>
+                <p className="text-[11px] text-[#A3A3A3] mt-1.5">No disbursements yet</p>
+              </div>
+            </div>
+
+            {/* TABLE SECTION */}
+            <div className="card-minimal overflow-hidden shadow-xs">
+              <div className="px-5 py-4 bg-white border-b border-[#E5E5E5] flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <select className="appearance-none bg-[#FAFAFA] border border-[#E5E5E5] text-[12px] font-medium text-[#525252] rounded-lg py-1.5 pl-4 pr-9 focus:outline-none focus:border-[#A3A3A3] transition-all">
+                      <option>All Channels</option>
+                      <option>Bank-direct</option>
+                      <option>Digital Wallet</option>
+                    </select>
+                    <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#A3A3A3] pointer-events-none" />
+                  </div>
+                  <div className="flex items-center bg-[#F5F5F5] p-0.5 rounded-lg border border-[#E5E5E5]">
+                    {['pending', 'all', 'hold'].map(f => (
+                      <button
+                        key={f}
+                        onClick={() => setFilter(f)}
+                        className={`px-3.5 py-1.5 text-[11px] font-semibold rounded-md capitalize transition-all ${filter === f ? 'bg-white text-[#171717] shadow-xs border border-[#E5E5E5]' : 'text-[#737373] hover:text-[#171717]'}`}
                       >
-                        Review
+                         {f === 'pending' ? 'Unsettled' : f}
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {filteredPayouts.length === 0 && (
-              <div className="py-16 text-center">
-                <p className="text-[#64748B] text-sm">No payouts found matching your criteria.</p>
+                    ))}
+                  </div>
+                </div>
+                <button className="flex items-center gap-2 text-[12px] font-medium text-[#525252] px-3.5 py-1.5 border border-[#E5E5E5] rounded-lg hover:bg-[#FAFAFA] transition-all shadow-xs">
+                  <Filter size={14} strokeWidth={1.5} /> Filters
+                </button>
               </div>
-            )}
-          </div>
-        </>
-      ) : (
 
-        /* ─── PAYOUT EXECUTION REVIEW VIEW ────────────────────────────── */
-        <div className="max-w-5xl mx-auto pb-12">
-          {/* Header Context */}
-          <div className="flex flex-col mb-8">
-            <div className="flex items-center gap-2 mb-4">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-[#FAFAFA] border-b border-[#E5E5E5]">
+                    <tr>
+                      <th className="py-4 px-6 text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-wider">Recipient</th>
+                      <th className="py-4 px-6 text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-wider text-right">Amount</th>
+                      <th className="py-4 px-6 text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-wider">Method</th>
+                      <th className="py-4 px-6 text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-wider text-center">Protocol</th>
+                      <th className="py-4 px-6 text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-wider text-right"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F5F5F5]">
+                    {loading ? (
+                      <tr>
+                        <td colSpan={5} className="py-20 text-center">
+                          <Loader2 className="animate-spin text-[#171717] mx-auto mb-3" size={24} strokeWidth={1.5} />
+                          <p className="text-[#A3A3A3] text-[12px] font-medium uppercase tracking-widest">Reforming Ledger</p>
+                        </td>
+                      </tr>
+                    ) : filteredPayouts.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="py-16">
+                          <div className="empty-state">
+                            <FileText size={24} strokeWidth={1.5} className="text-[#E5E5E5] mb-2" />
+                            <p className="text-[13px] text-[#A3A3A3]">No settleable records found</p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredPayouts.map((p) => (
+                        <tr key={p.id} className="hover:bg-[#FAFAFA] transition-colors group">
+                          <td className="py-4 px-6">
+                            <div className="font-semibold text-[#171717] text-[13px]">{p.bookings?.owner?.full_name || 'System Provider'}</div>
+                            <div className="text-[11px] font-mono text-[#A3A3A3] mt-0.5">REF: {p.id.substring(0, 8)}</div>
+                          </td>
+                          <td className="py-4 px-6 text-right font-semibold text-[#171717] text-[14px]">
+                            NPR {p.amount?.toLocaleString() || 0}
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-2 text-[12px] font-medium text-[#737373]">
+                              <Wallet size={12} strokeWidth={1.5} className="text-[#A3A3A3]" />
+                              Internal Escrow
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider border ${
+                              p.status === 'verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-[#FAFAFA] text-[#737373] border-[#E5E5E5]'
+                            }`}>
+                              {p.status === 'verified' ? 'Ready' : p.status}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            <button 
+                              onClick={() => setSelectedPayout(p)}
+                              className="text-[11px] font-semibold text-[#171717] border border-[#E5E5E5] bg-white hover:bg-[#FAFAFA] px-3.5 py-1.5 rounded-lg transition-all shadow-xs opacity-0 group-hover:opacity-100"
+                            >
+                              Review
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          /* ─── PAYOUT EXECUTION REVIEW VIEW ──────────────────────────────── */
+          <motion.div
+            key="detail"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="flex items-center gap-4 mb-8">
               <button 
                 onClick={() => setSelectedPayout(null)}
-                className="w-8 h-8 rounded-full bg-white border border-[#E2E8F0] shadow-sm flex items-center justify-center text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] transition-colors"
+                className="w-9 h-9 rounded-full bg-white border border-[#E5E5E5] shadow-xs flex items-center justify-center text-[#737373] hover:text-[#171717] hover:bg-[#FAFAFA] transition-all"
               >
-                <ArrowLeft size={16} />
+                <ArrowLeft size={16} strokeWidth={1.5} />
               </button>
-              <span className="text-[12px] font-bold text-[#64748B] uppercase tracking-wider">Back to Payout Manager</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-black text-[#0F172A] tracking-tight">Payout Execution Review</h1>
-              <span className="bg-[#FEF9C3] text-[#854D0E] border border-[#FEF08A] text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">
-                Pending Approval
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column */}
-            <div className="lg:col-span-2 flex flex-col gap-6">
-              
-              {/* Provider Info */}
-              <div className="card-pro p-6 flex items-center gap-6">
-                <div className="w-16 h-16 rounded-xl bg-[#EFF6FF] border border-[#BFDBFE] flex items-center justify-center flex-shrink-0 text-[#2563EB]">
-                  <Building2 size={24} />
-                </div>
-                <div className="flex-1 border-r border-[#E2E8F0] pr-6">
-                  <div className="flex items-center gap-3 mb-1">
-                    <h2 className="text-xl font-bold text-[#0F172A]">{selectedPayout.providerName}</h2>
-                    <span className="flex items-center gap-1 bg-[#F0FDF4] text-[#166534] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#BBF7D0] uppercase">
-                      <CheckCircle2 size={12} /> Verified
-                    </span>
-                  </div>
-                  <p className="text-[13px] font-medium text-[#64748B]">Provider ID: {selectedPayout.providerId}</p>
-                </div>
-                <div className="pl-6 w-40 text-right">
-                  <p className="text-[11px] font-bold text-[#64748B] uppercase mb-1">Booking Ref</p>
-                  <p className="text-[14px] font-black text-[#0F172A]">{selectedPayout.bookingRef}</p>
-                </div>
-              </div>
-
-              {/* Destination Details */}
-              <div className="card-pro overflow-hidden">
-                <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-6 py-4 flex items-center gap-3">
-                  <Landmark size={18} className="text-[#64748B]" />
-                  <h3 className="text-[14px] font-bold text-[#0F172A]">Destination Details</h3>
-                </div>
-                <div className="p-6 grid grid-cols-2 gap-y-6 gap-x-8">
-                  <div>
-                    <p className="text-[11px] font-bold text-[#64748B] uppercase mb-1">Transfer Method</p>
-                    <p className="text-[14px] font-semibold text-[#0F172A]">{selectedPayout.method}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold text-[#64748B] uppercase mb-1">Bank / Institution Name</p>
-                    <p className="text-[14px] font-bold text-[#0F172A]">{selectedPayout.bankName}</p>
-                  </div>
-                  <div className="col-span-2 h-px bg-[#E2E8F0]"></div>
-                  <div>
-                    <p className="text-[11px] font-bold text-[#64748B] uppercase mb-1">Account Name</p>
-                    <p className="text-[14px] font-semibold text-[#0F172A]">{selectedPayout.accountName}</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold text-[#64748B] uppercase mb-1">Account Number</p>
-                    <p className="text-[15px] font-mono font-bold tracking-widest text-[#0F172A]">{selectedPayout.accNumber}</p>
-                  </div>
-                </div>
+              <div>
+                <p className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Back to Overview</p>
+                <h1 className="text-[22px] font-semibold text-[#171717] tracking-tight">Settlement Review</h1>
               </div>
             </div>
 
-            {/* Right Column */}
-            <div className="flex flex-col gap-6">
-              
-              {/* Financials */}
-              <div className="card-pro overflow-hidden">
-                <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-6 py-4 flex items-center gap-3">
-                  <FileText size={18} className="text-[#64748B]" />
-                  <h3 className="text-[14px] font-bold text-[#0F172A]">Financial Breakdown</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-2 space-y-4">
+                <div className="card-minimal p-8 bg-white">
+                  <div className="flex items-center gap-5 mb-8 pb-8 border-b border-[#F5F5F5]">
+                    <div className="w-14 h-14 rounded-xl bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center text-[#171717]">
+                      <Building2 size={24} strokeWidth={1.5} />
+                    </div>
+                    <div>
+                      <h2 className="text-[18px] font-semibold text-[#171717]">{selectedPayout.bookings?.owner?.full_name || 'System Provider'}</h2>
+                      <p className="text-[12px] text-[#A3A3A3] font-mono tracking-wider">ID: {selectedPayout.bookings?.owner?.id || '—'}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-y-8 gap-x-12">
+                    <div>
+                      <p className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest mb-2">Protocol</p>
+                      <p className="text-[13px] font-medium text-[#171717] flex items-center gap-2">
+                        <Circle size={8} fill="#10B981" className="text-emerald-500" /> Standard Release
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest mb-2">Ref ID</p>
+                      <p className="text-[13px] font-mono text-[#171717]">{selectedPayout.id.substring(0, 16)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest mb-2">Destination</p>
+                      <p className="text-[13px] font-medium text-[#171717]">Verified Bank Account</p>
+                      <p className="text-[11px] text-[#A3A3A3] mt-1 italic">Internal clearing required</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest mb-2">Cycle</p>
+                      <p className="text-[13px] font-medium text-[#171717]">Bi-weekly Batch</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="p-6 space-y-4">
-                  <div className="flex justify-between items-center text-[13px] font-medium text-[#475569]">
-                    <span>Total Booking Amount</span>
-                    <span className="font-bold text-[#0F172A]">Rs. {selectedPayout.baseAmount}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[13px] font-medium text-[#EF4444]">
-                    <span>Platform Fee (10%)</span>
-                    <span className="font-bold">- Rs. {selectedPayout.fee}</span>
-                  </div>
-                  <div className="h-px bg-[#E2E8F0] my-4"></div>
-                  <div className="flex items-end justify-between">
-                    <span className="text-[14px] font-bold text-[#0F172A]">Final Payout</span>
-                    <span className="text-3xl font-black text-[#2563EB]">Rs. {selectedPayout.amount}</span>
-                  </div>
-                </div>
-                <div className="bg-[#F1F5F9] px-6 py-3 border-t border-[#E2E8F0]">
-                  <p className="text-[11px] font-bold text-[#64748B] text-center uppercase tracking-wider">Currency: NPR. Rates Locked.</p>
+
+                <div className="card-minimal p-8 bg-white border-rose-100 bg-rose-50/5">
+                   <div className="flex items-center gap-3 mb-4">
+                      <AlertCircle size={16} strokeWidth={1.5} className="text-rose-500" />
+                      <h4 className="text-[14px] font-semibold text-[#171717]">Compliance Caution</h4>
+                   </div>
+                   <p className="text-[12px] text-[#737373] leading-relaxed">
+                     Ensure the owner's bank details match the corporate registry. Mismatched information may lead to internal reconciliation delays. Release of these funds implies manual signature of transaction validity.
+                   </p>
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="card-pro p-6 flex flex-col gap-3 mt-auto bg-white border-[#E2E8F0]">
-                <p className="text-[12px] font-medium text-[#64748B] text-center mb-2">Review all details carefully before execution.</p>
-                <button 
-                  onClick={() => setSelectedPayout(null)} // Mock execution
-                  className="w-full bg-[#2563EB] text-white text-[13px] font-bold py-3.5 rounded-lg hover:bg-blue-700 transition-all flex justify-center items-center gap-2 shadow-sm"
-                >
-                  <Send size={16} />
-                  Execute Payout
-                </button>
-                <button 
-                  onClick={() => setSelectedPayout(null)} // Mock reject
-                  className="w-full bg-white text-[#EF4444] border border-[#EF4444]/30 text-[13px] font-bold py-3.5 rounded-lg hover:bg-red-50 transition-all flex justify-center items-center gap-2"
-                >
-                  <XCircle size={16} />
-                  Reject Payout
-                </button>
+              <div className="space-y-4">
+                <div className="card-minimal p-6 bg-white overflow-hidden">
+                  <div className="flex items-center gap-2 mb-6">
+                    <FileText size={16} strokeWidth={1.5} className="text-[#A3A3A3]" />
+                    <h3 className="text-[13px] font-semibold text-[#171717]">Financial Recap</h3>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center text-[12px]">
+                      <span className="text-[#737373]">Initial Capture</span>
+                      <span className="font-medium text-[#171717]">NPR {selectedPayout.amount?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[12px]">
+                      <span className="text-[#737373]">Service Fee</span>
+                      <span className="font-medium text-rose-500">- 0.00</span>
+                    </div>
+                    <div className="pt-4 border-t border-[#E5E5E5] flex justify-between items-end">
+                      <span className="text-[13px] font-semibold text-[#171717]">Disbursement</span>
+                      <span className="text-[22px] font-semibold text-[#171717]">NPR {selectedPayout.amount?.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <button 
+                    onClick={() => setSelectedPayout(null)}
+                    className="w-full h-11 bg-[#171717] text-white rounded-xl font-semibold text-[13px] hover:bg-[#0A0A0A] transition-all shadow-sm flex items-center justify-center gap-2"
+                  >
+                    <Send size={16} strokeWidth={1.5} />
+                    Execute Release
+                  </button>
+                  <button 
+                    onClick={() => setSelectedPayout(null)}
+                    className="w-full h-11 bg-white border border-[#E5E5E5] text-[#737373] rounded-xl font-semibold text-[13px] hover:bg-[#FAFAFA] transition-all shadow-xs flex items-center justify-center gap-2"
+                  >
+                    <XCircle size={16} strokeWidth={1.5} />
+                    Reject Payout
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

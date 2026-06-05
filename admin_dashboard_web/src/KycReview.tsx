@@ -4,7 +4,7 @@ import { supabase } from './lib/supabase';
 import {
   XCircle, Loader2, ShieldCheck,
   RefreshCcw, X, ChevronLeft, ChevronRight,
-  User
+  User, MapPin, Phone, Mail, FileText
 } from 'lucide-react';
 
 // ─── Lightbox ────────────────────────────────────────────────────────────────
@@ -37,48 +37,48 @@ const Lightbox = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#111111]/95 backdrop-blur-xl"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0A0A0A]/95 backdrop-blur-md"
       onClick={onClose}
     >
       <button
-        className="absolute top-8 right-8 w-12 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all z-10"
+        className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all z-10"
         onClick={onClose}
       >
-        <X size={20} />
+        <X size={18} strokeWidth={1.5} />
       </button>
 
-      <div className="absolute top-8 left-1/2 -translate-x-1/2 px-5 py-2 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-[11px] font-medium tracking-wide backdrop-blur-md">
         {img.label} · {idx + 1} / {images.length}
       </div>
 
       <motion.div
         key={idx}
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative max-w-5xl max-h-[80vh] w-full mx-16"
+        className="relative max-w-5xl max-h-[85vh] w-full mx-10"
         onClick={e => e.stopPropagation()}
       >
         <img
           src={img.url}
           alt={img.label}
-          className="w-full h-full object-contain rounded-lg shadow-2xl"
-          style={{ maxHeight: '80vh' }}
+          className="w-full h-full object-contain rounded-lg opacity-100 shadow-2xl"
+          style={{ maxHeight: '85vh' }}
         />
       </motion.div>
 
       {images.length > 1 && (
         <>
           <button
-            className="absolute left-8 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all"
+            className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all"
             onClick={e => { e.stopPropagation(); prev(); }}
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={24} strokeWidth={1.5} />
           </button>
           <button
-            className="absolute right-8 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all"
+            className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-all"
             onClick={e => { e.stopPropagation(); next(); }}
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={24} strokeWidth={1.5} />
           </button>
         </>
       )}
@@ -91,8 +91,8 @@ const RejectionModal = ({ onConfirm, onCancel }: { onConfirm: (r: string) => voi
   const [reason, setReason] = useState('');
   const presets = [
     'Documents are blurry or unreadable',
-    'ID number does not match the document',
-    'Selfie does not match the ID photo',
+    'ID number does not match document',
+    'Selfie does not match ID photo',
     'Document appears to be expired',
     'Suspected fraudulent submission',
   ];
@@ -102,35 +102,32 @@ const RejectionModal = ({ onConfirm, onCancel }: { onConfirm: (r: string) => voi
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[110] flex items-center justify-center bg-[#111111]/40 backdrop-blur-sm p-6"
+      className="fixed inset-0 z-[110] flex items-center justify-center bg-[#0A0A0A]/40 backdrop-blur-xs p-6"
       onClick={onCancel}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        initial={{ opacity: 0, scale: 0.98, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="w-full max-w-lg bg-white rounded-[2.5rem] p-10 shadow-2xl border border-[#E8E6E1]"
+        exit={{ opacity: 0, scale: 0.98, y: 10 }}
+        className="w-full max-w-md bg-white rounded-2xl p-8 shadow-lg border border-[#E5E5E5]"
         onClick={e => e.stopPropagation()}
       >
-        <h3 className="text-2xl font-extrabold text-[#1A1A1A] tracking-tight mb-2">Specify Rejection</h3>
-        <p className="text-[#666666] text-sm font-medium mb-8">Please provide a narrative or select a preset for the operator.</p>
-        
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center">
-            <XCircle size={24} className="text-red-500" />
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-9 h-9 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
+            <XCircle size={20} strokeWidth={1.5} />
           </div>
           <div>
-            <h3 className="text-[#1A1A1A] font-extrabold text-lg tracking-tight">Reject Submission</h3>
-            <p className="text-[#666666] text-sm font-medium">Select or type a rejection reason</p>
+            <h3 className="text-[16px] font-semibold text-[#171717]">Reject Verification</h3>
+            <p className="text-[#737373] text-[12px]">Please specify why this identity was denied.</p>
           </div>
         </div>
 
-        <div className="space-y-2 mb-6">
+        <div className="space-y-1.5 mb-6">
           {presets.map((p, i) => (
             <button
               key={i}
               onClick={() => setReason(p)}
-              className="text-left px-4 py-3 rounded-xl bg-[#FBFBF9] border border-[#E8E6E1] text-[#666666] text-xs font-bold hover:border-[#2563EB] hover:text-[#2563EB] transition-all w-full"
+              className="text-left px-3.5 py-2.5 rounded-lg bg-[#FAFAFA] border border-[#E5E5E5] text-[#525252] text-[12px] font-medium hover:border-[#A3A3A3] hover:bg-white transition-all w-full"
             >
               {p}
             </button>
@@ -140,23 +137,23 @@ const RejectionModal = ({ onConfirm, onCancel }: { onConfirm: (r: string) => voi
         <textarea
           value={reason}
           onChange={e => setReason(e.target.value)}
-          placeholder="Enter detailed reason..."
-          className="w-full h-32 bg-[#FBFBF9] border border-[#E8E6E1] rounded-2xl p-4 text-sm font-semibold focus:outline-none focus:ring-4 focus:ring-[#2563EB]/5 focus:border-[#2563EB] transition-all resize-none mb-8"
+          placeholder="Enter custom reason..."
+          className="w-full h-24 bg-[#FAFAFA] border border-[#E5E5E5] rounded-xl p-3.5 text-[13px] font-medium focus:outline-none focus:ring-2 focus:ring-[#171717]/5 focus:border-[#171717] transition-all resize-none mb-6 placeholder:text-[#D4D4D4]"
         />
 
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 py-4 rounded-2xl bg-[#FBFBF9] text-[#666666] text-xs font-bold hover:bg-[#F4F2EE] transition-all"
+            className="flex-1 h-10 rounded-lg bg-[#F5F5F5] text-[#525252] text-[12px] font-semibold hover:bg-[#E5E5E5] transition-all"
           >
             Cancel
           </button>
           <button
             onClick={() => reason.trim() && onConfirm(reason.trim())}
             disabled={!reason.trim()}
-            className="flex-1 py-4 rounded-2xl bg-[#EF4444] text-white text-xs font-bold shadow-lg shadow-red-500/20 hover:bg-[#DC2626] transition-all disabled:opacity-30"
+            className="flex-1 h-10 rounded-lg bg-[#171717] text-white text-[12px] font-semibold hover:bg-[#0A0A0A] transition-all disabled:opacity-40 shadow-sm"
           >
-            Confirm Rejection
+            Deny Verification
           </button>
         </div>
       </motion.div>
@@ -184,82 +181,90 @@ const KycCard = ({ kyc, onUpdate, processingId }: {
     <>
       <motion.div
         layout
-        initial={{ opacity: 0, y: 32 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, x: 60, scale: 0.96 }}
-        className="card-platinum rounded-[2.5rem] overflow-hidden p-10 bg-white border border-[#E8E6E1]"
+        exit={{ opacity: 0, scale: 0.98 }}
+        className="card-minimal p-8 bg-white"
       >
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-[2rem] bg-[#F4F2EE] flex items-center justify-center border border-[#E8E6E1]">
-              <User size={32} className="text-[#A1A1A1]" />
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 pb-6 border-b border-[#F5F5F5]">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-xl bg-[#FAFAFA] flex items-center justify-center border border-[#E5E5E5]">
+              <User size={24} strokeWidth={1.5} className="text-[#A3A3A3]" />
             </div>
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h3 className="text-2xl font-extrabold text-[#1A1A1A] tracking-tight">{kyc.full_name}</h3>
-                <span className="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-full">Manual Review</span>
+              <div className="flex items-center gap-2.5 mb-1">
+                <h3 className="text-[17px] font-semibold text-[#171717] tracking-tight">{kyc.full_name}</h3>
+                <span className="px-2 py-0.5 bg-[#F5F5F5] text-[#737373] text-[10px] font-semibold rounded-md border border-[#E5E5E5] uppercase tracking-wider">Manual Review</span>
               </div>
-              <p className="text-[10px] text-[#A1A1A1] font-bold font-mono uppercase tracking-widest">{kyc.user_id}</p>
+              <p className="text-[11px] text-[#A3A3A3] font-mono tracking-wider">{kyc.user_id}</p>
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-2.5">
             <button 
               onClick={() => onUpdate(kyc.id, kyc.user_id, 'verified')}
               disabled={processingId === kyc.id}
-              className="h-10 px-6 bg-[#2563EB] text-white rounded-lg text-[12px] font-bold hover:bg-[#1D4ED8] transition-colors flex items-center gap-2"
+              className="h-9 px-5 bg-[#171717] text-white rounded-lg text-[12px] font-semibold hover:bg-[#0A0A0A] transition-colors flex items-center gap-2 shadow-sm disabled:opacity-40"
             >
-              {processingId === kyc.id ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />} Approve
+              {processingId === kyc.id ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} strokeWidth={1.5} />} Approve
             </button>
             <button 
               onClick={() => setShowReject(true)}
-              className="h-10 px-4 bg-white border border-[#E2E8F0] text-[#EF4444] rounded-lg text-[12px] font-bold hover:bg-[#FEF2F2] hover:border-[#FCA5A5] transition-all"
+              className="h-9 px-4 bg-white border border-[#E5E5E5] text-rose-500 rounded-lg text-[12px] font-semibold hover:bg-rose-50 hover:border-rose-100 transition-all"
             >
               Reject
             </button>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-8 border-t border-b border-[#F4F2EE] my-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           <div>
-            <p className="text-[10px] text-[#A1A1A1] font-bold uppercase tracking-widest mb-1">Email Address</p>
-            <p className="text-sm font-bold text-[#1A1A1A]">{kyc.email || '—'}</p>
+            <p className="flex items-center gap-1.5 text-[11px] text-[#A3A3A3] font-semibold uppercase tracking-wider mb-1.5">
+              <Mail size={12} strokeWidth={1.5} /> Email Access
+            </p>
+            <p className="text-[13px] font-medium text-[#171717]">{kyc.email || '—'}</p>
           </div>
           <div>
-            <p className="text-[10px] text-[#A1A1A1] font-bold uppercase tracking-widest mb-1">Phone Number</p>
-            <p className="text-sm font-bold text-[#1A1A1A]">{kyc.phone_number || '—'}</p>
+            <p className="flex items-center gap-1.5 text-[11px] text-[#A3A3A3] font-semibold uppercase tracking-wider mb-1.5">
+              <Phone size={12} strokeWidth={1.5} /> Contact
+            </p>
+            <p className="text-[13px] font-medium text-[#171717]">{kyc.phone_number || '—'}</p>
           </div>
           <div>
-            <p className="text-[10px] text-[#A1A1A1] font-bold uppercase tracking-widest mb-1">Citizenship No.</p>
-            <p className="text-sm font-bold text-[#1A1A1A]">{kyc.citizenship_number || '—'}</p>
+            <p className="flex items-center gap-1.5 text-[11px] text-[#A3A3A3] font-semibold uppercase tracking-wider mb-1.5">
+              <FileText size={12} strokeWidth={1.5} /> Document No.
+            </p>
+            <p className="text-[13px] font-medium text-[#171717]">{kyc.citizenship_number || '—'}</p>
           </div>
           <div>
-            <p className="text-[10px] text-[#A1A1A1] font-bold uppercase tracking-widest mb-1">GPS Location</p>
+            <p className="flex items-center gap-1.5 text-[11px] text-[#A3A3A3] font-semibold uppercase tracking-wider mb-1.5">
+              <MapPin size={12} strokeWidth={1.5} /> GPS Location
+            </p>
             {kyc.latitude ? (
               <a 
                 href={`https://www.google.com/maps?q=${kyc.latitude},${kyc.longitude}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-bold text-[#2563EB] hover:underline flex items-center gap-1"
+                className="text-[13px] font-semibold text-[#171717] hover:underline underline-offset-4"
               >
                 {kyc.latitude.toFixed(4)}, {kyc.longitude.toFixed(4)}
               </a>
             ) : (
-              <p className="text-sm font-bold text-red-400">Not Verified</p>
+              <p className="text-[13px] font-medium text-rose-400">Not Verified</p>
             )}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {images.map((img, i) => (
             <div 
               key={i} 
               onClick={() => setLightbox({ open: true, idx: i })}
-              className="group relative aspect-video bg-[#F8FAFC] rounded-lg border border-[#E2E8F0] overflow-hidden cursor-zoom-in"
+              className="group relative h-48 bg-[#FAFAFA] rounded-xl border border-[#E5E5E5] overflow-hidden cursor-zoom-in transition-all hover:border-[#A3A3A3]"
             >
-              <img src={img.url} className="w-full h-full object-cover" alt={img.label} />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
-              <div className="absolute bottom-3 left-3 px-2 py-1 bg-white/90 rounded text-[9px] font-bold text-[#0F172A] uppercase shadow-sm">
+              <img src={img.url} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt={img.label} />
+              <div className="absolute inset-0 bg-[#0A0A0A]/0 group-hover:bg-[#0A0A0A]/2 transition-colors" />
+              <div className="absolute top-4 left-4 px-2 py-1 bg-white/90 border border-white/20 rounded text-[10px] font-semibold text-[#171717] uppercase tracking-wider shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
                 {img.label}
               </div>
             </div>
@@ -336,55 +341,55 @@ export const KycReview = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#F8FAFC]">
-      <div className="max-w-[1400px] mx-auto px-12 py-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+    <div className="flex-1 overflow-y-auto bg-[#FAFAFA]">
+      <div className="max-w-6xl mx-auto px-8 py-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight">Verification Hub</h2>
-              <span className="px-2 py-0.5 bg-[#2563EB]/10 text-[#2563EB] text-[10px] font-bold uppercase tracking-wider rounded-md">
-                {kycs.filter(k => k.status === 'pending').length} Pending
+            <div className="flex items-center gap-3 mb-1">
+              <h2 className="text-[22px] font-semibold text-[#171717] tracking-tight">Verification Center</h2>
+              <span className="px-2 py-0.5 bg-[#F5F5F5] text-[#171717] text-[10px] font-semibold uppercase tracking-wider rounded border border-[#E5E5E5]">
+                {kycs.filter(k => k.status === 'pending').length} In Queue
               </span>
             </div>
-            <p className="text-[#64748B] text-sm font-medium">Verify user profiles and document validity.</p>
+            <p className="text-[#737373] text-[13px]">Identity verification and document validation.</p>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className="flex p-1 bg-white border border-[#E2E8F0] rounded-lg">
+          <div className="flex items-center gap-3">
+            <div className="flex p-0.5 bg-white border border-[#E5E5E5] rounded-lg shadow-xs">
               {(['pending', 'all'] as const).map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-4 py-1.5 rounded-md text-[11px] font-bold transition-all ${filter === f ? 'bg-[#F1F5F9] text-[#2563EB] border border-[#E2E8F0]' : 'text-[#64748B] hover:text-[#0F172A]'}`}
+                  className={`px-3.5 py-1.5 rounded-md text-[12px] font-medium transition-all ${filter === f ? 'bg-[#FAFAFA] text-[#171717] border border-[#E5E5E5] shadow-xs' : 'text-[#737373] hover:text-[#171717]'}`}
                 >
-                  {f.charAt(0).toUpperCase() + f.slice(1)}
+                  {f === 'pending' ? 'Pending' : 'History'}
                 </button>
               ))}
             </div>
             <button
               onClick={fetchKycs}
-              className="w-10 h-10 rounded-lg flex items-center justify-center bg-white border border-[#E2E8F0] text-[#64748B] hover:bg-gray-50 transition-all shadow-sm"
+              className="w-9 h-9 rounded-lg flex items-center justify-center bg-white border border-[#E5E5E5] text-[#737373] hover:text-[#171717] hover:bg-[#FAFAFA] transition-all shadow-xs"
             >
-              <RefreshCcw size={16} className={loading ? 'animate-spin' : ''} />
+              <RefreshCcw size={16} strokeWidth={1.5} className={loading ? 'animate-spin' : ''} />
             </button>
           </div>
         </div>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-40 gap-4">
-            <Loader2 className="animate-spin text-[#2563EB]" size={32} />
-            <p className="text-[#94A3B8] text-[11px] font-bold uppercase tracking-widest">Querying database...</p>
+          <div className="py-40 flex flex-col items-center justify-center gap-3">
+            <div className="w-5 h-5 border-2 border-[#E5E5E5] border-t-[#171717] rounded-full animate-spin" />
+            <p className="text-[12px] text-[#A3A3A3] font-medium">Syncing verifications...</p>
           </div>
         ) : kycs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-32 rounded-xl bg-white border border-[#E2E8F0] border-dashed">
-            <div className="w-16 h-16 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center mb-4">
-              <ShieldCheck size={28} className="text-[#94A3B8]" />
+          <div className="empty-state border border-dashed border-[#E5E5E5] rounded-xl">
+            <div className="empty-state-icon">
+              <ShieldCheck size={20} strokeWidth={1.5} />
             </div>
-            <h3 className="text-[#0F172A] text-lg font-bold mb-1">Queue Clear</h3>
-            <p className="text-[#64748B] text-sm font-medium">No identification records pending review.</p>
+            <h3 className="empty-state-title">Verification queue clear</h3>
+            <p className="empty-state-desc">All identity reviews have been processed for now.</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             <AnimatePresence mode="popLayout">
               {kycs.map(kyc => (
                 <KycCard

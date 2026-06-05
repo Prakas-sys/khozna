@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { CreditCard, ExternalLink } from 'lucide-react';
+import { CreditCard, ExternalLink, ArrowLeft, Loader2, ShieldCheck, XCircle, User, Landmark, QrCode, Building2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const Payments = () => {
   const [payments, setPayments] = useState<any[]>([]);
@@ -46,72 +47,60 @@ export const Payments = () => {
   };
 
   const handleVerify = async (payment: any) => {
-    if (!window.confirm('Verify this payment? This will confirm the booking.')) return;
+    if (!window.confirm('Confirm verification of this transaction?')) return;
     
     try {
-      // 1. Update Payment
       await supabase.from('payments').update({ status: 'verified' }).eq('id', payment.id);
-
-      // 2. Update Booking
       await supabase.from('bookings').update({ status: 'confirmed' }).eq('id', payment.booking_id);
-
-      // 3. Notify Guest
       await supabase.from('notifications').insert({
         user_id: payment.bookings.guest_id,
-        title: '✅ Payment Verified!',
-        message: `Your payment for "${payment.bookings.properties.title}" has been verified. Booking confirmed!`,
+        title: 'Payment Verified',
+        message: `Your payment for "${payment.bookings.properties.title}" has been confirmed.`,
         type: 'booking_alert',
       });
-
       setSelectedPayment(null);
       fetchPayments();
     } catch (e) {
-      alert('Error verifying payment');
+      alert('Verification protocol failed');
     }
   };
 
   const handleReject = async (payment: any) => {
     if (!rejectReason) {
-      alert('Please provide a reason for rejection');
+      alert('Exclusion reason required');
       return;
     }
 
     try {
-      // 1. Update Payment
       await supabase.from('payments').update({ status: 'rejected' }).eq('id', payment.id);
-
-      // 2. Update Booking
       await supabase.from('bookings').update({ status: 'awaiting_payment' }).eq('id', payment.booking_id);
-
-      // 3. Notify Guest
       await supabase.from('notifications').insert({
         user_id: payment.bookings.guest_id,
-        title: '❌ Payment Rejected',
-        message: `Your payment for "${payment.bookings.properties.title}" was rejected. Reason: ${rejectReason}`,
+        title: 'Payment Rejected',
+        message: `Your payment for "${payment.bookings.properties.title}" was denied. ${rejectReason}`,
         type: 'booking_alert',
       });
-
       setSelectedPayment(null);
       setRejectReason('');
       fetchPayments();
     } catch (e) {
-      alert('Error rejecting payment');
+      alert('Rejection protocol failed');
     }
   };
 
   return (
-    <div className="flex-1 overflow-y-auto px-12 py-12 bg-[#F8FAFC]">
-      <div className="flex items-center justify-between mb-12">
+    <div className="flex-1 overflow-y-auto px-8 py-8 bg-[#FAFAFA]">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-[#0F172A] tracking-tight mb-2">Payment Moderation</h2>
-          <p className="text-[#64748B] text-sm font-medium">Verify eSewa screenshots and confirm property bookings.</p>
+          <h2 className="text-[22px] font-semibold text-[#171717] tracking-tight mb-1">Payment Moderation</h2>
+          <p className="text-[#737373] text-[13px]">Manual verification for clearing platform transactions.</p>
         </div>
-        <div className="flex gap-2 bg-white p-1 rounded-lg border border-[#E2E8F0]">
+        <div className="flex p-0.5 bg-white border border-[#E5E5E5] rounded-lg shadow-xs">
           {['pending', 'verified', 'rejected', 'all'].map(f => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-4 py-1.5 text-[11px] font-bold rounded-md transition-all capitalize ${filter === f ? 'bg-[#F1F5F9] text-[#2563EB]' : 'text-[#64748B]'}`}
+              className={`px-3.5 py-1.5 text-[11px] font-semibold rounded-md capitalize transition-all ${filter === f ? 'bg-[#FAFAFA] text-[#171717] border border-[#E5E5E5] shadow-xs' : 'text-[#737373] hover:text-[#171717]'}`}
             >
               {f}
             </button>
@@ -120,38 +109,42 @@ export const Payments = () => {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20 text-[#64748B] font-medium text-sm">
-          Fetching payment data...
+        <div className="py-20 flex flex-col items-center justify-center gap-3">
+          <div className="w-5 h-5 border-2 border-[#E5E5E5] border-t-[#171717] rounded-full animate-spin" />
+          <p className="text-[12px] text-[#A3A3A3] font-medium">Auditing ledger...</p>
         </div>
       ) : payments.length === 0 ? (
-        <div className="card-pro py-20 text-center">
-          <CreditCard size={48} className="mx-auto text-gray-200 mb-4" />
-          <p className="text-[#94A3B8] text-[13px] font-medium">No payments found in this category</p>
+        <div className="empty-state border border-dashed border-[#E5E5E5] rounded-xl">
+          <div className="empty-state-icon">
+            <CreditCard size={20} strokeWidth={1.5} />
+          </div>
+          <p className="empty-state-title">No transactions found</p>
+          <p className="empty-state-desc">All payments in this category have been processed or none exist.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-3">
           {payments.map((p) => (
-            <div key={p.id} className="card-pro p-6 flex items-center justify-between group hover:border-[#2563EB]/30 transition-all">
-              <div className="flex items-center gap-6">
-                <div className="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-[#2563EB]">
-                  <CreditCard size={20} />
+            <div key={p.id} className="card-minimal p-5 flex items-center justify-between group hover:border-[#A3A3A3] transition-all">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-lg bg-[#F5F5F5] flex items-center justify-center text-[#171717]">
+                  <CreditCard size={18} strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h4 className="text-[14px] font-bold text-[#0F172A]">{p.bookings?.properties?.title}</h4>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">{p.bookings?.guest?.full_name}</span>
-                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                    <span className="text-[11px] font-medium text-[#94A3B8]">{new Date(p.created_at).toLocaleString()}</span>
+                  <h4 className="text-[14px] font-semibold text-[#171717]">{p.bookings?.properties?.title || 'Unknown Asset'}</h4>
+                  <div className="flex items-center gap-2.5 mt-0.5">
+                    <span className="text-[11px] font-medium text-[#737373]">{p.bookings?.guest?.full_name || 'Anonymous'}</span>
+                    <span className="w-1 h-1 rounded-full bg-[#E5E5E5]"></span>
+                    <span className="text-[11px] text-[#A3A3A3]">{new Date(p.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-12">
+              <div className="flex items-center gap-10">
                 <div className="text-right">
-                  <p className="text-[18px] font-black text-[#0F172A]">Rs. {p.amount}</p>
-                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${
-                    p.status === 'verified' ? 'bg-green-50 text-green-600' :
-                    p.status === 'rejected' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'
+                  <p className="text-[15px] font-semibold text-[#171717]">NPR {p.amount.toLocaleString()}</p>
+                  <span className={`text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md border ${
+                    p.status === 'verified' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                    p.status === 'rejected' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-orange-50 text-orange-600 border-orange-100'
                   }`}>
                     {p.status}
                   </span>
@@ -159,9 +152,9 @@ export const Payments = () => {
                 
                 <button 
                   onClick={() => setSelectedPayment(p)}
-                  className="px-6 py-2.5 bg-[#0F172A] text-white rounded-lg text-[12px] font-bold hover:bg-black transition-all shadow-sm"
+                  className="h-9 px-5 bg-[#171717] text-white rounded-lg text-[12px] font-semibold hover:bg-[#0A0A0A] transition-all shadow-sm"
                 >
-                  Review
+                  Verify
                 </button>
               </div>
             </div>
@@ -170,128 +163,153 @@ export const Payments = () => {
       )}
 
       {/* Modal View */}
-      {selectedPayment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-8 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-5xl rounded-[2.5rem] overflow-hidden flex shadow-2xl h-[80vh]">
-            {/* Left: Screenshot */}
-            <div className="flex-1 bg-[#F8FAFC] p-8 flex items-center justify-center relative overflow-hidden">
-               <img 
-                 src={selectedPayment.proof_image_url} 
-                 alt="Proof" 
-                 className="max-w-full max-h-full object-contain rounded-2xl shadow-lg border border-white"
-               />
-               <a 
-                 href={selectedPayment.proof_image_url} 
-                 target="_blank" 
-                 rel="noreferrer"
-                 className="absolute top-8 right-8 p-3 bg-white/90 rounded-full text-gray-600 hover:text-black shadow-sm"
-               >
-                 <ExternalLink size={18} />
-               </a>
-            </div>
+      <AnimatePresence>
+        {selectedPayment && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-[#0A0A0A]/60 backdrop-blur-xs">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 10 }}
+              className="bg-white w-full max-w-5xl rounded-2xl overflow-hidden flex shadow-2xl h-[85vh] border border-[#E5E5E5]"
+            >
+              {/* Left: Screenshot */}
+              <div className="flex-1 bg-[#FAFAFA] p-10 flex items-center justify-center relative overflow-hidden border-r border-[#F5F5F5]">
+                 <img 
+                   src={selectedPayment.proof_image_url} 
+                   alt="Proof" 
+                   className="max-w-full max-h-full object-contain rounded-xl shadow-lg border border-[#E5E5E5]"
+                 />
+                 <a 
+                   href={selectedPayment.proof_image_url} 
+                   target="_blank" 
+                   rel="noreferrer"
+                   className="absolute top-6 right-6 p-2.5 bg-white/90 rounded-full text-[#737373] hover:text-[#171717] shadow-xs border border-[#E5E5E5] transition-colors"
+                 >
+                   <ExternalLink size={16} strokeWidth={1.5} />
+                 </a>
+              </div>
 
-            {/* Right: Info & Actions */}
-            <div className="w-[400px] border-l border-[#E2E8F0] p-12 flex flex-col justify-between">
-              <div>
-                <div className="mb-10">
-                  <span className="text-[11px] font-bold text-[#2563EB] uppercase tracking-widest mb-4 block">Transaction Detail</span>
-                  <h3 className="text-3xl font-bold text-[#0F172A] tracking-tight mb-2">{selectedPayment.bookings?.properties?.title}</h3>
-                  <p className="text-[#64748B] text-sm font-medium">Verified by Prakash (System Admin)</p>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-2">Guest Detail</span>
-                    <div className="flex justify-between items-center">
-                      <span className="text-[13px] font-semibold text-blue-900">Payer</span>
-                      <span className="text-[13px] font-bold text-blue-900">{selectedPayment.bookings?.guest?.full_name}</span>
-                    </div>
+              {/* Right: Info & Actions */}
+              <div className="w-[420px] p-10 flex flex-col justify-between overflow-y-auto">
+                <div>
+                  <div className="mb-10">
+                    <button 
+                      onClick={() => setSelectedPayment(null)}
+                      className="flex items-center gap-2 text-[11px] font-semibold text-[#A3A3A3] uppercase tracking-wider hover:text-[#171717] transition-colors mb-6"
+                    >
+                      <ArrowLeft size={14} strokeWidth={1.5} /> Back to Hub
+                    </button>
+                    <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest mb-2 block">Audit Context</span>
+                    <h3 className="text-[20px] font-semibold text-[#171717] tracking-tight leading-tight mb-1">{selectedPayment.bookings?.properties?.title || 'Unknown Booking'}</h3>
+                    <p className="text-[#737373] text-[13px]">Manual verification required</p>
                   </div>
 
-                  <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
-                    <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest block mb-3">Owner Payout Details</span>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-semibold text-orange-800">Owner</span>
-                        <span className="text-[11px] font-bold text-orange-900">{selectedPayment.bookings?.owner?.full_name}</span>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#E5E5E5]">
+                      <div className="flex items-center gap-2 mb-3">
+                        <User size={14} strokeWidth={1.5} className="text-[#A3A3A3]" />
+                        <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Payer</span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-semibold text-orange-800">eSewa</span>
-                        <span className="text-[11px] font-bold text-orange-900">{selectedPayment.bookings?.owner?.esewa_number || 'N/A'}</span>
+                      <p className="text-[14px] font-semibold text-[#171717]">{selectedPayment.bookings?.guest?.full_name || 'Guest User'}</p>
+                    </div>
+
+                    <div className="p-4 bg-[#FAFAFA] rounded-xl border border-[#E5E5E5]">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Building2 size={14} strokeWidth={1.5} className="text-[#A3A3A3]" />
+                        <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Beneficiary</span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-semibold text-orange-800">Khalti</span>
-                        <span className="text-[11px] font-bold text-orange-900">{selectedPayment.bookings?.owner?.khalti_number || 'N/A'}</span>
-                      </div>
-                      {selectedPayment.bookings?.owner?.qr_code_url && (
-                        <div className="mt-4 pt-4 border-t border-orange-100 flex flex-col items-center">
-                          <p className="text-[10px] font-bold text-orange-800 uppercase mb-2">Owner QR Code</p>
-                          <img 
-                            src={selectedPayment.bookings.owner.qr_code_url} 
-                            alt="Owner QR" 
-                            className="w-32 h-32 object-cover rounded-lg border border-orange-200"
-                          />
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[12px] text-[#737373]">Owner</span>
+                          <span className="text-[12px] font-semibold text-[#171717]">{selectedPayment.bookings?.owner?.full_name || 'N/A'}</span>
                         </div>
-                      )}
+                        <div className="flex justify-between items-center text-[12px]">
+                          <span className="text-[#737373]">Method</span>
+                          <span className="text-[#171717] font-medium">eSewa / Khalti</span>
+                        </div>
+                        
+                        {(selectedPayment.bookings?.owner?.esewa_number || selectedPayment.bookings?.owner?.khalti_number) && (
+                          <div className="pt-3 border-t border-[#E5E5E5] space-y-2">
+                             {selectedPayment.bookings?.owner?.esewa_number && (
+                               <div className="flex justify-between text-[11px]">
+                                 <span className="text-[#A3A3A3]">eSewa ID</span>
+                                 <span className="font-mono text-[#171717]">{selectedPayment.bookings.owner.esewa_number}</span>
+                               </div>
+                             )}
+                             {selectedPayment.bookings?.owner?.khalti_number && (
+                               <div className="flex justify-between text-[11px]">
+                                 <span className="text-[#A3A3A3]">Khalti ID</span>
+                                 <span className="font-mono text-[#171717]">{selectedPayment.bookings.owner.khalti_number}</span>
+                               </div>
+                             )}
+                          </div>
+                        )}
+                        
+                        {selectedPayment.bookings?.owner?.qr_code_url && (
+                          <div className="mt-4 pt-4 border-t border-[#E5E5E5]">
+                            <div className="flex items-center gap-2 mb-3">
+                              <QrCode size={14} strokeWidth={1.5} className="text-[#A3A3A3]" />
+                              <p className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">QR Code Receipt</p>
+                            </div>
+                            <img 
+                              src={selectedPayment.bookings.owner.qr_code_url} 
+                              alt="Owner QR" 
+                              className="w-full aspect-square object-cover rounded-lg border border-[#E5E5E5]"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center py-4 px-2">
+                      <span className="text-[13px] font-medium text-[#737373]">Payment Amount</span>
+                      <span className="text-[20px] font-semibold text-[#171717]">NPR {selectedPayment.amount.toLocaleString()}</span>
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center py-4 px-2">
-                    <span className="text-[13px] font-semibold text-[#64748B]">Total Amount</span>
-                    <span className="text-[20px] font-black text-[#0F172A]">Rs. {selectedPayment.amount}</span>
-                  </div>
+                  {selectedPayment.status === 'pending' && (
+                    <div className="mt-8">
+                      <label className="block text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest mb-2">Audit Notes (Optional)</label>
+                      <textarea 
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
+                        placeholder="e.g. Incomplete transfer, blurry capture..."
+                        className="w-full bg-[#FAFAFA] border border-[#E5E5E5] rounded-xl p-4 text-[13px] focus:outline-none focus:border-[#171717] transition-all resize-none h-24 placeholder:text-[#D4D4D4]"
+                      />
+                    </div>
+                  )}
                 </div>
 
-                {selectedPayment.status === 'pending' && (
-                  <div className="mt-12">
-                    <label className="block text-[11px] font-bold text-[#64748B] uppercase mb-3">Rejection Reason (if any)</label>
-                    <textarea 
-                      value={rejectReason}
-                      onChange={(e) => setRejectReason(e.target.value)}
-                      placeholder="e.g. Invalid amount, Blur screenshot..."
-                      className="w-full bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-4 text-sm focus:outline-none focus:border-[#2563EB] transition-all"
-                      rows={3}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {selectedPayment.status === 'pending' ? (
-                  <>
+                <div className="flex flex-col gap-2 pt-8 border-t border-[#F5F5F5] mt-10">
+                  {selectedPayment.status === 'pending' ? (
+                    <>
+                      <button 
+                        onClick={() => handleVerify(selectedPayment)}
+                        className="w-full h-11 bg-[#171717] text-white rounded-xl font-semibold text-[13px] hover:bg-[#0A0A0A] transition-all shadow-sm flex items-center justify-center gap-2"
+                      >
+                        <ShieldCheck size={16} strokeWidth={1.5} /> Clear Transaction
+                      </button>
+                      <button 
+                        onClick={() => handleReject(selectedPayment)}
+                        className="w-full h-11 bg-white text-rose-500 border border-rose-100 rounded-xl font-semibold text-[13px] hover:bg-rose-50 transition-all flex items-center justify-center gap-2"
+                      >
+                         Refuse Approval
+                      </button>
+                    </>
+                  ) : (
                     <button 
-                      onClick={() => handleVerify(selectedPayment)}
-                      className="w-full py-4 bg-[#2563EB] text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
+                      onClick={() => setSelectedPayment(null)}
+                      className="w-full h-11 bg-[#F5F5F5] text-[#525252] rounded-xl font-semibold text-[13px] hover:bg-[#E5E5E5] transition-all"
                     >
-                      Verify & Confirm Booking
+                      Close Review
                     </button>
-                    <button 
-                      onClick={() => handleReject(selectedPayment)}
-                      className="w-full py-4 bg-white text-red-600 border border-red-100 rounded-xl font-bold text-sm hover:bg-red-50 transition-all"
-                    >
-                      Reject Transaction
-                    </button>
-                  </>
-                ) : (
-                  <button 
-                    onClick={() => setSelectedPayment(null)}
-                    className="w-full py-4 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all"
-                  >
-                    Close Review
-                  </button>
-                )}
-                
-                <button 
-                  onClick={() => setSelectedPayment(null)}
-                  className="text-[11px] font-bold text-gray-400 hover:text-gray-600 transition-all mt-2"
-                >
-                  Cancel and go back
-                </button>
+                  )}
+                </div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

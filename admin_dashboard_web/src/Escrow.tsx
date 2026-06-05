@@ -9,7 +9,9 @@ import {
   Eye,
   Filter,
   ArrowRight,
-  Loader2
+  Loader2,
+  Lock,
+  ArrowUpRight
 } from 'lucide-react';
 
 export const Escrow = () => {
@@ -51,130 +53,136 @@ export const Escrow = () => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto px-12 py-12 bg-[#F8FAFC]">
-      <div className="flex items-center justify-between mb-10">
+    <div className="flex-1 overflow-y-auto px-8 py-8 bg-[#FAFAFA]">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-[#0F172A] tracking-tight mb-2">Escrow & Reconciliation</h2>
-          <p className="text-[#64748B] text-sm font-medium">Manage platform-held liquidity and process secured fund releases.</p>
+          <h2 className="text-[22px] font-semibold text-[#171717] tracking-tight mb-1">Escrow Treasury</h2>
+          <p className="text-[#737373] text-[13px]">Manage platform-held liquidity and security deposits.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="card-pro p-6">
-          <div className="flex items-center justify-between mb-4 text-[#2563EB]">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Total in Escrow</span>
-            <Building2 size={18} />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="card-minimal p-6 border-b-2 border-b-[#171717]">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">In Custody</span>
+            <Lock size={16} strokeWidth={1.5} className="text-[#A3A3A3]" />
           </div>
-          <p className="text-3xl font-black text-[#0F172A]">Rs. 4.52M</p>
-          <div className="flex items-center gap-2 mt-2 text-[#64748B] text-[12px] font-medium">
-            <Activity size={14} /> Active platform liquidity
+          <p className="text-[24px] font-semibold text-[#171717]">
+            NPR {loading ? '--' : escrowData.filter(d => d.status === 'verified').reduce((a,b) => a + (b.amount || 0), 0).toLocaleString()}
+          </p>
+          <div className="flex items-center gap-1.5 mt-2 text-[#A3A3A3] text-[11px] font-medium">
+            <Activity size={10} /> Internal platform liquidity active
           </div>
         </div>
 
-        <div className="card-pro p-6 border-orange-200 bg-orange-50/30">
-          <div className="flex items-center justify-between mb-4 text-[#EA580C]">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Action Required</span>
-            <HelpCircle size={18} />
+        <div className="card-minimal p-6">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Pending Audit</span>
+            <HelpCircle size={16} strokeWidth={1.5} className="text-[#A3A3A3]" />
           </div>
-          <p className="text-3xl font-black text-[#0F172A]">12 <span className="text-lg font-bold text-[#64748B]">Bookings</span></p>
-          <p className="text-[12px] font-medium text-[#64748B] mt-2">Disputes or audit requirements</p>
+          <p className="text-[24px] font-semibold text-[#171717]">
+            {loading ? '--' : escrowData.filter(d => d.status === 'rejected').length} <span className="text-[14px] font-medium text-[#A3A3A3]">Disputes</span>
+          </p>
+          <p className="text-[11px] text-[#A3A3A3] mt-1.5 flex items-center gap-1">
+             Actionable records found
+          </p>
         </div>
 
-        <div className="card-pro p-6">
-          <div className="flex items-center justify-between mb-4 text-[#059669]">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Daily Disbursement</span>
-            <ArrowRight size={18} className="text-[#059669]" />
+        <div className="card-minimal p-6">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest">Rolling Payouts</span>
+            <ArrowRight size={16} strokeWidth={1.5} className="text-[#A3A3A3]" />
           </div>
-          <p className="text-3xl font-black text-[#0F172A]">Rs. 850K</p>
-          <p className="text-[12px] font-medium text-[#64748B] mt-2">Rolling 24hr velocity</p>
+          <p className="text-[24px] font-semibold text-[#171717]">NPR 0</p>
+          <p className="text-[11px] text-[#A3A3A3] mt-1.5">No disbursements scheduled today</p>
         </div>
       </div>
 
-      <div className="card-pro overflow-hidden">
-        <div className="px-6 py-4 bg-white border-b border-[#E2E8F0] flex items-center justify-between">
-          <div className="flex items-center bg-[#F8FAFC] p-1 rounded-lg border border-[#E2E8F0]">
-            {['all', 'holding', 'releasing', 'disputed'].map(f => (
+      <div className="card-minimal overflow-hidden shadow-xs">
+        <div className="px-5 py-4 bg-white border-b border-[#E5E5E5] flex items-center justify-between">
+          <div className="flex items-center bg-[#F5F5F5] p-0.5 rounded-lg border border-[#E5E5E5]">
+            {['all', 'holding', 'disputed'].map(f => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-4 py-1.5 text-[11px] font-bold rounded-md capitalize transition-colors ${filter === f ? 'bg-white text-[#2563EB] shadow-sm border border-[#E2E8F0]' : 'text-[#64748B] hover:text-[#0F172A]'}`}
+                className={`px-3.5 py-1.5 text-[11px] font-semibold rounded-md capitalize transition-all ${filter === f ? 'bg-white text-[#171717] shadow-xs border border-[#E5E5E5]' : 'text-[#737373] hover:text-[#171717]'}`}
               >
                 {f}
               </button>
             ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 text-[12px] font-bold text-[#64748B] border border-[#E2E8F0] rounded-lg hover:bg-[#F8FAFC] transition-all">
-            <Filter size={14} /> View Audits
+          <button className="flex items-center gap-2 px-3.5 py-1.5 text-[12px] font-semibold text-[#525252] border border-[#E5E5E5] rounded-lg hover:bg-[#FAFAFA] transition-all shadow-xs">
+            <Filter size={14} strokeWidth={1.5} /> Audits
           </button>
         </div>
 
-        <div className="bg-white">
+        <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
+            <thead className="bg-[#FAFAFA] border-b border-[#E5E5E5] text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-wider">
               <tr>
-                <th className="py-4 px-6">Ledger ID</th>
-                <th className="py-4 px-6">Provider / Booking</th>
-                <th className="py-4 px-6">Payment Source</th>
-                <th className="py-4 px-6 text-right">Escrow Amount</th>
-                <th className="py-4 px-6 text-center">Status</th>
-                <th className="py-4 px-6 text-right">Action</th>
+                <th className="py-4 px-6">Ledger Entry</th>
+                <th className="py-4 px-6">Source / Booking</th>
+                <th className="py-4 px-6">Channel</th>
+                <th className="py-4 px-6 text-right">Balance</th>
+                <th className="py-4 px-6 text-center">Protocol</th>
+                <th className="py-4 px-6 text-right"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E2E8F0]">
+            <tbody className="divide-y divide-[#F5F5F5]">
               {loading ? (
                 <tr>
                   <td colSpan={6} className="py-20 text-center">
-                    <Loader2 className="animate-spin text-[#2563EB] mx-auto mb-4" size={32} />
-                    <p className="text-[#94A3B8] text-[12px] font-bold uppercase tracking-wider">Syncing Ledger</p>
+                    <Loader2 className="animate-spin text-[#171717] mx-auto mb-3" size={24} strokeWidth={1.5} />
+                    <p className="text-[#A3A3A3] text-[12px] font-medium uppercase tracking-widest">Syncing Treasury</p>
                   </td>
                 </tr>
               ) : escrowData.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-16 text-center text-[#64748B] text-sm font-medium">
-                    No matching records in the escrow ledger.
+                  <td colSpan={6} className="py-16 text-center">
+                    <p className="text-[#A3A3A3] text-[13px] font-medium">No active records in the escrow register.</p>
                   </td>
                 </tr>
               ) : (
                 escrowData.map(e => {
                   const uiStatus = e.status === 'verified' ? 'holding' : e.status === 'rejected' ? 'disputed' : 'processing';
                   return (
-                    <tr key={e.id} className="hover:bg-[#F8FAFC] transition-colors">
+                    <tr key={e.id} className="hover:bg-[#FAFAFA] transition-colors group">
                       <td className="py-4 px-6">
-                        <p className="text-[13px] font-bold text-[#0F172A] w-24 truncate" title={e.id}>{e.id.substring(0, 8)}...</p>
+                        <p className="text-[11px] font-mono font-medium text-[#171717] uppercase tracking-wider" title={e.id}>ENTRY_{e.id.substring(0, 8)}</p>
                       </td>
                       <td className="py-4 px-6">
-                        <p className="text-[13px] font-bold text-[#0F172A]">{e.bookings?.owner?.full_name || 'Owner'}</p>
-                        <p className="text-[11px] font-bold text-[#64748B] mt-0.5 w-24 truncate" title={e.booking_id}>{e.booking_id?.substring(0, 8)}...</p>
+                        <p className="text-[13px] font-semibold text-[#171717]">{e.bookings?.owner?.full_name || 'System Provider'}</p>
+                        <p className="text-[10px] font-mono text-[#A3A3A3] mt-0.5 tracking-tight border-l border-[#E5E5E5] pl-2">BK_{e.booking_id?.substring(0, 8)}</p>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="text-[12px] font-semibold text-[#475569] bg-[#F1F5F9] px-2.5 py-1 rounded-md border border-[#E2E8F0]">
-                          eSewa
+                        <span className="text-[10px] font-semibold text-[#737373] bg-[#F5F5F5] px-2 py-0.5 rounded border border-[#E5E5E5] uppercase tracking-wider">
+                          Internal
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <p className="text-[14px] font-black text-[#0F172A]">Rs. {e.amount}</p>
+                        <p className="text-[14px] font-semibold text-[#171717]">NPR {e.amount.toLocaleString()}</p>
                       </td>
                       <td className="py-4 px-6 text-center">
-                        <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                          uiStatus === 'holding' ? 'bg-[#F1F5F9] text-[#475569]' :
-                          uiStatus === 'processing' ? 'bg-[#ECFDF5] text-[#059669]' :
-                          'bg-[#FEF2F2] text-[#DC2626]'
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider border ${
+                          uiStatus === 'holding' ? 'bg-[#FAFAFA] text-[#737373] border-[#E5E5E5]' :
+                          uiStatus === 'processing' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                          'bg-rose-50 text-rose-600 border-rose-100'
                         }`}>
                           {uiStatus}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
                         {uiStatus === 'disputed' ? (
-                          <button className="text-[12px] font-bold text-white bg-red-600 hover:bg-red-700 px-4 py-1.5 rounded-md transition-colors flex items-center gap-2 ml-auto">
-                            <AlertOctagon size={14} /> Review
+                          <button className="h-8 px-3.5 bg-rose-500 text-white text-[11px] font-semibold rounded-lg hover:bg-rose-600 transition-all flex items-center justify-center gap-1.5 ml-auto shadow-sm">
+                            <AlertOctagon size={12} strokeWidth={1.5} /> Resolve
                           </button>
                         ) : uiStatus === 'holding' ? (
-                          <button className="text-[12px] font-bold text-[#2563EB] border border-[#2563EB] hover:bg-[#2563EB] hover:text-white px-4 py-1.5 rounded-md transition-colors flex items-center gap-2 ml-auto">
-                            <Unlock size={14} /> Release
+                          <button className="h-8 px-3.5 border border-[#E5E5E5] bg-white text-[#171717] text-[11px] font-semibold rounded-lg hover:bg-[#FAFAFA] transition-all flex items-center justify-center gap-1.5 ml-auto shadow-xs">
+                            <Unlock size={12} strokeWidth={1.5} /> Release
                           </button>
                         ) : (
-                          <button className="w-8 h-8 rounded-full bg-white border border-[#E2E8F0] flex items-center justify-center text-[#64748B] hover:text-[#0F172A] ml-auto">
-                            <Eye size={14} />
+                          <button className="w-8 h-8 rounded-lg bg-white border border-[#E5E5E5] flex items-center justify-center text-[#A3A3A3] hover:text-[#171717] opacity-0 group-hover:opacity-100 ml-auto transition-all shadow-xs">
+                            <Eye size={14} strokeWidth={1.5} />
                           </button>
                         )}
                       </td>

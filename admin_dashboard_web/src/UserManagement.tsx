@@ -34,7 +34,7 @@ export const UserManagement = () => {
   }, [search]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("CRITICAL: Permanently delete this user? This action cannot be undone.")) return;
+    if (!confirm("Are you sure you want to delete this profile? This action is permanent.")) return;
     
     setProcessingId(id);
     try {
@@ -52,12 +52,12 @@ export const UserManagement = () => {
   };
 
   const getStatusBadge = (user: any) => {
-    const isFullyVerified = user.phone_number && (user.kyc_status === 'verified' || user.kyc_status === 'pending');
+    const isFullyVerified = user.phone_number && (user.kyc_status === 'verified');
 
     if (isFullyVerified) {
       return (
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-green-100">
-          <UserCheck size={12} /> Verified
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-semibold border border-emerald-100">
+           Verified
         </div>
       );
     }
@@ -65,168 +65,153 @@ export const UserManagement = () => {
     switch (user.kyc_status) {
       case 'pending':
         return (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-amber-100">
-             Pending Review
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-orange-50 text-orange-600 rounded-full text-[10px] font-semibold border border-orange-100">
+             Reviewing
           </div>
         );
       case 'rejected':
         return (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 text-red-600 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-red-100">
-            <UserX size={12} /> Revoked
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-rose-50 text-rose-600 rounded-full text-[10px] font-semibold border border-rose-100">
+             Revoked
           </div>
         );
       default:
         return (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FBFBF9] text-[#666666] rounded-lg text-[10px] font-bold uppercase tracking-wider border border-[#E8E6E1]">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#F5F5F5] text-[#737373] rounded-full text-[10px] font-semibold border border-[#E5E5E5]">
             Standard
           </div>
         );
     }
   };
 
-  const verifiedUsers = users.filter(u => u.phone_number && (u.kyc_status === 'verified' || u.kyc_status === 'pending'));
-  const unverifiedUsers = users.filter(u => !(u.phone_number && (u.kyc_status === 'verified' || u.kyc_status === 'pending')));
+  const verifiedUsers = users.filter(u => u.kyc_status === 'verified');
+  const otherUsers = users.filter(u => u.kyc_status !== 'verified');
 
   const renderUserCard = (user: any) => (
     <motion.div 
       layout
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98 }}
       key={user.id}
-      className="card-pro p-6 bg-white flex flex-col group border border-[#E2E8F0] rounded-xl hover:border-[#2563EB]/20 transition-all"
+      className="card-minimal p-5 bg-white flex flex-col group"
     >
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center overflow-hidden">
+      <div className="flex items-start justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-[#FAFAFA] border border-[#E5E5E5] flex items-center justify-center overflow-hidden">
             {user.avatar_url ? (
               <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
             ) : (
-              <User size={24} className="text-[#94A3B8]" />
+              <User size={18} strokeWidth={1.5} className="text-[#A3A3A3]" />
             )}
           </div>
           <div>
-            <h3 className="text-sm font-bold text-[#0F172A]">{user.full_name || 'No Name'}</h3>
-            <p className="text-[11px] font-medium text-[#64748B]">{user.email || 'No Email'}</p>
+            <h3 className="text-[13px] font-semibold text-[#171717]">{user.full_name || 'Anonymous User'}</h3>
+            <p className="text-[11px] text-[#737373] truncate w-32" title={user.email}>{user.email || 'No email'}</p>
           </div>
         </div>
         {getStatusBadge(user)}
       </div>
 
-      <div className="space-y-3 mb-6 flex-1">
-        <div className="flex items-center gap-3 text-[#64748B]">
-          <Phone size={14} className="text-[#94A3B8]" />
-          <span className="text-[12px] font-medium">{user.phone_number || 'No Phone'}</span>
+      <div className="space-y-2.5 mb-5 flex-1">
+        <div className="flex items-center gap-2.5 text-[#737373]">
+          <Phone size={13} strokeWidth={1.5} className="text-[#A3A3A3]" />
+          <span className="text-[12px]">{user.phone_number || 'No contact'}</span>
         </div>
-        <div className="flex items-center gap-3 text-[#64748B]">
-          <Calendar size={14} className="text-[#94A3B8]" />
-          <span className="text-[12px] font-medium">Joined {new Date(user.created_at).toLocaleDateString()}</span>
+        <div className="flex items-center gap-2.5 text-[#737373]">
+          <Calendar size={13} strokeWidth={1.5} className="text-[#A3A3A3]" />
+          <span className="text-[12px]">Joined {new Date(user.created_at).toLocaleDateString()}</span>
         </div>
-        <div className="flex items-center gap-3 text-[#64748B]">
-          <Shield size={14} className="text-[#94A3B8]" />
-          <span className="text-[12px] font-medium capitalize">{user.is_owner ? 'Owner' : (user.role || 'User')}</span>
+        <div className="flex items-center gap-2.5 text-[#737373]">
+          <Shield size={13} strokeWidth={1.5} className="text-[#A3A3A3]" />
+          <span className="text-[12px] capitalize">{user.is_owner ? 'Service Provider' : (user.role || 'Member')}</span>
         </div>
       </div>
 
-      <div className="pt-4 border-t border-[#E2E8F0] flex gap-2">
+      <div className="pt-4 border-t border-[#F5F5F5]">
         <button 
           onClick={() => handleDelete(user.id)}
           disabled={processingId === user.id}
-          className="flex-1 h-9 bg-white border border-[#E2E8F0] text-[#EF4444] rounded-lg text-[11px] font-bold hover:bg-[#FEF2F2] hover:border-[#FCA5A5] transition-all flex items-center justify-center gap-2"
+          className="w-full h-9 bg-white border border-[#E5E5E5] text-rose-500 rounded-lg text-[11px] font-medium hover:bg-rose-50 hover:border-rose-100 transition-all flex items-center justify-center gap-2"
         >
-          {processingId === user.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />} Delete Profile
+          {processingId === user.id ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} strokeWidth={1.5} />} 
+          Remove Profile
         </button>
       </div>
     </motion.div>
   );
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#F8FAFC]">
-      <div className="max-w-[1400px] mx-auto px-12 py-12">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
-          <div>
-            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-2">User Directory</h2>
-            <p className="text-[#64748B] text-sm font-medium">Manage and audit platform user profiles.</p>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
-              <input 
-                type="text" 
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search users..." 
-                className="w-72 h-10 bg-white border border-[#E2E8F0] rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-[#2563EB] font-medium text-[12px] transition-all"
-              />
-            </div>
-            <button className="h-10 px-4 bg-white border border-[#E2E8F0] rounded-lg hover:bg-gray-50 flex items-center gap-2 text-[12px] font-bold text-[#475569] transition-all shadow-sm">
-              <Filter size={14} /> Filter
-            </button>
-          </div>
+    <div className="flex-1 overflow-y-auto px-8 py-8 bg-[#FAFAFA]">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6">
+        <div>
+          <h2 className="text-[22px] font-semibold text-[#171717] tracking-tight mb-1">User Directory</h2>
+          <p className="text-[#737373] text-[13px]">Manage and audit platform participants.</p>
         </div>
-
-        {loading ? (
-          <div className="col-span-full flex flex-col justify-center items-center py-40 gap-4">
-            <Loader2 className="animate-spin text-[#2563EB]" size={32} />
-            <p className="text-[#94A3B8] text-xs font-bold uppercase tracking-widest">Querying user database</p>
+        
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A3A3A3]" />
+            <input 
+              type="text" 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search directory..." 
+              className="w-64 h-9 bg-white border border-[#E5E5E5] rounded-lg py-2 pl-9 pr-3 focus:outline-none focus:border-[#A3A3A3] text-[13px] transition-colors"
+            />
           </div>
-        ) : (
-          <div className="space-y-16">
-            {verifiedUsers.length > 0 && (
-              <section>
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.6)]" />
-                  <h3 className="text-[11px] font-black text-[#0F172A] uppercase tracking-[0.2em]">Verified Hub ({verifiedUsers.length})</h3>
-                  <div className="flex-1 h-[1px] bg-gradient-to-r from-[#E2E8F0] to-transparent ml-4" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <AnimatePresence mode="popLayout">
-                    {verifiedUsers.map(renderUserCard)}
-                  </AnimatePresence>
-                </div>
-              </section>
-            )}
-
-            {unverifiedUsers.length > 0 && (
-              <section>
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-2 h-2 rounded-full bg-slate-300" />
-                  <h3 className="text-[11px] font-black text-[#64748B] uppercase tracking-[0.2em]">Standard Directory ({unverifiedUsers.length})</h3>
-                  <div className="flex-1 h-[1px] bg-gradient-to-r from-[#E2E8F0] to-transparent ml-4" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <AnimatePresence mode="popLayout">
-                    {unverifiedUsers.map(renderUserCard)}
-                  </AnimatePresence>
-                </div>
-              </section>
-            )}
-
-            {users.length === 0 && !loading && (
-              <div className="py-40 text-center">
-                <p className="text-[#94A3B8] text-[13px] font-medium">No users found matching your search</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="mt-12 p-8 bg-white border border-[#E2E8F0] rounded-xl flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="w-12 h-12 bg-[#F8FAFC] rounded-lg flex items-center justify-center border border-[#E2E8F0]">
-              <Shield size={24} className="text-[#2563EB]" />
-            </div>
-            <div>
-              <p className="text-lg font-bold text-[#0F172A] tracking-tight mb-1">User & Privacy Policy</p>
-              <p className="text-sm text-[#64748B] font-medium max-w-md">Deletions are permanent. Ensure you are following platform governance guidelines before removal.</p>
-            </div>
-          </div>
-
-          <button className="h-10 px-6 bg-[#F8FAFC] text-[#0F172A] border border-[#E2E8F0] rounded-lg font-bold text-[12px] hover:bg-white transition-all shadow-sm">
-             Review Governance
+          <button className="h-9 px-3 bg-white border border-[#E5E5E5] rounded-lg hover:bg-[#FAFAFA] flex items-center gap-2 text-[12px] font-medium text-[#525252] transition-colors shadow-xs">
+            <Filter size={14} strokeWidth={1.5} /> Filter
           </button>
         </div>
       </div>
+
+      {loading ? (
+        <div className="py-40 flex flex-col items-center justify-center gap-3">
+          <div className="w-5 h-5 border-2 border-[#E5E5E5] border-t-[#171717] rounded-full animate-spin" />
+          <p className="text-[12px] text-[#A3A3A3] font-medium">Syncing directory...</p>
+        </div>
+      ) : (
+        <div className="space-y-12">
+          {verifiedUsers.length > 0 && (
+            <section>
+              <div className="flex items-center gap-2 mb-6">
+                <span className="text-[11px] font-semibold text-[#171717] uppercase tracking-wider">Verified Identity</span>
+                <div className="flex-1 h-[1px] bg-[#F5F5F5]" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <AnimatePresence mode="popLayout">
+                  {verifiedUsers.map(renderUserCard)}
+                </AnimatePresence>
+              </div>
+            </section>
+          )}
+
+          {otherUsers.length > 0 && (
+            <section>
+              <div className="flex items-center gap-2 mb-6">
+                <span className="text-[11px] font-semibold text-[#A3A3A3] uppercase tracking-wider">Standard Access</span>
+                <div className="flex-1 h-[1px] bg-[#F5F5F5]" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <AnimatePresence mode="popLayout">
+                  {otherUsers.map(renderUserCard)}
+                </AnimatePresence>
+              </div>
+            </section>
+          )}
+
+          {users.length === 0 && (
+            <div className="empty-state border border-dashed border-[#E5E5E5] rounded-xl">
+               <div className="empty-state-icon">
+                <User size={20} strokeWidth={1.5} />
+              </div>
+              <p className="empty-state-title">No users found</p>
+              <p className="empty-state-desc">Try search terms or adjust filters to find the right profile.</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

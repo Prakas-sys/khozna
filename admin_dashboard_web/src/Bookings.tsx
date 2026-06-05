@@ -10,7 +10,8 @@ import {
   XCircle,
   Eye,
   Calendar,
-  Loader2
+  Loader2,
+  ArrowUpRight
 } from 'lucide-react';
 
 export const Bookings = () => {
@@ -49,109 +50,103 @@ export const Bookings = () => {
   };
 
   const getStatusIcon = (status: string) => {
-    if (status === 'confirmed') return <CheckCircle2 size={12} />;
-    if (status === 'cancelled') return <XCircle size={12} />;
-    return <Clock size={12} />;
+    if (status === 'confirmed') return <CheckCircle2 size={12} strokeWidth={1.5} />;
+    if (status === 'cancelled') return <XCircle size={12} strokeWidth={1.5} />;
+    return <Clock size={12} strokeWidth={1.5} />;
   };
 
   return (
-    <div className="flex-1 overflow-y-auto px-12 py-12 bg-[#F8FAFC]">
-      <div className="flex items-center justify-between mb-10">
+    <div className="flex-1 overflow-y-auto px-8 py-8 bg-[#FAFAFA]">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-[#0F172A] tracking-tight mb-2">Bookings Directory</h2>
-          <p className="text-[#64748B] text-sm font-medium">Manage and audit all platform property reservations across Nepal.</p>
-        </div>
-        <div className="flex gap-4">
-          <button className="px-6 py-2.5 bg-[#2563EB] text-white rounded-lg text-[13px] font-bold hover:bg-blue-700 transition-all shadow-sm flex items-center gap-2">
-            <Calendar size={16} />
-            Add Extranet Booking
-          </button>
+          <h2 className="text-[22px] font-semibold text-[#171717] tracking-tight mb-1">Bookings Hub</h2>
+          <p className="text-[#737373] text-[13px]">Manage and audit reservation records.</p>
         </div>
       </div>
 
-      <div className="card-pro overflow-hidden">
+      <div className="card-minimal overflow-hidden">
         {/* Toolbar */}
-        <div className="px-6 py-4 bg-white border-b border-[#E2E8F0] flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="px-5 py-4 bg-white border-b border-[#E5E5E5] flex items-center justify-between">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94A3B8]" />
+              <Search size={14} strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A3A3A3]" />
               <input 
                 type="text" 
-                placeholder="Search by ID or Guest..." 
-                className="pl-10 pr-4 py-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-[13px] font-medium outline-none focus:border-[#2563EB] w-64 transition-all"
+                placeholder="Search rentals..." 
+                className="pl-9 pr-3 py-[7px] bg-[#FAFAFA] border border-[#E5E5E5] rounded-lg text-[13px] font-medium outline-none focus:border-[#A3A3A3] w-64 transition-all"
               />
             </div>
-            <div className="flex items-center bg-[#F8FAFC] p-1 rounded-lg border border-[#E2E8F0]">
+            <div className="flex items-center bg-[#F5F5F5] p-0.5 rounded-lg border border-[#E5E5E5]">
               {['pending', 'confirmed', 'cancelled', 'all'].map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-4 py-1.5 text-[11px] font-bold rounded-md capitalize transition-colors ${filter === f ? 'bg-white text-[#2563EB] shadow-sm border border-[#E2E8F0]' : 'text-[#64748B] hover:text-[#0F172A]'}`}
+                  className={`px-3.5 py-1.5 text-[11px] font-semibold rounded-md capitalize transition-all ${filter === f ? 'bg-white text-[#171717] shadow-xs border border-[#E5E5E5]' : 'text-[#737373] hover:text-[#171717]'}`}
                 >
                   {f}
                 </button>
               ))}
             </div>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 text-[12px] font-bold text-[#64748B] border border-[#E2E8F0] rounded-lg hover:bg-[#F8FAFC] transition-all">
-            <Filter size={14} /> Filters
+          <button className="flex items-center gap-2 px-3 py-1.5 text-[12px] font-semibold text-[#525252] border border-[#E5E5E5] rounded-lg hover:bg-[#FAFAFA] transition-all shadow-xs">
+            <Filter size={14} strokeWidth={1.5} /> Advanced
           </button>
         </div>
 
         {/* Table */}
         <div className="bg-white">
           <table className="w-full text-left">
-            <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold text-[#64748B] uppercase tracking-wider">
+            <thead className="bg-[#FAFAFA] border-b border-[#E5E5E5] text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-wider">
               <tr>
-                <th className="py-4 px-6">Booking ID & Guest</th>
-                <th className="py-4 px-6">Property / Location</th>
-                <th className="py-4 px-6">Check In / Out</th>
+                <th className="py-4 px-6">Guest & UUID</th>
+                <th className="py-4 px-6">Property Context</th>
+                <th className="py-4 px-6">Duration</th>
                 <th className="py-4 px-6">Status</th>
-                <th className="py-4 px-6 text-right">Pricing</th>
-                <th className="py-4 px-6 text-center">Action</th>
+                <th className="py-4 px-6 text-right">Ledger Total</th>
+                <th className="py-4 px-6 text-center"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E2E8F0]">
+            <tbody className="divide-y divide-[#F5F5F5]">
               {bookings.map(b => (
-                <tr key={b.id} className="hover:bg-[#F8FAFC] transition-colors">
+                <tr key={b.id} className="hover:bg-[#FAFAFA] transition-colors group">
                   <td className="py-4 px-6">
-                    <p className="text-[14px] font-bold text-[#0F172A]">{b.guest?.full_name || 'Guest User'}</p>
-                    <p className="text-[12px] font-medium text-[#64748B] mt-1 pr-4 truncate w-32" title={b.id}>{b.id.substring(0, 8)}...</p>
+                    <p className="text-[13px] font-semibold text-[#171717]">{b.guest?.full_name || 'Anonymous'}</p>
+                    <p className="text-[11px] text-[#A3A3A3] mt-0.5 font-mono truncate w-24" title={b.id}>{b.id.substring(0, 8)}</p>
                   </td>
                   <td className="py-4 px-6">
-                    <p className="text-[13px] font-bold text-[#0F172A]">{b.properties?.title || 'Unknown Property'}</p>
-                    <div className="flex items-center gap-1 text-[11px] font-semibold text-[#64748B] mt-1">
-                      <MapPin size={12} /> {b.properties?.location || 'Nepal'}
+                    <p className="text-[13px] font-medium text-[#171717]">{b.properties?.title || 'Unknown Asset'}</p>
+                    <div className="flex items-center gap-1 text-[11px] text-[#A3A3A3] mt-0.5">
+                      <MapPin size={10} strokeWidth={1.5} /> {b.properties?.location || 'Digital Asset'}
                     </div>
                   </td>
                   <td className="py-4 px-6">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2 text-[12px] font-semibold text-[#0F172A]">
-                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                    <div className="flex flex-col gap-0.5">
+                      <div className="flex items-center gap-2 text-[12px] font-medium text-[#171717]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#171717]/10 border border-[#171717]/20"></span>
                         {new Date(b.check_in).toLocaleDateString()}
                       </div>
-                      <div className="flex items-center gap-2 text-[12px] font-semibold text-[#64748B]">
-                        <span className="w-2 h-2 rounded-full bg-red-400"></span>
+                      <div className="flex items-center gap-2 text-[11px] text-[#737373]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-400/20 border border-rose-400/30"></span>
                         {new Date(b.check_out).toLocaleDateString()}
                       </div>
                     </div>
                   </td>
                   <td className="py-4 px-6">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                      b.status === 'pending' || b.status === 'awaiting_payment' ? 'bg-blue-50 text-blue-700' :
-                      b.status === 'confirmed' ? 'bg-emerald-50 text-emerald-700' :
-                      'bg-red-50 text-red-700'
+                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider border ${
+                      b.status === 'pending' || b.status === 'awaiting_payment' ? 'bg-orange-50 text-orange-600 border-orange-100' :
+                      b.status === 'confirmed' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      'bg-rose-50 text-rose-600 border-rose-100'
                     }`}>
                       {getStatusIcon(b.status)}
                       {b.status.replace('_', ' ')}
                     </span>
                   </td>
                   <td className="py-4 px-6 text-right">
-                    <p className="text-[14px] font-black text-[#0F172A]">Rs. {b.total_price}</p>
+                    <p className="text-[14px] font-semibold text-[#171717]">NPR {b.total_price.toLocaleString()}</p>
                   </td>
                   <td className="py-4 px-6 text-center">
-                    <button className="w-8 h-8 rounded-full bg-white border border-[#E2E8F0] shadow-sm flex items-center justify-center text-[#64748B] hover:text-[#2563EB] hover:border-[#2563EB] transition-all mx-auto">
-                      <Eye size={16} />
+                    <button className="w-8 h-8 rounded-lg bg-white border border-[#E5E5E5] shadow-xs flex items-center justify-center text-[#A3A3A3] hover:text-[#171717] hover:border-[#A3A3A3] transition-all mx-auto opacity-0 group-hover:opacity-100">
+                      <ArrowUpRight size={14} strokeWidth={1.5} />
                     </button>
                   </td>
                 </tr>
@@ -160,16 +155,19 @@ export const Bookings = () => {
           </table>
           
           {loading && (
-            <div className="py-16 flex justify-center items-center">
-              <Loader2 className="animate-spin text-[#2563EB]" size={32} />
+            <div className="py-20 flex flex-col items-center justify-center gap-3">
+              <div className="w-5 h-5 border-2 border-[#E5E5E5] border-t-[#171717] rounded-full animate-spin" />
+              <p className="text-[12px] text-[#A3A3A3] font-medium">Fetching register...</p>
             </div>
           )}
 
           {!loading && bookings.length === 0 && (
-            <div className="py-16 text-center flex flex-col items-center">
-              <CalendarDays size={40} className="text-[#CBD5E1] mb-3" />
-              <p className="text-[13px] font-bold text-[#0F172A]">No bookings found</p>
-              <p className="text-[12px] text-[#64748B] mt-1">Try adjusting your filters or search query.</p>
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <CalendarDays size={20} strokeWidth={1.5} />
+              </div>
+              <p className="empty-state-title">No bookings found</p>
+              <p className="empty-state-desc">Try adjusting filters or search terms.</p>
             </div>
           )}
         </div>
