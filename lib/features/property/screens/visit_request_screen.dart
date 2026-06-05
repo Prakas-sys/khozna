@@ -306,7 +306,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                   setState(() => _selectedDate = date);
                 },
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 250),
                   width: 68,
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
@@ -973,7 +973,6 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                             strokeWidth: 2.5,
                           ),
                         )
-                      : Text(
                       : Text(
                           isLastStep ? 'Confirm Request' : 'Continue',
                           style: GoogleFonts.plusJakartaSans(
