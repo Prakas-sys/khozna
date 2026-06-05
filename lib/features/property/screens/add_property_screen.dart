@@ -94,7 +94,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final double _distanceFromLandmark = 0.0;
   final bool _isDistanceVerified = false;
   final bool _isAnalyzingLocation = false;
-  final bool _isAnalyzingLocation = false;
   final bool _isGeneratingVideoCaption = false;
   bool _showLocationNudge = false;
 
