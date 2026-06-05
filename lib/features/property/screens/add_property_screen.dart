@@ -434,15 +434,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         value: value,
                         strokeWidth: 3.5,
                         strokeCap: StrokeCap.round,
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.brandColor),
-                      ),
+                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF22C55E)),
                     ),
                   ),
                   Text(
                     '${_currentStep + 1}',
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.w900,
-                      color: AppTheme.brandColor,
+                      color: const Color(0xFF16A34A),
                       fontSize: 13,
                     ),
                   ),
@@ -454,67 +453,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(_totalSteps, (index) {
-                final bool isCompleted = index < _currentStep;
-                final bool isActive = index == _currentStep;
-                
-                return Expanded(
-                  child: Row(
-                    children: [
-                      // The Circle
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 400),
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: (isActive || isCompleted) ? AppTheme.brandColor : Colors.white,
-                          border: Border.all(
-                            color: (isActive || isCompleted) ? AppTheme.brandColor : Colors.grey[300]!,
-                            width: 2,
-                          ),
-                          boxShadow: isActive ? [
-                            BoxShadow(
-                              color: AppTheme.brandColor.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            )
-                          ] : null,
-                        ),
-                        child: Center(
-                          child: isCompleted
-                            ? const Icon(Icons.check, size: 14, color: Colors.white)
-                            : Text(
-                                '${index + 1}',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w900,
-                                  color: (isActive || isCompleted) ? Colors.white : Colors.grey[400],
-                                ),
-                              ),
-                        ),
-                      ),
-                      // Line to next circle
-                      if (index < _totalSteps - 1)
-                        Expanded(
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 400),
-                            height: 2.5,
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            decoration: BoxDecoration(
-                              color: isCompleted ? AppTheme.brandColor : Colors.grey[200],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              }),
+          // Sleek Progress Line
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: (_currentStep + 1) / _totalSteps),
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, _) => LinearProgressIndicator(
+              value: value,
+              backgroundColor: const Color(0xFF22C55E).withOpacity(0.05),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF22C55E)),
+              minHeight: 3.5,
             ),
           ),
           Expanded(
@@ -1259,7 +1207,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               border: Border.all(
                 color: AppTheme.brandColor.withOpacity(0.2),
                 width: 2,
-                style: BorderStyle.dashed,
+                style: BorderStyle.solid,
               ),
             ),
             child: Center(
