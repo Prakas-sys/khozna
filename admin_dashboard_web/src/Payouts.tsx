@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { 
-  Landmark, ArrowRight, Wallet, CheckCircle2, 
+  Landmark, Wallet, CheckCircle2, 
   AlertCircle, ChevronDown, Filter, FileText, 
   Send, XCircle, ArrowLeft, Building2, Loader2,
   TrendingUp, Circle

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { 
-  Building2, 
   HelpCircle,
   Activity,
   AlertOctagon,
@@ -10,8 +9,7 @@ import {
   Filter,
   ArrowRight,
   Loader2,
-  Lock,
-  ArrowUpRight
+  Lock
 } from 'lucide-react';
 
 export const Escrow = () => {

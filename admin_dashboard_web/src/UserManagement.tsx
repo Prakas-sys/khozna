@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from './lib/supabase';
-import { Search, Loader2, UserX, UserCheck, Trash2, Phone, Calendar, Shield, Filter, User } from 'lucide-react';
+import { Search, Loader2, Trash2, Phone, Calendar, Shield, Filter, User } from 'lucide-react';
 
 export const UserManagement = () => {
   const [users, setUsers] = useState<any[]>([]);

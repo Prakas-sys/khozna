@@ -8,9 +8,6 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  Eye,
-  Calendar,
-  Loader2,
   ArrowUpRight
 } from 'lucide-react';
 

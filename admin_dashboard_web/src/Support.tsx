@@ -8,10 +8,7 @@ import {
   CheckCircle2,
   X,
   Send,
-  CornerDownRight,
-  Loader2,
   Paperclip,
-  Activity,
   History
 } from 'lucide-react';
 

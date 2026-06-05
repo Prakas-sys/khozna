@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase';
-import { CreditCard, ExternalLink, ArrowLeft, Loader2, ShieldCheck, XCircle, User, Landmark, QrCode, Building2 } from 'lucide-react';
+import { CreditCard, ExternalLink, ArrowLeft, ShieldCheck, User, QrCode, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const Payments = () => {
