@@ -125,7 +125,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Host Profile',
+          'Owner Profile',
           style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
             fontWeight: FontWeight.w800,

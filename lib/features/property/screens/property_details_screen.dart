@@ -273,7 +273,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   child: TextButton.icon(
                     onPressed: () => _showReportDialog(),
                     icon: const Icon(
-                      Icons.report_gmailerrorred_rounded,
+                      Icons.flag_rounded,
                       color: Colors.grey,
                       size: 18,
                     ),
@@ -564,7 +564,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               widget.property.location,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 15,
-                color: const Color(0xFF64748B),
+                color: _airbnbGrey,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -577,7 +577,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             specs,
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: const Color(0xFF94A3B8),
+              color: _airbnbGrey,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -874,43 +874,64 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildLocationDetails() {
     if (widget.property.landmark.isEmpty) return const SizedBox.shrink();
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.assistant_navigation, color: Color(0xFF64748B), size: 18),
-                const SizedBox(width: 10),
-                Text(
-                  'प्राथमिक स्थान (Landmark): ',
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF64748B),
-                  ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00A3E1).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                Expanded(
-                  child: Text(
-                    widget.property.landmark,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black87,
+                child: const Icon(Icons.explore_rounded, 
+                  color: Color(0xFF00A3E1), 
+                  size: 20
+                ),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'प्राथमिक स्थान',
+                    style: GoogleFonts.notoSansDevanagari(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF64748B),
+                      letterSpacing: 0.5,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                  Text(
+                    'LANDMARK',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF94A3B8),
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            widget.property.landmark,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: Colors.black,
+              height: 1.2,
             ),
           ),
         ],
@@ -1172,7 +1193,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Host Profile & Reviews',
+                    'Owner Profile & Votes',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: Colors.grey[600],

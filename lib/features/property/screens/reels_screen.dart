@@ -186,7 +186,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(35),
-                          border: Border.all(color: Colors.white.withOpacity(0.1), width: 0.5),
+                          border: Border.all(color: Colors.white.withOpacity(0.25), width: 1.0),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -301,18 +301,20 @@ class _ReelsScreenState extends State<ReelsScreen> {
                 : _buildVideoPlaceholder(property),
           ),
 
-          // 2. BOTTOM SHADOW GRADIENT (For text readability)
+          // 2. BOTTOM SHADOW GRADIENT (For text readability) - Ignore pointer to allow swipes
           Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: const [0.6, 1.0],
-                  colors: [
-                    Colors.black.withOpacity(0),
-                    Colors.black.withOpacity(0.8),
-                  ],
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: const [0.6, 1.0],
+                    colors: [
+                      Colors.black.withOpacity(0),
+                      Colors.black.withOpacity(0.8),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -324,14 +326,14 @@ class _ReelsScreenState extends State<ReelsScreen> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 40), // Spacing from bottom
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12), // Spacing from bottom
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Owner Info Header
                   Padding(
-                    padding: const EdgeInsets.only(left: 4, bottom: 20),
+                    padding: const EdgeInsets.only(left: 4, bottom: 6),
                     child: Row(
                       children: [
                         Container(
@@ -612,11 +614,17 @@ class _ReelsScreenState extends State<ReelsScreen> {
     return _MultiImageCarousel(images: images, category: category);
   }
   Widget _buildVideoPlaceholder(Property property) {
-    return KhoznaVideoPlayer(
-      videoUrl: property.videoUrl,
-      thumbnailUrl: property.imageUrl,
-      loop: !isAutoScrollEnabled,
-      onVideoEnded: isAutoScrollEnabled ? _scrollToNext : null,
+    return Center(
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.60,
+        width: double.infinity,
+        child: KhoznaVideoPlayer(
+          videoUrl: property.videoUrl,
+          thumbnailUrl: property.imageUrl,
+          loop: !isAutoScrollEnabled,
+          onVideoEnded: isAutoScrollEnabled ? _scrollToNext : null,
+        ),
+      ),
     );
   }
 }
@@ -645,29 +653,41 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        PageView.builder(
-          controller: _carouselController,
-          itemCount: widget.images.length,
-          physics: const BouncingScrollPhysics(),
-          onPageChanged: (idx) => setState(() => _current = idx),
-          itemBuilder: (context, index) {
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                KhoznaImage(imageUrl: widget.images[index], fit: BoxFit.cover),
-                Positioned.fill(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                    child: Container(color: Colors.black.withOpacity(0.3)),
-                  ),
-                ),
-                KhoznaImage(
-                  imageUrl: widget.images[index], 
-                  fit: BoxFit.cover,
-                ),
-              ],
-            );
-          },
+        Center(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.60, // Medium height
+            child: PageView.builder(
+              controller: _carouselController,
+              itemCount: widget.images.length,
+              physics: const BouncingScrollPhysics(),
+              onPageChanged: (idx) => setState(() => _current = idx),
+              itemBuilder: (context, index) {
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    KhoznaImage(
+                      imageUrl: widget.images[index], 
+                      fit: BoxFit.cover,
+                    ),
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.1),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
         ),
         
         // Navigation Arrows for Carousel
