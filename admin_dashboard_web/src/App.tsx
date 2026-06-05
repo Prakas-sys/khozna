@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import {
-  LayoutDashboard, Users, UserCheck, ShieldAlert,
-  Settings, LogOut,
-  Search, Globe
-} from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck, ShieldAlert, Settings, LogOut, Search, Globe, CreditCard, Landmark, CalendarDays, Building2, HelpCircle, Map as MapIcon } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { KycReview } from './KycReview';
 import { UserManagement } from './UserManagement';
 import { Reports } from './Reports';
 import { Login } from './Login';
 import { Payments } from './Payments';
-import { CreditCard } from 'lucide-react';
+import { Payouts } from './Payouts';
+import { Settings as SettingsScreen } from './Settings';
+import { Bookings } from './Bookings';
+import { Escrow } from './Escrow';
+import { Support } from './Support';
+import { Journey } from './Journey';
 
 // ─── Minimalist Sidebar ──────────────────────────────────────────────────────────
 const Sidebar = ({ onLock }: { onLock: () => void }) => {
@@ -22,7 +23,12 @@ const Sidebar = ({ onLock }: { onLock: () => void }) => {
     { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={18} /> },
     { name: 'Verifications', path: '/kyc', icon: <UserCheck size={18} /> },
     { name: 'Users', path: '/users', icon: <Users size={18} /> },
+    { name: 'Bookings', path: '/bookings', icon: <CalendarDays size={18} /> },
     { name: 'Payments', path: '/payments', icon: <CreditCard size={18} /> },
+    { name: 'Payouts', path: '/payouts', icon: <Landmark size={18} /> },
+    { name: 'Escrow', path: '/escrow', icon: <Building2 size={18} /> },
+    { name: 'Support', path: '/support', icon: <HelpCircle size={18} /> },
+    { name: 'Journey', path: '/journey', icon: <MapIcon size={18} /> },
     { name: 'Safety', path: '/reports', icon: <ShieldAlert size={18} /> },
     { name: 'Settings', path: '/settings', icon: <Settings size={18} /> },
   ];
@@ -65,7 +71,16 @@ const Header = () => {
       case '/': return [{ name: 'Overview', path: '/', icon: <LayoutDashboard size={14} /> }];
       case '/kyc': return [{ name: 'Verifications', path: '/kyc' }];
       case '/users': return [{ name: 'Directory', path: '/users' }];
-      case '/payments': return [{ name: 'Moderation', path: '/payments' }];
+      case '/bookings': return [{ name: 'Bookings Directory', path: '/bookings' }];
+      case '/escrow': return [{ name: 'Escrow Ledgers', path: '/escrow' }];
+      case '/support': return [{ name: 'Support & Disputes', path: '/support' }];
+      case '/journey': return [{ name: 'User Journey', path: '/journey' }];
+      case '/payments':
+      case '/payouts': 
+        return [
+          { name: 'Moderation', path: '/payments' },
+          { name: 'Service Payouts', path: '/payouts' }
+        ];
       case '/reports': return [{ name: 'Safety', path: '/reports' }];
       default: return [{ name: 'Console', path: location.pathname }];
     }
@@ -228,19 +243,14 @@ const App = () => {
             <Route path="/" element={<DashboardHome />} />
             <Route path="/kyc" element={<KycReview />} />
             <Route path="/users" element={<UserManagement />} />
+            <Route path="/bookings" element={<Bookings />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/payments" element={<Payments />} />
-            <Route path="/settings" element={
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center max-w-sm">
-                  <div className="w-24 h-24 rounded-[3rem] bg-white border border-[#E8E6E1]/80 shadow-lg flex items-center justify-center mx-auto mb-8">
-                    <Settings size={36} className="text-[#2563EB]" />
-                  </div>
-                  <h2 className="text-[#1A1A1A] text-2xl font-black mb-3 tracking-tight">System Configuration</h2>
-                  <p className="text-[#666666] text-sm font-semibold leading-relaxed">Enterprise-level settings and global parameters are currently being updated.</p>
-                </div>
-              </div>
-            } />
+            <Route path="/payouts" element={<Payouts />} />
+            <Route path="/escrow" element={<Escrow />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/journey" element={<Journey />} />
+            <Route path="/settings" element={<SettingsScreen />} />
           </Routes>
         </div>
       </div>
