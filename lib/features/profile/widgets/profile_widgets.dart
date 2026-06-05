@@ -361,7 +361,7 @@ class PostPropertyCard extends StatelessWidget {
               right: -100,
               bottom: -130,
               child: Image.asset(
-                'assets/images/tiny house.png',
+                'assets/images/other image.png',
                 width: 386,
                 height: 386,
                 fit: BoxFit.contain,

@@ -550,7 +550,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           children: [
             CategoryCard(
               label: 'कोठा / Room',
-              imagePath: 'assets/images/single room (2).png',
+              imagePath: 'assets/images/Room New.png',
               value: 'Room',
               selectedValue: _selectedCategory,
               onSelect: (v) => setState(() => _selectedCategory = v),
@@ -578,9 +578,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             ),
             CategoryCard(
               label: 'अन्य / Other',
-              imagePath: 'assets/images/tiny house.png',
+              imagePath: 'assets/images/other image.png',
               value: 'Other',
-              imageScale: 1.8,
+              imageScale: 1.2, // Adjusted scale for new image
               selectedValue: _selectedCategory,
               onSelect: (v) => setState(() => _selectedCategory = v),
             ),
@@ -601,29 +601,30 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _buildStepLocation() {
     return StepLayout(
-      topWidget: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: AppTheme.brandColor.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.location_on_outlined, size: 14, color: AppTheme.brandColor),
-            const SizedBox(width: 4),
-            Text(
-              'स्थान जानकारी',
-              style: GoogleFonts.notoSansDevanagari(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.brandColor,
-              ),
+      title: 'स्थान छान्नुहोस्',
+      titleWidget: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Text(
+            'स्थान छान्नुहोस्',
+            style: GoogleFonts.notoSansDevanagari(
+              fontSize: 21,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF111827),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Location',
+            style: GoogleFonts.inter(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[400],
+            ),
+          ),
+        ],
       ),
-      title: 'सम्पत्तिको स्थान छान्नुहोस्',
       subtitle: 'सही लोकेसनले ग्राहकलाई तपाईंको कोठा भेटाउन सजिलो बनाउँछ।',
       content: [
         Container(
