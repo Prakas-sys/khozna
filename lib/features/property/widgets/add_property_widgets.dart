@@ -469,8 +469,8 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                         scale: widget.imageScale,
                         child: Image.asset(
                           widget.imagePath,
-                          height: 120,
-                          width: 120,
+                          height: 100,
+                          width: 100,
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -513,19 +513,7 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                     ],
                   ),
                 ),
-                if (isSelected)
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.brandColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.check_rounded, color: Colors.white, size: 14),
-                    ),
-                  ),
+
               ],
             ),
           ),

@@ -81,9 +81,13 @@ class ProfileHeader extends StatelessWidget {
                         ),
                         child: Container(
                           padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.grey.shade300,
+                              width: 1,
+                            ),
                           ),
                           child: CircleAvatar(
                             radius: 54,
@@ -361,7 +365,7 @@ class PostPropertyCard extends StatelessWidget {
               right: -100,
               bottom: -130,
               child: Image.asset(
-                'assets/images/other image.png',
+                'assets/images/tiny house.png',
                 width: 386,
                 height: 386,
                 fit: BoxFit.contain,

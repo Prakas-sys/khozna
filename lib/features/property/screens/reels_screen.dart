@@ -297,7 +297,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
           // 1. FULL SCREEN MEDIA BACKGROUND
           Positioned.fill(
             child: isImageView
-                ? _buildImageCarousel(allImages)
+                ? _buildImageCarousel(allImages, property.category)
                 : _buildVideoPlaceholder(property),
           ),
 
@@ -465,11 +465,15 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     const SizedBox(width: 4),
                                     Flexible(
                                       child: Text(
-                                        (property.priceMonth > 0 
-                                          ? PriceFormatter.format(property.priceMonth.toInt().toString()) 
-                                          : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? PriceFormatter.format(property.price) : 'Negotiable')),
+                                        PriceFormatter.format(
+                                          property.priceMonth > 0
+                                              ? property.priceMonth.toInt().toString()
+                                              : (property.priceNight > 0 
+                                                  ? property.priceNight.toInt().toString() 
+                                                  : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
+                                        ),
                                         style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 17,
+                                          fontSize: 19,
                                           fontWeight: FontWeight.w900,
                                           color: const Color(0xFF00A3DA),
                                         ),
@@ -478,7 +482,9 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      '/month',
+                                      property.priceMonth > 0
+                                          ? '/month'
+                                          : (property.priceNight > 0 ? '/night' : ''),
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -591,7 +597,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
     );
   }
 
-  Widget _buildImageCarousel(List<String> images) {
+  Widget _buildImageCarousel(List<String> images, String category) {
     if (images.isEmpty) {
       return Container(
         color: Colors.black,
@@ -599,7 +605,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
       );
     }
     
-    return _MultiImageCarousel(images: images);
+    return _MultiImageCarousel(images: images, category: category);
   }
   Widget _buildVideoPlaceholder(Property property) {
     return KhoznaVideoPlayer(
@@ -613,14 +619,22 @@ class _ReelsScreenState extends State<ReelsScreen> {
 
 class _MultiImageCarousel extends StatefulWidget {
   final List<String> images;
-  const _MultiImageCarousel({required this.images});
+  final String category;
+  const _MultiImageCarousel({required this.images, required this.category});
 
   @override
   State<_MultiImageCarousel> createState() => _MultiImageCarouselState();
 }
 
 class _MultiImageCarouselState extends State<_MultiImageCarousel> {
+  final PageController _carouselController = PageController();
   int _current = 0;
+
+  @override
+  void dispose() {
+    _carouselController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -628,7 +642,9 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
       fit: StackFit.expand,
       children: [
         PageView.builder(
+          controller: _carouselController,
           itemCount: widget.images.length,
+          physics: const BouncingScrollPhysics(),
           onPageChanged: (idx) => setState(() => _current = idx),
           itemBuilder: (context, index) {
             return Stack(
@@ -641,14 +657,66 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
                     child: Container(color: Colors.black.withOpacity(0.3)),
                   ),
                 ),
-                KhoznaImage(imageUrl: widget.images[index], fit: BoxFit.contain),
+                KhoznaImage(
+                  imageUrl: widget.images[index], 
+                  fit: (widget.category.toLowerCase() == 'room') ? BoxFit.cover : BoxFit.contain
+                ),
               ],
             );
           },
         ),
+        
+        // Navigation Arrows for Carousel
+        if (widget.images.length > 1) ...[
+          Positioned(
+            left: 8,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: IconButton(
+                onPressed: () {
+                  if (_current > 0) {
+                    _carouselController.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Colors.white.withOpacity(_current > 0 ? 0.7 : 0.2),
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 8,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: IconButton(
+                onPressed: () {
+                  if (_current < widget.images.length - 1) {
+                    _carouselController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
+                icon: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.white.withOpacity(_current < widget.images.length - 1 ? 0.7 : 0.2),
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ],
+
         if (widget.images.length > 1)
           Positioned(
-            bottom: 120,
+            bottom: 150, // Moved up to stay above the property info card
             left: 0,
             right: 0,
             child: Row(
