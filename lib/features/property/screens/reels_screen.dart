@@ -452,22 +452,27 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               ),
                               const SizedBox(height: 10), // Reduced from 12
                               Flexible(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/icons/vector of ruppes.svg',
-                                      width: 18,
-                                      height: 18,
-                                      colorFilter: const ColorFilter.mode(
-                                        Color(0xFF00A3DA),
-                                        BlendMode.srcIn,
+                                child: RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      WidgetSpan(
+                                        alignment: PlaceholderAlignment.middle,
+                                        child: Transform.translate(
+                                          offset: const Offset(0, 1.0), // Optical alignment shift
+                                          child: SvgPicture.asset(
+                                            'assets/icons/vector of ruppes.svg',
+                                            width: 17.5,
+                                            height: 17.5,
+                                            colorFilter: const ColorFilter.mode(
+                                              Color(0xFF00A3DA),
+                                              BlendMode.srcIn,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Flexible(
-                                      child: Text(
-                                        (() {
+                                      const WidgetSpan(child: SizedBox(width: 5)),
+                                      TextSpan(
+                                        text: (() {
                                           final val = PriceFormatter.format(
                                             property.priceMonth > 0
                                                 ? property.priceMonth.toInt().toString()
@@ -483,21 +488,20 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                           color: const Color(0xFF00A3DA),
                                           letterSpacing: -0.5,
                                         ),
-                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      property.priceMonth > 0
-                                          ? '/month'
-                                          : (property.priceNight > 0 ? '/night' : ''),
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white54,
+                                      const WidgetSpan(child: SizedBox(width: 4)),
+                                      TextSpan(
+                                        text: property.priceMonth > 0
+                                            ? '/month'
+                                            : (property.priceNight > 0 ? '/night' : ''),
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white54,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],

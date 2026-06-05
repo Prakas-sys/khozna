@@ -308,36 +308,40 @@ class PropertyCard extends StatelessWidget {
                               children: [
                                 WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
-                                  child: SvgPicture.asset(
-                                  'assets/icons/vector of ruppes.svg',
-                                  width: 17,
-                                  height: 17,
-                                  colorFilter: const ColorFilter.mode(
-                                    AppTheme.brandColor,
-                                    BlendMode.srcIn,
+                                  child: Transform.translate(
+                                    offset: const Offset(0, 1.0), // Perfectly nudge symbol to align with number center
+                                    child: SvgPicture.asset(
+                                      'assets/icons/vector of ruppes.svg',
+                                      width: 16.2,
+                                      height: 16.2,
+                                      colorFilter: const ColorFilter.mode(
+                                        AppTheme.brandColor,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              TextSpan(
-                                text: ' ', // Add space after SVG
-                              ),
-                              TextSpan(
-                                text: (() {
-                                  final val = PriceFormatter.format(
-                                    property.priceMonth > 0
-                                        ? property.priceMonth.toString()
-                                        : (property.priceNight > 0 
-                                            ? property.priceNight.toString() 
-                                            : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
-                                  );
-                                  return val;
-                                })(),
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.brandColor,
+                                const WidgetSpan(
+                                  child: SizedBox(width: 3), // Precise spacing
                                 ),
-                              ),
+                                TextSpan(
+                                  text: (() {
+                                    final val = PriceFormatter.format(
+                                      property.priceMonth > 0
+                                          ? property.priceMonth.toString()
+                                          : (property.priceNight > 0 
+                                              ? property.priceNight.toString() 
+                                              : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
+                                    );
+                                    return val;
+                                  })(),
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 18.2, // Slightly more prominent
+                                    fontWeight: FontWeight.w900, // Stronger weight for premium feel
+                                    color: AppTheme.brandColor,
+                                    letterSpacing: -0.2,
+                                  ),
+                                ),
                                 WidgetSpan(
                                   child: Transform.translate(
                                     offset: const Offset(
