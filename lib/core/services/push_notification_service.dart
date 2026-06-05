@@ -66,7 +66,7 @@ class PushNotificationService {
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    // 4. Get FCM Token
+    // 4. Get FCM Token & Subscribe to Broadcast Topic
     try {
       String? token = await _messaging.getToken();
       if (token != null) {
@@ -74,12 +74,16 @@ class PushNotificationService {
         await SupabaseService.saveDeviceToken(token);
       }
 
+      // Subscribe to a generic topic for broadcast campaigns
+      await _messaging.subscribeToTopic('all_users');
+      debugPrint('--- [PUSH] Subscribed to topic: all_users ---');
+
       // Listen to token refresh
       _messaging.onTokenRefresh.listen((newToken) {
         SupabaseService.saveDeviceToken(newToken);
       });
     } catch (e) {
-      debugPrint('--- [PUSH] Error getting token: $e ---');
+      debugPrint('--- [PUSH] Error during token/topic setup: $e ---');
     }
 
     // 5. Handle Foreground Messages
