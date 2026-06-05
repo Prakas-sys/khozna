@@ -546,7 +546,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           crossAxisCount: 2,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 0.95,
+          childAspectRatio: 0.85,
           children: [
             CategoryCard(
               label: 'कोठा / Room',

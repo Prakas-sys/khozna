@@ -469,8 +469,8 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                         scale: widget.imageScale,
                         child: Image.asset(
                           widget.imagePath,
-                          height: 100,
-                          width: 100,
+                          height: 120,
+                          width: 120,
                           fit: BoxFit.contain,
                         ),
                       ),
