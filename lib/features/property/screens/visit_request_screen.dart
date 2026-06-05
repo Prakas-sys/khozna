@@ -764,8 +764,8 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                         children: [
                           SvgPicture.asset(
                             'assets/icons/vector of ruppes.svg',
-                            width: 14,
-                            height: 14,
+                            width: 13,
+                            height: 13,
                             colorFilter: const ColorFilter.mode(
                               AppTheme.brandColor,
                               BlendMode.srcIn,
@@ -775,7 +775,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                           Text(
                             PriceFormatter.format(rentPrice),
                             style: GoogleFonts.inter(
-                              fontSize: 13.5,
+                              fontSize: 18,
                               color: AppTheme.brandColor,
                               fontWeight: FontWeight.bold,
                             ),
