@@ -601,42 +601,54 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
                     ),
                   ],
                   if (status == 'paid') ...[
+                    // Payment Proof Section
+                    _buildPaymentProofSection(booking),
+                    const SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
-                          child: OutlinedButton(
+                          child: OutlinedButton.icon(
                             onPressed: () =>
                                 _handleAction(booking['id'], 'reject_payment'),
+                            icon: const Icon(Icons.close_rounded, size: 16),
+                            label: Text(
+                              'अस्वीकार (Reject)',
+                              style: GoogleFonts.notoSansDevanagari(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                              ),
+                            ),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.red,
                               side: const BorderSide(color: Colors.red),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            child: const Text('Reject'),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: ElevatedButton(
+                          child: ElevatedButton.icon(
                             onPressed: () =>
                                 _handleAction(booking['id'], 'confirm_payment'),
+                            icon: const Icon(Icons.check_circle_rounded, size: 16),
+                            label: Text(
+                              'पक्का गर्नुहोस् (Confirm)',
+                              style: GoogleFonts.notoSansDevanagari(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF00C853),
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                               elevation: 0,
-                            ),
-                            child: Text(
-                              'Confirm',
-                              style: GoogleFonts.notoSansDevanagari(
-                                fontWeight: FontWeight.bold,
-                              ),
                             ),
                           ),
                         ),
@@ -721,6 +733,207 @@ class _OwnerBookingsScreenState extends State<OwnerBookingsScreen> {
           fontWeight: FontWeight.w800,
           color: color,
           letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentProofSection(Map<String, dynamic> booking) {
+    final payments = booking['payments'] as List<dynamic>?;
+    final payment = payments != null && payments.isNotEmpty
+        ? payments.first as Map<String, dynamic>
+        : null;
+    final String? proofUrl = payment?['proof_image_url'];
+    final String? refId = payment?['reference_id'];
+    final String method = (payment?['payment_method'] ?? 'esewa').toString().toLowerCase();
+    
+    final bool isEsewa = method.contains('esewa');
+    final String logoAsset = isEsewa ? 'assets/images/esewa.webp' : 'assets/images/khalti.png';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Image.asset(logoAsset, width: 22, height: 22),
+              const SizedBox(width: 10),
+              Text(
+                'Booking Receipt',
+                style: GoogleFonts.plusJakartaSans(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  color: Colors.black87,
+                ),
+              ),
+              const Spacer(),
+              if (refId != null && refId.isNotEmpty)
+                GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: refId));
+                    HapticFeedback.lightImpact();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('ID copied!'), duration: Duration(seconds: 1), behavior: SnackBarBehavior.floating),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.grey.shade100),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          'ID: $refId',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(Icons.copy_rounded, size: 10, color: Colors.grey[400]),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (proofUrl != null && proofUrl.isNotEmpty)
+            GestureDetector(
+              onTap: () => _showPaymentProofFullscreen(proofUrl),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Stack(
+                  children: [
+                    Image.network(
+                      proofUrl,
+                      width: double.infinity,
+                      height: 180,
+                      fit: BoxFit.cover,
+                    ),
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.3),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Positioned(
+                      bottom: 12,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.zoom_in_rounded, color: Colors.white, size: 14),
+                            SizedBox(width: 6),
+                            Text(
+                              'रसिद हेर्न ट्याप गर्नुहोस् (View Receipt)',
+                              style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            Container(
+              height: 60,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Text('Proof not available', style: TextStyle(color: Colors.grey[400], fontSize: 12)),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showPaymentProofFullscreen(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(12),
+        child: Stack(
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.contain,
+                    loadingBuilder: (ctx, child, progress) {
+                      if (progress == null) return child;
+                      return const SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: GestureDetector(
+                onTap: () => Navigator.pop(ctx),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

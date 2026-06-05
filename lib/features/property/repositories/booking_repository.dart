@@ -444,7 +444,7 @@ class BookingRepository {
     final response = await _client
         .from('bookings')
         .select(
-          '*, properties(title, area_name), guest:profiles!bookings_guest_id_fkey(full_name, avatar_url), payments(id, proof_image_url, reference_id)',
+          '*, properties(title, area_name), guest:profiles!bookings_guest_id_fkey(full_name, avatar_url), payments(id, proof_image_url, reference_id, payment_method, amount)',
         )
         .eq('owner_id', user.id)
         .order('created_at', ascending: false);

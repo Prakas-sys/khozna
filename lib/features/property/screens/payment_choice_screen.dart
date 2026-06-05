@@ -141,7 +141,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Confirm and Pay',
+          'Booking Payment',
           style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
             fontWeight: FontWeight.w800,

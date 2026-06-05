@@ -45,8 +45,32 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   // Payout State
   String _selectedPayoutMethod = 'esewa';
+  String _selectedBank = 'Nepal Bank Ltd.';
   final TextEditingController _payoutAccountController =
       TextEditingController();
+  File? _payoutQrImage;
+
+  final List<String> _nepaliBanks = [
+    'Nepal Bank Ltd.',
+    'Rastriya Banijya Bank',
+    'Nabil Bank',
+    'Investment Mega Bank',
+    'Standard Chartered Bank',
+    'Himalayan Bank',
+    'Nepal SBI Bank',
+    'Everest Bank',
+    'NIC Asia Bank',
+    'Machhapuchhre Bank',
+    'Kumari Bank',
+    'Laxmi Sunrise Bank',
+    'Siddhartha Bank',
+    'Global IME Bank',
+    'Citizens Bank International',
+    'Prime Commercial Bank',
+    'NMB Bank',
+    'Prabhu Bank',
+    'Sanima Bank',
+  ];
 
   // Location State
   bool _isLocating = false;
@@ -322,14 +346,37 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     setState(() => _isPublishing = true);
 
     try {
-      // Save payout details to profile
-      if (_selectedPayoutMethod == 'esewa') {
-        await Supabase.instance.client
-            .from('profiles')
-            .update({'esewa_number': _payoutAccountController.text.trim()})
-            .eq('id', user.id);
+      // 1. Upload Payout Screenshot if exists
+      String? qrUrl;
+      if (_payoutQrImage != null) {
+        final cloudinary = CloudinaryService();
+        qrUrl = await cloudinary.uploadImage(_payoutQrImage!.path);
       }
 
+      // 2. Update Profile with Payout Details
+      Map<String, dynamic> payoutUpdates = {
+        'selected_payout_method': _selectedPayoutMethod,
+      };
+
+      if (_selectedPayoutMethod == 'esewa') {
+        payoutUpdates['esewa_number'] = _payoutAccountController.text.trim();
+      } else if (_selectedPayoutMethod == 'khalti') {
+        payoutUpdates['khalti_number'] = _payoutAccountController.text.trim();
+      } else if (_selectedPayoutMethod == 'bank') {
+        payoutUpdates['bank_name'] = _selectedBank;
+        payoutUpdates['bank_account_number'] = _payoutAccountController.text.trim();
+      }
+      
+      if (qrUrl != null) {
+        payoutUpdates['qr_code_url'] = qrUrl;
+      }
+
+      await Supabase.instance.client
+          .from('profiles')
+          .update(payoutUpdates)
+          .eq('id', user.id);
+
+      // 3. Create Property
       await PropertyRepository.createProperty(
         title: _titleController.text,
         category: (_selectedCategory == 'Other' ? _otherCategoryController.text.trim() : _selectedCategory) ?? 'Room',
@@ -1631,7 +1678,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.brandColor.withOpacity(0.1) : Colors.white,
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
             width: isSelected ? 1.5 : 1,
@@ -1662,64 +1709,256 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildStepPayout() {
-    return StepLayout(
-      title: 'भुक्तानी प्राप्त गर्ने (Receiving Payouts)',
-      subtitle: 'आफूले पैसा प्राप्त गर्ने भुक्तानी पद्धति रोज्नुहोस्।',
-      content: [
-        const SizedBox(height: 40),
-
-        // ── Payout Section ────────────────────────────────────────────────
-        Text(
-          'तपाईं पैसा कसरी प्राप्त गर्न चाहनुहुन्छ?',
-          style: GoogleFonts.notoSansDevanagari(
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
-            color: const Color(0xFF111827),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Row(
+  void _showBankPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            _buildPayoutTypeSelector('eSewa', 'esewa', Icons.account_balance_wallet_rounded, const Color(0xFF60BB46)),
-            const SizedBox(width: 16),
-            _buildPayoutTypeSelector('Khalti', 'khalti', Icons.account_balance_wallet_rounded, const Color(0xFF5C2D91)),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Select Your Bank',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _nepaliBanks.length,
+                itemBuilder: (context, index) {
+                  final bank = _nepaliBanks[index];
+                  bool isSelected = _selectedBank == bank;
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                    title: Text(
+                      bank,
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                        color: isSelected ? AppTheme.brandColor : Colors.black87,
+                      ),
+                    ),
+                    trailing: isSelected 
+                      ? const Icon(Icons.check_circle_rounded, color: AppTheme.brandColor)
+                      : null,
+                    onTap: () {
+                      setState(() => _selectedBank = bank);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _pickPayoutImage() async {
+    final picker = ImagePicker();
+    try {
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+      if (image != null) {
+        HapticFeedback.mediumImpact();
+        setState(() {
+          _payoutQrImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+    }
+  }
+
+  Widget _buildStepPayout() {
+    return StepLayout(
+      title: 'भुक्तानी विवरण (Payout Details)',
+      subtitle: 'आफुले पैसा प्राप्त गर्ने भुक्तानी पद्धति रोज्नुहोस्।',
+      content: [
         const SizedBox(height: 24),
-        PropertyFormField(
-          label: '${_selectedPayoutMethod == 'esewa' ? 'eSewa' : 'Khalti'} नम्बर राख्नुहोस्',
-          hint: '98XXXXXXXX',
-          controller: _payoutAccountController,
-          isRequired: true,
-          keyboardType: TextInputType.phone,
-          prefixIcon: Icons.phone_android_rounded,
-        ),
-        const SizedBox(height: 40),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
+
+        // ── Payout Method Selection ──────────────────────────────────────────
+        PremiumFeatureCard(
+          icon: Icons.account_balance_wallet_rounded,
+          title: 'भुक्तानी पद्धति',
+          subtitle: 'Choose your preferred payout method',
+          accentColor: AppTheme.brandColor,
+          child: Column(
             children: [
-              const Icon(Icons.verified_outlined, color: Colors.green),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'सबै जानकारी सुरक्षित छ। तपाईंको विज्ञापन प्रमाणित भएपछि मात्र सार्वजनिक हुनेछ। (Your listing is secure and will be published after verification.)',
-                  style: GoogleFonts.notoSansDevanagari(
-                    color: Colors.green[800],
-                    fontSize: 14,
-                    height: 1.4,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              Row(
+                children: [
+                   _buildPayoutTypeSelector('eSewa', 'esewa', Icons.account_balance_wallet_rounded, const Color(0xFF60BB46), 'assets/images/esewa.webp'),
+                  const SizedBox(width: 8),
+                  _buildPayoutTypeSelector('Khalti', 'khalti', Icons.account_balance_wallet_rounded, const Color(0xFF5C2D91), 'assets/images/khalti.png'),
+                  const SizedBox(width: 8),
+                  _buildPayoutTypeSelector('Bank', 'bank', Icons.account_balance_rounded, Colors.blue),
+                ],
               ),
             ],
           ),
         ),
+        
+        const SizedBox(height: 24),
+
+        // ── Bank Name Selector (Only if Bank Method is chosen) ───────────────
+        if (_selectedPayoutMethod == 'bank') ...[
+          GestureDetector(
+            onTap: _showBankPicker,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.account_balance_rounded, color: Colors.blue, size: 20),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'बैंकको नाम (Bank Name)',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                        Text(
+                          _selectedBank,
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF111827),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey[400]),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+
+        // ── Account Number Input ─────────────────────────────────────────────
+        PropertyFormField(
+          label: _selectedPayoutMethod == 'bank' 
+            ? 'खाता वा फोन नम्बर (Account or Phone Number)'
+            : '${_selectedPayoutMethod == 'esewa' ? 'eSewa' : 'Khalti'} नम्बर (Number)',
+          hint: _selectedPayoutMethod == 'bank' 
+            ? 'Enter account or mobile number'
+            : 'Enter mobile number',
+          controller: _payoutAccountController,
+          isRequired: true,
+          keyboardType: TextInputType.text,
+          prefixIcon: _selectedPayoutMethod == 'bank' ? Icons.numbers_rounded : Icons.phone_android_rounded,
+        ),
+        
+        const SizedBox(height: 24),
+
+        // ── Screenshot Upload (User Request) ─────────────────────────────────
+        GestureDetector(
+          onTap: _pickPayoutImage,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: _payoutQrImage != null ? AppTheme.brandColor : Colors.grey.shade200,
+                width: 1.5,
+                style: _payoutQrImage != null ? BorderStyle.solid : BorderStyle.none,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 10,
+                )
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: _payoutQrImage != null ? AppTheme.brandColor.withOpacity(0.1) : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    _payoutQrImage != null ? Icons.check_circle_rounded : Icons.add_photo_alternate_rounded,
+                    color: _payoutQrImage != null ? AppTheme.brandColor : Colors.grey[500],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _payoutQrImage != null ? 'Screenshot Added' : 'Add Screenshot (Optional)',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Upload QR or Bank details screenshot',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (_payoutQrImage != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(_payoutQrImage!, width: 40, height: 40, fit: BoxFit.cover),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 48),
       ],
     );
   }
@@ -1739,34 +1978,38 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           setState(() => _selectedPayoutMethod = type);
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          duration: const Duration(milliseconds: 250),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
           decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.1) : Colors.white,
+            color: isSelected ? color.withOpacity(0.06) : Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isSelected ? color : Colors.grey[300]!,
+              color: isSelected ? color : Colors.grey[200]!,
               width: isSelected ? 2 : 1,
             ),
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               if (assetIcon != null)
                 Image.asset(
                   assetIcon,
-                  height: 24,
-                  width: 24,
+                  height: 20,
+                  width: 20,
                   fit: BoxFit.contain,
                 )
               else
-                Icon(icon, color: isSelected ? color : Colors.grey[500]),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                  color: isSelected ? color : Colors.grey[600],
+                Icon(icon, color: isSelected ? color : Colors.grey[500], size: 20),
+              const SizedBox(height: 6),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                    color: isSelected ? color : Colors.grey[600],
+                  ),
                 ),
               ),
             ],
@@ -1849,22 +2092,23 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   Widget _buildBottomBar() {
+    bool isLastStep = _currentStep == (_totalSteps - 1);
+    
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(
-            top: BorderSide(color: Colors.grey.shade100, width: 1),
-          ),
+          border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1)),
         ),
         child: Row(
           children: [
             if (_currentStep > 0)
-              SizedBox(
-                width: 100,
+              Expanded(
+                flex: 1,
                 child: OutlinedButton(
                   onPressed: () {
+                    HapticFeedback.lightImpact();
                     _pageController.previousPage(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
@@ -1872,18 +2116,18 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     setState(() => _currentStep--);
                   },
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                    foregroundColor: const Color(0xFF4B5563),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: BorderSide(color: Colors.grey.shade200),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(32),
                     ),
                   ),
                   child: Text(
                     'Back',
-                    style: GoogleFonts.inter(
-                      color: const Color(0xFF4B5563),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
                     ),
                   ),
                 ),
@@ -1891,57 +2135,48 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             if (_currentStep > 0) const SizedBox(width: 12),
             Expanded(
               flex: 2,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: ElevatedButton(
-                  onPressed: _currentStep == (_totalSteps - 1)
-                      ? (_isPublishing ? null : _nextStep)
-                      : () {
-                          HapticFeedback.lightImpact();
-                          _nextStep();
-                        },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: _currentStep == (_totalSteps - 1)
-                        ? Colors.green
-                        : AppTheme.brandColor,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+              child: ElevatedButton(
+                onPressed: isLastStep
+                    ? (_isPublishing ? null : _nextStep)
+                    : () {
+                        HapticFeedback.mediumImpact();
+                        _nextStep();
+                      },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
                   ),
-                  child: _isPublishing
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
-                          ),
-                        )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _currentStep == (_totalSteps - 1) ? 'Publish Now' : 'Next Step',
-                              style: GoogleFonts.inter(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 16,
-                                color: Colors.white,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Icon(
-                              _currentStep == (_totalSteps - 1) ? Icons.check_circle_outline_rounded : Icons.arrow_forward_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ],
-                        ),
                 ),
+                child: _isPublishing
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            isLastStep ? 'Publish' : 'Next',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            isLastStep ? Icons.check_circle_rounded : Icons.arrow_forward_ios_rounded,
+                            size: 18,
+                          ),
+                        ],
+                      ),
               ),
             ),
           ],
