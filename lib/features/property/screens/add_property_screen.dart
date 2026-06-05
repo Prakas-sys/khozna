@@ -1201,7 +1201,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        isGoalMet ? 'Photo goal met!' : 'Photos count: $photoCount/5',
+                        isGoalMet ? 'फोटो पुग्यो! ✓' : 'फोटो: $photoCount / ५',
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.w800,
                           fontSize: 15,
@@ -1262,16 +1262,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppTheme.brandColor.withOpacity(0.12),
-                            blurRadius: 15,
-                            offset: const Offset(0, 4),
-                          )
-                        ],
                       ),
                       child: const Icon(
                         Icons.add_photo_alternate_rounded,
@@ -1281,21 +1274,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Upload Photos',
+                      'फोटो अपलोड गर्नुहोस्',
                       style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
                         color: AppTheme.brandColor,
-                        letterSpacing: -0.5,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'तस्विरहरू छान्नुहोस्',
+                      'कम्तिमा ५ वटा फोटो राख्नुहोस्',
                       style: GoogleFonts.inter(
                         fontSize: 12,
-                        color: AppTheme.brandColor.withOpacity(0.6),
-                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -1312,7 +1304,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               const Icon(Icons.info_outline_rounded, color: Colors.grey, size: 16),
               const SizedBox(width: 8),
               Text(
-                'Drag and move photos to set the Cover image',
+                'फोटो थिचेर सार्नुहोस् — पहिलो फोटो मुख्य कभर हुनेछ',
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: Colors.grey[600],
@@ -1367,7 +1359,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                           ),
                           child: Center(
                             child: Text(
-                              'MAIN COVER',
+                              'मुख्य कभर',
                               style: GoogleFonts.inter(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
