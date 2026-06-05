@@ -167,9 +167,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const SizedBox(width: 48), // Balance for Menu icon
+                          // No longer needing balance SizedBox as we want to maximize space for toggle
                           ClipRRect(
                             borderRadius: BorderRadius.circular(30),
                             child: BackdropFilter(
@@ -260,35 +258,26 @@ class _ReelsScreenState extends State<ReelsScreen> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Reduced padding
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  )
-                ]
-              : [],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 20,
+              size: 18, // Slightly smaller icon
               color: isSelected ? Colors.black : Colors.white,
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Text(
               title,
               style: GoogleFonts.plusJakartaSans(
                 color: isSelected ? Colors.black : Colors.white,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                fontSize: 16,
+                fontSize: 14, // Slightly smaller font
               ),
             ),
           ],
@@ -455,37 +444,43 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'रु', // Nepali Rupee symbol
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w900,
-                                      color: const Color(0xFF00A3DA),
-                                      height: 1.2,
+                              Flexible(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      'रु', // Nepali Rupee symbol
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w900,
+                                        color: const Color(0xFF00A3DA),
+                                        height: 1.2,
+                                      ),
                                     ),
-                                  ),
-                                  Text(
-                                    (property.priceMonth > 0 ? property.priceMonth.toInt().toString() : 'Negotiable'),
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.w900,
-                                      color: const Color(0xFF00A3DA),
-                                      height: 1.0,
+                                    const SizedBox(width: 2),
+                                    Flexible(
+                                      child: Text(
+                                        (property.priceMonth > 0 ? property.priceMonth.toInt().toString() : 'Negotiable'),
+                                        style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w900,
+                                          color: const Color(0xFF00A3DA),
+                                          height: 1.0,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    '/month',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white54,
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '/month',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white54,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ],
                           ),
