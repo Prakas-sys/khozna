@@ -757,8 +757,30 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                     _buildSummaryDetailRow(
                       Icons.account_balance_wallet_outlined,
                       rentLabel,
-                      'रू ${PriceFormatter.format(rentPrice)}/-',
-                      valueColor: AppTheme.brandColor,
+                      '', // Empty string as we'll use trailing widget
+                      valueWidget: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/vector of ruppes.svg',
+                            width: 14,
+                            height: 14,
+                            colorFilter: const ColorFilter.mode(
+                              AppTheme.brandColor,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            PriceFormatter.format(rentPrice),
+                            style: GoogleFonts.inter(
+                              fontSize: 13.5,
+                              color: AppTheme.brandColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -879,7 +901,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     );
   }
 
-  Widget _buildSummaryDetailRow(IconData icon, String title, String value, {Color? valueColor}) {
+  Widget _buildSummaryDetailRow(IconData icon, String title, String value, {Color? valueColor, Widget? valueWidget}) {
     return Row(
       children: [
         Icon(icon, size: 18, color: Colors.grey[400]),
@@ -893,7 +915,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
           ),
         ),
         const Spacer(),
-        Text(
+        valueWidget ?? Text(
           value,
           style: GoogleFonts.inter(
             fontSize: 13.5,

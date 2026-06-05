@@ -1662,8 +1662,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     children: [
                       SvgPicture.asset(
                         'assets/icons/vector of ruppes.svg',
-                        width: 16,
-                        height: 16,
+                        width: 20,
+                        height: 20,
                         colorFilter: const ColorFilter.mode(
                           Colors.black,
                           BlendMode.srcIn,

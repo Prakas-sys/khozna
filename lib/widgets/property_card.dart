@@ -310,8 +310,8 @@ class PropertyCard extends StatelessWidget {
                                   alignment: PlaceholderAlignment.middle,
                                   child: SvgPicture.asset(
                                   'assets/icons/vector of ruppes.svg',
-                                  width: 13,
-                                  height: 13,
+                                  width: 17,
+                                  height: 17,
                                   colorFilter: const ColorFilter.mode(
                                     AppTheme.brandColor,
                                     BlendMode.srcIn,

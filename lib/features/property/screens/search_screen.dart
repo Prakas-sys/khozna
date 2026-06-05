@@ -544,15 +544,28 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                                     ),
                                                   ),
                                                   child: Center(
-                                                    child: Text(
-                                                      'रू ${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}/-',
-                                                      style:
-                                                          GoogleFonts.plusJakartaSans(
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        SvgPicture.asset(
+                                                          'assets/icons/vector of ruppes.svg',
+                                                          width: 10,
+                                                          height: 10,
+                                                          colorFilter: const ColorFilter.mode(
+                                                            Colors.black,
+                                                            BlendMode.srcIn,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 2),
+                                                        Text(
+                                                          '${(p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) > 999 ? '${((p.priceNight > 0 ? p.priceNight : (double.tryParse(p.price) ?? 0)) / 1000).toStringAsFixed(0)}K' : (p.priceNight > 0 ? p.priceNight.toInt().toString() : (double.tryParse(p.price)?.toInt().toString() ?? p.price))}',
+                                                          style: GoogleFonts.plusJakartaSans(
                                                             color: Colors.black,
-                                                            fontWeight:
-                                                                FontWeight.w800,
+                                                            fontWeight: FontWeight.w800,
                                                             fontSize: 11,
                                                           ),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
                                                 ),

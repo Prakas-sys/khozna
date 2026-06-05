@@ -455,12 +455,13 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text(
-                                      'रू ',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w900,
-                                        color: const Color(0xFF00A3DA),
+                                    SvgPicture.asset(
+                                      'assets/icons/vector of ruppes.svg',
+                                      width: 18,
+                                      height: 18,
+                                      colorFilter: const ColorFilter.mode(
+                                        Color(0xFF00A3DA),
+                                        BlendMode.srcIn,
                                       ),
                                     ),
                                     const SizedBox(width: 6),
@@ -474,7 +475,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                                     ? property.priceNight.toInt().toString() 
                                                     : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
                                           );
-                                          return val == 'Negotiable' ? val : '$val/-';
+                                          return val;
                                         })(),
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 19,
