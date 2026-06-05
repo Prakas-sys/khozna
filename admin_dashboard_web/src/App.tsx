@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Users, UserCheck, ShieldAlert, Settings, LogOut, Search, CreditCard, Landmark, CalendarDays, Building2, HelpCircle, Map as MapIcon, Package } from 'lucide-react';
 import { supabase } from './lib/supabase';
