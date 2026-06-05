@@ -25,12 +25,6 @@ import 'widgets/khozna_error_screen.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // We can let the OS handle the basic notification, or update badge count
-  try {
-    // Badge updates removed as flutter_app_badger is broken
-  } catch (e) {
-    debugPrint('Background badge error: $e');
-  }
   debugPrint('Background message received: ${message.messageId}');
 }
 
