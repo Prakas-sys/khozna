@@ -206,7 +206,7 @@ class PropertyRepository {
     required bool isNegotiable,
     required List<String> amenities,
     required List<String> houseRules,
-    List<File> images,
+    required List<File> images,
     required String description,
     double? latitude,
     double? longitude,
