@@ -612,7 +612,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
                 '$votesCount Votes',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
@@ -1131,7 +1130,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                       child: const Icon(
                         Icons.check_circle_rounded,
-                        color: Colors.blue,
+                        color: const Color(0xFF00C853), // Green as requested
                         size: 16,
                       ),
                     ),
@@ -1237,10 +1236,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             const SizedBox(width: 6),
             Text(
-              '${_reviews.length} ${_reviews.length == 1 ? "review" : "reviews"}',
-              style: GoogleFonts.inter(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+              '${_reviews.length} ${_reviews.length == 1 ? "Vote" : "Votes"}',
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
                 color: Colors.black,
                 decoration: TextDecoration.underline,
               ),
