@@ -701,8 +701,8 @@ class _MainScreenState extends State<MainScreen> {
                           // Premium red badge
                           if (badgeCount > 0)
                             Positioned(
-                              top: -2,
-                              right: -6,
+                              top: -8,
+                              right: -8,
                               child: Container(
                                 constraints: const BoxConstraints(
                                   minWidth: 16,
