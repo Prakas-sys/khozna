@@ -270,8 +270,8 @@ class _MainScreenState extends State<MainScreen> {
                     _buildNavItem(
                       0,
                       'assets/icons/Search vector.svg',
-                      24,
-                      24,
+                      26,
+                      26,
                       activeColor,
                       inactiveColor,
                       0,
@@ -552,7 +552,7 @@ class _MainScreenState extends State<MainScreen> {
                   child: Center(
                     child: SizedBox(
                       width: index == -1 ? 48 : width,
-                      height: index == 0 ? 24 : height,
+                      height: 26, // Constant height for all items to align labels
                       child: Stack(
                         clipBehavior: Clip.none,
                         alignment: Alignment.center,
@@ -561,11 +561,11 @@ class _MainScreenState extends State<MainScreen> {
                             minWidth: 0,
                             maxWidth: index == -1 ? 48 : width,
                             minHeight: 0,
-                            maxHeight: index == -1 ? 31 : (index == 0 ? 24 : height),
+                            maxHeight: index == -1 ? 31 : height,
                             child: SvgPicture.asset(
                               iconPath,
                               width: index == -1 ? 48 : width,
-                              height: index == -1 ? 31 : (index == 0 ? 24 : height),
+                              height: index == -1 ? 31 : height,
                               colorFilter: index == -1
                                   ? null
                                   : ColorFilter.mode(
