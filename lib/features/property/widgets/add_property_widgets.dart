@@ -679,6 +679,8 @@ class PropertyFormField extends StatelessWidget {
   final bool isRequired;
   final int maxLines;
   final IconData? prefixIcon;
+  final Widget? suffix;
+  final ValueChanged<String>? onChanged;
 
   const PropertyFormField({
     super.key,
@@ -690,6 +692,8 @@ class PropertyFormField extends StatelessWidget {
     this.isRequired = false,
     this.maxLines = 1,
     this.prefixIcon,
+    this.suffix,
+    this.onChanged,
   });
 
   @override
@@ -726,6 +730,7 @@ class PropertyFormField extends StatelessWidget {
           focusNode: focusNode,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          onChanged: onChanged,
           style: GoogleFonts.inter(
             fontSize: 15,
             fontWeight: FontWeight.w600,
@@ -743,6 +748,16 @@ class PropertyFormField extends StatelessWidget {
             prefixIcon: prefixIcon != null 
                 ? Icon(prefixIcon, size: 18, color: Colors.grey[400]) 
                 : null,
+            suffixIcon: suffix != null 
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: suffix,
+                  ) 
+                : null,
+            suffixIconConstraints: const BoxConstraints(
+              minWidth: 24,
+              minHeight: 24,
+            ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 18,
