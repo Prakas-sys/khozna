@@ -14,7 +14,10 @@ class ChatBanner extends StatelessWidget {
     return Container(
       height: 36,
       width: double.infinity,
-      color: const Color(0xFFFFEBEE),
+      decoration: BoxDecoration(
+        color: AppTheme.brandColor.withOpacity(0.05),
+        border: Border(bottom: BorderSide(color: AppTheme.brandColor.withOpacity(0.1))),
+      ),
       child: ListView(
         controller: controller,
         scrollDirection: Axis.horizontal,
@@ -24,31 +27,21 @@ class ChatBanner extends StatelessWidget {
             child: Row(
               children: [
                 const Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.red,
-                  size: 16,
+                  Icons.verified_user_rounded,
+                  color: AppTheme.brandColor,
+                  size: 14,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'अग्रिम पैसा कहिल्यै नपठाउनुहोस्! • Never send advance payment before visiting!',
-                  style: GoogleFonts.inter(
-                    color: Colors.red[800],
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
+                  'Your safety is our priority. Messaging is safe on Khozna • खोज्नमा तपाईंको सुरक्षा हाम्रो प्राथमिकता हो!',
+                  style: GoogleFonts.plusJakartaSans(
+                    color: AppTheme.brandColor,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 11,
+                    letterSpacing: 0.2,
                   ),
                 ),
-                const SizedBox(width: 60),
-                const Icon(Icons.shield_rounded, color: Colors.blue, size: 16),
-                const SizedBox(width: 8),
-                Text(
-                  'Use KHOZNA Safe Payment for 100% money protection. • खोज्न सुरक्षित भुक्तानी प्रयोग गर्नुहोस्!',
-                  style: GoogleFonts.inter(
-                    color: Colors.blue[800],
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(width: 200),
+                const SizedBox(width: 400), // Gap for the infinite scroll feel
               ],
             ),
           ),

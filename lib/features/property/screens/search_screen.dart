@@ -1141,7 +1141,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             style: GoogleFonts.plusJakartaSans(
                               color: AppTheme.brandColor,
                               fontWeight: FontWeight.w900,
-                              fontSize: 20,
+                              fontSize: 24,
                             ),
                           ),
                           SvgPicture.asset(
@@ -1159,7 +1159,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             style: GoogleFonts.inter(
                               color: AppTheme.brandColor,
                               fontWeight: FontWeight.w900,
-                              fontSize: 20,
+                              fontSize: 24,
                             ),
                           ),
                         ],

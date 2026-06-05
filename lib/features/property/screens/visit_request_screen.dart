@@ -967,7 +967,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             ],
             Expanded(
               child: SizedBox(
-                height: 48,
+                height: 54,
                 child: ElevatedButton(
                   onPressed: _isSubmitting
                       ? null
@@ -996,12 +996,15 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                             strokeWidth: 2.5,
                           ),
                         )
-                      : Text(
-                          isLastStep ? 'Confirm Request' : 'Continue',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                      : FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            isLastStep ? 'Confirm Request' : 'Continue',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
                 ),
