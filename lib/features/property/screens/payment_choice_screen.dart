@@ -14,6 +14,7 @@ import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/models/property_model.dart';
+import 'package:khozna/widgets/khozna_image.dart';
 
 class PaymentChoiceScreen extends StatefulWidget {
   final BookingModel? booking;
