@@ -265,11 +265,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   }),
                   const SizedBox(height: 12),
                 ],
-                const SizedBox(height: 32),
-                const Divider(height: 1, thickness: 0.5, color: Color(0xFFE2E8F0)),
-                const SizedBox(height: 24),
-                _buildReviewsSection(),
-                const SizedBox(height: 24),
+                if (_reviews.isNotEmpty) ...[
+                  _buildReviewsSection(),
+                  const SizedBox(height: 24),
+                ],
                 Center(
                   child: TextButton.icon(
                     onPressed: () => _showReportDialog(),
@@ -1204,49 +1203,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     if (_reviews.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.rate_review_outlined,
-                color: Colors.grey,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'No reviews yet',
-              style: GoogleFonts.plusJakartaSans(
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'अवलोकन गरेपछि पहिलो समीक्षा लेख्नुहोस्। (Be the first to leave a review after visiting!)',
-              style: GoogleFonts.mukta(
-                fontSize: 12,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      );
+      return const SizedBox.shrink();
     }
 
     final double avgRating = _reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length;

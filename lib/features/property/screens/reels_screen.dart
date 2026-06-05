@@ -189,24 +189,22 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    _buildSegmentButton(
-                                      title: 'Photos',
-                                      icon: Icons.image_rounded,
-                                      isSelected: isImageView,
-                                      onTap: () {
-                                        setState(() => isImageView = true);
-                                        if (_pageController.hasClients) _pageController.jumpToPage(0);
-                                      },
-                                    ),
-                                    _buildSegmentButton(
-                                      title: 'Videos',
-                                      icon: Icons.play_circle_fill,
-                                      isSelected: !isImageView,
-                                      onTap: () {
-                                        setState(() => isImageView = false);
-                                        if (_pageController.hasClients) _pageController.jumpToPage(0);
-                                      },
-                                    ),
+                                      _buildSegmentButton(
+                                        title: 'Photos',
+                                        icon: Icons.image_rounded,
+                                        isSelected: isImageView,
+                                        onTap: () {
+                                          setState(() => isImageView = true);
+                                        },
+                                      ),
+                                      _buildSegmentButton(
+                                        title: 'Videos',
+                                        icon: Icons.play_cycle_fill,
+                                        isSelected: !isImageView,
+                                        onTap: () {
+                                          setState(() => isImageView = false);
+                                        },
+                                      ),
                                   ],
                                 ),
                               ),
@@ -345,8 +343,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           child: ClipOval(
                             child: Image.asset(
                               'assets/images/KHOZNA_app_icon_512x512.png',
-                              width: 50,
-                              height: 50,
+                              width: 38, // Reduced from 50
+                              height: 38, // Reduced from 50
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -355,14 +353,24 @@ class _ReelsScreenState extends State<ReelsScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Khozna app',
-                              style: GoogleFonts.plusJakartaSans(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 20,
-                              ),
-                            ),
+                             Row(
+                               children: [
+                                 Text(
+                                   'Khozna app',
+                                   style: GoogleFonts.plusJakartaSans(
+                                     color: Colors.white,
+                                     fontWeight: FontWeight.w800,
+                                     fontSize: 16,
+                                   ),
+                                 ),
+                                 const SizedBox(width: 5),
+                                 const Icon(
+                                   Icons.verified_rounded,
+                                   color: Color(0xFF00A3DA),
+                                   size: 16,
+                                 ),
+                               ],
+                             ),
                             const SizedBox(height: 4),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -415,23 +423,23 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 style: GoogleFonts.plusJakartaSans(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 19, // Further reduced
+                                  fontSize: 18, // Reduced from 19
                                   height: 1.1,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6), // Reduced from 8
                               Row(
                                 children: [
-                                  const Icon(Icons.location_on_rounded, color: Color(0xFF00A3DA), size: 16),
+                                  const Icon(Icons.location_on_rounded, color: Color(0xFF00A3DA), size: 14), // Reduced from 16
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
                                       property.location,
                                       style: GoogleFonts.plusJakartaSans(
                                         color: Colors.white70,
-                                        fontSize: 14,
+                                        fontSize: 13, // Reduced from 14
                                         fontWeight: FontWeight.w500,
                                       ),
                                       maxLines: 1,
@@ -440,15 +448,15 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 10), // Reduced from 12
                               Flexible(
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     SvgPicture.asset(
                                       'assets/icons/vector of ruppes.svg',
-                                      width: 20,
-                                      height: 20,
+                                      width: 16, // Reduced from 20
+                                      height: 16, // Reduced from 20
                                       colorFilter: const ColorFilter.mode(
                                         Color(0xFF00A3DA),
                                         BlendMode.srcIn,
@@ -457,9 +465,11 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                     const SizedBox(width: 4),
                                     Flexible(
                                       child: Text(
-                                        (property.priceMonth > 0 ? property.priceMonth.toInt().toString() : 'Negotiable'),
+                                        (property.priceMonth > 0 
+                                          ? property.priceMonth.toInt().toString() 
+                                          : (property.price != '0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
                                         style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 22,
+                                          fontSize: 17, // Reduced from 20
                                           fontWeight: FontWeight.w900,
                                           color: const Color(0xFF00A3DA),
                                         ),
@@ -490,7 +500,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           children: [
                             _buildActionButton(
                               text: 'CHAT',
-                              icon: Icons.chat_bubble_outline_rounded,
+                              iconPath: 'assets/icons/Message neww.svg',
                               isPrimary: false,
                               onTap: () {
                                 // Chat navigation logic...
@@ -535,7 +545,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
 
   Widget _buildActionButton({
     required String text,
-    required IconData icon,
+    IconData? icon,
+    String? iconPath,
     required bool isPrimary,
     required VoidCallback onTap,
   }) {
@@ -553,13 +564,24 @@ class _ReelsScreenState extends State<ReelsScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: isPrimary ? Colors.white : const Color(0xFF00A3DA), size: 16),
+            if (iconPath != null)
+              SvgPicture.asset(
+                iconPath,
+                width: 14,
+                height: 14,
+                colorFilter: ColorFilter.mode(
+                  isPrimary ? Colors.white : const Color(0xFF00A3DA),
+                  BlendMode.srcIn,
+                ),
+              )
+            else
+              Icon(icon, color: isPrimary ? Colors.white : const Color(0xFF00A3DA), size: 14),
             const SizedBox(width: 6),
             Text(
               text,
               style: GoogleFonts.plusJakartaSans(
                 color: isPrimary ? Colors.white : const Color(0xFF00A3DA),
-                fontSize: 12,
+                fontSize: 11, // Reduced from 12
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -592,11 +614,26 @@ class _ReelsScreenState extends State<ReelsScreen> {
     return PageView.builder(
       itemCount: images.length,
       itemBuilder: (context, index) {
-        return KhoznaImage(
-          imageUrl: images[index],
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            // Blurred background
+            KhoznaImage(
+              imageUrl: images[index],
+              fit: BoxFit.cover,
+            ),
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(color: Colors.black.withOpacity(0.3)),
+              ),
+            ),
+            // Centered foreground (original aspect ratio)
+            KhoznaImage(
+              imageUrl: images[index],
+              fit: BoxFit.contain,
+            ),
+          ],
         );
       },
     );

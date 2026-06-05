@@ -323,9 +323,11 @@ class PropertyCard extends StatelessWidget {
                                 ),
                                 TextSpan(
                                   text: PriceFormatter.format(
-                                    property.priceNight > 0
-                                        ? property.priceNight.toString()
-                                        : price,
+                                    property.priceMonth > 0
+                                        ? property.priceMonth.toString()
+                                        : (property.priceNight > 0 
+                                            ? property.priceNight.toString() 
+                                            : (property.price != '0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
                                   ),
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18,
@@ -338,11 +340,11 @@ class PropertyCard extends StatelessWidget {
                                     offset: const Offset(
                                       1,
                                       -2.0,
-                                    ), // Compensated offset (was -2.5) to keep /night steady
+                                    ), // Compensated offset
                                     child: Text(
-                                      property.priceNight > 0
-                                          ? '/night'
-                                          : '/mo',
+                                      property.priceMonth > 0
+                                          ? '/mo'
+                                          : (property.priceNight > 0 ? '/night' : ''),
                                       style: GoogleFonts.inter(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
