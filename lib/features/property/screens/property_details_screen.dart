@@ -1193,7 +1193,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Owner Profile & Votes',
+                    'Profile',
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: Colors.grey[600],

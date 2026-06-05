@@ -361,7 +361,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                    'Khozna app',
                                    style: GoogleFonts.plusJakartaSans(
                                      color: Colors.white,
-                                     fontWeight: FontWeight.w800,
+                                     fontWeight: FontWeight.w700,
                                      fontSize: 16,
                                    ),
                                  ),

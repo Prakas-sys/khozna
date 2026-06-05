@@ -125,10 +125,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Owner Profile',
+          'Profile',
           style: GoogleFonts.plusJakartaSans(
             color: Colors.black,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w500,
             fontSize: 18,
             letterSpacing: -0.5,
           ),
@@ -213,7 +213,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             textAlign: TextAlign.center,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 18,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w500,
                               color: Colors.black,
                               height: 1.1,
                             ),
@@ -267,7 +267,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               'About ${widget.name}',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
               ),
             ),
@@ -316,7 +316,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               '${widget.name}\'s Confirmed Info',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 color: Colors.black,
               ),
             ),
@@ -373,7 +373,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       label: Text(
                         'Send Message',
                         style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           fontSize: 15,
                         ),
                       ),
