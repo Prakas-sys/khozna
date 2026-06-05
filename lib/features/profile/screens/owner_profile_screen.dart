@@ -725,7 +725,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           children: [
             Expanded(
               child: Text(
-                'पाहुनाहरूको भोट (Guest Votes)',
+                'पाहुनाहरूको सिफारिस (Guest Recommendations)',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
