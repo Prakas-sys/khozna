@@ -178,64 +178,19 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     return Container(
       width: double.infinity,
       color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(3, (index) {
-              final isCompleted = _currentStep > index;
-              final isCurrent = _currentStep == index;
-              return Row(
-                children: [
-                  Container(
-                    width: 26,
-                    height: 26,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isCompleted
-                          ? const Color(0xFF00C853)
-                          : (isCurrent ? AppTheme.brandColor : Colors.grey[200]),
-                    ),
-                    alignment: Alignment.center,
-                    child: isCompleted
-                        ? const Icon(Icons.check, color: Colors.white, size: 14)
-                        : Text(
-                            '${index + 1}',
-                            style: GoogleFonts.inter(
-                              color: isCurrent ? Colors.white : Colors.grey[600],
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _stepTitles[index].split(' · ').last,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: isCurrent || isCompleted
-                          ? FontWeight.bold
-                          : FontWeight.w500,
-                      color: isCurrent || isCompleted
-                          ? Colors.black87
-                          : Colors.grey[400],
-                    ),
-                  ),
-                  if (index < 2) ...[
-                    const SizedBox(width: 10),
-                    Container(
-                      width: 20,
-                      height: 1.5,
-                      color: _currentStep > index ? const Color(0xFF00C853) : Colors.grey[300],
-                    ),
-                    const SizedBox(width: 10),
-                  ],
-                ],
-              );
-            }),
+            children: [
+              _buildStepItem(0, 'Schedule'),
+              _buildStepDivider(0),
+              _buildStepItem(1, 'Guests'),
+              _buildStepDivider(1),
+              _buildStepItem(2, 'Review'),
+            ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
@@ -246,6 +201,57 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStepItem(int index, String label) {
+    final isCompleted = _currentStep > index;
+    final isCurrent = _currentStep == index;
+    
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isCompleted
+                ? const Color(0xFF00C853)
+                : (isCurrent ? AppTheme.brandColor : Colors.grey[200]),
+          ),
+          alignment: Alignment.center,
+          child: isCompleted
+              ? const Icon(Icons.check, color: Colors.white, size: 14)
+              : Text(
+                  '${index + 1}',
+                  style: GoogleFonts.inter(
+                    color: isCurrent ? Colors.white : Colors.grey[600],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                  ),
+                ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12,
+            fontWeight: isCurrent || isCompleted ? FontWeight.w800 : FontWeight.w600,
+            color: isCurrent || isCompleted ? Colors.black87 : Colors.grey[400],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStepDivider(int index) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        height: 1,
+        color: _currentStep > index ? const Color(0xFF00C853) : Colors.grey[200],
       ),
     );
   }

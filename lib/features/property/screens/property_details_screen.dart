@@ -541,18 +541,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final int votesCount = _reviews.length;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Title Section
-        Center(
-          child: Text(
-            widget.property.title,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 26,
-              fontWeight: FontWeight.w900,
-              color: Colors.black,
-              letterSpacing: -0.8,
-            ),
+        Text(
+          widget.property.title,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 26,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
+            letterSpacing: -0.8,
           ),
         ),
         const SizedBox(height: 8),
@@ -1615,8 +1614,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     
     final price = widget.property.priceMonth > 0
         ? widget.property.priceMonth
-        : double.tryParse(widget.property.price) ?? 0;
-    final unit = widget.property.priceMonth > 0 ? 'month' : 'night';
+        : (double.tryParse(widget.property.price) ?? 0);
+    final unit = widget.property.priceMonth > 0 || (double.tryParse(widget.property.price) ?? 0) > 0 
+        ? (widget.property.priceMonth > 0 ? 'month' : 'night') 
+        : 'month';
 
     return Container(
       padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
@@ -1649,25 +1650,21 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         padding: const EdgeInsets.only(top: 2), // Align with price
                         child: SvgPicture.asset(
                           'assets/icons/vector of ruppes.svg',
-                          width: 14,
-                          height: 14,
+                          width: 18,
+                          height: 18,
                           colorFilter: const ColorFilter.mode(
                             Colors.black,
                             BlendMode.srcIn,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 2),
-                      Flexible(
-                        child: Text(
-                          PriceFormatter.format(price.toString()),
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 20,
-                            color: Colors.black,
-                            letterSpacing: -0.5,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                      const SizedBox(width: 4),
+                      Text(
+                        PriceFormatter.format(price.toStringAsFixed(0)),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
                         ),
                       ),
                     ],

@@ -278,7 +278,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     _buildNavItem(
                       1,
-                      'assets/icons/Vector reel new okay.svg',
+                      'assets/icons/Vector reel.svg',
                       24,
                       24,
                       activeColor,

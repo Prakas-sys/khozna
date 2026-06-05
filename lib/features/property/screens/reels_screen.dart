@@ -167,7 +167,8 @@ class _ReelsScreenState extends State<ReelsScreen> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Row(
-                          // No longer needing balance SizedBox as we want to maximize space for toggle
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(30),
                             child: BackdropFilter(
@@ -292,42 +293,40 @@ class _ReelsScreenState extends State<ReelsScreen> {
         : (property.imageUrl.isNotEmpty ? [property.imageUrl] : []);
 
     return Container(
-      color: const Color(0xFF121212), // Deep dark background
+      color: Colors.black,
       child: Stack(
         children: [
-          // 1. MIDDLE MEDIA SECTION (Takes up top portion)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.64,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(40)),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
-                    ),
-                  ),
-                  child: isImageView
-                      ? _buildImageCarousel(allImages)
-                      : _buildVideoPlaceholder(property),
+          // 1. FULL SCREEN MEDIA BACKGROUND
+          Positioned.fill(
+            child: isImageView
+                ? _buildImageCarousel(allImages)
+                : _buildVideoPlaceholder(property),
+          ),
+
+          // 2. BOTTOM SHADOW GRADIENT (For text readability)
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: const [0.6, 1.0],
+                  colors: [
+                    Colors.black.withOpacity(0),
+                    Colors.black.withOpacity(0.8),
+                  ],
                 ),
               ),
             ),
           ),
 
-          // 2. CONTENT OVERLAY
+          // 3. CONTENT OVERLAY
           Positioned(
-            bottom: 20, // Distance from bottom navigation
+            bottom: 0,
             left: 0,
             right: 0,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 40), // Spacing from bottom
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -338,7 +337,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(2),
+                          padding: const EdgeInsets.all(2.5),
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -346,13 +345,13 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           child: ClipOval(
                             child: Image.asset(
                               'assets/images/KHOZNA_app_icon_512x512.png',
-                              width: 52,
-                              height: 52,
+                              width: 50,
+                              height: 50,
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 14),
+                        const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -361,22 +360,22 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               style: GoogleFonts.plusJakartaSans(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 22,
-                                letterSpacing: -0.2,
+                                fontSize: 20,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00A3DA).withOpacity(0.2),
+                                color: const Color(0xFF00A3DA).withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: const Color(0xFF00A3DA).withOpacity(0.5)),
                               ),
                               child: Text(
                                 property.category.toUpperCase(),
                                 style: GoogleFonts.inter(
-                                  color: const Color(0xFF00A3DA),
-                                  fontSize: 11,
+                                  color: Colors.white,
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w900,
                                 ),
                               ),
@@ -390,21 +389,20 @@ class _ReelsScreenState extends State<ReelsScreen> {
                   // Property Info Glass Card
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2A2A2A), // Matching screenshot grey
-                      borderRadius: BorderRadius.circular(45),
-                      border: Border.all(color: Colors.white.withOpacity(0.12), width: 1.5),
+                      color: const Color(0xFF2A2A2A).withOpacity(0.92),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: Colors.white.withOpacity(0.12)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
+                          color: Colors.black.withOpacity(0.4),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // Left: Property Text Info
                         Expanded(
@@ -417,24 +415,23 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                 style: GoogleFonts.plusJakartaSans(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 26,
-                                  letterSpacing: -0.5,
+                                  fontSize: 19, // Further reduced
                                   height: 1.1,
                                 ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                               Row(
                                 children: [
-                                  const Icon(Icons.location_on_rounded, color: Color(0xFF00A3DA), size: 18),
-                                  const SizedBox(width: 6),
+                                  const Icon(Icons.location_on_rounded, color: Color(0xFF00A3DA), size: 16),
+                                  const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
                                       property.location,
                                       style: GoogleFonts.plusJakartaSans(
                                         color: Colors.white70,
-                                        fontSize: 15,
+                                        fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                       ),
                                       maxLines: 1,
@@ -443,29 +440,28 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                               Flexible(
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text(
-                                      'रु', // Nepali Rupee symbol
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w900,
-                                        color: const Color(0xFF00A3DA),
-                                        height: 1.2,
+                                    SvgPicture.asset(
+                                      'assets/icons/vector of ruppes.svg',
+                                      width: 20,
+                                      height: 20,
+                                      colorFilter: const ColorFilter.mode(
+                                        Color(0xFF00A3DA),
+                                        BlendMode.srcIn,
                                       ),
                                     ),
-                                    const SizedBox(width: 2),
+                                    const SizedBox(width: 4),
                                     Flexible(
                                       child: Text(
                                         (property.priceMonth > 0 ? property.priceMonth.toInt().toString() : 'Negotiable'),
                                         style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 24,
+                                          fontSize: 22,
                                           fontWeight: FontWeight.w900,
                                           color: const Color(0xFF00A3DA),
-                                          height: 1.0,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -486,16 +482,18 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           ),
                         ),
                         
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
 
                         // Right: Vertical Action Buttons
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // CHAT BUTTON
-                            GestureDetector(
+                            _buildActionButton(
+                              text: 'CHAT',
+                              icon: Icons.chat_bubble_outline_rounded,
+                              isPrimary: false,
                               onTap: () {
-                                HapticFeedback.mediumImpact();
+                                // Chat navigation logic...
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -508,61 +506,18 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                   ),
                                 );
                               },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(22),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF00A3DA), size: 18),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'CHAT',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: const Color(0xFF00A3DA),
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ),
-                            const SizedBox(height: 14),
-                            // VISIT BUTTON
-                            GestureDetector(
+                            const SizedBox(height: 12),
+                            _buildActionButton(
+                              text: 'VISIT',
+                              icon: Icons.directions_run_rounded,
+                              isPrimary: true,
                               onTap: () {
-                                HapticFeedback.lightImpact();
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property)),
                                 );
                               },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF00A3DA),
-                                  borderRadius: BorderRadius.circular(22),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.directions_run_rounded, color: Colors.white, size: 18),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'VISIT',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w900,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ),
                           ],
                         ),
@@ -574,6 +529,42 @@ class _ReelsScreenState extends State<ReelsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required String text,
+    required IconData icon,
+    required bool isPrimary,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isPrimary ? const Color(0xFF00A3DA) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: isPrimary ? Colors.white : const Color(0xFF00A3DA), size: 16),
+            const SizedBox(width: 6),
+            Text(
+              text,
+              style: GoogleFonts.plusJakartaSans(
+                color: isPrimary ? Colors.white : const Color(0xFF00A3DA),
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
