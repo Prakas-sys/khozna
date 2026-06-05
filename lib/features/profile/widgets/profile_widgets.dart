@@ -393,7 +393,7 @@ class PostPropertyCard extends StatelessWidget {
                       height: 1.1,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 28),
                   GestureDetector(
                     onTap: onPost,
                     child: Container(
