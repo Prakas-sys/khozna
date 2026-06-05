@@ -14,13 +14,15 @@ import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PaymentChoiceScreen extends StatefulWidget {
-  final BookingModel booking;
-  final String propertyTitle;
+  final BookingModel? booking;
+  final String? propertyTitle;
+  final Property? property;
 
   const PaymentChoiceScreen({
     super.key,
-    required this.booking,
-    required this.propertyTitle,
+    this.booking,
+    this.propertyTitle,
+    this.property,
   });
 
   @override
@@ -36,6 +38,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   String _selectedMethod = 'khozna_esewa'; 
   UserModel? _ownerProfile;
   File? _proofImage;
+  late BookingModel _currentBooking;
+  late String _currentTitle;
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -58,13 +62,41 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeData();
     _loadOwnerPaymentDetails();
+  }
+
+  void _initializeData() {
+    if (widget.booking != null) {
+      _currentBooking = widget.booking!;
+      _currentTitle = widget.propertyTitle ?? 'Property';
+    } else if (widget.property != null) {
+      final p = widget.property!;
+      _currentTitle = p.title;
+      // Calculate draft price (1 month if month price exists, else full price)
+      double price = p.priceMonth > 0 ? p.priceMonth : (double.tryParse(p.price) ?? 0);
+      
+      _currentBooking = BookingModel(
+        id: 'draft_${p.id}',
+        propertyId: p.id,
+        guestId: Supabase.instance.client.auth.currentUser?.id ?? '',
+        ownerId: p.ownerId,
+        checkIn: DateTime.now(),
+        checkOut: DateTime.now().add(const Duration(days: 30)),
+        totalPrice: price,
+        khoznaFee: price * 0.05, // 5% fee estimation
+        status: 'pending_approval',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        propertyTitle: p.title,
+      );
+    }
   }
 
   Future<void> _loadOwnerPaymentDetails() async {
     try {
       final profile = await SupabaseService.getUserProfile(
-        widget.booking.ownerId,
+        _currentBooking.ownerId,
       );
       if (mounted) {
         setState(() {
@@ -123,10 +155,10 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           children: [
             _buildTripSummaryCard(),
             const SizedBox(height: 24),
-            _buildSafetyWarning(),
+            _buildSafetyGuarantee(),
             const SizedBox(height: 28),
             Text(
-              'Pay With',
+              'Select Payment Method',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
@@ -148,7 +180,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   }
 
   Widget _buildTripSummaryCard() {
-    final checkInStr = DateFormat('EEE, MMM d, yyyy').format(widget.booking.checkIn);
+    final checkInStr = DateFormat('EEE, MMM d, yyyy').format(_currentBooking.checkIn);
         
     return Container(
       width: double.infinity,
@@ -186,7 +218,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        widget.propertyTitle,
+                        _currentTitle,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -247,7 +279,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                         ),
                       ),
                       TextSpan(
-                        text: PriceFormatter.format(widget.booking.totalPrice.toString()),
+                        text: PriceFormatter.format(_currentBooking.totalPrice.toString()),
                         style: GoogleFonts.outfit(
                           fontSize: 24,
                           fontWeight: FontWeight.w900,
@@ -738,57 +770,121 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  Widget _buildSafetyWarning() {
+  Widget _buildSafetyGuarantee() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFECACA), width: 1.2),
+        gradient: LinearGradient(
+          colors: [AppTheme.brandColor.withOpacity(0.08), Colors.blue.withOpacity(0.01)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppTheme.brandColor.withOpacity(0.15), width: 1.5),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: const BoxDecoration(
-              color: Color(0xFFFEE2E2),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.shield_outlined,
-              color: Color(0xFFDC2626),
-              size: 18,
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppTheme.brandColor,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Khozna Safety Guarantee',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      'Your payment is 100% protected',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Khozna Safety Guidelines',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF991B1B),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Send payments only after a successful viewing. कोठा हेरेर पक्का भएपछि मात्र पैसा पठाउनुहोला।',
-                  style: GoogleFonts.notoSansDevanagari(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: const Color(0xFF991B1B),
-                    height: 1.4,
-                  ),
-                ),
-              ],
+          const SizedBox(height: 16),
+          _buildGuaranteeItem(
+            Icons.lock_clock_rounded,
+            'Escrow Security',
+            'We hold your money safely and only pay the landlord AFTER you check in.',
+          ),
+          const SizedBox(height: 12),
+          _buildGuaranteeItem(
+            Icons.assignment_return_rounded,
+            'Full Refund Guarantee',
+            'Get 100% money back if the room doesn\'t match the photos or description.',
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              'तपाइँको भुक्तानी Khozna मा सुरक्षित रहनेछ। कोठा हेरेर चित्त बुझेपछि मात्र घरधनीले पैसा पाउनेछन्।',
+              style: GoogleFonts.notoSansDevanagari(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.brandColor,
+                height: 1.4,
+              ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildGuaranteeItem(IconData icon, String title, String desc) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: AppTheme.brandColor),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.inter(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black,
+                ),
+              ),
+              Text(
+                desc,
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: Colors.grey[600],
+                  height: 1.3,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -885,11 +981,23 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       if (imageUrl == null) throw 'Failed to upload image. Please try again.';
 
       // 2. Submit payment to repository
+      String finalBookingId = _currentBooking.id;
+
+      // If it's a draft booking from "Book Now", create the booking record first
+      if (finalBookingId.startsWith('draft_')) {
+        final newBooking = await BookingRepository.createBooking(_currentBooking);
+        if (newBooking != null) {
+          finalBookingId = newBooking.id;
+        } else {
+          throw 'Failed to create booking record.';
+        }
+      }
+
       await BookingRepository.submitPayment(
-        bookingId: widget.booking.id,
+        bookingId: finalBookingId,
         paymentType: _paymentDestination,
         method: 'bank_transfer',
-        amount: widget.booking.totalPrice,
+        amount: _currentBooking.totalPrice,
         referenceId: _transactionController.text.trim(),
         proofImageUrl: imageUrl,
       );

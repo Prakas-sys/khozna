@@ -1611,84 +1611,87 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildBottomActionBar(BuildContext context) {
-    final double price = widget.property.priceNight > 0 ? widget.property.priceNight : double.tryParse(widget.property.price) ?? 0;
-    final String unit = widget.property.priceNight > 0 ? 'night' : 'month';
+    if (_isMyProperty) return const SizedBox.shrink();
+    
+    final price = widget.property.priceMonth > 0
+        ? widget.property.priceMonth
+        : double.tryParse(widget.property.price) ?? 0;
+    final unit = widget.property.priceMonth > 0 ? 'month' : 'night';
 
     return Container(
+      padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1)),
+        border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1.5)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, -5),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Left Side: Price Details
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Row(
-                          children: [
-                            SvgPicture.asset(
-                              'assets/icons/vector of ruppes.svg',
-                              width: 18,
-                              height: 18,
-                              colorFilter: const ColorFilter.mode(
-                                Colors.black,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              PriceFormatter.format(price.toString()),
-                              style: GoogleFonts.plusJakartaSans(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 24,
-                                color: Colors.black,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '/$unit',
-                          style: GoogleFonts.inter(
-                            color: const Color(0xFF64748B),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+        top: false,
+        child: Row(
+          children: [
+            // LEFT SIDE: PRICE INFO
+            Expanded(
+              flex: 4,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2), // Align with price
+                        child: SvgPicture.asset(
+                          'assets/icons/vector of ruppes.svg',
+                          width: 14,
+                          height: 14,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.black,
+                            BlendMode.srcIn,
                           ),
                         ),
-                      ],
+                      ),
+                      const SizedBox(width: 2),
+                      Flexible(
+                        child: Text(
+                          PriceFormatter.format(price.toString()),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w900,
+                            fontSize: 20,
+                            color: Colors.black,
+                            letterSpacing: -0.5,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    'total per $unit',
+                    style: GoogleFonts.inter(
+                      color: const Color(0xFF64748B),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.2,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              
-              // Right Side: Action Button
-              _isMyProperty
-                  ? const SizedBox() 
-                  : Expanded(
-                      flex: 2,
-                      child: _buildBottomActionButtons(context),
-                    ),
-            ],
-          ),
+            ),
+            
+            // RIGHT SIDE: ACTION BUTTONS
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 6,
+              child: _buildBottomActionButtons(context),
+            ),
+          ],
         ),
       ),
     );
@@ -1699,11 +1702,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       return _buildDisabledButton('Booked');
     }
 
-    // --- Rejected: allow guest to try again ---
     if (_pendingBookingStatus == 'rejected' ||
         _pendingBookingStatus == 'visit_completed') {
       return SizedBox(
-        height: 36,
+        height: 48,
         child: ElevatedButton(
           onPressed: () => Navigator.push(
             context,
@@ -1712,76 +1714,52 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ).then((v) => v == true ? _updateBookingStatus() : null),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00A3E1),
+            backgroundColor: AppTheme.brandColor,
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
           ),
           child: Text(
             'Visit Now',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.5,
-            ),
+            style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800),
           ),
         ),
       );
     }
 
-    // --- Awaiting payment: show Pay Now button ---
     if (_pendingBookingStatus == 'awaiting_payment') {
       return SizedBox(
-        height: 36,
+        height: 48,
         child: ElevatedButton.icon(
           onPressed: () async {
             if (_pendingBookingId == null) return;
-            final booking = await SupabaseService.getVisitById(
-              _pendingBookingId!,
-            );
+            final booking = await SupabaseService.getVisitById(_pendingBookingId!);
             if (booking != null && mounted) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => PaymentChoiceScreen(
                     booking: booking,
-                    propertyTitle:
-                        booking.propertyTitle ?? widget.property.title,
+                    propertyTitle: booking.propertyTitle ?? widget.property.title,
                   ),
                 ),
               );
             }
           },
-          icon: const Icon(Icons.payment_rounded, size: 16),
-          label: Text(
-            'PAY NOW',
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          icon: const Icon(Icons.payment_rounded, size: 18),
+          label: Text('PAY NOW', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w900)),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF22C55E),
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
           ),
         ),
       );
     }
 
-    // --- Paid / Confirmed ---
-    if (_pendingBookingStatus == 'paid' ||
-        _pendingBookingStatus == 'confirmed') {
-      return _buildDisabledButton(
-        _pendingBookingStatus == 'confirmed' ? '✓ Confirmed' : 'Payment Sent',
-      );
+    if (_pendingBookingStatus == 'paid' || _pendingBookingStatus == 'confirmed') {
+      return _buildDisabledButton(_pendingBookingStatus == 'confirmed' ? '✓ Confirmed' : 'Payment Sent');
     }
 
     if (_userHasPendingBooking) {
@@ -1790,17 +1768,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildDisabledButton('Pending'),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             GestureDetector(
               onTap: _cancelRequest,
               child: Text(
                 'Cancel Request',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: Colors.red[400],
-                  fontWeight: FontWeight.w600,
-                  decoration: TextDecoration.underline,
-                ),
+                style: GoogleFonts.inter(fontSize: 11, color: Colors.red[400], fontWeight: FontWeight.w700, decoration: TextDecoration.underline),
               ),
             ),
           ],
@@ -1808,82 +1781,73 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       }
       
       if (_pendingBookingStatus == 'visit_accepted') {
-        final h = _timeUntilVisit.inHours;
-        final m = _timeUntilVisit.inMinutes % 60;
-        final s = _timeUntilVisit.inSeconds % 60;
         final isEnded = _timeUntilVisit == Duration.zero && _pendingBookingCheckIn != null && DateTime.now().isAfter(_pendingBookingCheckIn!);
-
-        String label = isEnded ? 'REVIEW' :
-          (h > 24 ? 'Visit ${DateFormat('E, h:mm a').format(_pendingBookingCheckIn!)}' :
-           h > 0 ? 'Visit in ${h}h' : 'Visit in ${m}m');
-
         return SizedBox(
-          height: 36,
+          height: 48,
           child: ElevatedButton.icon(
             onPressed: () async {
               if (_pendingBookingId == null) return;
               final booking = await SupabaseService.getVisitById(_pendingBookingId!);
               if (booking != null && mounted) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BookingStatusScreen(booking: booking),
-                  ),
-                ).then((_) => _updateBookingStatus());
+                Navigator.push(context, MaterialPageRoute(builder: (_) => BookingStatusScreen(booking: booking))).then((_) => _updateBookingStatus());
               }
             },
-            icon: Icon(isEnded ? Icons.rate_review_rounded : Icons.timer_outlined, size: 15),
-            label: Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 11.5,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            icon: Icon(isEnded ? Icons.rate_review_rounded : Icons.timer_outlined, size: 16),
+            label: Text(isEnded ? 'REVIEW' : 'VIEW STATUS', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w900)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: isEnded ? const Color(0xFF00A3E1) : Colors.orange.shade400,
+              backgroundColor: isEnded ? AppTheme.brandColor : Colors.orange.shade400,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
             ),
           ),
         );
       }
-
       return _buildDisabledButton('Accepted');
     }
 
-    return SizedBox(
-      height: 54,
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => VisitRequestScreen(property: widget.property),
-          ),
-        ).then((v) => v == true ? _updateBookingStatus() : null),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.brandColor,
-          foregroundColor: Colors.white,
-          elevation: 4,
-          shadowColor: AppTheme.brandColor.withOpacity(0.4),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: Text(
-          'Visit Now',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.5,
+    return Row(
+      children: [
+        Expanded(
+          flex: 4,
+          child: SizedBox(
+            height: 50,
+            child: OutlinedButton(
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => VisitRequestScreen(property: widget.property))).then((v) => v == true ? _updateBookingStatus() : null),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppTheme.brandColor, width: 1.5),
+                foregroundColor: AppTheme.brandColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                padding: EdgeInsets.zero,
+              ),
+              child: Text('Visit', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
+            ),
           ),
         ),
-      ),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 6,
+          child: SizedBox(
+            height: 50,
+            child: ElevatedButton(
+              onPressed: () {
+                HapticFeedback.heavyImpact();
+                Navigator.push(context, MaterialPageRoute(builder: (_) => PaymentChoiceScreen(property: widget.property)));
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.brandColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                elevation: 0,
+              ),
+              child: Text(
+                'Book Now',
+                style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w900),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

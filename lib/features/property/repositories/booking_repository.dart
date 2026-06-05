@@ -35,6 +35,36 @@ class BookingRepository {
     }
   }
 
+  static Future<BookingModel?> createBooking(BookingModel booking) async {
+    try {
+      final user = _client.auth.currentUser;
+      final response = await _client
+          .from('bookings')
+          .insert(booking.toMap())
+          .select()
+          .single();
+      
+      final newBooking = BookingModel.fromMap(response);
+
+      // Notify owner about the NEW BOOKING REQUEST
+      final String guestName = user?.userMetadata?['full_name'] ?? 'A Guest';
+      await _client.from('notifications').insert({
+        'user_id': newBooking.ownerId,
+        'sender_id': user?.id,
+        'title': 'नयाँ बुकिङ अनुरोध (New Booking Request! 🏠)',
+        'message': '$guestName ले तपाइँको कोठा सीधा बुक गर्न अनुरोध गर्नुभएको छ।',
+        'type': 'booking_request',
+        'property_id': newBooking.propertyId,
+        'booking_id': newBooking.id,
+      });
+
+      return newBooking;
+    } catch (e) {
+      debugPrint('Error creating booking: $e');
+      rethrow;
+    }
+  }
+
   /// 1. Create a formal booking request (Guest -> Owner)
   static Future<String> createBookingRequest({
     required String propertyId,
@@ -246,7 +276,11 @@ class BookingRepository {
     if (user == null) return;
 
     try {
-      // Update booking with payment type and fee
+      // 0. Fetch booking to get ownerId and propertyId
+      final booking = await getBookingById(bookingId);
+      if (booking == null) throw Exception('Booking not found');
+
+      // 1. Update booking with payment type and status
       final double fee = paymentType == 'khozna'
           ? (amount * 0.10)
           : (amount * 0.05);
@@ -261,7 +295,7 @@ class BookingRepository {
           })
           .eq('id', bookingId);
 
-      // Create payment record
+      // 2. Create payment record
       await _client.from('payments').insert({
         'booking_id': bookingId,
         'payer_id': user.id,
@@ -272,8 +306,30 @@ class BookingRepository {
         'status': 'pending',
       });
 
-      // Notify owner/admin
-      // ... logic for notification
+      final guestName = user.userMetadata?['full_name'] ?? 'A Guest';
+
+      // 3. Notify owner
+      await _client.from('notifications').insert({
+        'user_id': booking.ownerId,
+        'sender_id': user.id,
+        'title': 'नयाँ भुक्तानी प्राप्त (New Payment Received! 💸)',
+        'message': '$guestName ले तपाइँको कोठा (${booking.propertyTitle ?? "Property"}) को लागी भुक्तानी पठाउनुभएको छ।',
+        'type': 'payment_received',
+        'property_id': booking.propertyId,
+        'booking_id': bookingId,
+      });
+
+      // 4. Notify ADMIN (Global channel or special type)
+      await _client.from('notifications').insert({
+        'user_id': 'admin', // Standard identifier for admins to pick up
+        'sender_id': user.id,
+        'title': '🚨 New Admin Verification Required',
+        'message': 'Payment proof uploaded for ${booking.propertyTitle}. Check dashboard for screenshot: $proofImageUrl',
+        'type': 'admin_alert',
+        'property_id': booking.propertyId,
+        'booking_id': bookingId,
+      });
+
     } catch (e) {
       debugPrint('Submit payment error: $e');
       rethrow;
