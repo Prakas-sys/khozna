@@ -483,7 +483,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                           return val;
                                         })(),
                                         style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 22,
+                                          fontSize: 19,
                                           fontWeight: FontWeight.w900,
                                           color: const Color(0xFF00A3DA),
                                           letterSpacing: -0.5,
