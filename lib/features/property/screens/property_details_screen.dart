@@ -1643,7 +1643,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         WidgetSpan(
                           alignment: PlaceholderAlignment.middle,
                           child: Transform.translate(
-                            offset: const Offset(0, 0.2), // Pushed higher per user request
+                            offset: const Offset(0, -1.2), // Pushed higher per user request
                             child: SvgPicture.asset(
                               'assets/icons/vector of ruppes.svg',
                               width: 18, // Reduced from 20
@@ -1655,7 +1655,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             ),
                           ),
                         ),
-                        const WidgetSpan(child: SizedBox(width: 4)),
+                        const WidgetSpan(child: SizedBox(width: 2)), // Tighter spacing per user request
                         TextSpan(
                           text: isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
                           style: GoogleFonts.plusJakartaSans(

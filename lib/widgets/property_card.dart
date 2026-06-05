@@ -322,7 +322,7 @@ class PropertyCard extends StatelessWidget {
                                   ),
                                 ),
                                 const WidgetSpan(
-                                  child: SizedBox(width: 3), // Precise spacing
+                                  child: SizedBox(width: 2), // Tighter spacing per user request
                                 ),
                                 TextSpan(
                                   text: (() {

@@ -470,7 +470,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                           ),
                                         ),
                                       ),
-                                      const WidgetSpan(child: SizedBox(width: 5)),
+                                      const WidgetSpan(child: SizedBox(width: 2)), // Tighter spacing
                                       TextSpan(
                                         text: (() {
                                           final val = PriceFormatter.format(
