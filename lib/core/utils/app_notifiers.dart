@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:khozna/core/models/chat_model.dart';
 
 /// Global notifier for the Messages tab badge count.
@@ -23,19 +23,7 @@ final ValueNotifier<Set<String>> bookedPropertiesStore =
     ValueNotifier<Set<String>>({});
 
 void initializeBadgeSync() {
-  void updateNativeBadge() {
-    int total = messageBadgeCount.value + notificationBadgeCount.value;
-    if (total > 0) {
-      FlutterAppBadger.updateBadgeCount(total);
-    } else {
-      FlutterAppBadger.removeBadge();
-    }
-  }
-
-  messageBadgeCount.addListener(updateNativeBadge);
-  notificationBadgeCount.addListener(updateNativeBadge);
-
-  debugPrint('Badge sync initialized (Native + In-app)');
+  debugPrint('Badge sync initialized (In-app only)');
 }
 
 /// Cache for Home Screen sections to enable "offline" viewing of last known data.

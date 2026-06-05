@@ -12,7 +12,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'core/security/security_utils.dart';
@@ -28,12 +27,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   // We can let the OS handle the basic notification, or update badge count
   try {
-    if (message.data.containsKey('badge')) {
-      int? badge = int.tryParse(message.data['badge'].toString());
-      if (badge != null && badge > 0) {
-        FlutterAppBadger.updateBadgeCount(badge);
-      }
-    }
+    // Badge updates removed as flutter_app_badger is broken
   } catch (e) {
     debugPrint('Background badge error: $e');
   }

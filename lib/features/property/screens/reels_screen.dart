@@ -287,13 +287,12 @@ class _ReelsScreenState extends State<ReelsScreen> {
         : (property.imageUrl.isNotEmpty ? [property.imageUrl] : []);
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final mediaHeight = screenWidth * 1.1; // 1.1 ratio for "medium" vertical feel
+    final mediaHeight = screenWidth * 1.1;
 
     return Container(
       color: Colors.black,
       child: Stack(
         children: [
-          // 1. TOP MEDIA SECTION (Medium Aspect Ratio)
           Positioned(
             top: 0,
             left: 0,
@@ -307,16 +306,12 @@ class _ReelsScreenState extends State<ReelsScreen> {
                   isImageView
                       ? _buildImageCarousel(allImages)
                       : _buildVideoPlaceholder(property),
-                  // Top gradient
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.4),
-                          Colors.transparent,
-                        ],
+                        colors: [Colors.black.withOpacity(0.4), Colors.transparent],
                         stops: const [0.0, 0.3],
                       ),
                     ),
@@ -325,224 +320,185 @@ class _ReelsScreenState extends State<ReelsScreen> {
               ),
             ),
           ),
-
-          // 2. BOTTOM INFO SECTION
           Positioned(
-            top: mediaHeight - 20, // Reduced overlap
+            top: mediaHeight - 20,
             left: 0,
             right: 0,
             bottom: 0,
             child: Container(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF121212),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+              decoration: const BoxDecoration(
+                color: Color(0xFF121212),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   // Handle
-                   Center(
-                      child: Container(
-                        width: 32,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.white12,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
+                  Center(
+                    child: Container(
+                      width: 32,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white12,
+                        borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                    const SizedBox(height: 12),
-
-                    // Brand Info
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/images/KHOZNA_app_icon_512x512.png', // Fixed asset path
-                              width: 20,
-                              height: 20,
-                              fit: BoxFit.cover,
-                            ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/KHOZNA_app_icon_512x512.png',
+                            width: 20,
+                            height: 20,
+                            fit: BoxFit.cover,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Khozna app',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.white.withOpacity(0.8),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                          ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Khozna app',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white.withOpacity(0.8),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Main Row - using Row with constrained right side to prevent overflow
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        // LEFT SIDE
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                property.title,
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 22,
-                                  letterSpacing: -0.5,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              property.title,
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 22,
+                                letterSpacing: -0.5,
                               ),
-                              const SizedBox(height: 6),
-                              Row(
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                const Icon(Icons.location_on_rounded, color: AppTheme.brandColor, size: 14),
+                                const SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    property.location,
+                                    style: GoogleFonts.plusJakartaSans(color: Colors.white70, fontSize: 13),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            RichText(
+                              text: TextSpan(
                                 children: [
-                                  const Icon(Icons.location_on_rounded, color: AppTheme.brandColor, size: 14),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      property.location,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.white70,
-                                        fontSize: 13,
+                                  WidgetSpan(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 2),
+                                      child: SvgPicture.asset(
+                                        'assets/icons/vector of ruppes.svg',
+                                        width: 14,
+                                        height: 14,
+                                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
                                     ),
+                                  ),
+                                  const TextSpan(text: ' '),
+                                  TextSpan(
+                                    text: PriceFormatter.format(
+                                      (property.price == '0' || property.price.isEmpty || property.price == '₹0')
+                                          ? (property.priceMonth > 0 ? property.priceMonth.toStringAsFixed(0) : 'Call for price')
+                                          : property.price
+                                    ),
+                                    style: GoogleFonts.plusJakartaSans(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white),
+                                  ),
+                                  TextSpan(
+                                    text: property.priceMonth > 0 ? '/month' : '',
+                                    style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white54),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 12),
-                              
-                              // Price logic
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    WidgetSpan(
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(bottom: 2),
-                                        child: SvgPicture.asset(
-                                          'assets/icons/vector of ruppes.svg',
-                                          width: 14,
-                                          height: 14,
-                                          colorFilter: const ColorFilter.mode(
-                                            Colors.white,
-                                            BlendMode.srcIn,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const TextSpan(text: ' '),
-                                    TextSpan(
-                                      text: PriceFormatter.format(
-                                        (property.price == '0' || property.price.isEmpty || property.price == '₹0')
-                                            ? (property.priceMonth > 0 ? property.priceMonth.toStringAsFixed(0) : 'Call for price')
-                                            : property.price
-                                      ),
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: property.priceMonth > 0 ? '/month' : '',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white54,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // RIGHT SIDE - Action Buttons fixed width
-                        const SizedBox(width: 12),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildActionButton(
-                              iconPath: 'assets/icons/Vectorproepty card meeasge.svg',
-                              label: 'CHAT',
-                              onTap: () {
-                                HapticFeedback.mediumImpact();
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => chat_page.ChatScreen(
-                                      ownerId: property.ownerId,
-                                      name: property.ownerName,
-                                      avatar: property.ownerAvatar,
-                                      online: true,
-                                    ),
-                                  ),
-                                );
-                              },
-
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // SEE DETAILS FULL WIDTH BUTTON
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PropertyDetailsScreen(property: property),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.08),
-                          foregroundColor: AppTheme.brandColor,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(color: Colors.white.withOpacity(0.1)),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'SEE DETAILS',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 14,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward_ios_rounded, size: 14),
                           ],
                         ),
                       ),
+                      const SizedBox(width: 12),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildActionButton(
+                            iconPath: 'assets/icons/Vectorproepty card meeasge.svg',
+                            label: 'CHAT',
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => chat_page.ChatScreen(
+                                    ownerId: property.ownerId,
+                                    name: property.ownerName,
+                                    avatar: property.ownerAvatar,
+                                    online: true,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property)),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.08),
+                        foregroundColor: AppTheme.brandColor,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: BorderSide(color: Colors.white.withOpacity(0.1)),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'SEE DETAILS',
+                            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 14, letterSpacing: 0.5),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
