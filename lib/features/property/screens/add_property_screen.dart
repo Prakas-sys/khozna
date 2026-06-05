@@ -12,6 +12,7 @@ import 'package:khozna/features/property/widgets/add_property_widgets.dart';
 import 'package:khozna/features/property/repositories/property_repository.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
+import 'package:khozna/core/services/cloudinary_service.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
