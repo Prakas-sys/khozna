@@ -11,12 +11,13 @@ export const Reports = () => {
   const fetchReports = async () => {
     setLoading(true);
     try {
+      // Explicitly joining profiles for reporter and reported user
       const { data, error } = await supabase
         .from('user_reports')
         .select(`
           *,
-          reported:reported_user_id(full_name, avatar_url, email),
-          reporter:reporter_id(full_name)
+          reported:profiles!reported_user_id (full_name, avatar_url, email),
+          reporter:profiles!reporter_id (full_name)
         `)
         .order('created_at', { ascending: false });
       
@@ -34,12 +35,14 @@ export const Reports = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
+    if (!id) return;
     setProcessingId(id);
     try {
-      await supabase.from('user_reports').delete().eq('id', id);
+      const { error } = await supabase.from('user_reports').delete().eq('id', id);
+      if (error) throw error;
       setReports(prev => prev.filter(r => r.id !== id));
     } catch (e) {
-      console.error(e);
+      console.error("Delete failed:", e);
     } finally {
       setProcessingId(null);
     }
@@ -65,12 +68,12 @@ export const Reports = () => {
         </div>
 
         {loading ? (
-          <div className="flex flex-col justify-center items-center py-40 gap-3">
+          <div key="loading" className="flex flex-col justify-center items-center py-40 gap-3">
             <div className="w-5 h-5 border-2 border-[#E5E5E5] border-t-[#171717] rounded-full animate-spin" />
             <p className="text-[#A3A3A3] text-[12px] font-medium uppercase tracking-widest">Scanning Community</p>
           </div>
         ) : reports.length === 0 ? (
-          <div className="empty-state border border-dashed border-[#E5E5E5] rounded-xl">
+          <div key="empty" className="empty-state border border-dashed border-[#E5E5E5] rounded-xl">
             <div className="empty-state-icon">
               <ShieldCheck size={20} strokeWidth={1.5} />
             </div>
@@ -78,7 +81,7 @@ export const Reports = () => {
             <p className="empty-state-desc">No community reports or platform flags are currently active.</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div key="list" className="space-y-3">
             <AnimatePresence mode="popLayout">
               {reports.map((report) => (
                 <motion.div 
@@ -96,9 +99,15 @@ export const Reports = () => {
                     <div>
                       <h3 className="text-[14px] font-semibold text-[#171717] mb-1 leading-tight">{report.reason || 'General Safety Flag'}</h3>
                       <div className="flex items-center gap-3 text-[11px] font-medium text-[#737373]">
-                        <span className="flex items-center gap-1"><User size={12} strokeWidth={1.5} /> By: {report.reporter?.full_name || 'Anonymous'}</span>
+                        <span className="flex items-center gap-1">
+                          <User size={12} strokeWidth={1.5} /> 
+                          By: {report.reporter?.full_name || 'Anonymous'}
+                        </span>
                         <span className="w-1 h-1 rounded-full bg-[#E5E5E5]"></span>
-                        <span className="flex items-center gap-1"><Clock size={12} strokeWidth={1.5} /> {new Date(report.created_at).toLocaleDateString()}</span>
+                        <span className="flex items-center gap-1">
+                          <Clock size={12} strokeWidth={1.5} /> 
+                          {report.created_at ? new Date(report.created_at).toLocaleDateString() : '—'}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -108,7 +117,15 @@ export const Reports = () => {
                       <p className="text-[10px] font-semibold text-[#A3A3A3] uppercase tracking-widest mb-0.5">Target</p>
                       <div className="flex items-center gap-2">
                          <p className="text-[12px] font-semibold text-[#171717]">{report.reported?.full_name || 'N/A'}</p>
-                         {report.reported?.email && <Mail size={12} strokeWidth={1.5} className="text-[#A3A3A3]" title={report.reported.email} />}
+                         {report.reported?.email && (
+                           <span title={report.reported.email}>
+                            <Mail 
+                              size={12} 
+                              strokeWidth={1.5} 
+                              className="text-[#A3A3A3]" 
+                            />
+                           </span>
+                         )}
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -133,3 +150,4 @@ export const Reports = () => {
     </div>
   );
 };
+
