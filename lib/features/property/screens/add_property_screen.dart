@@ -8,8 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:confetti/confetti.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
-import 'package:khozna/features/property/widgets/add_property_widgets.dart';
-import 'package:khozna/features/property/repositories/property_repository.dart';
+import 'package:dotted_border/dotted_border.dart';
+import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   const AddPropertyScreen({super.key});
@@ -419,25 +419,25 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 children: [
                    // Background track
                   SizedBox(
-                    width: 44,
-                    height: 44,
+                    width: 36,
+                    height: 36,
                     child: CircularProgressIndicator(
                       value: 1.0,
-                      strokeWidth: 3.5,
+                      strokeWidth: 2.5,
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.grey.withOpacity(0.1)),
                     ),
                    ),
                   // Active progress
                   SizedBox(
-                    width: 44,
-                    height: 44,
+                    width: 36,
+                    height: 36,
                     child: TweenAnimationBuilder<double>(
                       tween: Tween<double>(begin: 0, end: (_currentStep + 1) / _totalSteps),
                       duration: const Duration(milliseconds: 500),
                       curve: Curves.easeOutBack,
                       builder: (context, value, _) => CircularProgressIndicator(
                         value: value,
-                        strokeWidth: 3.5,
+                        strokeWidth: 2.5,
                         strokeCap: StrokeCap.round,
                         valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF22C55E)),
                       ),
@@ -448,7 +448,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.w900,
                       color: const Color(0xFF16A34A),
-                      fontSize: 13,
+                      fontSize: 11,
                     ),
                   ),
                 ],
@@ -460,17 +460,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       body: Column(
         children: [
           // Sleek Progress Line
-          TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 0, end: (_currentStep + 1) / _totalSteps),
-            duration: const Duration(milliseconds: 600),
-            curve: Curves.easeOutCubic,
-            builder: (context, value, _) => LinearProgressIndicator(
-              value: value,
-              backgroundColor: const Color(0xFF22C55E).withOpacity(0.05),
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF22C55E)),
-              minHeight: 3.5,
+          Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: (_currentStep + 1) / _totalSteps),
+              duration: const Duration(milliseconds: 600),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, _) => LinearProgressIndicator(
+                value: value,
+                backgroundColor: const Color(0xFF22C55E).withOpacity(0.08),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF22C55E)),
+                minHeight: 3.0,
+              ),
             ),
           ),
+          const SizedBox(height: 12),
           Expanded(
             child: Stack(
               children: [
@@ -1233,48 +1237,89 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
         const SizedBox(height: 24),
 
-        GestureDetector(
-          onTap: _pickImages,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            decoration: BoxDecoration(
-              color: AppTheme.brandColor.withOpacity(0.04),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: AppTheme.brandColor.withOpacity(0.2),
-                width: 2,
-                style: BorderStyle.solid,
+        DottedBorder(
+          color: AppTheme.brandColor.withOpacity(0.3),
+          strokeWidth: 2,
+          padding: EdgeInsets.zero,
+          borderType: BorderType.RRect,
+          radius: const Radius.circular(24),
+          dashPattern: const [8, 4],
+          child: GestureDetector(
+            onTap: _pickImages,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              decoration: BoxDecoration(
+                color: AppTheme.brandColor.withOpacity(0.04),
+                borderRadius: BorderRadius.circular(24),
               ),
-            ),
-            child: Center(
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: AppTheme.brandColor.withOpacity(0.1), blurRadius: 10)
-                      ],
+              child: Center(
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.brandColor.withOpacity(0.12),
+                            blurRadius: 15,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.add_photo_alternate_rounded,
+                        color: AppTheme.brandColor,
+                        size: 32,
+                      ),
                     ),
-                    child: const Icon(Icons.add_photo_alternate_rounded, color: AppTheme.brandColor, size: 28),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Upload Photos',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.w800, fontSize: 16, color: AppTheme.brandColor),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Text(
+                      'Upload Photos',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 17,
+                        color: AppTheme.brandColor,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'तस्विरहरू छान्नुहोस्',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AppTheme.brandColor.withOpacity(0.6),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
 
         if (_selectedImages.isNotEmpty) ...[
-          const SizedBox(height: 24),
-          GridView.builder(
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              const Icon(Icons.info_outline_rounded, color: Colors.grey, size: 16),
+              const SizedBox(width: 8),
+              Text(
+                'Drag and move photos to set the Cover image',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ReorderableGridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -1284,25 +1329,82 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               childAspectRatio: 1,
             ),
             itemCount: _selectedImages.length,
+            onReorder: (oldIndex, newIndex) {
+              setState(() {
+                final item = _selectedImages.removeAt(oldIndex);
+                _selectedImages.insert(newIndex, item);
+              });
+              HapticFeedback.mediumImpact();
+            },
             itemBuilder: (context, index) {
               return ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                key: ValueKey(_selectedImages[index].path),
+                borderRadius: BorderRadius.circular(20),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
                     Image.file(_selectedImages[index], fit: BoxFit.cover),
+                    // Glass Overlay for Main Photo
+                    if (index == 0)
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                const Color(0xFF22C55E).withOpacity(0.8),
+                                const Color(0xFF22C55E).withOpacity(0.0),
+                              ],
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'MAIN COVER',
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    // Delete Button
                     Positioned(
                       top: 8,
                       right: 8,
                       child: GestureDetector(
                         onTap: () => setState(() => _selectedImages.removeAt(index)),
                         child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(color: Colors.black26, shape: BoxShape.circle),
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.4),
+                            shape: BoxShape.circle,
+                          ),
                           child: const Icon(Icons.close_rounded, color: Colors.white, size: 16),
                         ),
                       ),
                     ),
+                    // Multi-select Indicator
+                    if (index == 0)
+                      Positioned(
+                        bottom: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF22C55E),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.star_rounded, color: Colors.white, size: 14),
+                        ),
+                      ),
                   ],
                 ),
               );
