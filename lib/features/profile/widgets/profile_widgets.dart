@@ -83,13 +83,9 @@ class ProfileHeader extends StatelessWidget {
                         ),
                         child: Container(
                           padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFFE2E8F0),
-                              width: 0.5,
-                            ),
                           ),
                           child: CircleAvatar(
                             radius: 54,
