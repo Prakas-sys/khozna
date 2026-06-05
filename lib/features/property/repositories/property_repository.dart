@@ -6,6 +6,7 @@ import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
 import 'package:khozna/core/security/security_utils.dart';
+import 'package:khozna/core/services/upload_manager.dart';
 import 'dart:io';
 
 class PropertyRepository {
