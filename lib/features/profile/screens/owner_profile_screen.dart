@@ -246,7 +246,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildPassportStat('${_ownerReviews.length}', 'Recommendations'),
+                          _buildPassportStat('${_ownerReviews.length}', 'Votes'),
                           const SizedBox(height: 16),
                           _buildPassportStat(
                             avgRating.toStringAsFixed(1),
@@ -723,12 +723,14 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'पाहुनाहरूको सिफारिस (Guest Recommendations)',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: Colors.black,
+            Expanded(
+              child: Text(
+                'पाहुनाहरूको भोट (Guest Votes)',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black,
+                ),
               ),
             ),
             if (_ownerReviews.isNotEmpty)

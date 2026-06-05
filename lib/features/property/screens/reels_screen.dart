@@ -451,18 +451,21 @@ class _ReelsScreenState extends State<ReelsScreen> {
                               const SizedBox(height: 10), // Reduced from 12
                               Flexible(
                                 child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    SvgPicture.asset(
-                                      'assets/icons/vector of ruppes.svg',
-                                      width: 16, // Reduced from 20
-                                      height: 16, // Reduced from 20
-                                      colorFilter: const ColorFilter.mode(
-                                        Color(0xFF00A3DA),
-                                        BlendMode.srcIn,
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: SvgPicture.asset(
+                                        'assets/icons/vector of ruppes.svg',
+                                        width: 14,
+                                        height: 14,
+                                        colorFilter: const ColorFilter.mode(
+                                          Color(0xFF00A3DA),
+                                          BlendMode.srcIn,
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(width: 4),
+                                    const SizedBox(width: 6),
                                     Flexible(
                                       child: Text(
                                         PriceFormatter.format(
@@ -476,6 +479,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                                           fontSize: 19,
                                           fontWeight: FontWeight.w900,
                                           color: const Color(0xFF00A3DA),
+                                          letterSpacing: -0.5,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -659,7 +663,7 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
                 ),
                 KhoznaImage(
                   imageUrl: widget.images[index], 
-                  fit: (widget.category.toLowerCase() == 'room') ? BoxFit.cover : BoxFit.contain
+                  fit: BoxFit.cover,
                 ),
               ],
             );
