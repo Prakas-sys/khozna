@@ -43,6 +43,11 @@ final ValueNotifier<Map<String, dynamic>?> profileCache =
 final ValueNotifier<Map<String, dynamic>?> lastKycNotification =
     ValueNotifier<Map<String, dynamic>?>(null);
 
+/// Global notifier for the absolute latest notification received
+/// Used to show a "Toast" or "Snackbar" instantly when an event occurs.
+final ValueNotifier<Map<String, dynamic>?> lastRealtimeNotification =
+    ValueNotifier<Map<String, dynamic>?>(null);
+
 /// Global notifier to trigger a refresh of listings/reels across screens.
 final ValueNotifier<int> refreshTrigger = ValueNotifier<int>(0);
 

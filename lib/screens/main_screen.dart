@@ -47,6 +47,16 @@ class _MainScreenState extends State<MainScreen> {
 
     // Listen for real-time KYC status changes to show the "Auto-Pilot" popup
     lastKycNotification.addListener(_handleKycStatusUpdate);
+    // Listen for regular real-time notifications to show Airbnb-style toasts
+    lastRealtimeNotification.addListener(_handleRealtimeNotification);
+  }
+
+  @override
+  void dispose() {
+    lastKycNotification.removeListener(_handleKycStatusUpdate);
+    lastRealtimeNotification.removeListener(_handleRealtimeNotification);
+    reelsTabActive.value = false;
+    super.dispose();
   }
 
   void _handleKycStatusUpdate() {
@@ -145,6 +155,115 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
+  }
+
+  void _handleRealtimeNotification() {
+    final data = lastRealtimeNotification.value;
+    if (data == null || !mounted) return;
+
+    // Don't show toast for KYC notifications as they have their own full-screen popup
+    if (data['type'] == 'kyc_update' || (data['title'] ?? '').toString().contains('KYC')) {
+      return;
+    }
+
+    final String title = data['title'] ?? 'New Notification';
+    final String message = data['message'] ?? '';
+    final String type = data['type'] ?? 'general';
+
+    HapticFeedback.lightImpact();
+
+    // Show a premium top banner (Airbnb style)
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 4),
+        dismissDirection: DismissDirection.up,
+        margin: EdgeInsets.only(
+          bottom: MediaQuery.of(context).size.height - 180,
+          left: 16,
+          right: 16,
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        content: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.15),
+                blurRadius: 30,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppTheme.brandColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(
+                    _getNotificationIcon(type),
+                    color: AppTheme.brandColor,
+                    size: 22,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                        color: Colors.black,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      message,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                        height: 1.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: Colors.grey[300], size: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData _getNotificationIcon(String type) {
+    switch (type) {
+      case 'message': return Icons.chat_bubble_rounded;
+      case 'booking_request': return Icons.home_work_rounded;
+      case 'visit_request': return Icons.visibility_rounded;
+      case 'payment_received': return Icons.account_balance_wallet_rounded;
+      case 'visit_approved': return Icons.check_circle_rounded;
+      case 'recommendation': return Icons.star_rounded;
+      default: return Icons.notifications_active_rounded;
+    }
   }
 
   Future<void> _checkKycStatus() async {

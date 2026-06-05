@@ -1111,7 +1111,33 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
         return _buildRejectedActions();
       case 'visit_completed':
         return _buildCompletedNoLike();
+      case 'confirmed':
+      case 'paid':
+        return Column(
+          children: [
+            _actionBtn(
+              label: 'कोठाको बारेमा सिफारिस दिनुहोस् (Give Recommendation)',
+              color: Colors.amber[800]!,
+              onTap: _showReviewSheet,
+            ),
+            const SizedBox(height: 12),
+            _actionBtn(
+              label: 'Browse More Rooms',
+              color: AppTheme.brandColor,
+              outlined: true,
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        );
       default:
+        // Even for other states, show a review button if visit was confirmed
+        if (_booking.visitConfirmed == true) {
+          return _actionBtn(
+            label: 'सिफारिस दिनुहोस् (Give Recommendation)',
+            color: Colors.amber[800]!,
+            onTap: _showReviewSheet,
+          );
+        }
         return const SizedBox.shrink();
     }
   }
@@ -1284,21 +1310,32 @@ class _BookingStatusScreenState extends State<BookingStatusScreen> {
 
   Widget _buildCompletedNoLike() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
         children: [
+          const Icon(Icons.check_circle_outline_rounded, color: Colors.grey, size: 40),
+          const SizedBox(height: 12),
           Text(
             'अवलोकन पूरा भयो। धन्यवाद!',
-            style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w700, fontSize: 16),
+            style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w800, fontSize: 16),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 20),
+          _actionBtn(
+            label: 'सिफारिस दिनुहोस् (Give Recommendation)',
+            color: Colors.amber[800]!,
+            onTap: _showReviewSheet,
+          ),
+          const SizedBox(height: 12),
           _actionBtn(
             label: 'Browse More Rooms',
             color: AppTheme.brandColor,
+            outlined: true,
             onTap: () => Navigator.pop(context),
           ),
         ],

@@ -29,6 +29,10 @@ class NotificationRepository {
             notificationBadgeCount.value += 1;
 
             final data = payload.newRecord;
+            
+            // Set the latest notification for in-app alert logic
+            lastRealtimeNotification.value = data;
+
             if (data['type'] == 'kyc_update' ||
                 (data['title'] ?? '').toString().contains('KYC')) {
               lastKycNotification.value = data;
