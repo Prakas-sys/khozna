@@ -1322,6 +1322,110 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             },
           ),
         ],
+        const SizedBox(height: 32),
+        // ── Professional Description Section ──────────────────────────────
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                color: AppTheme.brandColor.withOpacity(0.05),
+                child: Row(
+                  children: [
+                    const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      'राम्रो विवरण (Professional Description)',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: AppTheme.brandColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _descriptionController,
+                      maxLines: 5,
+                      style: GoogleFonts.notoSansDevanagari(
+                        fontSize: 15,
+                        color: const Color(0xFF1F2937),
+                        height: 1.5,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'आफ्नो प्रोपर्टीको बारेमा केही लेख्नुहोस्...',
+                        hintStyle: GoogleFonts.notoSansDevanagari(color: Colors.grey[400], fontSize: 14),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _isGeneratingDescription
+                            ? null
+                            : () async {
+                                HapticFeedback.mediumImpact();
+                                setState(() => _isGeneratingDescription = true);
+                                  final desc = await _aiService.generateDescription(
+                                    title: _titleController.text,
+                                    category: _selectedCategory ?? 'Room',
+                                    area: _areaController.text,
+                                    landmark: _landmarkController.text,
+                                    price: _priceController.text,
+                                    priceNight: _priceNightController.text,
+                                    bedrooms: _bedroomsController.text,
+                                    bathrooms: _bathroomsController.text,
+                                    floor: _floorController.text,
+                                    sqft: _sqftController.text,
+                                    isNegotiable: _isNegotiable,
+                                    amenities: [..._selectedAmenities, ..._selectedRules],
+                                  );
+                                setState(() {
+                                  _descriptionController.text = desc;
+                                  _isGeneratingDescription = false;
+                                });
+                              },
+                        icon: _isGeneratingDescription 
+                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.flash_on_rounded, size: 16),
+                        label: Text(
+                          _isGeneratingDescription ? 'लेख्दै छ...' : 'रोचक विवरण लेख्नुहोस्',
+                          style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w800, fontSize: 14),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.brandColor,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -1399,10 +1503,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            _buildAiTitleChip('कोठा भाडामा (Room for Rent)'),
-            _buildAiTitleChip('बबाल फ्ल्याट (Awesome Flat)'),
-            _buildAiTitleChip('Best Place in ${_areaController.text}'),
-            _buildAiTitleChip('Beautiful Room near ${_landmarkController.text}'),
+            _buildSmartTitleChip('कोठा भाडामा (Room for Rent)'),
+            _buildSmartTitleChip('बबाल फ्ल्याट (Awesome Flat)'),
+            _buildSmartTitleChip('Best Place in ${_areaController.text}'),
+            _buildSmartTitleChip('Beautiful Room near ${_landmarkController.text}'),
           ],
         ),
         const SizedBox(height: 20),
@@ -1418,7 +1522,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     );
   }
 
-  Widget _buildAiTitleChip(String title) {
+  Widget _buildSmartTitleChip(String title) {
     bool isSelected = _titleController.text == title;
     return GestureDetector(
       onTap: () {
@@ -1594,110 +1698,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       title: 'अन्तिम विवरण र भुक्तानी',
       subtitle: 'विवरण थप्नुहोस् र कसरी पैसा लिने रोज्नुहोस्।',
       content: [
-        // ── AI Description Section ──────────────────────────────────────────
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                color: AppTheme.brandColor.withOpacity(0.05),
-                child: Row(
-                  children: [
-                    const Icon(Icons.auto_awesome_rounded, color: AppTheme.brandColor, size: 20),
-                    const SizedBox(width: 10),
-                    Text(
-                      'AI विवरण (AI Description)',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
-                        color: AppTheme.brandColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: _descriptionController,
-                      maxLines: 5,
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontSize: 15,
-                        color: const Color(0xFF1F2937),
-                        height: 1.5,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'आफ्नो प्रोपर्टीको बारेमा केही लेख्नुहोस्...',
-                        hintStyle: GoogleFonts.notoSansDevanagari(color: Colors.grey[400], fontSize: 14),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _isGeneratingDescription
-                            ? null
-                            : () async {
-                                HapticFeedback.mediumImpact();
-                                setState(() => _isGeneratingDescription = true);
-                                  final desc = await _aiService.generateDescription(
-                                    title: _titleController.text,
-                                    category: _selectedCategory ?? 'Room',
-                                    area: _areaController.text,
-                                    landmark: _landmarkController.text,
-                                    price: _priceController.text,
-                                    priceNight: _priceNightController.text,
-                                    bedrooms: _bedroomsController.text,
-                                    bathrooms: _bathroomsController.text,
-                                    floor: _floorController.text,
-                                    sqft: _sqftController.text,
-                                    isNegotiable: _isNegotiable,
-                                    amenities: [..._selectedAmenities, ..._selectedRules],
-                                  );
-                                setState(() {
-                                  _descriptionController.text = desc;
-                                  _isGeneratingDescription = false;
-                                });
-                              },
-                        icon: _isGeneratingDescription 
-                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : const Icon(Icons.flash_on_rounded, size: 16),
-                        label: Text(
-                          _isGeneratingDescription ? 'लेख्दै छ...' : 'AI बाट विवरण लेख्नुहोस्',
-                          style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.w800, fontSize: 14),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.brandColor,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-
         const SizedBox(height: 40),
 
         // ── Payout Section ────────────────────────────────────────────────
