@@ -550,7 +550,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                                           WidgetSpan(
                                                             alignment: PlaceholderAlignment.middle,
                                                             child: Transform.translate(
-                                                              offset: const Offset(0, 0.5),
+                                                                offset: const Offset(0, 0.0),
                                                               child: SvgPicture.asset(
                                                                 'assets/icons/vector of ruppes.svg',
                                                                 width: 9,

@@ -1637,36 +1637,47 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/vector of ruppes.svg',
-                        width: 20,
-                        height: 20,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.black,
-                          BlendMode.srcIn,
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Transform.translate(
+                            offset: const Offset(0, 0.2), // Pushed higher per user request
+                            child: SvgPicture.asset(
+                              'assets/icons/vector of ruppes.svg',
+                              width: 18, // Reduced from 20
+                              height: 18, // Reduced from 20
+                              colorFilter: const ColorFilter.mode(
+                                Colors.black,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: isNegotiable ? 18 : 22,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.black,
+                        const WidgetSpan(child: SizedBox(width: 4)),
+                        TextSpan(
+                          text: isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: isNegotiable ? 17 : 21,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black,
+                            letterSpacing: -0.5,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  Text(
-                    'total per $unit',
-                    style: GoogleFonts.inter(
-                      color: const Color(0xFF64748B),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.2,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 2),
+                    child: Text(
+                      'total per $unit',
+                      style: GoogleFonts.plusJakartaSans(
+                        color: const Color(0xFF64748B),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.1,
+                      ),
                     ),
                   ),
                 ],
@@ -1704,7 +1715,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.brandColor,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 0,
           ),
           child: Text(
@@ -1739,7 +1750,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF22C55E),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 0,
           ),
         ),
@@ -1785,7 +1796,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: isEnded ? AppTheme.brandColor : Colors.orange.shade400,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 0,
             ),
           ),
@@ -1799,24 +1810,27 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         Expanded(
           flex: 4,
           child: SizedBox(
-            height: 50,
+            height: 48, // Slimmer height
             child: OutlinedButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => VisitRequestScreen(property: widget.property))).then((v) => v == true ? _updateBookingStatus() : null),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppTheme.brandColor, width: 1.5),
                 foregroundColor: AppTheme.brandColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 padding: EdgeInsets.zero,
+                alignment: Alignment.center,
               ),
-              child: Text('Visit', style: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w800)),
+              child: Center(
+                child: Text('Visit', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
+              ),
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 10),
         Expanded(
           flex: 6,
           child: SizedBox(
-            height: 50,
+            height: 48, // Slimmer height
             child: ElevatedButton(
               onPressed: () {
                 HapticFeedback.heavyImpact();
@@ -1825,12 +1839,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.brandColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 elevation: 0,
+                padding: EdgeInsets.zero, // Force internal centering
+                alignment: Alignment.center,
               ),
-              child: Text(
-                'Book Now',
-                style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w900),
+              child: Center(
+                child: Text(
+                  'Book Now',
+                  style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w900),
+                ),
               ),
             ),
           ),

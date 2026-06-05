@@ -309,11 +309,11 @@ class PropertyCard extends StatelessWidget {
                                 WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
                                   child: Transform.translate(
-                                    offset: const Offset(0, 1.0), // Perfectly nudge symbol to align with number center
+                                    offset: const Offset(0, -0.6), // Pushed higher per user request
                                     child: SvgPicture.asset(
                                       'assets/icons/vector of ruppes.svg',
-                                      width: 16.2,
-                                      height: 16.2,
+                                      width: 14.5,
+                                      height: 14.5,
                                       colorFilter: const ColorFilter.mode(
                                         AppTheme.brandColor,
                                         BlendMode.srcIn,

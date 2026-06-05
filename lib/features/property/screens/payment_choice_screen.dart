@@ -908,7 +908,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
       children: [
         SizedBox(
           width: double.infinity,
-          height: 54,
+          height: 48,
           child: ElevatedButton.icon(
             onPressed: _isSubmitting ? null : _proceed,
             icon: _isSubmitting
@@ -925,9 +925,9 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               _paymentDestination == 'owner'
                   ? 'Confirm Direct Payment'
                   : 'Submit Payment Proof',
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
+              style: GoogleFonts.plusJakartaSans(
+                fontWeight: FontWeight.w800,
+                fontSize: 14.5,
                 color: Colors.white,
               ),
             ),
@@ -935,7 +935,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               backgroundColor: AppTheme.brandColor,
               disabledBackgroundColor: AppTheme.brandColor.withOpacity(0.5),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
+                borderRadius: BorderRadius.circular(12),
               ),
               elevation: 0,
             ),

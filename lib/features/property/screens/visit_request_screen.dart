@@ -967,7 +967,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             ],
             Expanded(
               child: SizedBox(
-                height: 52,
+                height: 48,
                 child: ElevatedButton(
                   onPressed: _isSubmitting
                       ? null
@@ -983,7 +983,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
                     backgroundColor: AppTheme.brandColor,
                     disabledBackgroundColor: AppTheme.brandColor.withOpacity(0.5),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     elevation: 0,
                   ),
