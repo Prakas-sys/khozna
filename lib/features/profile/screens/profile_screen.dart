@@ -235,7 +235,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                icon: const Icon(Icons.settings_outlined, color: Color(0xFF1A1A1A)),
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -346,7 +346,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         icon: Icons.privacy_tip_outlined,
                         title: 'Safety Center',
                         subtitle: 'Protect your account',
-                        color: Colors.redAccent,
+                        color: const Color(0xFF1A1A1A),
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(

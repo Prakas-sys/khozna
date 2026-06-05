@@ -29,21 +29,17 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF00A3E1), Color(0xFF00B4F1)], // Original Blue & Sky Blue
-        ),
+        color: Colors.white, // White Background
       ),
       child: Stack(
         children: [
-          // Decorative bubbles
+          // Subtle decorative shapes for white theme
           Positioned(
             top: -20,
             right: -30,
             child: CircleAvatar(
               radius: 60,
-              backgroundColor: Colors.white.withOpacity(0.1),
+              backgroundColor: Colors.grey[50],
             ),
           ),
           Positioned(
@@ -51,7 +47,7 @@ class ProfileHeader extends StatelessWidget {
             left: -20,
             child: CircleAvatar(
               radius: 40,
-              backgroundColor: Colors.white.withOpacity(0.08),
+              backgroundColor: Colors.grey[50],
             ),
           ),
           SafeArea(
@@ -174,7 +170,7 @@ class ProfileHeader extends StatelessWidget {
                         style: GoogleFonts.inter(
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
-                          color: Colors.white, // White text for blue header
+                          color: const Color(0xFF1A1A1A), // Black text for white header
                         ),
                       ),
                       if (kycStatus == 'verified')
@@ -184,7 +180,7 @@ class ProfileHeader extends StatelessWidget {
                             padding: EdgeInsets.only(left: 6),
                             child: Icon(
                               Icons.verified_rounded,
-                              color: Colors.white,
+                              color: AppTheme.brandColor,
                               size: 20,
                             ),
                           ),
@@ -504,10 +500,9 @@ class ProfileMenuItem extends StatelessWidget {
         onTap?.call();
       },
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: AppTheme.brandColor.withOpacity(0.08),
+          color: Colors.grey[100], // Neutral background for icons
           shape: BoxShape.circle,
         ),
         child: svgPath != null
@@ -516,11 +511,11 @@ class ProfileMenuItem extends StatelessWidget {
                 width: 20,
                 height: 20,
                 colorFilter: ColorFilter.mode(
-                  color ?? AppTheme.brandColor,
+                  color ?? const Color(0xFF1A1A1A), // Black icons
                   BlendMode.srcIn,
                 ),
               )
-            : Icon(icon ?? Icons.person_outline, color: color ?? AppTheme.brandColor, size: 20),
+            : Icon(icon ?? Icons.person_outline, color: color ?? const Color(0xFF1A1A1A), size: 20),
       ),
       title: Text(
         title,
