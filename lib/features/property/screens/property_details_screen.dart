@@ -1185,9 +1185,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 children: [
                   Text(
                     'Stay with $name',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w500,
                       color: Colors.black,
                     ),
                   ),

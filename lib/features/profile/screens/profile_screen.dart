@@ -40,6 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   bool _isOwner = false;
   String? _avatarUrl;
   String? _fullName;
+  String? _qrCodeUrl;
   bool _isUploading = false;
   String _kycStatus = 'not_started';
   bool _isLoading = true;
@@ -62,6 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       final cache = profileCache.value!;
       _avatarUrl = cache['avatar_url'];
       _fullName = cache['full_name'];
+      _qrCodeUrl = cache['qr_code_url'];
       _kycStatus = cache['kyc_status'] ?? 'not_started';
       _isOwner = cache['is_owner'] ?? false;
       _isLoading = false;
@@ -99,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       try {
         final profile = await Supabase.instance.client
             .from('profiles')
-            .select('full_name, avatar_url, kyc_status, is_owner')
+            .select('full_name, avatar_url, kyc_status, is_owner, qr_code_url')
             .eq('id', user!.id)
             .maybeSingle();
 
@@ -110,6 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 user?.userMetadata?['full_name'] ??
                 user?.userMetadata?['name'];
             _kycStatus = profile['kyc_status'] ?? 'not_started';
+            _qrCodeUrl = profile['qr_code_url'];
             _isOwner = _isOwner || (profile['is_owner'] ?? false);
 
             PushNotificationService.updateKycStatus(_kycStatus);
@@ -117,6 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             final cacheData = {
               'full_name': _fullName,
               'avatar_url': _avatarUrl,
+              'qr_code_url': _qrCodeUrl,
               'kyc_status': _kycStatus,
               'is_owner': _isOwner,
             };
@@ -216,6 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     user?.userMetadata?['full_name'] ??
                     user?.userMetadata?['name'],
                 avatarUrl: _avatarUrl,
+                qrCodeUrl: _qrCodeUrl,
                 kycStatus: _kycStatus,
                 isOwner: _isOwner,
                 isUploading: _isUploading,

@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class ProfileHeader extends StatelessWidget {
   final String? fullName;
   final String? avatarUrl;
+  final String? qrCodeUrl;
   final String kycStatus;
   final bool isOwner;
   final bool isUploading;
@@ -18,6 +19,7 @@ class ProfileHeader extends StatelessWidget {
     super.key,
     required this.fullName,
     required this.avatarUrl,
+    required this.qrCodeUrl,
     required this.kycStatus,
     required this.isOwner,
     required this.isUploading,
@@ -85,8 +87,8 @@ class ProfileHeader extends StatelessWidget {
                             color: Colors.white,
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: Colors.grey.shade300,
-                              width: 1,
+                              color: const Color(0xFFE2E8F0),
+                              width: 0.5,
                             ),
                           ),
                           child: CircleAvatar(
@@ -161,6 +163,35 @@ class ProfileHeader extends StatelessWidget {
                           ),
                         ),
                       ),
+                      // ── QR Code Icon (Top Left of avatar) ──
+                      if (qrCodeUrl != null && qrCodeUrl!.isNotEmpty)
+                        Positioned(
+                          top: 4,
+                          left: 4,
+                          child: GestureDetector(
+                            onTap: () => _showFullQR(context),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.qr_code_2_rounded,
+                                color: Color(0xFF1E293B),
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                   ),
@@ -173,7 +204,7 @@ class ProfileHeader extends StatelessWidget {
                         text: fullName ?? (isOwner ? 'Owner' : 'Guest'),
                         style: GoogleFonts.inter(
                           fontSize: 22,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w500,
                           color: const Color(0xFF1A1A1A), // Black text for white header
                         ),
                       ),
@@ -197,6 +228,74 @@ class ProfileHeader extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showFullQR(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.85),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(32),
+              ),
+              child: Column(
+                children: [
+                   ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: KhoznaImage(
+                      imageUrl: qrCodeUrl!,
+                      width: 280,
+                      height: 280,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Your Payout QR',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Show this to receive instant payments',
+                    style: GoogleFonts.inter(
+                      color: Colors.grey[600],
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.brandColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text('Close'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -354,7 +453,7 @@ class PostPropertyCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white, // White Background for card
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.withOpacity(0.15)), // Subtle border
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2), // Perfected border
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -460,6 +559,7 @@ class ProfileMenuSection extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2), // Perfect border
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.02), // Subtler shadow for 60% neutral background
