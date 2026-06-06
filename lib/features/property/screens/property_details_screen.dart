@@ -449,54 +449,67 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         showModalBottomSheet(
                           context: context,
                           isScrollControlled: true,
-                          backgroundColor: Colors.black,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                          ),
+                          backgroundColor: Colors.transparent,
+                          useRootNavigator: true,
                           builder: (context) => Container(
-                            height: MediaQuery.of(context).size.height * 0.7, // Medium/Half ratio
-                            clipBehavior: Clip.antiAlias,
+                            height: MediaQuery.of(context).size.height * 0.8,
                             decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                              color: Colors.black,
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
                             ),
-                            child: Stack(
+                            child: Column(
                               children: [
-                                KhoznaVideoPlayer(
-                                  videoUrl: widget.property.videoUrl,
-                                  thumbnailUrl: widget.property.imageUrl,
-                                  autoPlay: true,
-                                  externalController: _preVideoController,
+                                // Drag Handle
+                                const SizedBox(height: 12),
+                                Container(
+                                  width: 40,
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
                                 ),
-                                Positioned(
-                                  top: 16,
-                                  right: 16,
-                                  child: GestureDetector(
-                                    onTap: () => Navigator.pop(context),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.4),
-                                        shape: BoxShape.circle,
+                                const SizedBox(height: 8),
+                                // Header
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Property Tour',
+                                        style: GoogleFonts.plusJakartaSans(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w800,
+                                        ),
                                       ),
-                                      child: const Icon(Icons.close, color: Colors.white, size: 20),
+                                      GestureDetector(
+                                        onTap: () => Navigator.pop(context),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.1),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Video Player Area
+                                Expanded(
+                                  child: ClipRRect(
+                                    child: KhoznaVideoPlayer(
+                                      videoUrl: widget.property.videoUrl,
+                                      thumbnailUrl: widget.property.imageUrl,
+                                      autoPlay: true,
+                                      externalController: _preVideoController,
                                     ),
                                   ),
                                 ),
-                                Positioned(
-                                  top: 8,
-                                  left: 0,
-                                  right: 0,
-                                  child: Center(
-                                    child: Container(
-                                      width: 40,
-                                      height: 4,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.3),
-                                        borderRadius: BorderRadius.circular(2),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                const SizedBox(height: 12),
                               ],
                             ),
                           ),
