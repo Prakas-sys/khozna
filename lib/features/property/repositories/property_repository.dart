@@ -367,6 +367,7 @@ class PropertyRepository {
     } catch (e) {
       debugPrint('Initial Insert Error (likely missing column): $e');
       if (e.toString().contains('guests') || e.toString().contains('column')) {
+        debugPrint('CRITICAL: Guests column might be missing from DB. Falling back.');
         // Fallback: Retry without the 'guests' field if it hasn't been added to the DB schema yet
         insertData.remove('guests');
         response = await _client

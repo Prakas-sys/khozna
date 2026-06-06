@@ -631,6 +631,12 @@ class PropertyCard extends StatelessWidget {
       count++;
     }
 
+    // Priority 1.5: Guests
+    if (widget.property.guests > 0) {
+      amenityItems.add(_amenityIcon(Icons.people_outline_rounded, '${widget.property.guests} Guests'));
+      count++;
+    }
+
     // Combine amenities and house rules for display
     final combinedFeatures = [...amenities, ...houseRules];
 
