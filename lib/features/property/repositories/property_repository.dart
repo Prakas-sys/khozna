@@ -285,8 +285,10 @@ class PropertyRepository {
       }),
     );
 
+    // 3. Concurrent Media Uploads & AI Landmark Detection (with timeout for speed)
     Future<List<Map<String, dynamic>>> landmarksFuture = aiService
         .getNearbyLandmarks(cleanArea, cleanLandmark)
+        .timeout(const Duration(seconds: 4), onTimeout: () => [])
         .catchError((e) {
           debugPrint('AI Landmarks Error: $e');
           return <Map<String, dynamic>>[];
@@ -311,31 +313,12 @@ class PropertyRepository {
 
     // 5. Algorithm: Auto-categorize based on keywords
     final studentKeywords = [
-      'student',
-      'college',
-      'university',
-      'tuition',
-      'hostel',
-      'p.g.',
-      'pg',
-      'library',
-      'campus',
-      'विद्यार्थी',
-      'कलेज',
-      'अध्ययन',
+      'student', 'college', 'university', 'tuition', 'hostel', 'p.g.', 'pg', 
+      'library', 'campus', 'विद्यार्थी', 'कलेज', 'अध्ययन',
     ];
     final premiumKeywords = [
-      'premium',
-      'luxury',
-      'modern',
-      'deluxe',
-      'fully furnished',
-      'modular',
-      'brand new',
-      'विलासी',
-      'आधुनिक',
-      'भिआइपी',
-      'vip',
+      'premium', 'luxury', 'modern', 'deluxe', 'fully furnished', 'modular', 
+      'brand new', 'विलासी', 'आधुनिक', 'भिआइपी', 'vip',
     ];
 
     final fullText = (cleanTitle + cleanDescription).toLowerCase();
@@ -343,40 +326,58 @@ class PropertyRepository {
     final bool autoPremium =
         premiumKeywords.any((k) => fullText.contains(k)) || price >= 18000;
 
-    // 6. Database Insert
-    final response = await _client
-        .from('properties')
-        .insert({
-          'owner_id': user.id,
-          'title': cleanTitle,
-          'category': category,
-          'area_name': cleanArea,
-          'landmark': cleanLandmark,
-          'price': price,
-          'bedrooms': bedrooms,
-          'bathrooms': bathrooms,
-          'guests': guests,
-          'floor': floor,
-          'sq_ft': sqFt,
-          'is_negotiable': isNegotiable,
-          'amenities': amenities,
-          'house_rules': houseRules,
-          'images': uploadedUrls,
-          'description': cleanDescription,
-          'latitude': latitude,
-          'longitude': longitude,
-          'video_url': videoUrl,
-          'video_caption': cleanVideoCaption,
-          'status': 'available',
-          'is_verified': true,
-          'nearby_landmarks': nearbyLandmarks,
-          'is_premium': autoPremium,
-          'is_student_friendly': autoStudent,
-          'price_night': priceNight,
-          'price_month': priceMonth > 0 ? priceMonth : price,
-        })
-        .select('id')
-        .single();
+    // 6. Database Insert with Robustness for Schema Changes
+    final Map<String, dynamic> insertData = {
+      'owner_id': user.id,
+      'title': cleanTitle,
+      'category': category,
+      'area_name': cleanArea,
+      'landmark': cleanLandmark,
+      'price': price,
+      'bedrooms': bedrooms,
+      'bathrooms': bathrooms,
+      'guests': guests,
+      'floor': floor,
+      'sq_ft': sqFt,
+      'is_negotiable': isNegotiable,
+      'amenities': amenities,
+      'house_rules': houseRules,
+      'images': uploadedUrls,
+      'description': cleanDescription,
+      'latitude': latitude,
+      'longitude': longitude,
+      'video_url': videoUrl,
+      'video_caption': cleanVideoCaption,
+      'status': 'available',
+      'is_verified': true,
+      'nearby_landmarks': nearbyLandmarks,
+      'is_premium': autoPremium,
+      'is_student_friendly': autoStudent,
+      'price_night': priceNight,
+      'price_month': priceMonth > 0 ? priceMonth : price,
+    };
+
+    dynamic response;
+    try {
+      response = await _client
+          .from('properties')
+          .insert(insertData)
+          .select('id')
+          .single();
+    } catch (e) {
+      debugPrint('Initial Insert Error (likely missing column): $e');
+      if (e.toString().contains('guests') || e.toString().contains('column')) {
+        // Fallback: Retry without the 'guests' field if it hasn't been added to the DB schema yet
+        insertData.remove('guests');
+        response = await _client
+            .from('properties')
+            .insert(insertData)
+            .select('id')
+            .single();
+      } else {
+        rethrow;
+      }
+    }
 
     final String propertyId = response['id'];
 
