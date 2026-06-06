@@ -849,7 +849,6 @@ class AmenitiesGrid extends StatelessWidget {
                     labels[key] ?? '',
                     textAlign: TextAlign.center,
                     maxLines: 2,
-                    textAlign: TextAlign.center,
                     style: GoogleFonts.notoSansDevanagari(
                       fontSize: 12,
                       fontWeight: isSelected
