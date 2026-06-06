@@ -273,7 +273,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 _buildMapPreview(),
                 const SizedBox(height: 24),
                 if (widget.property.houseRules.isNotEmpty) ...[
-                  const DetailSectionTitle(title: 'नियमहरू (House Rules)'),
+                  DetailSectionTitle(title: 'नियमहरू (${widget.property.category} Rules)'),
                   const SizedBox(height: 12),
                   ...widget.property.houseRules.map((rule) {
                     final data = _getFeatureData(rule);

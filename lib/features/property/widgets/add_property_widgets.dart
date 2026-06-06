@@ -808,7 +808,7 @@ class AmenitiesGrid extends StatelessWidget {
         crossAxisCount: 3,
         mainAxisSpacing: 12,
         crossAxisSpacing: 12,
-        childAspectRatio: 1.1,
+        childAspectRatio: 1.0,
       ),
       itemBuilder: (context, index) {
         final key = icons.keys.elementAt(index);
@@ -848,8 +848,8 @@ class AmenitiesGrid extends StatelessWidget {
                   child: Text(
                     labels[key] ?? '',
                     textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
                     style: GoogleFonts.notoSansDevanagari(
                       fontSize: 12,
                       fontWeight: isSelected

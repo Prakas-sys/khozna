@@ -1215,7 +1215,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             const Icon(Icons.rule_folder_rounded, color: Colors.orange, size: 20),
             const SizedBox(width: 8),
             Text(
-              'घरका नियमहरू (House Rules)',
+              '${_selectedCategory ?? 'घर'}का नियमहरू (${_selectedCategory ?? 'House'} Rules)',
               style: GoogleFonts.notoSansDevanagari(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,

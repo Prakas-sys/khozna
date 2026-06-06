@@ -137,9 +137,11 @@ class RuleRow extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: Colors.grey[600]),
           const SizedBox(width: 10),
-          Text(
-            title,
-            style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700]),
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[700]),
+            ),
           ),
         ],
       ),
