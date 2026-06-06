@@ -475,7 +475,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                       initialZoom: 12.5,
                                       interactionOptions:
                                           const InteractionOptions(
-                                            flags: InteractiveFlag.none,
+                                            flags: InteractiveFlag.all,
                                           ),
                                     ),
                                     children: [
@@ -701,7 +701,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             ),
           ),
           // Floating Map Pill (Airbnb-style) - only in Nearby section
-          if (_showNearbySection && _nearbyProperties.isNotEmpty)
+          if (_showNearbySection && _nearbyProperties.isNotEmpty && _showMapPill)
             Positioned(
               bottom: 28,
               left: 0,
