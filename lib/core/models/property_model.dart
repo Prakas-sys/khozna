@@ -9,6 +9,7 @@ class Property {
   final String category;
   final int bedrooms;
   final int bathrooms;
+  final int guests;
   final String area;
   final String floor;
   final String status;
@@ -43,6 +44,7 @@ class Property {
     required this.category,
     required this.bedrooms,
     required this.bathrooms,
+    this.guests = 0,
     required this.area,
     required this.floor,
     required this.status,
@@ -96,6 +98,7 @@ class Property {
       category: map['category'] ?? 'Room',
       bedrooms: map['bedrooms'] ?? 0,
       bathrooms: map['bathrooms'] ?? 0,
+      guests: map['guests'] ?? 0,
       area: (map['sq_ft'] ?? 0).toString(),
       floor: map['floor'] ?? 'N/A',
       status: map['status'] ?? 'available',

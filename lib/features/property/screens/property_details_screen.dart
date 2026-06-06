@@ -298,9 +298,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildImageSection() {
-    final imageCount = widget.property.videoUrl.isNotEmpty
-        ? displayImages.length + 1
-        : displayImages.length;
+    final imageCount = displayImages.length;
 
     return SliverToBoxAdapter(
       child: SizedBox(
@@ -315,20 +313,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   setState(() => _currentImageIndex = index),
               itemCount: imageCount,
               itemBuilder: (context, index) {
-                if (index == 0 && widget.property.videoUrl.isNotEmpty) {
-                  return KhoznaVideoPlayer(
-                    videoUrl: widget.property.videoUrl,
-                    thumbnailUrl: widget.property.imageUrl,
-                    autoPlay: false,
-                  );
-                }
-                final imageIndex = widget.property.videoUrl.isNotEmpty
-                    ? index - 1
-                    : index;
                 return Hero(
-                  tag: widget.property.id + (imageIndex == 0 ? '' : imageIndex.toString()),
+                  tag: widget.property.id + (index == 0 ? '' : index.toString()),
                   child: KhoznaImage(
-                    imageUrl: displayImages[imageIndex],
+                    imageUrl: displayImages[index],
                     fit: BoxFit.cover,
                   ),
                 );
@@ -434,6 +422,72 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                     ),
                   ),
+                  if (widget.property.videoUrl.isNotEmpty) ...[
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            backgroundColor: Colors.black,
+                            insetPadding: EdgeInsets.zero,
+                            child: Stack(
+                              children: [
+                                KhoznaVideoPlayer(
+                                  videoUrl: widget.property.videoUrl,
+                                  thumbnailUrl: widget.property.imageUrl,
+                                  autoPlay: true,
+                                ),
+                                Positioned(
+                                  top: 40,
+                                  right: 20,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white, // White background like share button
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.play_circle_fill_rounded,
+                              color: Color(0xFF22C55E),
+                              size: 18,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Video',
+                              style: GoogleFonts.inter(
+                                color: Colors.black,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                   
                   // Share and Heart/Favourite Buttons
                   Row(
@@ -530,9 +584,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildHeader() {
-    int guests = widget.property.bedrooms * 2 > 0 ? widget.property.bedrooms * 2 : 2;
-    int beds = widget.property.bedrooms > 0 ? widget.property.bedrooms : 1;
-    String specs = '$guests guests  •  ${widget.property.bedrooms} bedroom  •  $beds bed  •  ${widget.property.bathrooms} bath';
+    int guests = widget.property.guests;
+    int bedrooms = widget.property.bedrooms;
+    int bathrooms = widget.property.bathrooms;
+    String specs = '$guests guests  •  $bedrooms bedroom  •  $bathrooms bath';
 
     final double? avgRating = _reviews.isNotEmpty
         ? (_reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length)

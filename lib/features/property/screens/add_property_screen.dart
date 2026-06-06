@@ -40,6 +40,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final TextEditingController _priceNightController = TextEditingController();
   final TextEditingController _bedroomsController = TextEditingController();
   final TextEditingController _bathroomsController = TextEditingController();
+  final TextEditingController _guestsController = TextEditingController(text: '1');
   final TextEditingController _floorController = TextEditingController();
   final TextEditingController _sqftController = TextEditingController();
   final TextEditingController _videoCaptionController = TextEditingController();
@@ -136,6 +137,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     _priceNightController.dispose();
     _bedroomsController.dispose();
     _bathroomsController.dispose();
+    _guestsController.dispose();
     _floorController.dispose();
     _sqftController.dispose();
     _payoutAccountController.dispose();
@@ -410,6 +412,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         price: double.tryParse(_priceController.text) ?? 0.0,
         bedrooms: int.tryParse(_bedroomsController.text) ?? 0,
         bathrooms: int.tryParse(_bathroomsController.text) ?? 0,
+        guests: int.tryParse(_guestsController.text) ?? 0,
         floor: _floorController.text,
         sqFt: _sqftController.text,
         isNegotiable: _isNegotiable,
@@ -1026,6 +1029,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 16),
+        CounterField(
+          label: 'अतिथि संख्या (Guests)',
+          icon: Icons.people_outline_rounded,
+          value: _guestsController.text,
+          onIncrement: () => _updateCount(_guestsController, 1),
+          onDecrement: () => _updateCount(_guestsController, -1),
         ),
         const SizedBox(height: 24),
         FloorSelector(
