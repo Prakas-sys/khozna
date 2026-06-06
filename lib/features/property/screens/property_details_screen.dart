@@ -48,6 +48,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Map<String, dynamic>? _ownerData;
   List<ReviewModel> _reviews = [];
   bool _isLoadingReviews = true;
+  VideoPlayerController? _preVideoController;
 
   String get _currentUserId =>
       Supabase.instance.client.auth.currentUser?.id ?? '';
@@ -88,6 +89,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       _fetchOwnerData(),
       _updateBookingStatus(),
       _loadReviews(),
+      _preInitVideo(),
     ]);
     
     _incrementViews();
@@ -97,7 +99,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   void dispose() {
     _visitTimer?.cancel();
     _pageController.dispose();
+    _preVideoController?.dispose();
     super.dispose();
+  }
+
+  Future<void> _preInitVideo() async {
+    if (widget.property.videoUrl.isNotEmpty) {
+      String optimizedUrl = widget.property.videoUrl;
+      if (optimizedUrl.contains('cloudinary.com')) {
+        optimizedUrl = optimizedUrl.replaceAll('/upload/', '/upload/f_auto,q_auto/');
+      }
+      _preVideoController = VideoPlayerController.networkUrl(
+        Uri.parse(optimizedUrl),
+      );
+      try {
+        await _preVideoController!.initialize();
+      } catch (_) {}
+    }
   }
 
   Future<void> _incrementViews() async {
@@ -427,24 +445,55 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     GestureDetector(
                       onTap: () {
                         HapticFeedback.lightImpact();
-                        showDialog(
+                        showModalBottomSheet(
                           context: context,
-                          builder: (context) => Dialog(
-                            backgroundColor: Colors.black,
-                            insetPadding: EdgeInsets.zero,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.black,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                          ),
+                          builder: (context) => Container(
+                            height: MediaQuery.of(context).size.height * 0.7, // Medium/Half ratio
+                            clipBehavior: Clip.antiAlias,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                            ),
                             child: Stack(
                               children: [
                                 KhoznaVideoPlayer(
                                   videoUrl: widget.property.videoUrl,
                                   thumbnailUrl: widget.property.imageUrl,
                                   autoPlay: true,
+                                  externalController: _preVideoController,
                                 ),
                                 Positioned(
-                                  top: 40,
-                                  right: 20,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.close, color: Colors.white, size: 30),
-                                    onPressed: () => Navigator.pop(context),
+                                  top: 16,
+                                  right: 16,
+                                  child: GestureDetector(
+                                    onTap: () => Navigator.pop(context),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.4),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.close, color: Colors.white, size: 20),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 8,
+                                  left: 0,
+                                  right: 0,
+                                  child: Center(
+                                    child: Container(
+                                      width: 40,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.3),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],

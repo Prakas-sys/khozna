@@ -12,6 +12,7 @@ class KhoznaVideoPlayer extends StatefulWidget {
   final bool autoPlay;
   final bool loop;
   final VoidCallback? onVideoEnded;
+  final VideoPlayerController? externalController;
 
   const KhoznaVideoPlayer({
     super.key,
@@ -20,6 +21,7 @@ class KhoznaVideoPlayer extends StatefulWidget {
     this.autoPlay = true,
     this.loop = true,
     this.onVideoEnded,
+    this.externalController,
   });
 
   @override
@@ -73,6 +75,16 @@ class _KhoznaVideoPlayerState extends State<KhoznaVideoPlayer> {
   }
 
   Future<void> _initializePlayer() async {
+    if (widget.externalController != null) {
+      _controller = widget.externalController!;
+      _isInitialized = _controller.value.isInitialized;
+      if (mounted) setState(() {});
+      _controller.addListener(_videoListener);
+      if (widget.autoPlay && reelsTabActive.value) {
+        _controller.play();
+      }
+      return;
+    }
     if (widget.videoUrl.isEmpty) {
       setState(() => _hasError = true);
       return;
