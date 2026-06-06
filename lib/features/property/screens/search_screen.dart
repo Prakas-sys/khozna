@@ -600,7 +600,10 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                         ),
                                     ],
                                   ),
-                                  Positioned.fill(
+                                  // View Full Map Floating Button
+                                  Positioned(
+                                    bottom: 12,
+                                    right: 12,
                                     child: GestureDetector(
                                       onTap: () => Navigator.push(
                                         context,
@@ -610,7 +613,42 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                         ),
                                       ),
                                       child: Container(
-                                        color: Colors.transparent,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black
+                                                  .withOpacity(0.1),
+                                              blurRadius: 10,
+                                            ),
+                                          ],
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.fullscreen_rounded,
+                                              size: 16,
+                                              color: Colors.black87,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              'Full Map',
+                                              style:
+                                                  GoogleFonts.plusJakartaSans(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
