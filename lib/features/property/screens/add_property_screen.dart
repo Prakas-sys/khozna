@@ -609,12 +609,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            'Property type',
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[400],
+          Flexible(
+            child: Text(
+              'Property type',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[400],
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -773,12 +776,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            'Location',
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[400],
+          Flexible(
+            child: Text(
+              'Location',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[400],
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -1214,12 +1220,16 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           children: [
             const Icon(Icons.rule_folder_rounded, color: Colors.orange, size: 20),
             const SizedBox(width: 8),
-            Text(
-              '${_selectedCategory ?? 'घर'}का नियमहरू (${_selectedCategory ?? 'House'} Rules)',
-              style: GoogleFonts.notoSansDevanagari(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF111827),
+            Expanded(
+              child: Text(
+                '${_selectedCategory ?? 'घर'}का नियमहरू (${_selectedCategory ?? 'House'} Rules)',
+                style: GoogleFonts.notoSansDevanagari(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF111827),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
