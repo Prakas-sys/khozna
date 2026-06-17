@@ -78,7 +78,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
 
       if (response.user != null) {
-        await SupabaseService.syncUserWithSupabase(response.user!);
+        // Non-blocking sync - database trigger also handles this, but we fire/forget to ensure metadata sync
+        SupabaseService.syncUserWithSupabase(response.user!);
+        
         // Persist login time for session freshness tracking
         await OfflineStorage.saveLastActiveTime();
         if (mounted) {
@@ -412,7 +414,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
-          ?suffixIcon,
+          if (suffixIcon != null) suffixIcon,
         ],
       ),
     );

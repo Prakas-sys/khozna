@@ -140,8 +140,9 @@ class _VerifyPhoneScreenState extends State<VerifyPhoneScreen> {
       );
 
       if (response.user != null) {
-        // Sync with Supabase (using our internal profile table)
-        await SupabaseService.syncUserWithSupabase(response.user!);
+        // Sync with Supabase (using our internal profile table) - Non-blocking fire and forget
+        SupabaseService.syncUserWithSupabase(response.user!);
+        
         // Persist login time for session freshness tracking
         await OfflineStorage.saveLastActiveTime();
 

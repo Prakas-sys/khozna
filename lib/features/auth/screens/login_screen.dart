@@ -151,14 +151,13 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
     try {
       // 1. Initialize Native Google Sign-In
-      // TIP: You will need to add your Web Client ID to your .env file
       final GoogleSignIn googleSignIn = GoogleSignIn(
         serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
       );
 
-      // Force account picker by signing out first
-      await googleSignIn.signOut();
-
+      // Removed forced signOut() to speed up login. 
+      // If the user needs to switch accounts, they can do so via the picker (if it appears)
+      // or using the 'Switch Account' feature in the Profile screen.
       final googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         setState(() => _isLoading = false);

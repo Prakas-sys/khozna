@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+4
+version: 1.0.1+5
 
 environment:
   sdk: ^3.11.0
@@ -143,8 +143,14 @@ flutter_launcher_icons:
 flutter_native_splash:
   color: "#ffffff"
   image: "assets/images/original_logo.png"
+  # Support Android 12 Splash Screen API (fixes the 'huge logo' issue)
+  android_12:
+    image: "assets/images/original_logo.png"
+    color: "#ffffff"
+  
   android: true
   ios: false
   android_gravity: center
-  fullscreen: true
+  # Disabling fullscreen as it can cause scaling inconsistencies across different aspect ratios
+  fullscreen: false
 

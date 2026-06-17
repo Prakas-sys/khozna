@@ -130,30 +130,32 @@ class _CompromisedDeviceApp extends StatelessWidget {
 
 /// New central initialization hub
 Future<void> _initializeServices() async {
-  debugPrint('--- PARALLEL SERVICE INITIALIZATION START ---');
+  debugPrint('--- [PERF] Parallel Service Initialization Start ---');
 
-  // Staggered initialization for maximum stability on 6GB RAM systems
-  await Future.delayed(const Duration(milliseconds: 150));
-  await supabase.Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-  );
-  debugPrint('--- SUPABASE READY ---');
+  // Launch all initializations in parallel without staggered delays
+  await Future.wait([
+    // Initialize Supabase
+    supabase.Supabase.initialize(
+      url: dotenv.env['SUPABASE_URL'] ?? '',
+      anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+    ).then((_) => debugPrint('--- SUPABASE READY ---')),
 
-  await Future.delayed(const Duration(milliseconds: 150));
-  // Firebase Core is now pre-initialized in main()
-  debugPrint('--- SETTING UP FIREBASE SERVICES ---');
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await PushNotificationService.initialize();
+    // Initialize Firebase Services
+    Future(() async {
+      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      await PushNotificationService.initialize();
+      debugPrint('--- FIREBASE SERVICES READY ---');
+    }),
 
-  await Future.delayed(const Duration(milliseconds: 150));
-  await GoogleFonts.pendingFonts([
-    GoogleFonts.inter(),
-    GoogleFonts.plusJakartaSans(),
-    GoogleFonts.outfit(),
-  ]).catchError((_) => []);
+    // Initialize Fonts (Non-blocking fallback)
+    GoogleFonts.pendingFonts([
+      GoogleFonts.inter(),
+      GoogleFonts.plusJakartaSans(),
+      GoogleFonts.outfit(),
+    ]).catchError((_) => []),
+  ]);
 
-  debugPrint('--- PARALLEL INITIALIZATION COMPLETE ---');
+  debugPrint('--- [PERF] Parallel Initialization Complete ---');
 }
 
 
@@ -180,11 +182,17 @@ class _KhoznaAppState extends State<KhoznaApp> {
 
     // Start global service initialization
     await _initializeServices();
-    await SupabaseService.fetchSavedPropertyIds(); // Fetch Master Memory IDs
-    await SupabaseService.fetchBookedPropertyIds(); // Fetch Booking Master Memory
+
+    // Fetch initial data in parallel to avoid sequential blocking
+    await Future.wait([
+      SupabaseService.fetchSavedPropertyIds(),
+      SupabaseService.fetchBookedPropertyIds(),
+    ]);
+
     initializeBadgeSync();
 
     // Initial fetch of unread counts to populate badges immediately
+    // These are non-blocking anyway, but good to keep grouped
     SupabaseService.fetchUnreadMessageCount();
     SupabaseService.fetchUnreadNotificationCount();
 
