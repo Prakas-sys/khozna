@@ -485,147 +485,107 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return StatefulBuilder(
       builder: (context, setCardState) {
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color(0xFF00A3E1).withOpacity(0.15),
+              color: const Color(0xFFF0F0F0),
+              width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 16,
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Column(
             children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00A3E1).withOpacity(0.06),
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20),
-                  ),
-                ),
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.pending_actions_rounded,
-                      color: Color(0xFF00A3E1),
-                      size: 24,
+                    // Premium Icon Badge
+                    Stack(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00A3E1).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.calendar_today_rounded,
+                            color: Color(0xFF00A3E1),
+                            size: 24,
+                          ),
+                        ),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: Colors.redAccent,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
+                    // Content
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'नयाँ बुकिङ अनुरोध', // New Booking Request
+                                style: GoogleFonts.outfit(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                              Text(
+                                _formatTime(note['created_at']),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 11,
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
                           Text(
-                            'अवलोकन अनुरोध (New Visit Request)',
+                            sender?['full_name'] ?? 'Someone',
                             style: GoogleFonts.plusJakartaSans(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 16,
-                              color: Colors.black,
+                              fontSize: 14,
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
+                          const SizedBox(height: 8),
                           Text(
-                            _formatTime(note['created_at']),
+                            'विस्तृत जानकारीका लागि तलका विकल्पहरू रोज्नुहोस्।', // Select options below for details
                             style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: Colors.grey[500],
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                              height: 1.4,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              // Body: requester info
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            if (sender != null) {
-                              _showGuestProfile(context, sender);
-                            }
-                          },
-                          child: Stack(
-                            children: [
-                              CircleAvatar(
-                                radius: 24,
-                                backgroundColor: Colors.grey[100],
-                                backgroundImage:
-                                    sender != null &&
-                                        sender['avatar_url'] != null
-                                    ? CachedNetworkImageProvider(
-                                        sender['avatar_url'],
-                                      )
-                                    : null,
-                                child:
-                                    sender == null ||
-                                        sender['avatar_url'] == null
-                                    ? Icon(
-                                        Icons.person,
-                                        color: Colors.grey[400],
-                                        size: 24,
-                                      )
-                                    : null,
-                              ),
-                              // Tap-to-view hint badge
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  padding: const EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.brandColor,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 1.5,
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.person_search_rounded,
-                                    size: 9,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _getHumanMessage(note, sender),
-                                style: GoogleFonts.notoSansDevanagari(
-                                  fontSize: 16,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.4,
-                                ),
-                              ),
-
-                            ],
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),

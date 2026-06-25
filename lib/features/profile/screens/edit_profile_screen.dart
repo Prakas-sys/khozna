@@ -31,6 +31,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final _bioController = TextEditingController();
   final _orgController = TextEditingController();
 
+  // Focus nodes for interactive "Design Box" borders
+  final Map<String, FocusNode> _focusNodes = {
+    'name': FocusNode(),
+    'phone': FocusNode(),
+    'area': FocusNode(),
+    'role': FocusNode(),
+    'org': FocusNode(),
+    'bio': FocusNode(),
+    'esewa': FocusNode(),
+    'khalti': FocusNode(),
+    'acc': FocusNode(),
+  };
+
   bool _isLoading = false;
   bool _isLocating = false;
   String? _avatarUrl;
@@ -72,6 +85,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _userTypeController.dispose();
     _bioController.dispose();
     _orgController.dispose();
+    _focusNodes.forEach((key, node) => node.dispose());
     super.dispose();
   }
 
@@ -203,7 +217,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         children: [
           SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -211,36 +224,44 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 _buildProfilePhotoSection(),
                 const SizedBox(height: 32),
                 
-                _buildAirbnbHeader('Personal info'),
-                const SizedBox(height: 24),
-                _buildAirbnbField('Full Name', _fullNameController),
-                _buildAirbnbField('Email Address', _emailController, enabled: false),
-                _buildAirbnbField('Phone Number', _phoneController, keyboardType: TextInputType.phone),
-                
-                const SizedBox(height: 24),
-                _buildAirbnbHeader('About yourself'),
-                const SizedBox(height: 24),
-                _buildAirbnbField('Neighborhood', _areaController),
-                _buildAirbnbField('Role', _userTypeController),
-                _buildAirbnbField('Organization', _orgController),
-                _buildAirbnbField('Bio', _bioController, maxLines: 4),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildAirbnbHeader('Public profile'),
+                      const SizedBox(height: 24),
+                      _buildAirbnbField('Full Name', _fullNameController, focusNode: _focusNodes['name']),
+                      _buildAirbnbField('Email Address', _emailController, enabled: false),
+                      _buildAirbnbField('Phone Number', _phoneController, keyboardType: TextInputType.phone, focusNode: _focusNodes['phone']),
+                      
+                      const SizedBox(height: 24),
+                      _buildAirbnbHeader('Tell your story'),
+                      const SizedBox(height: 24),
+                      _buildAirbnbField('Neighborhood', _areaController, focusNode: _focusNodes['area']),
+                      _buildAirbnbField('Role', _userTypeController, focusNode: _focusNodes['role']),
+                      _buildAirbnbField('Organization', _orgController, focusNode: _focusNodes['org']),
+                      _buildAirbnbField('Bio', _bioController, maxLines: 4, focusNode: _focusNodes['bio']),
 
-                const SizedBox(height: 24),
-                if (_kycStatus != 'verified') _buildRefinedKycAlert(),
-                const SizedBox(height: 24),
+                      const SizedBox(height: 24),
+                      _buildSecuritySection(),
+                      const SizedBox(height: 32),
 
-                _buildAirbnbHeader('Payment methods'),
-                const SizedBox(height: 24),
-                _buildAirbnbField('eSewa ID', _esewaController),
-                _buildAirbnbField('Khalti ID', _khaltiController),
-                _buildAirbnbField('Account Legal Name', _accountNameController),
-                
-                const SizedBox(height: 16),
-                _buildPremiumMediaGrid(),
-                
-                const SizedBox(height: 48),
-                _buildAirbnbSaveButton(),
-                const SizedBox(height: 80),
+                      _buildAirbnbHeader('Payout options'),
+                      const SizedBox(height: 24),
+                      _buildAirbnbField('eSewa ID', _esewaController, focusNode: _focusNodes['esewa']),
+                      _buildAirbnbField('Khalti ID', _khaltiController, focusNode: _focusNodes['khalti']),
+                      _buildAirbnbField('Legal Name', _accountNameController, focusNode: _focusNodes['acc']),
+                      
+                      const SizedBox(height: 16),
+                      _buildPremiumMediaGrid(),
+                      
+                      const SizedBox(height: 48),
+                      _buildAirbnbSaveButton(),
+                      const SizedBox(height: 80),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -280,53 +301,59 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildAirbnbHeader(String title) {
     return Text(
       title,
-      style: GoogleFonts.plusJakartaSans(
+      style: GoogleFonts.inter(
         fontSize: 22,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         color: colorTextPrimary,
         letterSpacing: -0.5,
       ),
     );
   }
 
-  Widget _buildAirbnbField(String label, TextEditingController controller, {bool enabled = true, int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
+  Widget _buildAirbnbField(String label, TextEditingController controller, {bool enabled = true, int maxLines = 1, TextInputType keyboardType = TextInputType.text, FocusNode? focusNode}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label.toUpperCase(),
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 11,
-              fontWeight: FontWeight.w900,
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
               color: colorTextSecondary,
-              letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 10),
-          Container(
-            decoration: BoxDecoration(
-              color: colorSecondary,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.transparent),
+          const SizedBox(height: 8),
+          TextField(
+            controller: controller,
+            enabled: enabled,
+            focusNode: focusNode,
+            maxLines: maxLines,
+            keyboardType: keyboardType,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: enabled ? colorTextPrimary : colorTextSecondary,
             ),
-            child: TextField(
-              controller: controller,
-              enabled: enabled,
-              maxLines: maxLines,
-              keyboardType: keyboardType,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: enabled ? colorTextPrimary : colorTextSecondary,
+            decoration: InputDecoration(
+              isDense: true,
+              filled: true,
+              fillColor: enabled ? colorPrimary : colorSecondary.withOpacity(0.5),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
               ),
-              decoration: InputDecoration(
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                border: InputBorder.none,
-                suffixIcon: !enabled ? const Icon(Icons.lock_outline_rounded, size: 16, color: colorTextSecondary) : null,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
               ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: colorTextPrimary, width: 1.5),
+              ),
+              suffixIcon: !enabled ? const Icon(Icons.lock_outline_rounded, size: 16, color: colorTextSecondary) : null,
             ),
           ),
         ],
@@ -375,59 +402,103 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildRefinedKycAlert() {
+  Widget _buildSecuritySection() {
+    // Treat as verified if status is verified OR if a location was JUST captured
+    final bool isVerified = _kycStatus == 'verified' || (_latitude != null && _longitude != null);
+    
     return Container(
-      padding: const EdgeInsets.all(20),
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF7F7),
+        color: colorPrimary,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFFE5E5)),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.info_outline_rounded, color: Colors.redAccent, size: 20),
-              const SizedBox(width: 12),
               Text(
-                'Identity verification',
-                style: GoogleFonts.plusJakartaSans(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
+                'Identity & Trust',
+                style: GoogleFonts.inter(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
                   color: colorTextPrimary,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isVerified ? const Color(0xFFE7F6ED) : const Color(0xFFFFF1F1),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      isVerified ? Icons.verified_rounded : Icons.info_outline_rounded,
+                      size: 14,
+                      color: isVerified ? const Color(0xFF008A05) : const Color(0xFFC13511),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      isVerified ? 'Verified' : 'Action Required',
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: isVerified ? const Color(0xFF008A05) : const Color(0xFFC13511),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
-            'Keep your profile safe by linking your GPS location for the security check.',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
+            isVerified 
+              ? 'Your identity is confirmed. This builds trust with other Khozna users.' 
+              : 'Complete your profile security by pinning your location for local verification.',
+            style: GoogleFonts.inter(
+              fontSize: 14,
               color: colorTextSecondary,
-              height: 1.4,
+              height: 1.5,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 16),
-          TextButton(
-            onPressed: _isLocating ? null : _updateLocation,
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.zero,
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              _isLocating ? 'Capturing location...' : 'Verify securely',
-              style: GoogleFonts.plusJakartaSans(
-                color: colorAccent,
-                fontWeight: FontWeight.w800,
-                fontSize: 14,
-                decoration: TextDecoration.underline,
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _isLocating ? null : _updateLocation,
+              icon: _isLocating 
+                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: colorTextPrimary))
+                : Icon(isVerified ? Icons.refresh_rounded : Icons.location_on_rounded, size: 18),
+              label: Text(_isLocating ? 'Capturing...' : (isVerified ? 'Location Updated' : 'Pin My Location')),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: colorTextPrimary,
+                side: const BorderSide(color: colorTextPrimary),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700),
               ),
             ),
           ),
+          if (_latitude != null && _longitude != null) ...[
+            const SizedBox(height: 12),
+            Center(
+              child: Text(
+                'Last synced: ${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: colorTextSecondary,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -481,22 +552,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildAirbnbSaveButton() {
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      height: 56,
+      height: 58,
+      decoration: BoxDecoration(
+        color: colorAccent,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: ElevatedButton(
         onPressed: _isLoading ? null : _updateProfile,
         style: ElevatedButton.styleFrom(
-          backgroundColor: colorAccent,
+          backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
+          shadowColor: Colors.transparent,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: Text(
-          'Save profile',
-          style: GoogleFonts.plusJakartaSans(
-            fontWeight: FontWeight.w800,
-            fontSize: 16,
+          'Update Profile',
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w700,
+            fontSize: 17,
           ),
         ),
       ),
