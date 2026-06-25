@@ -142,14 +142,14 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#ffffff"
-  image: "assets/images/original_logo.png"
+  image: "assets/images/splash_padded.png"
   # Support Android 12 Splash Screen API (fixes the 'huge logo' issue)
   android_12:
-    image: "assets/images/original_logo.png"
+    image: "assets/images/splash_padded.png"
     color: "#ffffff"
   
   android: true
-  ios: false
+  ios: true
   android_gravity: center
   # Disabling fullscreen as it can cause scaling inconsistencies across different aspect ratios
   fullscreen: false
