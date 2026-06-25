@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/property/screens/saved_properties_screen.dart';
@@ -457,6 +458,9 @@ class _ProfileScreenState extends State<ProfileScreen>
               profileCache.value = null;
               await OfflineStorage.clearProfileCache();
               await OfflineStorage.clearHomeCache();
+              try {
+                await GoogleSignIn().signOut();
+              } catch (_) {}
               await Supabase.instance.client.auth.signOut();
               if (mounted) {
                 Navigator.pushAndRemoveUntil(
@@ -555,6 +559,9 @@ class _ProfileScreenState extends State<ProfileScreen>
             ListTile(
               onTap: () async {
                 Navigator.pop(context);
+                try {
+                  await GoogleSignIn().signOut();
+                } catch (_) {}
                 await Supabase.instance.client.auth.signOut();
                 if (context.mounted) {
                   Navigator.pushAndRemoveUntil(

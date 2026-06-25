@@ -155,9 +155,9 @@ class _LoginScreenState extends State<LoginScreen> {
         serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
       );
 
-      // Removed forced signOut() to speed up login. 
-      // If the user needs to switch accounts, they can do so via the picker (if it appears)
-      // or using the 'Switch Account' feature in the Profile screen.
+      // Force the account selection picker by signing out before signing in.
+      // This ensures that the user can switch accounts if they wish.
+      await googleSignIn.signOut();
       final googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         setState(() => _isLoading = false);
