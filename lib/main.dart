@@ -59,18 +59,27 @@ void main() async {
 
   // Initialize Firebase earlier to establish stable channel
   try {
-    await Firebase.initializeApp();
+    if (kIsWeb) {
+      // On Web, Firebase needs explicit options or it hangs main()
+      // We'll skip blocking init on Web to allow the UI to load
+      Firebase.initializeApp().timeout(const Duration(seconds: 2)).catchError((e) {
+        debugPrint('--- FIREBASE WEB INIT TIMEOUT/ERROR (SKIPPED) ---');
+        return null;
+      });
+    } else {
+      await Firebase.initializeApp();
+      
+      // 📈 Pass all unfiltered errors from the framework to Crashlytics.
+      FlutterError.onError = (errorDetails) {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      };
 
-    // 📈 Pass all unfiltered errors from the framework to Crashlytics.
-    FlutterError.onError = (errorDetails) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-    };
-
-    // Pass all errors within the platform (e.g. native crashes)
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
+      // Pass all errors within the platform (e.g. native crashes)
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    }
 
     debugPrint('--- FIREBASE CORE & OBSERVABILITY READY ---');
   } catch (e) {

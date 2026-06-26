@@ -15,6 +15,10 @@ class PushNotificationService {
   static final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
   static Future<void> initialize() async {
+    if (kIsWeb) {
+      debugPrint('--- [PUSH] Web detected: Skipping Push initialization ---');
+      return;
+    }
     debugPrint('--- [FIAM] In-App Messaging is active ---');
 
     // 1. Request Permissions
