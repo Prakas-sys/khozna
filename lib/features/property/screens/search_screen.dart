@@ -59,31 +59,23 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     super.initState();
     _searchController = TextEditingController();
 
-    // Guard search screen for guest users
-    // Removed mandatory login guard to allow guest browsing
-
-      // Auto-fill from voice search or constructor
-      if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
-        setState(() {
-          _searchController.text = widget.initialQuery!;
-        });
-        // Auto-trigger search
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => FilterResultsScreen(
-                  location: widget.initialQuery!,
-                  priceRange: 'Up to ₹ ${_priceValue.toInt()}',
-                ),
+    // Auto-fill from voice search or constructor
+    if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
+      _searchController.text = widget.initialQuery!;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FilterResultsScreen(
+                location: widget.initialQuery!,
+                priceRange: 'Up to ₹ ${_priceValue.toInt()}',
               ),
-            );
-          }
-        });
-        return;
-      }
-    });
+            ),
+          );
+        }
+      });
+    }
 
     _loadNearbyData();
 
