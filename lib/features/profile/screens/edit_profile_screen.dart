@@ -231,17 +231,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     children: [
                       _buildAirbnbHeader('Public profile'),
                       const SizedBox(height: 24),
-                      _buildAirbnbField('Full Name', _fullNameController, focusNode: _focusNodes['name']),
+                      _buildAirbnbField('Full Name / पूरा नाम', _fullNameController, focusNode: _focusNodes['name']),
                       _buildAirbnbField('Email Address', _emailController, enabled: false),
-                      _buildAirbnbField('Phone Number', _phoneController, keyboardType: TextInputType.phone, focusNode: _focusNodes['phone']),
+                      _buildAirbnbField('Phone Number / फोन नम्बर', _phoneController, keyboardType: TextInputType.phone, focusNode: _focusNodes['phone']),
                       
                       const SizedBox(height: 24),
                       _buildAirbnbHeader('Tell your story'),
                       const SizedBox(height: 24),
-                      _buildAirbnbField('Neighborhood', _areaController, focusNode: _focusNodes['area']),
+                      _buildAirbnbField('Neighborhood / छरछिमेक', _areaController, focusNode: _focusNodes['area']),
                       _buildAirbnbField('Role', _userTypeController, focusNode: _focusNodes['role']),
                       _buildAirbnbField('Organization', _orgController, focusNode: _focusNodes['org']),
-                      _buildAirbnbField('Bio', _bioController, maxLines: 4, focusNode: _focusNodes['bio']),
+                      _buildAirbnbField('Bio / आफ्नो बारेमा', _bioController, maxLines: 4, focusNode: _focusNodes['bio']),
 
                       const SizedBox(height: 24),
                       _buildSecuritySection(),
@@ -251,7 +251,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 24),
                       _buildAirbnbField('eSewa ID', _esewaController, focusNode: _focusNodes['esewa']),
                       _buildAirbnbField('Khalti ID', _khaltiController, focusNode: _focusNodes['khalti']),
-                      _buildAirbnbField('Legal Name', _accountNameController, focusNode: _focusNodes['acc']),
+                      _buildAirbnbField('Legal Name / कानूनी नाम', _accountNameController, focusNode: _focusNodes['acc']),
                       
                       const SizedBox(height: 16),
                       _buildPremiumMediaGrid(),
@@ -420,14 +420,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Identity & Trust',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: colorTextPrimary,
+              Expanded(
+                child: Text(
+                  'Identity & Trust',
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: colorTextPrimary,
+                  ),
                 ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(

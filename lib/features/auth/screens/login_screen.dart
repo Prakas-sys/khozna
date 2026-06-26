@@ -151,8 +151,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
     try {
       // 1. Initialize Native Google Sign-In
+      final String? clientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'] ?? '543455945266-or43hs9ptlqi3kgb5ippi4cvqafk9115.apps.googleusercontent.com';
       final GoogleSignIn googleSignIn = GoogleSignIn(
-        serverClientId: dotenv.env['GOOGLE_WEB_CLIENT_ID'],
+        clientId: clientId, // 🌍 CRITICAL for Web
+        serverClientId: clientId,
       );
 
       // Force the account selection picker by signing out before signing in.

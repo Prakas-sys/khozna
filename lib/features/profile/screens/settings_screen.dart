@@ -676,48 +676,91 @@ class _SettingsScreenState extends State<SettingsScreen> {
     bool value,
     Function(bool) onChanged,
   ) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(
-        title,
-        style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
-      ),
-      subtitle: Text(
-        desc,
-        style: GoogleFonts.inter(
-          fontSize: 12,
-          color: Colors.grey[500],
-          fontWeight: FontWeight.w400,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9), // Subtle slate background
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.notifications_none_rounded,
+            color: const Color(0xFF1E293B),
+            size: 20,
+          ),
         ),
-      ),
-      trailing: Switch(
-        value: value,
-        onChanged: onChanged,
-        activeThumbColor: AppTheme.brandColor,
+        title: Text(
+          title,
+          style: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
+            color: const Color(0xFF1E293B),
+          ),
+        ),
+        subtitle: Text(
+          desc,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: const Color(0xFF64748B),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        trailing: Transform.scale(
+          scale: 0.8,
+          child: Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: AppTheme.brandColor,
+            activeTrackColor: AppTheme.brandColor.withOpacity(0.2),
+            inactiveThumbColor: Colors.grey[400],
+            inactiveTrackColor: Colors.grey[200],
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildLanguageTile() {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(
-        'Language',
-        style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
-      ),
-      subtitle: Text(
-        _language,
-        style: GoogleFonts.inter(
-          fontSize: 12,
-          color: AppTheme.brandColor,
-          fontWeight: FontWeight.bold,
+    return Container(
+       margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.translate_rounded,
+            color: Color(0xFF1E293B),
+            size: 20,
+          ),
         ),
-      ),
-      trailing: const Icon(
-        Icons.arrow_forward_ios,
-        size: 14,
-        color: Colors.grey,
-      ),
+        title: Text(
+          'Language',
+          style: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
+            color: const Color(0xFF1E293B),
+          ),
+        ),
+        subtitle: Text(
+          _language,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12,
+            color: AppTheme.brandColor,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        trailing: const Icon(
+          Icons.arrow_forward_ios_rounded,
+          size: 14,
+          color: Color(0xFF94A3B8),
+        ),
       onTap: () {
         showModalBottomSheet(
           context: context,
@@ -754,26 +797,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSimpleTile(IconData icon, String title) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          shape: BoxShape.circle,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: const Color(0xFF1E293B), size: 20),
         ),
-        child: Icon(icon, color: Colors.black, size: 20),
+        title: Text(
+          title,
+          style: GoogleFonts.plusJakartaSans(
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
+            color: const Color(0xFF1E293B),
+          ),
+        ),
+        trailing: const Icon(
+          Icons.arrow_forward_ios_rounded,
+          size: 14,
+          color: Color(0xFF94A3B8),
+        ),
+        onTap: () {},
       ),
-      title: Text(
-        title,
-        style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
-      ),
-      trailing: const Icon(
-        Icons.arrow_forward_ios,
-        size: 14,
-        color: Colors.grey,
-      ),
-      onTap: () {},
     );
   }
 }

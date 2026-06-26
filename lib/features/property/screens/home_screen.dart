@@ -283,26 +283,12 @@ class HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 24),
                 HomeSearchBar(
                   onTap: () {
-                    if (!AuthGuard.checkAuth(
-                      context,
-                      title: 'Search Properties',
-                      message: 'Log in to search and discover matching properties.',
-                    )) {
-                      return;
-                    }
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const SearchScreen()),
                     );
                   },
                   onVoiceResult: (text) {
-                    if (!AuthGuard.checkAuth(
-                      context,
-                      title: 'Search Properties',
-                      message: 'Log in to search and discover matching properties.',
-                    )) {
-                      return;
-                    }
                     Navigator.pop(context);
                     Navigator.push(
                       context,

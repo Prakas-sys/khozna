@@ -15,14 +15,14 @@ import 'package:khozna/core/utils/formatters.dart';
 
 import 'package:khozna/core/utils/app_notifiers.dart';
 
-class ReelsScreen extends StatefulWidget {
-  const ReelsScreen({super.key});
+class ToursScreen extends StatefulWidget {
+  const ToursScreen({super.key});
 
   @override
-  State<ReelsScreen> createState() => _ReelsScreenState();
+  State<ToursScreen> createState() => _ToursScreenState();
 }
 
-class _ReelsScreenState extends State<ReelsScreen> {
+class _ToursScreenState extends State<ToursScreen> {
   final PageController _pageController = PageController();
   bool isImageView = true;
   bool isAutoScrollEnabled = false;
@@ -135,7 +135,7 @@ class _ReelsScreenState extends State<ReelsScreen> {
                           const SizedBox(height: 16),
                           Text(
                             isImageView 
-                                ? 'अहिले कुनै Reel छैन।\n(No reels yet)' 
+                                ? 'अहिले कुनै Tour छैन।\n(No tour yet)' 
                                 : 'भिडियो उपलब्ध छैन।\n(No videos found)',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.mukta(

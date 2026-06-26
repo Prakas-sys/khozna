@@ -8,7 +8,7 @@ import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/features/property/screens/home_screen.dart';
-import 'package:khozna/features/property/screens/reels_screen.dart';
+import 'package:khozna/features/property/screens/tours_screen.dart';
 import 'package:khozna/features/chat/screens/messages_screen.dart';
 import 'package:khozna/features/property/screens/post_property_intro_screen.dart';
 import 'package:khozna/features/profile/screens/kyc_screen.dart';
@@ -38,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _pages = [
       HomeScreen(key: _homeKey),
-      const ReelsScreen(),
+      const ToursScreen(),
       const MessagesScreen(),
       const ProfileScreen(),
     ];
@@ -321,7 +321,7 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       _currentIndex = index;
     });
-    // Pause/resume reel videos based on tab visibility
+    // Pause/resume tour videos based on tab visibility
     reelsTabActive.value = (index == 1);
     if (index == 2) messageBadgeCount.value = 0;
   }
@@ -629,7 +629,7 @@ class _MainScreenState extends State<MainScreen> {
     if (index == 0) {
       label = 'Khozna';
     } else if (index == 1) {
-      label = 'Reels';
+      label = 'Tour';
     } else if (index == -1) {
       label = 'List';
     } else if (index == 2) {

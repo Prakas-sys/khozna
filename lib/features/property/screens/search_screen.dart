@@ -60,16 +60,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     _searchController = TextEditingController();
 
     // Guard search screen for guest users
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Supabase.instance.client.auth.currentUser == null) {
-        AuthGuard.showLoginPrompt(
-          context,
-          title: 'Search Properties',
-          message: 'Log in to search and discover matching properties.',
-        );
-        Navigator.pop(context);
-        return;
-      }
+    // Removed mandatory login guard to allow guest browsing
 
       // Auto-fill from voice search or constructor
       if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
@@ -1137,10 +1128,11 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Filters',
+                        'Filter',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
                         ),
                       ),
                       TextButton(
@@ -1167,8 +1159,9 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                       Text(
                         'Price Range',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -1178,14 +1171,14 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             'Up to ',
                             style: GoogleFonts.plusJakartaSans(
                               color: AppTheme.brandColor,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 20,
                             ),
                           ),
                           SvgPicture.asset(
                             'assets/icons/vector of ruppes.svg',
-                            width: 16,
-                            height: 16,
+                            width: 14,
+                            height: 14,
                             colorFilter: const ColorFilter.mode(
                               AppTheme.brandColor,
                               BlendMode.srcIn,
@@ -1194,10 +1187,10 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                           const SizedBox(width: 4),
                           Text(
                             '${_priceValue.toInt()}',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.plusJakartaSans(
                               color: AppTheme.brandColor,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 20,
                             ),
                           ),
                         ],
@@ -1221,12 +1214,54 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                           },
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Location',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: ['Kathmandu', 'Lalitpur', 'Bhaktapur', 'Pokhara'].map((loc) {
+                          bool isSelected = _searchController.text == loc;
+                          return GestureDetector(
+                            onTap: () {
+                              setModalState(() => _searchController.text = loc);
+                              setState(() => _searchController.text = loc);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isSelected ? Colors.black : Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: isSelected ? Colors.black : Colors.grey.shade200,
+                                ),
+                              ),
+                              child: Text(
+                                loc,
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: isSelected ? Colors.white : Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 28),
                       Text(
                         'Property Type',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
                         ),
                       ),
                       const SizedBox(height: 16),
