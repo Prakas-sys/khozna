@@ -725,13 +725,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildLanguageTile() {
     return Container(
-       margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         contentPadding: EdgeInsets.zero,
         leading: Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
+          decoration: const BoxDecoration(
+            color: Color(0xFFF1F5F9),
             shape: BoxShape.circle,
           ),
           child: const Icon(
@@ -761,38 +761,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
           size: 14,
           color: Color(0xFF94A3B8),
         ),
-      onTap: () {
-        showModalBottomSheet(
-          context: context,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          builder: (context) => Container(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  title: const Text('English'),
-                  leading: const Icon(Icons.language),
-                  onTap: () {
-                    setState(() => _language = 'English');
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  title: const Text('नेपाली (Nepali)'),
-                  leading: const Icon(Icons.language),
-                  onTap: () {
-                    setState(() => _language = 'Nepali');
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
-          ),
-        );
-      },
+            builder: (context) => Container(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: const Text('English'),
+                    leading: const Icon(Icons.language),
+                    onTap: () {
+                      setState(() => _language = 'English');
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('नेपाली (Nepali)'),
+                    leading: const Icon(Icons.language),
+                    onTap: () {
+                      setState(() => _language = 'Nepali');
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
