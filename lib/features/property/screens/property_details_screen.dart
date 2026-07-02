@@ -1938,8 +1938,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 padding: EdgeInsets.zero,
                 alignment: Alignment.center,
               ),
-              child: Center(
-                child: Text('Visit', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.directions_walk_rounded, size: 18),
+                  const SizedBox(width: 6),
+                  Text('Visit', style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800)),
+                ],
               ),
             ),
           ),

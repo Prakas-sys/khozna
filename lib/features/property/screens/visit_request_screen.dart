@@ -13,59 +13,59 @@ import 'package:khozna/core/utils/formatters.dart';
 
 class VisitRequestScreen extends StatefulWidget {
   final Property property;
-
   const VisitRequestScreen({super.key, required this.property});
 
   @override
   State<VisitRequestScreen> createState() => _VisitRequestScreenState();
 }
 
-class _VisitRequestScreenState extends State<VisitRequestScreen> {
-  int _currentStep = 0; // 0: Schedule, 1: Guests, 2: Review
+class _VisitRequestScreenState extends State<VisitRequestScreen>
+    with SingleTickerProviderStateMixin {
+  int _currentStep = 0;
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   String _selectedTimeSlot = '11:00 AM';
   int _visitingCount = 1;
   bool _isSubmitting = false;
   UserModel? _ownerProfile;
   bool _isLoadingOwner = true;
-
-  final List<String> _stepTitles = [
-    'Schedule',
-    'Guests',
-    'Review',
-  ];
+  late AnimationController _animController;
+  late Animation<double> _fadeAnim;
 
   final List<String> _timeSlots = [
-    '09:00 AM',
-    '11:00 AM',
-    '01:00 PM',
-    '03:00 PM',
-    '05:00 PM',
-    '07:00 PM'
+    '09:00 AM', '11:00 AM', '01:00 PM',
+    '03:00 PM', '05:00 PM', '07:00 PM',
   ];
 
   late List<DateTime> _upcomingDates;
 
+  static const Color _brand = AppTheme.brandColor;
+  static const Color _bg = Color(0xFFF9FAFB);
+  static const Color _cardBg = Colors.white;
+  static const Color _textPrimary = Color(0xFF111827);
+  static const Color _textSecondary = Color(0xFF6B7280);
+  static const Color _border = Color(0xFFE5E7EB);
+
   @override
   void initState() {
     super.initState();
-    _fetchOwnerProfile();
-    // Generate dates for the next 14 days
     _upcomingDates = List.generate(14, (i) => DateTime.now().add(Duration(days: i + 1)));
+    _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 320));
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _animController.forward();
+    _fetchOwnerProfile();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchOwnerProfile() async {
     try {
-      final profile = await SupabaseService.getUserProfile(
-        widget.property.ownerId,
-      );
-      if (mounted) {
-        setState(() {
-          _ownerProfile = profile;
-          _isLoadingOwner = false;
-        });
-      }
-    } catch (e) {
+      final profile = await SupabaseService.getUserProfile(widget.property.ownerId);
+      if (mounted) setState(() { _ownerProfile = profile; _isLoadingOwner = false; });
+    } catch (_) {
       if (mounted) setState(() => _isLoadingOwner = false);
     }
   }
@@ -73,98 +73,36 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
   DateTime get _visitDateTime {
     final format = DateFormat('hh:mm a');
     final parsedTime = format.parse(_selectedTimeSlot);
-    return DateTime(
-      _selectedDate.year,
-      _selectedDate.month,
-      _selectedDate.day,
-      parsedTime.hour,
-      parsedTime.minute,
-    );
+    return DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day, parsedTime.hour, parsedTime.minute);
+  }
+
+  void _nextStep() {
+    HapticFeedback.mediumImpact();
+    _animController.reset();
+    setState(() => _currentStep++);
+    _animController.forward();
+  }
+
+  void _prevStep() {
+    HapticFeedback.lightImpact();
+    _animController.reset();
+    setState(() => _currentStep--);
+    _animController.forward();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 20),
-          onPressed: () {
-            if (_currentStep > 0) {
-              setState(() => _currentStep--);
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-        title: Column(
-          children: [
-            Text(
-              'Visit Request',
-              style: GoogleFonts.plusJakartaSans(
-                color: const Color(0xFF1A1A2E),
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
-              ),
-            ),
-            Text(
-              'Visit Request Wizard',
-              style: GoogleFonts.plusJakartaSans(
-                color: Colors.grey,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
-        actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(100),
-              border: Border.all(
-                color: const Color(0xFF00C853).withOpacity(0.2),
-              ),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.verified_user_rounded,
-                  color: Color(0xFF00C853),
-                  size: 13,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'SECURE',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF00C853),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      backgroundColor: _bg,
+      appBar: _buildAppBar(),
       body: Column(
         children: [
-          _buildProgressBar(),
+          _buildStepper(),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
+            child: FadeTransition(
+              opacity: _fadeAnim,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
                 child: _buildStepContent(),
               ),
             ),
@@ -175,120 +113,116 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     );
   }
 
-  Widget _buildProgressBar() {
-    return Container(
-      width: double.infinity,
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              _buildStepItem(0, 'Schedule'),
-              _buildStepDivider(0),
-              _buildStepItem(1, 'Guests'),
-              _buildStepDivider(1),
-              _buildStepItem(2, 'Review'),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: (_currentStep + 1) / 3,
-              backgroundColor: Colors.grey[100],
-              valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.brandColor),
-              minHeight: 4,
-            ),
-          ),
-        ],
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: _textPrimary, size: 18),
+        onPressed: () {
+          if (_currentStep > 0) _prevStep();
+          else Navigator.pop(context);
+        },
       ),
+      title: Text(
+        'Schedule a Visit',
+        style: GoogleFonts.plusJakartaSans(
+          color: _textPrimary,
+          fontWeight: FontWeight.w700,
+          fontSize: 17,
+          letterSpacing: -0.3,
+        ),
+      ),
+      centerTitle: true,
     );
   }
 
-  Widget _buildStepItem(int index, String label) {
-    final isCompleted = _currentStep > index;
-    final isCurrent = _currentStep == index;
-    
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isCompleted
-                ? const Color(0xFF00C853)
-                : (isCurrent ? AppTheme.brandColor : Colors.grey[200]),
-          ),
-          alignment: Alignment.center,
-          child: isCompleted
-              ? const Icon(Icons.check, color: Colors.white, size: 14)
-              : Text(
-                  '${index + 1}',
-                  style: GoogleFonts.inter(
-                    color: isCurrent ? Colors.white : Colors.grey[600],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 11,
+  Widget _buildStepper() {
+    const steps = ['Date & Time', 'Guests', 'Confirm'];
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+      child: Row(
+        children: List.generate(steps.length * 2 - 1, (i) {
+          if (i.isOdd) {
+            final idx = i ~/ 2;
+            return Expanded(
+              child: Container(
+                height: 1.5,
+                margin: const EdgeInsets.symmetric(horizontal: 6),
+                color: _currentStep > idx ? _brand : _border,
+              ),
+            );
+          }
+          final idx = i ~/ 2;
+          final done = _currentStep > idx;
+          final active = _currentStep == idx;
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: done ? _brand : (active ? _brand.withValues(alpha: 0.1) : Colors.transparent),
+                  border: Border.all(
+                    color: done || active ? _brand : _border,
+                    width: 1.5,
                   ),
                 ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 12,
-            fontWeight: isCurrent || isCompleted ? FontWeight.w800 : FontWeight.w600,
-            color: isCurrent || isCompleted ? Colors.black87 : Colors.grey[400],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStepDivider(int index) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        height: 1,
-        color: _currentStep > index ? const Color(0xFF00C853) : Colors.grey[200],
+                alignment: Alignment.center,
+                child: done
+                    ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
+                    : Text(
+                        '${idx + 1}',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: active ? _brand : _textSecondary,
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                steps[idx],
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: active || done ? FontWeight.w700 : FontWeight.w500,
+                  color: active || done ? _textPrimary : _textSecondary,
+                ),
+              ),
+            ],
+          );
+        }),
       ),
     );
   }
 
   Widget _buildStepContent() {
     switch (_currentStep) {
-      case 0:
-        return _buildScheduleStep();
-      case 1:
-        return _buildGuestsStep();
-      case 2:
-        return _buildReviewStep();
-      default:
-        return const SizedBox.shrink();
+      case 0: return _buildScheduleStep();
+      case 1: return _buildGuestsStep();
+      case 2: return _buildReviewStep();
+      default: return const SizedBox.shrink();
     }
   }
 
+  // ── STEP 1: DATE & TIME ─────────────────────────────────────────────────────
+
   Widget _buildScheduleStep() {
     return Column(
-      key: const ValueKey(0),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildPropertyHeaderMini(),
-        const SizedBox(height: 24),
-        Text(
-          'Select Date',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 17,
-            fontWeight: FontWeight.w800,
-            color: Colors.black87,
-          ),
-        ),
+        _buildPropertyCard(),
+        const SizedBox(height: 28),
+        _sectionLabel('Pick a Date'),
         const SizedBox(height: 14),
-        // Horizontal custom calendar list
         SizedBox(
-          height: 92,
+          height: 88,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: _upcomingDates.length,
@@ -297,65 +231,37 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               final isSelected = _selectedDate.day == date.day &&
                   _selectedDate.month == date.month &&
                   _selectedDate.year == date.year;
-              final dayName = DateFormat('E').format(date).toUpperCase();
-              final dayNum = DateFormat('d').format(date);
-              final monthName = DateFormat('MMM').format(date);
-
               return GestureDetector(
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  setState(() => _selectedDate = date);
-                },
+                onTap: () { HapticFeedback.selectionClick(); setState(() => _selectedDate = date); },
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  width: 68,
+                  duration: const Duration(milliseconds: 200),
+                  width: 62,
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.brandColor : Colors.white,
+                    color: isSelected ? _brand : _cardBg,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
-                      width: 1.5,
-                    ),
-                    boxShadow: isSelected
-                        ? [
-                            BoxShadow(
-                              color: AppTheme.brandColor.withOpacity(0.25),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            )
-                          ]
-                        : null,
+                    border: Border.all(color: isSelected ? _brand : _border, width: 1.5),
+                    boxShadow: isSelected ? [BoxShadow(color: _brand.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))] : null,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        dayName,
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: isSelected ? Colors.white.withOpacity(0.8) : Colors.grey[500],
-                        ),
+                        DateFormat('E').format(date).toUpperCase(),
+                        style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w700,
+                            color: isSelected ? Colors.white.withValues(alpha: 0.75) : _textSecondary),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        dayNum,
-                        style: GoogleFonts.outfit(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: isSelected ? Colors.white : Colors.black87,
-                          height: 1,
-                        ),
+                        DateFormat('d').format(date),
+                        style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.w800,
+                            color: isSelected ? Colors.white : _textPrimary, height: 1),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        monthName,
-                        style: GoogleFonts.inter(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: isSelected ? Colors.white.withOpacity(0.8) : Colors.grey[500],
-                        ),
+                        DateFormat('MMM').format(date),
+                        style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.w600,
+                            color: isSelected ? Colors.white.withValues(alpha: 0.75) : _textSecondary),
                       ),
                     ],
                   ),
@@ -364,484 +270,182 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             },
           ),
         ),
-        const SizedBox(height: 32),
-        Text(
-          'Select Time',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 17,
-            fontWeight: FontWeight.w800,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 12),
-        // Time slot grid
+        const SizedBox(height: 28),
+        _sectionLabel('Pick a Time'),
+        const SizedBox(height: 14),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 2.0,
+            crossAxisCount: 3, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 2.2,
           ),
           itemCount: _timeSlots.length,
           itemBuilder: (context, index) {
             final slot = _timeSlots[index];
             final isSelected = _selectedTimeSlot == slot;
             return GestureDetector(
-              onTap: () {
-                HapticFeedback.selectionClick();
-                setState(() => _selectedTimeSlot = slot);
-              },
+              onTap: () { HapticFeedback.selectionClick(); setState(() => _selectedTimeSlot = slot); },
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 180),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : Colors.white,
+                  color: isSelected ? _brand : _cardBg,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected ? AppTheme.brandColor : Colors.grey.shade200,
-                    width: isSelected ? 2 : 1,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: AppTheme.brandColor.withOpacity(0.1),
-                            blurRadius: 10,
-                          )
-                        ]
-                      : null,
+                  border: Border.all(color: isSelected ? _brand : _border, width: 1.5),
                 ),
                 child: Text(
                   slot,
                   style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                    color: isSelected ? AppTheme.brandColor : Colors.black87,
+                    fontSize: 12.5, fontWeight: FontWeight.w600,
+                    color: isSelected ? Colors.white : _textPrimary,
                   ),
                 ),
               ),
             );
           },
         ),
-        const SizedBox(height: 28),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.04),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.blue.withOpacity(0.1)),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.info_outline_rounded, color: AppTheme.brandColor, size: 20),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Landlords usually accept requests faster when scheduled during daytime hours.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.blue[900],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        const SizedBox(height: 20),
+        _buildInfoNote('Landlords typically respond faster to daytime scheduling requests.'),
       ],
     );
   }
 
+  // ── STEP 2: GUESTS ───────────────────────────────────────────────────────────
+
   Widget _buildGuestsStep() {
     return Column(
-      key: const ValueKey(1),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildPropertyHeaderMini(),
-        const SizedBox(height: 32),
-        Text(
-          'How many visitors are coming?',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
-            color: Colors.black,
-            letterSpacing: -0.5,
-          ),
-        ),
+        _buildPropertyCard(),
+        const SizedBox(height: 28),
+        _sectionLabel('How many visitors?'),
         const SizedBox(height: 6),
-        Text(
-          'Select the number of people visiting this property.',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text('Maximum 5 people per visit.', style: GoogleFonts.inter(fontSize: 13, color: _textSecondary)),
         const SizedBox(height: 24),
         Container(
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.shade100),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.015),
-                blurRadius: 10,
-              )
-            ],
-          ),
+          decoration: BoxDecoration(color: _cardBg, borderRadius: BorderRadius.circular(20), border: Border.all(color: _border)),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Visitors Count',
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Limit: Up to 5 people',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.grey[500],
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  Text('Visitors', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: _textPrimary)),
+                  Text('Up to 5 people', style: GoogleFonts.inter(fontSize: 12, color: _textSecondary)),
                 ],
               ),
+              const Spacer(),
               Row(
                 children: [
-                  // Minus Button
-                  GestureDetector(
-                    onTap: () {
-                      if (_visitingCount > 1) {
-                        HapticFeedback.lightImpact();
-                        setState(() => _visitingCount--);
-                      }
-                    },
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: _visitingCount > 1 ? Colors.grey.shade300 : Colors.grey.shade100,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.remove,
-                        color: _visitingCount > 1 ? Colors.black87 : Colors.grey[300],
-                        size: 20,
-                      ),
-                    ),
+                  _counterButton(Icons.remove, _visitingCount > 1, () { if (_visitingCount > 1) setState(() => _visitingCount--); }),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text('$_visitingCount',
+                        style: GoogleFonts.outfit(fontSize: 26, fontWeight: FontWeight.w800, color: _textPrimary)),
                   ),
-                  const SizedBox(width: 16),
-                  Text(
-                    '$_visitingCount',
-                    style: GoogleFonts.outfit(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Plus Button
-                  GestureDetector(
-                    onTap: () {
-                      if (_visitingCount < 5) {
-                        HapticFeedback.lightImpact();
-                        setState(() => _visitingCount++);
-                      }
-                    },
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: _visitingCount < 5 ? AppTheme.brandColor : Colors.grey.shade100,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.add,
-                        color: _visitingCount < 5 ? AppTheme.brandColor : Colors.grey[300],
-                        size: 20,
-                      ),
-                    ),
-                  ),
+                  _counterButton(Icons.add, _visitingCount < 5, () { if (_visitingCount < 5) setState(() => _visitingCount++); }),
                 ],
               ),
             ],
           ),
         ),
-        const SizedBox(height: 28),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFEF3C7),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFFDE68A)),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(Icons.shield_outlined, color: Color(0xFFD97706), size: 20),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Polite Reminder',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF92400E),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Please ensure guests remain respectful of neighborhood house rules during physical viewings.',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: const Color(0xFFB45309),
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        const SizedBox(height: 20),
+        _buildInfoNote('Please be respectful of the property and neighborhood during physical viewings.', icon: Icons.shield_outlined, color: const Color(0xFFFEF3C7), textColor: const Color(0xFF92400E), iconColor: const Color(0xFFD97706)),
       ],
     );
   }
+
+  Widget _counterButton(IconData icon, bool enabled, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: () { if (enabled) { HapticFeedback.lightImpact(); onTap(); } },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        width: 38, height: 38,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: enabled ? _brand.withValues(alpha: 0.08) : Colors.transparent,
+          border: Border.all(color: enabled ? _brand : _border, width: 1.5),
+        ),
+        child: Icon(icon, size: 18, color: enabled ? _brand : _textSecondary.withValues(alpha: 0.4)),
+      ),
+    );
+  }
+
+  // ── STEP 3: REVIEW ───────────────────────────────────────────────────────────
 
   Widget _buildReviewStep() {
     final isNightly = widget.property.priceNight > 0;
-    final rentLabel = isNightly ? 'Rent / Night' : 'Rent / Month';
-    final rentPrice = isNightly 
-        ? widget.property.priceNight.toStringAsFixed(0) 
-        : (widget.property.priceMonth > 0 
-            ? widget.property.priceMonth.toStringAsFixed(0) 
-            : widget.property.price);
+    final rentLabel = isNightly ? 'per night' : 'per month';
+    final rentPrice = isNightly
+        ? widget.property.priceNight.toStringAsFixed(0)
+        : (widget.property.priceMonth > 0 ? widget.property.priceMonth.toStringAsFixed(0) : widget.property.price);
 
     return Column(
-      key: const ValueKey(2),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Confirm Visit Details',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
-            color: Colors.black,
-            letterSpacing: -0.5,
+        _sectionLabel('Review your visit'),
+        const SizedBox(height: 6),
+        Text('Double-check before confirming.', style: GoogleFonts.inter(fontSize: 13, color: _textSecondary)),
+        const SizedBox(height: 20),
+
+        // Property snapshot
+        _buildPropertyCard(),
+        const SizedBox(height: 16),
+
+        // Visit details card
+        Container(
+          decoration: BoxDecoration(color: _cardBg, borderRadius: BorderRadius.circular(20), border: Border.all(color: _border)),
+          child: Column(
+            children: [
+              _reviewRow(Icons.calendar_today_rounded, 'Date', DateFormat('EEE, d MMM yyyy').format(_selectedDate)),
+              _divider(),
+              _reviewRow(Icons.access_time_rounded, 'Time', _selectedTimeSlot),
+              _divider(),
+              _reviewRow(Icons.group_outlined, 'Visitors', '$_visitingCount ${_visitingCount == 1 ? "person" : "people"}'),
+              _divider(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  children: [
+                    Icon(Icons.local_offer_rounded, size: 18, color: _textSecondary),
+                    const SizedBox(width: 14),
+                    Text('Rent', style: GoogleFonts.inter(fontSize: 13.5, color: _textSecondary)),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        SvgPicture.asset('assets/icons/vector of ruppes.svg', width: 13, height: 13,
+                            colorFilter: const ColorFilter.mode(_brand, BlendMode.srcIn)),
+                        const SizedBox(width: 4),
+                        Text(PriceFormatter.format(rentPrice),
+                            style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, color: _brand)),
+                        const SizedBox(width: 4),
+                        Text(rentLabel, style: GoogleFonts.inter(fontSize: 11, color: _textSecondary)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 16),
-        // Airbnb-style Trip Summary Card
+
+        // No advance payment note
         Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.shade100),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
-              )
-            ],
-          ),
-          child: Column(
-            children: [
-              // Mini Property Card info
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: KhoznaImage(
-                        imageUrl: widget.property.imageUrl,
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.property.category,
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: AppTheme.brandColor,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            widget.property.title,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.black87,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(Icons.location_on_rounded, color: Colors.grey, size: 12),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  widget.property.location,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              // Schedule Details list
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Column(
-                  children: [
-                    _buildSummaryDetailRow(
-                      Icons.calendar_today_rounded,
-                      'Visit Date',
-                      DateFormat('EEE, MMMM d, yyyy').format(_selectedDate),
-                    ),
-                    const SizedBox(height: 14),
-                    _buildSummaryDetailRow(
-                      Icons.access_time_rounded,
-                      'Time Slot',
-                      _selectedTimeSlot,
-                    ),
-                    const SizedBox(height: 14),
-                    _buildSummaryDetailRow(
-                      Icons.group_outlined,
-                      'Visitors Count',
-                      '$_visitingCount Persons',
-                    ),
-                    const SizedBox(height: 14),
-                    _buildSummaryDetailRow(
-                      Icons.account_balance_wallet_outlined,
-                      rentLabel,
-                      '', // Empty string as we'll use trailing widget
-                      valueWidget: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/vector of ruppes.svg',
-                            width: 13,
-                            height: 13,
-                            colorFilter: const ColorFilter.mode(
-                              AppTheme.brandColor,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            PriceFormatter.format(rentPrice),
-                            style: GoogleFonts.inter(
-                              fontSize: 18,
-                              color: AppTheme.brandColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 28),
-        // Khozna Trust Safety Card
-        Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: const Color(0xFFEFF6FF),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFDBEAFE), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.blue.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              )
-            ],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFDBEAFE)),
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(color: Colors.blue.withOpacity(0.1), blurRadius: 4),
-                  ],
-                ),
-                child: const Icon(Icons.gpp_good_rounded, color: AppTheme.brandColor, size: 20),
-              ),
-              const SizedBox(width: 14),
+              const Icon(Icons.gpp_good_rounded, color: _brand, size: 20),
+              const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Khozna Safety Protection',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF1E3A8A),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Our safety policy strictly forbids landlords from demanding advanced booking fees prior to physically visiting properties. Do not pay first.',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: const Color(0xFF1E40AF),
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Do not pay any advance before physically visiting the property.',
+                  style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF1E40AF), height: 1.5),
                 ),
               ),
             ],
@@ -851,24 +455,34 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     );
   }
 
-  Widget _buildPropertyHeaderMini() {
+  Widget _reviewRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: _textSecondary),
+          const SizedBox(width: 14),
+          Text(label, style: GoogleFonts.inter(fontSize: 13.5, color: _textSecondary)),
+          const Spacer(),
+          Text(value, style: GoogleFonts.inter(fontSize: 13.5, fontWeight: FontWeight.w700, color: _textPrimary)),
+        ],
+      ),
+    );
+  }
+
+  Widget _divider() => Container(height: 1, color: _border, margin: const EdgeInsets.symmetric(horizontal: 20));
+
+  // ── SHARED WIDGETS ───────────────────────────────────────────────────────────
+
+  Widget _buildPropertyCard() {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
-      ),
+      decoration: BoxDecoration(color: _cardBg, borderRadius: BorderRadius.circular(20), border: Border.all(color: _border)),
       child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: KhoznaImage(
-              imageUrl: widget.property.imageUrl,
-              width: 56,
-              height: 56,
-              fit: BoxFit.cover,
-            ),
+            child: KhoznaImage(imageUrl: widget.property.imageUrl, width: 56, height: 56, fit: BoxFit.cover),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -877,22 +491,22 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
               children: [
                 Text(
                   widget.property.title,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black87,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, color: _textPrimary),
+                  maxLines: 1, overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  'Stay with ${_ownerProfile?.fullName ?? widget.property.ownerName ?? "Khozna Landlord"}',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w600,
-                  ),
+                const SizedBox(height: 3),
+                Row(
+                  children: [
+                    const Icon(Icons.location_on_rounded, size: 12, color: _brand),
+                    const SizedBox(width: 3),
+                    Expanded(
+                      child: Text(
+                        widget.property.location,
+                        style: GoogleFonts.inter(fontSize: 12, color: _textSecondary),
+                        maxLines: 1, overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -902,116 +516,86 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     );
   }
 
-  Widget _buildSummaryDetailRow(IconData icon, String title, String value, {Color? valueColor, Widget? valueWidget}) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: Colors.grey[400]),
-        const SizedBox(width: 12),
-        Text(
-          title,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            color: Colors.grey[600],
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const Spacer(),
-        valueWidget ?? Text(
-          value,
-          style: GoogleFonts.inter(
-            fontSize: 13.5,
-            color: valueColor ?? Colors.black87,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+  Widget _sectionLabel(String text) {
+    return Text(text, style: GoogleFonts.plusJakartaSans(fontSize: 17, fontWeight: FontWeight.w800, color: _textPrimary, letterSpacing: -0.3));
+  }
+
+  Widget _buildInfoNote(String text, {IconData icon = Icons.info_outline_rounded, Color color = const Color(0xFFF0F9FF), Color textColor = const Color(0xFF0369A1), Color iconColor = AppTheme.brandColor}) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(14), border: Border.all(color: iconColor.withValues(alpha: 0.15))),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: iconColor, size: 18),
+          const SizedBox(width: 10),
+          Expanded(child: Text(text, style: GoogleFonts.inter(fontSize: 12, color: textColor, height: 1.5))),
+        ],
+      ),
     );
   }
+
+  // ── BOTTOM CTA ───────────────────────────────────────────────────────────────
 
   Widget _buildBottomCTA() {
     final bool isLastStep = _currentStep == 2;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-      decoration: BoxDecoration(
+      padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
+      decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade100)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, -4),
-          )
-        ],
+        border: Border(top: BorderSide(color: _border, width: 1)),
       ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            if (_currentStep > 0) ...[
-              GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  setState(() => _currentStep--);
-                },
-                child: Container(
-                  height: 52,
-                  width: 52,
-                  margin: const EdgeInsets.only(right: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.grey.shade200, width: 1.5),
-                  ),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Colors.black87),
+      child: Row(
+        children: [
+          if (_currentStep > 0) ...[
+            GestureDetector(
+              onTap: _prevStep,
+              child: Container(
+                width: 50, height: 52,
+                margin: const EdgeInsets.only(right: 12),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: _border, width: 1.5),
                 ),
-              ),
-            ],
-            Expanded(
-              child: SizedBox(
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: _isSubmitting
-                      ? null
-                      : () {
-                          HapticFeedback.mediumImpact();
-                          if (isLastStep) {
-                            _submit();
-                          } else {
-                            setState(() => _currentStep++);
-                          }
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandColor,
-                    disabledBackgroundColor: AppTheme.brandColor.withOpacity(0.5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: _isSubmitting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
-                          ),
-                        )
-                      : FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            isLastStep ? 'Confirm Request' : 'Continue',
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                ),
+                child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: _textPrimary),
               ),
             ),
           ],
-        ),
+          Expanded(
+            child: SizedBox(
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : () {
+                  if (isLastStep) _submit();
+                  else _nextStep();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _brand,
+                  disabledBackgroundColor: _brand.withValues(alpha: 0.5),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  elevation: 0,
+                ),
+                child: _isSubmitting
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            isLastStep ? 'Confirm Visit' : 'Continue',
+                            style: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700, letterSpacing: -0.2),
+                          ),
+                          if (!isLastStep) ...[
+                            const SizedBox(width: 6),
+                            const Icon(Icons.arrow_forward_rounded, size: 16),
+                          ],
+                        ],
+                      ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1020,10 +604,10 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     setState(() => _isSubmitting = true);
     try {
       final isNightly = widget.property.priceNight > 0;
-      final finalPrice = isNightly 
-          ? widget.property.priceNight 
-          : (widget.property.priceMonth > 0 
-              ? widget.property.priceMonth 
+      final finalPrice = isNightly
+          ? widget.property.priceNight
+          : (widget.property.priceMonth > 0
+              ? widget.property.priceMonth
               : double.tryParse(widget.property.price.replaceAll(',', '')) ?? 0);
 
       final fullVisitDate = _visitDateTime;
@@ -1039,7 +623,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
 
       if (mounted) {
         HapticFeedback.heavyImpact();
-        await BookingRepository.fetchBookedPropertyIds(); // Update global store
+        await BookingRepository.fetchBookedPropertyIds();
         Navigator.pop(context, true);
       }
     } catch (e) {
