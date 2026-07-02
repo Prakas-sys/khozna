@@ -1,4 +1,4 @@
-# 🏠 Khozna — Nepal's Smart Property Platform
+# 🏠 Khozna — Nepal's Rental Platform
 
 <p align="center">
   <img src="assets/images/original_logo.png" alt="Khozna Logo" width="120"/>
