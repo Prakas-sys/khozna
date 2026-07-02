@@ -702,47 +702,53 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
-        // Ratings & Views
-        Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    avgRating?.toStringAsFixed(1) ?? '0.0',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                      color: Colors.black,
+        if (avgRating != null) ...[  
+          const SizedBox(height: 16),
+          // Ratings & Views — only shown when there are real reviews
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      avgRating.toStringAsFixed(1),
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Row(
-                    children: List.generate(5, (index) {
-                      return Icon(
-                        Icons.star_rounded,
-                        color: Colors.grey.shade400,
-                        size: 20,
-                      );
-                    }),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '$votesCount Votes',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                  color: Colors.grey[500],
+                    const SizedBox(width: 6),
+                    Row(
+                      children: List.generate(5, (index) {
+                        return Icon(
+                          index < avgRating.round()
+                              ? Icons.star_rounded
+                              : Icons.star_outline_rounded,
+                          color: index < avgRating.round()
+                              ? Colors.amber
+                              : Colors.grey.shade300,
+                          size: 20,
+                        );
+                      }),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  '$votesCount ${votesCount == 1 ? 'Review' : 'Reviews'}',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -882,6 +888,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('peaceful')) {
       return Icons.nature_people_outlined;
     }
+    if (k.contains('sunny') || k.contains('sunny_room')) {
+      return Icons.wb_sunny_outlined;
+    }
+    if (k.contains('hot_water') || k.contains('geyser')) {
+      return Icons.hot_tub_outlined;
+    }
     return Icons.check_circle_outline_rounded;
   }
 
@@ -926,6 +938,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
     if (k.contains('peaceful')) {
       return 'Peaceful';
+    }
+    if (k.contains('sunny') || k.contains('sunny_room')) {
+      return 'Sunny Room';
+    }
+    if (k.contains('hot_water') || k.contains('geyser')) {
+      return 'Hot Water';
     }
     
     if (feature.isEmpty) return '';
@@ -1823,7 +1841,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           text: isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: isNegotiable ? 17 : 21,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w700,
                             color: Colors.black,
                             letterSpacing: -0.5,
                           ),
