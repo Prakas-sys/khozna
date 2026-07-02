@@ -625,24 +625,10 @@ class PropertyCard extends StatelessWidget {
     List<Widget> amenityItems = [];
     int count = 0;
 
-    // Priority 1: Bedrooms
-    if (bedrooms > 0) {
-      amenityItems.add(_amenityIcon(Icons.bed_outlined, '$bedrooms Bed'));
-      count++;
-    }
-
-    // Priority 1.5: Guests
-    if (property.guests > 0) {
-      if (amenityItems.isNotEmpty) {
-        amenityItems.add(const SizedBox(width: 14));
-      }
-      amenityItems.add(_amenityIcon(Icons.people_outline_rounded, '${property.guests} Guests'));
-      count++;
-    }
-
     // Combine amenities and house rules for display
     final combinedFeatures = [...amenities, ...houseRules];
 
+    // Priority 1: User explicitly added amenities & house rules first
     for (var feature in combinedFeatures) {
       if (count >= 2) break; // Maximum 2 items allowed
       if (featureIcons.containsKey(feature)) {
@@ -654,6 +640,24 @@ class PropertyCard extends StatelessWidget {
         );
         count++;
       }
+    }
+
+    // Priority 2: Fallback to Bedrooms if we still have space
+    if (count < 2 && bedrooms > 0) {
+      if (amenityItems.isNotEmpty) {
+        amenityItems.add(const SizedBox(width: 14));
+      }
+      amenityItems.add(_amenityIcon(Icons.bed_outlined, '$bedrooms Bed'));
+      count++;
+    }
+
+    // Priority 3: Fallback to Guests if we still have space
+    if (count < 2 && property.guests > 0) {
+      if (amenityItems.isNotEmpty) {
+        amenityItems.add(const SizedBox(width: 14));
+      }
+      amenityItems.add(_amenityIcon(Icons.people_outline_rounded, '${property.guests} Guests'));
+      count++;
     }
 
     return SizedBox(
