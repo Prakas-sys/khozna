@@ -26,6 +26,7 @@ class _KycScreenState extends State<KycScreen> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _citizenshipController = TextEditingController();
+  final _locationController = TextEditingController();
 
   int _currentStep = 1;
   bool _isSubmitting = false;
@@ -110,6 +111,7 @@ class _KycScreenState extends State<KycScreen> {
     _phoneController.dispose();
     _emailController.dispose();
     _citizenshipController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
 
@@ -281,6 +283,8 @@ class _KycScreenState extends State<KycScreen> {
             'kyc_status': 'pending',
             'email_verified': _isEmailVerified,
             'phone_verified': _isPhoneVerified,
+            if (_locationController.text.trim().isNotEmpty)
+              'area_name': SecurityUtils.sanitizeInput(_locationController.text.trim()),
           })
           .eq('id', user.id);
 
@@ -429,6 +433,15 @@ class _KycScreenState extends State<KycScreen> {
             LengthLimitingTextInputFormatter(30),
           ],
           isVerified: _isPhoneVerified,
+          onChanged: () => setState(() {}),
+        ),
+        const SizedBox(height: 20),
+        KycTextField(
+          controller: _locationController,
+          label: 'Your Location / Area (तपाईंको ठेगाना)',
+          icon: Icons.location_on_outlined,
+          validator: (v) =>
+              (v == null || v.trim().isEmpty) ? 'Location is required (ठेगाना आवश्यक छ)' : null,
           onChanged: () => setState(() {}),
         ),
         const SizedBox(height: 32),

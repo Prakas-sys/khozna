@@ -296,15 +296,14 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     const Divider(),
                     const SizedBox(height: 16),
                   ],
-                  _buildAboutMetaItem(Icons.location_on_outlined, 'Lives in $_realLocation'),
-                  const SizedBox(height: 12),
-                  _buildAboutMetaItem(
-                    Icons.work_outline_rounded,
-                    _organization != null && _organization!.isNotEmpty
-                        ? _organization!
-                        : 'Independent Owner',
-                  ),
-                  const SizedBox(height: 12),
+                  if (_realLocation.isNotEmpty && _realLocation != 'Unknown') ...[
+                    _buildAboutMetaItem(Icons.location_on_outlined, _realLocation),
+                    const SizedBox(height: 12),
+                  ],
+                  if (_organization != null && _organization!.isNotEmpty) ...[
+                    _buildAboutMetaItem(Icons.work_outline_rounded, _organization!),
+                    const SizedBox(height: 12),
+                  ],
                   _buildAboutMetaItem(Icons.calendar_month_outlined, 'Joined in $_joinedDate'),
                 ],
               ),
