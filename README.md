@@ -169,7 +169,7 @@ All rights reserved © 2026 Khozna. This project is not open for redistribution.
 
 ## 👨‍💻 Built by
 
-**Prakash** — Full-Stack Flutter Developer  
+**Prakash** — UX/UI Designer and Vibe coder
 🇳🇵 Kathmandu, Nepal
 
 <p align="center">Made with ❤️ for Nepal's real estate future</p>
