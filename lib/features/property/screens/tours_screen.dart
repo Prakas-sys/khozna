@@ -66,7 +66,7 @@ class _ToursScreenState extends State<ToursScreen> {
       final data = await Supabase.instance.client
           .from('properties')
           .select(
-            'id, owner_id, title, area_name, price, price_night, price_month, images, video_url, category, status, bedrooms, bathrooms, profiles:owner_id(full_name, avatar_url, kyc_status, area_name)',
+            'id, owner_id, title, area_name, price, price_night, price_month, images, video_url, category, status, bedrooms, bathrooms, amenities, house_rules, profiles:owner_id(full_name, avatar_url, kyc_status, area_name)',
           )
           .order('created_at', ascending: false)
           .limit(30);

@@ -337,7 +337,7 @@ class PropertyCard extends StatelessWidget {
                                   })(),
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 18.2,
-                                    fontWeight: FontWeight.w900, // Stronger weight for premium feel
+                                    fontWeight: FontWeight.w700,
                                     color: AppTheme.brandColor,
                                     letterSpacing: -0.2,
                                   ),

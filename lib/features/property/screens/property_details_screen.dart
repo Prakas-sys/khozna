@@ -1936,7 +1936,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.brandColor,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
                 elevation: 0,
                 padding: EdgeInsets.zero,
                 alignment: Alignment.center,
