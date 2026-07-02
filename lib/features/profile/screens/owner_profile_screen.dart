@@ -283,19 +283,19 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    (_bio != null && _bio!.trim().isNotEmpty)
-                        ? _bio!
-                        : "Hi, I'm ${widget.name}. I am committed to sharing safe, clean, and comfortable apartments and rooms on Khozna with students, professionals, and families. Please reach out to chat or plan a physical viewing!",
-                    style: GoogleFonts.inter(
-                      fontSize: 14.5,
-                      color: const Color(0xFF475569),
-                      height: 1.45,
+                  if (_bio != null && _bio!.trim().isNotEmpty) ...[
+                    Text(
+                      _bio!,
+                      style: GoogleFonts.inter(
+                        fontSize: 14.5,
+                        color: const Color(0xFF475569),
+                        height: 1.45,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Divider(),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 20),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                  ],
                   _buildAboutMetaItem(Icons.location_on_outlined, 'Lives in $_realLocation'),
                   const SizedBox(height: 12),
                   _buildAboutMetaItem(

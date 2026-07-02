@@ -39,11 +39,14 @@ class AuthRepository {
     String? accessToken,
   }) async {
     try {
-      await _client.auth.signInWithIdToken(
+      final response = await _client.auth.signInWithIdToken(
         provider: OAuthProvider.google,
         idToken: idToken,
         accessToken: accessToken,
       );
+      if (response.user != null) {
+        await syncUserWithSupabase(response.user!);
+      }
       AppLogger.logAuthAttempt(
         method: 'Google SignIn Native',
         success: true,

@@ -262,10 +262,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 _buildOwnerRow(),
                 const Divider(height: 1, thickness: 0.5, color: Color(0xFFE2E8F0)),
                 const SizedBox(height: 24),
-                const DetailSectionTitle(title: 'Our Facilities'),
-                const SizedBox(height: 20),
-                _buildAmenityGrid(),
-                const SizedBox(height: 32),
+                if (widget.property.amenities.isNotEmpty) ...[
+                  const DetailSectionTitle(title: 'Our Facilities'),
+                  const SizedBox(height: 20),
+                  _buildAmenityGrid(),
+                  const SizedBox(height: 32),
+                ],
                 const DetailSectionTitle(title: 'Location'),
                 const SizedBox(height: 12),
                 _buildLocationDetails(),
@@ -901,29 +903,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildAmenityGrid() {
-    // Collect amenities and get their SVGs
+    // Collect only real owner-added amenities that have a matching SVG icon
     final List<(String, String)> items = [];
     for (var feature in widget.property.amenities) {
       final data = _getAmenitySvgData(feature);
       if (data.$1.isNotEmpty) {
         items.add(data);
+      } else {
+        // For amenities without a custom SVG, use a fallback icon text entry so they still show
+        items.add(('', data.$2));
       }
     }
-    
-    // If empty, let's populate with mock ones for the demo Cozy flat so it matches the image!
-    if (items.isEmpty || widget.property.id.contains('demo') || widget.property.title.toLowerCase().contains('cozy')) {
-      items.clear();
-      items.addAll([
-        ('assets/icons/Vector car.svg', 'Car Parking'),
-        ('assets/icons/Vector wifi.svg', 'Wifi'),
-        ('assets/icons/Vector water.svg', 'Water'),
-        ('assets/icons/Vector cctv.svg', 'CCTV'),
-        ('assets/icons/Vector bike.svg', 'Bike Parking'),
-        ('assets/icons/Vector kitchen.svg', '1.Kitchen'),
-        ('assets/icons/Vector balcony.svg', 'Balcony'),
-        ('assets/icons/Vector Ac.svg', 'AC'),
-      ]);
-    }
+
+    if (items.isEmpty) return const SizedBox.shrink();
 
     final int displayCount = _showAllAmenities ? items.length : (items.length > 8 ? 8 : items.length);
     final bool hasMore = items.length > 8;
@@ -943,6 +935,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
           itemBuilder: (context, index) {
             final item = items[index];
+            final hasSvg = item.$1.isNotEmpty;
             return Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -953,20 +946,27 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SvgPicture.asset(
-                    item.$1,
-                    width: 28,
-                    height: 28,
-                    colorFilter: const ColorFilter.mode(
-                      Color(0xFF00A3E1),
-                      BlendMode.srcIn,
+                  if (hasSvg)
+                    SvgPicture.asset(
+                      item.$1,
+                      width: 28,
+                      height: 28,
+                      colorFilter: const ColorFilter.mode(
+                        Color(0xFF00A3E1),
+                        BlendMode.srcIn,
+                      ),
+                    )
+                  else
+                    const Icon(
+                      Icons.check_circle_outline_rounded,
+                      size: 28,
+                      color: Color(0xFF00A3E1),
                     ),
-                  ),
                   const SizedBox(height: 6),
                   Text(
                     item.$2,
                     textAlign: TextAlign.center,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
                       fontSize: 10.5,

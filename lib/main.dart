@@ -10,13 +10,11 @@ import 'package:firebase_core/firebase_core.dart';
 // firebase_auth import removed
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'core/security/security_utils.dart';
 import 'core/utils/app_notifiers.dart';
-import 'package:khozna/core/services/push_notification_service.dart';
 import 'package:khozna/screens/main_screen.dart';
 import 'core/guards/location_permission_screen.dart';
 import 'features/auth/screens/login_screen.dart';
@@ -35,19 +33,11 @@ void main() async {
   // Load environment variables for security
   try {
     await dotenv.load(fileName: '.env');
-    if (kDebugMode) debugPrint('--- .ENV LOADED SUCCESSFULLY ---');
   } catch (e) {
-    if (kDebugMode) debugPrint('--- ERROR LOADING .ENV: $e ---');
+    debugPrint('--- ERROR LOADING .ENV: $e ---');
   }
 
-  // 🔐 SECURITY: Block rooted/jailbroken devices
-  final bool isCompromised = await SecurityUtils.isDeviceCompromised();
-  if (isCompromised) {
-    runApp(const _CompromisedDeviceApp());
-    return;
-  }
-
-  // Pre-load fonts strategy (Non-blocking)
+  // Pre-load fonts strategy setup
   GoogleFonts.config.allowRuntimeFetching = true;
 
   SystemChrome.setSystemUIOverlayStyle(
@@ -56,35 +46,6 @@ void main() async {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
-
-  // Initialize Firebase earlier to establish stable channel
-  try {
-    if (kIsWeb) {
-      // On Web, Firebase needs explicit options or it hangs main()
-      // We'll skip blocking init on Web to allow the UI to load
-      Firebase.initializeApp().timeout(const Duration(seconds: 2)).catchError((e) {
-        debugPrint('--- FIREBASE WEB INIT TIMEOUT/ERROR (SKIPPED) ---');
-        return null;
-      });
-    } else {
-      await Firebase.initializeApp();
-      
-      // 📈 Pass all unfiltered errors from the framework to Crashlytics.
-      FlutterError.onError = (errorDetails) {
-        FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-      };
-
-      // Pass all errors within the platform (e.g. native crashes)
-      PlatformDispatcher.instance.onError = (error, stack) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-        return true;
-      };
-    }
-
-    debugPrint('--- FIREBASE CORE & OBSERVABILITY READY ---');
-  } catch (e) {
-    debugPrint('--- FIREBASE INIT ERROR: $e ---');
-  }
 
   runApp(const KhoznaApp());
 }
@@ -139,34 +100,45 @@ class _CompromisedDeviceApp extends StatelessWidget {
 
 /// New central initialization hub
 Future<void> _initializeServices() async {
-  debugPrint('--- [PERF] Parallel Service Initialization Start ---');
+  debugPrint('--- [PERF] Service Initialization Start ---');
 
-  // Launch all initializations in parallel without staggered delays
-  await Future.wait([
-    // Initialize Supabase
-    supabase.Supabase.initialize(
-      url: dotenv.env['SUPABASE_URL'] ?? '',
-      anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
-    ).then((_) => debugPrint('--- SUPABASE READY ---')),
+  // Initialize Supabase immediately (Required blocking dependency)
+  await supabase.Supabase.initialize(
+    url: dotenv.env['SUPABASE_URL'] ?? '',
+    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+  );
+  debugPrint('--- SUPABASE READY ---');
 
-    // Initialize Firebase Services
-    Future(() async {
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-      await PushNotificationService.initialize();
-      debugPrint('--- FIREBASE SERVICES READY ---');
-    }),
+  // Run secondary initializations in background (Do NOT block splash screen)
+  Future(() async {
+    try {
+      if (!kIsWeb) {
+        await Firebase.initializeApp();
 
-    // Initialize Fonts (Non-blocking fallback)
-    GoogleFonts.pendingFonts([
-      GoogleFonts.inter(),
-      GoogleFonts.plusJakartaSans(),
-      GoogleFonts.outfit(),
-    ]).catchError((_) => []),
-  ]);
+        // 📈 Pass all unfiltered errors from the framework to Crashlytics.
+        FlutterError.onError = (errorDetails) {
+          FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+        };
 
-  debugPrint('--- [PERF] Parallel Initialization Complete ---');
+        // Pass all errors within the platform (e.g. native crashes)
+        PlatformDispatcher.instance.onError = (error, stack) {
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+          return true;
+        };
+
+        FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+        await PushNotificationService.initialize();
+        debugPrint('--- FIREBASE SERVICES READY ---');
+      } else {
+        Firebase.initializeApp().timeout(const Duration(seconds: 2)).catchError((e) => null as dynamic);
+      }
+    } catch (e) {
+      debugPrint('--- FIREBASE INITIALIZATION ERROR: $e ---');
+    }
+  });
+
+  debugPrint('--- [PERF] Supabase Initialization Triggered ---');
 }
-
 
 class KhoznaApp extends StatefulWidget {
   const KhoznaApp({super.key});
@@ -178,6 +150,7 @@ class KhoznaApp extends StatefulWidget {
 class _KhoznaAppState extends State<KhoznaApp> {
   bool _isInitializing = true;
   bool _isLocationGranted = false;
+  bool _isCompromised = false;
   supabase.Session? _session;
 
   @override
@@ -189,29 +162,59 @@ class _KhoznaAppState extends State<KhoznaApp> {
   Future<void> _initApp() async {
     debugPrint('--- _initApp START ---');
 
-    // Start global service initialization
+    // Start blocking service initialization (Supabase only)
     await _initializeServices();
 
-    // Fetch initial data in parallel to avoid sequential blocking
-    await Future.wait([
-      SupabaseService.fetchSavedPropertyIds(),
-      SupabaseService.fetchBookedPropertyIds(),
-    ]);
+    // Check pre-existing session immediately
+    final currentSession = supabase.Supabase.instance.client.auth.currentSession;
 
-    initializeBadgeSync();
+    // Run font preloading and location status check, plus safety checks in parallel
+    // We enforce a strict timeout on font preloading to avoid rendering layout shifts
+    // while preventing lagging on slow connections.
+    bool locationGranted = false;
+    bool isCompromised = false;
 
-    // Initial fetch of unread counts to populate badges immediately
-    // These are non-blocking anyway, but good to keep grouped
-    SupabaseService.fetchUnreadMessageCount();
-    SupabaseService.fetchUnreadNotificationCount();
+    try {
+      final results = await Future.wait([
+        // 1. Check Location Status
+        Permission.location.status.then((s) => s.isGranted),
+        
+        // 2. Preload Font files locally to prevent screen layout shifts (Capped at 80% of a second)
+        GoogleFonts.pendingFonts([
+          GoogleFonts.inter(),
+          GoogleFonts.plusJakartaSans(),
+          GoogleFonts.outfit(),
+        ]).timeout(const Duration(milliseconds: 800)).then((_) => true).catchError((_) => false),
 
-    // 🧹 AUTO-CLEAR RED BADGE ON OPEN - Reset internal counters only if needed
-    debugPrint('Initializing badges on app open');
-    // We don't want to force reset to 0 here because it might clear the launcher badge
-    // before the fetchUnread... calls complete.
-    // Instead, we let the fetch calls update the values.
+        // 3. Perform compromise checks asynchronously with timeout (Capped at 80% of a second)
+        SecurityUtils.isDeviceCompromised().timeout(const Duration(milliseconds: 800), onTimeout: () => false),
+      ]);
 
-    // Listen for Auth State changes to update internal state and initialize services
+      locationGranted = results[0];
+      isCompromised = results[2];
+    } catch (e) {
+      debugPrint('Parallel boot tasks error: $e');
+    }
+
+    if (mounted) {
+      setState(() {
+        _session = currentSession;
+        _isLocationGranted = locationGranted;
+        _isCompromised = isCompromised;
+        _isInitializing = false; // Instantly unblock splash screen removal
+      });
+    }
+
+    // Trigger non-blocking data fetching preloads if user is logged in
+    if (currentSession != null) {
+      SupabaseService.fetchSavedPropertyIds();
+      SupabaseService.fetchBookedPropertyIds();
+      initializeBadgeSync();
+      SupabaseService.fetchUnreadMessageCount();
+      SupabaseService.fetchUnreadNotificationCount();
+    }
+
+    // Listen for Auth State changes to update internal state and initialize services reactively
     supabase.Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       final supabase.AuthChangeEvent event = data.event;
       final supabase.Session? session = data.session;
@@ -219,11 +222,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
       if (mounted) {
         setState(() {
           _session = session;
-          // When we get the initial session or a sign-in, we are no longer "initializing" the auth check
-          if (event == supabase.AuthChangeEvent.initialSession ||
-              event == supabase.AuthChangeEvent.signedIn) {
-            _isInitializing = false;
-          }
+          _isInitializing = false;
         });
       }
 
@@ -248,30 +247,12 @@ class _KhoznaAppState extends State<KhoznaApp> {
       }
     });
 
-    // Capture current session immediately if available
-    _session = supabase.Supabase.instance.client.auth.currentSession;
-
-    // Initial check is handled by the onAuthStateChange.initialSession listener above
-    // No need to call manually here as it would double-initialize
-
-    // Check location permission
-    try {
-      final status = await Permission.location.status;
-      _isLocationGranted = status.isGranted;
-    } catch (e) {
-      debugPrint('Location check error: $e');
-    }
-
-    // 🛡️ SAFETY FALLBACK: If onAuthStateChange hasn't fired 'initialSession'
-    // within 5 seconds (e.g. very slow cold start), forcibly unblock the UI
-    // using the currentSession snapshot already captured above. Without this,
-    // the app would show a blank white screen indefinitely.
+    // 🛡️ SAFETY FALLBACK
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted && _isInitializing) {
         debugPrint('--- [AUTH] Safety timeout: forcing _isInitializing=false ---');
         setState(() {
           _isInitializing = false;
-          // _session already set above from currentSession snapshot
         });
       }
     });
@@ -281,8 +262,8 @@ class _KhoznaAppState extends State<KhoznaApp> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isInitializing) {
-      return Container(color: Colors.white);
+    if (_isCompromised) {
+      return const _CompromisedDeviceApp();
     }
 
     return MaterialApp(
@@ -301,13 +282,39 @@ class _KhoznaAppState extends State<KhoznaApp> {
         });
         return child!;
       },
-      home: _isInitializing
-          ? Container(color: Colors.white)
-          : (_session != null
-                ? (_isLocationGranted
-                      ? const MainScreen()
-                      : const LocationPermissionScreen())
-                : const LoginScreen()),
+      home: RootScreen(
+        isInitializing: _isInitializing,
+        session: _session,
+        isLocationGranted: _isLocationGranted,
+      ),
     );
+  }
+}
+
+/// A wrapper widget to serve as the root page of the home Navigator.
+/// This prevents Flutter's Navigator from trapping the root route on dynamic type changes.
+class RootScreen extends StatelessWidget {
+  final bool isInitializing;
+  final supabase.Session? session;
+  final bool isLocationGranted;
+
+  const RootScreen({
+    super.key,
+    required this.isInitializing,
+    required this.session,
+    required this.isLocationGranted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isInitializing) {
+      return Container(color: Colors.white);
+    }
+    if (session != null) {
+      return isLocationGranted
+          ? const MainScreen()
+          : const LocationPermissionScreen();
+    }
+    return const LoginScreen();
   }
 }
