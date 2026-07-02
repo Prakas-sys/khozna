@@ -633,6 +633,9 @@ class PropertyCard extends StatelessWidget {
 
     // Priority 1.5: Guests
     if (property.guests > 0) {
+      if (amenityItems.isNotEmpty) {
+        amenityItems.add(const SizedBox(width: 14));
+      }
       amenityItems.add(_amenityIcon(Icons.people_outline_rounded, '${property.guests} Guests'));
       count++;
     }
@@ -644,7 +647,7 @@ class PropertyCard extends StatelessWidget {
       if (count >= 2) break; // Maximum 2 items allowed
       if (featureIcons.containsKey(feature)) {
         if (amenityItems.isNotEmpty) {
-          amenityItems.add(const SizedBox(width: 12));
+          amenityItems.add(const SizedBox(width: 14));
         }
         amenityItems.add(
           _amenityIcon(featureIcons[feature]!, _getShortLabel(feature)),
