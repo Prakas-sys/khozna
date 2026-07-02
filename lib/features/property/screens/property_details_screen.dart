@@ -840,33 +840,99 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  (String, String) _getAmenitySvgData(String feature) {
+  IconData _getFeatureIcon(String feature) {
     final k = feature.toLowerCase().trim();
-    if (k.contains('car') || k.contains('parking') && !k.contains('bike')) {
-      return ('assets/icons/Vector car.svg', 'Car Parking');
+    if (k.contains('car') || (k.contains('parking') && !k.contains('bike'))) {
+      return Icons.directions_car_outlined;
     }
     if (k.contains('wifi') || k.contains('internet')) {
-      return ('assets/icons/Vector wifi.svg', 'Wifi');
+      return Icons.wifi_outlined;
     }
-    if (k.contains('water') || k.contains('hot water')) {
-      return ('assets/icons/Vector water.svg', 'Water');
+    if (k.contains('water') || k.contains('melamchi') || k.contains('boring')) {
+      if (k.contains('hot_water') || k.contains('hot')) return Icons.hot_tub_outlined;
+      return Icons.water_drop_outlined;
     }
     if (k.contains('cctv') || k.contains('security')) {
-      return ('assets/icons/Vector cctv.svg', 'CCTV');
+      return Icons.security_rounded;
     }
     if (k.contains('bike')) {
-      return ('assets/icons/Vector bike.svg', 'Bike Parking');
+      return Icons.pedal_bike_outlined;
     }
     if (k.contains('kitchen')) {
-      return ('assets/icons/Vector kitchen.svg', '1.Kitchen');
+      return Icons.kitchen_outlined;
     }
     if (k.contains('balcony')) {
-      return ('assets/icons/Vector balcony.svg', 'Balcony');
+      return Icons.balcony_outlined;
     }
     if (k.contains('ac') || k.contains('air cond')) {
-      return ('assets/icons/Vector Ac.svg', 'AC');
+      return Icons.ac_unit_outlined;
     }
-    return ('', feature);
+    if (k.contains('furnish')) {
+      return Icons.chair_outlined;
+    }
+    if (k.contains('solar') || k.contains('power') || k.contains('backup')) {
+      return Icons.electric_bolt_outlined;
+    }
+    if (k.contains('elevator') || k.contains('lift')) {
+      return Icons.elevator_outlined;
+    }
+    if (k.contains('attached') || k.contains('bathroom') || k.contains('bath')) {
+      return Icons.bathroom_outlined;
+    }
+    if (k.contains('peaceful')) {
+      return Icons.nature_people_outlined;
+    }
+    return Icons.check_circle_outline_rounded;
+  }
+
+  String _getAmenityLabel(String feature) {
+    final k = feature.toLowerCase().trim();
+    if (k.contains('car') || (k.contains('parking') && !k.contains('bike'))) {
+      return 'Car Parking';
+    }
+    if (k.contains('wifi') || k.contains('internet')) {
+      return 'Wifi';
+    }
+    if (k.contains('water') || k.contains('melamchi') || k.contains('boring')) {
+      if (k.contains('hot_water') || k.contains('hot')) return 'Hot Water';
+      return 'Water';
+    }
+    if (k.contains('cctv') || k.contains('security')) {
+      return 'CCTV';
+    }
+    if (k.contains('bike')) {
+      return 'Bike Parking';
+    }
+    if (k.contains('kitchen')) {
+      return 'Kitchen';
+    }
+    if (k.contains('balcony')) {
+      return 'Balcony';
+    }
+    if (k.contains('ac') || k.contains('air cond')) {
+      return 'AC';
+    }
+    if (k.contains('furnish')) {
+      return 'Furnished';
+    }
+    if (k.contains('solar') || k.contains('power') || k.contains('backup')) {
+      return 'Power Backup';
+    }
+    if (k.contains('elevator') || k.contains('lift')) {
+      return 'Elevator';
+    }
+    if (k.contains('attached') || k.contains('bathroom')) {
+      return 'Attached Bathroom';
+    }
+    if (k.contains('peaceful')) {
+      return 'Peaceful';
+    }
+    
+    if (feature.isEmpty) return '';
+    return feature.split('_').map((word) {
+      if (word.isEmpty) return '';
+      return word[0].toUpperCase() + word.substring(1);
+    }).join(' ');
   }
 
   Widget _buildSeeMoreButton() {
@@ -903,15 +969,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildAmenityGrid() {
-    // Collect only real owner-added amenities that have a matching SVG icon
-    final List<(String, String)> items = [];
+    final List<(IconData, String)> items = [];
     for (var feature in widget.property.amenities) {
-      final data = _getAmenitySvgData(feature);
-      if (data.$1.isNotEmpty) {
-        items.add(data);
-      } else {
-        // For amenities without a custom SVG, use a fallback icon text entry so they still show
-        items.add(('', data.$2));
+      final icon = _getFeatureIcon(feature);
+      final label = _getAmenityLabel(feature);
+      if (label.isNotEmpty) {
+        items.add((icon, label));
       }
     }
 
@@ -921,6 +984,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final bool hasMore = items.length > 8;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GridView.builder(
           shrinkWrap: true,
@@ -928,59 +992,39 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: displayCount,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 0.95,
+            crossAxisCount: 2,
+            crossAxisSpacing: 24,
+            mainAxisSpacing: 18,
+            childAspectRatio: 3.8,
           ),
           itemBuilder: (context, index) {
             final item = items[index];
-            final hasSvg = item.$1.isNotEmpty;
-            return Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF00A3E1), width: 1.5),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (hasSvg)
-                    SvgPicture.asset(
-                      item.$1,
-                      width: 28,
-                      height: 28,
-                      colorFilter: const ColorFilter.mode(
-                        Color(0xFF00A3E1),
-                        BlendMode.srcIn,
-                      ),
-                    )
-                  else
-                    const Icon(
-                      Icons.check_circle_outline_rounded,
-                      size: 28,
-                      color: Color(0xFF00A3E1),
-                    ),
-                  const SizedBox(height: 6),
-                  Text(
+            return Row(
+              children: [
+                Icon(
+                  item.$1,
+                  size: 24,
+                  color: const Color(0xFF4B5563), // Neutral charcoal color, not bright blue checkcircle
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
                     item.$2,
-                    textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF00A3E1),
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF1F2937),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         ),
         if (hasMore && !_showAllAmenities) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           _buildSeeMoreButton(),
         ],
       ],
@@ -1747,17 +1791,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: SafeArea(
         top: false,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // LEFT SIDE: PRICE INFO
             Expanded(
-              flex: 4,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   RichText(
                     text: TextSpan(
-                      children: [
+                       children: [
                         WidgetSpan(
                           alignment: PlaceholderAlignment.middle,
                           child: Transform.translate(
@@ -1802,12 +1847,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ),
             ),
             
-            // RIGHT SIDE: ACTION BUTTONS
-            const SizedBox(width: 8),
-            Expanded(
-              flex: 6,
-              child: _buildBottomActionButtons(context),
-            ),
+            // RIGHT SIDE: ACTION BUTTONS (Airbnb style: wrap content, compact)
+            const SizedBox(width: 16),
+            _buildBottomActionButtons(context),
           ],
         ),
       ),
@@ -1833,12 +1875,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.brandColor,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
             elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 28),
           ),
           child: Text(
             'Visit Now',
-            style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w800),
+            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold),
           ),
         ),
       );
@@ -1864,12 +1907,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             }
           },
           icon: const Icon(Icons.payment_rounded, size: 18),
-          label: Text('PAY NOW', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w900)),
+          label: Text('PAY NOW', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF22C55E),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
             elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 28),
           ),
         ),
       );
@@ -1883,14 +1927,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       if (_pendingBookingStatus == 'pending_approval') {
         return Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             _buildDisabledButton('Pending'),
             const SizedBox(height: 6),
             GestureDetector(
               onTap: _cancelRequest,
-              child: Text(
-                'Cancel Request',
-                style: GoogleFonts.inter(fontSize: 11, color: Colors.red[400], fontWeight: FontWeight.w700, decoration: TextDecoration.underline),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Text(
+                  'Cancel Request',
+                  style: GoogleFonts.inter(fontSize: 11, color: Colors.red[400], fontWeight: FontWeight.w700, decoration: TextDecoration.underline),
+                ),
               ),
             ),
           ],
@@ -1910,12 +1958,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               }
             },
             icon: Icon(isEnded ? Icons.rate_review_rounded : Icons.timer_outlined, size: 16),
-            label: Text(isEnded ? 'REVIEW' : 'VIEW STATUS', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w900)),
+            label: Text(isEnded ? 'REVIEW' : 'VIEW STATUS', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: isEnded ? AppTheme.brandColor : Colors.orange.shade400,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
               elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 24),
             ),
           ),
         );
@@ -1923,34 +1972,29 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       return _buildDisabledButton('Accepted');
     }
 
-    return Row(
-      children: [
-        Expanded(
-          child: SizedBox(
-            height: 48,
-            child: ElevatedButton(
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                _showBookingOptionsBottomSheet(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.brandColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-                elevation: 0,
-                padding: EdgeInsets.zero,
-                alignment: Alignment.center,
-              ),
-              child: Center(
-                child: Text(
-                  'Book Now',
-                  style: GoogleFonts.plusJakartaSans(fontSize: 14, fontWeight: FontWeight.w900),
-                ),
-              ),
-            ),
+    return SizedBox(
+      height: 48,
+      child: ElevatedButton(
+        onPressed: () {
+          HapticFeedback.mediumImpact();
+          _showBookingOptionsBottomSheet(context);
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppTheme.brandColor,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+        ),
+        child: Text(
+          'Book Now',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: -0.1,
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -2138,7 +2182,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildDisabledButton(String label) {
     return Container(
-      height: 36,
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 28),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.grey[200],
@@ -2148,8 +2193,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         label,
         style: GoogleFonts.inter(
           fontSize: 13,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.bold,
           color: Colors.grey[500],
+          letterSpacing: -0.1,
         ),
       ),
     );
