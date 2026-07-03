@@ -312,7 +312,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Text(
                             'Welcome Back To',
-                            style: GoogleFonts.zenAntiqueSoft(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 26.5,
                               fontWeight: FontWeight.w500,
                               color: const Color(0xFF1D1D1D).withOpacity(0.8),
@@ -320,7 +320,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           Text(
                             'KHOZNA',
-                            style: GoogleFonts.zenAntiqueSoft(
+                            style: GoogleFonts.plusJakartaSans(
                               fontSize: 28,
                               fontWeight: FontWeight.w900,
                               color: AppTheme.brandColor,
@@ -331,7 +331,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Text(
                             'Discover Rooms, Apartments and Villas Easily',
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                               color: Colors.grey[600],
@@ -377,7 +377,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(width: 8),
                                 Text(
                                   '+977',
-                                  style: GoogleFonts.montserrat(
+                                  style: GoogleFonts.inter(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.black,
@@ -395,13 +395,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                     controller: _phoneController,
                                     focusNode: _phoneFocusNode,
                                     keyboardType: TextInputType.phone,
-                                    style: GoogleFonts.montserrat(
+                                    style: GoogleFonts.inter(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w500,
                                     ),
                                     decoration: InputDecoration(
                                       hintText: 'Enter mobile number',
-                                      hintStyle: GoogleFonts.poppins(
+                                      hintStyle: GoogleFonts.inter(
                                         color: Colors.grey[700],
                                         fontSize: 13,
                                         fontWeight: FontWeight.w400,
@@ -456,7 +456,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Expanded(
                                   child: RichText(
                                     text: TextSpan(
-                                      style: GoogleFonts.poppins(
+                                      style: GoogleFonts.inter(
                                         fontSize: 12,
                                         color: Colors.grey[600],
                                       ),
@@ -590,7 +590,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: RichText(
                                 textAlign: TextAlign.center,
                                 text: TextSpan(
-                                  style: GoogleFonts.poppins(
+                                  style: GoogleFonts.inter(
                                     fontSize: 14,
                                     color: Colors.grey[700],
                                   ),

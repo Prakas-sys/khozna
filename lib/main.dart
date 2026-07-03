@@ -37,7 +37,7 @@ void main() async {
     debugPrint('--- ERROR LOADING .ENV: $e ---');
   }
 
-  // Pre-load fonts strategy setup
+  // Allow runtime fetching only during boot preload — will be locked after fonts are cached.
   GoogleFonts.config.allowRuntimeFetching = true;
 
   SystemChrome.setSystemUIOverlayStyle(
@@ -179,12 +179,20 @@ class _KhoznaAppState extends State<KhoznaApp> {
         // 1. Check Location Status
         Permission.location.status.then((s) => s.isGranted),
         
-        // 2. Preload Font files locally to prevent screen layout shifts (Capped at 80% of a second)
+        // 2. Preload ALL fonts used across the app, capped at 800ms to not block splash.
         GoogleFonts.pendingFonts([
           GoogleFonts.inter(),
           GoogleFonts.plusJakartaSans(),
           GoogleFonts.outfit(),
-        ]).timeout(const Duration(milliseconds: 800)).then((_) => true).catchError((_) => false),
+          GoogleFonts.zenAntiqueSoft(),
+          GoogleFonts.montserrat(),
+          GoogleFonts.poppins(),
+          GoogleFonts.mukta(),
+        ]).timeout(const Duration(milliseconds: 800)).then((_) {
+          // Lock runtime fetching after preload — prevents FOUT on slow connections.
+          GoogleFonts.config.allowRuntimeFetching = false;
+          return true;
+        }).catchError((_) => false),
 
         // 3. Perform compromise checks asynchronously with timeout (Capped at 80% of a second)
         SecurityUtils.isDeviceCompromised().timeout(const Duration(milliseconds: 800), onTimeout: () => false),

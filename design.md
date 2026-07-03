@@ -18,11 +18,17 @@ Theme implementation can be accessed globally via standard theme fields in Flutt
 
 ---
 
-## 🔠 Typography
-We primarily use two Google Fonts in the codebase:
-- **Plus Jakarta Sans** (`GoogleFonts.plusJakartaSans`): Used for product card headlines, bold titles, and layout section headers.
-- **Inter** (`GoogleFonts.inter`): Used for general body text, descriptions, numeric values, prices, labels, and standard buttons.
-- **Mukta** (`GoogleFonts.mukta`): Used for custom multi-lingual / Nepali UI texts and specific subtitles.
+## 🔠 Typography — Strict Rules
+We use **exactly these fonts**. All are preloaded at boot in `main.dart`. Do not introduce any other font.
+
+| Font | Usage |
+| :--- | :--- |
+| `GoogleFonts.plusJakartaSans` | All titles, card headlines, brand name display on login, section headers |
+| `GoogleFonts.inter` | Body text, prices, labels, phone input, hints, buttons, links, terms text |
+| `GoogleFonts.mukta` | Nepali language subtitles, review tags, localised labels |
+| `GoogleFonts.outfit` | Large stat numbers in Passport cards (e.g. review count, rating score) |
+
+> ⚠️ **Never** use `poppins`, `montserrat`, `zenAntiqueSoft`, `notoSans`, `firaCode`, or any other font unless it is added to the preload list in `main.dart` first.
 
 ---
 
