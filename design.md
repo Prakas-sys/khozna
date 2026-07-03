@@ -23,12 +23,13 @@ We use **exactly these fonts**. All are preloaded at boot in `main.dart`. Do not
 
 | Font | Usage |
 | :--- | :--- |
-| `GoogleFonts.plusJakartaSans` | All titles, card headlines, brand name display on login, section headers |
+| `GoogleFonts.plusJakartaSans` | All titles, card headlines, section headers |
 | `GoogleFonts.inter` | Body text, prices, labels, phone input, hints, buttons, links, terms text |
 | `GoogleFonts.mukta` | Nepali language subtitles, review tags, localised labels |
 | `GoogleFonts.outfit` | Large stat numbers in Passport cards (e.g. review count, rating score) |
+| `GoogleFonts.zenAntiqueSoft` | **Login screen only** — "Welcome Back To" and "KHOZNA" brand heading. Intentionally unique/premium feel. |
 
-> ⚠️ **Never** use `poppins`, `montserrat`, `zenAntiqueSoft`, `notoSans`, `firaCode`, or any other font unless it is added to the preload list in `main.dart` first.
+> ⚠️ **Never** use `poppins`, `montserrat`, `notoSans`, `firaCode`, or any other font unless it is added to the preload list in `main.dart` first.
 
 ---
 
