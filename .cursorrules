@@ -1,0 +1,51 @@
+# Khozna AI Coding Instructions (.cursorrules / .clinerules)
+
+This file instructs AI agents (Cursor, Windsurf, Cline, Copilot, etc.) on how to write code, configure the environment, and interact with the Khozna repository correctly without hallucinating.
+
+---
+
+## 🔍 Critical Context Protocol
+Before writing any code, modifying files, or recommending dependencies:
+1. **Locate and Read Context Files**:
+   - Always read `brain.md` for project architecture, environment states, database config (Supabase), and tasks.
+   - Always read `design.md` for UI parameters, typography overrides (Inter, Plus Jakarta Sans, Mukta), and exact SVG vector asset names.
+2. **Never Hallucinate Backend Systems**:
+   - The backend is **Supabase**. There is **no** Node/Express or custom REST backend unless specifically requested. Do not suggest adding mock REST servers or default node configurations.
+3. **Verify State Management**:
+   - The app uses Supabase streams, Flutter's native state/value keys, and local Secure Storage. Do not install Riverpod, Redux, or Bloc dependencies unless explicitly asked.
+
+---
+
+## 🎨 UI & Design Rules
+When building or modifying UI/Widget code:
+1. **Fonts**: Use the correct fonts for text styles:
+   - Titles/Card Headers: `GoogleFonts.plusJakartaSans`
+   - Body/Prices/Buttons: `GoogleFonts.inter`
+   - Numeric & Nepali Subtitles: `GoogleFonts.inter` or `GoogleFonts.mukta`
+2. **Shapes**: Inputs and main buttons use standard pill shape: `BorderRadius.circular(50)`. Property cards use `BorderRadius.circular(16)`.
+3. **Prices**: Always format prices with the Nepalese Rupee SVG vector:
+   - Path: `assets/icons/vector of ruppes.svg` (Note the typo `ruppes` in the filename).
+   - Never write raw `/‑` suffixes or format rupee symbols as standard text.
+4. **Icons**: Do not generate new icon paths. Use the exact SVGs listed in `design.md` (e.g., `Vector wifi.svg`, `Vector Ac.svg`, etc.).
+5. **Khozna Premium Aesthetic Layouts**: Rely strictly on preset structures from `design.md` when designing:
+   - Home Headers, rounded search containers (height 52, radius 30).
+   - Asymmetric message bubbles (Sender uses brand blue with bottom-right sharp; Receiver uses white with bottom-left sharp and soft border/shadow).
+   - Quick reply bars (scrolling white pills, radius 16).
+
+---
+
+## 🛠️ Performance & Security Rules
+1. **Environment Config**: Always load configurations dynamically via `flutter_dotenv` using the `.env` file variables (e.g. `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `CLOUDINARY_CLOUD_NAME`). Never hardcode developer secrets or API credentials.
+2. **Safety Checks**: Do not bypass or disable root/compromised device checks in `main.dart` or `SecurityUtils` unless requested.
+3. **Realtime Services**: Respect Supabase Realtime listeners and Firebase Cloud Messaging setups without adding heavy background polling packages.
+
+---
+
+## 💻 Code Quality: "Senior Developer Mode"
+Write clean, professional code that looks like a highly experienced Dart/Flutter engineer wrote it (no verbose, generic AI styles):
+1. **Zero Comment Bloat**: Do **not** write obvious comments describing syntax (e.g., do not write `// Build method for widget` or `// Instantiates a string variable`). Only comment on complex business logic, math, hacky workarounds, or critical configurations.
+2. **No Placeholders**: Never write mock stub code like `// TODO: Implement` or return dummy hardcoded data unless explicitly asked. Code must be fully production-ready.
+3. **Robust Null Safety**: Avoid force-unwrapping variables (`widget.value!`). Write proper null gates (`??`, `?.`, conditional checks, or custom default states) to prevent runtime exceptions.
+4. **Clean Error Scenarios**: Implement clean try-catch blocks. Handled exceptions should log contextually (using `debugPrint('--- [FEATURE] Error descriptive message: $e ---')`) and show friendly user notifications rather than failing silently.
+5. **Modern Dart Idioms**: Use modern features like cascade operators (`..`), collection-if/for, pattern matching, guard clauses (`if (x == null) return;`), and declare `const` widgets wherever possible.
+6. **Lint Conformance**: Strictly adapt code to warnings and rules specified in `analysis_options.yaml`. Never push code with lint warnings or unused imports.

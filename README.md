@@ -20,7 +20,7 @@
 
 ## 📱 About
 
-**Khozna** (खोज्ना) means *"to search"* in Nepali. It's a full-stack Flutter mobile application that reimagines how people in Nepal find, list, and interact with properties — built with a modern, Airbnb-inspired experience.
+**Khozna* means *"to search"* in Nepali. It's a full-stack Flutter mobile application that reimagines how people in Nepal find, list, and interact with properties — built with a modern, Airbnb-inspired experience.
 
 Whether you're a tenant looking for a room, a landlord listing your property, or an investor exploring the market — Khozna has you covered.
 

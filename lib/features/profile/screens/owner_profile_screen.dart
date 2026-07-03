@@ -378,7 +378,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.brandColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
                         elevation: 0,
                       ),
                     ),
@@ -390,7 +390,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                   width: 56,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(50),
                     border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: IconButton(
@@ -443,7 +443,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
           children: [
             Text(
               value,
-              style: GoogleFonts.outfit(
+              style: GoogleFonts.plusJakartaSans(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
                 color: Colors.black,
