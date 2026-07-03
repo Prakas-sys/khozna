@@ -443,126 +443,113 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                     ),
                   ),
-                  if (widget.property.videoUrl.isNotEmpty) ...[
-                    const SizedBox(width: 12),
-                    GestureDetector(
-                      onTap: () {
-                        HapticFeedback.lightImpact();
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          useRootNavigator: true,
-                          builder: (context) => Container(
-                            height: MediaQuery.of(context).size.height * 0.8,
-                            decoration: const BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                            ),
-                            child: Column(
-                              children: [
-                                // Drag Handle
-                                const SizedBox(height: 12),
-                                Container(
-                                  width: 40,
-                                  height: 4,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.3),
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                // Header
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Property Tour',
-                                        style: GoogleFonts.plusJakartaSans(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () => Navigator.pop(context),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white.withOpacity(0.1),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Video Player Area
-                                Expanded(
-                                  child: ClipRRect(
-                                    child: KhoznaVideoPlayer(
-                                      videoUrl: widget.property.videoUrl,
-                                      thumbnailUrl: widget.property.imageUrl,
-                                      autoPlay: true,
-                                      externalController: _preVideoController,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white, // White background like share button
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.play_circle_fill_rounded,
-                              color: Color(0xFF22C55E),
-                              size: 18,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Video',
-                              style: GoogleFonts.inter(
-                                color: Colors.black,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
                   
-                  // Share and Heart/Favourite Buttons
+                  // Action Buttons (Video, Share, Heart/Favourite)
                   Row(
                     children: [
+                      if (widget.property.videoUrl.isNotEmpty) ...[
+                        GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              useRootNavigator: true,
+                              builder: (context) => Container(
+                                height: MediaQuery.of(context).size.height * 0.8,
+                                decoration: const BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                                ),
+                                child: Column(
+                                  children: [
+                                    // Drag Handle
+                                    const SizedBox(height: 12),
+                                    Container(
+                                      width: 40,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.3),
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    // Header
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Property Tour',
+                                            style: GoogleFonts.plusJakartaSans(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () => Navigator.pop(context),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withOpacity(0.1),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // Video Player Area
+                                    Expanded(
+                                      child: ClipRRect(
+                                        child: KhoznaVideoPlayer(
+                                          videoUrl: widget.property.videoUrl,
+                                          thumbnailUrl: widget.property.imageUrl,
+                                          autoPlay: true,
+                                          externalController: _preVideoController,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.play_circle_fill_rounded,
+                              color: Color(0xFF22C55E),
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
                       // Share Button
                       GestureDetector(
                         onTap: () {
                           HapticFeedback.mediumImpact();
                           Share.share(
-                            'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: ₹${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.areaName}\n\nDownload Khozna to see more details!',
+                            'Check out this ${widget.property.category} on Khozna: ${widget.property.title}\nPrice: ₹${PriceFormatter.format(widget.property.price.toString())}\nLocation: ${widget.property.location}\n\nDownload Khozna to see more details!',
                           );
                         },
                         child: Container(
@@ -588,7 +575,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      
                       // Heart/Favourite Button
                       Container(
                         width: 42,
