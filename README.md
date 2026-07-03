@@ -1,11 +1,11 @@
 # 🏠 Khozna — Nepal's Smart Property Platform
 
 <p align="center">
-  <img src="assets/images/original_logo.png" alt="Khozna Logo" width="120"/>
+  <img src="assets/images/original_logo.png" alt="Khozna Logo" width="130"/>
 </p>
 
 <p align="center">
-  <b>Find. Rent. Own. — The modern way to discover property in Nepal.</b>
+  <b>Find. Rent. Own. — The modern, video-first way to discover properties in Nepal.</b>
 </p>
 
 <p align="center">
@@ -20,156 +20,101 @@
 
 ## 📱 About
 
-**Khozna* means *"to search"* in Nepali. It's a full-stack Flutter mobile application that reimagines how people in Nepal find, list, and interact with properties — built with a modern, Airbnb-inspired experience.
+**Khozna** (*"to search"* in Nepali) is a full-stack property listing and discovery platform built specifically for the Nepalese real estate market. Inspired by modern, design-first layouts like Airbnb, Khozna replaces outdated static text listings with **interactive Full-Screen Video Tours**, letting users virtually walkthrough houses and rooms before visiting them.
 
-Whether you're a tenant looking for a room, a landlord listing your property, or an investor exploring the market — Khozna has you covered.
-
----
-
-## ✨ Features
-
-### 🏡 Property Discovery
-- **Reels-style property browsing** — swipe through properties like social media
-- **Smart Map View** — explore listings on an interactive map with clustering
-- **Advanced Search & Filters** — filter by price, location, amenities, and more
-- **AI-powered search** — voice and text-based smart property recommendations
-
-### 🔐 Authentication & Security
-- Phone number + OTP login
-- Google Sign-In
-- KYC verification with mandatory location binding
-- Secure storage with `flutter_secure_storage`
-- Safe device detection
-
-### 💬 Communication
-- Real-time in-app chat between tenants and landlords
-- Push notifications via Firebase Cloud Messaging
-- In-app notifications system
-
-### 🏠 Property Management
-- Multi-image & video property listings
-- Cloudinary media storage & optimization
-- Amenities management
-- Guest recommendations / voting system
-
-### 👤 User Profiles
-- Owner & tenant profiles
-- Verification badges
-- Activity history
+Whether you're a renter looking for a flat in Kathmandu, a homeowner listing your property, or looking for verified listings with no middleman agent fees — Khozna delivers a premium, secure mobile experience.
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ Core Features
 
-| Layer | Technology |
-|-------|-----------|
-| **Framework** | Flutter 3.x / Dart 3.x |
-| **Backend & DB** | Supabase (PostgreSQL + Realtime) |
-| **Auth** | Supabase Auth + Google Sign-In |
-| **Push Notifications** | Firebase Cloud Messaging |
-| **Analytics & Crash** | Firebase Analytics + Crashlytics |
-| **Media Storage** | Cloudinary |
-| **Maps** | Flutter Map (OpenStreetMap) |
-| **AI / LLM** | Groq (Llama 3.3) |
-| **State Management** | Flutter built-in + Streams |
-| **Local Storage** | Shared Preferences + Secure Storage |
+### 🎬 Immersive Video Tours
+- **Full-Screen Swipeable Property Tours** — Walkthrough rooms in high-definition vertical video, swiping through listings effortlessly.
+- **Dynamic Property Stats Overlays** — Key data like price, location, landlord verification, and booking slots overlay cleanly onto the video without blocking constraints.
+
+### 🏡 Smart Location & Finding
+- **Interactive Map Search** — Locate houses, apartments, and rooms across Nepal using an integrated custom map (OpenStreetMap) with fast clustering.
+- **AI-Powered Search & Voice Recs** — Use standard search queries or voice-based prompts to get recommendation listings powered by Llama 3.3.
+- **Verified KYC Landmarks** — Mandated location binding for all listing accounts helps eliminate spam and fake listings.
+
+### 💬 Seamless Handshake
+- **Real-Time Landlord Chat** — Built-in secure messaging channel between owners and searchers.
+- **Quick Reply Suggestions** — Select standard answers instantly using the Khozna Premium Aesthetic bubble bars.
+- **Real-time Notifications** — Instant feedback badges and FCM push alerts keep you updated on bookings and messages.
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Software Stack
 
-### Prerequisites
+| Layer | System | Details |
+| :--- | :--- | :--- |
+| **Framework** | Flutter 3.x / Dart 3.x | Reactive UI, Custom HSL themes, Outfit/Inter typography |
+| **Backend & Sync** | Supabase Backend | Real-time PostgreSQL, Secure DB triggers, and Supabase Auth |
+| **Push Channel** | Firebase Cloud Messaging | Remote alerts and background communication |
+| **Media Delivery** | Cloudinary | Delivery and on-the-fly optimization of listing images & video walkthroughs |
+| **Map View** | OpenStreetMap (OSM) | Marker grids, routing, and location picking via `flutter_map` |
+| **Intelligence** | Groq Cloud Console | LLM-based voice property searches |
 
-- Flutter SDK `^3.11.0`
-- Dart SDK `^3.11.0`
-- Android Studio / VS Code
-- A Supabase project
-- A Firebase project
+---
 
-### Installation
+## 🚀 Setting Up the Application
 
+### 1. Clone the project
 ```bash
-# Clone the repository
 git clone https://github.com/YOUR_USERNAME/khozna.git
 cd khozna
-
-# Install dependencies
 flutter pub get
 ```
 
-### Environment Setup
-
-Create a `.env` file in the root directory:
-
+### 2. Configure Local Environment Variables
+Create a file named `.env` in the root of the project:
 ```env
-# Supabase
+# Supabase Connectivity
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 
-# AI (Groq)
+# Llama AI Orchestration
 GROQ_API_KEY=your_groq_api_key
 
-# Cloudinary
+# Cloudinary CDN Configuration
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 
-# Google
+# Federated Login Credentials
 GOOGLE_WEB_CLIENT_ID=your_google_client_id
 ```
+*(Keep this file local; it is listed in `.gitignore` to avoid exposing credentials)*
 
-> ⚠️ **Never commit your `.env` file.** It is listed in `.gitignore` for safety.
+### 3. Add App Configurations
+- Add `google-services.json` setup for FCM into `android/app/`.
 
-### Firebase Setup
-
-1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
-2. Add an Android app and download `google-services.json`
-3. Place it in `android/app/`
-
-### Run the App
-
+### 4. Run the Dev Build
 ```bash
 flutter run
 ```
 
 ---
 
-## 📁 Project Structure
+## 📂 Project Architecture
 
 ```
 lib/
-├── core/           # App-wide constants, configs, services
-├── features/       # Feature modules (auth, chat, profile, property)
-├── screens/        # Main screen compositions
-├── theme/          # App theme & design tokens
-├── utils/          # Helper functions & utilities
-├── widgets/        # Reusable UI components
+├── core/           # Universal constants, security utilities, Supabase client services, and themes
+├── features/       # Feature-centric modules (Auth, Chat messages, Owner Profile, Property Listings)
+├── screens/        # Main landing and nav wrapper templates
+├── theme/          # HSL design tokens & system typography elements
+├── utils/          # Formatting helpers and shared calculations
+├── widgets/        # Standalone, globally reusable atoms
 └── main.dart       # App entry point
 ```
 
 ---
 
-## 📸 Screenshots
-
-> Coming soon — app screenshots will be added here.
-
----
-
-## 🤝 Contributing
-
-This is a private startup project. Contributions are not open at this time.
+## 🤝 Contribution Guidelines
+This is a private startup endeavor. Contributions, redistributions, or forks are restricted at this time.
 
 ---
 
 ## 📄 License
-
-All rights reserved © 2026 Khozna. This project is not open for redistribution.
-
----
-
-## 👨‍💻 Built by
-
-**Prakash** — Full-Stack Flutter Developer  
-🇳🇵 Kathmandu, Nepal
-
-<p align="center">Made with ❤️ for Nepal's real estate future</p>
+All rights reserved © 2026 Khozna.

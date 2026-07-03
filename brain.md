@@ -60,8 +60,8 @@ KHOZNA.COM/
 - **Backend/Auth/Db**: `supabase_flutter` — Database CRUD, realtime subscriptions, and authentication.
 - **Push Notifications**: `firebase_messaging` & `flutter_local_notifications` — Cloud notifications and background channel alerts.
 - **Maps Integration**: `flutter_map` (OpenStreetMap) + `latlong2` + `flutter_map_marker_cluster` — Precise location picking and map pins.
-- **Media Uploads**: `cloudinary_flutter` — Uploading/delivering optimized home listings images & reels videos.
-- **Reels Engine**: `video_player` + `video_compress` — Swipable vertical video layout.
+- **Media Uploads**: `cloudinary_flutter` — Uploading/delivering optimized home listings images & walkthrough videos.
+- **Tours Engine**: `video_player` + `video_compress` — Swipable vertical walkthrough video layout.
 - **Secure Storage**: `flutter_secure_storage` & `shared_preferences`.
 
 ---
@@ -91,7 +91,7 @@ KHOZNA.COM/
 - [x] Standardize property pricing widgets.
 - [x] Integrate custom Rupee SVG icon.
 - [x] Add real-time top notification alerts.
-- [x] Implement Reels video viewport constraints to keep metadata overlays visible.
+- [x] Implement Walkthrough video viewport constraints to keep metadata overlays visible.
 - [ ] Add compact pill-shaped booking trigger on property pages.
 - [ ] Convert amenities listings to a responsive 2-column icon grid.
 - [ ] Enforce geolocation lock during landlord onboarding.
