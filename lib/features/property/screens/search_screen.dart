@@ -167,6 +167,23 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (!_showNearbySection) ...[
+                      // Back Button
+                      Transform.translate(
+                        offset: const Offset(-8, -8),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: Colors.black,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            Navigator.pop(context);
+                          },
+                          splashRadius: 22,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
                       // 1. BRANDED HEADER
                       Text(
                         'Find your next home',
@@ -195,7 +212,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                           color: Colors.transparent,
                           child: Container(
                             height: 56,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.only(left: 16, right: 8),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(30),
@@ -274,15 +291,33 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                     ),
                                     color: Colors.grey.withOpacity(0.12),
                                   ),
-                                  IconButton(
-                                    onPressed: () {
+                                  GestureDetector(
+                                    onTap: () {
                                       HapticFeedback.lightImpact();
                                       _showFilterOptions(context);
                                     },
-                                    icon: const Icon(
-                                      Icons.tune_rounded, // 2-3 Layer premium filter icon
-                                      color: Colors.black,
-                                      size: 20,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.circular(50),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.tune_rounded,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          const Icon(
+                                            Icons.keyboard_arrow_down_rounded,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],

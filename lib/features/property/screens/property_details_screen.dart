@@ -648,11 +648,36 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
+  Widget _buildSpecBadge(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 0.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: const Color(0xFF475569)),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: const Color(0xFF334155),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildHeader() {
     int guests = widget.property.guests;
     int bedrooms = widget.property.bedrooms;
     int bathrooms = widget.property.bathrooms;
-    String specs = '$guests guests  •  $bedrooms bedroom  •  $bathrooms bath';
 
     final double? avgRating = _reviews.isNotEmpty
         ? (_reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length)
@@ -690,17 +715,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        // Specs Stacked Cleanly
-        Center(
-          child: Text(
-            specs,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: _airbnbGrey,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+        const SizedBox(height: 16),
+        // Specs Stacked Cleanly with Badges & Icons
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildSpecBadge(Icons.people_outline_rounded, '$guests Guests'),
+            _buildSpecBadge(Icons.bed_outlined, '$bedrooms Bed'),
+            _buildSpecBadge(Icons.shower_outlined, '$bathrooms Bath'),
+          ],
         ),
         if (avgRating != null) ...[  
           const SizedBox(height: 16),
@@ -1011,29 +1036,36 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           itemCount: displayCount,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: 24,
-            mainAxisSpacing: 18,
-            childAspectRatio: 3.8,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 14,
+            childAspectRatio: 3.1,
           ),
           itemBuilder: (context, index) {
             final item = items[index];
             return Row(
               children: [
-                Icon(
-                  item.$1,
-                  size: 24,
-                  color: const Color(0xFF4B5563), // Neutral charcoal color, not bright blue checkcircle
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF1F5F9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    item.$1,
+                    size: 18,
+                    color: const Color(0xFF475569),
+                  ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     item.$2,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF1F2937),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1E293B),
                     ),
                   ),
                 ),
@@ -1104,15 +1136,28 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            widget.property.landmark,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: Colors.black,
-              height: 1.2,
-            ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.location_pin,
+                color: Color(0xFFEF4444),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  widget.property.landmark,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -105,79 +105,106 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: null,
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 16),
-            // Location Header (Moved from AppBar to body)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              child: Stack(
-                alignment: Alignment.center,
+            // ── Premium Header ──────────────────────────────────────────
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(8, 12, 20, 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: Colors.black,
-                        size: 22,
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+                    onPressed: () => Navigator.pop(context),
+                    splashRadius: 22,
                   ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        widget.location,
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: Colors.grey[600],
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.location,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                            letterSpacing: -0.4,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
                           children: [
-                            if (widget.priceRange.contains(RegExp(r'(रू|Rs\.|₹)'))) ...[
-                              TextSpan(text: widget.priceRange.split(RegExp(r'(रू|Rs\.|₹)'))[0]),
-                              WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                                  child: SvgPicture.asset(
-                                    'assets/icons/vector of ruppes.svg',
-                                    width: 10,
-                                    height: 10,
-                                    colorFilter: ColorFilter.mode(
-                                      Colors.grey[600]!,
-                                      BlendMode.srcIn,
+                            if (widget.priceRange.isNotEmpty &&
+                                widget.priceRange != 'Top Rated Properties') ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/icons/vector of ruppes.svg',
+                                      width: 9,
+                                      height: 9,
+                                      colorFilter: ColorFilter.mode(
+                                        AppTheme.brandColor,
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      widget.priceRange.replaceAll(RegExp(r'(रू|Rs\.|₹)'), '').trim(),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppTheme.brandColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                            if (widget.category != null && widget.category!.isNotEmpty && widget.category != 'All') ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  widget.category!,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.grey[700],
                                   ),
                                 ),
                               ),
-                              TextSpan(text: widget.priceRange.split(RegExp(r'(रू|Rs\.|₹)'))[1].trim()),
-                            ] else
-                              TextSpan(text: widget.priceRange),
+                            ],
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            // Unified Premium Search Bar (Matches Home Screen)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+
+            // ── Search Bar ──────────────────────────────────────────────
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
               child: Hero(
                 tag: 'search_bar',
                 child: Material(
@@ -185,44 +212,23 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   child: GestureDetector(
                     onTap: () => _navigate(context, const SearchScreen()),
                     child: Container(
-                      height: 52,
-                      padding: const EdgeInsets.fromLTRB(
-                        8,
-                        0,
-                        4,
-                        0,
-                      ), // Smaller left padding for back button
+                      height: 50,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: const Color(0xFFF5F7FA),
                         borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: Colors.grey.shade200,
-                          width: 1.2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
-                            blurRadius: 15,
-                            spreadRadius: 0,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
+                        border: Border.all(color: const Color(0xFFE8ECF0), width: 1),
                       ),
                       child: Row(
                         children: [
                           const SizedBox(width: 16),
-                          Icon(
-                            CupertinoIcons.search,
-                            color: AppTheme.brandColor,
-                            size: 26,
-                          ),
-                          const SizedBox(width: 14),
+                          Icon(CupertinoIcons.search, color: Colors.grey[400], size: 20),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'Search properties',
+                              'Search properties...',
                               style: GoogleFonts.inter(
                                 color: Colors.grey[400],
-                                fontSize: 16,
+                                fontSize: 14,
                               ),
                             ),
                           ),
@@ -234,82 +240,107 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
               ),
             ),
 
+            // ── Results List ────────────────────────────────────────────
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
                 future: _propertiesFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
-                      itemCount: 8,
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+                      itemCount: 6,
                       itemBuilder: (context, index) => const Padding(
-                        padding: EdgeInsets.only(bottom: 24),
+                        padding: EdgeInsets.only(bottom: 20),
                         child: SkeletonCard(isFullWidth: true),
                       ),
                     );
                   }
 
                   final properties = snapshot.data ?? [];
-                  final priceStr = widget.priceRange.replaceAll(
-                    RegExp(r'[^0-9]'),
-                    '',
-                  );
+                  final priceStr = widget.priceRange.replaceAll(RegExp(r'[^0-9]'), '');
                   final priceInt = int.tryParse(priceStr);
 
                   if (properties.isEmpty) {
                     return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.home_work_outlined,
-                            size: 80,
-                            color: Colors.grey[200],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No listings found yet',
-                            style: GoogleFonts.inter(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[400],
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(28),
+                              decoration: BoxDecoration(
+                                color: AppTheme.brandColor.withOpacity(0.06),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.search_off_rounded,
+                                size: 56,
+                                color: AppTheme.brandColor.withOpacity(0.4),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40),
-                            child: Text(
+                            const SizedBox(height: 20),
+                            Text(
+                              'No listings found',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF1A1A2E),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
                               priceInt != null && priceInt > 0
-                                  ? 'Try increasing your budget or changing the location to see more results.'
-                                  : 'Be the first to post a property in this area!',
+                                  ? 'Try increasing your budget or changing the location.'
+                                  : 'Be the first to list a property in this area!',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(color: Colors.grey[500]),
+                              style: GoogleFonts.inter(
+                                fontSize: 13.5,
+                                color: Colors.grey[500],
+                                height: 1.5,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   }
 
                   return ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 16,
-                    ),
-                    itemCount: properties.length,
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                    itemCount: properties.length + 1,
                     itemBuilder: (context, index) {
-                      final pMap = properties[index];
-                      final property = Property.fromMap(pMap);
+                      // Result count row as first item
+                      if (index == 0) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.brandColor.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  '${properties.length} result${properties.length == 1 ? '' : 's'}',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.brandColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
 
+                      final pMap = properties[index - 1];
+                      final property = Property.fromMap(pMap);
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        child: PropertyCard(
-                          property: property,
-                          width: double.infinity,
-                        ),
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: PropertyCard(property: property, width: double.infinity),
                       );
                     },
                   );
