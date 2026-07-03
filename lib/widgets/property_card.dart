@@ -185,8 +185,8 @@ class PropertyCard extends StatelessWidget {
 
                             return Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 7,
-                                vertical: 4,
+                                horizontal: 5,
+                                vertical: 3,
                               ),
                               decoration: BoxDecoration(
                                 color: isBooked
@@ -209,9 +209,9 @@ class PropertyCard extends StatelessWidget {
                                     : (isPending ? 'PENDING' : 'FOR RENT'),
                                 style: GoogleFonts.inter(
                                   color: Colors.white,
-                                  fontSize: 11.0,
+                                  fontSize: 10.0,
                                   fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.5,
+                                  letterSpacing: 0.3,
                                 ),
                               ),
                             );
