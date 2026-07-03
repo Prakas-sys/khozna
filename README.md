@@ -1,4 +1,4 @@
-# 🏠 Khozna — Nepal's Smart Property Platform
+# 🏠 Khozna — Nepal's Rental Platform
 
 <p align="center">
   <img src="assets/images/original_logo.png" alt="Khozna Logo" width="130"/>
@@ -20,7 +20,7 @@
 
 ## 📱 About
 
-**Khozna** (*"to search"* in Nepali) is a full-stack property listing and discovery platform built specifically for the Nepalese real estate market. Inspired by modern, design-first layouts like Airbnb, Khozna replaces outdated static text listings with **interactive Full-Screen Video Tours**, letting users virtually walkthrough houses and rooms before visiting them.
+**Khozna** (खोज्ना) means *"to search"* in Nepali. It's a full-stack Flutter mobile application that reimagines how people in Nepal find, list, and interact with properties — built with a modern, Airbnb-inspired experience.
 
 Whether you're a renter looking for a flat in Kathmandu, a homeowner listing your property, or looking for verified listings with no middleman agent fees — Khozna delivers a premium, secure mobile experience.
 
@@ -117,4 +117,14 @@ This is a private startup endeavor. Contributions, redistributions, or forks are
 ---
 
 ## 📄 License
-All rights reserved © 2026 Khozna.
+
+All rights reserved © 2026 Khozna. This project is not open for redistribution.
+
+---
+
+## 👨‍💻 Built by
+
+**Prakash** — Full-Stack Flutter Developer  
+🇳🇵 Kathmandu, Nepal
+
+<p align="center">Made with ❤️ for Nepal's real estate future</p>
