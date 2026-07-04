@@ -276,23 +276,27 @@ class VerificationCard extends StatelessWidget {
     final bool isPending = kycStatus == 'pending';
     final bool isRejected = kycStatus == 'rejected';
 
+    // 🎨 Danger red instead of AI/bright red
     final Color mainColor = isVerified
-        ? Colors.green.shade700
-        : (isPending ? Colors.orange.shade800 : Colors.red.shade700);
+        ? const Color(0xFF15803D)   // green-700
+        : (isPending
+            ? const Color(0xFFB45309)   // amber-700
+            : const Color(0xFF991B1B)); // red-800 — deep danger red
 
     final Color bgColorStart = isVerified
-        ? Colors.green.shade50
-        : (isPending ? Colors.orange.shade50 : Colors.red.shade50);
+        ? const Color(0xFFF0FDF4)
+        : (isPending ? const Color(0xFFFFFBEB) : const Color(0xFFFEF2F2));
 
     final Color bgColorEnd = isVerified
-        ? Colors.green.shade100
-        : (isPending ? Colors.orange.shade100 : Colors.red.shade100);
+        ? const Color(0xFFDCFCE7)
+        : (isPending ? const Color(0xFFFEF3C7) : const Color(0xFFFEE2E2));
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16), // ✅ matches overview box corners
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
       ),
       child: Row(
         children: [
@@ -359,6 +363,7 @@ class VerificationCard extends StatelessWidget {
                 HapticFeedback.lightImpact();
                 onTap();
               },
+              borderRadius: BorderRadius.circular(10),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
@@ -366,7 +371,7 @@ class VerificationCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(10), // ✅ smaller, consistent
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
