@@ -967,8 +967,9 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
       // Simple keyword matching for better context
       if (queryText.isNotEmpty) {
+        final doubleQuoteEscaped = '"%$queryText%"';
         query = query.or(
-          'area_name.ilike.%$queryText%,title.ilike.%$queryText%,category.ilike.%$queryText%',
+          'area_name.ilike.$doubleQuoteEscaped,title.ilike.$doubleQuoteEscaped,category.ilike.$doubleQuoteEscaped',
         );
       }
 

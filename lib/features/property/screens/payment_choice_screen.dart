@@ -923,11 +923,11 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 : const Icon(Icons.lock_rounded, size: 16, color: Colors.white),
             label: Text(
               _paymentDestination == 'owner'
-                  ? 'Confirm Direct Payment'
-                  : 'Submit Payment Proof',
+                  ? 'Confirm Payment / भुक्तानी निश्चित गर्नुहोस्'
+                  : 'Submit Proof / प्रमाण बुझाउनुहोस्',
               style: GoogleFonts.plusJakartaSans(
                 fontWeight: FontWeight.w800,
-                fontSize: 14.5,
+                fontSize: 13.0,
                 color: Colors.white,
               ),
             ),

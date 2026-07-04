@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/property/screens/search_screen.dart';
@@ -49,12 +50,36 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
       'Budget Friendly',
       'High-End Apartments',
       'Hot Deals',
+      'Special Deals',
       'Student Housing',
+      'Student Specials',
       'Family Flats',
+      'Family Friendly',
       'Premium Collections',
+      'Premium Selection',
       'Top Rated Properties',
     ];
     final isLocationSearch = !genericTitles.contains(widget.location);
+
+    Position? position;
+    if (widget.location == 'Near You') {
+      try {
+        LocationPermission permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+        if (permission == LocationPermission.whileInUse ||
+            permission == LocationPermission.always) {
+          position = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.medium,
+            ),
+          ).timeout(const Duration(seconds: 4));
+        }
+      } catch (e) {
+        debugPrint('Error getting location in filters: $e');
+      }
+    }
 
     var query = Supabase.instance.client
         .from('properties')
@@ -66,11 +91,33 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
     // Filter by location if it's a real location
     if (isLocationSearch) {
       final searchVal = widget.location.trim();
+      final doubleQuoteEscaped = '"%$searchVal%"';
       query =
           query.or(
-                'area_name.ilike.%$searchVal%,title.ilike.%$searchVal%,category.ilike.%$searchVal%',
+                'area_name.ilike.$doubleQuoteEscaped,title.ilike.$doubleQuoteEscaped,category.ilike.$doubleQuoteEscaped',
               )
               as dynamic;
+    } else {
+      // Map section filters
+      if (widget.location == 'Near You' && position != null) {
+        final lat = position.latitude;
+        final lng = position.longitude;
+        query = query
+            .gte('latitude', lat - 0.1)
+            .lte('latitude', lat + 0.1)
+            .gte('longitude', lng - 0.1)
+            .lte('longitude', lng + 0.1) as dynamic;
+      } else if (widget.location == 'Special Deals' || widget.location == 'Hot Deals') {
+        query = query.or(
+          'description.ilike."%offer%",description.ilike."%discount%",title.ilike."%offer%",is_negotiable.eq.true',
+        ) as dynamic;
+      } else if (widget.location == 'Student Specials' || widget.location == 'Student Housing') {
+        query = query.eq('is_student_friendly', true).lt('price', 9000) as dynamic;
+      } else if (widget.location == 'Family Friendly' || widget.location == 'Family Flats') {
+        query = query.eq('category', 'Flat') as dynamic;
+      } else if (widget.location == 'Premium Selection' || widget.location == 'Premium Collections') {
+        query = query.or('is_premium.eq.true,price.gt.20000') as dynamic;
+      }
     }
 
     // Filter by category if specifically selected
@@ -82,16 +129,16 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
     if (priceInt != null && priceInt > 0) {
       query = query.lte('price', priceInt) as dynamic;
     }
-    
-    // Fallback if price is listed in price_month
-    if (priceInt != null && priceInt > 0) {
-       // We can iterate results later or try an or filter if DB supports it
-    }
 
-    final result = await (query as dynamic)
-        .order('is_boosted', ascending: false)
-        .order('created_at', ascending: false);
-    return List<Map<String, dynamic>>.from(result);
+    try {
+      final result = await (query as dynamic)
+          .order('is_boosted', ascending: false)
+          .order('created_at', ascending: false);
+      return List<Map<String, dynamic>>.from(result);
+    } catch (e) {
+      debugPrint('Error fetching properties: $e');
+      rethrow;
+    }
   }
 
   void _navigate(BuildContext context, Widget destination) {
