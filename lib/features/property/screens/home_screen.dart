@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:geocoding/geocoding.dart' as geo;
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
@@ -15,8 +13,6 @@ import 'package:khozna/features/property/screens/filter_results_screen.dart';
 import 'package:khozna/features/property/screens/discovery_map_screen.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 import '../widgets/home_widgets.dart';
-
-import 'package:khozna/core/services/khozna_ai_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,7 +28,6 @@ class HomeScreenState extends State<HomeScreen> {
   );
   Position? _currentPosition;
   String _currentLocationName = 'Kathmandu, Nepal';
-  final KhoznaAiService _aiService = KhoznaAiService();
 
   @override
   void initState() {
@@ -72,118 +67,45 @@ class HomeScreenState extends State<HomeScreen> {
       }
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
+        // ⚡ Use lowest accuracy for instant fix (network/cell tower - fast!)
         final position = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
+            accuracy: LocationAccuracy.lowest,
           ),
-        );
+        ).timeout(const Duration(seconds: 4));
         if (mounted) {
           setState(() => _currentPosition = position);
           _fetchAreaName(position);
         }
       }
     } catch (e) {
-      debugPrint('Error fetching location: $e');
+      debugPrint('Location fetch skipped: $e');
+      // Stays on "Kathmandu, Nepal" default — that's fine
     }
   }
 
   Future<void> _fetchAreaName(Position position) async {
     try {
-      String micro = '';
-      String macro = '';
-      String rawDisplayName = '';
+      // ⚡ Use native geocoding only — fast, no network, no AI call
+      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      ).timeout(const Duration(seconds: 4));
 
-      geo.Placemark? nativePlace;
-      try {
-        List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
-          position.latitude,
-          position.longitude,
-        );
-        if (placemarks.isNotEmpty) {
-          nativePlace = placemarks.first;
-          macro =
-              nativePlace.locality ?? nativePlace.subAdministrativeArea ?? '';
-          micro =
-              (nativePlace.subLocality ??
-                      nativePlace.thoroughfare ??
-                      nativePlace.name ??
-                      '')
-                  .replaceAll('Road', '')
-                  .replaceAll('Street', '')
-                  .trim();
-        }
-      } catch (_) {}
-
-      // Get raw data from Nominatim for additional context
-      final url = Uri.parse(
-        'https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1',
-      );
-      final response = await http.get(
-        url,
-        headers: {'User-Agent': 'KhoznaApp/1.0'},
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        rawDisplayName = data['display_name'] ?? '';
-        final address = data['address'];
-        if (address != null && (micro.isEmpty || macro.isEmpty)) {
-          final osmMicro =
-              address['suburb'] ??
-              address['neighbourhood'] ??
-              address['hamlet'] ??
-              address['quarter'] ??
-              address['village'] ??
-              address['residential'] ??
-              address['road'] ??
-              '';
-          final osmMacro =
-              address['city'] ??
-              address['town'] ??
-              address['municipality'] ??
-              address['city_district'] ??
-              address['county'] ??
-              '';
-          if (micro.isEmpty) micro = osmMicro;
-          if (macro.isEmpty) macro = osmMacro;
-        }
-      }
-
-      // If we have a very specific native subLocality, we use it as a "Strong Lead" for the AI
-      String area = '';
-      try {
-        debugPrint(
-          'Location Debug - Lat: ${position.latitude}, Lng: ${position.longitude}',
-        );
-        final aiPolished = await _aiService.refineLocationWithAI(
-          lat: position.latitude,
-          lng: position.longitude,
-          rawAddress:
-              'Native Specific: $micro, Native City: $macro, Full OSM: $rawDisplayName',
-        );
-        debugPrint('AI Location Response: $aiPolished');
-
-        if (aiPolished.isNotEmpty && aiPolished.contains(',')) {
-          area = aiPolished;
-        }
-      } catch (e) {
-        debugPrint('AI Location refinement failed: $e');
-      }
-
-      // Fallback/Cleanup
-      if (area.isEmpty) {
-        String clean(String s) => s
+      if (placemarks.isNotEmpty && mounted) {
+        final p = placemarks.first;
+        
+        String clean(String? s) => (s ?? '')
             .replaceAll('Municipality', '')
             .replaceAll('Nagarpalika', '')
             .replaceAll('Mahanagarpalika', '')
             .trim();
-        micro = clean(micro);
-        macro = clean(macro);
-        bool isPlusCode(String s) => s.contains('+') && s.length <= 12;
-        if (isPlusCode(micro)) micro = '';
-        if (isPlusCode(macro)) macro = '';
 
-        if (micro.isNotEmpty &&
-            macro.isNotEmpty &&
+        final micro = clean(p.subLocality ?? p.thoroughfare ?? p.name ?? '');
+        final macro = clean(p.locality ?? p.subAdministrativeArea ?? '');
+
+        String area;
+        if (micro.isNotEmpty && macro.isNotEmpty &&
             micro.toLowerCase() != macro.toLowerCase()) {
           area = '$micro, $macro';
         } else if (macro.isNotEmpty) {
@@ -193,31 +115,13 @@ class HomeScreenState extends State<HomeScreen> {
         } else {
           area = 'Kathmandu, Nepal';
         }
-      }
 
-      // Final redundancy check: If "Kirtipur, Kirtipur", just show "Kirtipur"
-      if (area.contains(',')) {
-        List<String> parts = area.split(',').map((e) => e.trim()).toList();
-        if (parts.length >= 2 &&
-            parts[0].toLowerCase() == parts[1].toLowerCase()) {
-          area = parts[0];
+        if (mounted) {
+          setState(() => _currentLocationName = area);
         }
       }
-
-      // HARD SAFETY OVERRIDE: Kill the "Sanga" hallucination for Kirtipur users
-      // If the coordinates are clearly in Kirtipur but the API/AI says "Sanga", force it to Khasibazar.
-      final lat = position.latitude;
-      final lng = position.longitude;
-      bool isInKirtipur =
-          lat > 27.65 && lat < 27.70 && lng > 85.25 && lng < 85.30;
-      if (isInKirtipur &&
-          (area.toLowerCase().contains('sanga') || area.contains('सा:गा'))) {
-        area = 'Khasibazar, Kirtipur';
-      }
-
-      if (mounted) setState(() => _currentLocationName = area);
     } catch (e) {
-      debugPrint('Error fetching area name: $e');
+      debugPrint('Geocoding error (keeping default): $e');
     }
   }
 
