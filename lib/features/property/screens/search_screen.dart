@@ -101,30 +101,43 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
   Future<void> _loadNearbyData() async {
     LatLng? currentLoc;
+
+    // ⚡ Kick off property fetch immediately (don't wait for GPS)
+    final propertiesFuture = SupabaseService.getAllProperties();
+
+    // 📍 Try to get location with a tight 3-second timeout
     try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
-      );
-      currentLoc = LatLng(position.latitude, position.longitude);
-      if (mounted) {
-        setState(() {
-          _userLocation = currentLoc;
-        });
-        _miniMapController.move(currentLoc!, 13.0);
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always) {
+        final position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+          ),
+        ).timeout(const Duration(seconds: 3));
+        currentLoc = LatLng(position.latitude, position.longitude);
+        if (mounted) {
+          setState(() => _userLocation = currentLoc);
+          _miniMapController.move(currentLoc!, 13.0);
+        }
       }
     } catch (e) {
-      debugPrint('Error getting location: $e');
+      debugPrint('Location fetch skipped (timeout or denied): $e');
+      // Fall through — still load properties without location
     }
 
-    final properties = await SupabaseService.getAllProperties();
-    
-    // 📍 FILTER & SORT BY DISTANCE
+    // ✅ Await the already-in-flight property fetch
+    final properties = await propertiesFuture;
+
+    // 📍 Sort by distance if we have a location
     if (currentLoc != null) {
       const Distance distance = Distance();
       properties.sort((a, b) {
         if (a.latitude == null || a.longitude == null) return 1;
         if (b.latitude == null || b.longitude == null) return -1;
-        
         final dA = distance.as(LengthUnit.Meter, currentLoc!, LatLng(a.latitude!, a.longitude!));
         final dB = distance.as(LengthUnit.Meter, currentLoc!, LatLng(b.latitude!, b.longitude!));
         return dA.compareTo(dB);
@@ -133,7 +146,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
     if (mounted) {
       setState(() {
-        // Take the closest 10 properties
         _nearbyProperties = properties.take(10).toList();
         _isLoadingNearby = false;
       });

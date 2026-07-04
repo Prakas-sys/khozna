@@ -142,9 +142,8 @@ class SupabaseService {
     try {
       final response = await Supabase.instance.client
           .from('properties')
-          .select()
+          .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)')
           .eq('status', 'available')
-          .not('id', 'ilike', '%demo%')
           .order('created_at', ascending: false)
           .limit(100);
       return (response as List).map((p) => Property.fromMap(p)).toList();
