@@ -27,7 +27,7 @@ class HomeScreenState extends State<HomeScreen> {
     (index) => Future.value(<Property>[]),
   );
   Position? _currentPosition;
-  String _currentLocationName = 'Kirtipur, Nepal';
+  String _currentLocationName = 'Nepal';
 
   @override
   void initState() {
@@ -80,7 +80,7 @@ class HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       debugPrint('Location fetch skipped: $e');
-      // Stays on "Kirtipur, Nepal" default — that's fine
+      // Stays on "Nepal" default — that's fine
     }
   }
 
@@ -88,19 +88,6 @@ class HomeScreenState extends State<HomeScreen> {
     try {
       // Log position for troubleshooting
       debugPrint('KHOZNA GEO: Lat=${position.latitude}, Lng=${position.longitude}');
-
-      // Widen the check for Kirtipur area boundary (includes center, TU area, etc.)
-      final bool isLocallyKirtipur = position.latitude >= 27.63 &&
-          position.latitude <= 27.712 &&
-          position.longitude >= 85.22 &&
-          position.longitude <= 85.31;
-
-      if (isLocallyKirtipur) {
-        if (mounted) {
-          setState(() => _currentLocationName = 'Kirtipur, Nepal');
-        }
-        return;
-      }
 
       // ⚡ Use native geocoding only — fast, no network, no AI call
       List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
@@ -111,17 +98,8 @@ class HomeScreenState extends State<HomeScreen> {
       if (placemarks.isNotEmpty && mounted) {
         final p = placemarks.first;
         
-        // Print clean representation for debugging
-        debugPrint('KHOZNA PLACEMARK: subLocality=${p.subLocality}, locality=${p.locality}, thoroughfare=${p.thoroughfare}');
-
-        // Check if Kirtipur is mentioned anywhere in the placemark address elements
-        final String fullAddressString = '${p.name} ${p.subLocality} ${p.locality} ${p.subAdministrativeArea} ${p.administrativeArea}'.toLowerCase();
-        if (fullAddressString.contains('kirtipur')) {
-          if (mounted) {
-            setState(() => _currentLocationName = 'Kirtipur, Nepal');
-          }
-          return;
-        }
+        // Print raw placemark details for debugging
+        debugPrint('KHOZNA PLACEMARK: name=${p.name}, subLocality=${p.subLocality}, thoroughfare=${p.thoroughfare}, locality=${p.locality}, street=${p.street}');
 
         String clean(String? s) => (s ?? '')
             .replaceAll('Municipality', '')
@@ -129,19 +107,35 @@ class HomeScreenState extends State<HomeScreen> {
             .replaceAll('Mahanagarpalika', '')
             .trim();
 
-        final micro = clean(p.subLocality ?? p.thoroughfare ?? p.name ?? '');
-        final macro = clean(p.locality ?? p.subAdministrativeArea ?? '');
+        // Helper to grab the first non-null, non-empty, and non-system-code/plus-code readable location part
+        String getBestComponent(List<String?> items) {
+          for (var item in items) {
+            if (item != null) {
+              final trimmed = item.trim();
+              if (trimmed.isNotEmpty && 
+                  !trimmed.contains('+') && // filter out Google Plus Codes (e.g. "W5QX+6Q")
+                  trimmed.length > 2 && // filter out short numbers/identifiers
+                  double.tryParse(trimmed) == null) { // filter out plain numbers/coordinates
+                return trimmed;
+              }
+            }
+          }
+          return '';
+        }
+
+        final String neighborhood = clean(getBestComponent([p.subLocality, p.thoroughfare, p.name, p.street]));
+        final String city = clean(getBestComponent([p.locality, p.subAdministrativeArea, p.administrativeArea]));
 
         String area;
-        if (micro.isNotEmpty && macro.isNotEmpty &&
-            micro.toLowerCase() != macro.toLowerCase()) {
-          area = '$micro, $macro';
-        } else if (macro.isNotEmpty) {
-          area = macro;
-        } else if (micro.isNotEmpty) {
-          area = micro;
+        if (neighborhood.isNotEmpty && city.isNotEmpty &&
+            neighborhood.toLowerCase() != city.toLowerCase()) {
+          area = '$neighborhood, $city';
+        } else if (city.isNotEmpty) {
+          area = city;
+        } else if (neighborhood.isNotEmpty) {
+          area = neighborhood;
         } else {
-          area = 'Kirtipur, Nepal';
+          area = 'Nepal';
         }
 
         if (mounted) {
@@ -151,7 +145,7 @@ class HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       debugPrint('Geocoding error (keeping default): $e');
       if (mounted) {
-        setState(() => _currentLocationName = 'Kirtipur, Nepal');
+        setState(() => _currentLocationName = 'Nepal');
       }
     }
   }

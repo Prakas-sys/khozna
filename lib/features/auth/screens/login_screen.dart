@@ -312,17 +312,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Text(
                             'Welcome Back To',
-                            style: GoogleFonts.zenAntiqueSoft(
+                            style: TextStyle(
+                              fontFamily: 'Zen Antique Soft',
                               fontSize: 26.5,
-                              fontWeight: FontWeight.w400,
                               color: const Color(0xFF1D1D1D).withOpacity(0.8),
                             ),
                           ),
                           Text(
                             'KHOZNA',
-                            style: GoogleFonts.zenAntiqueSoft(
+                            style: TextStyle(
+                              fontFamily: 'Zen Antique Soft',
                               fontSize: 28,
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.bold,
                               color: AppTheme.brandColor,
                               letterSpacing: 1.2,
                             ),

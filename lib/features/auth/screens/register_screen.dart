@@ -151,9 +151,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     // --- BRAND & TITLE ---
                     Text(
                       'KHOZNA',
-                      style: GoogleFonts.zenAntiqueSoft(
+                      style: TextStyle(
+                        fontFamily: 'Zen Antique Soft',
                         fontSize: 36,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.bold,
                         color: AppTheme.brandColor,
                         letterSpacing: 1.5,
                       ),

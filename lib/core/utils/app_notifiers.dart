@@ -10,7 +10,7 @@ final ValueNotifier<int> notificationBadgeCount = ValueNotifier<int>(0);
 
 /// Global notifier for the current location name.
 final ValueNotifier<String> currentLocationName =
-    ValueNotifier<String>('Kirtipur, Nepal');
+    ValueNotifier<String>('Nepal');
 
 /// Master Memory: A global set of IDs for houses saved by the user.
 /// Every heart listens to this to stay Red/Grey across all screens! 🧠✨

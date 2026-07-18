@@ -104,6 +104,14 @@ flutter:
     - assets/images/
     - assets/icons/
 
+  fonts:
+    - family: Zen Antique Soft
+      fonts:
+        - asset: assets/fonts/ZenAntiqueSoft-Regular.ttf
+    - family: Zen Antique
+      fonts:
+        - asset: assets/fonts/ZenAntique-Regular.ttf
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
