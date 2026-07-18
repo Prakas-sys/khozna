@@ -107,7 +107,7 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
               _isEnglish
                   ? 'Khozna ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and share information when you use our mobile application.'
                   : 'खोज्न तपाईंको गोपनीयताको रक्षा गर्न प्रतिबद्ध छ। यस नीतिले तपाईंले हाम्रो मोबाइल एप प्रयोग गर्दा हामी कसरी जानकारी संकलन, प्रयोग र साझा गर्छौं भनेर वर्णन गर्दछ।',
-              style: GoogleFonts.mukta(
+              style: GoogleFonts.inter(
                 fontSize: 15,
                 color: Colors.grey[700],
                 height: 1.6,
@@ -296,7 +296,7 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
           const SizedBox(height: 8),
           Text(
             content,
-            style: GoogleFonts.mukta(
+            style: GoogleFonts.inter(
               fontSize: 15,
               color: Colors.grey[700],
               height: 1.6,
@@ -333,7 +333,7 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
           const SizedBox(height: 10),
           Text(
             content,
-            style: GoogleFonts.mukta(
+            style: GoogleFonts.inter(
               fontSize: 14,
               color: Colors.grey[800],
               height: 1.5,

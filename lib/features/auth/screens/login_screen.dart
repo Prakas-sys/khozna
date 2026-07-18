@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
@@ -12,6 +13,7 @@ import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/screens/main_screen.dart';
 import 'package:khozna/features/auth/screens/register_screen.dart';
 import 'package:khozna/features/auth/screens/verify_phone_screen.dart';
+import 'package:khozna/features/profile/screens/terms_privacy_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -462,15 +464,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                         color: Colors.grey[600],
                                       ),
                                       children: [
-                                        const TextSpan(
-                                          text: 'I agree to terms of ',
-                                        ),
+                                        const TextSpan(text: 'I agree to '),
                                         TextSpan(
-                                          text: 'Service',
+                                          text: 'Terms of Service',
                                           style: TextStyle(
                                             color: AppTheme.brandColor,
                                             fontWeight: FontWeight.bold,
                                           ),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => const TermsPrivacyScreen(),
+                                              ),
+                                            ),
                                         ),
                                         const TextSpan(text: ' and '),
                                         TextSpan(
@@ -479,6 +486,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                             color: AppTheme.brandColor,
                                             fontWeight: FontWeight.bold,
                                           ),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => const TermsPrivacyScreen(),
+                                              ),
+                                            ),
                                         ),
                                       ],
                                     ),
