@@ -32,25 +32,23 @@ class KycStepButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.brandColor,
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-          ),
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        width: double.infinity,
+        height: 54,
+        decoration: BoxDecoration(
+          color: AppTheme.brandColor,
+          borderRadius: BorderRadius.circular(12),
         ),
+        alignment: Alignment.center,
         child: Text(
           text,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 0.1,
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+            letterSpacing: -0.2,
           ),
         ),
       ),
@@ -141,94 +139,98 @@ class PhotoUploadBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool uploaded = image != null;
     return GestureDetector(
       onTap: onTap,
-      child: CustomPaint(
-        painter: DashRectPainter(
-          color: image != null
-              ? Colors.green.withOpacity(0.5)
-              : AppTheme.brandColor.withOpacity(0.4),
-          gap: 6,
-        ),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 32),
-          decoration: BoxDecoration(
-            color: image != null
-                ? Colors.green.withOpacity(0.04)
-                : AppTheme.brandColor.withOpacity(0.02),
-            borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: uploaded ? const Color(0xFFF0FDF4) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: uploaded
+                ? const Color(0xFF86EFAC)
+                : const Color(0xFFE5E7EB),
+            width: 1.2,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (image != null) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.file(
-                    image!,
-                    height: 120,
-                    width: 180,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.check_circle_rounded,
-                      color: Colors.green,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Uploaded Successfully',
-                      style: GoogleFonts.outfit(
-                        fontSize: 13,
-                        color: Colors.green[700],
-                        fontWeight: FontWeight.w700,
+        ),
+        child: Row(
+          children: [
+            // Left icon/preview
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: uploaded
+                  ? Image.file(
+                      image!,
+                      height: 64,
+                      width: 64,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(
+                      height: 64,
+                      width: 64,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        isSelfie
+                            ? Icons.face_retouching_natural_rounded
+                            : Icons.image_outlined,
+                        color: Colors.grey[400],
+                        size: 28,
                       ),
                     ),
-                  ],
-                ),
-              ] else ...[
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppTheme.brandColor.withOpacity(0.1),
-                    shape: BoxShape.circle,
+            ),
+            const SizedBox(width: 14),
+            // Text
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    uploaded ? 'Photo Uploaded' : title,
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: uploaded
+                          ? const Color(0xFF15803D)
+                          : const Color(0xFF1A1A1A),
+                    ),
                   ),
-                  child: Icon(
-                    isSelfie
-                        ? Icons.face_retouching_natural_rounded
-                        : Icons.camera_alt_rounded,
-                    color: AppTheme.brandColor,
-                    size: 32,
+                  const SizedBox(height: 2),
+                  Text(
+                    uploaded ? 'Tap to change photo' : subtitle,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
+                ],
+              ),
+            ),
+            // Right action
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+              decoration: BoxDecoration(
+                color: uploaded
+                    ? const Color(0xFF22C55E)
+                    : AppTheme.brandColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                uploaded ? 'Change' : 'Upload',
+                style: GoogleFonts.inter(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  title,
-                  style: GoogleFonts.outfit(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  style: GoogleFonts.outfit(
-                    fontSize: 13,
-                    color: Colors.grey[500],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -261,110 +263,123 @@ class KycTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-      ),
-      child: TextFormField(
-        controller: controller,
-        validator: validator,
-        keyboardType: keyboardType,
-        inputFormatters: inputFormatters,
-        readOnly: isVerified,
-        enabled: !isVerified,
-        onChanged: (v) => onChanged?.call(),
-        style: GoogleFonts.inter(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-          color: isVerified ? Colors.grey[600] : Colors.black87,
-        ),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: GoogleFonts.inter(
-            color: Colors.grey[500],
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-          ),
-          floatingLabelStyle: GoogleFonts.inter(
-            color: AppTheme.brandColor,
-            fontWeight: FontWeight.w600,
-          ),
-          prefixIcon: providerLogo != null
-              ? Padding(
-                  padding: const EdgeInsets.all(14.0),
-                  child: KhoznaImage(
-                    imageUrl: providerLogo!,
-                    width: 22,
-                    height: 22,
-                  ),
-                )
-              : Icon(
-                  icon,
-                  color: controller.text.isNotEmpty
-                      ? AppTheme.brandColor
-                      : Colors.grey[400],
-                  size: 20,
+    // Split label into English and Nepali parts if " (" exists
+    final parts = label.split(' (');
+    final englishLabel = parts[0];
+    final nepaliLabel = parts.length > 1 ? '(${parts[1]}' : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Label row above the field
+        Row(
+          children: [
+            Icon(icon, size: 15, color: Colors.grey[500]),
+            const SizedBox(width: 6),
+            Text(
+              englishLabel,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF374151),
+                letterSpacing: -0.1,
+              ),
+            ),
+            if (nepaliLabel != null) ...[
+              const SizedBox(width: 4),
+              Text(
+                nepaliLabel,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.grey[400],
                 ),
-          suffixIcon: isVerified
-              ? Container(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Verified',
-                        style: GoogleFonts.inter(
-                          color: Colors.green[700],
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                        ),
+              ),
+            ],
+            if (isVerified) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDCFCE7),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.check_circle_rounded,
+                        color: Color(0xFF16A34A), size: 11),
+                    const SizedBox(width: 3),
+                    Text(
+                      'Verified',
+                      style: GoogleFonts.inter(
+                        color: const Color(0xFF16A34A),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.verified_rounded,
-                        color: Colors.green[600],
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                )
-              : null,
-          filled: true,
-          fillColor: isVerified
-              ? Colors.grey[50]
-              : (controller.text.isNotEmpty
-                    ? Colors.blue[50]!.withOpacity(0.3)
-                    : Colors.white),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Input field
+        TextFormField(
+          controller: controller,
+          validator: validator,
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          readOnly: isVerified,
+          enabled: !isVerified,
+          onChanged: (v) => onChanged?.call(),
+          style: GoogleFonts.inter(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: isVerified ? Colors.grey[500] : Colors.black87,
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(50),
-            borderSide: BorderSide(color: Colors.grey.shade200),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(50),
-            borderSide: BorderSide(
-              color: controller.text.isNotEmpty
-                  ? AppTheme.brandColor.withOpacity(0.3)
-                  : Colors.grey.shade200,
-              width: 1.2,
+          decoration: InputDecoration(
+            hintText: 'Enter $englishLabel',
+            hintStyle: GoogleFonts.inter(
+              color: Colors.grey[400],
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
             ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(50),
-            borderSide: const BorderSide(
-              color: AppTheme.brandColor,
-              width: 1.5,
+            filled: true,
+            fillColor: isVerified ? const Color(0xFFF9FAFB) : Colors.white,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
             ),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(50),
-            borderSide: const BorderSide(color: Colors.redAccent, width: 1.2),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFF3F4F6), width: 1.0),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.0),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
+

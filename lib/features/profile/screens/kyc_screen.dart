@@ -290,14 +290,7 @@ class _KycScreenState extends State<KycScreen> {
 
       if (mounted) {
         setState(() => _isSubmitting = false);
-        KhoznaFeedback.showSuccess(
-          context,
-          'तपाइँको कागजातहरू सफलतापूर्वक बुझाइएको छ! हाम्रो टोलीले आगामी ४८ घण्टा भित्र प्रमाणीकरण गर्नेछ।',
-        );
-        // Delay pop slightly so they see the success message
-        Future.delayed(const Duration(seconds: 3), () {
-          if (mounted) Navigator.pop(context);
-        });
+        _showKycSuccessSheet();
       }
     } catch (e) {
       if (mounted) {
@@ -305,6 +298,127 @@ class _KycScreenState extends State<KycScreen> {
         KhoznaFeedback.showError(context, 'Submission failed: $e');
       }
     }
+  }
+
+  void _showKycSuccessSheet() {
+    HapticFeedback.heavyImpact();
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: EdgeInsets.fromLTRB(
+          24, 16, 24,
+          MediaQuery.of(context).padding.bottom + 32,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 32),
+            // Check icon
+            Container(
+              width: 80, height: 80,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF0FDF4),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.check_circle_rounded,
+                color: Color(0xFF22C55E),
+                size: 44,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Submitted!',
+              style: GoogleFonts.inter(
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF111827),
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Your documents have been submitted\nsuccessfully.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: Colors.grey[500],
+                height: 1.6,
+              ),
+            ),
+            const SizedBox(height: 28),
+            // Info card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFBEB),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFFDE68A), width: 1),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.access_time_rounded,
+                      color: Color(0xFFD97706), size: 18),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Our team will verify your identity\nwithin 48 hours.',
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: const Color(0xFF92400E),
+                        height: 1.5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 28),
+            // Go back button
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.pop(context);
+              },
+              child: Container(
+                width: double.infinity,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF111827),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'Go Back to Profile',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -334,33 +448,28 @@ class _KycScreenState extends State<KycScreen> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                child: Container(
-                  padding: EdgeInsets.only(
-                    left: 24,
-                    right: 24,
-                    top: 16,
-                    bottom: MediaQuery.of(context).padding.bottom + 16,
+            child: Container(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 16,
+                bottom: MediaQuery.of(context).padding.bottom + 16,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.grey.withOpacity(0.15),
+                    width: 1,
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.92),
-                    border: Border(
-                      top: BorderSide(
-                        color: Colors.grey.withOpacity(0.2),
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                  child: _currentStep == 1
-                      ? KycStepButton(
-                          text: 'Next Step (अर्को चरण)',
-                          onPressed: _nextStep,
-                        )
-                      : _buildSubmitButton(),
                 ),
               ),
+              child: _currentStep == 1
+                  ? KycStepButton(
+                      text: 'Next Step (अर्को चरण)',
+                      onPressed: _nextStep,
+                    )
+                  : _buildSubmitButton(),
             ),
           ),
 
@@ -628,18 +737,7 @@ class _KycScreenState extends State<KycScreen> {
             ),
           ),
 
-          Positioned(
-            top: -30,
-            right: -20,
-            child: Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.06),
-              ),
-            ),
-          ),
+
         ],
       ),
     );
@@ -668,70 +766,72 @@ class _KycScreenState extends State<KycScreen> {
           onTap: isVerified || _isLocating ? null : _detectLocation,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isVerified ? Colors.green.withOpacity(0.05) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              color: isVerified
+                  ? const Color(0xFFF0FDF4)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isVerified
-                    ? Colors.green.withOpacity(0.5)
-                    : AppTheme.brandColor.withOpacity(0.3),
-                width: isVerified ? 1.5 : 2.0,
+                    ? const Color(0xFF86EFAC)
+                    : const Color(0xFFE2E8F0),
+                width: 1.2,
               ),
             ),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: isVerified
-                        ? Colors.green
-                        : AppTheme.brandColor.withOpacity(0.1),
+                        ? const Color(0xFF22C55E)
+                        : Colors.grey[100],
                     shape: BoxShape.circle,
                   ),
                   child: _isLocating
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
                           child: CircularProgressIndicator(
                             color: AppTheme.brandColor,
-                            strokeWidth: 2.5,
+                            strokeWidth: 2,
                           ),
                         )
                       : Icon(
                           isVerified
                               ? Icons.my_location_rounded
-                              : Icons.fingerprint_rounded,
+                              : Icons.location_on_outlined,
                           color: isVerified
                               ? Colors.white
-                              : AppTheme.brandColor,
-                          size: 28,
+                              : Colors.grey[600],
+                          size: 22,
                         ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isVerified ? 'GPS Verified' : 'Tap to Verify Location',
+                        isVerified ? 'Location Verified' : 'Tap to Verify Location',
                         style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
                           color: isVerified
-                              ? Colors.green[800]
-                              : Colors.black87,
+                              ? const Color(0xFF15803D)
+                              : const Color(0xFF1A1A1A),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         isVerified
                             ? '${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}'
                             : 'Required for security (लोकेसन दिनुहोस्)',
                         style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],
@@ -741,36 +841,19 @@ class _KycScreenState extends State<KycScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
-                      vertical: 8,
+                      vertical: 7,
                     ),
                     decoration: BoxDecoration(
                       color: AppTheme.brandColor,
-                      borderRadius: BorderRadius.circular(50),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.brandColor.withOpacity(0.3),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.touch_app_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Tap',
-                          style: GoogleFonts.inter(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      'Verify',
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
               ],
