@@ -531,7 +531,7 @@ class _KycScreenState extends State<KycScreen> {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: () => Navigator.of(context, rootNavigator: true).pop(),
+                onTap: () => Navigator.of(context).pop(),
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.all(8),
@@ -915,6 +915,8 @@ class _KycScreenState extends State<KycScreen> {
         ),
       ],
     );
+  }
+
   Widget _buildHelpBanner() {
     return GestureDetector(
       onTap: _showKycHelpSheet,
