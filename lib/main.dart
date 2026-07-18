@@ -15,6 +15,7 @@ import 'core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'core/security/security_utils.dart';
 import 'core/utils/app_notifiers.dart';
+import 'package:khozna/core/utils/offline_storage.dart';
 import 'package:khozna/screens/main_screen.dart';
 import 'core/guards/location_permission_screen.dart';
 import 'features/auth/screens/login_screen.dart';
@@ -184,8 +185,6 @@ class _KhoznaAppState extends State<KhoznaApp> {
           GoogleFonts.inter(),
           GoogleFonts.plusJakartaSans(),
           GoogleFonts.outfit(),
-          GoogleFonts.zenAntiqueSoft(),
-          GoogleFonts.zenAntique(),
           GoogleFonts.montserrat(),
           GoogleFonts.poppins(),
           GoogleFonts.mukta(),
@@ -197,6 +196,12 @@ class _KhoznaAppState extends State<KhoznaApp> {
 
         // 3. Perform compromise checks asynchronously with timeout (Capped at 80% of a second)
         SecurityUtils.isDeviceCompromised().timeout(const Duration(milliseconds: 800), onTimeout: () => false),
+
+        // 4. Preload disk cache so it is available synchronously in memory on run
+        OfflineStorage.loadHomeCache().then((cache) {
+          homeSectionCache.value = cache;
+          return true;
+        }).catchError((_) => true),
       ]);
 
       locationGranted = results[0];
@@ -282,13 +287,9 @@ class _KhoznaAppState extends State<KhoznaApp> {
       builder: (context, child) {
         // 🛠️ CUSTOM ERROR BOUNDARY: Replace Red/Grey screen with Khozna Premium Error Screen
         ErrorWidget.builder = (FlutterErrorDetails details) {
+          FlutterNativeSplash.remove(); // Dismiss splash on error
           return KhoznaErrorScreen(details: details);
         };
-
-        // Remove native splash when the first real frame is ready
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          FlutterNativeSplash.remove();
-        });
         return child!;
       },
       home: RootScreen(
@@ -320,6 +321,10 @@ class RootScreen extends StatelessWidget {
       return Container(color: Colors.white);
     }
     if (session != null) {
+      // If we are logged in, remove native splash immediately when this first real view finishes painting
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        FlutterNativeSplash.remove();
+      });
       return isLocationGranted
           ? const MainScreen()
           : const LocationPermissionScreen();

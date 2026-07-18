@@ -14,6 +14,7 @@ import 'package:khozna/screens/main_screen.dart';
 import 'package:khozna/features/auth/screens/register_screen.dart';
 import 'package:khozna/features/auth/screens/verify_phone_screen.dart';
 import 'package:khozna/features/profile/screens/terms_privacy_screen.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -52,10 +53,19 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_imagesPreloaded) {
       _imagesPreloaded = true;
       // Preload all carousel images + logo so they appear instantly with no white flash
+      final List<Future<void>> preloads = [];
       for (final path in _illustrations) {
-        precacheImage(AssetImage(path), context);
+        preloads.add(precacheImage(AssetImage(path), context));
       }
-      precacheImage(const AssetImage('assets/images/original_logo.png'), context);
+      preloads.add(precacheImage(const AssetImage('assets/images/original_logo.png'), context));
+
+      Future.wait(preloads).then((_) {
+        // Once cached, dismiss splash screen!
+        FlutterNativeSplash.remove();
+      }).catchError((_) {
+        // Fallback dismissal
+        FlutterNativeSplash.remove();
+      });
     }
   }
 

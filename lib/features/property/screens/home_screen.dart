@@ -32,7 +32,15 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeFutures();
+    // ⚡ Read cache synchronously from memory first so the first frame renders instantly
+    if (homeSectionCache.value.isNotEmpty) {
+      for (int i = 0; i < 5; i++) {
+        final cachedData = homeSectionCache.value[i] ?? [];
+        _sectionFutures[i] = Future.value(
+          cachedData.map((e) => Property.fromMap(e)).toList(),
+        );
+      }
+    }
     _fetchInitialData();
     refreshTrigger.addListener(_onGlobalRefresh);
   }
@@ -50,9 +58,27 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchInitialData() async {
-    final diskCache = await OfflineStorage.loadHomeCache();
-    if (diskCache.isNotEmpty) {
-      homeSectionCache.value = diskCache;
+    // If cache not loaded in memory yet, load from disk
+    if (homeSectionCache.value.isEmpty) {
+      final diskCache = await OfflineStorage.loadHomeCache();
+      if (diskCache.isNotEmpty) {
+        homeSectionCache.value = diskCache;
+        for (int i = 0; i < 5; i++) {
+          final cachedData = diskCache[i] ?? [];
+          _sectionFutures[i] = Future.value(
+            cachedData.map((e) => Property.fromMap(e)).toList(),
+          );
+        }
+        if (mounted) setState(() {});
+      }
+    } else {
+      // If already in memory, ensure _sectionFutures correspond to the cached values
+      for (int i = 0; i < 5; i++) {
+        final cachedData = homeSectionCache.value[i] ?? [];
+        _sectionFutures[i] = Future.value(
+          cachedData.map((e) => Property.fromMap(e)).toList(),
+        );
+      }
       if (mounted) setState(() {});
     }
     await _getCurrentLocation();
@@ -160,28 +186,37 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeFutures() async {
-    final Set<String> seenIds = {};
-
-    for (int i = 0; i < 5; i++) {
-      // We create a new future that waits for the previous ones to finish their 'seenIds' update
-      final sectionData = await PropertyRepository.getSectionProperties(
+    final List<Future<List<Property>>> futures = List.generate(
+      5,
+      (i) => PropertyRepository.getSectionProperties(
         index: i,
         lat: _currentPosition?.latitude,
         lng: _currentPosition?.longitude,
-        excludeIds: seenIds.toList(),
-      );
+      ),
+    );
 
-      // Add these to our "Memory"
-      for (var p in sectionData) {
-        seenIds.add(p.id);
-      }
+    final results = await Future.wait(futures);
 
-      // Update the UI with this section's unique data
-      if (mounted) {
-        setState(() {
-          _sectionFutures[i] = Future.value(sectionData);
-        });
+    final Set<String> seenIds = {};
+    final List<List<Property>> filteredResults = [];
+
+    for (var list in results) {
+      final List<Property> filtered = [];
+      for (var p in list) {
+        if (!seenIds.contains(p.id)) {
+          seenIds.add(p.id);
+          filtered.add(p);
+        }
       }
+      filteredResults.add(filtered);
+    }
+
+    if (mounted) {
+      setState(() {
+        for (int i = 0; i < 5; i++) {
+          _sectionFutures[i] = Future.value(filteredResults[i]);
+        }
+      });
     }
   }
 
