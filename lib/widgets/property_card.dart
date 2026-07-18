@@ -101,8 +101,7 @@ class PropertyCard extends StatelessWidget {
               Stack(
                 children: [
                   SizedBox(
-                    height:
-                        175, // Reduced from 180 to perfectly fit 285px parent without overflow
+                    height: 160,
                     width: double.infinity,
                     child: Hero(
                       tag: id,
@@ -747,7 +746,7 @@ class PropertyCard extends StatelessWidget {
   Widget _buildImagePlaceholder() {
     return Container(
       width: double.infinity,
-      height: 175,
+      height: 160,
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(20),

@@ -101,14 +101,29 @@ class HomeScreenState extends State<HomeScreen> {
           _fetchAreaName(lastKnown);
         }
 
-        // Then get fresh accurate position and update
-        final position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.medium, // More reliable than lowest
-          ),
-        ).timeout(const Duration(seconds: 10));
+        // Then get fresh accurate position with fallback sequence to prevent timeout hang
+        Position? position;
+        try {
+          // 1. Try High Accuracy first (Fast 6s timeout)
+          position = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+            ),
+          ).timeout(const Duration(seconds: 6));
+        } catch (_) {
+          // 2. Fallback to Medium (Network based, fast 4s timeout)
+          try {
+            position = await Geolocator.getCurrentPosition(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.medium,
+              ),
+            ).timeout(const Duration(seconds: 4));
+          } catch (_) {
+            // Keep default/lastKnown if both failed
+          }
+        }
 
-        if (mounted) {
+        if (position != null && mounted) {
           setState(() => _currentPosition = position);
           _fetchAreaName(position); // overwrite with fresh result
         }
