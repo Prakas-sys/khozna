@@ -185,6 +185,7 @@ class _KhoznaAppState extends State<KhoznaApp> {
           GoogleFonts.plusJakartaSans(),
           GoogleFonts.outfit(),
           GoogleFonts.zenAntiqueSoft(),
+          GoogleFonts.zenAntique(),
           GoogleFonts.montserrat(),
           GoogleFonts.poppins(),
           GoogleFonts.mukta(),
