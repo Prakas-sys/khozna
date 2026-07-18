@@ -265,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         if (res == true) _loadProfile();
                       },
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 24),
                   ],
 
                   if (!_isLoading && _kycStatus == 'verified') ...[
@@ -281,7 +281,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         );
                       },
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 24),
                   ],
 
                   ProfileMenuSection(
@@ -333,7 +333,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   ProfileMenuSection(
                     title: 'LEGAL & HELP',
                     items: [
@@ -373,7 +373,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   ProfileMenuSection(
                     title: 'ACCOUNTS',
                     items: [
@@ -386,7 +386,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ],
                   ),
 
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 32),
 
                   SizedBox(
                     width: double.infinity,

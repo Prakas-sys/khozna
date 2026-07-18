@@ -35,23 +35,6 @@ class ProfileHeader extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Subtle decorative shapes for white theme
-          Positioned(
-            top: -20,
-            right: -30,
-            child: CircleAvatar(
-              radius: 60,
-              backgroundColor: Colors.grey[50],
-            ),
-          ),
-          Positioned(
-            bottom: 40,
-            left: -20,
-            child: CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.grey[50],
-            ),
-          ),
           SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -62,66 +45,58 @@ class ProfileHeader extends StatelessWidget {
                 child: Stack(
                     children: [
                       Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.12),
-                                blurRadius: 30,
-                                offset: const Offset(0, 15),
-                              ),
-                            ],
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFFE2E8F0),
+                            width: 2.0,
                           ),
-                        child: Container(
-                          padding: EdgeInsets.zero,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: CircleAvatar(
-                            radius: 54,
-                            backgroundColor: Colors.grey[50],
-                            child: isUploading
-                                ? const CircularProgressIndicator(
-                                    color: AppTheme.brandColor,
-                                    strokeWidth: 2,
-                                  )
-                                : avatarUrl != null
-                                ? ClipOval(
-                                    child: KhoznaImage(
-                                      imageUrl: avatarUrl!,
-                                      width: 108,
-                                      height: 108,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  )
-                                : Container(
+                        ),
+                        child: CircleAvatar(
+                          radius: 54,
+                          backgroundColor: Colors.grey[50],
+                          child: isUploading
+                              ? const CircularProgressIndicator(
+                                  color: AppTheme.brandColor,
+                                  strokeWidth: 2,
+                                )
+                              : avatarUrl != null
+                              ? ClipOval(
+                                  child: KhoznaImage(
+                                    imageUrl: avatarUrl!,
                                     width: 108,
                                     height: 108,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Colors.grey[200]!,
-                                          Colors.grey[100]!,
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Container(
+                                  width: 108,
+                                  height: 108,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.grey[200]!,
+                                        Colors.grey[100]!,
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                    child: Center(
-                                      child: SvgPicture.asset(
-                                        'assets/icons/Vector profile.svg',
-                                        width: 48,
-                                        height: 48,
-                                        colorFilter: ColorFilter.mode(
-                                          Colors.grey[400]!,
-                                          BlendMode.srcIn,
-                                        ),
+                                  ),
+                                  child: Center(
+                                    child: SvgPicture.asset(
+                                      'assets/icons/Vector profile.svg',
+                                      width: 48,
+                                      height: 48,
+                                      colorFilter: ColorFilter.mode(
+                                        Colors.grey[400]!,
+                                        BlendMode.srcIn,
                                       ),
                                     ),
                                   ),
-                          ),
+                                ),
                         ),
                       ),
                       Positioned(
@@ -276,12 +251,12 @@ class VerificationCard extends StatelessWidget {
     final bool isPending = kycStatus == 'pending';
     final bool isRejected = kycStatus == 'rejected';
 
-    // 🎨 Danger red instead of AI/bright red
+    // 🎨 Vibrant real red instead of dark red
     final Color mainColor = isVerified
         ? const Color(0xFF15803D)   // green-700
         : (isPending
             ? const Color(0xFFB45309)   // amber-700
-            : const Color(0xFF991B1B)); // red-800 — deep danger red
+            : const Color(0xFFEF4444)); // red-500 — vibrant real red
 
     final Color bgColorStart = isVerified
         ? const Color(0xFFF0FDF4)
