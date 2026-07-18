@@ -273,8 +273,8 @@ class PropertyCard extends StatelessWidget {
                   14,
                   6,
                   14,
-                  5,
-                ), // Reduced from 7 to fix overflow warning
+                  7,
+                ), // Restored original bottom padding
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -370,8 +370,8 @@ class PropertyCard extends StatelessWidget {
                     ), // Reverted to original gap above amenities
                     _buildAmenityItems(),
                     const SizedBox(
-                      height: 5,
-                    ), // Reduced from 7 to fix overflow
+                      height: 7,
+                    ), // Restored original gap above buttons
                     // Action Buttons
                     Row(
                       children: [
@@ -402,7 +402,7 @@ class PropertyCard extends StatelessWidget {
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 10.5,
+                                  vertical: 11.5,
                                 ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -433,7 +433,7 @@ class PropertyCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () async {
@@ -467,7 +467,7 @@ class PropertyCard extends StatelessWidget {
                                   width: 1.0,
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 10.5,
+                                  vertical: 11.5,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(100),
