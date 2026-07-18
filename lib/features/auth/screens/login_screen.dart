@@ -314,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             'Welcome Back To',
                             style: GoogleFonts.zenAntique(
                               fontSize: 26.5,
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
                               color: const Color(0xFF1D1D1D).withOpacity(0.8),
                             ),
                           ),
@@ -322,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             'KHOZNA',
                             style: GoogleFonts.zenAntique(
                               fontSize: 28,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w400,
                               color: AppTheme.brandColor,
                               letterSpacing: 1.2,
                             ),
