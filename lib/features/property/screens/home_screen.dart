@@ -67,15 +67,24 @@ class HomeScreenState extends State<HomeScreen> {
       }
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
-        // ⚡ Use lowest accuracy for instant fix (network/cell tower - fast!)
+
+        // ⚡ First try last known position for instant display
+        final lastKnown = await Geolocator.getLastKnownPosition();
+        if (lastKnown != null && mounted) {
+          setState(() => _currentPosition = lastKnown);
+          _fetchAreaName(lastKnown);
+        }
+
+        // Then get fresh accurate position and update
         final position = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.lowest,
+            accuracy: LocationAccuracy.medium, // More reliable than lowest
           ),
-        ).timeout(const Duration(seconds: 4));
+        ).timeout(const Duration(seconds: 10));
+
         if (mounted) {
           setState(() => _currentPosition = position);
-          _fetchAreaName(position);
+          _fetchAreaName(position); // overwrite with fresh result
         }
       }
     } catch (e) {
@@ -86,20 +95,16 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchAreaName(Position position) async {
     try {
-      // Log position for troubleshooting
       debugPrint('KHOZNA GEO: Lat=${position.latitude}, Lng=${position.longitude}');
 
-      // ⚡ Use native geocoding only — fast, no network, no AI call
       List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
         position.latitude,
         position.longitude,
-      ).timeout(const Duration(seconds: 4));
+      ).timeout(const Duration(seconds: 8));
 
       if (placemarks.isNotEmpty && mounted) {
         final p = placemarks.first;
-        
-        // Print raw placemark details for debugging
-        debugPrint('KHOZNA PLACEMARK: name=${p.name}, subLocality=${p.subLocality}, thoroughfare=${p.thoroughfare}, locality=${p.locality}, street=${p.street}');
+        debugPrint('KHOZNA PLACEMARK: name=${p.name}, subLocality=${p.subLocality}, thoroughfare=${p.thoroughfare}, locality=${p.locality}, street=${p.street}, subAdmin=${p.subAdministrativeArea}');
 
         String clean(String? s) => (s ?? '')
             .replaceAll('Municipality', '')
@@ -107,24 +112,27 @@ class HomeScreenState extends State<HomeScreen> {
             .replaceAll('Mahanagarpalika', '')
             .trim();
 
-        // Helper to grab the first non-null, non-empty, and non-system-code/plus-code readable location part
-        String getBestComponent(List<String?> items) {
-          for (var item in items) {
-            if (item != null) {
-              final trimmed = item.trim();
-              if (trimmed.isNotEmpty && 
-                  !trimmed.contains('+') && // filter out Google Plus Codes (e.g. "W5QX+6Q")
-                  trimmed.length > 2 && // filter out short numbers/identifiers
-                  double.tryParse(trimmed) == null) { // filter out plain numbers/coordinates
-                return trimmed;
-              }
-            }
-          }
-          return '';
+        bool isUsable(String? s) {
+          if (s == null) return false;
+          final t = s.trim();
+          return t.isNotEmpty &&
+              t.length > 2 &&
+              !t.contains('+') &&
+              double.tryParse(t) == null &&
+              int.tryParse(t) == null;
         }
 
-        final String neighborhood = clean(getBestComponent([p.subLocality, p.thoroughfare, p.name, p.street]));
-        final String city = clean(getBestComponent([p.locality, p.subAdministrativeArea, p.administrativeArea]));
+        // Neighborhood: most specific level available
+        final String neighborhood = clean(
+          [p.subLocality, p.thoroughfare, p.name, p.street]
+              .firstWhere(isUsable, orElse: () => null),
+        );
+
+        // City: best administrative match
+        final String city = clean(
+          [p.locality, p.subAdministrativeArea, p.administrativeArea]
+              .firstWhere(isUsable, orElse: () => null),
+        );
 
         String area;
         if (neighborhood.isNotEmpty && city.isNotEmpty &&
@@ -140,6 +148,7 @@ class HomeScreenState extends State<HomeScreen> {
 
         if (mounted) {
           setState(() => _currentLocationName = area);
+          currentLocationName.value = area; // sync global notifier
         }
       }
     } catch (e) {

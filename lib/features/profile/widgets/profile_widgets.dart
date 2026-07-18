@@ -251,26 +251,122 @@ class VerificationCard extends StatelessWidget {
     final bool isPending = kycStatus == 'pending';
     final bool isRejected = kycStatus == 'rejected';
 
-    // 🎨 Vibrant real red instead of dark red
+    // ── PENDING — full dedicated card ──
+    if (isPending) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFFBEB),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFFDE68A), width: 1.2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.hourglass_top_rounded,
+                    color: Color(0xFFD97706),
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Under Review',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          color: const Color(0xFF92400E),
+                        ),
+                      ),
+                      Text(
+                        'प्रमाणीकरण प्रक्रियामा छ',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                          color: const Color(0xFFB45309),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: const Color(0xFFFCD34D), width: 1),
+                  ),
+                  child: Text(
+                    'Pending',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFFD97706),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Container(
+              width: double.infinity,
+              height: 1,
+              color: const Color(0xFFFDE68A),
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                const Icon(Icons.access_time_rounded,
+                    size: 14, color: Color(0xFFB45309)),
+                const SizedBox(width: 6),
+                Text(
+                  'Expected within 48 hours',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: const Color(0xFF92400E),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    // ── Vibrant real red instead of dark red ──
     final Color mainColor = isVerified
-        ? const Color(0xFF15803D)   // green-700
-        : (isPending
-            ? const Color(0xFFB45309)   // amber-700
-            : const Color(0xFFEF4444)); // red-500 — vibrant real red
+        ? const Color(0xFF15803D)
+        : const Color(0xFFEF4444);
 
     final Color bgColorStart = isVerified
         ? const Color(0xFFF0FDF4)
-        : (isPending ? const Color(0xFFFFFBEB) : const Color(0xFFFEF2F2));
+        : const Color(0xFFFEF2F2);
 
     final Color bgColorEnd = isVerified
         ? const Color(0xFFDCFCE7)
-        : (isPending ? const Color(0xFFFEF3C7) : const Color(0xFFFEE2E2));
+        : const Color(0xFFFEE2E2);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16), // ✅ matches overview box corners
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
       ),
       child: Row(
@@ -288,9 +384,7 @@ class VerificationCard extends StatelessWidget {
             child: Icon(
               isVerified
                   ? Icons.verified_user_rounded
-                  : (isPending
-                        ? Icons.pending_actions_rounded
-                        : Icons.gpp_maybe_rounded),
+                  : Icons.gpp_maybe_rounded,
               color: mainColor,
               size: 20,
             ),
@@ -301,44 +395,36 @@ class VerificationCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  (isVerified
-                      ? 'Profile Verified'
-                      : (isPending
-                            ? 'Pending KYC'
-                            : (isRejected
-                                  ? 'KYC Rejected'
-                                  : 'Verify Identity'))).toUpperCase(),
+                  isVerified ? 'Profile Verified'
+                      : (isRejected ? 'KYC Rejected' : 'Verify Identity'),
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                     color: Colors.black,
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.3,
                   ),
                 ),
-                if (!isVerified)
-                  Text(
-                    isPending
-                          ? '(प्रमाणीकरण हुँदैछ)'
-                          : (isRejected
-                                ? '(अस्वीकृत)'
-                                : '(पहिचान प्रमाणित)'),
-                    style: GoogleFonts.mukta(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                      color: Colors.black87,
-                      height: 1.1,
-                    ),
+                Text(
+                  isVerified
+                      ? 'Your account is fully verified'
+                      : (isRejected
+                          ? '(अस्वीकृत) — Please retry'
+                          : 'Complete your KYC to unlock all features'),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w400,
                   ),
+                ),
               ],
             ),
           ),
-          if (!isVerified && !isPending)
-            InkWell(
+          if (!isVerified)
+            GestureDetector(
               onTap: () {
                 HapticFeedback.lightImpact();
                 onTap();
               },
-              borderRadius: BorderRadius.circular(10),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
@@ -346,26 +432,15 @@ class VerificationCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor,
-                  borderRadius: BorderRadius.circular(10), // ✅ smaller, consistent
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      isRejected ? 'Retry' : 'Verify',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: Colors.white,
-                      size: 14,
-                    ),
-                  ],
+                child: Text(
+                  isRejected ? 'Retry' : 'Verify',
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),

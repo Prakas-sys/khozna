@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:khozna/core/theme/app_theme.dart';
@@ -134,15 +135,66 @@ class _KycScreenState extends State<KycScreen> {
       final Position position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 15),
+          timeLimit: const Duration(seconds: 15),
         ),
       );
+
+      // Reverse-geocode to get a readable area name
+      String resolvedArea = '';
+      try {
+        final placemarks = await geo.placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        ).timeout(const Duration(seconds: 8));
+
+        if (placemarks.isNotEmpty) {
+          final p = placemarks.first;
+
+          String clean(String? s) => (s ?? '')
+              .replaceAll('Municipality', '')
+              .replaceAll('Nagarpalika', '')
+              .replaceAll('Mahanagarpalika', '')
+              .trim();
+
+          bool isUsable(String? s) {
+            if (s == null) return false;
+            final t = s.trim();
+            return t.isNotEmpty &&
+                t.length > 2 &&
+                !t.contains('+') &&
+                double.tryParse(t) == null &&
+                int.tryParse(t) == null;
+          }
+
+          final neighborhood = clean(
+            [p.subLocality, p.thoroughfare, p.name, p.street]
+                .firstWhere(isUsable, orElse: () => null),
+          );
+          final city = clean(
+            [p.locality, p.subAdministrativeArea, p.administrativeArea]
+                .firstWhere(isUsable, orElse: () => null),
+          );
+
+          if (neighborhood.isNotEmpty && city.isNotEmpty &&
+              neighborhood.toLowerCase() != city.toLowerCase()) {
+            resolvedArea = '$neighborhood, $city';
+          } else if (city.isNotEmpty) {
+            resolvedArea = city;
+          } else if (neighborhood.isNotEmpty) {
+            resolvedArea = neighborhood;
+          }
+        }
+      } catch (_) {}
 
       if (mounted) {
         setState(() {
           _latitude = position.latitude;
           _longitude = position.longitude;
           _isLocating = false;
+          // Auto-fill location box only if user hasn't typed anything
+          if (_locationController.text.trim().isEmpty && resolvedArea.isNotEmpty) {
+            _locationController.text = resolvedArea;
+          }
         });
       }
     } catch (e) {
@@ -506,6 +558,8 @@ class _KycScreenState extends State<KycScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildHelpBanner(),
+        const SizedBox(height: 20),
         const KycSectionHeader(title: 'Basic Information (व्यक्तिगत विवरण)'),
         const SizedBox(height: 24),
         KycTextField(
@@ -563,6 +617,8 @@ class _KycScreenState extends State<KycScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _buildHelpBanner(),
+        const SizedBox(height: 20),
         KycTextField(
           controller: _citizenshipController,
           label: 'Citizenship Number (नागरिकता नम्बर)',
@@ -623,39 +679,36 @@ class _KycScreenState extends State<KycScreen> {
   }
 
   Widget _buildSubmitButton() {
-    return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: ElevatedButton(
-        onPressed: _isSubmitting ? null : _submit,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.brandColor,
-          foregroundColor: Colors.white,
-          disabledBackgroundColor: Colors.grey[200],
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
-          ),
+    return GestureDetector(
+      onTap: _isSubmitting ? null : _submit,
+      child: Container(
+        width: double.infinity,
+        height: 54,
+        decoration: BoxDecoration(
+          color: _isSubmitting ? Colors.grey[200] : AppTheme.brandColor,
+          borderRadius: BorderRadius.circular(12),
         ),
+        alignment: Alignment.center,
         child: _isSubmitting
             ? const SizedBox(
                 width: 22,
                 height: 22,
                 child: CircularProgressIndicator(
-                  color: Colors.white,
+                  color: AppTheme.brandColor,
                   strokeWidth: 2,
                 ),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.verified_user_rounded, size: 20),
+                  const Icon(Icons.verified_user_rounded, color: Colors.white, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     'Submit Verification',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
                       letterSpacing: -0.2,
                     ),
                   ),
@@ -862,5 +915,232 @@ class _KycScreenState extends State<KycScreen> {
         ),
       ],
     );
+  Widget _buildHelpBanner() {
+    return GestureDetector(
+      onTap: _showKycHelpSheet,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEFF6FF), // light blue
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFBFDBFE), width: 1),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.help_outline_rounded,
+                color: Color(0xFF1D4ED8), size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Need Help verifying?',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1E3A8A),
+                    ),
+                  ),
+                  Text(
+                    'सहायता गाइड पढ्नुहोस् (Read Guide)',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFF2563EB),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded,
+                color: Color(0xFF1D4ED8), size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showKycHelpSheet() {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (_, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              // Drag indicator
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Title
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    const Icon(Icons.menu_book_rounded,
+                        color: AppTheme.brandColor, size: 22),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Verification Guide (गाइड)',
+                        style: GoogleFonts.inter(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF111827),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, size: 20),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    // Section 1: Why
+                    _buildGuideItem(
+                      icon: Icons.shield_rounded,
+                      iconBg: const Color(0xFFEFF6FF),
+                      iconColor: const Color(0xFF2563EB),
+                      titleEN: 'Why verify identity?',
+                      titleNP: 'पहिचान किन प्रमाणित गर्ने?',
+                      descEN: 'To build trust in the community, prevent rental scams, and secure your transactions.',
+                      descNP: 'समुदायमा विश्वास बढाउन, कोठा/घर भाडामा हुन सक्ने ठगी रोक्न र कारोबार सुरक्षित राख्न।',
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Section 2: How to take photos
+                    _buildGuideItem(
+                      icon: Icons.camera_alt_rounded,
+                      iconBg: const Color(0xFFF0FDF4),
+                      iconColor: const Color(0xFF16A34A),
+                      titleEN: 'Document Photo Rules',
+                      titleNP: 'फोटो खिच्दा ध्यान दिनुपर्ने कुराहरू',
+                      descEN: 'Ensure the photo is clear, text is readable, and there is no flash reflection/glare.',
+                      descNP: 'कागजातको फोटो स्पष्ट हुनुपर्छ। अक्षरहरू प्रस्ट पढ्न सकिने र चमक (flash reflection) नभएको हुनुपर्छ।',
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Section 3: Privacy
+                    _buildGuideItem(
+                      icon: Icons.lock_rounded,
+                      iconBg: const Color(0xFFFFFBEB),
+                      iconColor: const Color(0xFFD97706),
+                      titleEN: 'Data Security & Privacy',
+                      titleNP: 'डाटा सुरक्षा र गोपनीयता',
+                      descEN: 'Your documents are fully encrypted and only used for internal verification. Screenshots are strictly blocked.',
+                      descNP: 'तपाईंका कागजातहरू पूर्ण रूपमा सुरक्षित छन्। प्रमाणीकरणका लागि मात्र आन्तरिक रूपमा हेरिन्छ। यस स्क्रिनमा स्क्रिनसट ब्लक छ।',
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Section 4: Support
+                    _buildGuideItem(
+                      icon: Icons.support_agent_rounded,
+                      iconBg: const Color(0xFFFDF2F8),
+                      iconColor: const Color(0xFFDB2777),
+                      titleEN: 'Need Direct Assistance?',
+                      titleNP: 'सम्पर्क सहायता आवश्यक छ?',
+                      descEN: 'Reach out to support@khozna.com or contact us if you face any issues.',
+                      descNP: 'कुनै समस्या परेमा support@khozna.com मा इमेल गर्न सक्नुहुन्छ।',
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGuideItem({
+    required IconData icon,
+    required Color iconBg,
+    required Color iconColor,
+    required String titleEN,
+    required String titleNP,
+    required String descEN,
+    required String descNP,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: iconBg,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: iconColor, size: 24),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                titleEN,
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF111827),
+                ),
+              ),
+              Text(
+                titleNP,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF374151),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                descEN,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                descNP,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
+
