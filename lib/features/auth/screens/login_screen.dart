@@ -701,164 +701,102 @@ class _LoginScreenState extends State<LoginScreen> {
   void _showErrorPopup(dynamic error) {
     if (!mounted) return;
 
-    // Parse the error message
-    String title = 'Sign In Failed';
-    String message = 'Something went wrong while signing in. Please try again.';
-    String rawError = error.toString();
-    IconData errorIcon = Icons.error_outline_rounded;
-    Color primaryColor = const Color(0xFFEF4444); // Crimson/Red
+    final String rawError = error.toString();
+    final bool isNetworkError = rawError.contains('ApiException: 7') ||
+        rawError.toLowerCase().contains('network_error') ||
+        rawError.toLowerCase().contains('network') ||
+        rawError.toLowerCase().contains('socket') ||
+        rawError.toLowerCase().contains('timeout');
 
-    if (rawError.contains('ApiException: 7') || rawError.toLowerCase().contains('network_error')) {
-      title = 'Network Connection Issue';
-      message = 'We couldn\'t connect to Google services. Please verify:\n\n• Your device has a working internet connection.\n• Your phone\'s date & time settings are set to automatic.';
-      errorIcon = Icons.wifi_off_rounded;
-      primaryColor = const Color(0xFFF59E0B); // Amber
-    } else if (rawError.contains('ApiException: 10') || rawError.toLowerCase().contains('developer_error')) {
-      title = 'App Configuration Issue';
-      message = 'Google sign-in is misconfigured (SHA-1 fingerprint mismatch). If you are a developer, please check your Firebase / Google Console settings.';
-      errorIcon = Icons.build_rounded;
-    } else if (rawError.contains('No ID Token found')) {
-      title = 'Configuration Error';
-      message = 'ID Token is missing. This usually means the Google client ID configured in the app does not match the server.';
-      errorIcon = Icons.vpn_key_rounded;
-    }
+    final String message = isNetworkError
+        ? 'No internet connection. Please check your connection and try again.'
+        : 'Sign in failed. Please try again.';
 
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 20,
-                spreadRadius: 5,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 36),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
               ),
-            ],
-          ),
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Grab handle
-              Container(
-                width: 48,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(10),
-                ),
+            ),
+            const SizedBox(height: 28),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: isNetworkError
+                    ? const Color(0xFFFFF3CD)
+                    : const Color(0xFFFFEDED),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(height: 24),
-              
-              // Icon
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  errorIcon,
-                  color: primaryColor,
-                  size: 40,
-                ),
+              child: Icon(
+                isNetworkError ? Icons.wifi_off_rounded : Icons.error_outline_rounded,
+                color: isNetworkError ? const Color(0xFFD97706) : const Color(0xFFEF4444),
+                size: 36,
               ),
-              const SizedBox(height: 20),
-              
-              // Title
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF1E293B),
-                  letterSpacing: -0.5,
-                ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              isNetworkError ? 'No Internet' : 'Sign In Failed',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1E293B),
+                letterSpacing: -0.4,
               ),
-              const SizedBox(height: 12),
-              
-              // Message
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
-                  fontSize: 14.5,
-                  color: const Color(0xFF64748B),
-                  height: 1.5,
-                ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: const Color(0xFF64748B),
+                height: 1.5,
               ),
-              const SizedBox(height: 24),
-
-              // Collapsible Raw Details for debugging
-              Theme(
-                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                child: ExpansionTile(
-                  title: Text(
-                    'Show technical details',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey[500],
-                    ),
+            ),
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isNetworkError
+                      ? const Color(0xFFD97706)
+                      : const Color(0xFFEF4444),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  iconColor: Colors.grey[500],
-                  collapsedIconColor: Colors.grey[500],
-                  childrenPadding: const EdgeInsets.only(top: 8, bottom: 16),
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
-                      child: SelectableText(
-                        rawError,
-                        style: GoogleFonts.firaCode(
-                          fontSize: 11,
-                          color: const Color(0xFF475569),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              
-              // Dismiss Button
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: Text(
-                    'Got it',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
+                child: Text(
+                  'OK',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
-            ],
-          ),
-        );
-      },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
+
