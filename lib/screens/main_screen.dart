@@ -424,26 +424,52 @@ class _MainScreenState extends State<MainScreen> {
                           return;
                         }
 
-                        // Instant reaction if cached
-                        if (_isKycVerified) {
-                          Navigator.push(
+                        // Show loader dialog while checking limits to prevent laggy double click UI
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (ctx) => const Center(
+                            child: CircularProgressIndicator(color: AppTheme.brandColor),
+                          ),
+                        );
+
+                        int listingCount = 0;
+                        try {
+                          final countRes = await Supabase.instance.client
+                              .from('properties')
+                              .select('id')
+                              .eq('owner_id', user.id);
+                          listingCount = (countRes as List).length;
+                        } catch (e) {
+                          debugPrint('Error getting listing count: $e');
+                        }
+
+                        if (context.mounted) {
+                          Navigator.pop(context); // Dismiss loader dialog
+                        }
+
+                        if (!mounted) return;
+
+                        // If unverified and under 3 properties or if already verified, let them pass!
+                        if (listingCount < 3 || _isKycVerified) {
+                          final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  const PostPropertyIntroScreen(),
+                              builder: (context) => const PostPropertyIntroScreen(),
                             ),
                           );
+                          if (result == true) {
+                            _homeKey.currentState?.refreshData();
+                            setState(() => _currentIndex = 0);
+                          }
                           return;
                         }
 
-                        // If not cached-verified, show a quick check or go to KYC
+                        // Otherwise (listingCount >= 3 and not validated yet), do KYC flow:
                         if (_isCheckingKyc) {
-                          // Wait for the initial check to finish if it's currently running
                           int retries = 0;
                           while (_isCheckingKyc && retries < 10) {
-                            await Future.delayed(
-                              const Duration(milliseconds: 200),
-                            );
+                            await Future.delayed(const Duration(milliseconds: 200));
                             retries++;
                           }
                         }
@@ -456,8 +482,7 @@ class _MainScreenState extends State<MainScreen> {
                                 .select('kyc_status')
                                 .eq('id', user.id)
                                 .maybeSingle();
-                            if (data != null &&
-                                data['kyc_status'] == 'verified') {
+                            if (data != null && data['kyc_status'] == 'verified') {
                               setState(() => _isKycVerified = true);
                             }
                           } catch (e) {
@@ -467,6 +492,20 @@ class _MainScreenState extends State<MainScreen> {
 
                         if (!mounted) return;
 
+                        if (_isKycVerified) {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PostPropertyIntroScreen(),
+                            ),
+                          );
+                          if (result == true) {
+                            _homeKey.currentState?.refreshData();
+                            setState(() => _currentIndex = 0);
+                          }
+                          return;
+                        }
+
                         // Fetch fresh status to distinguish pending vs not_started
                         String freshStatus = _kycStatus;
                         try {
@@ -475,113 +514,92 @@ class _MainScreenState extends State<MainScreen> {
                               .select('kyc_status')
                               .eq('id', user.id)
                               .maybeSingle();
-                          freshStatus =
-                              freshData?['kyc_status'] ?? 'not_started';
+                          freshStatus = freshData?['kyc_status'] ?? 'not_started';
                           setState(() => _kycStatus = freshStatus);
                         } catch (_) {}
 
                         if (!mounted) return;
 
-                        if (!_isKycVerified) {
-                          if (freshStatus == 'pending') {
-                            // Show pending info dialog — do NOT open KYC form again
-                            showDialog(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const SizedBox(height: 8),
-                                    Container(
-                                      padding: const EdgeInsets.all(18),
-                                      decoration: BoxDecoration(
-                                        color: Colors.orange.shade50,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.hourglass_top_rounded,
-                                        color: Colors.orange.shade700,
-                                        size: 40,
-                                      ),
+                        if (freshStatus == 'pending') {
+                          // Show pending info dialog
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.all(18),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.shade50,
+                                      shape: BoxShape.circle,
                                     ),
-                                    const SizedBox(height: 20),
-                                    Text(
-                                      'Verification in Progress',
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w800,
-                                      ),
+                                    child: Icon(
+                                      Icons.hourglass_top_rounded,
+                                      color: Colors.orange.shade700,
+                                      size: 40,
                                     ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Your documents are being reviewed.\nVerification takes up to 48 hours.',
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 13,
-                                        color: Colors.grey[600],
-                                        height: 1.5,
-                                      ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    'Verification in Progress',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
                                     ),
-                                    const SizedBox(height: 20),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton(
-                                        onPressed: () => Navigator.pop(ctx),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              AppTheme.brandColor,
-                                          foregroundColor: Colors.white,
-                                          elevation: 0,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(14),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 14,
-                                          ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Your documents are being reviewed.\nVerification takes up to 48 hours.',
+                                    textAlign: TextAlign.center,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: Colors.grey[600],
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () => Navigator.pop(ctx),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.brandColor,
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(14),
                                         ),
-                                        child: Text(
-                                          'Got it',
-                                          style: GoogleFonts.inter(
-                                            fontWeight: FontWeight.w700,
-                                          ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Got it',
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            );
-                          } else {
-                            // Not started — open KYC form
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const KycScreen(),
-                              ),
-                            );
-                          }
-                        } else {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const PostPropertyIntroScreen(),
                             ),
                           );
-
-                          // If a property was successfully published, refresh the home screen
-                          if (result == true) {
-                            _homeKey.currentState?.refreshData();
-                            setState(
-                              () => _currentIndex = 0,
-                            ); // Ensure we are on Home tab
-                          }
+                        } else {
+                          // Not started — open KYC form
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const KycScreen(),
+                            ),
+                          );
                         }
                       },
                     ),

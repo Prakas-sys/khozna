@@ -150,6 +150,19 @@ class AuthGuard {
     }
 
     try {
+      // 1. Fetch current listings count
+      final countRes = await supabase
+          .from('properties')
+          .select('id')
+          .eq('owner_id', user.id);
+      final int listingCount = (countRes as List).length;
+
+      // 2. If user has less than 3 listings, let them bypass KYC!
+      if (listingCount < 3) {
+        return true;
+      }
+
+      // 3. Otherwise, check KYC status
       final profile = await supabase
           .from('profiles')
           .select('kyc_status')
@@ -159,16 +172,20 @@ class AuthGuard {
       final status = profile?['kyc_status'] ?? 'not_started';
 
       if (status != 'verified') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('KYC Verification Required to list properties.'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const KycScreen()),
-        );
+        if (status == 'pending') {
+          _showPendingKycDialog(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('KYC Verification Required to list more than 3 properties.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const KycScreen()),
+          );
+        }
         return false;
       }
       return true;
@@ -176,5 +193,78 @@ class AuthGuard {
       debugPrint('AuthGuard Error: $e');
       return false;
     }
+  }
+
+  static void _showPendingKycDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.hourglass_top_rounded,
+                color: Colors.orange.shade700,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Verification in Progress',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Your documents are being reviewed.\nVerification takes up to 48 hours.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: Colors.grey[600],
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(ctx),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                  ),
+                ),
+                child: Text(
+                  'Got it',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

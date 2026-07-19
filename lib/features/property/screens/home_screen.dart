@@ -127,22 +127,63 @@ class HomeScreenState extends State<HomeScreen> {
 
         if (position != null && mounted) {
           setState(() => _currentPosition = position);
-          _fetchAreaName(position); // overwrite with fresh result
+          await _fetchAreaName(position); // overwrite with fresh result
         } else {
           // Fallback to IP location if GPS coordinates could not be retrieved
-          _fallbackToIpLocation();
+          await _fallbackToIpLocation();
         }
       } else {
         // Fallback to IP if permissions are denied
-        _fallbackToIpLocation();
+        await _fallbackToIpLocation();
       }
     } catch (e) {
       debugPrint('Location fetch skipped, attempting IP fallback: $e');
-      _fallbackToIpLocation();
+      await _fallbackToIpLocation();
     }
   }
 
   Future<void> _fallbackToIpLocation() async {
+    // 1. Try ip-api.com (reliable, unthrottled in Nepal)
+    try {
+      final response = await http.get(Uri.parse('http://ip-api.com/json')).timeout(const Duration(seconds: 4));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'success') {
+          final double? lat = double.tryParse(data['lat']?.toString() ?? '');
+          final double? lng = double.tryParse(data['lon']?.toString() ?? '');
+          final String city = data['city']?.toString() ?? '';
+          final String region = data['regionName']?.toString() ?? '';
+          
+          if (lat != null && lng != null && mounted) {
+            final pos = Position(
+              latitude: lat,
+              longitude: lng,
+              timestamp: DateTime.now(),
+              accuracy: 1000.0,
+              altitude: 0.0,
+              heading: 0.0,
+              speed: 0.0,
+              speedAccuracy: 0.0,
+              altitudeAccuracy: 0.0,
+              headingAccuracy: 0.0,
+            );
+            
+            setState(() {
+              _currentPosition = pos;
+              _currentLocationName = region.isNotEmpty && region.toLowerCase() != city.toLowerCase()
+                  ? '$city, $region'
+                  : city.isNotEmpty ? city : 'Nepal';
+              currentLocationName.value = _currentLocationName;
+            });
+            return; // Success!
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Primary IP fallback failed: $e');
+    }
+
+    // 2. Try ipapi.co (secondary fallback)
     try {
       final response = await http.get(Uri.parse('https://ipapi.co/json')).timeout(const Duration(seconds: 4));
       if (response.statusCode == 200) {
@@ -170,18 +211,15 @@ class HomeScreenState extends State<HomeScreen> {
             _currentPosition = pos;
             if (city != null && city.isNotEmpty) {
               _currentLocationName = region != null && region.isNotEmpty && region.toLowerCase() != city.toLowerCase()
-                  ? '$region, $city'
+                  ? '$city, $region'
                   : city;
               currentLocationName.value = _currentLocationName;
             }
           });
-          
-          // Re-trigger property fetches for this new position
-          _initializeFutures();
         }
       }
     } catch (e) {
-      debugPrint('IP fallback location failed: $e');
+      debugPrint('Secondary IP fallback failed: $e');
     }
   }
 
