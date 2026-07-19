@@ -353,7 +353,7 @@ class HomeHorizontalSection extends StatelessWidget {
             }
 
             return SizedBox(
-              height: 290,
+              height: 282,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
@@ -379,7 +379,7 @@ class HomeHorizontalSection extends StatelessWidget {
 
   Widget _buildSkeletonList() {
     return SizedBox(
-      height: 290,
+      height: 282,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),

@@ -101,7 +101,7 @@ class PropertyCard extends StatelessWidget {
               Stack(
                 children: [
                   SizedBox(
-                    height: 160,
+                    height: 169,
                     width: double.infinity,
                     child: Hero(
                       tag: id,
@@ -273,8 +273,8 @@ class PropertyCard extends StatelessWidget {
                   14,
                   6,
                   14,
-                  5,
-                ), // Reduced from 7 to fix overflow warning
+                  0,
+                ), // Bottom padding up to buttons
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -369,10 +369,8 @@ class PropertyCard extends StatelessWidget {
                       height: 2,
                     ), // Reverted to original gap above amenities
                     _buildAmenityItems(),
-                    const SizedBox(
-                      height: 5,
-                    ), // Reduced from 7 to fix overflow
-                    // Action Buttons
+                    const SizedBox(height: 5),
+
                     Row(
                       children: [
                         if (!isOwnerView) ...[
@@ -433,7 +431,7 @@ class PropertyCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 5),
+                          const SizedBox(width: 8),
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () async {
@@ -746,7 +744,7 @@ class PropertyCard extends StatelessWidget {
   Widget _buildImagePlaceholder() {
     return Container(
       width: double.infinity,
-      height: 160,
+      height: 169,
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(20),

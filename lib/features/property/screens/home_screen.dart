@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart' as geo;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/app_notifiers.dart';
 import 'package:khozna/core/utils/offline_storage.dart';
@@ -126,11 +128,60 @@ class HomeScreenState extends State<HomeScreen> {
         if (position != null && mounted) {
           setState(() => _currentPosition = position);
           _fetchAreaName(position); // overwrite with fresh result
+        } else {
+          // Fallback to IP location if GPS coordinates could not be retrieved
+          _fallbackToIpLocation();
+        }
+      } else {
+        // Fallback to IP if permissions are denied
+        _fallbackToIpLocation();
+      }
+    } catch (e) {
+      debugPrint('Location fetch skipped, attempting IP fallback: $e');
+      _fallbackToIpLocation();
+    }
+  }
+
+  Future<void> _fallbackToIpLocation() async {
+    try {
+      final response = await http.get(Uri.parse('https://ipapi.co/json')).timeout(const Duration(seconds: 4));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final double? lat = double.tryParse(data['latitude']?.toString() ?? '');
+        final double? lng = double.tryParse(data['longitude']?.toString() ?? '');
+        final String? city = data['city']?.toString();
+        final String? region = data['region']?.toString();
+        
+        if (lat != null && lng != null && mounted) {
+          final pos = Position(
+            latitude: lat,
+            longitude: lng,
+            timestamp: DateTime.now(),
+            accuracy: 1000.0,
+            altitude: 0.0,
+            heading: 0.0,
+            speed: 0.0,
+            speedAccuracy: 0.0,
+            altitudeAccuracy: 0.0,
+            headingAccuracy: 0.0,
+          );
+          
+          setState(() {
+            _currentPosition = pos;
+            if (city != null && city.isNotEmpty) {
+              _currentLocationName = region != null && region.isNotEmpty && region.toLowerCase() != city.toLowerCase()
+                  ? '$region, $city'
+                  : city;
+              currentLocationName.value = _currentLocationName;
+            }
+          });
+          
+          // Re-trigger property fetches for this new position
+          _initializeFutures();
         }
       }
     } catch (e) {
-      debugPrint('Location fetch skipped: $e');
-      // Stays on "Nepal" default — that's fine
+      debugPrint('IP fallback location failed: $e');
     }
   }
 
@@ -193,7 +244,65 @@ class HomeScreenState extends State<HomeScreen> {
         }
       }
     } catch (e) {
-      debugPrint('Geocoding error (keeping default): $e');
+      debugPrint('Geocoding error (trying OSM fallback): $e');
+      
+      // Fallback to OpenStreetMap reverse geocoding to bypass slow/failing Google Services in Nepal
+      try {
+        final url = Uri.parse(
+          'https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.latitude}&lon=${position.longitude}&zoom=18&addressdetails=1'
+        );
+        final response = await http.get(url, headers: {
+          'User-Agent': 'KhoznaApp/1.0 (nepal; mobile)'
+        }).timeout(const Duration(seconds: 4));
+        
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          final address = data['address'];
+          if (address != null) {
+            String neighborhood = address['neighbourhood'] ?? 
+                                 address['suburb'] ?? 
+                                 address['residential'] ?? 
+                                 address['village'] ?? 
+                                 address['road'] ?? 
+                                 '';
+            String city = address['city'] ?? 
+                         address['town'] ?? 
+                         address['municipality'] ?? 
+                         address['locality'] ?? 
+                         '';
+            
+            String clean(String s) => s
+                .replaceAll('Municipality', '')
+                .replaceAll('Nagarpalika', '')
+                .replaceAll('Mahanagarpalika', '')
+                .trim();
+                
+            neighborhood = clean(neighborhood);
+            city = clean(city);
+            
+            String area;
+            if (neighborhood.isNotEmpty && city.isNotEmpty &&
+                neighborhood.toLowerCase() != city.toLowerCase()) {
+              area = '$neighborhood, $city';
+            } else if (city.isNotEmpty) {
+              area = city;
+            } else if (neighborhood.isNotEmpty) {
+              area = neighborhood;
+            } else {
+              area = 'Nepal';
+            }
+            
+            if (mounted) {
+              setState(() => _currentLocationName = area);
+              currentLocationName.value = area;
+              return;
+            }
+          }
+        }
+      } catch (osmError) {
+        debugPrint('OSM fallback geocoding error: $osmError');
+      }
+
       if (mounted) {
         setState(() => _currentLocationName = 'Nepal');
       }
