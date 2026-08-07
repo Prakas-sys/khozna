@@ -161,7 +161,6 @@ class _PostPropertyIntroScreenState extends State<PostPropertyIntroScreen> {
                     foregroundColor: Colors.white,
                     elevation: 0,
                     shadowColor: Colors.transparent,
-                    disabledElevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100),
                     ),
