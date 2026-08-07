@@ -160,9 +160,13 @@ class _PostPropertyIntroScreenState extends State<PostPropertyIntroScreen> {
                     backgroundColor: AppTheme.brandColor,
                     foregroundColor: Colors.white,
                     elevation: 0,
+                    shadowColor: Colors.transparent,
+                    disabledElevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100),
                     ),
+                  ).copyWith(
+                    elevation: WidgetStateProperty.all(0),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

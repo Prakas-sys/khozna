@@ -33,7 +33,7 @@ class HomeHeader extends StatelessWidget {
           GestureDetector(
             onTap: onLogoTap,
             child: Image.asset(
-              'assets/images/original_logo.png',
+              'assets/images/logo 2.png',
               height: 48,
               fit: BoxFit.contain,
             ),

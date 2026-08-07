@@ -57,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
       for (final path in _illustrations) {
         preloads.add(precacheImage(AssetImage(path), context));
       }
-      preloads.add(precacheImage(const AssetImage('assets/images/original_logo.png'), context));
+      preloads.add(precacheImage(const AssetImage('assets/images/logo 2.png'), context));
 
       Future.wait(preloads).then((_) {
         // Once cached, dismiss splash screen!
@@ -235,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             GestureDetector(
                               onTap: () {},
                               child: Image.asset(
-                                'assets/images/original_logo.png',
+                                'assets/images/logo 2.png',
                                 height: 48,
                               ),
                             ),

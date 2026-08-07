@@ -141,24 +141,22 @@ flutter:
 flutter_launcher_icons:
   android: "ic_launcher"
   ios: false
-  image_path: "assets/images/original_logo.png"
+  image_path: "assets/images/logo 2.png"
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/images/original_logo.png"
-  # Significantly increased padding to ensure no overflow
+  adaptive_icon_foreground: "assets/images/logo 2.png"
   android_icon_padding: 0.95
   remove_alpha_ios: true
 
 flutter_native_splash:
   color: "#ffffff"
-  image: "assets/images/splash_padded.png"
+  image: "assets/images/logo 2.png"
   # Support Android 12 Splash Screen API (fixes the 'huge logo' issue)
   android_12:
-    image: "assets/images/splash_padded.png"
+    image: "assets/images/logo 2.png"
     color: "#ffffff"
   
   android: true
   ios: true
   android_gravity: center
-  # Disabling fullscreen as it can cause scaling inconsistencies across different aspect ratios
   fullscreen: false
 
