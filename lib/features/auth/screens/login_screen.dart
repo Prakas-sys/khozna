@@ -195,12 +195,14 @@ class _LoginScreenState extends State<LoginScreen> {
       // Persist login time for session freshness tracking
       await OfflineStorage.saveLastActiveTime();
 
-      // 3. Stop loading and navigate
+      // 3. Stop loading and navigate directly to MainScreen
       if (mounted) {
         setState(() => _isLoading = false);
-        // Pop all routes back to root — KhoznaApp's onAuthStateChange
-        // listener will automatically rebuild home: to show MainScreen.
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        // Navigate directly — do NOT rely on popUntil (we ARE the first route)
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const MainScreen()),
+          (route) => false,
+        );
       }
     } catch (e) {
       setState(() => _isLoading = false);

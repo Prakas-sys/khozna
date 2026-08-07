@@ -10,6 +10,7 @@ import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:intl/intl.dart';
 
+
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
 
@@ -17,9 +18,12 @@ class MessagesScreen extends StatefulWidget {
   State<MessagesScreen> createState() => _MessagesScreenState();
 }
 
-class _MessagesScreenState extends State<MessagesScreen> {
+class _MessagesScreenState extends State<MessagesScreen>
+    with SingleTickerProviderStateMixin {
   int _selectedTab = 0;
   final List<String> _tabs = ['All', 'Unread', 'Groups'];
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
 
   List<ChatConversation> _chats = [];
   bool _isLoading = true;
@@ -27,6 +31,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
   @override
   void initState() {
     super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
     _initData();
   }
 
@@ -63,6 +74,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
   }
 
   @override
@@ -135,9 +152,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             SizedBox(
-              height: 48,
+              height: 44,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -145,35 +162,78 @@ class _MessagesScreenState extends State<MessagesScreen> {
                 itemBuilder: (context, i) {
                   final label = _tabs[i];
                   final selected = i == _selectedTab;
+                  // Count unread chats for badge
+                  final int unreadTotal = _chats
+                      .where((c) => c.unreadCount > 0)
+                      .length;
+                  final bool showBadge = i == 1 && unreadTotal > 0;
                   return GestureDetector(
                     onTap: () => setState(() => _selectedTab = i),
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
                       margin: const EdgeInsets.only(right: 10),
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
                         color: selected
-                            ? AppTheme.brandColor.withOpacity(0.08)
+                            ? AppTheme.brandColor
                             : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(100),
                         border: Border.all(
                           color: selected
-                              ? AppTheme.brandColor.withOpacity(0.3)
-                              : const Color(0xFFE5E7EB),
-                          width: 1.0,
-                        ),
-                      ),
-                      child: Text(
-                        label,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: selected
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                          color: selected
                               ? AppTheme.brandColor
-                              : const Color(0xFF6B7280),
+                              : const Color(0xFFE5E7EB),
+                          width: 1.2,
                         ),
+                        boxShadow: selected
+                            ? [
+                                BoxShadow(
+                                  color: AppTheme.brandColor.withOpacity(0.25),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                )
+                              ]
+                            : [],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            label,
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: selected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: selected
+                                  ? Colors.white
+                                  : const Color(0xFF6B7280),
+                            ),
+                          ),
+                          if (showBadge) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: selected
+                                    ? Colors.white
+                                    : AppTheme.brandColor,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '$unreadTotal',
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: selected
+                                      ? AppTheme.brandColor
+                                      : Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   );
@@ -186,23 +246,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   ? const Center(
                       child: CircularProgressIndicator(
                         color: AppTheme.brandColor,
+                        strokeWidth: 2.5,
                       ),
                     )
-                  : _chats.isEmpty
-                  ? _buildEmptyState()
-                  : RefreshIndicator(
-                      onRefresh: _loadChats,
-                      color: AppTheme.brandColor,
-                      child: ListView.builder(
-                        itemCount: _chats.length,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        itemBuilder: (context, index) =>
-                            _buildChatTile(_chats[index]),
-                      ),
-                    ),
+                  : _buildTabContent(),
             ),
           ],
         ),
@@ -225,46 +272,121 @@ class _MessagesScreenState extends State<MessagesScreen> {
     );
   }
 
+  Widget _buildTabContent() {
+    List<ChatConversation> filtered;
+    switch (_selectedTab) {
+      case 1: // Unread
+        filtered = _chats.where((c) => c.unreadCount > 0).toList();
+        break;
+      case 2: // Groups (placeholder)
+        filtered = [];
+        break;
+      default:
+        filtered = _chats;
+    }
+
+    if (filtered.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadChats,
+      color: AppTheme.brandColor,
+      child: ListView.builder(
+        itemCount: filtered.length,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        itemBuilder: (context, index) => _buildChatTile(filtered[index]),
+      ),
+    );
+  }
+
   Widget _buildEmptyState() {
+    String title;
+    String subtitle;
+    switch (_selectedTab) {
+      case 1:
+        title = 'All Caught Up!';
+        subtitle = 'You have no unread messages right now.';
+        break;
+      case 2:
+        title = 'No Groups Yet';
+        subtitle = 'Group conversations will appear here.';
+        break;
+      default:
+        title = 'No Messages Yet';
+        subtitle =
+            'When you connect with property owners, your conversations will appear here.';
+    }
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 48),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.08),
-                shape: BoxShape.circle,
-              ),
-              child: SvgPicture.asset(
-                'assets/icons/Message neww.svg',
-                width: 64,
-                height: 64,
-                colorFilter: const ColorFilter.mode(
-                  AppTheme.brandColor,
-                  BlendMode.srcIn,
-                ),
+            // Animated pulse icon
+            AnimatedBuilder(
+              animation: _pulseAnimation,
+              builder: (context, child) {
+                return Transform.scale(
+                  scale: _pulseAnimation.value,
+                  child: child,
+                );
+              },
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Outer glow ring
+                  Container(
+                    width: 110,
+                    height: 110,
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.05),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  // Inner icon container
+                  Container(
+                    width: 88,
+                    height: 88,
+                    decoration: BoxDecoration(
+                      color: AppTheme.brandColor.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: SvgPicture.asset(
+                        'assets/icons/Message neww.svg',
+                        width: 42,
+                        height: 42,
+                        colorFilter: const ColorFilter.mode(
+                          AppTheme.brandColor,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             Text(
-              'No Messages Yet',
+              title,
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
+                color: const Color(0xFF1A1A1A),
+                letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Text(
-              'When you connect with property owners, your conversations will appear here.',
+              subtitle,
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 14,
-                color: const Color(0xFF666666),
-                height: 1.5,
+                color: const Color(0xFF9CA3AF),
+                height: 1.6,
               ),
             ),
           ],
