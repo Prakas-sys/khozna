@@ -13,13 +13,42 @@ class LocationPermissionScreen extends StatefulWidget {
       _LocationPermissionScreenState();
 }
 
-class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
+class _LocationPermissionScreenState extends State<LocationPermissionScreen>
+    with SingleTickerProviderStateMixin {
   bool _isRequesting = false;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation1;
+  late Animation<double> _pulseAnimation2;
 
   @override
   void initState() {
     super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2400),
+    )..repeat();
+
+    _pulseAnimation1 = Tween<double>(begin: 0.6, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _pulseController,
+        curve: const Interval(0.0, 0.7, curve: Curves.easeOut),
+      ),
+    );
+
+    _pulseAnimation2 = Tween<double>(begin: 0.6, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _pulseController,
+        curve: const Interval(0.3, 1.0, curve: Curves.easeOut),
+      ),
+    );
+
     _checkPermissionStatus();
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
   }
 
   Future<void> _checkPermissionStatus() async {
@@ -67,70 +96,167 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(flex: 3),
-              // Simplified Premium Icon
-              _buildCleanIcon(),
-              const SizedBox(height: 48),
-
-              // Text Content
-              Text(
-                'Enable Location',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Let Khozna find properties near you for accurate listings and directions.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  color: Colors.grey[600],
-                  height: 1.5,
-                ),
-              ),
-              const Spacer(flex: 4),
-
-              // Action Buttons
-              Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 54,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: const LinearGradient(
-                        colors: [AppTheme.brandColor, Color(0xFF0088CC)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.brandColor.withOpacity(0.2),
-                          blurRadius: 15,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
+        child: Column(
+          children: [
+            const Spacer(flex: 3),
+            
+            // Premium Pulsing Location Graphic
+            Center(
+              child: SizedBox(
+                width: 260,
+                height: 260,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Outer Pulse Ring 2
+                    AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (context, child) {
+                        return Container(
+                          width: 250 * _pulseAnimation2.value,
+                          height: 250 * _pulseAnimation2.value,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppTheme.brandColor.withOpacity(
+                              (1.0 - _pulseAnimation2.value).clamp(0.0, 0.15),
+                            ),
+                            border: Border.all(
+                              color: AppTheme.brandColor.withOpacity(
+                                (1.0 - _pulseAnimation2.value).clamp(0.0, 0.2),
+                              ),
+                              width: 1.5,
+                            ),
+                          ),
+                        );
+                      },
                     ),
+                    
+                    // Inner Pulse Ring 1
+                    AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (context, child) {
+                        return Container(
+                          width: 190 * _pulseAnimation1.value,
+                          height: 190 * _pulseAnimation1.value,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppTheme.brandColor.withOpacity(
+                              (1.0 - _pulseAnimation1.value).clamp(0.0, 0.25),
+                            ),
+                            border: Border.all(
+                              color: AppTheme.brandColor.withOpacity(
+                                (1.0 - _pulseAnimation1.value).clamp(0.0, 0.3),
+                              ),
+                              width: 2,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
+                    // Solid Center Plate (Glow effect)
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.brandColor.withOpacity(0.12),
+                            blurRadius: 28,
+                            offset: const Offset(0, 12),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Center Glass Container
+                    Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppTheme.brandColor.withOpacity(0.06),
+                        border: Border.all(
+                          color: AppTheme.brandColor.withOpacity(0.15),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Container(
+                          width: 58,
+                          height: 58,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppTheme.brandColor,
+                          ),
+                          child: const Icon(
+                            Icons.location_on_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            const Spacer(flex: 2),
+
+            // Typography & Content
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 36.0),
+              child: Column(
+                children: [
+                  Text(
+                    'Need Your Location',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF1E293B),
+                      letterSpacing: -0.6,
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'To show you rooms and apartments nearby, Khozna requires access to your physical location.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      color: const Color(0xFF64748B),
+                      height: 1.5,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Spacer(flex: 3),
+
+            // Action Buttons
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
                     child: ElevatedButton(
                       onPressed: _isRequesting ? null : _handlePermission,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
+                        backgroundColor: AppTheme.brandColor,
                         foregroundColor: Colors.white,
-                        shadowColor: Colors.transparent,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(100),
                         ),
+                        shadowColor: Colors.transparent,
                       ),
                       child: _isRequesting
                           ? const SizedBox(
@@ -142,92 +268,41 @@ class _LocationPermissionScreenState extends State<LocationPermissionScreen> {
                               ),
                             )
                           : Text(
-                              'ALLOW ACCESS',
-                              style: GoogleFonts.inter(
+                              'Allow Location Access',
+                              style: GoogleFonts.plusJakartaSans(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.2,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    onPressed: _navigateToLogin,
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.grey[500],
-                    ),
-                    child: Text(
-                      'NOT NOW',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: TextButton(
+                      onPressed: _navigateToLogin,
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF64748B),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                      ),
+                      child: Text(
+                        'Not Now',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.2,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildCleanIcon() {
-    return SizedBox(
-      width: 200,
-      height: 200,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Radar pulse effect (static)
-          Container(
-            width: 160,
-            height: 160,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.brandColor.withOpacity(0.05),
-              border: Border.all(
-                color: AppTheme.brandColor.withOpacity(0.1),
-                width: 2,
-              ),
-            ),
-          ),
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.brandColor.withOpacity(0.08),
-            ),
-          ),
-
-          // Main Icon Circle
-          Container(
-            width: 90,
-            height: 90,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.location_on_rounded,
-                color: AppTheme.brandColor,
-                size: 40,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

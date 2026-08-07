@@ -1855,7 +1855,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         WidgetSpan(
                           alignment: PlaceholderAlignment.middle,
                           child: Transform.translate(
-                            offset: const Offset(0, -1.2), // Pushed higher per user request
+                            offset: const Offset(0, -0.2), // Perfect center alignment
                             child: SvgPicture.asset(
                               'assets/icons/vector of ruppes.svg',
                               width: 18, // Reduced from 20
