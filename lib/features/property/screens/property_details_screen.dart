@@ -24,8 +24,6 @@ import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/favourite_button.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
 import 'package:khozna/core/utils/map_launcher.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 
 class PropertyDetailsScreen extends StatefulWidget {
   final Property property;
@@ -1151,10 +1149,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildMapPreview() {
-    final LatLng position = _hasLocation 
-        ? LatLng(widget.property.latitude!, widget.property.longitude!)
-        : const LatLng(27.7172, 85.3240); // Fallback to Kathmandu center
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1855,7 +1849,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         WidgetSpan(
                           alignment: PlaceholderAlignment.middle,
                           child: Transform.translate(
-                            offset: const Offset(0, -0.2), // Perfect center alignment
+                            offset: const Offset(0, 1.0), // Moved down per user request
                             child: SvgPicture.asset(
                               'assets/icons/vector of ruppes.svg',
                               width: 18, // Reduced from 20
@@ -1868,19 +1862,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           ),
                         ),
                         const WidgetSpan(child: SizedBox(width: 2)), // Tighter spacing per user request
-                        WidgetSpan(
-                          alignment: PlaceholderAlignment.middle,
-                          child: Transform.translate(
-                            offset: const Offset(0, 1.2), // Move price number down to match the symbol
-                            child: Text(
-                              isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: isNegotiable ? 17 : 21,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
+                        TextSpan(
+                          text: isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: isNegotiable ? 17 : 21,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black,
+                            letterSpacing: -0.5,
                           ),
                         ),
                       ],

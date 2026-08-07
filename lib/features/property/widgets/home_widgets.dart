@@ -294,7 +294,8 @@ class HomeSearchBar extends StatelessWidget {
 class HomeHorizontalSection extends StatelessWidget {
   final String title;
   final String subtitle;
-  final Future<List<Property>> future;
+  final List<Property> properties;
+  final bool isLoading;
   final Function(String, String) onViewAll;
   final int? index;
 
@@ -302,7 +303,8 @@ class HomeHorizontalSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.subtitle,
-    required this.future,
+    required this.properties,
+    required this.isLoading,
     required this.onViewAll,
     this.index,
   });
@@ -339,17 +341,13 @@ class HomeHorizontalSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        FutureBuilder<List<Property>>(
-          future: future,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+        Builder(
+          builder: (context) {
+            if (isLoading && properties.isEmpty) {
               return _buildSkeletonList();
             }
-            final properties = snapshot.data ?? [];
             if (properties.isEmpty) {
-              return snapshot.hasError
-                  ? _buildErrorState()
-                  : _buildSkeletonList();
+              return _buildErrorState();
             }
 
             return SizedBox(

@@ -13,7 +13,6 @@ import 'package:khozna/features/profile/screens/notifications_screen.dart';
 import 'package:khozna/features/property/screens/search_screen.dart';
 import 'package:khozna/features/property/screens/filter_results_screen.dart';
 import 'package:khozna/features/property/screens/discovery_map_screen.dart';
-import 'package:khozna/core/guards/auth_guard.dart';
 import '../widgets/home_widgets.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,9 +23,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  final List<Future<List<Property>>> _sectionFutures = List.generate(
+  final List<List<Property>> _sectionProperties = List.generate(
     5,
-    (index) => Future.value(<Property>[]),
+    (index) => <Property>[],
+  );
+  final List<bool> _sectionLoading = List.generate(
+    5,
+    (index) => true,
   );
   Position? _currentPosition;
   String _currentLocationName = 'Nepal';
@@ -38,13 +41,48 @@ class HomeScreenState extends State<HomeScreen> {
     if (homeSectionCache.value.isNotEmpty) {
       for (int i = 0; i < 5; i++) {
         final cachedData = homeSectionCache.value[i] ?? [];
-        _sectionFutures[i] = Future.value(
-          cachedData.map((e) => Property.fromMap(e)).toList(),
-        );
+        _sectionProperties[i] = cachedData.map((e) => Property.fromMap(e)).toList();
+        _sectionLoading[i] = false;
       }
     }
     _fetchInitialData();
     refreshTrigger.addListener(_onGlobalRefresh);
+  }
+
+  Future<void> _initializeFutures() async {
+    final List<Future<List<Property>>> futures = List.generate(
+      5,
+      (i) => PropertyRepository.getSectionProperties(
+        index: i,
+        lat: _currentPosition?.latitude,
+        lng: _currentPosition?.longitude,
+      ),
+    );
+
+    final results = await Future.wait(futures);
+
+    final Set<String> seenIds = {};
+    final List<List<Property>> filteredResults = [];
+
+    for (var list in results) {
+      final List<Property> filtered = [];
+      for (var p in list) {
+        if (!seenIds.contains(p.id)) {
+          seenIds.add(p.id);
+          filtered.add(p);
+        }
+      }
+      filteredResults.add(filtered);
+    }
+
+    if (mounted) {
+      setState(() {
+        for (int i = 0; i < 5; i++) {
+          _sectionProperties[i] = filteredResults[i];
+          _sectionLoading[i] = false;
+        }
+      });
+    }
   }
 
   @override
@@ -67,25 +105,25 @@ class HomeScreenState extends State<HomeScreen> {
         homeSectionCache.value = diskCache;
         for (int i = 0; i < 5; i++) {
           final cachedData = diskCache[i] ?? [];
-          _sectionFutures[i] = Future.value(
-            cachedData.map((e) => Property.fromMap(e)).toList(),
-          );
+          _sectionProperties[i] = cachedData.map((e) => Property.fromMap(e)).toList();
+          _sectionLoading[i] = false;
         }
         if (mounted) setState(() {});
       }
     } else {
-      // If already in memory, ensure _sectionFutures correspond to the cached values
+      // If already in memory, ensure _sectionProperties correspond to the cached values
       for (int i = 0; i < 5; i++) {
         final cachedData = homeSectionCache.value[i] ?? [];
-        _sectionFutures[i] = Future.value(
-          cachedData.map((e) => Property.fromMap(e)).toList(),
-        );
+        _sectionProperties[i] = cachedData.map((e) => Property.fromMap(e)).toList();
+        _sectionLoading[i] = false;
       }
       if (mounted) setState(() {});
     }
     await _getCurrentLocation();
     if (mounted) _initializeFutures();
   }
+
+
 
   Future<void> _getCurrentLocation() async {
     try {
@@ -347,40 +385,6 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _initializeFutures() async {
-    final List<Future<List<Property>>> futures = List.generate(
-      5,
-      (i) => PropertyRepository.getSectionProperties(
-        index: i,
-        lat: _currentPosition?.latitude,
-        lng: _currentPosition?.longitude,
-      ),
-    );
-
-    final results = await Future.wait(futures);
-
-    final Set<String> seenIds = {};
-    final List<List<Property>> filteredResults = [];
-
-    for (var list in results) {
-      final List<Property> filtered = [];
-      for (var p in list) {
-        if (!seenIds.contains(p.id)) {
-          seenIds.add(p.id);
-          filtered.add(p);
-        }
-      }
-      filteredResults.add(filtered);
-    }
-
-    if (mounted) {
-      setState(() {
-        for (int i = 0; i < 5; i++) {
-          _sectionFutures[i] = Future.value(filteredResults[i]);
-        }
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -475,7 +479,8 @@ class HomeScreenState extends State<HomeScreen> {
       index: index,
       title: title,
       subtitle: subtitle,
-      future: _sectionFutures[index],
+      properties: _sectionProperties[index],
+      isLoading: _sectionLoading[index],
       onViewAll: (t, s) => Navigator.push(
         context,
         MaterialPageRoute(
@@ -497,8 +502,15 @@ class HomeScreenState extends State<HomeScreen> {
     HapticFeedback.mediumImpact();
     await OfflineStorage.clearHomeCache();
     homeSectionCache.value = {};
+    if (mounted) {
+      setState(() {
+        for (int i = 0; i < 5; i++) {
+          _sectionLoading[i] = true;
+          _sectionProperties[i] = [];
+        }
+      });
+    }
     await _getCurrentLocation();
-    _initializeFutures();
-    await Future.wait(_sectionFutures);
+    await _initializeFutures();
   }
 }
