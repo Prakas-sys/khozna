@@ -301,12 +301,11 @@ class _MessagesScreenState extends State<MessagesScreen>
         break;
       case 2:
         title = 'No Groups Yet';
-        subtitle = 'Group conversations will appear here.';
+        subtitle = 'समूहगत कुराकानीहरू यहाँ देखा पर्नेछन् ।';
         break;
       default:
         title = 'No Messages Yet';
-        subtitle =
-            'When you connect with property owners, your conversations will appear here.';
+        subtitle = 'घरधनीहरूसँग जोडिएपछि तपाईंका कुराकानीहरू यहाँ देखा पर्नेछन् ।';
     }
 
     return Center(

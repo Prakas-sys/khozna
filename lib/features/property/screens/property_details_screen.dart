@@ -1851,7 +1851,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 children: [
                   RichText(
                     text: TextSpan(
-                       children: [
+                      children: [
                         WidgetSpan(
                           alignment: PlaceholderAlignment.middle,
                           child: Transform.translate(
@@ -1868,13 +1868,19 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           ),
                         ),
                         const WidgetSpan(child: SizedBox(width: 2)), // Tighter spacing per user request
-                        TextSpan(
-                          text: isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: isNegotiable ? 17 : 21,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                            letterSpacing: -0.5,
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.middle,
+                          child: Transform.translate(
+                            offset: const Offset(0, 1.2), // Move price number down to match the symbol
+                            child: Text(
+                              isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: isNegotiable ? 17 : 21,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
                           ),
                         ),
                       ],
