@@ -297,7 +297,7 @@ class _MessagesScreenState extends State<MessagesScreen>
     switch (_selectedTab) {
       case 1:
         title = 'All Caught Up!';
-        subtitle = 'You have no unread messages right now.';
+        subtitle = 'तपाईंसँग अहिले कुनै नपढिएका सन्देशहरू छैनन् ।';
         break;
       case 2:
         title = 'No Groups Yet';

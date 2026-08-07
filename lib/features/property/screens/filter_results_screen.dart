@@ -90,11 +90,11 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
 
     // Filter by location if it's a real location
     if (isLocationSearch) {
-      final searchVal = widget.location.trim();
-      final doubleQuoteEscaped = '"%$searchVal%"';
+      final searchVal = widget.location.trim().replaceAll(RegExp(r'\s+'), '%');
+      final queryPattern = '%$searchVal%';
       query =
           query.or(
-                'area_name.ilike.$doubleQuoteEscaped,title.ilike.$doubleQuoteEscaped,category.ilike.$doubleQuoteEscaped',
+                'area_name.ilike.$queryPattern,title.ilike.$queryPattern,category.ilike.$queryPattern',
               )
               as dynamic;
     } else {
@@ -189,7 +189,8 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                         Row(
                           children: [
                             if (widget.priceRange.isNotEmpty &&
-                                widget.priceRange != 'Top Rated Properties') ...[
+                                widget.priceRange != 'Top Rated Properties' &&
+                                widget.priceRange != 'All Prices') ...[
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(

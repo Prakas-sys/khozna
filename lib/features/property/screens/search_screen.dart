@@ -69,7 +69,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             MaterialPageRoute(
               builder: (context) => FilterResultsScreen(
                 location: widget.initialQuery!,
-                priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                priceRange: 'All Prices',
               ),
             ),
           );
@@ -242,13 +242,30 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             ),
                             child: Row(
                               children: [
-                                SvgPicture.asset(
-                                  'assets/icons/Search vector.svg',
-                                  width: 24,
-                                  height: 24,
-                                  colorFilter: const ColorFilter.mode(
-                                    Colors.black,
-                                    BlendMode.srcIn,
+                                GestureDetector(
+                                  onTap: () {
+                                    final val = _searchController.text.trim();
+                                    if (val.isNotEmpty) {
+                                      HapticFeedback.lightImpact();
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => FilterResultsScreen(
+                                            location: val,
+                                            priceRange: 'All Prices',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: SvgPicture.asset(
+                                    'assets/icons/Search vector.svg',
+                                    width: 24,
+                                    height: 24,
+                                    colorFilter: const ColorFilter.mode(
+                                      Colors.black,
+                                      BlendMode.srcIn,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -285,8 +302,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                               builder: (context) =>
                                                   FilterResultsScreen(
                                                     location: val,
-                                                    priceRange:
-                                                        'Up to ₹ ${_priceValue.toInt()}',
+                                                    priceRange: 'All Prices',
                                                   ),
                                             ),
                                           );
@@ -373,7 +389,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                               MaterialPageRoute(
                                 builder: (context) => FilterResultsScreen(
                                   location: area,
-                                  priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                                  priceRange: 'All Prices',
                                 ),
                               ),
                             );
@@ -394,8 +410,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                 MaterialPageRoute(
                                   builder: (context) => FilterResultsScreen(
                                     location: _searchController.text,
-                                    priceRange:
-                                        '₹ ${_priceValue.toInt()}',
+                                    priceRange: 'All Prices',
                                   ),
                                 ),
                               );
@@ -942,7 +957,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             MaterialPageRoute(
               builder: (context) => FilterResultsScreen(
                 location: title.split(',')[0],
-                priceRange: '₹ ${_priceValue.toInt()}',
+                priceRange: 'All Prices',
               ),
             ),
           );
