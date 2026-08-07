@@ -1907,7 +1907,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildBottomActionButtons(BuildContext context) {
     if (widget.property.status == 'booked') {
-      return _buildDisabledButton('Booked / बुक भइसकेको');
+      return _buildDisabledButton('Already Booked');
     }
 
     if (_pendingBookingStatus == 'rejected' ||
@@ -1929,7 +1929,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24),
           ),
           child: Text(
-            'Visit Now / हेर्न जानुहोस्',
+            'Visit Now',
             style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold),
           ),
         ),
@@ -1956,7 +1956,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             }
           },
           icon: const Icon(Icons.payment_rounded, size: 18),
-          label: Text('PAY NOW / भुक्तानी गर्नुहोस्', style: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.bold)),
+          label: Text('Pay Now', style: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.bold)),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF22C55E),
             foregroundColor: Colors.white,
@@ -1969,7 +1969,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     if (_pendingBookingStatus == 'paid' || _pendingBookingStatus == 'confirmed') {
-      return _buildDisabledButton(_pendingBookingStatus == 'confirmed' ? '✓ Confirmed / निश्चित भयो' : 'Payment Sent / भुक्तानी पठाइयो');
+      return _buildDisabledButton(_pendingBookingStatus == 'confirmed' ? '✓ Confirmed' : 'Payment Sent');
     }
 
     if (_userHasPendingBooking) {
@@ -1978,14 +1978,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            _buildDisabledButton('Pending / प्रक्रियामा'),
+            _buildDisabledButton('Pending Approval'),
             const SizedBox(height: 6),
             GestureDetector(
               onTap: _cancelRequest,
               child: Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: Text(
-                  'Cancel Request / अनुरोध रद्द',
+                  'Cancel Request',
                   style: GoogleFonts.inter(fontSize: 11, color: Colors.red[400], fontWeight: FontWeight.w700, decoration: TextDecoration.underline),
                 ),
               ),
@@ -2007,7 +2007,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               }
             },
             icon: Icon(isEnded ? Icons.rate_review_rounded : Icons.timer_outlined, size: 16),
-            label: Text(isEnded ? 'REVIEW / समीक्षा' : 'STATUS / स्थिति', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold)),
+            label: Text(isEnded ? 'Leave a Review' : 'View Status', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: isEnded ? AppTheme.brandColor : Colors.orange.shade400,
               foregroundColor: Colors.white,
@@ -2018,7 +2018,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
         );
       }
-      return _buildDisabledButton('Accepted / स्वीकृत');
+      return _buildDisabledButton('Visit Accepted');
     }
 
     return SizedBox(
@@ -2036,7 +2036,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24),
         ),
         child: Text(
-          'Book Now / तुरुन्तै बुक गर्नुहोस्',
+          'Book Now',
           style: GoogleFonts.inter(
             fontSize: 13,
             fontWeight: FontWeight.bold,
@@ -2074,7 +2074,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'How would you like to proceed? / कसरी अगाडि बढ्नुहुन्छ?',
+              'How would you like to proceed?',
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -2084,7 +2084,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Select an option below to proceed with this property. / प्रक्रिया रोज्नुहोस्।',
+              'Select an option below to proceed with this property.',
               style: GoogleFonts.inter(
                 fontSize: 12.5,
                 color: const Color(0xFF6B7280),
@@ -2128,7 +2128,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Schedule a Visit / भ्रमण तालिका तय गर्नुहोस्',
+                            'Schedule a Visit',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -2137,7 +2137,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'Inspect property physically first / कोठा आफैं गएर हेर्नुहोस्',
+                            'Inspect the property in person before committing.',
                             style: GoogleFonts.inter(
                               fontSize: 11.5,
                               color: const Color(0xFF6B7280),
@@ -2196,7 +2196,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Instant Booking / तुरुन्तै बुकिङ गर्नुहोस्',
+                            'Instant Booking',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -2205,7 +2205,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'Pay advance to reserve property now / बैना बुझाई कोठा बुक गर्नुहोस्',
+                            'Pay an advance to reserve this property instantly.',
                             style: GoogleFonts.inter(
                               fontSize: 11.5,
                               color: const Color(0xFF6B7280),
