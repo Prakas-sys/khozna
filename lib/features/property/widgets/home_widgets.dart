@@ -15,7 +15,7 @@ class _MarqueeText extends StatefulWidget {
   final String text;
   final TextStyle style;
 
-  const _MarqueeText({required this.text, required this.style});
+  const _MarqueeText({super.key, required this.text, required this.style});
 
   @override
   State<_MarqueeText> createState() => _MarqueeTextState();
@@ -288,7 +288,7 @@ class HomeHeroSection extends StatelessWidget {
   }
 }
 
-class HomeSearchBar extends StatelessWidget {
+class HomeSearchBar extends StatefulWidget {
   final VoidCallback onTap;
   final Function(String) onVoiceResult;
 
@@ -299,13 +299,44 @@ class HomeSearchBar extends StatelessWidget {
   });
 
   @override
+  State<HomeSearchBar> createState() => _HomeSearchBarState();
+}
+
+class _HomeSearchBarState extends State<HomeSearchBar>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _flipController;
+  late final Animation<double> _flipAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _flipController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _flipAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _flipController, curve: Curves.easeOutBack),
+    );
+    // Delay slightly so it triggers after the page slides in
+    Future.delayed(const Duration(milliseconds: 350), () {
+      if (mounted) _flipController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _flipController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Hero(
       tag: 'search_bar_container',
       child: Material(
         color: Colors.transparent,
         child: GestureDetector(
-          onTap: onTap,
+          onTap: widget.onTap,
           child: Container(
             height: 52,
             padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
@@ -324,13 +355,27 @@ class HomeSearchBar extends StatelessWidget {
             ),
             child: Row(
               children: [
-                SvgPicture.asset(
-                  'assets/icons/Search vector.svg',
-                  width: 26,
-                  height: 26,
-                  colorFilter: const ColorFilter.mode(
-                    AppTheme.brandColor,
-                    BlendMode.srcIn,
+                // 🔍 Flip-in search icon on entry
+                AnimatedBuilder(
+                  animation: _flipAnim,
+                  builder: (context, child) {
+                    final angle = (1.0 - _flipAnim.value) * 3.14159;
+                    return Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.identity()
+                        ..setEntry(3, 2, 0.001)
+                        ..rotateY(angle),
+                      child: child,
+                    );
+                  },
+                  child: SvgPicture.asset(
+                    'assets/icons/Search vector.svg',
+                    width: 26,
+                    height: 26,
+                    colorFilter: const ColorFilter.mode(
+                      AppTheme.brandColor,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -359,7 +404,7 @@ class HomeSearchBar extends StatelessWidget {
                         backgroundColor: Colors.transparent,
                         isScrollControlled: true,
                         builder: (context) =>
-                            VoiceSearchOverlay(onResult: onVoiceResult),
+                            VoiceSearchOverlay(onResult: widget.onVoiceResult),
                       );
                     },
                     borderRadius: BorderRadius.circular(12),
@@ -385,6 +430,7 @@ class HomeSearchBar extends StatelessWidget {
     );
   }
 }
+
 
 class HomeHorizontalSection extends StatelessWidget {
   final String title;
