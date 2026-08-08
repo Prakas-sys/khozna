@@ -10,7 +10,7 @@ import 'package:khozna/widgets/skeleton_card.dart';
 import 'package:khozna/widgets/voice_search_overlay.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 
-// ── Marquee (ticker) text for long location names ──────────────────────────
+// ── Marquee (ticker) — always scrolls regardless of text length ─────────────
 class _MarqueeText extends StatefulWidget {
   final String text;
   final TextStyle style;
@@ -23,85 +23,74 @@ class _MarqueeText extends StatefulWidget {
 
 class _MarqueeTextState extends State<_MarqueeText>
     with SingleTickerProviderStateMixin {
-  late final ScrollController _scrollController;
-  late AnimationController _animController;
-  bool _shouldScroll = false;
+  late final ScrollController _sc;
+  late final AnimationController _ac;
+  bool _running = false;
+
+  // Pad text so it ALWAYS has overflow to scroll
+  String get _paddedText => '${widget.text}          ${widget.text}';
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 0),
-    );
-    WidgetsBinding.instance.addPostFrameCallback((_) => _startIfNeeded());
+    _sc = ScrollController();
+    _ac = AnimationController(vsync: this, duration: Duration.zero);
+    // Give layout time to settle before measuring
+    Future.delayed(const Duration(milliseconds: 600), _startLoop);
   }
 
   @override
   void didUpdateWidget(_MarqueeText old) {
     super.didUpdateWidget(old);
     if (old.text != widget.text) {
-      _animController.stop();
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(0);
-      }
-      WidgetsBinding.instance.addPostFrameCallback((_) => _startIfNeeded());
+      _running = false;
+      if (_sc.hasClients) _sc.jumpTo(0);
+      Future.delayed(const Duration(milliseconds: 400), _startLoop);
     }
   }
 
-  Future<void> _startIfNeeded() async {
-    if (!mounted || !_scrollController.hasClients) return;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    if (maxScroll <= 0) {
-      setState(() => _shouldScroll = false);
-      return;
-    }
-    setState(() => _shouldScroll = true);
-    _runTicker(maxScroll);
-  }
-
-  Future<void> _runTicker(double maxScroll) async {
-    while (mounted && _shouldScroll) {
-      // Pause at start
-      await Future.delayed(const Duration(milliseconds: 1200));
-      if (!mounted || !_shouldScroll) break;
-      // Scroll to end
-      if (_scrollController.hasClients) {
-        await _scrollController.animateTo(
-          maxScroll,
-          duration: Duration(milliseconds: (maxScroll * 22).round()),
-          curve: Curves.linear,
-        );
-      }
-      if (!mounted || !_shouldScroll) break;
-      // Pause at end
-      await Future.delayed(const Duration(milliseconds: 800));
-      if (!mounted || !_shouldScroll) break;
-      // Jump back to start
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(0);
-      }
+  Future<void> _startLoop() async {
+    if (!mounted) return;
+    _running = true;
+    while (mounted && _running) {
+      if (!_sc.hasClients) break;
+      final max = _sc.position.maxScrollExtent;
+      if (max <= 0) break;
+      // natural pause before sliding
+      await Future.delayed(const Duration(milliseconds: 1000));
+      if (!mounted || !_running) break;
+      // slide across
+      await _sc.animateTo(
+        max,
+        duration: Duration(milliseconds: (max * 18).round().clamp(800, 6000)),
+        curve: Curves.linear,
+      );
+      if (!mounted || !_running) break;
+      await Future.delayed(const Duration(milliseconds: 600));
+      if (!mounted || !_running) break;
+      if (_sc.hasClients) _sc.jumpTo(0);
     }
   }
 
   @override
   void dispose() {
-    _animController.dispose();
-    _scrollController.dispose();
+    _running = false;
+    _ac.dispose();
+    _sc.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      controller: _scrollController,
+      controller: _sc,
       scrollDirection: Axis.horizontal,
       physics: const NeverScrollableScrollPhysics(),
       child: Text(
-        widget.text,
+        _paddedText,
         style: widget.style,
         maxLines: 1,
+        softWrap: false,
       ),
     );
   }
@@ -288,7 +277,7 @@ class HomeHeroSection extends StatelessWidget {
   }
 }
 
-class HomeSearchBar extends StatelessWidget {
+class HomeSearchBar extends StatefulWidget {
   final VoidCallback onTap;
   final Function(String) onVoiceResult;
 
@@ -299,13 +288,47 @@ class HomeSearchBar extends StatelessWidget {
   });
 
   @override
+  State<HomeSearchBar> createState() => _HomeSearchBarState();
+}
+
+class _HomeSearchBarState extends State<HomeSearchBar>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _spinCtrl;
+  late final Animation<double> _spinAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _spinCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _spinAnim = CurvedAnimation(
+      parent: _spinCtrl,
+      curve: Curves.easeInOutBack,
+    );
+    // Wait for page transition to finish then spin
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 600), () {
+        if (mounted) _spinCtrl.forward();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _spinCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Hero(
       tag: 'search_bar_container',
       child: Material(
         color: Colors.transparent,
         child: GestureDetector(
-          onTap: onTap,
+          onTap: widget.onTap,
           child: Container(
             height: 52,
             padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
@@ -324,20 +347,9 @@ class HomeSearchBar extends StatelessWidget {
             ),
             child: Row(
               children: [
-                // 🔍 Spin + scale-in on first render — TweenAnimationBuilder fires automatically
-                TweenAnimationBuilder<double>(
-                  tween: Tween(begin: 0.0, end: 1.0),
-                  duration: const Duration(milliseconds: 900),
-                  curve: Curves.elasticOut,
-                  builder: (context, value, child) {
-                    return Transform.rotate(
-                      angle: (1.0 - value) * 2 * 3.14159265,
-                      child: Transform.scale(
-                        scale: value.clamp(0.0, 1.0),
-                        child: child,
-                      ),
-                    );
-                  },
+                // 🔍 Full 360° spin on app open
+                RotationTransition(
+                  turns: _spinAnim,
                   child: SvgPicture.asset(
                     'assets/icons/Search vector.svg',
                     width: 26,
@@ -374,7 +386,7 @@ class HomeSearchBar extends StatelessWidget {
                         backgroundColor: Colors.transparent,
                         isScrollControlled: true,
                         builder: (context) =>
-                            VoiceSearchOverlay(onResult: onVoiceResult),
+                            VoiceSearchOverlay(onResult: widget.onVoiceResult),
                       );
                     },
                     borderRadius: BorderRadius.circular(12),

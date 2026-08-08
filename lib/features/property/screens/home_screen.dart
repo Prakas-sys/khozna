@@ -105,17 +105,23 @@ class HomeScreenState extends State<HomeScreen> {
         homeSectionCache.value = diskCache;
         for (int i = 0; i < 5; i++) {
           final cachedData = diskCache[i] ?? [];
-          _sectionProperties[i] = cachedData.map((e) => Property.fromMap(e)).toList();
-          _sectionLoading[i] = false;
+          if (cachedData.isNotEmpty) {
+            _sectionProperties[i] = cachedData.map((e) => Property.fromMap(e)).toList();
+            _sectionLoading[i] = false;
+          }
+          // If cachedData empty — keep isLoading=true so skeleton shows
         }
         if (mounted) setState(() {});
       }
     } else {
-      // If already in memory, ensure _sectionProperties correspond to the cached values
+      // If already in memory, only apply cache when it has content
       for (int i = 0; i < 5; i++) {
         final cachedData = homeSectionCache.value[i] ?? [];
-        _sectionProperties[i] = cachedData.map((e) => Property.fromMap(e)).toList();
-        _sectionLoading[i] = false;
+        if (cachedData.isNotEmpty) {
+          _sectionProperties[i] = cachedData.map((e) => Property.fromMap(e)).toList();
+          _sectionLoading[i] = false;
+        }
+        // If cachedData empty — keep isLoading=true so skeleton shows
       }
       if (mounted) setState(() {});
     }
