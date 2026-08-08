@@ -10,6 +10,7 @@ import 'package:khozna/widgets/property_card.dart';
 import 'package:khozna/widgets/skeleton_card.dart';
 import 'package:khozna/widgets/voice_search_overlay.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
+import 'package:khozna/features/chat/screens/ai_chat_screen.dart';
 
 // ── Marquee (ticker) — always scrolls regardless of text length ─────────────
 class _MarqueeText extends StatefulWidget {
@@ -464,23 +465,38 @@ class _HomeSearchBarState extends State<HomeSearchBar>
                           transform: Matrix4.identity()
                             ..setEntry(3, 2, 0.002) // perspective
                             ..rotateY(faceAngle),
-                          child: InkWell(
                             onTap: () {
-                              if (!AuthGuard.checkAuth(
-                                context,
-                                title: showMicIcon ? 'Voice Search' : 'AI Voice Search',
-                                message: 'Log in to search properties via voice command.',
-                              )) {
-                                return;
+                              if (showMicIcon) {
+                                if (!AuthGuard.checkAuth(
+                                  context,
+                                  title: 'Voice Search',
+                                  message: 'Log in to search properties via voice command.',
+                                )) {
+                                  return;
+                                }
+                                showModalBottomSheet(
+                                  context: context,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  builder: (context) => VoiceSearchOverlay(
+                                    onResult: widget.onVoiceResult,
+                                  ),
+                                );
+                              } else {
+                                if (!AuthGuard.checkAuth(
+                                  context,
+                                  title: 'AI Chat',
+                                  message: 'Log in to chat with Khozna AI.',
+                                )) {
+                                  return;
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const AiChatScreen(),
+                                  ),
+                                );
                               }
-                              showModalBottomSheet(
-                                context: context,
-                                backgroundColor: Colors.transparent,
-                                isScrollControlled: true,
-                                builder: (context) => VoiceSearchOverlay(
-                                  onResult: widget.onVoiceResult,
-                                ),
-                              );
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Container(
