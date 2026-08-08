@@ -1837,53 +1837,64 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // LEFT SIDE: PRICE INFO
+            // LEFT SIDE: PRICE INFO (Airbnb style)
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        WidgetSpan(
-                          alignment: PlaceholderAlignment.middle,
-                          child: Transform.translate(
-                            offset: const Offset(0, 1.0), // Moved down per user request
-                            child: SvgPicture.asset(
-                              'assets/icons/vector of ruppes.svg',
-                              width: 18, // Reduced from 20
-                              height: 18, // Reduced from 20
-                              colorFilter: const ColorFilter.mode(
-                                Colors.black,
-                                BlendMode.srcIn,
-                              ),
-                            ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      // Rupee icon
+                      Transform.translate(
+                        offset: const Offset(0, -1.0),
+                        child: SvgPicture.asset(
+                          'assets/icons/vector of ruppes.svg',
+                          width: 16,
+                          height: 16,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.black,
+                            BlendMode.srcIn,
                           ),
                         ),
-                        const WidgetSpan(child: SizedBox(width: 2)), // Tighter spacing per user request
-                        TextSpan(
-                          text: isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: isNegotiable ? 17 : 21,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                            letterSpacing: -0.5,
+                      ),
+                      const SizedBox(width: 2),
+                      // Price with underline (Airbnb style)
+                      Text(
+                        isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: isNegotiable ? 18 : 22,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                          letterSpacing: -0.6,
+                          decoration: isNegotiable ? TextDecoration.none : TextDecoration.underline,
+                          decorationColor: Colors.black,
+                          decorationThickness: 1.5,
+                        ),
+                      ),
+                      if (!isNegotiable) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          '/ $unit',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(0xFF64748B),
                           ),
                         ),
                       ],
-                    ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2),
-                    child: Text(
-                      'total per $unit',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: const Color(0xFF64748B),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.1,
-                      ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'total price',
+                    style: GoogleFonts.inter(
+                      color: const Color(0xFF94A3B8),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0.1,
                     ),
                   ),
                 ],
@@ -1907,7 +1918,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (_pendingBookingStatus == 'rejected' ||
         _pendingBookingStatus == 'visit_completed') {
       return SizedBox(
-        height: 48,
+        height: 56,
         child: ElevatedButton(
           onPressed: () => Navigator.push(
             context,
@@ -1920,11 +1931,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
             elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
           ),
           child: Text(
             'Visit Now',
-            style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold),
+            style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700),
           ),
         ),
       );
@@ -1932,7 +1943,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
     if (_pendingBookingStatus == 'awaiting_payment') {
       return SizedBox(
-        height: 48,
+        height: 56,
         child: ElevatedButton.icon(
           onPressed: () async {
             if (_pendingBookingId == null) return;
@@ -1949,14 +1960,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               );
             }
           },
-          icon: const Icon(Icons.payment_rounded, size: 18),
-          label: Text('Pay Now', style: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.bold)),
+          icon: const Icon(Icons.payment_rounded, size: 20),
+          label: Text('Pay Now', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF22C55E),
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
             elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 28),
           ),
         ),
       );
@@ -1991,7 +2002,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       if (_pendingBookingStatus == 'visit_accepted') {
         final isEnded = _timeUntilVisit == Duration.zero && _pendingBookingCheckIn != null && DateTime.now().isAfter(_pendingBookingCheckIn!);
         return SizedBox(
-          height: 48,
+          height: 56,
           child: ElevatedButton.icon(
             onPressed: () async {
               if (_pendingBookingId == null) return;
@@ -2000,14 +2011,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => BookingStatusScreen(booking: booking))).then((_) => _updateBookingStatus());
               }
             },
-            icon: Icon(isEnded ? Icons.rate_review_rounded : Icons.timer_outlined, size: 16),
-            label: Text(isEnded ? 'Leave a Review' : 'View Status', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold)),
+            icon: Icon(isEnded ? Icons.rate_review_rounded : Icons.timer_outlined, size: 20),
+            label: Text(isEnded ? 'Leave a Review' : 'View Status', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               backgroundColor: isEnded ? AppTheme.brandColor : Colors.orange.shade400,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
               elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 28),
             ),
           ),
         );
@@ -2016,7 +2027,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     return SizedBox(
-      height: 48,
+      height: 56,
       child: ElevatedButton(
         onPressed: () {
           HapticFeedback.mediumImpact();
@@ -2027,14 +2038,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 36),
         ),
         child: Text(
           'Book Now',
           style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            letterSpacing: -0.1,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
           ),
         ),
       ),
@@ -2225,8 +2236,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildDisabledButton(String label) {
     return Container(
-      height: 48,
-      padding: const EdgeInsets.symmetric(horizontal: 28),
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 32),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.grey[200],
@@ -2235,8 +2246,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       child: Text(
         label,
         style: GoogleFonts.inter(
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
           color: Colors.grey[500],
           letterSpacing: -0.1,
         ),
