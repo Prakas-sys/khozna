@@ -329,7 +329,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     const Color activeColor = AppTheme.brandColor;
-    const Color inactiveColor = Color(0xFF717171);
+    const Color inactiveColor = Color(0xFF717375);
 
     return AnimatedBuilder(
       animation: Listenable.merge([messageBadgeCount, notificationBadgeCount]),

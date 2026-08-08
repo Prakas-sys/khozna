@@ -864,6 +864,35 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
+  (String?, IconData) _getAmenityAssetOrIcon(String feature) {
+    final k = feature.toLowerCase().trim();
+    if (k.contains('wifi') || k.contains('internet')) {
+      return ('assets/icons/Vector wifi.svg', Icons.wifi_outlined);
+    }
+    if (k.contains('kitchen')) {
+      return ('assets/icons/Vector kitchen.svg', Icons.kitchen_outlined);
+    }
+    if (k.contains('ac') || k.contains('air cond')) {
+      return ('assets/icons/Vector Ac.svg', Icons.ac_unit_outlined);
+    }
+    if (k.contains('balcony')) {
+      return ('assets/icons/Vector balcony.svg', Icons.balcony_outlined);
+    }
+    if (k.contains('water') || k.contains('melamchi') || k.contains('boring')) {
+      return ('assets/icons/Vector water.svg', Icons.water_drop_outlined);
+    }
+    if (k.contains('cctv') || k.contains('security')) {
+      return ('assets/icons/Vector cctv.svg', Icons.security_rounded);
+    }
+    if (k.contains('car') || (k.contains('parking') && !k.contains('bike'))) {
+      return ('assets/icons/Vector car.svg', Icons.directions_car_outlined);
+    }
+    if (k.contains('bike')) {
+      return ('assets/icons/Vector bike.svg', Icons.pedal_bike_outlined);
+    }
+    return (null, _getFeatureIcon(feature));
+  }
+
   IconData _getFeatureIcon(String feature) {
     final k = feature.toLowerCase().trim();
     if (k.contains('car') || (k.contains('parking') && !k.contains('bike'))) {
@@ -1005,12 +1034,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildAmenityGrid() {
-    final List<(IconData, String)> items = [];
+    final List<(String?, IconData, String)> items = [];
     for (var feature in widget.property.amenities) {
-      final icon = _getFeatureIcon(feature);
+      final assetOrIcon = _getAmenityAssetOrIcon(feature);
       final label = _getAmenityLabel(feature);
       if (label.isNotEmpty) {
-        items.add((icon, label));
+        items.add((assetOrIcon.$1, assetOrIcon.$2, label));
       }
     }
 
@@ -1035,6 +1064,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
           itemBuilder: (context, index) {
             final item = items[index];
+            final String? svgPath = item.$1;
+            final IconData fallbackIcon = item.$2;
+            final String label = item.$3;
+
             return Row(
               children: [
                 Container(
@@ -1043,16 +1076,29 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     color: Color(0xFFF1F5F9),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    item.$1,
-                    size: 18,
-                    color: const Color(0xFF475569),
-                  ),
+                  width: 36,
+                  height: 36,
+                  alignment: Alignment.center,
+                  child: svgPath != null
+                      ? SvgPicture.asset(
+                          svgPath,
+                          width: 18,
+                          height: 18,
+                          colorFilter: const ColorFilter.mode(
+                            Color(0xFF475569),
+                            BlendMode.srcIn,
+                          ),
+                        )
+                      : Icon(
+                          fallbackIcon,
+                          size: 18,
+                          color: const Color(0xFF475569),
+                        ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    item.$2,
+                    label,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.inter(
