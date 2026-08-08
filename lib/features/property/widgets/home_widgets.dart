@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -294,22 +295,17 @@ class HomeSearchBar extends StatefulWidget {
 class _HomeSearchBarState extends State<HomeSearchBar>
     with SingleTickerProviderStateMixin {
   late final AnimationController _spinCtrl;
-  late final Animation<double> _spinAnim;
 
   @override
   void initState() {
     super.initState();
     _spinCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 1000),
     );
-    _spinAnim = CurvedAnimation(
-      parent: _spinCtrl,
-      curve: Curves.easeInOutBack,
-    );
-    // Wait for page transition to finish then spin
+    // Short delay then spin — icon grows from 0 while rotating
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(milliseconds: 600), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) _spinCtrl.forward();
       });
     });
@@ -347,9 +343,19 @@ class _HomeSearchBarState extends State<HomeSearchBar>
             ),
             child: Row(
               children: [
-                // 🔍 Full 360° spin on app open
-                RotationTransition(
-                  turns: _spinAnim,
+                // 🔍 Scale from 0 + full 360° spin on open — unmissable
+                AnimatedBuilder(
+                  animation: _spinCtrl,
+                  builder: (_, child) {
+                    final t = Curves.easeOut.transform(_spinCtrl.value);
+                    return Transform.rotate(
+                      angle: t * 2 * math.pi,
+                      child: Transform.scale(
+                        scale: t,
+                        child: child,
+                      ),
+                    );
+                  },
                   child: SvgPicture.asset(
                     'assets/icons/Search vector.svg',
                     width: 26,
