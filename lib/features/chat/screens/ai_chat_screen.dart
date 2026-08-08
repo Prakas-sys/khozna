@@ -1,8 +1,11 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/khozna_ai_service.dart';
 import 'package:khozna/features/property/screens/filter_results_screen.dart';
+import 'package:khozna/core/models/property_model.dart';
+import 'package:khozna/widgets/property_card.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
@@ -81,25 +84,95 @@ class _AiChatScreenState extends State<AiChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: Text(
-          'AI सहायता (AI Help)',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 18),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.brandColor.withOpacity(0.2),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                color: Colors.white,
+                size: 15,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Khozna AI',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF00E676),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Online & Ready',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
-        centerTitle: true,
-        elevation: 1,
+        centerTitle: false,
+        elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            color: Colors.grey.shade100,
+            height: 1,
+          ),
+        ),
       ),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              itemCount: _messages.length + (_isTyping ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index == _messages.length) {
+                  return const _TypingIndicator();
+                }
                 final msg = _messages[index];
                 return _ChatBubble(
                   message: msg['text'],
@@ -110,8 +183,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
               },
             ),
           ),
-
           _buildSuggestions(),
+          const SizedBox(height: 4),
           _buildInputArea(),
         ],
       ),
@@ -127,8 +200,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
       'Putalisadak'
     ];
     return Container(
-      height: 45,
-      padding: const EdgeInsets.only(bottom: 8),
+      height: 42,
+      padding: const EdgeInsets.only(bottom: 4),
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -146,43 +219,39 @@ class _AiChatScreenState extends State<AiChatScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: const Color(0xFFEEEEEE)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.015),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
               child: Center(
-                child: Text(
-                  suggestions[index],
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.search_rounded,
+                      size: 13,
+                      color: AppTheme.brandColor,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      suggestions[index],
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildEmojiTip(String emoji) {
-    return GestureDetector(
-      onTap: () {
-        final text = _messageController.text;
-        _messageController.text = text + emoji;
-        _messageController.selection = TextSelection.fromPosition(
-          TextPosition(offset: _messageController.text.length),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        margin: const EdgeInsets.only(right: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Text(emoji, style: const TextStyle(fontSize: 16)),
       ),
     );
   }
@@ -193,6 +262,13 @@ class _AiChatScreenState extends State<AiChatScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Colors.grey.shade100)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
       child: SafeArea(
         child: Row(
@@ -201,27 +277,34 @@ class _AiChatScreenState extends State<AiChatScreen> {
             Expanded(
               child: TextField(
                 controller: _messageController,
-                style: GoogleFonts.inter(fontSize: 15, color: Colors.black87),
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 15,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w600,
+                ),
                 decoration: InputDecoration(
                   hintText: 'यहाँ लेख्नुहोस् (Type here...)',
-                  hintStyle: GoogleFonts.inter(color: Colors.grey.shade500),
+                  hintStyle: GoogleFonts.plusJakartaSans(
+                    color: Colors.grey.shade400,
+                    fontWeight: FontWeight.w600,
+                  ),
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: const Color(0xFFF8F9FA),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
-                    vertical: 12,
+                    vertical: 13,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade200,
+                    borderSide: const BorderSide(
+                      color: Color(0xFFEEEEEE),
                       width: 1,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide(
+                    borderSide: const BorderSide(
                       color: AppTheme.brandColor,
                       width: 1.5,
                     ),
@@ -234,8 +317,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
             GestureDetector(
               onTap: _sendMessage,
               child: Container(
-                width: 48,
-                height: 48,
+                width: 46,
+                height: 46,
                 decoration: BoxDecoration(
                   color: AppTheme.brandColor,
                   shape: BoxShape.circle,
@@ -247,10 +330,12 @@ class _AiChatScreenState extends State<AiChatScreen> {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.send_rounded,
-                  color: Colors.white,
-                  size: 20,
+                child: const Center(
+                  child: Icon(
+                    Icons.send_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
               ),
             ),
@@ -274,75 +359,192 @@ class _ChatBubble extends StatelessWidget {
     this.query,
   });
 
+  List<Property> get parsedProperties {
+    if (properties == null) return [];
+    try {
+      return properties!
+          .map((p) => Property.fromMap(Map<String, dynamic>.from(p)))
+          .toList();
+    } catch (e) {
+      debugPrint('Error parsing property in chat: $e');
+      return [];
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final parsed = parsedProperties;
+    return Column(
+      crossAxisAlignment:
+          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        Align(
+          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.75,
+            ),
+            decoration: BoxDecoration(
+              color: isMe ? AppTheme.brandColor : Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(16),
+                topRight: const Radius.circular(16),
+                bottomLeft: Radius.circular(isMe ? 16 : 4),
+                bottomRight: Radius.circular(isMe ? 4 : 16),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.02),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+              border: isMe
+                  ? null
+                  : Border.all(
+                      color: const Color(0xFFEEEEEE),
+                      width: 1,
+                    ),
+            ),
+            child: Text(
+              message,
+              style: GoogleFonts.plusJakartaSans(
+                color: isMe ? Colors.white : Colors.black87,
+                fontSize: 14.5,
+                fontWeight: FontWeight.w600,
+                height: 1.45,
+              ),
+            ),
+          ),
+        ),
+        if (!isMe && parsed.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 8),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.auto_awesome_rounded,
+                        size: 15,
+                        color: AppTheme.brandColor,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Matches on Khozna:',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12,
+                          color: AppTheme.brandColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 298,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: parsed.length,
+                    itemBuilder: (context, idx) {
+                      final prop = parsed[idx];
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: PropertyCard(
+                          property: prop,
+                          width: 220,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _TypingIndicator extends StatefulWidget {
+  const _TypingIndicator();
+
+  @override
+  State<_TypingIndicator> createState() => _TypingIndicatorState();
+}
+
+class _TypingIndicatorState extends State<_TypingIndicator>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
+        margin: const EdgeInsets.symmetric(vertical: 6),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
         decoration: BoxDecoration(
-          color: isMe ? AppTheme.brandColor : Colors.grey[100],
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(isMe ? 16 : 4),
-            bottomRight: Radius.circular(isMe ? 4 : 16),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              message,
-              style: GoogleFonts.inter(
-                color: isMe ? Colors.white : Colors.black87,
-                fontSize: 15,
-                height: 1.4,
-              ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFEEEEEE)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.01),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
-            if (properties != null && properties!.isNotEmpty && !isMe)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FilterResultsScreen(
-                          location: query ?? '',
-                          priceRange: 'Up to Rs. 15000',
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.visibility,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                  label: Text(
-                    'View ${properties!.length} Property${properties!.length > 1 ? "s" : ""}',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 13,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.brandColor,
-                    minimumSize: const Size(double.infinity, 36),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
           ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(3, (index) {
+            return AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                final delay = index * 0.2;
+                final value =
+                    math.sin((_controller.value * math.pi * 2) - (delay * math.pi));
+                final dy = (value * 4).clamp(-4.0, 4.0);
+
+                return Transform.translate(
+                  offset: Offset(0, dy),
+                  child: Container(
+                    width: 7,
+                    height: 7,
+                    margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                    decoration: const BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                );
+              },
+            );
+          }),
         ),
       ),
     );

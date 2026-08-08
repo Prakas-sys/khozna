@@ -279,7 +279,7 @@ class HomeHeroSection extends StatelessWidget {
   }
 }
 
-class HomeSearchBar extends StatefulWidget {
+class HomeSearchBar extends StatelessWidget {
   final VoidCallback onTap;
   final Function(String) onVoiceResult;
 
@@ -290,227 +290,125 @@ class HomeSearchBar extends StatefulWidget {
   });
 
   @override
-  State<HomeSearchBar> createState() => _HomeSearchBarState();
-}
-
-class _HomeSearchBarState extends State<HomeSearchBar>
-    with TickerProviderStateMixin {
-  late final AnimationController _searchFlipCtrl;
-  late final AnimationController _micFlipCtrl;
-  bool _showingAI = false; // which face of the mic/AI button is visible
-
-  @override
-  void initState() {
-    super.initState();
-    _searchFlipCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 620),
-    );
-    _micFlipCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 620),
-    );
-
-    // Staggered loops so they never flip at the same time
-    _startSearchLoop();
-    _startMicLoop();
-  }
-
-  Future<void> _startSearchLoop() async {
-    // Search flips first at 1.5 seconds, then every 4 seconds
-    await Future.delayed(const Duration(milliseconds: 1500));
-    while (mounted) {
-      if (mounted) {
-        await _searchFlipCtrl.forward();
-      }
-      if (mounted) {
-        _searchFlipCtrl.reset();
-      }
-      await Future.delayed(const Duration(milliseconds: 4000));
-    }
-  }
-
-  Future<void> _startMicLoop() async {
-    // Mic button flips 2 seconds later (offset) to stagger the animation
-    await Future.delayed(const Duration(milliseconds: 3500));
-    while (mounted) {
-      if (mounted) {
-        await _micFlipCtrl.forward();
-      }
-      if (mounted) {
-        setState(() => _showingAI = !_showingAI);
-      }
-      if (mounted) {
-        _micFlipCtrl.reset();
-      }
-      await Future.delayed(const Duration(milliseconds: 4000));
-    }
-  }
-
-  @override
-  void dispose() {
-    _searchFlipCtrl.dispose();
-    _micFlipCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Hero(
       tag: 'search_bar_container',
       child: Material(
         color: Colors.transparent,
         child: GestureDetector(
-          onTap: widget.onTap,
+          onTap: onTap,
           child: Container(
             height: 52,
-            padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
+            padding: const EdgeInsets.only(left: 16, right: 8, top: 4, bottom: 4),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(30),
               border: Border.all(color: Colors.transparent, width: 0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
+                  color: Colors.black.withOpacity(0.08),
                   blurRadius: 16,
                   spreadRadius: 1,
-                  offset: const Offset(1, 0),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: Row(
               children: [
-                // 🔍 Entry Scale + Periodic 3D Y-axis Flip on search
-                TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0.0, end: 1.0),
-                  duration: const Duration(milliseconds: 800),
-                  curve: Curves.easeOutBack,
-                  builder: (context, scale, child) {
-                    return Transform.scale(
-                      scale: scale,
-                      child: child,
+                // 🔍 Static Search Icon
+                SvgPicture.asset(
+                  'assets/icons/Search vector.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(
+                    AppTheme.brandColor,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Search rooms, flats or areas...',
+                    style: GoogleFonts.plusJakartaSans(
+                      color: Colors.grey[400],
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // 🎙️ Voice Search Button
+                InkWell(
+                  onTap: () {
+                    if (!AuthGuard.checkAuth(
+                      context,
+                      title: 'Voice Search',
+                      message: 'Log in to search properties via voice command.',
+                    )) {
+                      return;
+                    }
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
+                      builder: (context) => VoiceSearchOverlay(
+                        onResult: onVoiceResult,
+                      ),
                     );
                   },
-                  child: AnimatedBuilder(
-                    animation: _searchFlipCtrl,
-                    builder: (_, child) {
-                      final angle = _searchFlipCtrl.value * 2 * math.pi;
-                      return Transform(
-                        alignment: Alignment.center,
-                        transform: Matrix4.identity()
-                          ..setEntry(3, 2, 0.002) // perspective
-                          ..rotateY(angle),
-                        child: child,
-                      );
-                    },
-                    child: SvgPicture.asset(
-                      'assets/icons/Search vector.svg',
-                      width: 24,
-                      height: 24,
-                      colorFilter: const ColorFilter.mode(
-                        AppTheme.brandColor,
-                        BlendMode.srcIn,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.mic_none_rounded,
+                        color: Colors.black87,
+                        size: 20,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Text(
-                    'Search properties',
-                    style: GoogleFonts.inter(
-                      color: Colors.grey[400],
-                      fontSize: 16,
+                const SizedBox(width: 6),
+                // ✨ AI Ask (Sparkles) Button
+                InkWell(
+                  onTap: () {
+                    if (!AuthGuard.checkAuth(
+                      context,
+                      title: 'AI Chat',
+                      message: 'Log in to chat with Khozna AI.',
+                    )) {
+                      return;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AiChatScreen(),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
                     ),
-                  ),
-                ),
-                // 🎙️ / ✨ Flat styled Mic/AI button with 180° card-flip transition
-                Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 0.0, end: 1.0),
-                    duration: const Duration(milliseconds: 800),
-                    curve: Curves.easeOutBack,
-                    builder: (context, scale, child) {
-                      return Transform.scale(
-                        scale: scale,
-                        child: child,
-                      );
-                    },
-                    child: AnimatedBuilder(
-                      animation: _micFlipCtrl,
-                      builder: (context, child) {
-                        final progress = _micFlipCtrl.value;
-                        final angle = progress * math.pi; // 180 degrees flip
-                        final isFrontHalf = progress < 0.5;
-
-                        // Switch which icon to render at midpoint (90 degrees)
-                        final showMicIcon = _showingAI ? !isFrontHalf : isFrontHalf;
-                        final faceAngle = isFrontHalf ? angle : angle - math.pi;
-
-                        final activeIcon = showMicIcon
-                            ? const Icon(
-                                Icons.mic_rounded,
-                                color: Colors.white,
-                                size: 22,
-                              )
-                            : const Icon(
-                                Icons.auto_awesome_rounded,
-                                color: Colors.white,
-                                size: 20,
-                              );
-
-                        return Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.identity()
-                            ..setEntry(3, 2, 0.002) // perspective
-                            ..rotateY(faceAngle),
-                          child: InkWell(
-                            onTap: () {
-                              if (showMicIcon) {
-                                if (!AuthGuard.checkAuth(
-                                  context,
-                                  title: 'Voice Search',
-                                  message: 'Log in to search properties via voice command.',
-                                )) {
-                                  return;
-                                }
-                                showModalBottomSheet(
-                                  context: context,
-                                  backgroundColor: Colors.transparent,
-                                  isScrollControlled: true,
-                                  builder: (context) => VoiceSearchOverlay(
-                                    onResult: widget.onVoiceResult,
-                                  ),
-                                );
-                              } else {
-                                if (!AuthGuard.checkAuth(
-                                  context,
-                                  title: 'AI Chat',
-                                  message: 'Log in to chat with Khozna AI.',
-                                )) {
-                                  return;
-                                }
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const AiChatScreen(),
-                                  ),
-                                );
-                              }
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: const BoxDecoration(
-                                color: AppTheme.brandColor,
-                                shape: BoxShape.circle,
-                              ),
-                              child: activeIcon,
-                            ),
-                          ),
-                        );
-                      },
+                    child: const Center(
+                      child: Icon(
+                        Icons.auto_awesome_rounded,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     ),
                   ),
                 ),

@@ -125,7 +125,7 @@ class KhoznaAiService {
 
       var query = Supabase.instance.client
           .from('properties')
-          .select('title, category, area_name, price, bedrooms')
+          .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)')
           .eq('status', 'available');
 
       if (keywords.isNotEmpty) {
@@ -149,7 +149,7 @@ class KhoznaAiService {
         // Fallback: fetch most recent available if no keyword match
         final fallback = await Supabase.instance.client
             .from('properties')
-            .select('title, category, area_name, price, bedrooms')
+            .select('*, property_images(image_url), profiles:owner_id(full_name, avatar_url, kyc_status)')
             .eq('status', 'available')
             .order('created_at', ascending: false)
             .limit(5);
