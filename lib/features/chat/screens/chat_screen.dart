@@ -264,7 +264,43 @@ class _ChatScreenState extends State<ChatScreen> {
           ChatBanner(controller: _bannerScrollController),
           Expanded(
             child: _activeChatId == null
-                ? const Center(child: Text('Start a conversation'))
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: AppTheme.brandColor.withOpacity(0.08),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.chat_bubble_outline_rounded,
+                            size: 36,
+                            color: AppTheme.brandColor,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'कुराकानी सुरु गर्नुहोस्',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Send a message to start the conversation',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 : StreamBuilder<List<ChatMessage>>(
                     stream: ChatRepository.getMessagesStream(_activeChatId!),
                     builder: (context, snapshot) {

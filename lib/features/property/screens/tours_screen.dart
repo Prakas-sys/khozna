@@ -257,7 +257,7 @@ class _ToursScreenState extends State<ToursScreen> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Reduced padding
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(25),
@@ -399,7 +399,7 @@ class _ToursScreenState extends State<ToursScreen> {
                   // Property Info Glass Card
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                     decoration: BoxDecoration(
                       color: const Color(0xFF2A2A2A).withOpacity(0.92),
                       borderRadius: BorderRadius.circular(24),
@@ -572,7 +572,7 @@ class _ToursScreenState extends State<ToursScreen> {
         onTap();
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
           color: isPrimary ? const Color(0xFF00A3DA) : Colors.white,
           borderRadius: BorderRadius.circular(100),
@@ -583,22 +583,23 @@ class _ToursScreenState extends State<ToursScreen> {
             if (iconPath != null)
               SvgPicture.asset(
                 iconPath,
-                width: 14,
-                height: 14,
+                width: 16,
+                height: 16,
                 colorFilter: ColorFilter.mode(
                   isPrimary ? Colors.white : const Color(0xFF00A3DA),
                   BlendMode.srcIn,
                 ),
               )
             else
-              Icon(icon, color: isPrimary ? Colors.white : const Color(0xFF00A3DA), size: 14),
-            const SizedBox(width: 6),
+              Icon(icon, color: isPrimary ? Colors.white : const Color(0xFF00A3DA), size: 16),
+            const SizedBox(width: 7),
             Text(
               text,
               style: GoogleFonts.plusJakartaSans(
                 color: isPrimary ? Colors.white : const Color(0xFF00A3DA),
-                fontSize: 11, // Reduced from 12
+                fontSize: 12,
                 fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
               ),
             ),
           ],
@@ -694,57 +695,11 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
           ),
         ),
         
-        // Navigation Arrows for Carousel
-        if (widget.images.length > 1) ...[
-          Positioned(
-            left: 8,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: IconButton(
-                onPressed: () {
-                  if (_current > 0) {
-                    _carouselController.previousPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                },
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white.withOpacity(_current > 0 ? 0.7 : 0.2),
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            right: 8,
-            top: 0,
-            bottom: 0,
-            child: Center(
-              child: IconButton(
-                onPressed: () {
-                  if (_current < widget.images.length - 1) {
-                    _carouselController.nextPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                },
-                icon: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: Colors.white.withOpacity(_current < widget.images.length - 1 ? 0.7 : 0.2),
-                  size: 20,
-                ),
-              ),
-            ),
-          ),
-        ],
+        // No arrows — swipe gesture only
 
         if (widget.images.length > 1)
           Positioned(
-            bottom: 150, // Moved up to stay above the property info card
+            bottom: 160,
             left: 0,
             right: 0,
             child: Row(
