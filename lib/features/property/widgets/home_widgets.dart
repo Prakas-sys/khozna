@@ -465,6 +465,7 @@ class _HomeSearchBarState extends State<HomeSearchBar>
                           transform: Matrix4.identity()
                             ..setEntry(3, 2, 0.002) // perspective
                             ..rotateY(faceAngle),
+                          child: InkWell(
                             onTap: () {
                               if (showMicIcon) {
                                 if (!AuthGuard.checkAuth(
