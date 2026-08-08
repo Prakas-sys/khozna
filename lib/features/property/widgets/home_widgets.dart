@@ -10,6 +10,103 @@ import 'package:khozna/widgets/skeleton_card.dart';
 import 'package:khozna/widgets/voice_search_overlay.dart';
 import 'package:khozna/core/guards/auth_guard.dart';
 
+// ── Marquee (ticker) text for long location names ──────────────────────────
+class _MarqueeText extends StatefulWidget {
+  final String text;
+  final TextStyle style;
+
+  const _MarqueeText({required this.text, required this.style});
+
+  @override
+  State<_MarqueeText> createState() => _MarqueeTextState();
+}
+
+class _MarqueeTextState extends State<_MarqueeText>
+    with SingleTickerProviderStateMixin {
+  late final ScrollController _scrollController;
+  late AnimationController _animController;
+  bool _shouldScroll = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 0),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startIfNeeded());
+  }
+
+  @override
+  void didUpdateWidget(_MarqueeText old) {
+    super.didUpdateWidget(old);
+    if (old.text != widget.text) {
+      _animController.stop();
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) => _startIfNeeded());
+    }
+  }
+
+  Future<void> _startIfNeeded() async {
+    if (!mounted || !_scrollController.hasClients) return;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    if (maxScroll <= 0) {
+      setState(() => _shouldScroll = false);
+      return;
+    }
+    setState(() => _shouldScroll = true);
+    _runTicker(maxScroll);
+  }
+
+  Future<void> _runTicker(double maxScroll) async {
+    while (mounted && _shouldScroll) {
+      // Pause at start
+      await Future.delayed(const Duration(milliseconds: 1200));
+      if (!mounted || !_shouldScroll) break;
+      // Scroll to end
+      if (_scrollController.hasClients) {
+        await _scrollController.animateTo(
+          maxScroll,
+          duration: Duration(milliseconds: (maxScroll * 22).round()),
+          curve: Curves.linear,
+        );
+      }
+      if (!mounted || !_shouldScroll) break;
+      // Pause at end
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted || !_shouldScroll) break;
+      // Jump back to start
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(0);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      controller: _scrollController,
+      scrollDirection: Axis.horizontal,
+      physics: const NeverScrollableScrollPhysics(),
+      child: Text(
+        widget.text,
+        style: widget.style,
+        maxLines: 1,
+      ),
+    );
+  }
+}
+
 class HomeHeader extends StatelessWidget {
   final String locationName;
   final VoidCallback onLocationTap;
@@ -69,35 +166,15 @@ class HomeHeader extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: ClipRect(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 380),
-                          switchInCurve: Curves.easeOutCubic,
-                          switchOutCurve: Curves.easeInCubic,
-                          transitionBuilder: (child, animation) {
-                            final slideIn = Tween<Offset>(
-                              begin: const Offset(0.35, 0),
-                              end: Offset.zero,
-                            ).animate(animation);
-                            return SlideTransition(
-                              position: slideIn,
-                              child: FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: Text(
-                            locationName,
-                            key: ValueKey(locationName),
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.black.withOpacity(0.8),
-                              height: 1.1,
-                              letterSpacing: -0.25,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        child: _MarqueeText(
+                          key: ValueKey(locationName),
+                          text: locationName,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black.withOpacity(0.8),
+                            height: 1.1,
+                            letterSpacing: -0.25,
                           ),
                         ),
                       ),
