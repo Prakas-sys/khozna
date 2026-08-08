@@ -419,7 +419,8 @@ class VerificationCard extends StatelessWidget {
               ],
             ),
           ),
-          if (!isVerified)
+          if (!isVerified) ...[
+            const SizedBox(width: 16),
             GestureDetector(
               onTap: () {
                 HapticFeedback.lightImpact();
@@ -444,6 +445,7 @@ class VerificationCard extends StatelessWidget {
                 ),
               ),
             ),
+          ],
         ],
       ),
     );

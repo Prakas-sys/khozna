@@ -28,6 +28,8 @@ class _MainScreenState extends State<MainScreen> {
   bool _isCheckingKyc = true;
   String _kycStatus = 'not_started';
 
+  DateTime? _lastPressedAt;
+
   // Key to communicate with HomeScreen for refreshing data
   final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
 
@@ -344,9 +346,34 @@ class _MainScreenState extends State<MainScreen> {
             if (_currentIndex != 0) {
               setState(() => _currentIndex = 0);
             } else {
-              // If already on home tab, allow app to close or show exit confirmation
-              // For now, let's allow pop if on index 0 to avoid getting "stuck"
-              Navigator.of(context).pop();
+              final now = DateTime.now();
+              if (_lastPressedAt == null ||
+                  now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+                _lastPressedAt = now;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Center(
+                      child: Text(
+                        'बाहिरिन फेरि ट्याप गर्नुहोस् (Tap again to exit)',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    duration: const Duration(seconds: 2),
+                    backgroundColor: const Color(0xFF1E1E1E),
+                    behavior: SnackBarBehavior.floating,
+                    margin: const EdgeInsets.symmetric(horizontal: 48, vertical: 76),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                );
+              } else {
+                SystemNavigator.pop();
+              }
             }
           },
           child: Scaffold(
