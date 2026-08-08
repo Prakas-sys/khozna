@@ -345,7 +345,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             // Left Navigation Arrow Overlay (Translucent dark circle)
             if (imageCount > 1)
               Positioned(
-                left: 16,
+                left: 12,
                 top: 0,
                 bottom: 0,
                 child: Center(
@@ -359,16 +359,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       }
                     },
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 28,
+                      height: 28,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withOpacity(0.4),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.arrow_back_ios_new_rounded,
                         color: Colors.white,
-                        size: 16,
+                        size: 12,
                       ),
                     ),
                   ),
@@ -378,7 +378,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             // Right Navigation Arrow Overlay (Translucent dark circle)
             if (imageCount > 1)
               Positioned(
-                right: 16,
+                right: 12,
                 top: 0,
                 bottom: 0,
                 child: Center(
@@ -392,16 +392,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       }
                     },
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 28,
+                      height: 28,
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
+                        color: Colors.black.withOpacity(0.4),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.arrow_forward_ios_rounded,
                         color: Colors.white,
-                        size: 16,
+                        size: 12,
                       ),
                     ),
                   ),
@@ -614,7 +614,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   '${_currentImageIndex + 1}/$imageCount',
@@ -632,28 +631,38 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-  Widget _buildSpecBadge(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 0.5),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: const Color(0xFF475569)),
-          const SizedBox(width: 6),
-          Text(
-            text,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFF334155),
-            ),
+  Widget _buildSpecItem(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          icon,
+          size: 18,
+          color: const Color(0xFF1E293B), // Dark slate icon
+        ),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: GoogleFonts.inter(
+            fontSize: 13.5,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF475569), // Text slate
           ),
-        ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSpecDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Container(
+        width: 4,
+        height: 4,
+        decoration: const BoxDecoration(
+          color: Color(0xFFCBD5E1), // Dot divider color
+          shape: BoxShape.circle,
+        ),
       ),
     );
   }
@@ -701,14 +710,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         ),
         const SizedBox(height: 16),
         // Specs Stacked Cleanly with Badges & Icons
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 8,
-          runSpacing: 8,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildSpecBadge(Icons.people_outline_rounded, '$guests Guests'),
-            _buildSpecBadge(Icons.bed_outlined, '$bedrooms Bed'),
-            _buildSpecBadge(Icons.shower_outlined, '$bathrooms Bath'),
+            _buildSpecItem(Icons.group_outlined, '$guests Guests'),
+            _buildSpecDivider(),
+            _buildSpecItem(Icons.bed_outlined, '$bedrooms ${bedrooms == 1 ? "Bed" : "Beds"}'),
+            _buildSpecDivider(),
+            _buildSpecItem(Icons.shower_outlined, '$bathrooms ${bathrooms == 1 ? "Bath" : "Baths"}'),
           ],
         ),
         if (avgRating != null) ...[  
@@ -1078,149 +1087,118 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00A3E1).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(Icons.explore_rounded, 
-                  color: Color(0xFF00A3E1), 
-                  size: 20
-                ),
+      child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00A3E1).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
               ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: const Icon(Icons.pin_drop_rounded, 
+                color: Color(0xFF00A3E1), 
+                size: 16
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Row(
                 children: [
-                  Text(
-                    'प्राथमिक स्थान',
-                    style: GoogleFonts.notoSansDevanagari(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF64748B),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  Text(
-                    'LANDMARK',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF94A3B8),
-                      letterSpacing: 1.5,
+                  Expanded(
+                    child: Text(
+                      widget.property.landmark,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(
-                Icons.location_pin,
-                color: Color(0xFFEF4444),
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  widget.property.landmark,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.black,
-                    height: 1.3,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
     );
   }
 
   Widget _buildMapPreview() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Container(
-            height: 180,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              border: Border.all(color: const Color(0xFFF1F5F9)),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        height: 130,
+        width: double.infinity,
+        color: const Color(0xFFF1F5F9),
+        child: Stack(
+          children: [
+            // Background map image
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/Map view.png',
+                fit: BoxFit.cover,
+              ),
             ),
-            child: Stack(
-              children: [
-                // Background map image
-                Positioned.fill(
-                  child: Image.asset(
-                    'assets/images/Map view.png',
-                    fit: BoxFit.cover,
+            // Dark gradient at bottom
+            Positioned(
+              bottom: 0, left: 0, right: 0,
+              child: Container(
+                height: 42,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.55),
+                    ],
                   ),
                 ),
-                // Centered Open Map Button
-                Positioned.fill(
-                  child: Material(
-                    color: Colors.black.withOpacity(0.05),
-                    child: InkWell(
-                      onTap: _openMap,
-                      child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(100),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
-                                blurRadius: 20,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                            border: Border.all(color: AppTheme.brandColor.withOpacity(0.1), width: 1),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(
-                                Icons.map_rounded,
-                                color: AppTheme.brandColor,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                'Open Map',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.black,
-                                  letterSpacing: 0.2,
-                                ),
-                              ),
-                            ],
-                          ),
+              ),
+            ),
+            // Open Map pill at bottom-left
+            Positioned(
+              bottom: 8,
+              left: 10,
+              child: GestureDetector(
+                onTap: _openMap,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(100),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.map_rounded,
+                        color: AppTheme.brandColor,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'Open Map',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -1844,16 +1822,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Rupee icon
+                      // Rupee icon balanced and pushed down slightly for perfect alignment
                       Transform.translate(
-                        offset: const Offset(0, -1.0),
+                        offset: const Offset(0, 1.5),
                         child: SvgPicture.asset(
                           'assets/icons/vector of ruppes.svg',
-                          width: 16,
-                          height: 16,
+                          width: 19,
+                          height: 19,
                           colorFilter: const ColorFilter.mode(
                             Colors.black,
                             BlendMode.srcIn,
@@ -1861,11 +1838,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ),
                       ),
                       const SizedBox(width: 2),
-                      // Price with underline (Airbnb style)
                       Text(
                         isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: isNegotiable ? 18 : 22,
+                          fontSize: isNegotiable ? 17 : 21,
                           fontWeight: FontWeight.w800,
                           color: Colors.black,
                           letterSpacing: -0.6,
@@ -1875,9 +1851,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ),
                       ),
                       if (!isNegotiable) ...[
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 2),
                         Text(
-                          '/ $unit',
+                          '/$unit',
                           style: GoogleFonts.inter(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
@@ -1886,16 +1862,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ),
                       ],
                     ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'total price',
-                    style: GoogleFonts.inter(
-                      color: const Color(0xFF94A3B8),
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.1,
-                    ),
                   ),
                 ],
               ),
@@ -1918,7 +1884,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (_pendingBookingStatus == 'rejected' ||
         _pendingBookingStatus == 'visit_completed') {
       return SizedBox(
-        height: 56,
+        height: 48,
         child: ElevatedButton(
           onPressed: () => Navigator.push(
             context,
@@ -1943,7 +1909,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
     if (_pendingBookingStatus == 'awaiting_payment') {
       return SizedBox(
-        height: 56,
+        height: 48,
         child: ElevatedButton.icon(
           onPressed: () async {
             if (_pendingBookingId == null) return;
@@ -2002,7 +1968,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       if (_pendingBookingStatus == 'visit_accepted') {
         final isEnded = _timeUntilVisit == Duration.zero && _pendingBookingCheckIn != null && DateTime.now().isAfter(_pendingBookingCheckIn!);
         return SizedBox(
-          height: 56,
+          height: 48,
           child: ElevatedButton.icon(
             onPressed: () async {
               if (_pendingBookingId == null) return;
@@ -2027,7 +1993,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     }
 
     return SizedBox(
-      height: 56,
+      height: 48,
       child: ElevatedButton(
         onPressed: () {
           HapticFeedback.mediumImpact();
@@ -2043,7 +2009,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         child: Text(
           'Book Now',
           style: GoogleFonts.inter(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w700,
             letterSpacing: -0.2,
           ),
@@ -2236,7 +2202,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildDisabledButton(String label) {
     return Container(
-      height: 56,
+      height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 32),
       alignment: Alignment.center,
       decoration: BoxDecoration(
