@@ -421,51 +421,123 @@ class _ChatBubble extends StatelessWidget {
         ),
         if (!isMe && parsed.isNotEmpty) ...[
           Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 4, bottom: 8),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.auto_awesome_rounded,
-                        size: 15,
-                        color: AppTheme.brandColor,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Matches on Khozna:',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 12,
-                          color: AppTheme.brandColor,
+            padding: const EdgeInsets.only(top: 8, bottom: 8),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FilterResultsScreen(
+                      location: query ?? '',
+                      priceRange: 'Up to Rs. 15000',
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                margin: const EdgeInsets.only(left: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFEEEEEE)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    // Stacked / Overlapping Images of properties
+                    if (parsed.any((p) => p.imageUrl.isNotEmpty)) ...[
+                      SizedBox(
+                        width: 70,
+                        height: 36,
+                        child: Stack(
+                          children: List.generate(
+                            math.min(parsed.length, 3),
+                            (index) {
+                              final prop = parsed[index];
+                              return Positioned(
+                                left: index * 16.0,
+                                child: Container(
+                                  width: 36,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(18),
+                                    child: Image.network(
+                                      prop.imageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        color: Colors.grey[100],
+                                        child: const Icon(Icons.home_outlined, size: 14),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                     ],
-                  ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${parsed.length} Match${parsed.length > 1 ? "es" : ""} Found',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Text(
+                            query ?? 'Rooms & Flats near you',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Beautiful Chevron / Arrow right
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandColor.withOpacity(0.08),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: AppTheme.brandColor,
+                        size: 14,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  height: 298,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    clipBehavior: Clip.none,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: parsed.length,
-                    itemBuilder: (context, idx) {
-                      final prop = parsed[idx];
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: PropertyCard(
-                          property: prop,
-                          width: 220,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ],
