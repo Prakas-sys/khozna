@@ -51,8 +51,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   final MapController _miniMapController = MapController();
   final ScrollController _scrollController = ScrollController();
   bool _showMapPill = false;
-  late AnimationController _aiPulseController;
-  late Animation<double> _aiScaleAnimation;
 
   @override
   void initState() {
@@ -86,17 +84,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       }
     });
 
-    _aiPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-    
-    _aiScaleAnimation = Tween<double>(begin: 1.0, end: 1.12).animate(
-      CurvedAnimation(
-        parent: _aiPulseController,
-        curve: Curves.easeInOut,
-      ),
-    );
   }
 
   Future<void> _loadNearbyData() async {
@@ -156,7 +143,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   void dispose() {
     _searchController.dispose();
     _scrollController.dispose();
-    _aiPulseController.dispose();
     super.dispose();
   }
 
@@ -179,21 +165,75 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (!_showNearbySection) ...[
-                      // Back Button
-                      Transform.translate(
-                        offset: const Offset(-8, -8),
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: Colors.black,
-                            size: 20,
+                      // Top Header Row with Back Button and AI Ask button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Transform.translate(
+                            offset: const Offset(-8, -8),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                color: Colors.black,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                HapticFeedback.lightImpact();
+                                Navigator.pop(context);
+                              },
+                              splashRadius: 22,
+                            ),
                           ),
-                          onPressed: () {
-                            HapticFeedback.lightImpact();
-                            Navigator.pop(context);
-                          },
-                          splashRadius: 22,
-                        ),
+                          GestureDetector(
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AiChatScreen(),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.brandColor.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.auto_awesome_rounded,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'AI Ask',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       // 1. BRANDED HEADER
@@ -834,49 +874,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                 ),
               ),
             ),
-          // Floating AI Button - only in Main Search section
-          if (!_showNearbySection)
-            Positioned(
-              bottom: 32,
-              right: 24,
-              child: ScaleTransition(
-                scale: _aiScaleAnimation,
-                child: GestureDetector(
-                  onTap: () {
-                    HapticFeedback.mediumImpact();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AiChatScreen(),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [AppTheme.brandColor, AppTheme.brandColor],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        'AI',
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -1,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+
         ],
       ),
     );

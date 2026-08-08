@@ -294,26 +294,37 @@ class HomeSearchBar extends StatefulWidget {
 
 class _HomeSearchBarState extends State<HomeSearchBar>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _spinCtrl;
+  late final AnimationController _flipCtrl;
 
   @override
   void initState() {
     super.initState();
-    _spinCtrl = AnimationController(
+    _flipCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 620),
     );
-    // Short delay then spin — icon grows from 0 while rotating
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) _spinCtrl.forward();
-      });
-    });
+    // Periodically flip the icons in place to keep the layout alive
+    _startPeriodicFlip();
+  }
+
+  Future<void> _startPeriodicFlip() async {
+    // Initial wait on screen mount before the first flip
+    await Future.delayed(const Duration(milliseconds: 1500));
+    while (mounted) {
+      if (mounted) {
+        await _flipCtrl.forward();
+      }
+      if (mounted) {
+        _flipCtrl.reset();
+      }
+      // Flip every 3.5 seconds
+      await Future.delayed(const Duration(milliseconds: 3500));
+    }
   }
 
   @override
   void dispose() {
-    _spinCtrl.dispose();
+    _flipCtrl.dispose();
     super.dispose();
   }
 
@@ -343,26 +354,37 @@ class _HomeSearchBarState extends State<HomeSearchBar>
             ),
             child: Row(
               children: [
-                // 🔍 Scale from 0 + full 360° spin on open — unmissable
-                AnimatedBuilder(
-                  animation: _spinCtrl,
-                  builder: (_, child) {
-                    final t = Curves.easeOut.transform(_spinCtrl.value);
-                    return Transform.rotate(
-                      angle: t * 2 * math.pi,
-                      child: Transform.scale(
-                        scale: t,
-                        child: child,
-                      ),
+                // 🔍 Entry Scale + Periodic 3D Y-axis Coin-Flip
+                TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0.0, end: 1.0),
+                  duration: const Duration(milliseconds: 800),
+                  curve: Curves.easeOutBack,
+                  builder: (context, scale, child) {
+                    return Transform.scale(
+                      scale: scale,
+                      child: child,
                     );
                   },
-                  child: SvgPicture.asset(
-                    'assets/icons/Search vector.svg',
-                    width: 26,
-                    height: 26,
-                    colorFilter: const ColorFilter.mode(
-                      AppTheme.brandColor,
-                      BlendMode.srcIn,
+                  child: AnimatedBuilder(
+                    animation: _flipCtrl,
+                    builder: (_, child) {
+                      final angle = _flipCtrl.value * 2 * math.pi;
+                      return Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.identity()
+                          ..setEntry(3, 2, 0.002) // perspective
+                          ..rotateY(angle),
+                        child: child,
+                      );
+                    },
+                    child: SvgPicture.asset(
+                      'assets/icons/Search vector.svg',
+                      width: 24,
+                      height: 24,
+                      colorFilter: const ColorFilter.mode(
+                        AppTheme.brandColor,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                 ),
@@ -376,36 +398,61 @@ class _HomeSearchBarState extends State<HomeSearchBar>
                     ),
                   ),
                 ),
+                // 🎙️ Voice search mic button (flat styled + entry scale & periodic 3D Y-axis flip)
                 Padding(
                   padding: const EdgeInsets.only(right: 4),
-                  child: InkWell(
-                    onTap: () {
-                      if (!AuthGuard.checkAuth(
-                        context,
-                        title: 'Search Properties',
-                        message: 'Log in to search and discover matching properties.',
-                      )) {
-                        return;
-                      }
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.transparent,
-                        isScrollControlled: true,
-                        builder: (context) =>
-                            VoiceSearchOverlay(onResult: widget.onVoiceResult),
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween<double>(begin: 0.0, end: 1.0),
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOutBack,
+                    builder: (context, scale, child) {
+                      return Transform.scale(
+                        scale: scale,
+                        child: child,
                       );
                     },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: AppTheme.brandColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.mic,
-                        color: Colors.white,
-                        size: 22,
+                    child: AnimatedBuilder(
+                      animation: _flipCtrl,
+                      builder: (context, child) {
+                        final angle = _flipCtrl.value * 2 * math.pi;
+                        return Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.identity()
+                            ..setEntry(3, 2, 0.002) // perspective
+                            ..rotateY(angle),
+                          child: child,
+                        );
+                      },
+                      child: InkWell(
+                        onTap: () {
+                          if (!AuthGuard.checkAuth(
+                            context,
+                            title: 'Voice Search',
+                            message: 'Log in to search properties via voice command.',
+                          )) {
+                            return;
+                          }
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            builder: (context) =>
+                                VoiceSearchOverlay(onResult: widget.onVoiceResult),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: const BoxDecoration(
+                            color: AppTheme.brandColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.mic_rounded,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -473,11 +520,8 @@ class HomeHorizontalSection extends StatelessWidget {
         const SizedBox(height: 12),
         Builder(
           builder: (context) {
-            if (isLoading && properties.isEmpty) {
+            if (isLoading || properties.isEmpty) {
               return _buildSkeletonList();
-            }
-            if (properties.isEmpty) {
-              return _buildErrorState();
             }
 
             return SizedBox(
@@ -516,38 +560,6 @@ class HomeHorizontalSection extends StatelessWidget {
           padding: EdgeInsets.only(right: 16),
           child: SkeletonCard(),
         ),
-      ),
-    );
-  }
-
-  Widget _buildErrorState() {
-    return Container(
-      height: 200,
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 24),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.wifi_off_rounded, color: Colors.grey[400], size: 48),
-          const SizedBox(height: 12),
-          Text(
-            'Offline Mode',
-            style: GoogleFonts.inter(
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Check internet to refresh',
-            style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500]),
-          ),
-        ],
       ),
     );
   }
