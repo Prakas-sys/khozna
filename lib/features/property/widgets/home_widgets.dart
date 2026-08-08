@@ -293,38 +293,63 @@ class HomeSearchBar extends StatefulWidget {
 }
 
 class _HomeSearchBarState extends State<HomeSearchBar>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _flipCtrl;
+    with TickerProviderStateMixin {
+  late final AnimationController _searchFlipCtrl;
+  late final AnimationController _micFlipCtrl;
+  bool _showingAI = false; // which face of the mic/AI button is visible
 
   @override
   void initState() {
     super.initState();
-    _flipCtrl = AnimationController(
+    _searchFlipCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 620),
     );
-    // Periodically flip the icons in place to keep the layout alive
-    _startPeriodicFlip();
+    _micFlipCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 620),
+    );
+
+    // Staggered loops so they never flip at the same time
+    _startSearchLoop();
+    _startMicLoop();
   }
 
-  Future<void> _startPeriodicFlip() async {
-    // Initial wait on screen mount before the first flip
+  Future<void> _startSearchLoop() async {
+    // Search flips first at 1.5 seconds, then every 4 seconds
     await Future.delayed(const Duration(milliseconds: 1500));
     while (mounted) {
       if (mounted) {
-        await _flipCtrl.forward();
+        await _searchFlipCtrl.forward();
       }
       if (mounted) {
-        _flipCtrl.reset();
+        _searchFlipCtrl.reset();
       }
-      // Flip every 3.5 seconds
-      await Future.delayed(const Duration(milliseconds: 3500));
+      await Future.delayed(const Duration(milliseconds: 4000));
+    }
+  }
+
+  Future<void> _startMicLoop() async {
+    // Mic button flips 2 seconds later (offset) to stagger the animation
+    await Future.delayed(const Duration(milliseconds: 3500));
+    while (mounted) {
+      if (mounted) {
+        await _micFlipCtrl.forward();
+      }
+      if (mounted) {
+        setState(() => _showingAI = !_showingAI);
+      }
+      if (mounted) {
+        _micFlipCtrl.reset();
+      }
+      await Future.delayed(const Duration(milliseconds: 4000));
     }
   }
 
   @override
   void dispose() {
-    _flipCtrl.dispose();
+    _searchFlipCtrl.dispose();
+    _micFlipCtrl.dispose();
     super.dispose();
   }
 
@@ -354,7 +379,7 @@ class _HomeSearchBarState extends State<HomeSearchBar>
             ),
             child: Row(
               children: [
-                // 🔍 Entry Scale + Periodic 3D Y-axis Coin-Flip
+                // 🔍 Entry Scale + Periodic 3D Y-axis Flip on search
                 TweenAnimationBuilder<double>(
                   tween: Tween<double>(begin: 0.0, end: 1.0),
                   duration: const Duration(milliseconds: 800),
@@ -366,9 +391,9 @@ class _HomeSearchBarState extends State<HomeSearchBar>
                     );
                   },
                   child: AnimatedBuilder(
-                    animation: _flipCtrl,
+                    animation: _searchFlipCtrl,
                     builder: (_, child) {
-                      final angle = _flipCtrl.value * 2 * math.pi;
+                      final angle = _searchFlipCtrl.value * 2 * math.pi;
                       return Transform(
                         alignment: Alignment.center,
                         transform: Matrix4.identity()
@@ -398,7 +423,7 @@ class _HomeSearchBarState extends State<HomeSearchBar>
                     ),
                   ),
                 ),
-                // 🎙️ Voice search mic button (flat styled + entry scale & periodic 3D Y-axis flip)
+                // 🎙️ / ✨ Flat styled Mic/AI button with 180° card-flip transition
                 Padding(
                   padding: const EdgeInsets.only(right: 4),
                   child: TweenAnimationBuilder<double>(
@@ -412,48 +437,63 @@ class _HomeSearchBarState extends State<HomeSearchBar>
                       );
                     },
                     child: AnimatedBuilder(
-                      animation: _flipCtrl,
+                      animation: _micFlipCtrl,
                       builder: (context, child) {
-                        final angle = _flipCtrl.value * 2 * math.pi;
+                        final progress = _micFlipCtrl.value;
+                        final angle = progress * math.pi; // 180 degrees flip
+                        final isFrontHalf = progress < 0.5;
+
+                        // Switch which icon to render at midpoint (90 degrees)
+                        final showMicIcon = _showingAI ? !isFrontHalf : isFrontHalf;
+                        final faceAngle = isFrontHalf ? angle : angle - math.pi;
+
+                        final activeIcon = showMicIcon
+                            ? const Icon(
+                                Icons.mic_rounded,
+                                color: Colors.white,
+                                size: 22,
+                              )
+                            : const Icon(
+                                Icons.auto_awesome_rounded,
+                                color: Colors.white,
+                                size: 20,
+                              );
+
                         return Transform(
                           alignment: Alignment.center,
                           transform: Matrix4.identity()
                             ..setEntry(3, 2, 0.002) // perspective
-                            ..rotateY(angle),
-                          child: child,
+                            ..rotateY(faceAngle),
+                          child: InkWell(
+                            onTap: () {
+                              if (!AuthGuard.checkAuth(
+                                context,
+                                title: showMicIcon ? 'Voice Search' : 'AI Voice Search',
+                                message: 'Log in to search properties via voice command.',
+                              )) {
+                                return;
+                              }
+                              showModalBottomSheet(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                builder: (context) => VoiceSearchOverlay(
+                                  onResult: widget.onVoiceResult,
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: AppTheme.brandColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: activeIcon,
+                            ),
+                          ),
                         );
                       },
-                      child: InkWell(
-                        onTap: () {
-                          if (!AuthGuard.checkAuth(
-                            context,
-                            title: 'Voice Search',
-                            message: 'Log in to search properties via voice command.',
-                          )) {
-                            return;
-                          }
-                          showModalBottomSheet(
-                            context: context,
-                            backgroundColor: Colors.transparent,
-                            isScrollControlled: true,
-                            builder: (context) =>
-                                VoiceSearchOverlay(onResult: widget.onVoiceResult),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: const BoxDecoration(
-                            color: AppTheme.brandColor,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.mic_rounded,
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ),
