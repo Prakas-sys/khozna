@@ -319,16 +319,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
               child: Container(
                 width: 46,
                 height: 46,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppTheme.brandColor,
                   shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.brandColor.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
                 ),
                 child: const Center(
                   child: Icon(

@@ -196,21 +196,14 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                                  colors: [Color(0xFF33BBEE), Color(0xFF00A3E1)],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
                                 borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppTheme.brandColor.withOpacity(0.3),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -365,7 +358,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                       _showFilterOptions(context);
                                     },
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                                       decoration: BoxDecoration(
                                         color: Colors.black,
                                         borderRadius: BorderRadius.circular(50),
@@ -376,13 +369,13 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                           const Icon(
                                             Icons.tune_rounded,
                                             color: Colors.white,
-                                            size: 18,
+                                            size: 17,
                                           ),
-                                          const SizedBox(width: 4),
+                                          const SizedBox(width: 5),
                                           const Icon(
                                             Icons.keyboard_arrow_down_rounded,
                                             color: Colors.white,
-                                            size: 18,
+                                            size: 17,
                                           ),
                                         ],
                                       ),
