@@ -50,6 +50,8 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeFutures() async {
+    final startTime = DateTime.now();
+
     final List<Future<List<Property>>> futures = List.generate(
       5,
       (i) => PropertyRepository.getSectionProperties(
@@ -73,6 +75,14 @@ class HomeScreenState extends State<HomeScreen> {
         }
       }
       filteredResults.add(filtered);
+    }
+
+    final elapsed = DateTime.now().difference(startTime).inMilliseconds;
+    final bool hadNoData = _sectionProperties.every((list) => list.isEmpty);
+    
+    // Hold skeleton for a brief period if it finishes too fast (prevent visual flicker)
+    if (hadNoData && elapsed < 650) {
+      await Future.delayed(Duration(milliseconds: 650 - elapsed));
     }
 
     if (mounted) {
@@ -109,7 +119,6 @@ class HomeScreenState extends State<HomeScreen> {
             _sectionProperties[i] = cachedData.map((e) => Property.fromMap(e)).toList();
             _sectionLoading[i] = false;
           }
-          // If cachedData empty — keep isLoading=true so skeleton shows
         }
         if (mounted) setState(() {});
       }
@@ -121,7 +130,6 @@ class HomeScreenState extends State<HomeScreen> {
           _sectionProperties[i] = cachedData.map((e) => Property.fromMap(e)).toList();
           _sectionLoading[i] = false;
         }
-        // If cachedData empty — keep isLoading=true so skeleton shows
       }
       if (mounted) setState(() {});
     }
@@ -506,13 +514,15 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> refreshData() async {
     HapticFeedback.mediumImpact();
-    await OfflineStorage.clearHomeCache();
-    homeSectionCache.value = {};
+    // Do NOT wipe cache on refresh. Keep existing data on screen to prevent flashy skeletons.
+    final bool hasData = _sectionProperties.any((list) => list.isNotEmpty);
     if (mounted) {
       setState(() {
         for (int i = 0; i < 5; i++) {
-          _sectionLoading[i] = true;
-          _sectionProperties[i] = [];
+          if (!hasData) {
+            _sectionLoading[i] = true;
+            _sectionProperties[i] = [];
+          }
         }
       });
     }
