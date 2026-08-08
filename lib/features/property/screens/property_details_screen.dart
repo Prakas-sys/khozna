@@ -420,8 +420,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      width: 42,
-                      height: 42,
+                      width: 34,
+                      height: 34,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
@@ -437,7 +437,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       child: const Icon(
                         Icons.arrow_back_rounded,
                         color: Colors.black,
-                        size: 24,
+                        size: 18,
                       ),
                     ),
                   ),
@@ -519,8 +519,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             );
                           },
                           child: Container(
-                            width: 42,
-                            height: 42,
+                            width: 34,
+                            height: 34,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
@@ -536,11 +536,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             child: const Icon(
                               Icons.play_circle_fill_rounded,
                               color: Color(0xFF22C55E),
-                              size: 24,
+                              size: 18,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                       ],
                       // Share Button
                       GestureDetector(
@@ -551,8 +551,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           );
                         },
                         child: Container(
-                          width: 42,
-                          height: 42,
+                          width: 34,
+                          height: 34,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -568,15 +568,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           child: const Icon(
                             Icons.ios_share_rounded,
                             color: Colors.black,
-                            size: 22,
+                            size: 17,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 8),
                       // Heart/Favourite Button
                       Container(
-                        width: 42,
-                        height: 42,
+                        width: 34,
+                        height: 34,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
@@ -592,7 +592,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         alignment: Alignment.center,
                         child: FavouriteButton(
                           propertyId: widget.property.id,
-                          size: 22,
+                          size: 17,
                           showShadow: false,
                           color: Colors.black87,
                         ),
@@ -1819,7 +1819,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final bool isNegotiable = price <= 0;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1.5)),

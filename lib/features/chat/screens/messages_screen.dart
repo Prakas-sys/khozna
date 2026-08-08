@@ -331,7 +331,7 @@ class _MessagesScreenState extends State<MessagesScreen>
                     width: 110,
                     height: 110,
                     decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withOpacity(0.05),
+                      color: Colors.black.withOpacity(0.05),
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -340,7 +340,7 @@ class _MessagesScreenState extends State<MessagesScreen>
                     width: 88,
                     height: 88,
                     decoration: BoxDecoration(
-                      color: AppTheme.brandColor.withOpacity(0.1),
+                      color: Colors.black.withOpacity(0.08),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -349,7 +349,7 @@ class _MessagesScreenState extends State<MessagesScreen>
                         width: 42,
                         height: 42,
                         colorFilter: const ColorFilter.mode(
-                          AppTheme.brandColor,
+                          Colors.black,
                           BlendMode.srcIn,
                         ),
                       ),
