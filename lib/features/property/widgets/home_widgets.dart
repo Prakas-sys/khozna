@@ -44,7 +44,7 @@ class HomeHeader extends StatelessWidget {
               onTap: onLocationTap,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
+                  horizontal: 10,
                   vertical: 9,
                 ),
                 decoration: BoxDecoration(
@@ -66,25 +66,43 @@ class HomeHeader extends StatelessWidget {
                         size: 14,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Expanded(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        child: Text(
-                          locationName,
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.black.withOpacity(0.8),
-                            height: 1.1,
-                            letterSpacing: -0.2,
+                      child: ClipRect(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 380),
+                          switchInCurve: Curves.easeOutCubic,
+                          switchOutCurve: Curves.easeInCubic,
+                          transitionBuilder: (child, animation) {
+                            final slideIn = Tween<Offset>(
+                              begin: const Offset(0.35, 0),
+                              end: Offset.zero,
+                            ).animate(animation);
+                            return SlideTransition(
+                              position: slideIn,
+                              child: FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: Text(
+                            locationName,
+                            key: ValueKey(locationName),
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black.withOpacity(0.8),
+                              height: 1.1,
+                              letterSpacing: -0.25,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: 4),
                     Icon(
                       Icons.keyboard_arrow_down_rounded,
                       color: AppTheme.brandColor.withOpacity(0.5),
