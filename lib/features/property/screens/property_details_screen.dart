@@ -1852,12 +1852,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                       if (!isNegotiable) ...[
                         const SizedBox(width: 2),
-                        Text(
-                          '/$unit',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: const Color(0xFF64748B),
+                        Transform.translate(
+                          offset: const Offset(0, 3),
+                          child: Text(
+                            '/$unit',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF64748B),
+                            ),
                           ),
                         ),
                       ],
