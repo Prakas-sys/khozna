@@ -288,7 +288,7 @@ class HomeHeroSection extends StatelessWidget {
   }
 }
 
-class HomeSearchBar extends StatefulWidget {
+class HomeSearchBar extends StatelessWidget {
   final VoidCallback onTap;
   final Function(String) onVoiceResult;
 
@@ -299,51 +299,20 @@ class HomeSearchBar extends StatefulWidget {
   });
 
   @override
-  State<HomeSearchBar> createState() => _HomeSearchBarState();
-}
-
-class _HomeSearchBarState extends State<HomeSearchBar>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _flipController;
-  late final Animation<double> _flipAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _flipController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _flipAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _flipController, curve: Curves.easeOutBack),
-    );
-    // Delay slightly so it triggers after the page slides in
-    Future.delayed(const Duration(milliseconds: 350), () {
-      if (mounted) _flipController.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _flipController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Hero(
       tag: 'search_bar_container',
       child: Material(
         color: Colors.transparent,
         child: GestureDetector(
-          onTap: widget.onTap,
+          onTap: onTap,
           child: Container(
             height: 52,
             padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: const Color(0xFFD8DCE0), width: 0.5),
+              border: Border.all(color: Colors.transparent, width: 0),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.12),
@@ -355,17 +324,18 @@ class _HomeSearchBarState extends State<HomeSearchBar>
             ),
             child: Row(
               children: [
-                // 🔍 Flip-in search icon on entry
-                AnimatedBuilder(
-                  animation: _flipAnim,
-                  builder: (context, child) {
-                    final angle = (1.0 - _flipAnim.value) * 3.14159;
-                    return Transform(
-                      alignment: Alignment.center,
-                      transform: Matrix4.identity()
-                        ..setEntry(3, 2, 0.001)
-                        ..rotateY(angle),
-                      child: child,
+                // 🔍 Spin + scale-in on first render — TweenAnimationBuilder fires automatically
+                TweenAnimationBuilder<double>(
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  duration: const Duration(milliseconds: 900),
+                  curve: Curves.elasticOut,
+                  builder: (context, value, child) {
+                    return Transform.rotate(
+                      angle: (1.0 - value) * 2 * 3.14159265,
+                      child: Transform.scale(
+                        scale: value.clamp(0.0, 1.0),
+                        child: child,
+                      ),
                     );
                   },
                   child: SvgPicture.asset(
@@ -404,7 +374,7 @@ class _HomeSearchBarState extends State<HomeSearchBar>
                         backgroundColor: Colors.transparent,
                         isScrollControlled: true,
                         builder: (context) =>
-                            VoiceSearchOverlay(onResult: widget.onVoiceResult),
+                            VoiceSearchOverlay(onResult: onVoiceResult),
                       );
                     },
                     borderRadius: BorderRadius.circular(12),
@@ -430,6 +400,7 @@ class _HomeSearchBarState extends State<HomeSearchBar>
     );
   }
 }
+
 
 
 class HomeHorizontalSection extends StatelessWidget {
