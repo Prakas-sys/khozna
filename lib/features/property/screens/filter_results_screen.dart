@@ -172,7 +172,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   const SizedBox(width: 4),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           widget.location,
@@ -184,6 +184,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 4),
                         Row(
@@ -355,7 +356,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   }
 
                   return ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
                     itemCount: properties.length + 1,
                     itemBuilder: (context, index) {
                       // Result count row as first item
@@ -388,7 +389,11 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                       final property = Property.fromMap(pMap);
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 20),
-                        child: PropertyCard(property: property, width: double.infinity),
+                        child: PropertyCard(
+                          property: property,
+                          width: double.infinity,
+                          hidePriceSymbol: true,
+                        ),
                       );
                     },
                   );

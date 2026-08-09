@@ -19,6 +19,7 @@ class PropertyCard extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final double? width;
+  final bool hidePriceSymbol;
 
   const PropertyCard({
     super.key,
@@ -27,6 +28,7 @@ class PropertyCard extends StatelessWidget {
     this.onEdit,
     this.onDelete,
     this.width,
+    this.hidePriceSymbol = false,
   });
 
   // Getters to bridge the original design code with the Property model
@@ -305,10 +307,10 @@ class PropertyCard extends StatelessWidget {
                           child: RichText(
                             text: TextSpan(
                               children: [
-                                WidgetSpan(
+                                if (!hidePriceSymbol) WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
                                   child: Transform.translate(
-                                    offset: const Offset(0, -1.5), // Pushed even higher per user request
+                                    offset: const Offset(0, -1.5),
                                     child: SvgPicture.asset(
                                       'assets/icons/vector of ruppes.svg',
                                       width: 14.5,
@@ -320,8 +322,8 @@ class PropertyCard extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                const WidgetSpan(
-                                  child: SizedBox(width: 2), // Tighter spacing per user request
+                                if (!hidePriceSymbol) const WidgetSpan(
+                                  child: SizedBox(width: 2),
                                 ),
                                 TextSpan(
                                   text: (() {
@@ -365,11 +367,9 @@ class PropertyCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 2,
-                    ), // Reverted to original gap above amenities
+                    const SizedBox(height: 2),
                     _buildAmenityItems(),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 10),
 
                     Row(
                       children: [
@@ -431,7 +431,7 @@ class PropertyCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () async {
@@ -550,6 +550,7 @@ class PropertyCard extends StatelessWidget {
                         ],
                       ],
                     ),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
