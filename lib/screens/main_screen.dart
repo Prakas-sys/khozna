@@ -354,7 +354,7 @@ class _MainScreenState extends State<MainScreen> {
                   SnackBar(
                     content: Center(
                       child: Text(
-                        'बाहिरिन फेरि ट्याप गर्नुहोस् (Tap again to exit)',
+                        'बाहिरिन फेरि ट्याप गर्नुहोस् • Tap again to exit',
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
@@ -365,10 +365,15 @@ class _MainScreenState extends State<MainScreen> {
                     duration: const Duration(seconds: 2),
                     backgroundColor: const Color(0xFF1E1E1E),
                     behavior: SnackBarBehavior.floating,
-                    margin: const EdgeInsets.symmetric(horizontal: 48, vertical: 76),
+                    margin: const EdgeInsets.only(
+                      left: 40,
+                      right: 40,
+                      bottom: 90,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100),
                     ),
+                    elevation: 8,
                   ),
                 );
               } else {

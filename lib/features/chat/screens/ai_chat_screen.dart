@@ -414,7 +414,7 @@ class _ChatBubble extends StatelessWidget {
         ),
         if (!isMe && parsed.isNotEmpty) ...[
           Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 8),
+            padding: const EdgeInsets.only(top: 10, bottom: 4),
             child: GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -428,104 +428,152 @@ class _ChatBubble extends StatelessWidget {
                 );
               },
               child: Container(
-                margin: const EdgeInsets.only(left: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                margin: const EdgeInsets.only(left: 2, right: 2),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFEEEEEE)),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFFF0F0F0), width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Stacked / Overlapping Images of properties
-                    if (parsed.any((p) => p.imageUrl.isNotEmpty)) ...[
-                      SizedBox(
-                        width: 70,
-                        height: 36,
-                        child: Stack(
-                          children: List.generate(
-                            math.min(parsed.length, 3),
-                            (index) {
-                              final prop = parsed[index];
-                              return Positioned(
-                                left: index * 16.0,
-                                child: Container(
-                                  width: 36,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 2),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 4,
-                                        offset: const Offset(0, 1),
+                    // Top gradient accent bar
+                    Container(
+                      height: 4,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF00C6FF), Color(0xFF0072FF)],
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(24),
+                          topRight: Radius.circular(24),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Stacked overlapping property images
+                          if (parsed.any((p) => p.imageUrl.isNotEmpty)) ...[
+                            SizedBox(
+                              width: parsed.length >= 3 ? 88 : (parsed.length * 36.0 + 16),
+                              height: 48,
+                              child: Stack(
+                                children: List.generate(
+                                  math.min(parsed.length, 3),
+                                  (index) {
+                                    final prop = parsed[index];
+                                    return Positioned(
+                                      left: index * 22.0,
+                                      child: Container(
+                                        width: 48,
+                                        height: 48,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border: Border.all(color: Colors.white, width: 2.5),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.12),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(24),
+                                          child: Image.network(
+                                            prop.imageUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => Container(
+                                              color: const Color(0xFFF0F4FF),
+                                              child: const Icon(Icons.home_rounded, size: 20, color: AppTheme.brandColor),
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ],
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                          ],
+                          // Text info
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${parsed.length} Room${parsed.length > 1 ? "s" : ""} Found',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 15.5,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.black,
+                                    letterSpacing: -0.3,
                                   ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(18),
-                                    child: Image.network(
-                                      prop.imageUrl,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => Container(
-                                        color: Colors.grey[100],
-                                        child: const Icon(Icons.home_outlined, size: 14),
-                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  query ?? 'Rooms & Flats near you',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey[500],
+                                    height: 1.3,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.brandColor.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  child: Text(
+                                    'Tap to view all →',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.brandColor,
                                     ),
                                   ),
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${parsed.length} Match${parsed.length > 1 ? "es" : ""} Found',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.black87,
+                              ],
                             ),
                           ),
-                          Text(
-                            query ?? 'Rooms & Flats near you',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[500],
+                          const SizedBox(width: 12),
+                          // Arrow icon
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppTheme.brandColor,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.brandColor.withOpacity(0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.arrow_forward_rounded,
+                              color: Colors.white,
+                              size: 16,
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Beautiful Chevron / Arrow right
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppTheme.brandColor.withOpacity(0.08),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: AppTheme.brandColor,
-                        size: 14,
                       ),
                     ),
                   ],
