@@ -20,7 +20,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
   final List<Map<String, dynamic>> _messages = [
     {
       'text':
-          'नमस्ते! म खोज्न (Khozna) को स्मार्ट असिस्टेन्ट हुँ।\nतपाईंलाई कस्तो कोठा वा फ्ल्याट चाहिएको छ? नेपालीमै लेखेर वा बोलेर भन्न सक्नुहुन्छ।\n\n(Hello! I am Khozna AI. Tell me what kind of room you are looking for!)',
+          'नमस्ते! 🏠 म Khozna AI हुँ।\n\nतपाईंको आवास खोज्न म यहाँ छु — नेपालीमै भन्न सक्नुहुन्छ!\n\n(Hi! I\'m Khozna AI. Describe the property you\'re looking for and I\'ll find the best matches for you.)',
       'isMe': false,
     },
   ];
