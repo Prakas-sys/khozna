@@ -85,10 +85,33 @@ class HomeScreenState extends State<HomeScreen> {
       await Future.delayed(Duration(milliseconds: 650 - elapsed));
     }
 
+    // Deep compare to only trigger UI update if anything changed
+    bool dataChanged = false;
+    for (int i = 0; i < 5; i++) {
+      final currentList = _sectionProperties[i];
+      final newList = filteredResults[i];
+      if (currentList.length != newList.length) {
+        dataChanged = true;
+        break;
+      }
+      for (int j = 0; j < currentList.length; j++) {
+        if (currentList[j].id != newList[j].id || 
+            currentList[j].price != newList[j].price ||
+            currentList[j].status != newList[j].status ||
+            currentList[j].title != newList[j].title) {
+          dataChanged = true;
+          break;
+        }
+      }
+      if (dataChanged) break;
+    }
+
     if (mounted) {
       setState(() {
         for (int i = 0; i < 5; i++) {
-          _sectionProperties[i] = filteredResults[i];
+          if (dataChanged) {
+            _sectionProperties[i] = filteredResults[i];
+          }
           _sectionLoading[i] = false;
         }
       });
@@ -150,8 +173,8 @@ class HomeScreenState extends State<HomeScreen> {
 
         // ⚡ First try last known position for instant display
         final lastKnown = await Geolocator.getLastKnownPosition();
-        if (lastKnown != null && mounted) {
-          setState(() => _currentPosition = lastKnown);
+        if (lastKnown != null) {
+          _currentPosition = lastKnown;
           _fetchAreaName(lastKnown);
         }
 
@@ -177,8 +200,8 @@ class HomeScreenState extends State<HomeScreen> {
           }
         }
 
-        if (position != null && mounted) {
-          setState(() => _currentPosition = position);
+        if (position != null) {
+          _currentPosition = position;
           await _fetchAreaName(position); // overwrite with fresh result
         } else {
           // Fallback to IP location if GPS coordinates could not be retrieved
@@ -328,7 +351,7 @@ class HomeScreenState extends State<HomeScreen> {
           area = 'Nepal';
         }
 
-        if (mounted) {
+        if (mounted && _currentLocationName != area) {
           setState(() => _currentLocationName = area);
           currentLocationName.value = area; // sync global notifier
         }
@@ -382,7 +405,7 @@ class HomeScreenState extends State<HomeScreen> {
               area = 'Nepal';
             }
             
-            if (mounted) {
+            if (mounted && _currentLocationName != area) {
               setState(() => _currentLocationName = area);
               currentLocationName.value = area;
               return;
