@@ -202,6 +202,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
+                                  children: [
                                     if (widget.priceRange.contains(RegExp(r'\d'))) ...[
                                       SvgPicture.asset(
                                         'assets/icons/vector of ruppes.svg',
