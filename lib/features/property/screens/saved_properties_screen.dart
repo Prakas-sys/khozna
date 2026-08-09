@@ -63,9 +63,11 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
               child: _savedProperties.isEmpty
                   ? _buildEmptyState()
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
+                      padding: const EdgeInsets.only(
+                        left: 24,
+                        right: 24,
+                        top: 16,
+                        bottom: 100,
                       ),
                       itemCount: _savedProperties.length,
                       itemBuilder: (context, index) {
@@ -73,7 +75,10 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 24),
-                          child: PropertyCard(property: property),
+                          child: PropertyCard(
+                            property: property,
+                            hidePriceSymbol: true,
+                          ),
                         );
                       },
                     ),

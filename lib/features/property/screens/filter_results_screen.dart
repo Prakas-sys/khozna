@@ -200,17 +200,18 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/icons/vector of ruppes.svg',
-                                      width: 9,
-                                      height: 9,
-                                      colorFilter: ColorFilter.mode(
-                                        AppTheme.brandColor,
-                                        BlendMode.srcIn,
+                                    if (widget.priceRange.contains(RegExp(r'\d'))) ...[
+                                      SvgPicture.asset(
+                                        'assets/icons/vector of ruppes.svg',
+                                        width: 9,
+                                        height: 9,
+                                        colorFilter: ColorFilter.mode(
+                                          AppTheme.brandColor,
+                                          BlendMode.srcIn,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 3),
+                                      const SizedBox(width: 3),
+                                    ],
                                     Text(
                                       widget.priceRange.replaceAll(RegExp(r'(रू|Rs\.|₹)'), '').trim(),
                                       style: GoogleFonts.inter(

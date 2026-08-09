@@ -369,7 +369,7 @@ class PropertyCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     _buildAmenityItems(),
-                    const SizedBox(height: 10),
+                    SizedBox(height: hidePriceSymbol ? 10 : 5),
 
                     Row(
                       children: [
@@ -431,7 +431,7 @@ class PropertyCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: hidePriceSymbol ? 10 : 8),
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () async {
@@ -550,7 +550,7 @@ class PropertyCard extends StatelessWidget {
                         ],
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    if (hidePriceSymbol) const SizedBox(height: 12),
                   ],
                 ),
               ),

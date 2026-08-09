@@ -119,12 +119,17 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     // ✅ Await the already-in-flight property fetch
     final properties = await propertiesFuture;
 
-    // 📍 Sort by distance if we have a location
+    // 📍 Filter & Sort by distance if we have a location
+    List<Property> filtered = [];
     if (currentLoc != null) {
       const Distance distance = Distance();
-      properties.sort((a, b) {
-        if (a.latitude == null || a.longitude == null) return 1;
-        if (b.latitude == null || b.longitude == null) return -1;
+      filtered = properties.where((p) {
+        if (p.latitude == null || p.longitude == null) return false;
+        final meters = distance.as(LengthUnit.Meter, currentLoc!, LatLng(p.latitude!, p.longitude!));
+        return meters <= 1000; // Only 1 km area
+      }).toList();
+
+      filtered.sort((a, b) {
         final dA = distance.as(LengthUnit.Meter, currentLoc!, LatLng(a.latitude!, a.longitude!));
         final dB = distance.as(LengthUnit.Meter, currentLoc!, LatLng(b.latitude!, b.longitude!));
         return dA.compareTo(dB);
@@ -133,7 +138,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
     if (mounted) {
       setState(() {
-        _nearbyProperties = properties.take(10).toList();
+        _nearbyProperties = filtered;
         _isLoadingNearby = false;
       });
     }
@@ -768,7 +773,11 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                       ),
                                       child: Stack(
                                         children: [
-                                          PropertyCard(property: p),
+                                          PropertyCard(
+                                            property: p,
+                                            hidePriceSymbol: true,
+                                            width: double.infinity,
+                                          ),
                                           if (distanceLabel.isNotEmpty)
                                             Positioned(
                                               top: 12,
@@ -802,14 +811,14 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                   },
                                 ),
                           const SizedBox(
-                            height: 80,
+                            height: 120,
                           ), // Prevent collision with FAB
                         ],
                       ),
                     ],
 
                     if (!_showNearbySection) ...[
-                      const SizedBox(height: 80), // Prevent collision with FAB
+                      const SizedBox(height: 100), // Prevent collision with FAB
                     ],
                   ],
                 ),
