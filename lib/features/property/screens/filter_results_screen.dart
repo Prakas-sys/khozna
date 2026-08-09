@@ -188,6 +188,8 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                         ),
                         const SizedBox(height: 4),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             if (widget.priceRange.isNotEmpty &&
                                 widget.priceRange != 'Top Rated Properties' &&

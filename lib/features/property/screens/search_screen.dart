@@ -750,7 +750,47 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                     ),
                                   ),
                                 )
-                              : ListView.builder(
+                              : _nearbyProperties.isEmpty
+                                  ? Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(20),
+                                              decoration: BoxDecoration(
+                                                color: AppTheme.brandColor.withOpacity(0.06),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                Icons.near_me_disabled_rounded,
+                                                size: 40,
+                                                color: AppTheme.brandColor.withOpacity(0.6),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 16),
+                                            Text(
+                                              'No properties within 1 km',
+                                              style: GoogleFonts.plusJakartaSans(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w800,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              'Try searching in popular areas above!',
+                                              style: GoogleFonts.inter(
+                                                fontSize: 13,
+                                                color: Colors.grey[500],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  : ListView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: _nearbyProperties.length,
