@@ -431,7 +431,7 @@ class PropertyCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          SizedBox(width: hidePriceSymbol ? 10 : 8),
+                          SizedBox(width: (width == double.infinity) ? 12 : 8),
                           Expanded(
                             child: OutlinedButton(
                               onPressed: () async {
@@ -550,7 +550,7 @@ class PropertyCard extends StatelessWidget {
                         ],
                       ],
                     ),
-                    if (hidePriceSymbol) const SizedBox(height: 12),
+                    if (width == double.infinity) const SizedBox(height: 14),
                   ],
                 ),
               ),

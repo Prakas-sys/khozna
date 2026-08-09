@@ -77,6 +77,7 @@ class _SavedPropertiesScreenState extends State<SavedPropertiesScreen> {
                           padding: const EdgeInsets.only(bottom: 24),
                           child: PropertyCard(
                             property: property,
+                            width: double.infinity,
                           ),
                         );
                       },
