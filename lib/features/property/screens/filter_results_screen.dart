@@ -70,11 +70,15 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
         }
         if (permission == LocationPermission.whileInUse ||
             permission == LocationPermission.always) {
-          position = await Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              accuracy: LocationAccuracy.medium,
-            ),
-          ).timeout(const Duration(seconds: 4));
+          // ⚡ Get cached last known location first for instant loading
+          position = await Geolocator.getLastKnownPosition();
+          if (position == null) {
+            position = await Geolocator.getCurrentPosition(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.low,
+              ),
+            ).timeout(const Duration(seconds: 2));
+          }
         }
       } catch (e) {
         debugPrint('Error getting location in filters: $e');
@@ -250,6 +254,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(width: 52), // Equal space to balance the back icon (48 width + 4 padding) for absolute centering
                 ],
               ),
             ),

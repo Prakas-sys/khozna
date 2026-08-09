@@ -100,11 +100,14 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       }
       if (permission == LocationPermission.whileInUse ||
           permission == LocationPermission.always) {
-        final position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.medium,
-          ),
-        ).timeout(const Duration(seconds: 3));
+        Position? position = await Geolocator.getLastKnownPosition();
+        if (position == null) {
+          position = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.low,
+            ),
+          ).timeout(const Duration(seconds: 2));
+        }
         currentLoc = LatLng(position.latitude, position.longitude);
         if (mounted) {
           setState(() => _userLocation = currentLoc);

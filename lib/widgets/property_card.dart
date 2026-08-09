@@ -369,7 +369,7 @@ class PropertyCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     _buildAmenityItems(),
-                    SizedBox(height: hidePriceSymbol ? 10 : 5),
+                    const SizedBox(height: 10),
 
                     Row(
                       children: [
