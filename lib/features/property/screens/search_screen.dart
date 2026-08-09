@@ -815,7 +815,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                         children: [
                                           PropertyCard(
                                             property: p,
-                                            hidePriceSymbol: true,
                                             width: double.infinity,
                                           ),
                                           if (distanceLabel.isNotEmpty)

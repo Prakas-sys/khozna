@@ -395,7 +395,6 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                         child: PropertyCard(
                           property: property,
                           width: double.infinity,
-                          hidePriceSymbol: true,
                         ),
                       );
                     },
