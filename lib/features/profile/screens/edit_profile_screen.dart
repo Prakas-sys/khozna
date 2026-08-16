@@ -582,47 +582,109 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildProfilePhotoSection() {
-    return Center(
-      child: Stack(
-        children: [
-          _imageFile != null
-              ? Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: FileImage(_imageFile!),
-                      fit: BoxFit.cover,
+    return Column(
+      children: [
+        Center(
+          child: Stack(
+            children: [
+              _imageFile != null
+                  ? Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: FileImage(_imageFile!),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  : AppTheme.buildAvatarWidget(
+                      avatarUrl: _avatarUrl,
+                      radius: 60,
+                      name: _fullNameController.text,
+                    ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colorTextPrimary,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: colorPrimary, width: 3),
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt_rounded,
+                      color: colorPrimary,
+                      size: 16,
                     ),
                   ),
-                )
-              : AppTheme.buildAvatarWidget(
-                  avatarUrl: _avatarUrl,
-                  radius: 60,
-                  name: _fullNameController.text,
-                ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: GestureDetector(
-              onTap: _pickImage,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: colorTextPrimary,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: colorPrimary, width: 3),
-                ),
-                child: const Icon(
-                  Icons.camera_alt_rounded,
-                  color: colorPrimary,
-                  size: 16,
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildAvatarChip(
+              label: '👨 Man Avatar',
+              isSelected: _avatarUrl == 'assets/images/man avatar.jpeg' && _imageFile == null,
+              onTap: () {
+                setState(() {
+                  _imageFile = null;
+                  _avatarUrl = 'assets/images/man avatar.jpeg';
+                });
+                HapticFeedback.lightImpact();
+              },
+            ),
+            const SizedBox(width: 10),
+            _buildAvatarChip(
+              label: '👩 Woman Avatar',
+              isSelected: _avatarUrl == 'assets/images/women avatar.jpeg' && _imageFile == null,
+              onTap: () {
+                setState(() {
+                  _imageFile = null;
+                  _avatarUrl = 'assets/images/women avatar.jpeg';
+                });
+                HapticFeedback.lightImpact();
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAvatarChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.brandColor : Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : colorTextPrimary,
+          ),
+        ),
       ),
     );
   }

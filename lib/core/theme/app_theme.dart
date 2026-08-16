@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AppTheme {
   static const Color brandColor = Color(0xFF00A3E1);
@@ -83,18 +84,13 @@ class AppTheme {
     );
   }
 
-  static const List<String> defaultAvatarsList = [
-    'assets/images/man avatar.jpeg',
-    'assets/images/women avatar.jpeg',
-    'assets/images/man illustrate png.png',
-    'assets/images/girl illustrate.png',
-    'assets/images/boy illustrate  png.png',
-  ];
+  static const String defaultManAvatar = 'assets/images/man avatar.jpeg';
+  static const String defaultWomanAvatar = 'assets/images/women avatar.jpeg';
 
-  /// Returns one of the custom default avatar assets based on name/seed
+  /// Returns ONLY man avatar.jpeg or women avatar.jpeg based on seed/name
   static String getIllustrationAvatar(String? seed) {
     if (seed == null || seed.trim().isEmpty) {
-      return 'assets/images/man avatar.jpeg';
+      return defaultManAvatar;
     }
     final String lower = seed.trim().toLowerCase();
 
@@ -113,17 +109,10 @@ class AppTheme {
         lower.contains('gita') ||
         lower.contains('anita') ||
         lower.contains('sunita')) {
-      final int fHash = lower.codeUnits.fold(0, (prev, elem) => prev + elem);
-      return fHash.abs() % 2 == 0
-          ? 'assets/images/women avatar.jpeg'
-          : 'assets/images/girl illustrate.png';
+      return defaultWomanAvatar;
     }
 
-    final int hash = lower.codeUnits.fold(0, (prev, elem) => prev + elem);
-    final int index = hash.abs() % 3;
-    if (index == 0) return 'assets/images/man avatar.jpeg';
-    if (index == 1) return 'assets/images/man illustrate png.png';
-    return 'assets/images/boy illustrate  png.png';
+    return defaultManAvatar;
   }
 
   /// Returns a valid high-quality avatar URL.
@@ -141,28 +130,42 @@ class AppTheme {
     return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80';
   }
 
-  /// Renders a CircleAvatar with network image or custom illustration asset fallback
+  /// Renders a CircleAvatar with network image or custom asset fallback
   static Widget buildAvatarWidget({
     required String? avatarUrl,
     required double radius,
     String? name,
     Color? backgroundColor,
   }) {
-    final bool hasNetworkAvatar =
-        avatarUrl != null &&
-        avatarUrl.trim().isNotEmpty &&
-        !avatarUrl.contains('via.placeholder.com') &&
-        !avatarUrl.contains('pravatar.cc');
+    final String? trimmed = avatarUrl?.trim();
 
-    if (hasNetworkAvatar) {
+    // 1. Local asset path
+    if (trimmed != null &&
+        (trimmed.startsWith('assets/') || trimmed.startsWith('assets\\'))) {
       return CircleAvatar(
         radius: radius,
         backgroundColor: backgroundColor ?? const Color(0xFFF1F5F9),
-        backgroundImage: CachedNetworkImageProvider(avatarUrl.trim()),
+        backgroundImage: AssetImage(trimmed),
       );
     }
 
-    final String assetPath = getIllustrationAvatar(name ?? avatarUrl);
+    // 2. Remote Network URL
+    final bool isNetworkUrl =
+        trimmed != null &&
+        (trimmed.startsWith('http://') || trimmed.startsWith('https://')) &&
+        !trimmed.contains('via.placeholder.com') &&
+        !trimmed.contains('pravatar.cc');
+
+    if (isNetworkUrl) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: backgroundColor ?? const Color(0xFFF1F5F9),
+        backgroundImage: CachedNetworkImageProvider(trimmed),
+      );
+    }
+
+    // 3. Fallback asset avatar
+    final String assetPath = getIllustrationAvatar(name ?? trimmed);
     return CircleAvatar(
       radius: radius,
       backgroundColor: backgroundColor ?? const Color(0xFFF1F5F9),
