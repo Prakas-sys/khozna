@@ -12,7 +12,6 @@ import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
 import 'package:khozna/core/utils/formatters.dart';
 
-
 import 'package:khozna/core/utils/app_notifiers.dart';
 
 class ToursScreen extends StatefulWidget {
@@ -29,9 +28,8 @@ class _ToursScreenState extends State<ToursScreen> {
   List<Property> reels = [];
   bool _isLoading = true;
 
-  List<Property> get displayReels => isImageView
-      ? reels
-      : reels.where((p) => p.videoUrl.isNotEmpty).toList();
+  List<Property> get displayReels =>
+      isImageView ? reels : reels.where((p) => p.videoUrl.isNotEmpty).toList();
 
   void _scrollToNext() {
     if (_pageController.hasClients) {
@@ -123,44 +121,44 @@ class _ToursScreenState extends State<ToursScreen> {
                   child: CircularProgressIndicator(color: AppTheme.brandColor),
                 )
               : (displayReels.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.video_library_outlined,
-                            color: Colors.white38,
-                            size: 64,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            isImageView 
-                                ? 'अहिले कुनै Tour छैन।\n(No tour yet)' 
-                                : 'भिडियो उपलब्ध छैन।\n(No videos found)',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.mukta(
-                              color: Colors.white60,
-                              fontSize: 16,
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.video_library_outlined,
+                              color: Colors.white38,
+                              size: 64,
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: _fetchReels,
-                      color: AppTheme.brandColor,
-                      backgroundColor: Colors.white,
-                      child: PageView.builder(
-                        controller: _pageController,
-                        scrollDirection: Axis.vertical,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: displayReels.length,
-                        itemBuilder: (context, index) {
-                          return _buildReelItem(displayReels[index]);
-                        },
-                      ),
-                    )),
-          
+                            const SizedBox(height: 16),
+                            Text(
+                              isImageView
+                                  ? 'अहिले कुनै Tour छैन।\n(No tour yet)'
+                                  : 'भिडियो उपलब्ध छैन।\n(No videos found)',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.mukta(
+                                color: Colors.white60,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : RefreshIndicator(
+                        onRefresh: _fetchReels,
+                        color: AppTheme.brandColor,
+                        backgroundColor: Colors.white,
+                        child: PageView.builder(
+                          controller: _pageController,
+                          scrollDirection: Axis.vertical,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: displayReels.length,
+                          itemBuilder: (context, index) {
+                            return _buildReelItem(displayReels[index]);
+                          },
+                        ),
+                      )),
+
           // Top Toggle (Photos/Videos) - ALWAYS VISIBLE
           Positioned(
             top: 0,
@@ -173,7 +171,11 @@ class _ToursScreenState extends State<ToursScreen> {
                   Positioned(
                     left: 0,
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 22),
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
@@ -186,7 +188,10 @@ class _ToursScreenState extends State<ToursScreen> {
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(35),
-                          border: Border.all(color: Colors.white.withOpacity(0.25), width: 1.0),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.25),
+                            width: 1.0,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -211,12 +216,20 @@ class _ToursScreenState extends State<ToursScreen> {
                   Positioned(
                     right: 0,
                     child: PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert_rounded, color: Colors.white, size: 24),
+                      icon: const Icon(
+                        Icons.more_vert_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
                       color: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       onSelected: (value) {
                         if (value == 'auto_scroll') {
-                          setState(() => isAutoScrollEnabled = !isAutoScrollEnabled);
+                          setState(
+                            () => isAutoScrollEnabled = !isAutoScrollEnabled,
+                          );
                         }
                       },
                       itemBuilder: (context) => [
@@ -224,11 +237,29 @@ class _ToursScreenState extends State<ToursScreen> {
                           value: 'auto_scroll',
                           child: Row(
                             children: [
-                              const Icon(Icons.swipe_down_rounded, color: Colors.black87, size: 20),
+                              const Icon(
+                                Icons.swipe_down_rounded,
+                                color: Colors.black87,
+                                size: 20,
+                              ),
                               const SizedBox(width: 12),
-                              Text('Auto Scroll', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.black87)),
+                              Text(
+                                'Auto Scroll',
+                                style: GoogleFonts.inter(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
                               const Spacer(),
-                              Icon(isAutoScrollEnabled ? Icons.toggle_on : Icons.toggle_off, color: isAutoScrollEnabled ? AppTheme.brandColor : Colors.grey, size: 32),
+                              Icon(
+                                isAutoScrollEnabled
+                                    ? Icons.toggle_on
+                                    : Icons.toggle_off,
+                                color: isAutoScrollEnabled
+                                    ? AppTheme.brandColor
+                                    : Colors.grey,
+                                size: 32,
+                              ),
                             ],
                           ),
                         ),
@@ -326,7 +357,12 @@ class _ToursScreenState extends State<ToursScreen> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12), // Spacing from bottom
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                0,
+                16,
+                12,
+              ), // Spacing from bottom
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -336,50 +372,49 @@ class _ToursScreenState extends State<ToursScreen> {
                     padding: const EdgeInsets.only(left: 4, bottom: 6),
                     child: Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(2.5),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/images/KHOZNA_app_icon_512x512.png',
-                              width: 38, // Reduced from 50
-                              height: 38, // Reduced from 50
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+                        AppTheme.buildAvatarWidget(
+                          avatarUrl: property.ownerAvatar,
+                          radius: 19,
+                          name: property.ownerName,
                         ),
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                             Row(
-                               children: [
-                                 Text(
-                                   'Khozna app',
-                                   style: GoogleFonts.plusJakartaSans(
-                                     color: Colors.white,
-                                     fontWeight: FontWeight.w700,
-                                     fontSize: 16,
-                                   ),
-                                 ),
-                                 const SizedBox(width: 5),
-                                 const Icon(
-                                   Icons.verified_rounded,
-                                   color: Color(0xFF00A3DA),
-                                   size: 16,
-                                 ),
-                               ],
-                             ),
+                            Row(
+                              children: [
+                                Text(
+                                  property.ownerName.isNotEmpty
+                                      ? property.ownerName
+                                      : 'Khozna Host',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                if (property.isOwnerVerified) ...[
+                                  const SizedBox(width: 5),
+                                  const Icon(
+                                    Icons.verified_rounded,
+                                    color: AppTheme.brandColor,
+                                    size: 16,
+                                  ),
+                                ],
+                              ],
+                            ),
                             const SizedBox(height: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00A3DA).withOpacity(0.3),
+                                color: AppTheme.brandColor.withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: const Color(0xFF00A3DA).withOpacity(0.5)),
+                                border: Border.all(
+                                  color: AppTheme.brandColor.withOpacity(0.5),
+                                ),
                               ),
                               child: Text(
                                 property.category.toUpperCase(),
@@ -395,11 +430,14 @@ class _ToursScreenState extends State<ToursScreen> {
                       ],
                     ),
                   ),
-                  
+
                   // Property Info Glass Card
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF2A2A2A).withOpacity(0.92),
                       borderRadius: BorderRadius.circular(24),
@@ -434,7 +472,11 @@ class _ToursScreenState extends State<ToursScreen> {
                               const SizedBox(height: 6), // Reduced from 8
                               Row(
                                 children: [
-                                  const Icon(Icons.location_on_rounded, color: Color(0xFF00A3DA), size: 14), // Reduced from 16
+                                  const Icon(
+                                    Icons.location_on_rounded,
+                                    color: AppTheme.brandColor,
+                                    size: 14,
+                                  ), // Reduced from 16
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
@@ -458,42 +500,63 @@ class _ToursScreenState extends State<ToursScreen> {
                                       WidgetSpan(
                                         alignment: PlaceholderAlignment.middle,
                                         child: Transform.translate(
-                                          offset: const Offset(0, -1.2), // Pushed higher per user request
+                                          offset: const Offset(
+                                            0,
+                                            -1.2,
+                                          ), // Pushed higher per user request
                                           child: SvgPicture.asset(
                                             'assets/icons/vector of ruppes.svg',
                                             width: 16.0,
                                             height: 16.0,
                                             colorFilter: const ColorFilter.mode(
-                                              Color(0xFF00A3DA),
+                                              AppTheme.brandColor,
                                               BlendMode.srcIn,
                                             ),
                                           ),
                                         ),
                                       ),
-                                      const WidgetSpan(child: SizedBox(width: 2)), // Tighter spacing
+                                      const WidgetSpan(
+                                        child: SizedBox(width: 2),
+                                      ), // Tighter spacing
                                       TextSpan(
                                         text: (() {
                                           final val = PriceFormatter.format(
                                             property.priceMonth > 0
-                                                ? property.priceMonth.toInt().toString()
-                                                : (property.priceNight > 0 
-                                                    ? property.priceNight.toInt().toString() 
-                                                    : (property.price != '0' && property.price != '0.0' && property.price.isNotEmpty ? property.price : 'Negotiable')),
+                                                ? property.priceMonth
+                                                      .toInt()
+                                                      .toString()
+                                                : (property.priceNight > 0
+                                                      ? property.priceNight
+                                                            .toInt()
+                                                            .toString()
+                                                      : (property.price !=
+                                                                    '0' &&
+                                                                property.price !=
+                                                                    '0.0' &&
+                                                                property
+                                                                    .price
+                                                                    .isNotEmpty
+                                                            ? property.price
+                                                            : 'Negotiable')),
                                           );
                                           return val;
                                         })(),
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 19,
                                           fontWeight: FontWeight.w900,
-                                          color: const Color(0xFF00A3DA),
+                                          color: AppTheme.brandColor,
                                           letterSpacing: -0.5,
                                         ),
                                       ),
-                                      const WidgetSpan(child: SizedBox(width: 4)),
+                                      const WidgetSpan(
+                                        child: SizedBox(width: 4),
+                                      ),
                                       TextSpan(
                                         text: property.priceMonth > 0
                                             ? '/month'
-                                            : (property.priceNight > 0 ? '/night' : ''),
+                                            : (property.priceNight > 0
+                                                  ? '/night'
+                                                  : ''),
                                         style: GoogleFonts.plusJakartaSans(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -507,7 +570,7 @@ class _ToursScreenState extends State<ToursScreen> {
                             ],
                           ),
                         ),
-                        
+
                         const SizedBox(width: 12),
 
                         // Right: Vertical Action Buttons
@@ -541,7 +604,11 @@ class _ToursScreenState extends State<ToursScreen> {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => PropertyDetailsScreen(property: property)),
+                                  MaterialPageRoute(
+                                    builder: (_) => PropertyDetailsScreen(
+                                      property: property,
+                                    ),
+                                  ),
                                 );
                               },
                             ),
@@ -574,7 +641,7 @@ class _ToursScreenState extends State<ToursScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
-          color: isPrimary ? const Color(0xFF00A3DA) : Colors.white,
+          color: isPrimary ? AppTheme.brandColor : Colors.white,
           borderRadius: BorderRadius.circular(100),
         ),
         child: Row(
@@ -586,17 +653,21 @@ class _ToursScreenState extends State<ToursScreen> {
                 width: 16,
                 height: 16,
                 colorFilter: ColorFilter.mode(
-                  isPrimary ? Colors.white : const Color(0xFF00A3DA),
+                  isPrimary ? Colors.white : AppTheme.brandColor,
                   BlendMode.srcIn,
                 ),
               )
             else
-              Icon(icon, color: isPrimary ? Colors.white : const Color(0xFF00A3DA), size: 16),
+              Icon(
+                icon,
+                color: isPrimary ? Colors.white : AppTheme.brandColor,
+                size: 16,
+              ),
             const SizedBox(width: 7),
             Text(
               text,
               style: GoogleFonts.plusJakartaSans(
-                color: isPrimary ? Colors.white : const Color(0xFF00A3DA),
+                color: isPrimary ? Colors.white : AppTheme.brandColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
                 letterSpacing: 0.5,
@@ -612,12 +683,15 @@ class _ToursScreenState extends State<ToursScreen> {
     if (images.isEmpty) {
       return Container(
         color: Colors.black,
-        child: const Center(child: Icon(Icons.home_work_rounded, size: 80, color: Colors.white10)),
+        child: const Center(
+          child: Icon(Icons.home_work_rounded, size: 80, color: Colors.white10),
+        ),
       );
     }
-    
+
     return _MultiImageCarousel(images: images, category: category);
   }
+
   Widget _buildVideoPlaceholder(Property property) {
     return Center(
       child: SizedBox(
@@ -671,7 +745,7 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
                   fit: StackFit.expand,
                   children: [
                     KhoznaImage(
-                      imageUrl: widget.images[index], 
+                      imageUrl: widget.images[index],
                       fit: BoxFit.cover,
                     ),
                     Positioned.fill(
@@ -694,9 +768,8 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
             ),
           ),
         ),
-        
-        // No arrows — swipe gesture only
 
+        // No arrows — swipe gesture only
         if (widget.images.length > 1)
           Positioned(
             bottom: 160,
@@ -711,7 +784,9 @@ class _MultiImageCarouselState extends State<_MultiImageCarousel> {
                   margin: const EdgeInsets.symmetric(horizontal: 3.0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(_current == entry.key ? 0.9 : 0.4),
+                    color: Colors.white.withOpacity(
+                      _current == entry.key ? 0.9 : 0.4,
+                    ),
                   ),
                 );
               }).toList(),
