@@ -119,10 +119,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _fullNameController.text = profile?['full_name'] ?? '';
             _emailController.text = profile?['email'] ?? user?.email ?? '';
             _phoneController.text = profile?['phone_number'] ?? '';
-            _avatarUrl =
-                profile?['avatar_url'] ??
-                user?.userMetadata?['avatar_url'] ??
-                user?.userMetadata?['picture'];
+            _avatarUrl = AppTheme.sanitizeAvatarUrl(
+              profile?['avatar_url'] ??
+                  user?.userMetadata?['avatar_url'] ??
+                  user?.userMetadata?['picture'],
+            );
             _esewaController.text = profile?['esewa_number'] ?? '';
             _khaltiController.text = profile?['khalti_number'] ?? '';
             _accountNameController.text = profile?['account_holder_name'] ?? '';

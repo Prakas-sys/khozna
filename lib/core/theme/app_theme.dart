@@ -115,13 +115,16 @@ class AppTheme {
     return defaultManAvatar;
   }
 
-  /// Sanitizes avatar URL by removing single-letter fallback generators
+  /// Sanitizes avatar URL by removing single-letter fallback generators and default OAuth letter avatars
   static String? sanitizeAvatarUrl(String? url) {
     if (url == null || url.trim().isEmpty) return null;
     final clean = url.trim();
     if (clean.contains('ui-avatars.com') ||
         clean.contains('via.placeholder.com') ||
-        clean.contains('pravatar.cc')) {
+        clean.contains('pravatar.cc') ||
+        clean.contains('googleusercontent.com') ||
+        clean.contains('facebook.com') ||
+        clean.contains('fbcdn.net')) {
       return null;
     }
     return clean;

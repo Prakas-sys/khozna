@@ -62,7 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     if (profileCache.value != null) {
       final cache = profileCache.value!;
-      _avatarUrl = cache['avatar_url'];
+      _avatarUrl = AppTheme.sanitizeAvatarUrl(cache['avatar_url']);
       _fullName = cache['full_name'];
       _qrCodeUrl = cache['qr_code_url'];
       _kycStatus = cache['kyc_status'] ?? 'not_started';
@@ -78,7 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     final diskCache = await OfflineStorage.loadProfileCache();
     if (diskCache != null && mounted) {
       setState(() {
-        _avatarUrl ??= diskCache['avatar_url'];
+        _avatarUrl ??= AppTheme.sanitizeAvatarUrl(diskCache['avatar_url']);
         _fullName ??= diskCache['full_name'];
         if (_kycStatus == 'not_started') {
           _kycStatus = diskCache['kyc_status'] ?? 'not_started';
@@ -108,10 +108,11 @@ class _ProfileScreenState extends State<ProfileScreen>
 
         if (mounted && profile != null) {
           setState(() {
-            _avatarUrl =
-                profile['avatar_url'] ??
-                user?.userMetadata?['avatar_url'] ??
-                user?.userMetadata?['picture'];
+            _avatarUrl = AppTheme.sanitizeAvatarUrl(
+              profile['avatar_url'] ??
+                  user?.userMetadata?['avatar_url'] ??
+                  user?.userMetadata?['picture'],
+            );
             _fullName =
                 profile['full_name'] ??
                 user?.userMetadata?['full_name'] ??
