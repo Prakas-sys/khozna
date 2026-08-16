@@ -108,7 +108,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             .maybeSingle();
 
         if (mounted) {
-          final bool isProfileVerified = (profile?['is_verified'] as bool?) ?? false;
+          final String profStatus = (profile?['kyc_status'] ?? '').toString();
+          final bool isProfileVerified = profStatus == 'verified' || profStatus == 'approved' || (profile?['is_verified'] as bool? ?? false);
 
           setState(() {
             _fullNameController.text = profile?['full_name'] ?? '';
@@ -128,7 +129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             if (kyc != null) {
               _latitude = (kyc['latitude'] as num?)?.toDouble();
               _longitude = (kyc['longitude'] as num?)?.toDouble();
-              _kycStatus = kyc['status'] ?? (isProfileVerified ? 'verified' : 'pending');
+              _kycStatus = (isProfileVerified || kyc['status'] == 'verified') ? 'verified' : (kyc['status'] ?? 'pending');
             } else if (isProfileVerified) {
               _kycStatus = 'verified';
             }
@@ -150,13 +151,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
-      // 1. Persist is_verified in profiles table permanently
-      await Supabase.instance.client
-          .from('profiles')
-          .update({
-            'is_verified': true,
-          })
-          .eq('id', user!.id);
+      // 1. Persist kyc_status in profiles table permanently
+      try {
+        await Supabase.instance.client
+            .from('profiles')
+            .update({
+              'kyc_status': 'verified',
+            })
+            .eq('id', user!.id);
+      } catch (pErr) {
+        debugPrint('Profile kyc_status update warning: $pErr');
+      }
 
       // 2. Sync to kyc_verifications table without non-existent updated_at column
       try {
