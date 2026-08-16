@@ -27,6 +27,8 @@ class MapLauncher {
           );
         }
       }
+    } catch (e) {
+      debugPrint('Could not launch maps: $e');
       await launchUrl(
         Uri.parse(googleUrl),
         mode: LaunchMode.externalApplication,

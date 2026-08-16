@@ -289,11 +289,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   _buildAmenityGrid(),
                   const SizedBox(height: 32),
                 ],
-                const DetailSectionTitle(title: 'Location'),
-                const SizedBox(height: 12),
-                _buildLocationDetails(),
-                const SizedBox(height: 12),
-                _buildMapPreview(),
+                _buildLocationSection(),
                 const SizedBox(height: 24),
                 if (widget.property.houseRules.isNotEmpty) ...[
                   DetailSectionTitle(
@@ -1194,7 +1190,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const DetailSectionTitle(title: "Where you'll be"),
+        const DetailSectionTitle(title: 'Location'),
         const SizedBox(height: 10),
         Row(
           children: [
@@ -1277,63 +1273,35 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.black.withOpacity(0.05),
-                            Colors.black.withOpacity(0.4),
+                            Colors.black.withOpacity(0.3),
                           ],
                         ),
                       ),
                     ),
                   ),
 
-                  // Center Location Pin Badge
+                  // Clean Center House Pin (Airbnb-style, no text overlay, no glow effect)
                   Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: AppTheme.brandColor,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppTheme.brandColor.withOpacity(0.4),
-                                blurRadius: 16,
-                                spreadRadius: 4,
-                              ),
-                            ],
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppTheme.brandColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
                           ),
-                          child: const Icon(
-                            Icons.home_work_rounded,
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 5,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
-                                blurRadius: 8,
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            locationText,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.home_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                     ),
                   ),
 

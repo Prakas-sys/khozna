@@ -164,7 +164,8 @@ class _MainScreenState extends State<MainScreen> {
     if (data == null || !mounted) return;
 
     // Don't show toast for KYC notifications as they have their own full-screen popup
-    if (data['type'] == 'kyc_update' || (data['title'] ?? '').toString().contains('KYC')) {
+    if (data['type'] == 'kyc_update' ||
+        (data['title'] ?? '').toString().contains('KYC')) {
       return;
     }
 
@@ -248,7 +249,11 @@ class _MainScreenState extends State<MainScreen> {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: Colors.grey[300], size: 20),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.grey[300],
+                size: 20,
+              ),
             ],
           ),
         ),
@@ -258,13 +263,20 @@ class _MainScreenState extends State<MainScreen> {
 
   IconData _getNotificationIcon(String type) {
     switch (type) {
-      case 'message': return Icons.chat_bubble_rounded;
-      case 'booking_request': return Icons.home_work_rounded;
-      case 'visit_request': return Icons.visibility_rounded;
-      case 'payment_received': return Icons.account_balance_wallet_rounded;
-      case 'visit_approved': return Icons.check_circle_rounded;
-      case 'recommendation': return Icons.star_rounded;
-      default: return Icons.notifications_active_rounded;
+      case 'message':
+        return Icons.chat_bubble_rounded;
+      case 'booking_request':
+        return Icons.home_work_rounded;
+      case 'visit_request':
+        return Icons.visibility_rounded;
+      case 'payment_received':
+        return Icons.account_balance_wallet_rounded;
+      case 'visit_approved':
+        return Icons.check_circle_rounded;
+      case 'recommendation':
+        return Icons.star_rounded;
+      default:
+        return Icons.notifications_active_rounded;
     }
   }
 
@@ -307,14 +319,15 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onTabTapped(int index) {
     HapticFeedback.lightImpact();
-    
+
     if (index == 2) {
       final user = Supabase.instance.client.auth.currentUser;
       if (user == null) {
         AuthGuard.showLoginPrompt(
           context,
           title: 'Messages',
-          message: 'Log in to view your messages and chat with property owners.',
+          message:
+              'Log in to view your messages and chat with property owners.',
         );
         return;
       }
@@ -348,32 +361,50 @@ class _MainScreenState extends State<MainScreen> {
             } else {
               final now = DateTime.now();
               if (_lastPressedAt == null ||
-                  now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+                  now.difference(_lastPressedAt!) >
+                      const Duration(seconds: 2)) {
                 _lastPressedAt = now;
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Center(
-                      child: Text(
-                        'बाहिरिन फेरि ट्याप गर्नुहोस् • Tap again to exit',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                          color: Colors.white,
+                    content: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.touch_app_rounded,
+                          color: AppTheme.brandColor,
+                          size: 16,
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            'Tap again to exit • बाहिरिन फेरि ट्याप गर्नुहोस्',
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                              color: Colors.white,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                     duration: const Duration(seconds: 2),
-                    backgroundColor: const Color(0xFF1E1E1E),
+                    backgroundColor: const Color(0xFF0F172A),
                     behavior: SnackBarBehavior.floating,
                     margin: const EdgeInsets.only(
-                      left: 40,
-                      right: 40,
-                      bottom: 90,
+                      left: 28,
+                      right: 28,
+                      bottom: 12,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100),
+                      side: const BorderSide(
+                        color: Color(0xFF334155),
+                        width: 0.8,
+                      ),
                     ),
-                    elevation: 8,
+                    elevation: 6,
                   ),
                 );
               } else {
@@ -384,10 +415,7 @@ class _MainScreenState extends State<MainScreen> {
           child: Scaffold(
             backgroundColor: _currentIndex == 1 ? Colors.black : Colors.white,
             extendBody: false, // Changed from true to false for solid navbar
-            body: IndexedStack(
-              index: _currentIndex,
-              children: _pages,
-            ),
+            body: IndexedStack(index: _currentIndex, children: _pages),
             bottomNavigationBar: Container(
               decoration: BoxDecoration(
                 color: _currentIndex == 1 ? Colors.black : Colors.white,
@@ -416,7 +444,7 @@ class _MainScreenState extends State<MainScreen> {
                 height: 68,
                 elevation: 0,
                 child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildNavItem(
                       0,
@@ -445,13 +473,13 @@ class _MainScreenState extends State<MainScreen> {
                       inactiveColor,
                       0,
                       onTap: () async {
-                        final user =
-                            Supabase.instance.client.auth.currentUser;
+                        final user = Supabase.instance.client.auth.currentUser;
                         if (user == null) {
                           AuthGuard.showLoginPrompt(
                             context,
                             title: 'List Property',
-                            message: 'Log in to list and post properties on Khozna.',
+                            message:
+                                'Log in to list and post properties on Khozna.',
                           );
                           return;
                         }
@@ -461,7 +489,9 @@ class _MainScreenState extends State<MainScreen> {
                           context: context,
                           barrierDismissible: false,
                           builder: (ctx) => const Center(
-                            child: CircularProgressIndicator(color: AppTheme.brandColor),
+                            child: CircularProgressIndicator(
+                              color: AppTheme.brandColor,
+                            ),
                           ),
                         );
 
@@ -487,7 +517,8 @@ class _MainScreenState extends State<MainScreen> {
                           final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const PostPropertyIntroScreen(),
+                              builder: (context) =>
+                                  const PostPropertyIntroScreen(),
                             ),
                           );
                           if (result == true) {
@@ -501,7 +532,9 @@ class _MainScreenState extends State<MainScreen> {
                         if (_isCheckingKyc) {
                           int retries = 0;
                           while (_isCheckingKyc && retries < 10) {
-                            await Future.delayed(const Duration(milliseconds: 200));
+                            await Future.delayed(
+                              const Duration(milliseconds: 200),
+                            );
                             retries++;
                           }
                         }
@@ -514,7 +547,8 @@ class _MainScreenState extends State<MainScreen> {
                                 .select('kyc_status')
                                 .eq('id', user.id)
                                 .maybeSingle();
-                            if (data != null && data['kyc_status'] == 'verified') {
+                            if (data != null &&
+                                data['kyc_status'] == 'verified') {
                               setState(() => _isKycVerified = true);
                             }
                           } catch (e) {
@@ -528,7 +562,8 @@ class _MainScreenState extends State<MainScreen> {
                           final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const PostPropertyIntroScreen(),
+                              builder: (context) =>
+                                  const PostPropertyIntroScreen(),
                             ),
                           );
                           if (result == true) {
@@ -546,7 +581,8 @@ class _MainScreenState extends State<MainScreen> {
                               .select('kyc_status')
                               .eq('id', user.id)
                               .maybeSingle();
-                          freshStatus = freshData?['kyc_status'] ?? 'not_started';
+                          freshStatus =
+                              freshData?['kyc_status'] ?? 'not_started';
                           setState(() => _kycStatus = freshStatus);
                         } catch (_) {}
 
@@ -606,7 +642,9 @@ class _MainScreenState extends State<MainScreen> {
                                         foregroundColor: Colors.white,
                                         elevation: 0,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                         ),
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 14,
@@ -726,7 +764,8 @@ class _MainScreenState extends State<MainScreen> {
                   child: Center(
                     child: SizedBox(
                       width: index == -1 ? 48 : width,
-                      height: 26, // Constant height for all items to align labels
+                      height:
+                          26, // Constant height for all items to align labels
                       child: Stack(
                         clipBehavior: Clip.none,
                         alignment: Alignment.center,
