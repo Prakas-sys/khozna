@@ -314,49 +314,39 @@ class _MessagesScreenState extends State<MessagesScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Animated pulse icon
-            AnimatedBuilder(
-              animation: _pulseAnimation,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _pulseAnimation.value,
-                  child: child,
-                );
-              },
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Outer glow ring
-                  Container(
-                    width: 110,
-                    height: 110,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.05),
-                      shape: BoxShape.circle,
-                    ),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                // Outer glow ring
+                Container(
+                  width: 110,
+                  height: 110,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.05),
+                    shape: BoxShape.circle,
                   ),
-                  // Inner icon container
-                  Container(
-                    width: 88,
-                    height: 88,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.08),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: SvgPicture.asset(
-                        'assets/icons/Message neww.svg',
-                        width: 42,
-                        height: 42,
-                        colorFilter: const ColorFilter.mode(
-                          Colors.black,
-                          BlendMode.srcIn,
-                        ),
+                ),
+                // Inner icon container
+                Container(
+                  width: 88,
+                  height: 88,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      'assets/icons/Message neww.svg',
+                      width: 42,
+                      height: 42,
+                      colorFilter: const ColorFilter.mode(
+                        Colors.black,
+                        BlendMode.srcIn,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             const SizedBox(height: 28),
             Text(

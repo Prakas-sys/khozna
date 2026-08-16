@@ -435,13 +435,24 @@ class VerificationCard extends StatelessWidget {
                   color: AppTheme.brandColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(
-                  isRejected ? 'Retry' : 'Verify',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      isRejected ? 'Retry' : 'Verify',
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 13,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -574,18 +585,18 @@ class ProfileMenuSection extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2), // Perfect border
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02), // Subtler shadow for 60% neutral background
-                blurRadius: 40,
-                offset: const Offset(0, 10),
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 20,
+                spreadRadius: 0,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(20),
             child: Column(children: items),
           ),
         ),
