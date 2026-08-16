@@ -43,9 +43,6 @@ class _ChatScreenState extends State<ChatScreen> {
   late ScrollController _scrollController;
   late TextEditingController _messageController;
   late ScrollController _bannerScrollController;
-  bool _isSendingImage = false;
-  bool _isRecording = false;
-  int _recordingDuration = 0;
   final List<ChatMessage> _optimisticMessages = [];
 
   String? _activeChatId;
@@ -478,138 +475,87 @@ class _ChatScreenState extends State<ChatScreen> {
         border: Border(top: BorderSide(color: Colors.grey.shade100)),
       ),
       child: SafeArea(
-        child: Column(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            if (_isRecording)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+            Expanded(
+              child: Container(
+                height: 46,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(23),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.mic, color: Colors.red, size: 20),
                     const SizedBox(width: 8),
-                    Text(
-                      'Recording... 0:${_recordingDuration.toString().padLeft(2, '0')}',
-                      style: GoogleFonts.inter(color: Colors.red, fontWeight: FontWeight.bold),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.add_rounded,
+                        color: Color(0xFF6B7280),
+                        size: 20,
+                      ),
+                      onPressed: () {},
+                      constraints: const BoxConstraints(),
+                      padding: const EdgeInsets.all(6),
                     ),
-                    const Spacer(),
-                    Text('Slide to cancel <', style: GoogleFonts.inter(color: Colors.grey, fontSize: 12)),
+                    Expanded(
+                      child: TextField(
+                        controller: _messageController,
+                        style: GoogleFonts.inter(fontSize: 14),
+                        onChanged: (val) => setState(() {}),
+                        onSubmitted: (val) => _sendMessage(),
+                        decoration: InputDecoration(
+                          hintText: 'Message...',
+                          hintStyle: GoogleFonts.inter(
+                            color: const Color(0xFF9CA3AF),
+                            fontSize: 14,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.camera_alt_rounded,
+                        color: Color(0xFF6B7280),
+                        size: 20,
+                      ),
+                      onPressed: _pickAndSendImage,
+                      constraints: const BoxConstraints(),
+                      padding: const EdgeInsets.all(6),
+                    ),
+                    const SizedBox(width: 6),
                   ],
                 ),
               ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFB),
-                      borderRadius: BorderRadius.circular(26),
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 8),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.add_rounded,
-                            color: Color(0xFF6B7280),
-                            size: 22,
-                          ),
-                          onPressed: () {},
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.all(8),
-                        ),
-                        Expanded(
-                          child: TextField(
-                            controller: _messageController,
-                            style: GoogleFonts.inter(fontSize: 15),
-                            onChanged: (val) => setState(() {}),
-                            decoration: InputDecoration(
-                              hintText: 'Message...',
-                              hintStyle: GoogleFonts.inter(
-                                color: const Color(0xFF9CA3AF),
-                                fontSize: 15,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 4,
-                              ),
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.camera_alt_rounded,
-                            color: Color(0xFF6B7280),
-                            size: 22,
-                          ),
-                          onPressed: _pickAndSendImage,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.all(8),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                    ),
-                  ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () {
+                if (_messageController.text.trim().isNotEmpty) {
+                  _sendMessage();
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: _messageController.text.trim().isNotEmpty
+                      ? AppTheme.brandColor
+                      : AppTheme.brandColor.withOpacity(0.5),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onLongPressStart: (_) {
-                    if (_messageController.text.isEmpty) {
-                      HapticFeedback.heavyImpact();
-                      setState(() {
-                        _isRecording = true;
-                        _recordingDuration = 0;
-                      });
-                      // Mock timer
-                      Future.doWhile(() async {
-                        await Future.delayed(const Duration(seconds: 1));
-                        if (!_isRecording) return false;
-                        setState(() => _recordingDuration++);
-                        return true;
-                      });
-                    }
-                  },
-                  onLongPressEnd: (_) {
-                    if (_isRecording) {
-                      HapticFeedback.mediumImpact();
-                      final duration = _recordingDuration;
-                      setState(() => _isRecording = false);
-                      
-                      // Mock sending a voice message
-                      final tempMsg = ChatMessage(
-                        id: 'temp_audio_${DateTime.now().millisecondsSinceEpoch}',
-                        chatId: _activeChatId ?? '',
-                        senderId: _currentUserId,
-                        audioUrl: 'mock_url',
-                        audioDuration: duration,
-                        createdAt: DateTime.now(),
-                        isOptimistic: true,
-                      );
-                      setState(() => _optimisticMessages.insert(0, tempMsg));
-                    }
-                  },
-                  onTap: () {
-                    if (_messageController.text.isNotEmpty) {
-                      _sendMessage();
-                    }
-                  },
-                  child: Container(
-                    width: 52,
-                    height: 52,
-                    decoration: const BoxDecoration(
-                      color: AppTheme.brandColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      _messageController.text.isEmpty ? Icons.mic : Icons.send_rounded,
-                      color: Colors.white,
-                      size: 22,
-                    ),
-                  ),
+                child: const Icon(
+                  Icons.send_rounded,
+                  color: Colors.white,
+                  size: 18,
                 ),
-              ],
+              ),
             ),
           ],
         ),
