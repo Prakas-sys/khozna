@@ -41,93 +41,62 @@ class ProfileHeader extends StatelessWidget {
               children: [
                 Center(
                   child: GestureDetector(
-                onTap: onTapAvatar,
-                child: Stack(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: const Color(0xFFE2E8F0),
-                            width: 2.0,
+                    onTap: onTapAvatar,
+                    child: Stack(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: const Color(0xFFE2E8F0),
+                              width: 2.0,
+                            ),
                           ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 54,
-                          backgroundColor: Colors.grey[50],
                           child: isUploading
-                              ? const CircularProgressIndicator(
-                                  color: AppTheme.brandColor,
-                                  strokeWidth: 2,
-                                )
-                              : avatarUrl != null
-                              ? ClipOval(
-                                  child: KhoznaImage(
-                                    imageUrl: avatarUrl!,
-                                    width: 108,
-                                    height: 108,
-                                    fit: BoxFit.cover,
+                              ? const CircleAvatar(
+                                  radius: 54,
+                                  backgroundColor: Color(0xFFF1F5F9),
+                                  child: CircularProgressIndicator(
+                                    color: AppTheme.brandColor,
+                                    strokeWidth: 2,
                                   ),
                                 )
-                              : Container(
-                                  width: 108,
-                                  height: 108,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.grey[200]!,
-                                        Colors.grey[100]!,
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                  ),
-                                  child: Center(
-                                    child: SvgPicture.asset(
-                                      'assets/icons/Vector profile.svg',
-                                      width: 48,
-                                      height: 48,
-                                      colorFilter: ColorFilter.mode(
-                                        Colors.grey[400]!,
-                                        BlendMode.srcIn,
-                                      ),
-                                    ),
-                                  ),
+                              : AppTheme.buildAvatarWidget(
+                                  avatarUrl: avatarUrl,
+                                  radius: 54,
+                                  name: fullName,
                                 ),
                         ),
-                      ),
-                      Positioned(
-                        bottom: 4,
-                        right: 4,
-                        child: GestureDetector(
-                          onTap: onPickImage,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt_rounded,
-                              color: AppTheme.brandColor,
-                              size: 18,
+                        Positioned(
+                          bottom: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: onPickImage,
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black12,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt_rounded,
+                                color: AppTheme.brandColor,
+                                size: 18,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-
-                    ],
-                  ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -139,7 +108,9 @@ class ProfileHeader extends StatelessWidget {
                         style: GoogleFonts.inter(
                           fontSize: 22,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFF1A1A1A), // Black text for white header
+                          color: const Color(
+                            0xFF1A1A1A,
+                          ), // Black text for white header
                         ),
                       ),
                       if (kycStatus == 'verified')
@@ -184,7 +155,7 @@ class ProfileHeader extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                   ClipRRect(
+                  ClipRRect(
                     borderRadius: BorderRadius.circular(16),
                     child: KhoznaImage(
                       imageUrl: qrCodeUrl!,
@@ -304,12 +275,16 @@ class VerificationCard extends StatelessWidget {
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFEF3C7),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: const Color(0xFFFCD34D), width: 1),
+                      color: const Color(0xFFFCD34D),
+                      width: 1,
+                    ),
                   ),
                   child: Text(
                     'Pending',
@@ -331,8 +306,11 @@ class VerificationCard extends StatelessWidget {
             const SizedBox(height: 14),
             Row(
               children: [
-                const Icon(Icons.access_time_rounded,
-                    size: 14, color: Color(0xFFB45309)),
+                const Icon(
+                  Icons.access_time_rounded,
+                  size: 14,
+                  color: Color(0xFFB45309),
+                ),
                 const SizedBox(width: 6),
                 Text(
                   'Expected within 48 hours',
@@ -395,7 +373,8 @@ class VerificationCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isVerified ? 'Profile Verified'
+                  isVerified
+                      ? 'Profile Verified'
                       : (isRejected ? 'KYC Rejected' : 'Verify Identity'),
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
@@ -408,8 +387,8 @@ class VerificationCard extends StatelessWidget {
                   isVerified
                       ? 'Your account is fully verified'
                       : (isRejected
-                          ? '(अस्वीकृत) — Please retry'
-                          : 'Complete your KYC to unlock all features'),
+                            ? '(अस्वीकृत) — Please retry'
+                            : 'Complete your KYC to unlock all features'),
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: Colors.grey[500],
@@ -480,7 +459,10 @@ class PostPropertyCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white, // White Background for card
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2), // Perfected border
+        border: Border.all(
+          color: const Color(0xFFE2E8F0),
+          width: 1.2,
+        ), // Perfected border
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -647,7 +629,11 @@ class ProfileMenuItem extends StatelessWidget {
                   BlendMode.srcIn,
                 ),
               )
-            : Icon(icon ?? Icons.person_outline, color: color ?? const Color(0xFF1A1A1A), size: 20),
+            : Icon(
+                icon ?? Icons.person_outline,
+                color: color ?? const Color(0xFF1A1A1A),
+                size: 20,
+              ),
       ),
       title: Text(
         title,

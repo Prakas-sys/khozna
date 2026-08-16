@@ -126,7 +126,10 @@ class _KycScreenState extends State<KycScreen> {
       if (permission == LocationPermission.deniedForever ||
           permission == LocationPermission.denied) {
         if (mounted) {
-          KhoznaFeedback.showError(context, 'कृपया लोकेसन अनुमति दिनुहोस्। (Location permission denied)');
+          KhoznaFeedback.showError(
+            context,
+            'कृपया लोकेसन अनुमति दिनुहोस्। (Location permission denied)',
+          );
         }
         setState(() => _isLocating = false);
         return;
@@ -142,10 +145,9 @@ class _KycScreenState extends State<KycScreen> {
       // Reverse-geocode to get a readable area name
       String resolvedArea = '';
       try {
-        final placemarks = await geo.placemarkFromCoordinates(
-          position.latitude,
-          position.longitude,
-        ).timeout(const Duration(seconds: 8));
+        final placemarks = await geo
+            .placemarkFromCoordinates(position.latitude, position.longitude)
+            .timeout(const Duration(seconds: 8));
 
         if (placemarks.isNotEmpty) {
           final p = placemarks.first;
@@ -167,15 +169,23 @@ class _KycScreenState extends State<KycScreen> {
           }
 
           final neighborhood = clean(
-            [p.subLocality, p.thoroughfare, p.name, p.street]
-                .firstWhere(isUsable, orElse: () => null),
+            [
+              p.subLocality,
+              p.thoroughfare,
+              p.name,
+              p.street,
+            ].firstWhere(isUsable, orElse: () => null),
           );
           final city = clean(
-            [p.locality, p.subAdministrativeArea, p.administrativeArea]
-                .firstWhere(isUsable, orElse: () => null),
+            [
+              p.locality,
+              p.subAdministrativeArea,
+              p.administrativeArea,
+            ].firstWhere(isUsable, orElse: () => null),
           );
 
-          if (neighborhood.isNotEmpty && city.isNotEmpty &&
+          if (neighborhood.isNotEmpty &&
+              city.isNotEmpty &&
               neighborhood.toLowerCase() != city.toLowerCase()) {
             resolvedArea = '$neighborhood, $city';
           } else if (city.isNotEmpty) {
@@ -192,7 +202,8 @@ class _KycScreenState extends State<KycScreen> {
           _longitude = position.longitude;
           _isLocating = false;
           // Auto-fill location box only if user hasn't typed anything
-          if (_locationController.text.trim().isEmpty && resolvedArea.isNotEmpty) {
+          if (_locationController.text.trim().isEmpty &&
+              resolvedArea.isNotEmpty) {
             _locationController.text = resolvedArea;
           }
         });
@@ -276,12 +287,18 @@ class _KycScreenState extends State<KycScreen> {
     }
 
     if (_latitude == null) {
-      KhoznaFeedback.showError(context, 'लोकेसन प्रमाणित गर्नुहोस् (Please verify your location first)');
+      KhoznaFeedback.showError(
+        context,
+        'लोकेसन प्रमाणित गर्नुहोस् (Please verify your location first)',
+      );
       return;
     }
 
     if (_frontImage == null || _backImage == null || _selfieImage == null) {
-      KhoznaFeedback.showError(context, 'सबै फोटोहरू अपलोड गर्नुहोस् (Please upload all required photos)');
+      KhoznaFeedback.showError(
+        context,
+        'सबै फोटोहरू अपलोड गर्नुहोस् (Please upload all required photos)',
+      );
       return;
     }
 
@@ -336,7 +353,9 @@ class _KycScreenState extends State<KycScreen> {
             'email_verified': _isEmailVerified,
             'phone_verified': _isPhoneVerified,
             if (_locationController.text.trim().isNotEmpty)
-              'area_name': SecurityUtils.sanitizeInput(_locationController.text.trim()),
+              'area_name': SecurityUtils.sanitizeInput(
+                _locationController.text.trim(),
+              ),
           })
           .eq('id', user.id);
 
@@ -365,7 +384,9 @@ class _KycScreenState extends State<KycScreen> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         padding: EdgeInsets.fromLTRB(
-          24, 16, 24,
+          24,
+          16,
+          24,
           MediaQuery.of(context).padding.bottom + 32,
         ),
         child: Column(
@@ -373,7 +394,8 @@ class _KycScreenState extends State<KycScreen> {
           children: [
             // Drag handle
             Container(
-              width: 40, height: 4,
+              width: 40,
+              height: 4,
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(10),
@@ -382,7 +404,8 @@ class _KycScreenState extends State<KycScreen> {
             const SizedBox(height: 32),
             // Check icon
             Container(
-              width: 80, height: 80,
+              width: 80,
+              height: 80,
               decoration: const BoxDecoration(
                 color: Color(0xFFF0FDF4),
                 shape: BoxShape.circle,
@@ -425,8 +448,11 @@ class _KycScreenState extends State<KycScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.access_time_rounded,
-                      color: Color(0xFFD97706), size: 18),
+                  const Icon(
+                    Icons.access_time_rounded,
+                    color: Color(0xFFD97706),
+                    size: 18,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -603,8 +629,9 @@ class _KycScreenState extends State<KycScreen> {
           controller: _locationController,
           label: 'Your Location / Area (तपाईंको ठेगाना)',
           icon: Icons.location_on_outlined,
-          validator: (v) =>
-              (v == null || v.trim().isEmpty) ? 'Location is required (ठेगाना आवश्यक छ)' : null,
+          validator: (v) => (v == null || v.trim().isEmpty)
+              ? 'Location is required (ठेगाना आवश्यक छ)'
+              : null,
           onChanged: () => setState(() {}),
         ),
         const SizedBox(height: 32),
@@ -701,7 +728,11 @@ class _KycScreenState extends State<KycScreen> {
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.verified_user_rounded, color: Colors.white, size: 20),
+                  const Icon(
+                    Icons.verified_user_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Submit Verification',
@@ -789,8 +820,6 @@ class _KycScreenState extends State<KycScreen> {
               ),
             ),
           ),
-
-
         ],
       ),
     );
@@ -821,9 +850,7 @@ class _KycScreenState extends State<KycScreen> {
             duration: const Duration(milliseconds: 300),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isVerified
-                  ? const Color(0xFFF0FDF4)
-                  : Colors.white,
+              color: isVerified ? const Color(0xFFF0FDF4) : Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isVerified
@@ -855,9 +882,7 @@ class _KycScreenState extends State<KycScreen> {
                           isVerified
                               ? Icons.my_location_rounded
                               : Icons.location_on_outlined,
-                          color: isVerified
-                              ? Colors.white
-                              : Colors.grey[600],
+                          color: isVerified ? Colors.white : Colors.grey[600],
                           size: 22,
                         ),
                 ),
@@ -867,7 +892,9 @@ class _KycScreenState extends State<KycScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isVerified ? 'Location Verified' : 'Tap to Verify Location',
+                        isVerified
+                            ? 'Location Verified'
+                            : 'Tap to Verify Location',
                         style: GoogleFonts.inter(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
@@ -929,8 +956,11 @@ class _KycScreenState extends State<KycScreen> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.help_outline_rounded,
-                color: Color(0xFF1D4ED8), size: 20),
+            const Icon(
+              Icons.help_outline_rounded,
+              color: Color(0xFF1D4ED8),
+              size: 20,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -955,8 +985,11 @@ class _KycScreenState extends State<KycScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded,
-                color: Color(0xFF1D4ED8), size: 20),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFF1D4ED8),
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -996,8 +1029,11 @@ class _KycScreenState extends State<KycScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   children: [
-                    const Icon(Icons.menu_book_rounded,
-                        color: AppTheme.brandColor, size: 22),
+                    const Icon(
+                      Icons.menu_book_rounded,
+                      color: AppTheme.brandColor,
+                      size: 22,
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -1029,8 +1065,10 @@ class _KycScreenState extends State<KycScreen> {
                       iconColor: const Color(0xFF2563EB),
                       titleEN: 'Why verify identity?',
                       titleNP: 'पहिचान किन प्रमाणित गर्ने?',
-                      descEN: 'To build trust in the community, prevent rental scams, and secure your transactions.',
-                      descNP: 'समुदायमा विश्वास बढाउन, कोठा/घर भाडामा हुन सक्ने ठगी रोक्न र कारोबार सुरक्षित राख्न।',
+                      descEN:
+                          'To build trust in the community, prevent rental scams, and secure your transactions.',
+                      descNP:
+                          'समुदायमा विश्वास बढाउन, कोठा/घर भाडामा हुन सक्ने ठगी रोक्न र कारोबार सुरक्षित राख्न।',
                     ),
                     const SizedBox(height: 24),
 
@@ -1041,8 +1079,10 @@ class _KycScreenState extends State<KycScreen> {
                       iconColor: const Color(0xFF16A34A),
                       titleEN: 'Document Photo Rules',
                       titleNP: 'फोटो खिच्दा ध्यान दिनुपर्ने कुराहरू',
-                      descEN: 'Ensure the photo is clear, text is readable, and there is no flash reflection/glare.',
-                      descNP: 'कागजातको फोटो स्पष्ट हुनुपर्छ। अक्षरहरू प्रस्ट पढ्न सकिने र चमक (flash reflection) नभएको हुनुपर्छ।',
+                      descEN:
+                          'Ensure the photo is clear, text is readable, and there is no flash reflection/glare.',
+                      descNP:
+                          'कागजातको फोटो स्पष्ट हुनुपर्छ। अक्षरहरू प्रस्ट पढ्न सकिने र चमक (flash reflection) नभएको हुनुपर्छ।',
                     ),
                     const SizedBox(height: 24),
 
@@ -1053,8 +1093,10 @@ class _KycScreenState extends State<KycScreen> {
                       iconColor: const Color(0xFFD97706),
                       titleEN: 'Data Security & Privacy',
                       titleNP: 'डाटा सुरक्षा र गोपनीयता',
-                      descEN: 'Your documents are fully encrypted and only used for internal verification. Screenshots are strictly blocked.',
-                      descNP: 'तपाईंका कागजातहरू पूर्ण रूपमा सुरक्षित छन्। प्रमाणीकरणका लागि मात्र आन्तरिक रूपमा हेरिन्छ। यस स्क्रिनमा स्क्रिनसट ब्लक छ।',
+                      descEN:
+                          'Your documents are fully encrypted and only used for internal verification. Screenshots are strictly blocked.',
+                      descNP:
+                          'तपाईंका कागजातहरू पूर्ण रूपमा सुरक्षित छन्। प्रमाणीकरणका लागि मात्र आन्तरिक रूपमा हेरिन्छ। यस स्क्रिनमा स्क्रिनसट ब्लक छ।',
                     ),
                     const SizedBox(height: 24),
 
@@ -1065,8 +1107,10 @@ class _KycScreenState extends State<KycScreen> {
                       iconColor: const Color(0xFFDB2777),
                       titleEN: 'Need Direct Assistance?',
                       titleNP: 'सम्पर्क सहायता आवश्यक छ?',
-                      descEN: 'Reach out to support@khozna.com or contact us if you face any issues.',
-                      descNP: 'कुनै समस्या परेमा support@khozna.com मा इमेल गर्न सक्नुहुन्छ।',
+                      descEN:
+                          'Reach out to support@khozna.com or contact us if you face any issues.',
+                      descNP:
+                          'कुनै समस्या परेमा support@khozna.com मा इमेल गर्न सक्नुहुन्छ।',
                     ),
                     const SizedBox(height: 24),
                   ],
@@ -1145,4 +1189,3 @@ class _KycScreenState extends State<KycScreen> {
     );
   }
 }
-

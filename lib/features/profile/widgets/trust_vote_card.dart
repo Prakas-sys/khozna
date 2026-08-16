@@ -92,7 +92,10 @@ class _TrustVoteCardState extends State<TrustVoteCard>
       return const SizedBox(
         height: 40,
         width: 40,
-        child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.brandColor),
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: AppTheme.brandColor,
+        ),
       );
     }
 
@@ -100,19 +103,14 @@ class _TrustVoteCardState extends State<TrustVoteCard>
       onTap: _handleVote,
       child: AnimatedBuilder(
         animation: _scaleAnim,
-        builder: (context, child) => Transform.scale(
-          scale: _scaleAnim.value,
-          child: child,
-        ),
+        builder: (context, child) =>
+            Transform.scale(scale: _scaleAnim.value, child: child),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           decoration: BoxDecoration(
             color: _hasVoted ? AppTheme.brandColor : Colors.white,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppTheme.brandColor,
-              width: 1.5,
-            ),
+            border: Border.all(color: AppTheme.brandColor, width: 1.5),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -140,7 +138,8 @@ class _TrustVoteCardState extends State<TrustVoteCard>
                     style: GoogleFonts.mukta(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: (_hasVoted ? Colors.white : AppTheme.brandColor).withOpacity(0.8),
+                      color: (_hasVoted ? Colors.white : AppTheme.brandColor)
+                          .withOpacity(0.8),
                       height: 1.0,
                     ),
                   ),
@@ -163,5 +162,4 @@ class _TrustVoteCardState extends State<TrustVoteCard>
       ),
     );
   }
-
 }

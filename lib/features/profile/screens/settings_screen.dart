@@ -256,7 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               });
             } catch (e) {
               setDialogState(() {
-                errorMessage = e.toString().contains('ApiException') 
+                errorMessage = e.toString().contains('ApiException')
                     ? 'Failed to send OTP. Please check the phone number.'
                     : e.toString();
                 dialogLoading = false;
@@ -293,7 +293,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 // 3. Clear auth and caches
                 await Supabase.instance.client.auth.signOut();
-                
+
                 // Go to login screen
                 if (context.mounted) {
                   Navigator.pop(context); // Close dialog
@@ -316,7 +316,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }
             } catch (e) {
               setDialogState(() {
-                errorMessage = e.toString().contains('invalid response') || e.toString().contains('invalid_grant')
+                errorMessage =
+                    e.toString().contains('invalid response') ||
+                        e.toString().contains('invalid_grant')
                     ? 'Invalid OTP code. Please try again.'
                     : e.toString();
                 dialogLoading = false;
@@ -327,7 +329,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return AlertDialog(
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
             title: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -629,8 +633,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onTap: _isDeleting
                 ? null
                 : (Supabase.instance.client.auth.currentUser == null
-                    ? _showWithoutLoginDeleteConfirmation
-                    : _showDeleteConfirmation),
+                      ? _showWithoutLoginDeleteConfirmation
+                      : _showDeleteConfirmation),
             trailing: _isDeleting
                 ? const SizedBox(
                     width: 20,

@@ -66,7 +66,9 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
             ),
             _buildSection(
               num: '3',
-              title: _isEnglish ? 'User Safety & Verification' : 'प्रयोगकर्ता सुरक्षा र प्रमाणीकरण',
+              title: _isEnglish
+                  ? 'User Safety & Verification'
+                  : 'प्रयोगकर्ता सुरक्षा र प्रमाणीकरण',
               content: _isEnglish
                   ? 'It is the sole responsibility of the seeker to verify the legal status of the property and the identity of the owner. NEVER pay any "booking fee" or advance without visiting the property and meeting the owner in person.'
                   : 'कोठा वा घर हेर्न जानु अघि कुनै पनि "बुकिङ शुल्क" वा एडभान्स रकम भुक्तानी नगर्नुहोस्। घरधनीको पहिचान र घरको कानुनी कागजातहरू आफैँले प्रमाणित गर्नुहोला।',
@@ -116,14 +118,18 @@ class _TermsPrivacyScreenState extends State<TermsPrivacyScreen> {
             const SizedBox(height: 24),
             _buildSection(
               num: '6',
-              title: _isEnglish ? 'Information We Collect' : 'हामीले संकलन गर्ने जानकारी',
+              title: _isEnglish
+                  ? 'Information We Collect'
+                  : 'हामीले संकलन गर्ने जानकारी',
               content: _isEnglish
                   ? '• Personal Info: Name, phone number, email address, and payment info (eSewa/Khalti).\n• Location Data: Precise GPS data to verify properties and provide nearby searches (required for KYC).\n• Media: Photos/videos of properties, profile pictures, and identity documents (ID/Student cards) for KYC.\n• Usage Data: Interactions with the App (searches, AI chat history, property views).'
                   : '• व्यक्तिगत जानकारी: नाम, फोन नम्बर, इमेल, र भुक्तानी विवरण (eSewa/Khalti)।\n• स्थान डाटा: सम्पत्ति प्रमाणित गर्न र नजिकैको खोजहरूको लागि सही GPS डाटा।\n• मिडिया: सम्पत्तिका फोटो/भिडियोहरू, र KYC को लागि परिचयपत्रहरू।\n• उपयोग डाटा: एपमा गरिएका गतिविधिहरू (खोज, म्यासेज, आदि)।',
             ),
             _buildSection(
               num: '7',
-              title: _isEnglish ? 'How We Use Your Info' : 'तपाईंको जानकारीको प्रयोग',
+              title: _isEnglish
+                  ? 'How We Use Your Info'
+                  : 'तपाईंको जानकारीको प्रयोग',
               content: _isEnglish
                   ? '• Verification: To ensure safety by verifying properties and owner identities.\n• Communication: To facilitate chat and AI assistance.\n• Payments: To process transactions and owner payouts.\n• Security: To detect and prevent fraud, scams, and unauthorized access.'
                   : '• प्रमाणीकरण: सुरक्षा सुनिश्चित गर्न घरधनी र घर प्रमाणित गर्न।\n• सञ्चार: च्याट र AI सहायता प्रदान गर्न।\n• भुक्तानी: कारोबार र भुक्तानी प्रक्रिया गर्न।\n• सुरक्षा: ठगी र अनधिकृत पहुँच रोक्न।',

@@ -82,4 +82,91 @@ class AppTheme {
       ),
     );
   }
+
+  static const List<String> defaultAvatarsList = [
+    'assets/images/man avatar.jpeg',
+    'assets/images/women avatar.jpeg',
+    'assets/images/man illustrate png.png',
+    'assets/images/girl illustrate.png',
+    'assets/images/boy illustrate  png.png',
+  ];
+
+  /// Returns one of the custom default avatar assets based on name/seed
+  static String getIllustrationAvatar(String? seed) {
+    if (seed == null || seed.trim().isEmpty) {
+      return 'assets/images/man avatar.jpeg';
+    }
+    final String lower = seed.trim().toLowerCase();
+
+    // Female indicators
+    if (lower.contains('mrs') ||
+        lower.contains('ms') ||
+        lower.contains('miss') ||
+        lower.contains('girl') ||
+        lower.contains('woman') ||
+        lower.contains('female') ||
+        lower.contains('lady') ||
+        lower.contains('sita') ||
+        lower.contains('maya') ||
+        lower.contains('pooja') ||
+        lower.contains('rita') ||
+        lower.contains('gita') ||
+        lower.contains('anita') ||
+        lower.contains('sunita')) {
+      final int fHash = lower.codeUnits.fold(0, (prev, elem) => prev + elem);
+      return fHash.abs() % 2 == 0
+          ? 'assets/images/women avatar.jpeg'
+          : 'assets/images/girl illustrate.png';
+    }
+
+    final int hash = lower.codeUnits.fold(0, (prev, elem) => prev + elem);
+    final int index = hash.abs() % 3;
+    if (index == 0) return 'assets/images/man avatar.jpeg';
+    if (index == 1) return 'assets/images/man illustrate png.png';
+    return 'assets/images/boy illustrate  png.png';
+  }
+
+  /// Returns a valid high-quality avatar URL.
+  static String getAvatarUrl(String? avatarUrl, {String? name}) {
+    if (avatarUrl != null &&
+        avatarUrl.trim().isNotEmpty &&
+        !avatarUrl.contains('via.placeholder.com') &&
+        !avatarUrl.contains('pravatar.cc')) {
+      return avatarUrl.trim();
+    }
+    if (name != null && name.trim().isNotEmpty) {
+      final encoded = Uri.encodeComponent(name.trim());
+      return 'https://ui-avatars.com/api/?name=$encoded&background=00A3E1&color=ffffff&bold=true&size=256';
+    }
+    return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80';
+  }
+
+  /// Renders a CircleAvatar with network image or custom illustration asset fallback
+  static Widget buildAvatarWidget({
+    required String? avatarUrl,
+    required double radius,
+    String? name,
+    Color? backgroundColor,
+  }) {
+    final bool hasNetworkAvatar =
+        avatarUrl != null &&
+        avatarUrl.trim().isNotEmpty &&
+        !avatarUrl.contains('via.placeholder.com') &&
+        !avatarUrl.contains('pravatar.cc');
+
+    if (hasNetworkAvatar) {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: backgroundColor ?? const Color(0xFFF1F5F9),
+        backgroundImage: CachedNetworkImageProvider(avatarUrl.trim()),
+      );
+    }
+
+    final String assetPath = getIllustrationAvatar(name ?? avatarUrl);
+    return CircleAvatar(
+      radius: radius,
+      backgroundColor: backgroundColor ?? const Color(0xFFF1F5F9),
+      backgroundImage: AssetImage(assetPath),
+    );
+  }
 }

@@ -29,7 +29,7 @@ class NotificationRepository {
             notificationBadgeCount.value += 1;
 
             final data = payload.newRecord;
-            
+
             // Set the latest notification for in-app alert logic
             lastRealtimeNotification.value = data;
 
@@ -85,7 +85,9 @@ class NotificationRepository {
     try {
       final response = await _client
           .from('notifications')
-          .select('*, sender:sender_id(full_name, avatar_url, kyc_status, trust_badge, area_name, user_type)')
+          .select(
+            '*, sender:sender_id(full_name, avatar_url, kyc_status, trust_badge, area_name, user_type)',
+          )
           .eq('user_id', user.id)
           .order('created_at', ascending: false);
 
@@ -98,7 +100,8 @@ class NotificationRepository {
 
   /// Delete a specific notification
   static Future<void> deleteNotification(String id) async {
-    if (id.startsWith('synth_')) return; // 🛡 Guard for synthesized notifications
+    if (id.startsWith('synth_'))
+      return; // 🛡 Guard for synthesized notifications
     final user = _client.auth.currentUser;
     if (user == null) return;
     try {

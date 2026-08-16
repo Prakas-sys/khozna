@@ -108,10 +108,12 @@ class _ProfileScreenState extends State<ProfileScreen>
 
         if (mounted && profile != null) {
           setState(() {
-            _avatarUrl = profile['avatar_url'] ??
+            _avatarUrl =
+                profile['avatar_url'] ??
                 user?.userMetadata?['avatar_url'] ??
                 user?.userMetadata?['picture'];
-            _fullName = profile['full_name'] ??
+            _fullName =
+                profile['full_name'] ??
                 user?.userMetadata?['full_name'] ??
                 user?.userMetadata?['name'];
             _kycStatus = profile['kyc_status'] ?? 'not_started';
@@ -219,7 +221,8 @@ class _ProfileScreenState extends State<ProfileScreen>
             backgroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               background: ProfileHeader(
-                fullName: _fullName ??
+                fullName:
+                    _fullName ??
                     user?.userMetadata?['full_name'] ??
                     user?.userMetadata?['name'],
                 avatarUrl: _avatarUrl,
@@ -243,7 +246,10 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.settings_outlined, color: Color(0xFF1A1A1A)),
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: Color(0xFF1A1A1A),
+                ),
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -485,7 +491,10 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             child: Text(
               'Log Out',
-              style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13),
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+              ),
             ),
           ),
         ],

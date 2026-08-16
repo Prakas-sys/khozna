@@ -35,26 +35,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       // 1. Synthesize Guest Visits
       final myVisits = await SupabaseService.getMyVisits();
       for (final visit in myVisits) {
-        final existing = combined.any((n) => n['booking_id']?.toString() == visit.id);
+        final existing = combined.any(
+          (n) => n['booking_id']?.toString() == visit.id,
+        );
         if (!existing) {
-          final timeStr = visit.createdAt?.toIso8601String() ?? DateTime.now().toIso8601String();
-          if (visit.status == 'visit_accepted' || visit.status == 'awaiting_payment') {
+          final timeStr =
+              visit.createdAt?.toIso8601String() ??
+              DateTime.now().toIso8601String();
+          if (visit.status == 'visit_accepted' ||
+              visit.status == 'awaiting_payment') {
             combined.add({
               'id': 'synth_${visit.id}',
               'booking_id': visit.id,
               'property_id': visit.propertyId,
               'title': 'अवलोकन स्वीकृत (Visit Approved! Pay Now)',
-              'message': 'तपाइँको अनुरोध स्वीकृत भयो। भुक्तानी गरेर कोठा निश्चित गर्नुहोस्।',
+              'message':
+                  'तपाइँको अनुरोध स्वीकृत भयो। भुक्तानी गरेर कोठा निश्चित गर्नुहोस्।',
               'type': 'booking_approved',
               'created_at': timeStr,
             });
-          } else if (visit.status == 'paid' || visit.status == 'payment_under_review') {
+          } else if (visit.status == 'paid' ||
+              visit.status == 'payment_under_review') {
             combined.add({
               'id': 'synth_${visit.id}',
               'booking_id': visit.id,
               'property_id': visit.propertyId,
               'title': 'भुक्तानी प्रमाण पेस भयो (Payment Submitted)',
-              'message': '${visit.propertyTitle ?? "प्रोपर्टी"} को लागि भुक्तानीको प्रमाण पेस भएको छ। समीक्षा हुँदैछ।',
+              'message':
+                  '${visit.propertyTitle ?? "प्रोपर्टी"} को लागि भुक्तानीको प्रमाण पेस भएको छ। समीक्षा हुँदैछ।',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -64,7 +72,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               'booking_id': visit.id,
               'property_id': visit.propertyId,
               'title': 'बुकिङ निश्चित भयो (Booking Confirmed! 🎉)',
-              'message': '${visit.propertyTitle ?? "प्रोपर्टी"} को बुकिङ सफलतापुर्वक निश्चित भयो।',
+              'message':
+                  '${visit.propertyTitle ?? "प्रोपर्टी"} को बुकिङ सफलतापुर्वक निश्चित भयो।',
               'type': 'booking_alert',
               'created_at': timeStr,
             });
@@ -86,7 +95,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final ownerRequests = await SupabaseService.getVisitRequestsForOwner();
       for (final req in ownerRequests) {
         final bId = req.id;
-        final existing = combined.any((n) => n['booking_id']?.toString() == bId);
+        final existing = combined.any(
+          (n) => n['booking_id']?.toString() == bId,
+        );
         if (!existing && bId.isNotEmpty) {
           final propTitle = req.propertyTitle ?? 'Your Property';
           final status = req.status;
@@ -123,8 +134,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     // Sort by timestamp descending
     combined.sort((a, b) {
-      final aTime = DateTime.tryParse(a['created_at']?.toString() ?? '') ?? DateTime.now();
-      final bTime = DateTime.tryParse(b['created_at']?.toString() ?? '') ?? DateTime.now();
+      final aTime =
+          DateTime.tryParse(a['created_at']?.toString() ?? '') ??
+          DateTime.now();
+      final bTime =
+          DateTime.tryParse(b['created_at']?.toString() ?? '') ??
+          DateTime.now();
       return bTime.compareTo(aTime);
     });
 
@@ -296,11 +311,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         // -- SPECIAL: Booking Approved (Guest) card --
                         final titleStr = note['title']?.toString() ?? '';
                         final msgStr = note['message']?.toString() ?? '';
-                        final isRejected = titleStr.contains('अस्वीकृत') ||
+                        final isRejected =
+                            titleStr.contains('अस्वीकृत') ||
                             msgStr.contains('अस्वीकृत') ||
                             type == 'booking_rejected';
 
-                        final isApproved = !isRejected &&
+                        final isApproved =
+                            !isRejected &&
                             (titleStr.contains('स्वीकृत') ||
                                 msgStr.contains('स्वीकृत') ||
                                 type == 'booking_approved');
@@ -448,7 +465,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                   avatar:
                                                       sender['avatar_url'] ??
                                                       'https://via.placeholder.com/150',
-                                                  location: sender?['area_name'] ?? 'Kathmandu, Nepal',
+                                                  location:
+                                                      sender?['area_name'] ??
+                                                      'Kathmandu, Nepal',
                                                   totalListings: 0,
                                                 ),
                                           ),
@@ -590,10 +609,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: const Color(0xFFF0F0F0),
-              width: 1,
-            ),
+            border: Border.all(color: const Color(0xFFF0F0F0), width: 1),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.04),
@@ -845,7 +861,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   side: BorderSide(
-                                    color: Colors.white.withOpacity(0.5), // White glass effect
+                                    color: Colors.white.withOpacity(
+                                      0.5,
+                                    ), // White glass effect
                                     width: 2,
                                   ),
                                   shape: RoundedRectangleBorder(
@@ -876,8 +894,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     dynamic sender,
   ) {
     final String bookingId = note['booking_id']?.toString() ?? '';
-    final String title = (note['title'] ?? 'Booking Approved').toString().replaceAll('✅', '').trim();
-    final String message = (note['message'] ?? '').toString().replaceAll('✅', '').trim();
+    final String title = (note['title'] ?? 'Booking Approved')
+        .toString()
+        .replaceAll('✅', '')
+        .trim();
+    final String message = (note['message'] ?? '')
+        .toString()
+        .replaceAll('✅', '')
+        .trim();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1023,8 +1047,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         .toString()
         .replaceAll('❌', '')
         .trim();
-    final String message =
-        (note['message'] ?? '').toString().replaceAll('❌', '').trim();
+    final String message = (note['message'] ?? '')
+        .toString()
+        .replaceAll('❌', '')
+        .trim();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1580,7 +1606,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     child: Text(
                       'विवरण हेर्नुहोस् (View Details)',
-                      style: GoogleFonts.notoSansDevanagari(fontWeight: FontWeight.bold),
+                      style: GoogleFonts.notoSansDevanagari(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),

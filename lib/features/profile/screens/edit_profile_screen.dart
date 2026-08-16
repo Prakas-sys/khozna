@@ -59,16 +59,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String _kycStatus = 'not_verified';
 
   // 🎨 COLOR PALETTE (60-30-10 Rule)
-  static const Color colorPrimary = Colors.white;              // 60%
-  static const Color colorSecondary = Color(0xFFF7F7F7);     // 30%
-  static const Color colorAccent = AppTheme.brandColor;        // 10%
+  static const Color colorPrimary = Colors.white; // 60%
+  static const Color colorSecondary = Color(0xFFF7F7F7); // 30%
+  static const Color colorAccent = AppTheme.brandColor; // 10%
   static const Color colorTextPrimary = Color(0xFF222222);
   static const Color colorTextSecondary = Color(0xFF717171);
 
   @override
   void initState() {
     super.initState();
-    SecurityUtils.setSecure(true); 
+    SecurityUtils.setSecure(true);
     _loadUserData();
   }
 
@@ -109,13 +109,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         if (mounted) {
           final String profStatus = (profile?['kyc_status'] ?? '').toString();
-          final bool isProfileVerified = profStatus == 'verified' || profStatus == 'approved' || (profile?['is_verified'] as bool? ?? false);
+          final bool isProfileVerified =
+              profStatus == 'verified' ||
+              profStatus == 'approved' ||
+              (profile?['is_verified'] as bool? ?? false);
 
           setState(() {
             _fullNameController.text = profile?['full_name'] ?? '';
             _emailController.text = profile?['email'] ?? user?.email ?? '';
             _phoneController.text = profile?['phone_number'] ?? '';
-            _avatarUrl = profile?['avatar_url'] ??
+            _avatarUrl =
+                profile?['avatar_url'] ??
                 user?.userMetadata?['avatar_url'] ??
                 user?.userMetadata?['picture'];
             _esewaController.text = profile?['esewa_number'] ?? '';
@@ -131,7 +135,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             if (kyc != null) {
               _latitude = (kyc['latitude'] as num?)?.toDouble();
               _longitude = (kyc['longitude'] as num?)?.toDouble();
-              _kycStatus = (isProfileVerified || kyc['status'] == 'verified') ? 'verified' : (kyc['status'] ?? 'pending');
+              _kycStatus = (isProfileVerified || kyc['status'] == 'verified')
+                  ? 'verified'
+                  : (kyc['status'] ?? 'pending');
             } else if (isProfileVerified) {
               _kycStatus = 'verified';
             }
@@ -150,16 +156,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     setState(() => _isLocating = true);
     try {
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
 
       // 1. Persist kyc_status in profiles table permanently
       try {
         await Supabase.instance.client
             .from('profiles')
-            .update({
-              'kyc_status': 'verified',
-            })
+            .update({'kyc_status': 'verified'})
             .eq('id', user!.id);
       } catch (pErr) {
         debugPrint('Profile kyc_status update warning: $pErr');
@@ -183,14 +189,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               })
               .eq('user_id', user!.id);
         } else {
-          await Supabase.instance.client
-              .from('kyc_verifications')
-              .insert({
-                'user_id': user!.id,
-                'latitude': position.latitude,
-                'longitude': position.longitude,
-                'status': 'verified',
-              });
+          await Supabase.instance.client.from('kyc_verifications').insert({
+            'user_id': user!.id,
+            'latitude': position.latitude,
+            'longitude': position.longitude,
+            'status': 'verified',
+          });
         }
       } catch (kycErr) {
         debugPrint('KYC sync non-fatal warning: $kycErr');
@@ -208,7 +212,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.verified_rounded, color: Colors.white, size: 20),
+                const Icon(
+                  Icons.verified_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 const SizedBox(width: 10),
                 Text(
                   'Location verified permanently!',
@@ -222,7 +230,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             backgroundColor: AppTheme.brandColor,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
         );
       }
@@ -237,7 +247,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             backgroundColor: Colors.redAccent,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
         );
       }
@@ -269,25 +281,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       String? qr = _qrCodeUrl;
       String? idCard = _studentIdUrl;
 
-      if (_imageFile != null) avatar = await CloudinaryService.uploadImage(_imageFile!);
+      if (_imageFile != null)
+        avatar = await CloudinaryService.uploadImage(_imageFile!);
       if (_qrFile != null) qr = await CloudinaryService.uploadImage(_qrFile!);
-      if (_idFile != null) idCard = await CloudinaryService.uploadImage(_idFile!);
+      if (_idFile != null)
+        idCard = await CloudinaryService.uploadImage(_idFile!);
 
-      await Supabase.instance.client.from('profiles').update({
-        'full_name': _fullNameController.text.trim(),
-        'avatar_url': avatar,
-        'phone_number': _phoneController.text.trim(),
-        'esewa_number': _esewaController.text.trim(),
-        'khalti_number': _khaltiController.text.trim(),
-        'account_holder_name': _accountNameController.text.trim(),
-        'qr_code_url': qr,
-        'area_name': _areaController.text.trim(),
-        'user_type': _userTypeController.text.trim(),
-        'bio': _bioController.text.trim(),
-        'organization': _orgController.text.trim(),
-        'student_id_url': idCard,
-        'updated_at': DateTime.now().toIso8601String(),
-      }).eq('id', user!.id);
+      await Supabase.instance.client
+          .from('profiles')
+          .update({
+            'full_name': _fullNameController.text.trim(),
+            'avatar_url': avatar,
+            'phone_number': _phoneController.text.trim(),
+            'esewa_number': _esewaController.text.trim(),
+            'khalti_number': _khaltiController.text.trim(),
+            'account_holder_name': _accountNameController.text.trim(),
+            'qr_code_url': qr,
+            'area_name': _areaController.text.trim(),
+            'user_type': _userTypeController.text.trim(),
+            'bio': _bioController.text.trim(),
+            'organization': _orgController.text.trim(),
+            'student_id_url': idCard,
+            'updated_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', user!.id);
 
       if (mounted) {
         HapticFeedback.mediumImpact();
@@ -295,7 +312,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
                 const SizedBox(width: 10),
                 Text(
                   'Profile saved permanently!',
@@ -309,7 +330,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             backgroundColor: AppTheme.brandColor,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -327,7 +350,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             backgroundColor: Colors.redAccent,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
         );
       }
@@ -351,7 +376,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 const SizedBox(height: 12),
                 _buildProfilePhotoSection(),
                 const SizedBox(height: 32),
-                
+
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -359,17 +384,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     children: [
                       _buildAirbnbHeader('Public profile'),
                       const SizedBox(height: 24),
-                      _buildAirbnbField('Full Name / पूरा नाम', _fullNameController, focusNode: _focusNodes['name']),
-                      _buildAirbnbField('Email Address', _emailController, enabled: false),
-                      _buildAirbnbField('Phone Number / फोन नम्बर', _phoneController, keyboardType: TextInputType.phone, focusNode: _focusNodes['phone']),
-                      
+                      _buildAirbnbField(
+                        'Full Name / पूरा नाम',
+                        _fullNameController,
+                        focusNode: _focusNodes['name'],
+                      ),
+                      _buildAirbnbField(
+                        'Email Address',
+                        _emailController,
+                        enabled: false,
+                      ),
+                      _buildAirbnbField(
+                        'Phone Number / फोन नम्बर',
+                        _phoneController,
+                        keyboardType: TextInputType.phone,
+                        focusNode: _focusNodes['phone'],
+                      ),
+
                       const SizedBox(height: 24),
                       _buildAirbnbHeader('Tell your story'),
                       const SizedBox(height: 24),
-                      _buildAirbnbField('Neighborhood / छरछिमेक', _areaController, focusNode: _focusNodes['area']),
-                      _buildAirbnbField('Role', _userTypeController, focusNode: _focusNodes['role']),
-                      _buildAirbnbField('Organization', _orgController, focusNode: _focusNodes['org']),
-                      _buildAirbnbField('Bio / आफ्नो बारेमा', _bioController, maxLines: 4, focusNode: _focusNodes['bio']),
+                      _buildAirbnbField(
+                        'Neighborhood / छरछिमेक',
+                        _areaController,
+                        focusNode: _focusNodes['area'],
+                      ),
+                      _buildAirbnbField(
+                        'Role',
+                        _userTypeController,
+                        focusNode: _focusNodes['role'],
+                      ),
+                      _buildAirbnbField(
+                        'Organization',
+                        _orgController,
+                        focusNode: _focusNodes['org'],
+                      ),
+                      _buildAirbnbField(
+                        'Bio / आफ्नो बारेमा',
+                        _bioController,
+                        maxLines: 4,
+                        focusNode: _focusNodes['bio'],
+                      ),
 
                       const SizedBox(height: 24),
                       _buildSecuritySection(),
@@ -377,13 +432,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                       _buildAirbnbHeader('Payout options'),
                       const SizedBox(height: 24),
-                      _buildAirbnbField('eSewa ID', _esewaController, focusNode: _focusNodes['esewa']),
-                      _buildAirbnbField('Khalti ID', _khaltiController, focusNode: _focusNodes['khalti']),
-                      _buildAirbnbField('Legal Name / कानूनी नाम', _accountNameController, focusNode: _focusNodes['acc']),
-                      
+                      _buildAirbnbField(
+                        'eSewa ID',
+                        _esewaController,
+                        focusNode: _focusNodes['esewa'],
+                      ),
+                      _buildAirbnbField(
+                        'Khalti ID',
+                        _khaltiController,
+                        focusNode: _focusNodes['khalti'],
+                      ),
+                      _buildAirbnbField(
+                        'Legal Name / कानूनी नाम',
+                        _accountNameController,
+                        focusNode: _focusNodes['acc'],
+                      ),
+
                       const SizedBox(height: 16),
                       _buildPremiumMediaGrid(),
-                      
+
                       const SizedBox(height: 48),
                       _buildAirbnbSaveButton(),
                       const SizedBox(height: 80),
@@ -405,7 +472,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.close_rounded, color: colorTextPrimary, size: 22),
+        icon: const Icon(
+          Icons.close_rounded,
+          color: colorTextPrimary,
+          size: 22,
+        ),
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
@@ -438,7 +509,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildAirbnbField(String label, TextEditingController controller, {bool enabled = true, int maxLines = 1, TextInputType keyboardType = TextInputType.text, FocusNode? focusNode}) {
+  Widget _buildAirbnbField(
+    String label,
+    TextEditingController controller, {
+    bool enabled = true,
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+    FocusNode? focusNode,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       child: Column(
@@ -467,8 +545,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             decoration: InputDecoration(
               isDense: true,
               filled: true,
-              fillColor: enabled ? colorPrimary : colorSecondary.withOpacity(0.5),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              fillColor: enabled
+                  ? colorPrimary
+                  : colorSecondary.withOpacity(0.5),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
@@ -479,9 +562,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: colorTextPrimary, width: 1.5),
+                borderSide: const BorderSide(
+                  color: colorTextPrimary,
+                  width: 1.5,
+                ),
               ),
-              suffixIcon: !enabled ? const Icon(Icons.lock_outline_rounded, size: 16, color: colorTextSecondary) : null,
+              suffixIcon: !enabled
+                  ? const Icon(
+                      Icons.lock_outline_rounded,
+                      size: 16,
+                      color: colorTextSecondary,
+                    )
+                  : null,
             ),
           ),
         ],
@@ -493,22 +585,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Center(
       child: Stack(
         children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: colorSecondary,
-              image: _imageFile != null
-                  ? DecorationImage(image: FileImage(_imageFile!), fit: BoxFit.cover)
-                  : (_avatarUrl != null
-                      ? DecorationImage(image: NetworkImage(_avatarUrl!), fit: BoxFit.cover)
-                      : null),
-            ),
-            child: (_avatarUrl == null && _imageFile == null)
-                ? const Icon(Icons.person_rounded, color: Colors.grey, size: 50)
-                : null,
-          ),
+          _imageFile != null
+              ? Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: FileImage(_imageFile!),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )
+              : AppTheme.buildAvatarWidget(
+                  avatarUrl: _avatarUrl,
+                  radius: 60,
+                  name: _fullNameController.text,
+                ),
           Positioned(
             bottom: 0,
             right: 0,
@@ -521,7 +614,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   shape: BoxShape.circle,
                   border: Border.all(color: colorPrimary, width: 3),
                 ),
-                child: const Icon(Icons.camera_alt_rounded, color: colorPrimary, size: 16),
+                child: const Icon(
+                  Icons.camera_alt_rounded,
+                  color: colorPrimary,
+                  size: 16,
+                ),
               ),
             ),
           ),
@@ -532,8 +629,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Widget _buildSecuritySection() {
     // Treat as verified if status is verified OR if a location was JUST captured
-    final bool isVerified = _kycStatus == 'verified' || (_latitude != null && _longitude != null);
-    
+    final bool isVerified =
+        _kycStatus == 'verified' || (_latitude != null && _longitude != null);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -560,18 +658,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: isVerified ? AppTheme.brandColor.withOpacity(0.1) : const Color(0xFFFFF1F1),
+                  color: isVerified
+                      ? AppTheme.brandColor.withOpacity(0.1)
+                      : const Color(0xFFFFF1F1),
                   borderRadius: BorderRadius.circular(100),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      isVerified ? Icons.verified_rounded : Icons.info_outline_rounded,
+                      isVerified
+                          ? Icons.verified_rounded
+                          : Icons.info_outline_rounded,
                       size: 14,
-                      color: isVerified ? AppTheme.brandColor : const Color(0xFFC13511),
+                      color: isVerified
+                          ? AppTheme.brandColor
+                          : const Color(0xFFC13511),
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -579,7 +686,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: isVerified ? AppTheme.brandColor : const Color(0xFFC13511),
+                        color: isVerified
+                            ? AppTheme.brandColor
+                            : const Color(0xFFC13511),
                       ),
                     ),
                   ],
@@ -589,9 +698,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            isVerified 
-              ? 'Your identity is confirmed. This builds trust with other Khozna users.' 
-              : 'Complete your profile security by pinning your location for local verification.',
+            isVerified
+                ? 'Your identity is confirmed. This builds trust with other Khozna users.'
+                : 'Complete your profile security by pinning your location for local verification.',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: colorTextSecondary,
@@ -604,15 +713,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: _isLocating ? null : _updateLocation,
-              icon: _isLocating 
-                ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: colorTextPrimary))
-                : Icon(isVerified ? Icons.refresh_rounded : Icons.location_on_rounded, size: 18),
-              label: Text(_isLocating ? 'Capturing...' : (isVerified ? 'Location Updated' : 'Pin My Location')),
+              icon: _isLocating
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colorTextPrimary,
+                      ),
+                    )
+                  : Icon(
+                      isVerified
+                          ? Icons.refresh_rounded
+                          : Icons.location_on_rounded,
+                      size: 18,
+                    ),
+              label: Text(
+                _isLocating
+                    ? 'Capturing...'
+                    : (isVerified ? 'Location Updated' : 'Pin My Location'),
+              ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: colorTextPrimary,
                 side: const BorderSide(color: colorTextPrimary),
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700),
               ),
             ),
@@ -638,14 +765,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget _buildPremiumMediaGrid() {
     return Row(
       children: [
-        Expanded(child: _buildAirbnbMediaTile('PAYMENT QR', _qrFile, _qrCodeUrl, _pickQrCode)),
+        Expanded(
+          child: _buildAirbnbMediaTile(
+            'PAYMENT QR',
+            _qrFile,
+            _qrCodeUrl,
+            _pickQrCode,
+          ),
+        ),
         const SizedBox(width: 16),
-        Expanded(child: _buildAirbnbMediaTile('STUDENT ID', _idFile, _studentIdUrl, _pickStudentId)),
+        Expanded(
+          child: _buildAirbnbMediaTile(
+            'STUDENT ID',
+            _idFile,
+            _studentIdUrl,
+            _pickStudentId,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildAirbnbMediaTile(String label, File? file, String? url, VoidCallback onTap) {
+  Widget _buildAirbnbMediaTile(
+    String label,
+    File? file,
+    String? url,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -671,9 +817,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: (file != null || url != null)
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: file != null 
-                      ? Image.file(file, fit: BoxFit.cover) 
-                      : KhoznaImage(imageUrl: url!, fit: BoxFit.cover),
+                    child: file != null
+                        ? Image.file(file, fit: BoxFit.cover)
+                        : KhoznaImage(imageUrl: url!, fit: BoxFit.cover),
                   )
                 : const Icon(Icons.add_rounded, color: colorTextSecondary),
           ),
@@ -697,14 +843,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           foregroundColor: Colors.white,
           shadowColor: Colors.transparent,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         child: Text(
           'Update Profile',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w700,
-            fontSize: 17,
-          ),
+          style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 17),
         ),
       ),
     );
@@ -714,7 +859,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Container(
       color: Colors.white.withOpacity(0.8),
       child: const Center(
-        child: CircularProgressIndicator(color: colorTextPrimary, strokeWidth: 3),
+        child: CircularProgressIndicator(
+          color: colorTextPrimary,
+          strokeWidth: 3,
+        ),
       ),
     );
   }

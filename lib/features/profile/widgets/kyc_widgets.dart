@@ -150,9 +150,7 @@ class PhotoUploadBox extends StatelessWidget {
           color: uploaded ? const Color(0xFFF0FDF4) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: uploaded
-                ? const Color(0xFF86EFAC)
-                : const Color(0xFFE5E7EB),
+            color: uploaded ? const Color(0xFF86EFAC) : const Color(0xFFE5E7EB),
             width: 1.2,
           ),
         ),
@@ -162,12 +160,7 @@ class PhotoUploadBox extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: uploaded
-                  ? Image.file(
-                      image!,
-                      height: 64,
-                      width: 64,
-                      fit: BoxFit.cover,
-                    )
+                  ? Image.file(image!, height: 64, width: 64, fit: BoxFit.cover)
                   : Container(
                       height: 64,
                       width: 64,
@@ -216,9 +209,7 @@ class PhotoUploadBox extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
-                color: uploaded
-                    ? const Color(0xFF22C55E)
-                    : AppTheme.brandColor,
+                color: uploaded ? const Color(0xFF22C55E) : AppTheme.brandColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -307,8 +298,11 @@ class KycTextField extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.check_circle_rounded,
-                        color: Color(0xFF16A34A), size: 11),
+                    const Icon(
+                      Icons.check_circle_rounded,
+                      color: Color(0xFF16A34A),
+                      size: 11,
+                    ),
                     const SizedBox(width: 3),
                     Text(
                       'Verified',
@@ -358,15 +352,24 @@ class KycTextField extends StatelessWidget {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1.0),
+              borderSide: const BorderSide(
+                color: Color(0xFFE5E7EB),
+                width: 1.0,
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.5),
+              borderSide: const BorderSide(
+                color: AppTheme.brandColor,
+                width: 1.5,
+              ),
             ),
             disabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFF3F4F6), width: 1.0),
+              borderSide: const BorderSide(
+                color: Color(0xFFF3F4F6),
+                width: 1.0,
+              ),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -382,4 +385,3 @@ class KycTextField extends StatelessWidget {
     );
   }
 }
-

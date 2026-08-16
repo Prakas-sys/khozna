@@ -64,7 +64,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         VoteRepository.getVoteCount(widget.ownerId),
         Supabase.instance.client
             .from('profiles')
-            .select('created_at, area_name, bio, phone_number, email, user_type, organization, avatar_url, kyc_status, is_verified')
+            .select(
+              'created_at, area_name, bio, phone_number, email, user_type, organization, avatar_url, kyc_status, is_verified',
+            )
             .eq('id', widget.ownerId)
             .maybeSingle(),
         BookingRepository.fetchReviewsForOwner(widget.ownerId),
@@ -79,7 +81,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               final date = DateTime.parse(profileData['created_at']);
               _joinedDate = DateFormat('MMMM yyyy').format(date);
             }
-            if (profileData['area_name'] != null && profileData['area_name'].toString().isNotEmpty) {
+            if (profileData['area_name'] != null &&
+                profileData['area_name'].toString().isNotEmpty) {
               _realLocation = profileData['area_name'].toString();
             }
             _bio = profileData['bio'] as String?;
@@ -87,11 +90,16 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             _email = profileData['email'] as String?;
             _userType = profileData['user_type'] as String?;
             _organization = profileData['organization'] as String?;
-            if (profileData['avatar_url'] != null && profileData['avatar_url'].toString().isNotEmpty) {
+            if (profileData['avatar_url'] != null &&
+                profileData['avatar_url'].toString().isNotEmpty) {
               _fetchedAvatar = profileData['avatar_url'].toString();
             }
-            final String profStatus = (profileData['kyc_status'] ?? '').toString();
-            _isProfileVerified = profStatus == 'verified' || profStatus == 'approved' || (profileData['is_verified'] as bool? ?? widget.isVerified);
+            final String profStatus = (profileData['kyc_status'] ?? '')
+                .toString();
+            _isProfileVerified =
+                profStatus == 'verified' ||
+                profStatus == 'approved' ||
+                (profileData['is_verified'] as bool? ?? widget.isVerified);
           }
           _ownerReviews = results[2] as List<ReviewModel>;
           _isLoadingReviews = false;
@@ -112,7 +120,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final double avgRating = _ownerReviews.isNotEmpty
-        ? (_ownerReviews.map((e) => e.rating).reduce((a, b) => a + b) / _ownerReviews.length)
+        ? (_ownerReviews.map((e) => e.rating).reduce((a, b) => a + b) /
+              _ownerReviews.length)
         : 4.0;
 
     return Scaffold(
@@ -172,23 +181,23 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             decoration: const BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: LinearGradient(
-                                colors: [AppTheme.brandColor, AppTheme.brandColor],
+                                colors: [
+                                  AppTheme.brandColor,
+                                  AppTheme.brandColor,
+                                ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
                             ),
-                             child: () {
-                                final displayAvatar = (_fetchedAvatar != null && _fetchedAvatar!.isNotEmpty)
-                                    ? _fetchedAvatar!
-                                    : widget.avatar;
-                                final bool hasValidAvatar = displayAvatar.isNotEmpty && !displayAvatar.contains('pravatar.cc');
-                                return CircleAvatar(
-                                  radius: 36,
-                                  backgroundColor: const Color(0xFFF1F5F9),
-                                  backgroundImage: hasValidAvatar ? CachedNetworkImageProvider(displayAvatar) : null,
-                                  child: !hasValidAvatar ? const Icon(Icons.person, size: 36, color: Colors.grey) : null,
-                                );
-                              }(),
+                            child: AppTheme.buildAvatarWidget(
+                              avatarUrl:
+                                  (_fetchedAvatar != null &&
+                                      _fetchedAvatar!.isNotEmpty)
+                                  ? _fetchedAvatar
+                                  : widget.avatar,
+                              radius: 36,
+                              name: widget.name,
+                            ),
                           ),
                           if (_isProfileVerified)
                             Positioned(
@@ -227,7 +236,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                             ),
                             const SizedBox(height: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppTheme.brandColor.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(20),
@@ -235,7 +247,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.shield_rounded, size: 12, color: AppTheme.brandColor),
+                                  const Icon(
+                                    Icons.shield_rounded,
+                                    size: 12,
+                                    color: AppTheme.brandColor,
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     'Verified Owner',
@@ -260,13 +276,25 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildPassportStat('${_ownerReviews.length}', 'Reviews'),
-                      Container(height: 28, width: 1, color: const Color(0xFFE2E8F0)),
+                      Container(
+                        height: 28,
+                        width: 1,
+                        color: const Color(0xFFE2E8F0),
+                      ),
                       _buildPassportStat(
                         avgRating.toStringAsFixed(1),
                         'Rating',
-                        suffixIcon: const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+                        suffixIcon: const Icon(
+                          Icons.star_rounded,
+                          color: Colors.amber,
+                          size: 16,
+                        ),
                       ),
-                      Container(height: 28, width: 1, color: const Color(0xFFE2E8F0)),
+                      Container(
+                        height: 28,
+                        width: 1,
+                        color: const Color(0xFFE2E8F0),
+                      ),
                       _buildPassportStat(
                         '${widget.totalListings > 0 ? widget.totalListings : 1}',
                         'Listings',
@@ -312,15 +340,25 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     const Divider(color: Color(0xFFF1F5F9)),
                     const SizedBox(height: 14),
                   ],
-                  if (_realLocation.isNotEmpty && _realLocation != 'Unknown') ...[
-                    _buildAboutMetaItem(Icons.location_on_outlined, _realLocation),
+                  if (_realLocation.isNotEmpty &&
+                      _realLocation != 'Unknown') ...[
+                    _buildAboutMetaItem(
+                      Icons.location_on_outlined,
+                      _realLocation,
+                    ),
                     const SizedBox(height: 12),
                   ],
                   if (_organization != null && _organization!.isNotEmpty) ...[
-                    _buildAboutMetaItem(Icons.work_outline_rounded, _organization!),
+                    _buildAboutMetaItem(
+                      Icons.work_outline_rounded,
+                      _organization!,
+                    ),
                     const SizedBox(height: 12),
                   ],
-                  _buildAboutMetaItem(Icons.calendar_month_outlined, 'Joined in $_joinedDate'),
+                  _buildAboutMetaItem(
+                    Icons.calendar_month_outlined,
+                    'Joined in $_joinedDate',
+                  ),
                 ],
               ),
             ),
@@ -348,11 +386,23 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 children: [
                   _buildConfirmedInfoRow('Identity Verified', true),
                   const SizedBox(height: 14),
-                  _buildConfirmedInfoRow('Phone Number Confirmed', (widget.name.toLowerCase().contains('khozna') || (_phoneNumber != null && _phoneNumber!.isNotEmpty))),
+                  _buildConfirmedInfoRow(
+                    'Phone Number Confirmed',
+                    (widget.name.toLowerCase().contains('khozna') ||
+                        (_phoneNumber != null && _phoneNumber!.isNotEmpty)),
+                  ),
                   const SizedBox(height: 14),
-                  _buildConfirmedInfoRow('Email Address Confirmed', (widget.name.toLowerCase().contains('khozna') || (_email != null && _email!.isNotEmpty))),
+                  _buildConfirmedInfoRow(
+                    'Email Address Confirmed',
+                    (widget.name.toLowerCase().contains('khozna') ||
+                        (_email != null && _email!.isNotEmpty)),
+                  ),
                   const SizedBox(height: 14),
-                  _buildConfirmedInfoRow('Active Property Listings', widget.totalListings > 0 || widget.name.toLowerCase().contains('khozna')),
+                  _buildConfirmedInfoRow(
+                    'Active Property Listings',
+                    widget.totalListings > 0 ||
+                        widget.name.toLowerCase().contains('khozna'),
+                  ),
                 ],
               ),
             ),
@@ -383,7 +433,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         'assets/icons/Message neww.svg',
                         width: 18,
                         height: 18,
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        colorFilter: const ColorFilter.mode(
+                          Colors.white,
+                          BlendMode.srcIn,
+                        ),
                       ),
                       label: Text(
                         'Send Message',
@@ -394,7 +447,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.brandColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
                         elevation: 0,
                       ),
                     ),
@@ -410,7 +465,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     border: Border.all(color: Colors.grey.shade200),
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.share_outlined, color: Colors.black87, size: 20),
+                    icon: const Icon(
+                      Icons.share_outlined,
+                      color: Colors.black87,
+                      size: 20,
+                    ),
                     onPressed: () {
                       HapticFeedback.mediumImpact();
                       // Share implementation
@@ -430,7 +489,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             Center(
               child: TextButton.icon(
                 onPressed: () => _showReportDialog(context),
-                icon: Icon(Icons.gpp_maybe_rounded, size: 16, color: Colors.grey.shade400),
+                icon: Icon(
+                  Icons.gpp_maybe_rounded,
+                  size: 16,
+                  color: Colors.grey.shade400,
+                ),
                 label: Text(
                   'Report this landlord',
                   style: GoogleFonts.plusJakartaSans(
@@ -467,10 +530,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 height: 1,
               ),
             ),
-            if (suffixIcon != null) ...[
-              const SizedBox(width: 3),
-              suffixIcon,
-            ],
+            if (suffixIcon != null) ...[const SizedBox(width: 3), suffixIcon],
           ],
         ),
         const SizedBox(height: 4),
@@ -507,7 +567,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     return Row(
       children: [
         Icon(
-          isConfirmed ? Icons.check_circle_rounded : Icons.radio_button_off_rounded,
+          isConfirmed
+              ? Icons.check_circle_rounded
+              : Icons.radio_button_off_rounded,
           color: isConfirmed ? const Color(0xFF00C853) : Colors.grey[300],
           size: 20,
         ),
@@ -614,7 +676,13 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  Widget _buildHeaderStatGrid(String label, IconData icon, {String? subLabel, Color? iconColor, Color? bgColor}) {
+  Widget _buildHeaderStatGrid(
+    String label,
+    IconData icon, {
+    String? subLabel,
+    Color? iconColor,
+    Color? bgColor,
+  }) {
     return Row(
       children: [
         Container(
@@ -623,7 +691,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             color: bgColor ?? const Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: iconColor ?? const Color(0xFF64748B), size: 18),
+          child: Icon(
+            icon,
+            color: iconColor ?? const Color(0xFF64748B),
+            size: 18,
+          ),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -657,7 +729,12 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     );
   }
 
-  Widget _buildStatsRowItem(String label, String value, IconData? icon, {bool isJoined = false}) {
+  Widget _buildStatsRowItem(
+    String label,
+    String value,
+    IconData? icon, {
+    bool isJoined = false,
+  }) {
     return Column(
       children: [
         if (icon != null)
@@ -681,16 +758,18 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         Text(
           label,
           textAlign: TextAlign.center,
-          style: isJoined ? GoogleFonts.notoSans(
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: Colors.grey[500],
-          ) : GoogleFonts.mukta(
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[500],
-            height: 1.2,
-          ),
+          style: isJoined
+              ? GoogleFonts.notoSans(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey[500],
+                )
+              : GoogleFonts.mukta(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[500],
+                  height: 1.2,
+                ),
         ),
       ],
     );
@@ -762,7 +841,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         ),
         const SizedBox(height: 16),
         if (_ownerReviews.isEmpty)
-           const SizedBox.shrink()
+          const SizedBox.shrink()
         else
           ListView.separated(
             shrinkWrap: true,
@@ -788,7 +867,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     final comment = review.comment ?? '';
     final List<String> tags = [];
     String description = comment;
-    
+
     final tagRegex = RegExp(r'\[(.*?)\]');
     final matches = tagRegex.allMatches(comment);
     for (var m in matches) {
@@ -799,9 +878,15 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
     description = comment.replaceAll(tagRegex, '').trim();
 
     final isPositive = review.rating >= 3;
-    final tagBgColor = isPositive ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE);
-    final tagTextColor = isPositive ? const Color(0xFF2E7D32) : const Color(0xFFC62828);
-    final tagBorderColor = isPositive ? const Color(0xFFC8E6C9) : const Color(0xFFFFCDD2);
+    final tagBgColor = isPositive
+        ? const Color(0xFFE8F5E9)
+        : const Color(0xFFFFEBEE);
+    final tagTextColor = isPositive
+        ? const Color(0xFF2E7D32)
+        : const Color(0xFFC62828);
+    final tagBorderColor = isPositive
+        ? const Color(0xFFC8E6C9)
+        : const Color(0xFFFFCDD2);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -825,7 +910,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               CircleAvatar(
                 radius: 16,
                 backgroundColor: const Color(0xFFF1F5F9),
-                backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
+                backgroundImage:
+                    (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
                     ? NetworkImage(avatar)
                     : null,
                 child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
@@ -875,7 +961,9 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
               Row(
                 children: List.generate(5, (starIdx) {
                   return Icon(
-                    starIdx < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
+                    starIdx < review.rating
+                        ? Icons.star_rounded
+                        : Icons.star_border_rounded,
                     color: Colors.amber,
                     size: 13,
                   );
@@ -888,22 +976,29 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             Wrap(
               spacing: 6,
               runSpacing: 6,
-              children: tags.map((t) => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: tagBgColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: tagBorderColor, width: 0.8),
-                ),
-                child: Text(
-                  t,
-                  style: GoogleFonts.mukta(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: tagTextColor,
-                  ),
-                ),
-              )).toList(),
+              children: tags
+                  .map(
+                    (t) => Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: tagBgColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: tagBorderColor, width: 0.8),
+                      ),
+                      child: Text(
+                        t,
+                        style: GoogleFonts.mukta(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: tagTextColor,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ],
           if (description.isNotEmpty) ...[
