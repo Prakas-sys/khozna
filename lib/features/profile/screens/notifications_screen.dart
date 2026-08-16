@@ -85,34 +85,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       // 2. Synthesize Owner Requests
       final ownerRequests = await SupabaseService.getVisitRequestsForOwner();
       for (final req in ownerRequests) {
-        final bId = req['id']?.toString() ?? '';
+        final bId = req.id;
         final existing = combined.any((n) => n['booking_id']?.toString() == bId);
         if (!existing && bId.isNotEmpty) {
-          final guestName = req['guest']?['full_name'] ?? 'A Guest';
-          final propTitle = req['properties']?['title'] ?? 'your property';
-          final status = req['status']?.toString() ?? '';
-          final timeStr = req['created_at']?.toString() ?? DateTime.now().toIso8601String();
+          final propTitle = req.propertyTitle ?? 'Your Property';
+          final status = req.status;
+          final timeStr = req.createdAt.toIso8601String();
 
           if (status == 'pending_approval') {
             combined.add({
               'id': 'synth_owner_$bId',
               'booking_id': bId,
-              'property_id': req['property_id'],
+              'property_id': req.propertyId,
               'title': 'नयाँ बुकिङ अनुरोध (New Booking Request)',
-              'message': '$guestName ले "$propTitle" को लागी अनुरोध गर्नुभएको छ।',
+              'message': 'नयाँ बुकिङ अनुरोध आयाे "$propTitle" को लागी।',
               'type': 'booking_request',
-              'sender': req['guest'],
+              'sender': {'id': req.guestId, 'full_name': 'Guest'},
               'created_at': timeStr,
             });
           } else if (status == 'paid') {
             combined.add({
               'id': 'synth_owner_$bId',
               'booking_id': bId,
-              'property_id': req['property_id'],
+              'property_id': req.propertyId,
               'title': 'नयाँ भुक्तानी प्राप्त (Payment Received! 💸)',
-              'message': '$guestName ले "$propTitle" को लागी भुक्तानी पेस गर्नुभएको छ।',
+              'message': 'कोठा ("$propTitle") को लागी भुक्तानी प्राप्त भएको छ।',
               'type': 'payment_received',
-              'sender': req['guest'],
+              'sender': {'id': req.guestId, 'full_name': 'Guest'},
               'created_at': timeStr,
             });
           }

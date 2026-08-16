@@ -685,25 +685,25 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           widget.property.title,
           textAlign: TextAlign.center,
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 26,
-            fontWeight: FontWeight.w900,
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
             color: Colors.black,
-            letterSpacing: -0.8,
+            letterSpacing: -0.4,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         // Location Inline
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.location_on_rounded, color: Color(0xFF00A3E1), size: 18),
+            const Icon(Icons.location_on_rounded, color: Color(0xFF00A3E1), size: 15),
             const SizedBox(width: 4),
             Text(
               widget.property.location,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 15,
+                fontSize: 13,
                 color: _airbnbGrey,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -1887,10 +1887,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       Text(
                         isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: isNegotiable ? 17 : 21,
+                          fontSize: isNegotiable ? 15 : 18,
                           fontWeight: FontWeight.w800,
                           color: Colors.black,
-                          letterSpacing: -0.6,
+                          letterSpacing: -0.5,
                           decoration: isNegotiable ? TextDecoration.none : TextDecoration.underline,
                           decorationColor: Colors.black,
                           decorationThickness: 1.5,

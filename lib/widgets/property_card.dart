@@ -607,7 +607,7 @@ class PropertyCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
                 fontSize: 13,
-                color: Colors.grey[800],
+                color: const Color(0xFF717171),
                 fontWeight: FontWeight.w600,
               ),
             ),
