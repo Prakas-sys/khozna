@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/models/booking_model.dart';
@@ -197,37 +198,24 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 children: [
                   Row(
                     children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: const BoxDecoration(
-                          color: Colors.black,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'K',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
+                      const Icon(
+                        Icons.receipt_long_rounded,
+                        color: Colors.black87,
+                        size: 20,
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'KHOZNA BILL',
+                        'BOOKING SUMMARY',
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.2,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
                           color: Colors.black87,
                         ),
                       ),
                     ],
                   ),
-                  // Safety Guarantee Badge (placed right in receipt summary)
+                  // Safety Guarantee Badge
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -291,7 +279,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               // Total Amount Line
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,24 +305,25 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     ],
                   ),
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(
-                        'NPR ',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[500],
+                      SvgPicture.asset(
+                        'assets/icons/vector of ruppes.svg',
+                        width: 22,
+                        height: 22,
+                        colorFilter: const ColorFilter.mode(
+                          Colors.black,
+                          BlendMode.srcIn,
                         ),
                       ),
+                      const SizedBox(width: 4),
                       Text(
                         amountStr,
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 28,
+                          fontSize: 26,
                           fontWeight: FontWeight.w900,
                           color: Colors.black,
-                          letterSpacing: -1,
+                          letterSpacing: -0.8,
                         ),
                       ),
                     ],
@@ -717,7 +706,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   Widget _buildSubmitButton() {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 52,
       child: ElevatedButton(
         onPressed: _isSubmitting ? null : _proceed,
         style: ElevatedButton.styleFrom(
@@ -725,12 +714,20 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           disabledBackgroundColor: Colors.grey[300],
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
           elevation: 0,
+          padding: EdgeInsets.zero,
         ),
         child: _isSubmitting
             ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-            : Text(
-                _paymentDestination == 'owner' ? 'Confirm Payment' : 'Submit Proof',
-                style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800, fontSize: 15, color: Colors.white),
+            : Center(
+                child: Text(
+                  _paymentDestination == 'owner' ? 'Confirm Payment' : 'Submit Proof',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    color: Colors.white,
+                    height: 1.0,
+                  ),
+                ),
               ),
       ),
     );
