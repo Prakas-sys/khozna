@@ -831,7 +831,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 onPressed: () async {
                   final result = await Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const KycScreen()),
+                    MaterialPageRoute(builder: (_) => KycScreen()),
                   );
                   if (result == true) _loadUserData();
                 },

@@ -2051,6 +2051,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppTheme.brandColor,
           foregroundColor: Colors.white,
+          shadowColor: Colors.transparent,
+          overlayColor: Colors.white.withValues(alpha: 0.08),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 36),
