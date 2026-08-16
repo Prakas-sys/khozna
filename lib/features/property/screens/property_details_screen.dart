@@ -1184,8 +1184,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildLocationSection() {
-    final locationText = widget.property.location;
-    final landmarkText = widget.property.landmark;
+    final subLocationText = widget.property.landmark.isNotEmpty
+        ? widget.property.landmark
+        : (widget.property.areaName.isNotEmpty
+              ? widget.property.areaName
+              : widget.property.location);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1202,7 +1205,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             const SizedBox(width: 6),
             Expanded(
               child: Text(
-                locationText,
+                subLocationText,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -1212,20 +1215,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
           ],
         ),
-        if (landmarkText.isNotEmpty) ...[
-          const SizedBox(height: 4),
-          Padding(
-            padding: const EdgeInsets.only(left: 24),
-            child: Text(
-              'Near $landmarkText',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
-              ),
-            ),
-          ),
-        ],
         const SizedBox(height: 16),
         // Airbnb-style Interactive Map Card
         GestureDetector(
@@ -1305,23 +1294,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     ),
                   ),
 
-                  // Bottom Right "Get Directions" Action Pill
+                  // Bottom Right Modern "GO" Navigation Pill
                   Positioned(
                     bottom: 12,
                     right: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
+                        horizontal: 16,
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppTheme.brandColor,
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: AppTheme.brandColor.withOpacity(0.4),
                             blurRadius: 10,
-                            offset: const Offset(0, 2),
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
@@ -1329,17 +1318,18 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           const Icon(
-                            Icons.directions_outlined,
-                            color: AppTheme.brandColor,
-                            size: 16,
+                            Icons.near_me_rounded,
+                            color: Colors.white,
+                            size: 15,
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Get Directions',
+                            'GO',
                             style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.black87,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
                             ),
                           ),
                         ],
