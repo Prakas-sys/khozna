@@ -150,24 +150,44 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
 
-      // Upsert to kyc_verifications table so it creates or updates
-      await Supabase.instance.client
-          .from('kyc_verifications')
-          .upsert({
-            'user_id': user!.id,
-            'latitude': position.latitude,
-            'longitude': position.longitude,
-            'status': 'verified',
-            'updated_at': DateTime.now().toIso8601String(),
-          });
-
-      // Also persist is_verified in profiles table permanently
+      // 1. Persist is_verified in profiles table permanently
       await Supabase.instance.client
           .from('profiles')
           .update({
             'is_verified': true,
           })
           .eq('id', user!.id);
+
+      // 2. Sync to kyc_verifications table without non-existent updated_at column
+      try {
+        final existingKyc = await Supabase.instance.client
+            .from('kyc_verifications')
+            .select('id')
+            .eq('user_id', user!.id)
+            .maybeSingle();
+
+        if (existingKyc != null) {
+          await Supabase.instance.client
+              .from('kyc_verifications')
+              .update({
+                'latitude': position.latitude,
+                'longitude': position.longitude,
+                'status': 'verified',
+              })
+              .eq('user_id', user!.id);
+        } else {
+          await Supabase.instance.client
+              .from('kyc_verifications')
+              .insert({
+                'user_id': user!.id,
+                'latitude': position.latitude,
+                'longitude': position.longitude,
+                'status': 'verified',
+              });
+        }
+      } catch (kycErr) {
+        debugPrint('KYC sync non-fatal warning: $kycErr');
+      }
 
       if (mounted) {
         setState(() {
