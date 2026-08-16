@@ -624,7 +624,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           children: [
             _buildAvatarChip(
               label: '👨 Man Avatar',
-              isSelected: _avatarUrl == 'assets/images/man avatar.jpeg' && _imageFile == null,
+              isSelected:
+                  _avatarUrl == 'assets/images/man avatar.jpeg' &&
+                  _imageFile == null,
               onTap: () {
                 setState(() {
                   _imageFile = null;
@@ -636,7 +638,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(width: 10),
             _buildAvatarChip(
               label: '👩 Woman Avatar',
-              isSelected: _avatarUrl == 'assets/images/women avatar.jpeg' && _imageFile == null,
+              isSelected:
+                  _avatarUrl == 'assets/images/women avatar.jpeg' &&
+                  _imageFile == null,
               onTap: () {
                 setState(() {
                   _imageFile = null;
@@ -710,13 +714,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: isVerified
                       ? AppTheme.brandColor.withOpacity(0.1)
                       : _kycStatus == 'pending'
-                          ? const Color(0xFFFFF8E1)
-                          : const Color(0xFFFFF1F1),
+                      ? const Color(0xFFFFF8E1)
+                      : const Color(0xFFFFF1F1),
                   borderRadius: BorderRadius.circular(100),
                 ),
                 child: Row(
@@ -726,30 +733,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       isVerified
                           ? Icons.verified_rounded
                           : _kycStatus == 'pending'
-                              ? Icons.hourglass_top_rounded
-                              : Icons.info_outline_rounded,
+                          ? Icons.hourglass_top_rounded
+                          : Icons.info_outline_rounded,
                       size: 14,
                       color: isVerified
                           ? AppTheme.brandColor
                           : _kycStatus == 'pending'
-                              ? const Color(0xFFF59E0B)
-                              : const Color(0xFFC13511),
+                          ? const Color(0xFFF59E0B)
+                          : const Color(0xFFC13511),
                     ),
                     const SizedBox(width: 4),
                     Text(
                       isVerified
                           ? 'Verified'
                           : _kycStatus == 'pending'
-                              ? 'Under Review'
-                              : 'Not Verified',
+                          ? 'Under Review'
+                          : 'Not Verified',
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
                         color: isVerified
                             ? AppTheme.brandColor
                             : _kycStatus == 'pending'
-                                ? const Color(0xFFF59E0B)
-                                : const Color(0xFFC13511),
+                            ? const Color(0xFFF59E0B)
+                            : const Color(0xFFC13511),
                       ),
                     ),
                   ],
@@ -762,8 +769,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             isVerified
                 ? 'Your identity is confirmed. This builds trust with other Khozna users.'
                 : _kycStatus == 'pending'
-                    ? 'Your KYC documents are under review. We\'ll notify you once approved.'
-                    : 'Submit your citizenship documents, selfie, and location to get verified.',
+                ? 'Your KYC documents are under review. We\'ll notify you once approved.'
+                : 'Submit your citizenship documents, selfie, and location to get verified.',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: colorTextSecondary,
@@ -796,7 +803,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               label: Text(
                 _isLocating
                     ? 'Capturing...'
-                    : (_latitude != null ? 'Update Location' : 'Pin My Location'),
+                    : (_latitude != null
+                          ? 'Update Location'
+                          : 'Pin My Location'),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: colorTextPrimary,

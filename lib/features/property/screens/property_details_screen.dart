@@ -79,9 +79,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     : url,
               )
               .toList()
-        : [widget.property.imageUrl.contains('cloudinary.com') 
-            ? widget.property.imageUrl.replaceAll('/upload/', '/upload/f_auto,q_auto,w_1080,c_limit/')
-            : widget.property.imageUrl];
+        : [
+            widget.property.imageUrl.contains('cloudinary.com')
+                ? widget.property.imageUrl.replaceAll(
+                    '/upload/',
+                    '/upload/f_auto,q_auto,w_1080,c_limit/',
+                  )
+                : widget.property.imageUrl,
+          ];
 
     // 🚀 Performance: Load everything in parallel
     Future.wait([
@@ -90,7 +95,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       _loadReviews(),
       _preInitVideo(),
     ]);
-    
+
     _incrementViews();
   }
 
@@ -106,7 +111,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (widget.property.videoUrl.isNotEmpty) {
       String optimizedUrl = widget.property.videoUrl;
       if (optimizedUrl.contains('cloudinary.com')) {
-        optimizedUrl = optimizedUrl.replaceAll('/upload/', '/upload/f_auto,q_auto/');
+        optimizedUrl = optimizedUrl.replaceAll(
+          '/upload/',
+          '/upload/f_auto,q_auto/',
+        );
       }
       _preVideoController = VideoPlayerController.networkUrl(
         Uri.parse(optimizedUrl),
@@ -181,7 +189,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   void _startVisitTimer() {
     _visitTimer?.cancel();
     if (_pendingBookingCheckIn == null) return;
-    
+
     final now = DateTime.now();
     if (_pendingBookingCheckIn!.isAfter(now)) {
       _timeUntilVisit = _pendingBookingCheckIn!.difference(now);
@@ -213,7 +221,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Future<void> _loadReviews() async {
     try {
-      final reviews = await BookingRepository.fetchReviewsForProperty(widget.property.id);
+      final reviews = await BookingRepository.fetchReviewsForProperty(
+        widget.property.id,
+      );
       if (mounted) {
         setState(() {
           _reviews = reviews;
@@ -256,9 +266,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               delegate: SliverChildListDelegate([
                 _buildHeader(),
                 const SizedBox(height: 16),
-                const Divider(height: 1, thickness: 0.5, color: Color(0xFFE2E8F0)),
+                const Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  color: Color(0xFFE2E8F0),
+                ),
                 _buildOwnerRow(),
-                const Divider(height: 1, thickness: 0.5, color: Color(0xFFE2E8F0)),
+                const Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  color: Color(0xFFE2E8F0),
+                ),
                 const SizedBox(height: 24),
                 if (widget.property.amenities.isNotEmpty) ...[
                   const DetailSectionTitle(title: 'Our Facilities'),
@@ -273,14 +291,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 _buildMapPreview(),
                 const SizedBox(height: 24),
                 if (widget.property.houseRules.isNotEmpty) ...[
-                  DetailSectionTitle(title: 'नियमहरू (${widget.property.category} Rules)'),
+                  DetailSectionTitle(
+                    title: 'नियमहरू (${widget.property.category} Rules)',
+                  ),
                   const SizedBox(height: 12),
                   ...widget.property.houseRules.map((rule) {
                     final data = _getFeatureData(rule);
-                    return RuleRow(
-                      icon: data.$1,
-                      title: data.$2,
-                    );
+                    return RuleRow(icon: data.$1, title: data.$2);
                   }),
                   const SizedBox(height: 12),
                 ],
@@ -333,7 +350,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               itemCount: imageCount,
               itemBuilder: (context, index) {
                 return Hero(
-                  tag: widget.property.id + (index == 0 ? '' : index.toString()),
+                  tag:
+                      widget.property.id + (index == 0 ? '' : index.toString()),
                   child: KhoznaImage(
                     imageUrl: displayImages[index],
                     fit: BoxFit.cover,
@@ -341,7 +359,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 );
               },
             ),
-            
+
             // Left Navigation Arrow Overlay (Translucent dark circle)
             if (imageCount > 1)
               Positioned(
@@ -425,7 +443,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                        border: Border.all(
+                          color: const Color(0xFFE2E8F0),
+                          width: 1,
+                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.08),
@@ -441,7 +462,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                     ),
                   ),
-                  
+
                   // Action Buttons (Video, Share, Heart/Favourite)
                   Row(
                     children: [
@@ -455,10 +476,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                               backgroundColor: Colors.transparent,
                               useRootNavigator: true,
                               builder: (context) => Container(
-                                height: MediaQuery.of(context).size.height * 0.8,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.8,
                                 decoration: const BoxDecoration(
                                   color: Colors.black,
-                                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                                  borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(32),
+                                  ),
                                 ),
                                 child: Column(
                                   children: [
@@ -475,9 +499,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                     const SizedBox(height: 8),
                                     // Header
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 10,
+                                      ),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             'Property Tour',
@@ -492,10 +520,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                             child: Container(
                                               padding: const EdgeInsets.all(8),
                                               decoration: BoxDecoration(
-                                                color: Colors.white.withOpacity(0.1),
+                                                color: Colors.white.withOpacity(
+                                                  0.1,
+                                                ),
                                                 shape: BoxShape.circle,
                                               ),
-                                              child: const Icon(Icons.close_rounded, color: Colors.white, size: 20),
+                                              child: const Icon(
+                                                Icons.close_rounded,
+                                                color: Colors.white,
+                                                size: 20,
+                                              ),
                                             ),
                                           ),
                                         ],
@@ -506,9 +540,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                                       child: ClipRRect(
                                         child: KhoznaVideoPlayer(
                                           videoUrl: widget.property.videoUrl,
-                                          thumbnailUrl: widget.property.imageUrl,
+                                          thumbnailUrl:
+                                              widget.property.imageUrl,
                                           autoPlay: true,
-                                          externalController: _preVideoController,
+                                          externalController:
+                                              _preVideoController,
                                         ),
                                       ),
                                     ),
@@ -524,7 +560,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
-                              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                              border: Border.all(
+                                color: const Color(0xFFE2E8F0),
+                                width: 1,
+                              ),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.08),
@@ -556,7 +595,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                            border: Border.all(
+                              color: const Color(0xFFE2E8F0),
+                              width: 1,
+                            ),
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withOpacity(0.08),
@@ -580,7 +622,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+                          border: Border.all(
+                            color: const Color(0xFFE2E8F0),
+                            width: 1,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.08),
@@ -612,9 +657,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   horizontal: 10,
                   vertical: 5,
                 ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
-                ),
+                decoration: BoxDecoration(color: Colors.black.withOpacity(0.6)),
                 child: Text(
                   '${_currentImageIndex + 1}/$imageCount',
                   style: GoogleFonts.inter(
@@ -635,11 +678,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          icon,
-          size: 15,
-          color: const Color(0xFF717171),
-        ),
+        Icon(icon, size: 15, color: const Color(0xFF717171)),
         const SizedBox(width: 4),
         Text(
           text,
@@ -673,7 +712,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     int bathrooms = widget.property.bathrooms;
 
     final double? avgRating = _reviews.isNotEmpty
-        ? (_reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length)
+        ? (_reviews.map((e) => e.rating).reduce((a, b) => a + b) /
+              _reviews.length)
         : null;
     final int votesCount = _reviews.length;
 
@@ -696,7 +736,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.location_on_rounded, color: Color(0xFF00A3E1), size: 15),
+            const Icon(
+              Icons.location_on_rounded,
+              color: Color(0xFF00A3E1),
+              size: 15,
+            ),
             const SizedBox(width: 4),
             Text(
               widget.property.location,
@@ -713,14 +757,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildSpecItem(Icons.group_outlined, '$guests ${guests == 1 ? "Guest" : "Guests"}'),
+            _buildSpecItem(
+              Icons.group_outlined,
+              '$guests ${guests == 1 ? "Guest" : "Guests"}',
+            ),
             _buildSpecDivider(),
-            _buildSpecItem(Icons.bed_outlined, '$bedrooms ${bedrooms == 1 ? "Bed" : "Beds"}'),
+            _buildSpecItem(
+              Icons.bed_outlined,
+              '$bedrooms ${bedrooms == 1 ? "Bed" : "Beds"}',
+            ),
             _buildSpecDivider(),
-            _buildSpecItem(Icons.shower_outlined, '$bathrooms ${bathrooms == 1 ? "Bath" : "Baths"}'),
+            _buildSpecItem(
+              Icons.shower_outlined,
+              '$bathrooms ${bathrooms == 1 ? "Bath" : "Baths"}',
+            ),
           ],
         ),
-        if (avgRating != null) ...[  
+        if (avgRating != null) ...[
           const SizedBox(height: 16),
           // Ratings & Views — only shown when there are real reviews
           Center(
@@ -785,7 +838,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       return (Icons.motorcycle_rounded, 'Bike Parking', Colors.blueGrey);
     }
     if (k.contains('car')) {
-      return (Icons.directions_car_filled_rounded, 'Car Parking', Colors.indigo);
+      return (
+        Icons.directions_car_filled_rounded,
+        'Car Parking',
+        Colors.indigo,
+      );
     }
     if (k.contains('parking')) {
       return (Icons.local_parking_rounded, 'Parking', Colors.indigo);
@@ -839,7 +896,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('girl')) {
       return (Icons.woman_rounded, 'Girls Only', Colors.pink);
     }
-    if (k.contains('boy')) return (Icons.man_rounded, 'Boys Only', Colors.indigo);
+    if (k.contains('boy'))
+      return (Icons.man_rounded, 'Boys Only', Colors.indigo);
     if (k.contains('power') || k.contains('backup')) {
       return (Icons.electric_bolt_rounded, 'Power Backup', Colors.amber);
     }
@@ -857,11 +915,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (formatted.isNotEmpty) {
       formatted = formatted[0].toUpperCase() + formatted.substring(1);
     }
-    return (
-      Icons.check_circle_outline_rounded,
-      formatted,
-      AppTheme.brandColor,
-    );
+    return (Icons.check_circle_outline_rounded, formatted, AppTheme.brandColor);
   }
 
   (String?, IconData) _getAmenityAssetOrIcon(String feature) {
@@ -902,7 +956,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       return Icons.wifi_outlined;
     }
     if (k.contains('water') || k.contains('melamchi') || k.contains('boring')) {
-      if (k.contains('hot_water') || k.contains('hot')) return Icons.hot_tub_outlined;
+      if (k.contains('hot_water') || k.contains('hot'))
+        return Icons.hot_tub_outlined;
       return Icons.water_drop_outlined;
     }
     if (k.contains('cctv') || k.contains('security')) {
@@ -929,7 +984,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('elevator') || k.contains('lift')) {
       return Icons.elevator_outlined;
     }
-    if (k.contains('attached') || k.contains('bathroom') || k.contains('bath')) {
+    if (k.contains('attached') ||
+        k.contains('bathroom') ||
+        k.contains('bath')) {
       return Icons.bathroom_outlined;
     }
     if (k.contains('peaceful')) {
@@ -992,12 +1049,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (k.contains('hot_water') || k.contains('geyser')) {
       return 'Hot Water';
     }
-    
+
     if (feature.isEmpty) return '';
-    return feature.split('_').map((word) {
-      if (word.isEmpty) return '';
-      return word[0].toUpperCase() + word.substring(1);
-    }).join(' ');
+    return feature
+        .split('_')
+        .map((word) {
+          if (word.isEmpty) return '';
+          return word[0].toUpperCase() + word.substring(1);
+        })
+        .join(' ');
   }
 
   Widget _buildSeeMoreButton() {
@@ -1045,7 +1105,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
     if (items.isEmpty) return const SizedBox.shrink();
 
-    final int displayCount = _showAllAmenities ? items.length : (items.length > 8 ? 8 : items.length);
+    final int displayCount = _showAllAmenities
+        ? items.length
+        : (items.length > 8 ? 8 : items.length);
     final bool hasMore = items.length > 8;
 
     return Column(
@@ -1120,8 +1182,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-
-
   Widget _buildLocationDetails() {
     if (widget.property.landmark.isEmpty) return const SizedBox.shrink();
 
@@ -1134,37 +1194,38 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
       ),
       child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                color: const Color(0xFF00A3E1).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.pin_drop_rounded, 
-                color: Color(0xFF00A3E1), 
-                size: 16
-              ),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: const Color(0xFF00A3E1).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.property.landmark,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black,
-                      ),
+            child: const Icon(
+              Icons.pin_drop_rounded,
+              color: Color(0xFF00A3E1),
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.property.landmark,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1186,7 +1247,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             ),
             // Dark gradient at bottom
             Positioned(
-              bottom: 0, left: 0, right: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
               child: Container(
                 height: 42,
                 decoration: BoxDecoration(
@@ -1208,7 +1271,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               child: GestureDetector(
                 onTap: _openMap,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(100),
@@ -1247,8 +1313,6 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       ),
     );
   }
-
-
 
   void _showReportDialog() {
     showModalBottomSheet(
@@ -1334,9 +1398,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   Widget _buildOwnerRow() {
-    final String name = _ownerData?['full_name'] ?? widget.property.ownerName ?? 'Khozna User';
-    final String? avatarUrl = _ownerData?['avatar_url'] ?? widget.property.ownerAvatar;
-    final bool isVerified = _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
+    final String name =
+        _ownerData?['full_name'] ?? widget.property.ownerName ?? 'Khozna User';
+    final String? avatarUrl =
+        _ownerData?['avatar_url'] ?? widget.property.ownerAvatar;
+    final bool isVerified =
+        _ownerData?['is_verified'] ?? widget.property.isOwnerVerified ?? false;
 
     return InkWell(
       onTap: () {
@@ -1371,10 +1438,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   child: CircleAvatar(
                     radius: 24,
                     backgroundColor: const Color(0xFFF1F5F9),
-                    backgroundImage: (avatarUrl != null && avatarUrl.isNotEmpty && !avatarUrl.contains('pravatar.cc'))
+                    backgroundImage:
+                        (avatarUrl != null &&
+                            avatarUrl.isNotEmpty &&
+                            !avatarUrl.contains('pravatar.cc'))
                         ? NetworkImage(avatarUrl)
                         : null,
-                    child: (avatarUrl == null || avatarUrl.isEmpty || avatarUrl.contains('pravatar.cc'))
+                    child:
+                        (avatarUrl == null ||
+                            avatarUrl.isEmpty ||
+                            avatarUrl.contains('pravatar.cc'))
                         ? const Icon(Icons.person, size: 24, color: Colors.grey)
                         : null,
                   ),
@@ -1423,7 +1496,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: Colors.grey,
+            ),
           ],
         ),
       ),
@@ -1432,9 +1509,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   // --- Airbnb-style category vote helpers ---
   static const List<Map<String, dynamic>> _ratingCategories = [
-    {'label': 'Cleanliness', 'nepali': 'सफाइ', 'icon': Icons.cleaning_services_rounded},
+    {
+      'label': 'Cleanliness',
+      'nepali': 'सफाइ',
+      'icon': Icons.cleaning_services_rounded,
+    },
     {'label': 'Accuracy', 'nepali': 'सटीकता', 'icon': Icons.fact_check_rounded},
-    {'label': 'Communication', 'nepali': 'सम्पर्क', 'icon': Icons.chat_bubble_rounded},
+    {
+      'label': 'Communication',
+      'nepali': 'सम्पर्क',
+      'icon': Icons.chat_bubble_rounded,
+    },
     {'label': 'Location', 'nepali': 'स्थान', 'icon': Icons.location_on_rounded},
     {'label': 'Check-in', 'nepali': 'चेक-इन', 'icon': Icons.key_rounded},
     {'label': 'Value', 'nepali': 'मूल्य', 'icon': Icons.payments_rounded},
@@ -1447,7 +1532,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     final Map<String, double> scores = {};
     for (int i = 0; i < _ratingCategories.length; i++) {
       final raw = (avgRating + offsets[i]).clamp(1.0, 5.0);
-      scores[_ratingCategories[i]['label'] as String] = double.parse(raw.toStringAsFixed(1));
+      scores[_ratingCategories[i]['label'] as String] = double.parse(
+        raw.toStringAsFixed(1),
+      );
     }
     return scores;
   }
@@ -1466,7 +1553,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       return const SizedBox.shrink();
     }
 
-    final double avgRating = _reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length;
+    final double avgRating =
+        _reviews.map((e) => e.rating).reduce((a, b) => a + b) / _reviews.length;
     final categoryScores = _computeCategoryScores(avgRating);
 
     return Column(
@@ -1576,7 +1664,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   }
 
   /// Single category bar row — Airbnb style
-  Widget _buildCategoryBar(String label, String nepali, IconData icon, double score) {
+  Widget _buildCategoryBar(
+    String label,
+    String nepali,
+    IconData icon,
+    double score,
+  ) {
     return Row(
       children: [
         Expanded(
@@ -1635,14 +1728,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
   Widget _buildReviewCard(ReviewModel review) {
     final String name = review.reviewerName ?? 'Khozna Renter';
     final String avatar = review.reviewerAvatar ?? '';
-    final String formattedDate = DateFormat('MMM dd, yyyy').format(review.createdAt);
+    final String formattedDate = DateFormat(
+      'MMM dd, yyyy',
+    ).format(review.createdAt);
     final bool isKycVerified = review.reviewerKycStatus == 'verified';
 
     // Parse out tags like [Clean Room] or [सफा कोठा] from comment
     final comment = review.comment ?? '';
     final List<String> tags = [];
     String description = comment;
-    
+
     final tagRegex = RegExp(r'\[(.*?)\]');
     final matches = tagRegex.allMatches(comment);
     for (var m in matches) {
@@ -1653,9 +1748,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     description = comment.replaceAll(tagRegex, '').trim();
 
     final isPositive = review.rating >= 3;
-    final tagBgColor = isPositive ? const Color(0xFFE8F5E9) : const Color(0xFFFFEBEE);
-    final tagTextColor = isPositive ? const Color(0xFF2E7D32) : const Color(0xFFC62828);
-    final tagBorderColor = isPositive ? const Color(0xFFC8E6C9) : const Color(0xFFFFCDD2);
+    final tagBgColor = isPositive
+        ? const Color(0xFFE8F5E9)
+        : const Color(0xFFFFEBEE);
+    final tagTextColor = isPositive
+        ? const Color(0xFF2E7D32)
+        : const Color(0xFFC62828);
+    final tagBorderColor = isPositive
+        ? const Color(0xFFC8E6C9)
+        : const Color(0xFFFFCDD2);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1679,7 +1780,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               CircleAvatar(
                 radius: 18,
                 backgroundColor: const Color(0xFFF1F5F9),
-                backgroundImage: (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
+                backgroundImage:
+                    (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
                     ? NetworkImage(avatar)
                     : null,
                 child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
@@ -1729,7 +1831,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               Row(
                 children: List.generate(5, (starIdx) {
                   return Icon(
-                    starIdx < review.rating ? Icons.star_rounded : Icons.star_border_rounded,
+                    starIdx < review.rating
+                        ? Icons.star_rounded
+                        : Icons.star_border_rounded,
                     color: Colors.amber,
                     size: 14,
                   );
@@ -1742,22 +1846,29 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             Wrap(
               spacing: 6,
               runSpacing: 6,
-              children: tags.map((t) => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: tagBgColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: tagBorderColor, width: 0.8),
-                ),
-                child: Text(
-                  t,
-                  style: GoogleFonts.mukta(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: tagTextColor,
-                  ),
-                ),
-              )).toList(),
+              children: tags
+                  .map(
+                    (t) => Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: tagBgColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: tagBorderColor, width: 0.8),
+                      ),
+                      child: Text(
+                        t,
+                        style: GoogleFonts.mukta(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: tagTextColor,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
           ],
           if (description.isNotEmpty) ...[
@@ -1828,15 +1939,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildBottomActionBar(BuildContext context) {
     if (_isMyProperty) return const SizedBox.shrink();
-    
+
     final price = widget.property.priceMonth > 0
         ? widget.property.priceMonth
-        : (widget.property.priceNight > 0 
-            ? widget.property.priceNight 
-            : (double.tryParse(widget.property.price) ?? 0));
-            
-    final unit = widget.property.priceMonth > 0 
-        ? 'month' 
+        : (widget.property.priceNight > 0
+              ? widget.property.priceNight
+              : (double.tryParse(widget.property.price) ?? 0));
+
+    final unit = widget.property.priceMonth > 0
+        ? 'month'
         : (widget.property.priceNight > 0 ? 'night' : 'month');
 
     // If final price is still 0, we can use a fallback flag for the UI
@@ -1846,7 +1957,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1.5)),
+        border: Border(
+          top: BorderSide(color: Colors.grey.shade100, width: 1.5),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -1885,13 +1998,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                       const SizedBox(width: 2),
                       Text(
-                        isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
+                        isNegotiable
+                            ? 'Negotiable'
+                            : PriceFormatter.format(price.toStringAsFixed(0)),
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: isNegotiable ? 17 : 21,
                           fontWeight: FontWeight.w800,
                           color: Colors.black,
                           letterSpacing: -0.6,
-                          decoration: isNegotiable ? TextDecoration.none : TextDecoration.underline,
+                          decoration: isNegotiable
+                              ? TextDecoration.none
+                              : TextDecoration.underline,
                           decorationColor: Colors.black,
                           decorationThickness: 1.5,
                         ),
@@ -1915,7 +2032,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 ],
               ),
             ),
-            
+
             // RIGHT SIDE: ACTION BUTTONS (Airbnb style: wrap content, compact)
             const SizedBox(width: 16),
             _buildBottomActionButtons(context),
@@ -1944,7 +2061,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.brandColor,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(100),
+            ),
             elevation: 0,
             padding: const EdgeInsets.symmetric(horizontal: 32),
           ),
@@ -1962,25 +2081,33 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         child: ElevatedButton.icon(
           onPressed: () async {
             if (_pendingBookingId == null) return;
-            final booking = await SupabaseService.getVisitById(_pendingBookingId!);
+            final booking = await SupabaseService.getVisitById(
+              _pendingBookingId!,
+            );
             if (booking != null && mounted) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => PaymentChoiceScreen(
                     booking: booking,
-                    propertyTitle: booking.propertyTitle ?? widget.property.title,
+                    propertyTitle:
+                        booking.propertyTitle ?? widget.property.title,
                   ),
                 ),
               );
             }
           },
           icon: const Icon(Icons.payment_rounded, size: 20),
-          label: Text('Pay Now', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
+          label: Text(
+            'Pay Now',
+            style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700),
+          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF22C55E),
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(100),
+            ),
             elevation: 0,
             padding: const EdgeInsets.symmetric(horizontal: 28),
           ),
@@ -1988,8 +2115,11 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       );
     }
 
-    if (_pendingBookingStatus == 'paid' || _pendingBookingStatus == 'confirmed') {
-      return _buildDisabledButton(_pendingBookingStatus == 'confirmed' ? '✓ Confirmed' : 'Payment Sent');
+    if (_pendingBookingStatus == 'paid' ||
+        _pendingBookingStatus == 'confirmed') {
+      return _buildDisabledButton(
+        _pendingBookingStatus == 'confirmed' ? '✓ Confirmed' : 'Payment Sent',
+      );
     }
 
     if (_userHasPendingBooking) {
@@ -2006,32 +2136,60 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 padding: const EdgeInsets.only(right: 12),
                 child: Text(
                   'Cancel Request',
-                  style: GoogleFonts.inter(fontSize: 11, color: Colors.red[400], fontWeight: FontWeight.w700, decoration: TextDecoration.underline),
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.red[400],
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                  ),
                 ),
               ),
             ),
           ],
         );
       }
-      
+
       if (_pendingBookingStatus == 'visit_accepted') {
-        final isEnded = _timeUntilVisit == Duration.zero && _pendingBookingCheckIn != null && DateTime.now().isAfter(_pendingBookingCheckIn!);
+        final isEnded =
+            _timeUntilVisit == Duration.zero &&
+            _pendingBookingCheckIn != null &&
+            DateTime.now().isAfter(_pendingBookingCheckIn!);
         return SizedBox(
           height: 48,
           child: ElevatedButton.icon(
             onPressed: () async {
               if (_pendingBookingId == null) return;
-              final booking = await SupabaseService.getVisitById(_pendingBookingId!);
+              final booking = await SupabaseService.getVisitById(
+                _pendingBookingId!,
+              );
               if (booking != null && mounted) {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => BookingStatusScreen(booking: booking))).then((_) => _updateBookingStatus());
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BookingStatusScreen(booking: booking),
+                  ),
+                ).then((_) => _updateBookingStatus());
               }
             },
-            icon: Icon(isEnded ? Icons.rate_review_rounded : Icons.timer_outlined, size: 20),
-            label: Text(isEnded ? 'Leave a Review' : 'View Status', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700)),
+            icon: Icon(
+              isEnded ? Icons.rate_review_rounded : Icons.timer_outlined,
+              size: 20,
+            ),
+            label: Text(
+              isEnded ? 'Leave a Review' : 'View Status',
+              style: GoogleFonts.inter(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: isEnded ? AppTheme.brandColor : Colors.orange.shade400,
+              backgroundColor: isEnded
+                  ? AppTheme.brandColor
+                  : Colors.orange.shade400,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100),
+              ),
               elevation: 0,
               padding: const EdgeInsets.symmetric(horizontal: 28),
             ),
@@ -2053,7 +2211,9 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           foregroundColor: Colors.white,
           shadowColor: Colors.transparent,
           overlayColor: Colors.white.withValues(alpha: 0.08),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(100),
+          ),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 36),
         ),
@@ -2079,7 +2239,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
-        padding: EdgeInsets.fromLTRB(24, 16, 24, MediaQuery.of(context).padding.bottom + 24),
+        padding: EdgeInsets.fromLTRB(
+          24,
+          16,
+          24,
+          MediaQuery.of(context).padding.bottom + 24,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2113,14 +2278,17 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // OPTION 1: Visit Schedule
             InkWell(
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => VisitRequestScreen(property: widget.property)),
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        VisitRequestScreen(property: widget.property),
+                  ),
                 ).then((v) => v == true ? _updateBookingStatus() : null);
               },
               borderRadius: BorderRadius.circular(16),
@@ -2128,7 +2296,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
+                  border: Border.all(
+                    color: const Color(0xFFE5E7EB),
+                    width: 1.5,
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -2178,7 +2349,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             // OPTION 2: Book / Rent now
             InkWell(
               onTap: () {
@@ -2187,7 +2358,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => PaymentChoiceScreen(property: widget.property),
+                    builder: (_) =>
+                        PaymentChoiceScreen(property: widget.property),
                   ),
                 );
               },
@@ -2196,7 +2368,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE5E7EB), width: 1.5),
+                  border: Border.all(
+                    color: const Color(0xFFE5E7EB),
+                    width: 1.5,
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -2272,14 +2447,15 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     );
   }
 
-
   Future<void> _cancelRequest() async {
     if (_pendingBookingId == null) return;
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Request?'),
-        content: const Text('Are you sure you want to cancel this visit request?'),
+        content: const Text(
+          'Are you sure you want to cancel this visit request?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -2287,7 +2463,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Yes, Cancel', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'Yes, Cancel',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -2319,7 +2498,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
     if (f.contains('student')) {
       return (Icons.school_rounded, 'Student Friendly');
     }
-    if (f.contains('family')) return (Icons.family_restroom_rounded, 'Families');
+    if (f.contains('family'))
+      return (Icons.family_restroom_rounded, 'Families');
     if (f.contains('no smok')) return (Icons.smoke_free_rounded, 'No Smoking');
     if (f.contains('pet')) return (Icons.pets_rounded, 'Pets Allowed');
     if (f.contains('security') || f.contains('cctv')) {

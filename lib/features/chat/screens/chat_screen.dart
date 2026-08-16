@@ -54,14 +54,6 @@ class _ChatScreenState extends State<ChatScreen> {
   late String _displayLocation;
   late bool _isOwner;
 
-  final List<String> _quickReplies = [
-    'हजुर, कोठा अझै खाली छ!',
-    'कति बजे हेर्न आउनुहुन्छ?',
-    'पानी र बिजुलीको राम्रो सुविधा छ।',
-    'पार्किङको व्यवस्था छ।',
-    'भाडा मिलाउन सकिन्छ।',
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -178,15 +170,12 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     if (_activeChatId == null) return;
 
-    setState(() => _isSendingImage = true);
     try {
       final url = await CloudinaryService.uploadImage(File(picked.path));
       if (url != null) {
         await ChatRepository.sendImageMessage(_activeChatId!, url);
       }
-    } finally {
-      if (mounted) setState(() => _isSendingImage = false);
-    }
+    } catch (_) {}
   }
 
   @override
