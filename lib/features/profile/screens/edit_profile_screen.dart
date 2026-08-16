@@ -161,17 +161,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       );
 
-      // 1. Persist kyc_status in profiles table permanently
-      try {
-        await Supabase.instance.client
-            .from('profiles')
-            .update({'kyc_status': 'verified'})
-            .eq('id', user!.id);
-      } catch (pErr) {
-        debugPrint('Profile kyc_status update warning: $pErr');
-      }
-
-      // 2. Sync to kyc_verifications table without non-existent updated_at column
+      // Save ONLY location coordinates — do NOT touch kyc_status here.
+      // Verification is done through the full KYC document flow only.
       try {
         final existingKyc = await Supabase.instance.client
             .from('kyc_verifications')
@@ -185,7 +176,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               .update({
                 'latitude': position.latitude,
                 'longitude': position.longitude,
-                'status': 'verified',
               })
               .eq('user_id', user!.id);
         } else {
@@ -193,18 +183,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             'user_id': user!.id,
             'latitude': position.latitude,
             'longitude': position.longitude,
-            'status': 'verified',
+            'status': 'pending',
           });
         }
       } catch (kycErr) {
-        debugPrint('KYC sync non-fatal warning: $kycErr');
+        debugPrint('Location save warning: $kycErr');
       }
 
       if (mounted) {
         setState(() {
           _latitude = position.latitude;
           _longitude = position.longitude;
-          _kycStatus = 'verified';
+          // Do NOT change _kycStatus here — only KYC document review can verify
         });
 
         HapticFeedback.mediumImpact();
@@ -213,13 +203,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             content: Row(
               children: [
                 const Icon(
-                  Icons.verified_rounded,
+                  Icons.location_on_rounded,
                   color: Colors.white,
                   size: 20,
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  'Location verified permanently!',
+                  'Location saved!',
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
@@ -690,9 +680,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildSecuritySection() {
-    // Treat as verified if status is verified OR if a location was JUST captured
-    final bool isVerified =
-        _kycStatus == 'verified' || (_latitude != null && _longitude != null);
+    // Only trust kyc_status from the database — do NOT treat lat/lng as verification proof
+    final bool isVerified = _kycStatus == 'verified';
 
     return Container(
       width: double.infinity,
@@ -720,14 +709,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: isVerified
                       ? AppTheme.brandColor.withOpacity(0.1)
-                      : const Color(0xFFFFF1F1),
+                      : _kycStatus == 'pending'
+                          ? const Color(0xFFFFF8E1)
+                          : const Color(0xFFFFF1F1),
                   borderRadius: BorderRadius.circular(100),
                 ),
                 child: Row(
@@ -736,21 +724,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Icon(
                       isVerified
                           ? Icons.verified_rounded
-                          : Icons.info_outline_rounded,
+                          : _kycStatus == 'pending'
+                              ? Icons.hourglass_top_rounded
+                              : Icons.info_outline_rounded,
                       size: 14,
                       color: isVerified
                           ? AppTheme.brandColor
-                          : const Color(0xFFC13511),
+                          : _kycStatus == 'pending'
+                              ? const Color(0xFFF59E0B)
+                              : const Color(0xFFC13511),
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      isVerified ? 'Verified' : 'Action Required',
+                      isVerified
+                          ? 'Verified'
+                          : _kycStatus == 'pending'
+                              ? 'Under Review'
+                              : 'Not Verified',
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
                         color: isVerified
                             ? AppTheme.brandColor
-                            : const Color(0xFFC13511),
+                            : _kycStatus == 'pending'
+                                ? const Color(0xFFF59E0B)
+                                : const Color(0xFFC13511),
                       ),
                     ),
                   ],
@@ -762,7 +760,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           Text(
             isVerified
                 ? 'Your identity is confirmed. This builds trust with other Khozna users.'
-                : 'Complete your profile security by pinning your location for local verification.',
+                : _kycStatus == 'pending'
+                    ? 'Your KYC documents are under review. We\'ll notify you once approved.'
+                    : 'Submit your citizenship documents, selfie, and location to get verified.',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: colorTextSecondary,
@@ -771,6 +771,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           const SizedBox(height: 20),
+
+          // Location pin button — always available, independent of kyc_status
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
@@ -785,7 +787,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     )
                   : Icon(
-                      isVerified
+                      _latitude != null
                           ? Icons.refresh_rounded
                           : Icons.location_on_rounded,
                       size: 18,
@@ -793,7 +795,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               label: Text(
                 _isLocating
                     ? 'Capturing...'
-                    : (isVerified ? 'Location Updated' : 'Pin My Location'),
+                    : (_latitude != null ? 'Update Location' : 'Pin My Location'),
               ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: colorTextPrimary,
@@ -807,14 +809,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           if (_latitude != null && _longitude != null) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             Center(
               child: Text(
-                'Last synced: ${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}',
+                '📍 Location saved: ${_latitude!.toStringAsFixed(4)}, ${_longitude!.toStringAsFixed(4)}',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: colorTextSecondary,
                   fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ],
+
+          // KYC CTA — only show if not yet submitted
+          if (!isVerified && _kycStatus != 'pending') ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const KycScreen()),
+                  );
+                  if (result == true) _loadUserData();
+                },
+                icon: const Icon(Icons.shield_rounded, size: 18),
+                label: const Text('Complete KYC Verification'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.brandColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  textStyle: GoogleFonts.inter(fontWeight: FontWeight.w700),
                 ),
               ),
             ),
