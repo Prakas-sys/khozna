@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
 import 'package:khozna/core/security/security_utils.dart';
+import 'package:khozna/features/profile/screens/kyc_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
