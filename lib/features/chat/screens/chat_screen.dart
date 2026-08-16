@@ -207,18 +207,10 @@ class _ChatScreenState extends State<ChatScreen> {
           },
           child: Row(
             children: [
-              CircleAvatar(
+              AppTheme.buildAvatarWidget(
+                avatarUrl: _displayAvatar,
                 radius: 18,
-                backgroundImage:
-                    (_displayAvatar.isNotEmpty &&
-                        !_displayAvatar.contains('pravatar.cc'))
-                    ? CachedNetworkImageProvider(_displayAvatar)
-                    : null,
-                child:
-                    (_displayAvatar.isEmpty ||
-                        _displayAvatar.contains('pravatar.cc'))
-                    ? const Icon(Icons.person, size: 18)
-                    : null,
+                name: _displayName,
               ),
               const SizedBox(width: 10),
               Column(
@@ -367,18 +359,10 @@ class _ChatScreenState extends State<ChatScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 30),
-              CircleAvatar(
+              AppTheme.buildAvatarWidget(
+                avatarUrl: _displayAvatar,
                 radius: 50,
-                backgroundImage:
-                    (_displayAvatar.isNotEmpty &&
-                        !_displayAvatar.contains('pravatar.cc'))
-                    ? CachedNetworkImageProvider(_displayAvatar)
-                    : null,
-                child:
-                    (_displayAvatar.isEmpty ||
-                        _displayAvatar.contains('pravatar.cc'))
-                    ? Icon(Icons.person, size: 50, color: Colors.grey[400])
-                    : null,
+                name: _displayName,
               ),
               const SizedBox(height: 16),
               Text(
@@ -463,7 +447,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildInputArea() {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(top: BorderSide(color: Colors.grey.shade100)),
@@ -474,10 +458,10 @@ class _ChatScreenState extends State<ChatScreen> {
           children: [
             Expanded(
               child: Container(
-                height: 46,
+                height: 50,
                 decoration: BoxDecoration(
                   color: const Color(0xFFF9FAFB),
-                  borderRadius: BorderRadius.circular(23),
+                  borderRadius: BorderRadius.circular(25),
                   border: Border.all(color: Colors.grey.shade200),
                 ),
                 child: Row(
@@ -487,7 +471,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       icon: const Icon(
                         Icons.add_rounded,
                         color: Color(0xFF6B7280),
-                        size: 20,
+                        size: 22,
                       ),
                       onPressed: () {},
                       constraints: const BoxConstraints(),
@@ -496,18 +480,18 @@ class _ChatScreenState extends State<ChatScreen> {
                     Expanded(
                       child: TextField(
                         controller: _messageController,
-                        style: GoogleFonts.inter(fontSize: 14),
+                        style: GoogleFonts.inter(fontSize: 15),
                         onChanged: (val) => setState(() {}),
                         onSubmitted: (val) => _sendMessage(),
                         decoration: InputDecoration(
                           hintText: 'Message...',
                           hintStyle: GoogleFonts.inter(
                             color: const Color(0xFF9CA3AF),
-                            fontSize: 14,
+                            fontSize: 15,
                           ),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 4,
+                            horizontal: 6,
                           ),
                         ),
                       ),
@@ -516,7 +500,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       icon: const Icon(
                         Icons.camera_alt_rounded,
                         color: Color(0xFF6B7280),
-                        size: 20,
+                        size: 22,
                       ),
                       onPressed: _pickAndSendImage,
                       constraints: const BoxConstraints(),
@@ -527,7 +511,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             GestureDetector(
               onTap: () {
                 if (_messageController.text.trim().isNotEmpty) {
@@ -536,8 +520,8 @@ class _ChatScreenState extends State<ChatScreen> {
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                width: 44,
-                height: 44,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
                   color: _messageController.text.trim().isNotEmpty
                       ? AppTheme.brandColor
@@ -547,7 +531,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: const Icon(
                   Icons.send_rounded,
                   color: Colors.white,
-                  size: 18,
+                  size: 20,
                 ),
               ),
             ),

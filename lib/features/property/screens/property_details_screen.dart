@@ -1466,21 +1466,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                     shape: BoxShape.circle,
                     border: Border.all(color: AppTheme.brandColor, width: 2),
                   ),
-                  child: CircleAvatar(
+                  child: AppTheme.buildAvatarWidget(
+                    avatarUrl: avatarUrl,
                     radius: 24,
-                    backgroundColor: const Color(0xFFF1F5F9),
-                    backgroundImage:
-                        (avatarUrl != null &&
-                            avatarUrl.isNotEmpty &&
-                            !avatarUrl.contains('pravatar.cc'))
-                        ? NetworkImage(avatarUrl)
-                        : null,
-                    child:
-                        (avatarUrl == null ||
-                            avatarUrl.isEmpty ||
-                            avatarUrl.contains('pravatar.cc'))
-                        ? const Icon(Icons.person, size: 24, color: Colors.grey)
-                        : null,
+                    name: name,
                   ),
                 ),
                 if (isVerified)
@@ -1808,16 +1797,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         children: [
           Row(
             children: [
-              CircleAvatar(
+              AppTheme.buildAvatarWidget(
+                avatarUrl: avatar,
                 radius: 18,
-                backgroundColor: const Color(0xFFF1F5F9),
-                backgroundImage:
-                    (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
-                    ? NetworkImage(avatar)
-                    : null,
-                child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
-                    ? const Icon(Icons.person, size: 18, color: Colors.grey)
-                    : null,
+                name: name,
               ),
               const SizedBox(width: 10),
               Expanded(

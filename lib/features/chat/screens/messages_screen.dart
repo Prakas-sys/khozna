@@ -10,7 +10,6 @@ import 'package:khozna/features/chat/repositories/chat_repository.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:intl/intl.dart';
 
-
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
 
@@ -175,9 +174,7 @@ class _MessagesScreenState extends State<MessagesScreen>
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
-                        color: selected
-                            ? AppTheme.brandColor
-                            : Colors.white,
+                        color: selected ? AppTheme.brandColor : Colors.white,
                         borderRadius: BorderRadius.circular(100),
                         border: Border.all(
                           color: selected
@@ -205,7 +202,9 @@ class _MessagesScreenState extends State<MessagesScreen>
                             const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: selected
                                     ? Colors.white
@@ -305,7 +304,8 @@ class _MessagesScreenState extends State<MessagesScreen>
         break;
       default:
         title = 'No Messages Yet';
-        subtitle = 'घरधनीहरूसँग जोडिएपछि तपाईंका कुराकानीहरू यहाँ देखा पर्नेछन् ।';
+        subtitle =
+            'घरधनीहरूसँग जोडिएपछि तपाईंका कुराकानीहरू यहाँ देखा पर्नेछन् ।';
     }
 
     return Center(
@@ -404,15 +404,10 @@ class _MessagesScreenState extends State<MessagesScreen>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              CircleAvatar(
+              AppTheme.buildAvatarWidget(
+                avatarUrl: chat.otherUserAvatar,
                 radius: 28,
-                backgroundColor: const Color(0xFFF0F2F5),
-                backgroundImage: chat.otherUserAvatar.isNotEmpty
-                    ? CachedNetworkImageProvider(chat.otherUserAvatar)
-                    : null,
-                child: chat.otherUserAvatar.isEmpty
-                    ? const Icon(Icons.person, color: Colors.grey, size: 30)
-                    : null,
+                name: chat.otherUserName,
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -521,7 +516,12 @@ class _MessagesScreenState extends State<MessagesScreen>
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
-        padding: EdgeInsets.fromLTRB(24, 16, 24, MediaQuery.of(context).padding.bottom + 24),
+        padding: EdgeInsets.fromLTRB(
+          24,
+          16,
+          24,
+          MediaQuery.of(context).padding.bottom + 24,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -575,7 +575,10 @@ class _MessagesScreenState extends State<MessagesScreen>
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(ctx),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFFE2E8F0), width: 1.5),
+                        side: const BorderSide(
+                          color: Color(0xFFE2E8F0),
+                          width: 1.5,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),

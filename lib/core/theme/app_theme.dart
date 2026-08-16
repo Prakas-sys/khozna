@@ -115,57 +115,61 @@ class AppTheme {
     return defaultManAvatar;
   }
 
-  /// Returns a valid high-quality avatar URL.
-  static String getAvatarUrl(String? avatarUrl, {String? name}) {
-    if (avatarUrl != null &&
-        avatarUrl.trim().isNotEmpty &&
-        !avatarUrl.contains('via.placeholder.com') &&
-        !avatarUrl.contains('pravatar.cc')) {
-      return avatarUrl.trim();
+  /// Sanitizes avatar URL by removing single-letter fallback generators
+  static String? sanitizeAvatarUrl(String? url) {
+    if (url == null || url.trim().isEmpty) return null;
+    final clean = url.trim();
+    if (clean.contains('ui-avatars.com') ||
+        clean.contains('via.placeholder.com') ||
+        clean.contains('pravatar.cc')) {
+      return null;
     }
-    if (name != null && name.trim().isNotEmpty) {
-      final encoded = Uri.encodeComponent(name.trim());
-      return 'https://ui-avatars.com/api/?name=$encoded&background=00A3E1&color=ffffff&bold=true&size=256';
-    }
-    return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80';
+    return clean;
   }
 
-  /// Renders a CircleAvatar with network image or custom asset fallback
+  /// Returns a valid high-quality avatar URL or fallback illustration asset path
+  static String getAvatarUrl(String? avatarUrl, {String? name}) {
+    final sanitized = sanitizeAvatarUrl(avatarUrl);
+    if (sanitized != null) {
+      return sanitized;
+    }
+    return getIllustrationAvatar(name);
+  }
+
+  /// Renders a CircleAvatar with network image or custom illustration asset fallback
   static Widget buildAvatarWidget({
     required String? avatarUrl,
     required double radius,
     String? name,
     Color? backgroundColor,
   }) {
-    final String? trimmed = avatarUrl?.trim();
+    final String? sanitized = sanitizeAvatarUrl(avatarUrl);
 
     // 1. Local asset path
-    if (trimmed != null &&
-        (trimmed.startsWith('assets/') || trimmed.startsWith('assets\\'))) {
+    if (sanitized != null &&
+        (sanitized.startsWith('assets/') || sanitized.startsWith('assets\\'))) {
       return CircleAvatar(
         radius: radius,
         backgroundColor: backgroundColor ?? const Color(0xFFF1F5F9),
-        backgroundImage: AssetImage(trimmed),
+        backgroundImage: AssetImage(sanitized),
       );
     }
 
     // 2. Remote Network URL
     final bool isNetworkUrl =
-        trimmed != null &&
-        (trimmed.startsWith('http://') || trimmed.startsWith('https://')) &&
-        !trimmed.contains('via.placeholder.com') &&
-        !trimmed.contains('pravatar.cc');
+        sanitized != null &&
+        (sanitized.startsWith('http://') || sanitized.startsWith('https://'));
 
     if (isNetworkUrl) {
       return CircleAvatar(
         radius: radius,
         backgroundColor: backgroundColor ?? const Color(0xFFF1F5F9),
-        backgroundImage: CachedNetworkImageProvider(trimmed),
+        backgroundImage: CachedNetworkImageProvider(sanitized),
       );
     }
 
-    // 3. Fallback asset avatar
-    final String assetPath = getIllustrationAvatar(name ?? trimmed);
+    // 3. Fallback illustration avatar (man avatar.jpeg / woman avatar.jpeg)
+    final String assetPath = getIllustrationAvatar(name);
     return CircleAvatar(
       radius: radius,
       backgroundColor: backgroundColor ?? const Color(0xFFF1F5F9),

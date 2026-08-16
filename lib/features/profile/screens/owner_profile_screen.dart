@@ -907,16 +907,10 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         children: [
           Row(
             children: [
-              CircleAvatar(
+              AppTheme.buildAvatarWidget(
+                avatarUrl: avatar,
                 radius: 16,
-                backgroundColor: const Color(0xFFF1F5F9),
-                backgroundImage:
-                    (avatar.isNotEmpty && !avatar.contains('pravatar.cc'))
-                    ? NetworkImage(avatar)
-                    : null,
-                child: (avatar.isEmpty || avatar.contains('pravatar.cc'))
-                    ? const Icon(Icons.person, size: 16, color: Colors.grey)
-                    : null,
+                name: review.reviewerName,
               ),
               const SizedBox(width: 10),
               Expanded(

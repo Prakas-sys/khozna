@@ -533,12 +533,10 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               child: Row(
                 children: [
-                  CircleAvatar(
+                  AppTheme.buildAvatarWidget(
+                    avatarUrl: _avatarUrl,
                     radius: 24,
-                    backgroundImage: _avatarUrl != null
-                        ? CachedNetworkImageProvider(_avatarUrl!)
-                        : null,
-                    child: _avatarUrl == null ? const Icon(Icons.person) : null,
+                    name: user?.userMetadata?['full_name'],
                   ),
                   const SizedBox(width: 12),
                   Expanded(
