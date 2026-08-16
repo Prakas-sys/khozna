@@ -108,7 +108,9 @@ class _ProfileScreenState extends State<ProfileScreen>
 
         if (mounted && profile != null) {
           setState(() {
-            _avatarUrl = profile['avatar_url'];
+            _avatarUrl = profile['avatar_url'] ??
+                user?.userMetadata?['avatar_url'] ??
+                user?.userMetadata?['picture'];
             _fullName = profile['full_name'] ??
                 user?.userMetadata?['full_name'] ??
                 user?.userMetadata?['name'];

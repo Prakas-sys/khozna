@@ -47,6 +47,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
   String? _email;
   String? _userType;
   String? _organization;
+  String? _fetchedAvatar;
   bool _isProfileVerified = false;
 
   @override
@@ -63,7 +64,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         VoteRepository.getVoteCount(widget.ownerId),
         Supabase.instance.client
             .from('profiles')
-            .select('created_at, area_name, bio, phone_number, email, user_type, organization, is_verified')
+            .select('created_at, area_name, bio, phone_number, email, user_type, organization, avatar_url, kyc_status, is_verified')
             .eq('id', widget.ownerId)
             .maybeSingle(),
         BookingRepository.fetchReviewsForOwner(widget.ownerId),
@@ -86,7 +87,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             _email = profileData['email'] as String?;
             _userType = profileData['user_type'] as String?;
             _organization = profileData['organization'] as String?;
-            _isProfileVerified = (profileData['is_verified'] as bool?) ?? widget.isVerified;
+            if (profileData['avatar_url'] != null && profileData['avatar_url'].toString().isNotEmpty) {
+              _fetchedAvatar = profileData['avatar_url'].toString();
+            }
+            final String profStatus = (profileData['kyc_status'] ?? '').toString();
+            _isProfileVerified = profStatus == 'verified' || profStatus == 'approved' || (profileData['is_verified'] as bool? ?? widget.isVerified);
           }
           _ownerReviews = results[2] as List<ReviewModel>;
           _isLoadingReviews = false;
@@ -172,16 +177,18 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                                 end: Alignment.bottomRight,
                               ),
                             ),
-                            child: CircleAvatar(
-                              radius: 36,
-                              backgroundColor: const Color(0xFFF1F5F9),
-                              backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
-                                  ? CachedNetworkImageProvider(widget.avatar)
-                                  : null,
-                              child: (widget.avatar.isEmpty || widget.avatar.contains('pravatar.cc'))
-                                  ? const Icon(Icons.person, size: 36, color: Colors.grey)
-                                  : null,
-                            ),
+                             child: () {
+                                final displayAvatar = (_fetchedAvatar != null && _fetchedAvatar!.isNotEmpty)
+                                    ? _fetchedAvatar!
+                                    : widget.avatar;
+                                final bool hasValidAvatar = displayAvatar.isNotEmpty && !displayAvatar.contains('pravatar.cc');
+                                return CircleAvatar(
+                                  radius: 36,
+                                  backgroundColor: const Color(0xFFF1F5F9),
+                                  backgroundImage: hasValidAvatar ? CachedNetworkImageProvider(displayAvatar) : null,
+                                  child: !hasValidAvatar ? const Icon(Icons.person, size: 36, color: Colors.grey) : null,
+                                );
+                              }(),
                           ),
                           if (_isProfileVerified)
                             Positioned(
