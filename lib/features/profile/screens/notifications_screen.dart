@@ -29,10 +29,112 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Future<void> _fetchNotifications() async {
     setState(() => _isLoading = true);
     final data = await SupabaseService.getUserNotifications();
-    setState(() {
-      _notifications = data;
-      _isLoading = false;
+    List<Map<String, dynamic>> combined = List<Map<String, dynamic>>.from(data);
+
+    try {
+      // 1. Synthesize Guest Visits
+      final myVisits = await SupabaseService.getMyVisits();
+      for (final visit in myVisits) {
+        final existing = combined.any((n) => n['booking_id']?.toString() == visit.id);
+        if (!existing) {
+          final timeStr = visit.createdAt?.toIso8601String() ?? DateTime.now().toIso8601String();
+          if (visit.status == 'visit_accepted' || visit.status == 'awaiting_payment') {
+            combined.add({
+              'id': 'synth_${visit.id}',
+              'booking_id': visit.id,
+              'property_id': visit.propertyId,
+              'title': 'अवलोकन स्वीकृत (Visit Approved! Pay Now)',
+              'message': 'तपाइँको अनुरोध स्वीकृत भयो। भुक्तानी गरेर कोठा निश्चित गर्नुहोस्।',
+              'type': 'booking_approved',
+              'created_at': timeStr,
+            });
+          } else if (visit.status == 'paid' || visit.status == 'payment_under_review') {
+            combined.add({
+              'id': 'synth_${visit.id}',
+              'booking_id': visit.id,
+              'property_id': visit.propertyId,
+              'title': 'भुक्तानी प्रमाण पेस भयो (Payment Submitted)',
+              'message': '${visit.propertyTitle ?? "प्रोपर्टी"} को लागि भुक्तानीको प्रमाण पेस भएको छ। समीक्षा हुँदैछ।',
+              'type': 'booking_alert',
+              'created_at': timeStr,
+            });
+          } else if (visit.status == 'confirmed') {
+            combined.add({
+              'id': 'synth_${visit.id}',
+              'booking_id': visit.id,
+              'property_id': visit.propertyId,
+              'title': 'बुकिङ निश्चित भयो (Booking Confirmed! 🎉)',
+              'message': '${visit.propertyTitle ?? "प्रोपर्टी"} को बुकिङ सफलतापुर्वक निश्चित भयो।',
+              'type': 'booking_alert',
+              'created_at': timeStr,
+            });
+          } else if (visit.status == 'pending_approval') {
+            combined.add({
+              'id': 'synth_${visit.id}',
+              'booking_id': visit.id,
+              'property_id': visit.propertyId,
+              'title': 'अनुरोध पेस गरियो (Booking Request Sent)',
+              'message': 'घरधनीबाट स्वीकृतिको पर्खाइमा छ।',
+              'type': 'booking_alert',
+              'created_at': timeStr,
+            });
+          }
+        }
+      }
+
+      // 2. Synthesize Owner Requests
+      final ownerRequests = await SupabaseService.getVisitRequestsForOwner();
+      for (final req in ownerRequests) {
+        final bId = req['id']?.toString() ?? '';
+        final existing = combined.any((n) => n['booking_id']?.toString() == bId);
+        if (!existing && bId.isNotEmpty) {
+          final guestName = req['guest']?['full_name'] ?? 'A Guest';
+          final propTitle = req['properties']?['title'] ?? 'your property';
+          final status = req['status']?.toString() ?? '';
+          final timeStr = req['created_at']?.toString() ?? DateTime.now().toIso8601String();
+
+          if (status == 'pending_approval') {
+            combined.add({
+              'id': 'synth_owner_$bId',
+              'booking_id': bId,
+              'property_id': req['property_id'],
+              'title': 'नयाँ बुकिङ अनुरोध (New Booking Request)',
+              'message': '$guestName ले "$propTitle" को लागी अनुरोध गर्नुभएको छ।',
+              'type': 'booking_request',
+              'sender': req['guest'],
+              'created_at': timeStr,
+            });
+          } else if (status == 'paid') {
+            combined.add({
+              'id': 'synth_owner_$bId',
+              'booking_id': bId,
+              'property_id': req['property_id'],
+              'title': 'नयाँ भुक्तानी प्राप्त (Payment Received! 💸)',
+              'message': '$guestName ले "$propTitle" को लागी भुक्तानी पेस गर्नुभएको छ।',
+              'type': 'payment_received',
+              'sender': req['guest'],
+              'created_at': timeStr,
+            });
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error synthesizing notifications: $e');
+    }
+
+    // Sort by timestamp descending
+    combined.sort((a, b) {
+      final aTime = DateTime.tryParse(a['created_at']?.toString() ?? '') ?? DateTime.now();
+      final bTime = DateTime.tryParse(b['created_at']?.toString() ?? '') ?? DateTime.now();
+      return bTime.compareTo(aTime);
     });
+
+    if (mounted) {
+      setState(() {
+        _notifications = combined;
+        _isLoading = false;
+      });
+    }
     // Mark all as read when the screen is opened/refreshed
     await SupabaseService.markNotificationsAsRead();
   }

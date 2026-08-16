@@ -112,5 +112,20 @@
         <intent>
             <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
+        <!-- eSewa & Khalti Package Visibility -->
+        <package android:name="np.com.esewa.app" />
+        <package android:name="com.khalti" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="esewa" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="khalti" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
     </queries>
 </manifest>

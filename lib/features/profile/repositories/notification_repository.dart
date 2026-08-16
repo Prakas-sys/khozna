@@ -98,6 +98,7 @@ class NotificationRepository {
 
   /// Delete a specific notification
   static Future<void> deleteNotification(String id) async {
+    if (id.startsWith('synth_')) return; // 🛡 Guard for synthesized notifications
     final user = _client.auth.currentUser;
     if (user == null) return;
     try {

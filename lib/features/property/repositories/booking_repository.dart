@@ -319,13 +319,13 @@ class BookingRepository {
         'booking_id': bookingId,
       });
 
-      // 4. Notify ADMIN (Global channel or special type)
+      // 4. Notify guest (confirmation alert)
       await _client.from('notifications').insert({
-        'user_id': 'admin', // Standard identifier for admins to pick up
-        'sender_id': user.id,
-        'title': '🚨 New Admin Verification Required',
-        'message': 'Payment proof uploaded for ${booking.propertyTitle}. Check dashboard for screenshot: $proofImageUrl',
-        'type': 'admin_alert',
+        'user_id': user.id,
+        'sender_id': booking.ownerId,
+        'title': 'भुक्तानी प्रमाण पेस भयो (Payment Proof Submitted! 💳)',
+        'message': '${booking.propertyTitle ?? "प्रोपर्टी"} को लागि भुक्तानीको प्रमाण सफलतापूर्वक पेस भएको छ। समीक्षा भइरहेको छ।',
+        'type': 'booking_alert',
         'property_id': booking.propertyId,
         'booking_id': bookingId,
       });

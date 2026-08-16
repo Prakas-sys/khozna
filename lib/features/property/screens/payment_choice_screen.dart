@@ -34,10 +34,17 @@ class PaymentChoiceScreen extends StatefulWidget {
 
 class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
   final TextEditingController _transactionController = TextEditingController();
-  int _currentStep = 0; // 0 = Select Method & Review, 1 = Pay & Upload Proof
+  
+  // 3-step checkout state:
+  // Step 0 = Choose Path (Khozna Escrow vs Host Direct)
+  // Step 1 = Select Specific Method (eSewa, Khalti, Bank, Fonepay, Host QR, etc.)
+  // Step 2 = Account Details & Upload Proof
+  int _currentStep = 0;
+  String _paymentPath = 'khozna_escrow'; // 'khozna_escrow' or 'host_direct'
+  String _selectedMethod = 'khozna_esewa';
+  
   bool _isSubmitting = false;
   bool _isLoadingOwner = true;
-  String _selectedMethod = 'khozna_esewa';
   UserModel? _ownerProfile;
   File? _proofImage;
   late BookingModel _currentBooking;
@@ -95,7 +102,61 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     } catch (_) {}
   }
 
-  String get _paymentDestination => _selectedMethod == 'khozna_esewa' ? 'khozna' : 'owner';
+  Future<void> _launchWalletApp(String appType) async {
+    final String appName = appType == 'esewa' ? 'eSewa' : 'Khalti';
+    final List<String> launchCandidates = appType == 'esewa'
+        ? [
+            'esewa://',
+            'intent://esewa.com.np/#Intent;scheme=esewa;package=np.com.esewa.app;end',
+            'https://esewa.com.np',
+          ]
+        : [
+            'khalti://',
+            'intent://khalti.com/#Intent;scheme=khalti;package=com.khalti;end',
+            'https://khalti.com',
+          ];
+
+    bool launchedSuccess = false;
+    for (final uriStr in launchCandidates) {
+      try {
+        final Uri uri = Uri.parse(uriStr);
+        if (await canLaunchUrl(uri)) {
+          launchedSuccess = await launchUrl(uri, mode: LaunchMode.externalApplication);
+          if (launchedSuccess) break;
+        }
+      } catch (_) {}
+    }
+
+    if (!launchedSuccess) {
+      try {
+        final Uri directUri = Uri.parse(appType == 'esewa' ? 'esewa://' : 'khalti://');
+        await launchUrl(directUri, mode: LaunchMode.externalApplication);
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Please open $appName app manually to complete payment.', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  String get _paymentDestination => _paymentPath == 'khozna_escrow' ? 'khozna' : 'owner';
+
+  String get _stepTitle {
+    switch (_currentStep) {
+      case 0:
+        return 'Payment Type';
+      case 1:
+        return 'Select Method';
+      case 2:
+      default:
+        return 'Complete Payment';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,8 +169,8 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87, size: 18),
           onPressed: () {
-            if (_currentStep == 1) {
-              setState(() => _currentStep = 0);
+            if (_currentStep > 0) {
+              setState(() => _currentStep--);
             } else {
               Navigator.pop(context);
             }
@@ -118,7 +179,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         title: Column(
           children: [
             Text(
-              _currentStep == 0 ? 'Confirm & Pay' : 'Complete Payment',
+              _stepTitle,
               style: GoogleFonts.plusJakartaSans(
                 color: Colors.black,
                 fontWeight: FontWeight.w800,
@@ -126,7 +187,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               ),
             ),
             Text(
-              'Step ${_currentStep + 1} of 2',
+              'Step ${_currentStep + 1} of 3',
               style: GoogleFonts.inter(
                 color: Colors.grey[500],
                 fontWeight: FontWeight.w600,
@@ -139,7 +200,7 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(3),
           child: LinearProgressIndicator(
-            value: (_currentStep + 1) / 2,
+            value: (_currentStep + 1) / 3,
             backgroundColor: Colors.grey[100],
             color: Colors.black,
             minHeight: 3,
@@ -147,14 +208,30 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         ),
       ),
       body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 250),
-        child: _currentStep == 0 ? _buildStepOne() : _buildStepTwo(),
+        duration: const Duration(milliseconds: 220),
+        child: _buildCurrentStepView(),
       ),
     );
   }
 
-  // ── STEP 1: REVIEW RESERVATION & CHOOSE METHOD ──
-  Widget _buildStepOne() {
+  Widget _buildCurrentStepView() {
+    switch (_currentStep) {
+      case 0:
+        return _buildStepZeroPathSelection();
+      case 1:
+        return _buildStepOneMethodSelection();
+      case 2:
+      default:
+        return _buildStepTwoAccountAndUpload();
+    }
+  }
+
+  // ── STEP 1 OF 3: CHOOSE PAYMENT PATH (ESCROW VS HOST DIRECT) ──
+  Widget _buildStepZeroPathSelection() {
+    final hasHostPayment = _ownerProfile?.esewaNumber?.isNotEmpty == true ||
+        _ownerProfile?.khaltiNumber?.isNotEmpty == true ||
+        _ownerProfile?.qrCodeUrl?.isNotEmpty == true;
+
     return Column(
       children: [
         Expanded(
@@ -165,10 +242,10 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               children: [
                 _buildReceiptTicket(),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
                 Text(
-                  'PAYMENT METHOD',
+                  'WHO DO YOU WANT TO PAY?',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -176,72 +253,176 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                     letterSpacing: 0.8,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
 
-                _isLoadingOwner
-                    ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: CircularProgressIndicator(color: AppTheme.brandColor, strokeWidth: 2),
-                        ),
-                      )
-                    : _buildPaymentMethodsList(),
+                // Option A: Khozna Escrow
+                _buildPathCard(
+                  id: 'khozna_escrow',
+                  title: 'Khozna Secure Escrow',
+                  subtitle: 'Funds are held safely by Khozna & released after you move in. 100% refund protection.',
+                  badge: 'RECOMMENDED',
+                  icon: Icons.shield_rounded,
+                  iconColor: const Color(0xFF2E7D32),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Option B: Direct to Landlord
+                _buildPathCard(
+                  id: 'host_direct',
+                  title: 'Direct to Landlord',
+                  subtitle: hasHostPayment
+                      ? 'Pay directly to host via their eSewa, Khalti, or Bank QR code.'
+                      : 'Host hasn\'t configured direct wallet yet. Use Khozna Escrow.',
+                  badge: 'DIRECT',
+                  icon: Icons.person_rounded,
+                  iconColor: Colors.black87,
+                  disabled: !hasHostPayment,
+                ),
               ],
             ),
           ),
         ),
 
-        // Bottom Sticky Action Button
-        Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: Colors.grey[200]!)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: () {
-                  HapticFeedback.mediumImpact();
-                  setState(() => _currentStep = 1);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-                  elevation: 0,
-                  padding: EdgeInsets.zero,
-                ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Continue to Payment',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                          color: Colors.white,
-                          height: 1.0,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+        // Sticky Bottom Button
+        _buildBottomStickyButton(
+          label: 'Continue to Methods',
+          onPressed: () {
+            HapticFeedback.mediumImpact();
+            // Default selected method based on path
+            if (_paymentPath == 'khozna_escrow') {
+              _selectedMethod = 'khozna_esewa';
+            } else {
+              if (_ownerProfile?.esewaNumber?.isNotEmpty == true) {
+                _selectedMethod = 'owner_esewa';
+              } else if (_ownerProfile?.khaltiNumber?.isNotEmpty == true) {
+                _selectedMethod = 'owner_khalti';
+              } else {
+                _selectedMethod = 'owner_qr';
+              }
+            }
+            setState(() => _currentStep = 1);
+          },
         ),
       ],
     );
   }
 
-  // ── STEP 2: VIEW DETAILS & UPLOAD PROOF ──
-  Widget _buildStepTwo() {
+  Widget _buildPathCard({
+    required String id,
+    required String title,
+    required String subtitle,
+    required String badge,
+    required IconData icon,
+    required Color iconColor,
+    bool disabled = false,
+  }) {
+    final isSelected = _paymentPath == id;
+
+    return GestureDetector(
+      onTap: disabled
+          ? null
+          : () {
+              HapticFeedback.selectionClick();
+              setState(() => _paymentPath = id);
+            },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: disabled ? const Color(0xFFF1F5F9) : Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isSelected ? Colors.black : Colors.grey[200]!,
+            width: isSelected ? 2 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(isSelected ? 0.04 : 0.01),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: id == 'khozna_escrow' ? const Color(0xFFE8F5E9) : const Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: iconColor,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          title,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w800,
+                            color: disabled ? Colors.grey[500] : Colors.black,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
+                        decoration: BoxDecoration(
+                          color: id == 'khozna_escrow'
+                              ? const Color(0xFFE8F5E9)
+                              : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          badge,
+                          style: GoogleFonts.inter(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: id == 'khozna_escrow'
+                                ? const Color(0xFF2E7D32)
+                                : const Color(0xFF475569),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: disabled ? Colors.grey[400] : Colors.grey[600],
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── STEP 2 OF 3: SELECT METHOD ──
+  Widget _buildStepOneMethodSelection() {
+    final isEscrow = _paymentPath == 'khozna_escrow';
+
     return Column(
       children: [
         Expanded(
@@ -250,276 +431,78 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Selected Payment Method Detail Box
-                _buildSelectedPaymentCard(),
-
-                const SizedBox(height: 20),
-
-                // Upload Section
-                _buildProofUploadSection(),
-
-                const SizedBox(height: 20),
-
-                // Protection Card
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.verified_user_rounded, color: Color(0xFF2E7D32), size: 20),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Your funds stay safe in Khozna Escrow until you inspect the property in person.',
-                          style: GoogleFonts.inter(fontSize: 11.5, color: const Color(0xFF334155), height: 1.3),
-                        ),
-                      ),
-                    ],
+                Text(
+                  isEscrow ? 'KHOZNA ESCROW PAYMENT METHODS' : 'HOST DIRECT PAYMENT METHODS',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.grey[500],
+                    letterSpacing: 0.8,
                   ),
                 ),
+                const SizedBox(height: 12),
+
+                if (isEscrow) ...[
+                  _buildMethodOptionTile(
+                    id: 'khozna_esewa',
+                    title: 'eSewa Wallet',
+                    subtitle: 'Pay via eSewa to Khozna Escrow',
+                    logo: 'assets/images/esewa.webp',
+                  ),
+                  _buildMethodOptionTile(
+                    id: 'khozna_khalti',
+                    title: 'Khalti Digital Wallet',
+                    subtitle: 'Pay via Khalti to Khozna Escrow',
+                    logo: 'assets/images/khalti.png',
+                  ),
+                  _buildMethodOptionTile(
+                    id: 'khozna_bank',
+                    title: 'Direct Bank Transfer',
+                    subtitle: 'Transfer to NABIL Bank (IPS / Banking)',
+                    icon: Icons.account_balance_rounded,
+                  ),
+                  _buildMethodOptionTile(
+                    id: 'khozna_fonepay',
+                    title: 'Fonepay Interbank QR',
+                    subtitle: 'Scan using any Mobile Banking App',
+                    icon: Icons.qr_code_2_rounded,
+                  ),
+                ] else ...[
+                  if (_ownerProfile?.esewaNumber?.isNotEmpty == true)
+                    _buildMethodOptionTile(
+                      id: 'owner_esewa',
+                      title: 'Host\'s eSewa Wallet',
+                      subtitle: 'Transfer directly to ${_ownerProfile?.esewaNumber}',
+                      logo: 'assets/images/esewa.webp',
+                    ),
+                  if (_ownerProfile?.khaltiNumber?.isNotEmpty == true)
+                    _buildMethodOptionTile(
+                      id: 'owner_khalti',
+                      title: 'Host\'s Khalti Wallet',
+                      subtitle: 'Transfer directly to ${_ownerProfile?.khaltiNumber}',
+                      logo: 'assets/images/khalti.png',
+                    ),
+                  if (_ownerProfile?.qrCodeUrl?.isNotEmpty == true)
+                    _buildMethodOptionTile(
+                      id: 'owner_qr',
+                      title: 'Host\'s Bank QR Code',
+                      subtitle: 'Scan landlord\'s personal QR code',
+                      icon: Icons.qr_code_scanner_rounded,
+                    ),
+                ],
               ],
             ),
           ),
         ),
 
-        // Bottom Sticky Action Button
-        Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(top: BorderSide(color: Colors.grey[200]!)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: _isSubmitting ? null : _proceed,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  disabledBackgroundColor: Colors.grey[300],
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-                  elevation: 0,
-                  padding: EdgeInsets.zero,
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Center(
-                        child: Text(
-                          'Submit Payment & Confirm',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                            color: Colors.white,
-                            height: 1.0,
-                          ),
-                        ),
-                      ),
-              ),
-            ),
-          ),
+        // Sticky Bottom Button
+        _buildBottomStickyButton(
+          label: 'Proceed to Payment Details',
+          onPressed: () {
+            HapticFeedback.mediumImpact();
+            setState(() => _currentStep = 2);
+          },
         ),
-      ],
-    );
-  }
-
-  // ── RECEIPT TICKET ──
-  Widget _buildReceiptTicket() {
-    final String dateStr = DateFormat('MMM d, yyyy').format(_currentBooking.checkIn);
-    final String amountStr = PriceFormatter.format(_currentBooking.totalPrice.toString());
-
-    return CustomPaint(
-      painter: TicketBorderPainter(),
-      child: ClipPath(
-        clipper: ReceiptTicketClipper(),
-        child: Container(
-          color: Colors.white,
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Icon(
-                    Icons.receipt_long_rounded,
-                    color: Colors.black87,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      'BOOKING SUMMARY',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8,
-                        color: Colors.black87,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F5E9),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.shield_outlined, size: 11, color: Color(0xFF2E7D32)),
-                        const SizedBox(width: 3),
-                        Text(
-                          '100% Protected',
-                          style: GoogleFonts.inter(
-                            fontSize: 9.5,
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF2E7D32),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              Text(
-                _currentTitle,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey[500]),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Check-in: $dateStr',
-                    style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              CustomPaint(
-                size: const Size(double.infinity, 1),
-                painter: DashedLinePainter(),
-              ),
-
-              const SizedBox(height: 16),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'TOTAL AMOUNT',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey[500],
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Advance Rent',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Transform.translate(
-                        offset: const Offset(0, 1),
-                        child: SvgPicture.asset(
-                          'assets/icons/vector of ruppes.svg',
-                          width: 16,
-                          height: 16,
-                          colorFilter: const ColorFilter.mode(
-                            Colors.black,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 3),
-                      Text(
-                        amountStr,
-                        style: GoogleFonts.outfit(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── PAYMENT METHOD SELECTOR LIST ──
-  Widget _buildPaymentMethodsList() {
-    final showOwnerEsewa = _ownerProfile?.esewaNumber?.isNotEmpty == true;
-    final showOwnerKhalti = _ownerProfile?.khaltiNumber?.isNotEmpty == true;
-    final showOwnerQr = _ownerProfile?.qrCodeUrl?.isNotEmpty == true;
-
-    return Column(
-      children: [
-        _buildMethodOptionTile(
-          id: 'khozna_esewa',
-          title: 'Khozna Secure (eSewa)',
-          subtitle: 'Protected by Escrow refund guarantee',
-          logo: 'assets/images/esewa.webp',
-        ),
-        if (showOwnerEsewa)
-          _buildMethodOptionTile(
-            id: 'owner_esewa',
-            title: 'Host\'s eSewa Direct',
-            subtitle: 'Transfer directly to landlord',
-            logo: 'assets/images/esewa.webp',
-          ),
-        if (showOwnerKhalti)
-          _buildMethodOptionTile(
-            id: 'owner_khalti',
-            title: 'Host\'s Khalti Direct',
-            subtitle: 'Transfer directly to landlord',
-            logo: 'assets/images/khalti.png',
-          ),
-        if (showOwnerQr)
-          _buildMethodOptionTile(
-            id: 'owner_qr',
-            title: 'Scan Host\'s QR Code',
-            subtitle: 'Scan using any banking app',
-            icon: Icons.qr_code_scanner_rounded,
-          ),
       ],
     );
   }
@@ -616,7 +599,333 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  // ── SELECTED METHOD DISPLAY (STEP 2) ──
+  // ── STEP 3 OF 3: ACCOUNT DETAILS & UPLOAD PROOF ──
+  Widget _buildStepTwoAccountAndUpload() {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSelectedPaymentCard(),
+
+                const SizedBox(height: 20),
+
+                _buildProofUploadSection(),
+
+                const SizedBox(height: 20),
+
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.verified_user_rounded, color: Color(0xFF2E7D32), size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _paymentPath == 'khozna_escrow'
+                              ? 'Your funds stay safe in Khozna Escrow until you inspect the property in person.'
+                              : 'You are transferring directly to landlord. Screenshot will be recorded with host.',
+                          style: GoogleFonts.inter(fontSize: 11.5, color: const Color(0xFF334155), height: 1.35),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Sticky Bottom Submit Button
+        Container(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(top: BorderSide(color: Colors.grey[200]!)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _proceed,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  disabledBackgroundColor: Colors.grey[300],
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                  elevation: 0,
+                  padding: EdgeInsets.zero,
+                ),
+                child: _isSubmitting
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Center(
+                        child: Text(
+                          'Submit Payment & Confirm',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            color: Colors.white,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomStickyButton({required String label, required VoidCallback onPressed}) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Colors.grey[200]!)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: ElevatedButton(
+            onPressed: onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+              elevation: 0,
+              padding: EdgeInsets.zero,
+            ),
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    label,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: Colors.white,
+                      height: 1.0,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── RECEIPT TICKET ──
+  Widget _buildReceiptTicket() {
+    final String dateStr = DateFormat('MMM d, yyyy').format(_currentBooking.checkIn);
+    final String amountStr = PriceFormatter.format(_currentBooking.totalPrice.toString());
+
+    return CustomPaint(
+      painter: TicketBorderPainter(),
+      child: ClipPath(
+        clipper: ReceiptTicketClipper(),
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.receipt_long_rounded,
+                    color: Colors.black87,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'BOOKING SUMMARY',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        color: Colors.black87,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE8F5E9),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.shield_outlined, size: 10, color: Color(0xFF2E7D32)),
+                        const SizedBox(width: 3),
+                        Text(
+                          'ESCROW SECURE',
+                          style: GoogleFonts.inter(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF2E7D32),
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  if (widget.property != null && widget.property!.images.isNotEmpty) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        widget.property!.images.first,
+                        width: 48,
+                        height: 48,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 48,
+                          height: 48,
+                          color: const Color(0xFFF1F5F9),
+                          child: const Icon(Icons.apartment_rounded, size: 22, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _currentTitle,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today_outlined, size: 12, color: Colors.grey[500]),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Check-in: $dateStr',
+                              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              CustomPaint(
+                size: const Size(double.infinity, 1),
+                painter: DashedLinePainter(),
+              ),
+
+              const SizedBox(height: 16),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'TOTAL AMOUNT',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey[500],
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Advance Rent (1 Month)',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Transform.translate(
+                        offset: const Offset(0, 1),
+                        child: SvgPicture.asset(
+                          'assets/icons/vector of ruppes.svg',
+                          width: 16,
+                          height: 16,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.black,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 3),
+                      Text(
+                        amountStr,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      Text(
+                        ' /mo',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── SELECTED METHOD DISPLAY ──
   Widget _buildSelectedPaymentCard() {
     if (_selectedMethod == 'khozna_esewa') {
       return _buildCopyDetailCard(
@@ -626,20 +935,41 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
         showOpenEsewa: true,
       );
     }
+    if (_selectedMethod == 'khozna_khalti') {
+      return _buildCopyDetailCard(
+        title: 'Khozna Khalti Escrow ID',
+        number: '9863590097',
+        logo: 'assets/images/khalti.png',
+        showOpenKhalti: true,
+      );
+    }
+    if (_selectedMethod == 'khozna_bank') {
+      return _buildBankDetailCard();
+    }
+    if (_selectedMethod == 'khozna_fonepay') {
+      return _buildCopyDetailCard(
+        title: 'Fonepay / Interbank ID',
+        number: '9863590097',
+        icon: Icons.qr_code_2_rounded,
+        holderName: 'Khozna Tech (NABIL Bank)',
+      );
+    }
     if (_selectedMethod == 'owner_esewa') {
       return _buildCopyDetailCard(
-        title: 'Host eSewa Number',
+        title: 'Owner eSewa Number',
         number: _ownerProfile?.esewaNumber ?? '',
         logo: 'assets/images/esewa.webp',
         holderName: _ownerProfile?.accountHolderName,
+        showOpenEsewa: true,
       );
     }
     if (_selectedMethod == 'owner_khalti') {
       return _buildCopyDetailCard(
-        title: 'Host Khalti Number',
+        title: 'Owner Khalti Number',
         number: _ownerProfile?.khaltiNumber ?? '',
         logo: 'assets/images/khalti.png',
         holderName: _ownerProfile?.accountHolderName,
+        showOpenKhalti: true,
       );
     }
     if (_selectedMethod == 'owner_qr') {
@@ -669,11 +999,113 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     return const SizedBox.shrink();
   }
 
+  Widget _buildBankDetailCard() {
+    const bankName = 'NABIL Bank Ltd.';
+    const accountName = 'Khozna Tech Pvt. Ltd.';
+    const accountNumber = '0100017523901';
+    const branch = 'Kathmandu Main Branch';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'BANK TRANSFER (NEPAL)',
+                style: GoogleFonts.inter(fontSize: 10.5, fontWeight: FontWeight.w800, color: Colors.grey[400], letterSpacing: 0.8),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text('IPS / Mobile Banking', style: GoogleFonts.inter(fontSize: 9.5, color: Colors.grey[600], fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(bankName, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.black)),
+          Text(branch, style: GoogleFonts.inter(fontSize: 11.5, color: Colors.grey[500])),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Account Name:', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500])),
+                    Text(accountName, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Account Number:', style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[500])),
+                    Row(
+                      children: [
+                        Text(accountNumber, style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black)),
+                        const SizedBox(width: 6),
+                        GestureDetector(
+                          onTap: () {
+                            Clipboard.setData(const ClipboardData(text: accountNumber));
+                            HapticFeedback.lightImpact();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Account number copied!', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                                duration: const Duration(seconds: 1),
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)),
+                            child: const Icon(Icons.copy_rounded, size: 14, color: Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCopyDetailCard({
     required String title,
     required String number,
-    required String logo,
+    String? logo,
+    IconData? icon,
     bool showOpenEsewa = false,
+    bool showOpenKhalti = false,
     String? holderName,
   }) {
     return Container(
@@ -701,10 +1133,13 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
           const SizedBox(height: 10),
           Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Image.asset(logo, width: 28, height: 28, fit: BoxFit.contain),
-              ),
+              if (logo != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: Image.asset(logo, width: 28, height: 28, fit: BoxFit.contain),
+                )
+              else if (icon != null)
+                Icon(icon, size: 26, color: Colors.grey[800]),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -754,24 +1189,85 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500),
             ),
           ],
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildFlowPill('1', 'Copy ID'),
+                Icon(Icons.chevron_right_rounded, size: 16, color: Colors.grey[400]),
+                _buildFlowPill('2', 'Transfer'),
+                Icon(Icons.chevron_right_rounded, size: 16, color: Colors.grey[400]),
+                _buildFlowPill('3', 'Upload Proof'),
+              ],
+            ),
+          ),
           if (showOpenEsewa) ...[
             const SizedBox(height: 14),
             SizedBox(
               width: double.infinity,
-              height: 42,
-              child: OutlinedButton.icon(
-                onPressed: () async {
-                  try { await launchUrl(Uri.parse('esewa://'), mode: LaunchMode.externalApplication); }
-                  catch (_) { await launchUrl(Uri.parse('https://esewa.com.np'), mode: LaunchMode.externalApplication); }
-                },
-                icon: const Icon(Icons.open_in_new_rounded, size: 14, color: Colors.black),
-                label: Text(
-                  'Open eSewa App',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13, color: Colors.black),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.black, width: 1.2),
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () => _launchWalletApp('esewa'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF60BB46), // Official eSewa Green
+                  elevation: 0,
+                  padding: EdgeInsets.zero,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Open eSewa App',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: Colors.white,
+                        height: 1.0,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.open_in_new_rounded, size: 16, color: Colors.white),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          if (showOpenKhalti) ...[
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () => _launchWalletApp('khalti'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF5C2D91), // Official Khalti Purple
+                  elevation: 0,
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Open Khalti App',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                        color: Colors.white,
+                        height: 1.0,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(Icons.open_in_new_rounded, size: 16, color: Colors.white),
+                  ],
                 ),
               ),
             ),
@@ -781,7 +1277,33 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
     );
   }
 
-  // ── PROOF UPLOAD (STEP 2) ──
+  Widget _buildFlowPill(String num, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 17,
+          height: 17,
+          decoration: const BoxDecoration(
+            color: Color(0xFFE2E8F0),
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            num,
+            style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w800, color: const Color(0xFF475569)),
+          ),
+        ),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.w600, color: const Color(0xFF334155)),
+        ),
+      ],
+    );
+  }
+
+  // ── PROOF UPLOAD ──
   Widget _buildProofUploadSection() {
     return Container(
       padding: const EdgeInsets.all(18),
