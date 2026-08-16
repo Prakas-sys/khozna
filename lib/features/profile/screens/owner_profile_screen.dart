@@ -126,11 +126,11 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
         ),
         title: Text(
           'Profile',
-          style: GoogleFonts.plusJakartaSans(
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
-            letterSpacing: -0.5,
+          style: GoogleFonts.inter(
+            color: const Color(0xFF0F172A),
+            fontWeight: FontWeight.w600,
+            fontSize: 17,
+            letterSpacing: -0.3,
           ),
         ),
         centerTitle: true,
@@ -143,142 +143,151 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             // Airbnb-style Host Passport Card
             Container(
               width: double.infinity,
+              padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(28),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Row(
-                  children: [
-                    // Passport Left: Large Photo with overlapping verified badge
-                    Expanded(
-                      flex: 4,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Stack(
                         children: [
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(3),
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: LinearGradient(
-                                    colors: [AppTheme.brandColor, Color(0xFF00C853)],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 46,
-                                  backgroundColor: const Color(0xFFF1F5F9),
-                                  backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
-                                      ? CachedNetworkImageProvider(widget.avatar)
-                                      : null,
-                                  child: (widget.avatar.isEmpty || widget.avatar.contains('pravatar.cc'))
-                                      ? const Icon(Icons.person, size: 44, color: Colors.grey)
-                                      : null,
-                                ),
-                              ),
-                              if (_isProfileVerified)
-                                Positioned(
-                                  bottom: 0,
-                                  right: 4,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.verified_rounded,
-                                      color: const Color(0xFF00C853), // Green
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            widget.name,
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                              height: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: AppTheme.brandColor.withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              'Verified Owner',
-                              style: GoogleFonts.inter(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.brandColor,
+                            padding: const EdgeInsets.all(2.5),
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [AppTheme.brandColor, AppTheme.brandColor],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
                             ),
+                            child: CircleAvatar(
+                              radius: 36,
+                              backgroundColor: const Color(0xFFF1F5F9),
+                              backgroundImage: (widget.avatar.isNotEmpty && !widget.avatar.contains('pravatar.cc'))
+                                  ? CachedNetworkImageProvider(widget.avatar)
+                                  : null,
+                              child: (widget.avatar.isEmpty || widget.avatar.contains('pravatar.cc'))
+                                  ? const Icon(Icons.person, size: 36, color: Colors.grey)
+                                  : null,
+                            ),
                           ),
+                          if (_isProfileVerified)
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.verified_rounded,
+                                  color: AppTheme.brandColor,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Container(height: 120, width: 1, color: Colors.grey.shade200),
-                    const SizedBox(width: 16),
-                    // Passport Right: Passport Stats Blocks
-                    Expanded(
-                      flex: 5,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildPassportStat('${_ownerReviews.length}', 'Votes'),
-                          const SizedBox(height: 16),
-                          _buildPassportStat(
-                            avgRating.toStringAsFixed(1),
-                            'Rating',
-                            suffixIcon: const Icon(Icons.star_rounded, color: Colors.black, size: 16),
-                          ),
-                        ],
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.name,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 19,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF0F172A),
+                                letterSpacing: -0.4,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.brandColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.shield_rounded, size: 12, color: AppTheme.brandColor),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Verified Owner',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.brandColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildPassportStat('${_ownerReviews.length}', 'Reviews'),
+                      Container(height: 28, width: 1, color: const Color(0xFFE2E8F0)),
+                      _buildPassportStat(
+                        avgRating.toStringAsFixed(1),
+                        'Rating',
+                        suffixIcon: const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+                      ),
+                      Container(height: 28, width: 1, color: const Color(0xFFE2E8F0)),
+                      _buildPassportStat(
+                        '${widget.totalListings > 0 ? widget.totalListings : 1}',
+                        'Listings',
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
             // About the Owner Section
             Text(
               'About ${widget.name}',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 18,
+                fontSize: 17,
                 fontWeight: FontWeight.w700,
-                color: Colors.black,
+                color: const Color(0xFF0F172A),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.grey.shade100),
+                border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,14 +296,14 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                     Text(
                       _bio!,
                       style: GoogleFonts.inter(
-                        fontSize: 14.5,
+                        fontSize: 14,
                         color: const Color(0xFF475569),
                         height: 1.45,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    const Divider(),
                     const SizedBox(height: 16),
+                    const Divider(color: Color(0xFFF1F5F9)),
+                    const SizedBox(height: 14),
                   ],
                   if (_realLocation.isNotEmpty && _realLocation != 'Unknown') ...[
                     _buildAboutMetaItem(Icons.location_on_outlined, _realLocation),
@@ -308,25 +317,25 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
             // Confirmed Information Section
             Text(
-              '${widget.name}\'s Confirmed Info',
+              'Confirmed Info',
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 18,
+                fontSize: 17,
                 fontWeight: FontWeight.w700,
-                color: Colors.black,
+                color: const Color(0xFF0F172A),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.grey.shade100),
+                border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
               ),
               child: Column(
                 children: [
@@ -435,7 +444,8 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
 
   Widget _buildPassportStat(String value, String label, {Widget? suffixIcon}) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -444,24 +454,24 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
             Text(
               value,
               style: GoogleFonts.plusJakartaSans(
-                fontSize: 22,
+                fontSize: 19,
                 fontWeight: FontWeight.w800,
-                color: Colors.black,
+                color: const Color(0xFF0F172A),
                 height: 1,
               ),
             ),
             if (suffixIcon != null) ...[
-              const SizedBox(width: 4),
+              const SizedBox(width: 3),
               suffixIcon,
             ],
           ],
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: 4),
         Text(
           label,
-          style: GoogleFonts.plusJakartaSans(
+          style: GoogleFonts.inter(
             fontSize: 11,
-            color: Colors.grey[500],
+            color: const Color(0xFF64748B),
             fontWeight: FontWeight.w600,
           ),
         ),

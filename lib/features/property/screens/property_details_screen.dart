@@ -637,16 +637,16 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
       children: [
         Icon(
           icon,
-          size: 18,
-          color: const Color(0xFF1E293B), // Dark slate icon
+          size: 15,
+          color: const Color(0xFF717171),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 4),
         Text(
           text,
           style: GoogleFonts.inter(
-            fontSize: 13.5,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF475569), // Text slate
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF717171),
           ),
         ),
       ],
@@ -655,12 +655,12 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
 
   Widget _buildSpecDivider() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Container(
-        width: 4,
-        height: 4,
+        width: 3,
+        height: 3,
         decoration: const BoxDecoration(
-          color: Color(0xFFCBD5E1), // Dot divider color
+          color: Color(0xFFB0B0B0),
           shape: BoxShape.circle,
         ),
       ),
@@ -713,7 +713,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildSpecItem(Icons.group_outlined, '$guests Guests'),
+            _buildSpecItem(Icons.group_outlined, '$guests ${guests == 1 ? "Guest" : "Guests"}'),
             _buildSpecDivider(),
             _buildSpecItem(Icons.bed_outlined, '$bedrooms ${bedrooms == 1 ? "Bed" : "Beds"}'),
             _buildSpecDivider(),
@@ -1391,7 +1391,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       ),
                       child: const Icon(
                         Icons.check_circle_rounded,
-                        color: const Color(0xFF00C853), // Green as requested
+                        color: AppTheme.brandColor,
                         size: 16,
                       ),
                     ),
@@ -1887,10 +1887,10 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       Text(
                         isNegotiable ? 'Negotiable' : PriceFormatter.format(price.toStringAsFixed(0)),
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: isNegotiable ? 15 : 18,
+                          fontSize: isNegotiable ? 17 : 21,
                           fontWeight: FontWeight.w800,
                           color: Colors.black,
-                          letterSpacing: -0.5,
+                          letterSpacing: -0.6,
                           decoration: isNegotiable ? TextDecoration.none : TextDecoration.underline,
                           decorationColor: Colors.black,
                           decorationThickness: 1.5,

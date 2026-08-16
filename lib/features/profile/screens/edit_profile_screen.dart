@@ -108,6 +108,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             .maybeSingle();
 
         if (mounted) {
+          final bool isProfileVerified = (profile?['is_verified'] as bool?) ?? false;
+
           setState(() {
             _fullNameController.text = profile?['full_name'] ?? '';
             _emailController.text = profile?['email'] ?? user?.email ?? '';
@@ -124,9 +126,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             _studentIdUrl = profile?['student_id_url'];
 
             if (kyc != null) {
-              _latitude = kyc['latitude'];
-              _longitude = kyc['longitude'];
-              _kycStatus = kyc['status'] ?? 'pending';
+              _latitude = (kyc['latitude'] as num?)?.toDouble();
+              _longitude = (kyc['longitude'] as num?)?.toDouble();
+              _kycStatus = kyc['status'] ?? (isProfileVerified ? 'verified' : 'pending');
+            } else if (isProfileVerified) {
+              _kycStatus = 'verified';
             }
           });
         }
@@ -139,23 +143,79 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _updateLocation() async {
+    if (user == null) return;
     setState(() => _isLocating = true);
     try {
       final position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
+
+      // Upsert to kyc_verifications table so it creates or updates
       await Supabase.instance.client
           .from('kyc_verifications')
-          .update({'latitude': position.latitude, 'longitude': position.longitude})
-          .eq('user_id', user!.id);
-      setState(() {
-        _latitude = position.latitude;
-        _longitude = position.longitude;
-      });
+          .upsert({
+            'user_id': user!.id,
+            'latitude': position.latitude,
+            'longitude': position.longitude,
+            'status': 'verified',
+            'updated_at': DateTime.now().toIso8601String(),
+          });
+
+      // Also persist is_verified in profiles table permanently
+      await Supabase.instance.client
+          .from('profiles')
+          .update({
+            'is_verified': true,
+          })
+          .eq('id', user!.id);
+
+      if (mounted) {
+        setState(() {
+          _latitude = position.latitude;
+          _longitude = position.longitude;
+          _kycStatus = 'verified';
+        });
+
+        HapticFeedback.mediumImpact();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.verified_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Text(
+                  'Location verified permanently!',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppTheme.brandColor,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+        );
+      }
     } catch (e) {
       debugPrint('Location error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Location update failed: $e',
+              style: GoogleFonts.inter(color: Colors.white),
+            ),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+        );
+      }
     } finally {
-      setState(() => _isLocating = false);
+      if (mounted) setState(() => _isLocating = false);
     }
   }
 
@@ -175,6 +235,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _updateProfile() async {
+    if (user == null) return;
     setState(() => _isLoading = true);
     try {
       String? avatar = _avatarUrl;
@@ -186,25 +247,65 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (_idFile != null) idCard = await CloudinaryService.uploadImage(_idFile!);
 
       await Supabase.instance.client.from('profiles').update({
-        'full_name': _fullNameController.text,
+        'full_name': _fullNameController.text.trim(),
         'avatar_url': avatar,
-        'phone_number': _phoneController.text,
-        'esewa_number': _esewaController.text,
-        'khalti_number': _khaltiController.text,
-        'account_holder_name': _accountNameController.text,
+        'phone_number': _phoneController.text.trim(),
+        'esewa_number': _esewaController.text.trim(),
+        'khalti_number': _khaltiController.text.trim(),
+        'account_holder_name': _accountNameController.text.trim(),
         'qr_code_url': qr,
-        'area_name': _areaController.text,
-        'user_type': _userTypeController.text,
-        'bio': _bioController.text,
-        'organization': _orgController.text,
+        'area_name': _areaController.text.trim(),
+        'user_type': _userTypeController.text.trim(),
+        'bio': _bioController.text.trim(),
+        'organization': _orgController.text.trim(),
         'student_id_url': idCard,
+        'updated_at': DateTime.now().toIso8601String(),
       }).eq('id', user!.id);
 
-      if (mounted) Navigator.pop(context, true);
+      if (mounted) {
+        HapticFeedback.mediumImpact();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+                const SizedBox(width: 10),
+                Text(
+                  'Profile saved permanently!',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppTheme.brandColor,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        await Future.delayed(const Duration(milliseconds: 600));
+        if (mounted) Navigator.pop(context, true);
+      }
     } catch (e) {
       debugPrint('Update error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to save: $e',
+              style: GoogleFonts.inter(color: Colors.white),
+            ),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+        );
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -434,7 +535,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isVerified ? const Color(0xFFE7F6ED) : const Color(0xFFFFF1F1),
+                  color: isVerified ? AppTheme.brandColor.withOpacity(0.1) : const Color(0xFFFFF1F1),
                   borderRadius: BorderRadius.circular(100),
                 ),
                 child: Row(
@@ -443,7 +544,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Icon(
                       isVerified ? Icons.verified_rounded : Icons.info_outline_rounded,
                       size: 14,
-                      color: isVerified ? const Color(0xFF008A05) : const Color(0xFFC13511),
+                      color: isVerified ? AppTheme.brandColor : const Color(0xFFC13511),
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -451,7 +552,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        color: isVerified ? const Color(0xFF008A05) : const Color(0xFFC13511),
+                        color: isVerified ? AppTheme.brandColor : const Color(0xFFC13511),
                       ),
                     ),
                   ],

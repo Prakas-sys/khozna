@@ -1160,52 +1160,41 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              width: 140,
-              height: 140,
-              decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.05),
-                shape: BoxShape.circle,
-              ),
+        Container(
+          width: 80,
+          height: 80,
+          decoration: const BoxDecoration(
+            color: Color(0xFFF8FAFC),
+            shape: BoxShape.circle,
+          ),
+          child: const Center(
+            child: Icon(
+              Icons.notifications_none_rounded,
+              size: 38,
+              color: Color(0xFF64748B),
             ),
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppTheme.brandColor.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-            ),
-            const Icon(
-              Icons.notifications_off_outlined,
-              size: 50,
-              color: AppTheme.brandColor,
-            ),
-          ],
-        ),
-        const SizedBox(height: 32),
-        Text(
-          'All Caught Up!',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-            letterSpacing: 0.2,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 20),
+        Text(
+          'You\'re all caught up',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF0F172A),
+            letterSpacing: -0.3,
+          ),
+        ),
+        const SizedBox(height: 8),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 48),
           child: Text(
-            'New updates will appear here.',
+            'When you receive new booking updates or messages, they will appear here.',
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 14,
-              color: Colors.grey[600],
-              height: 1.4,
+              fontSize: 13.5,
+              color: const Color(0xFF717171),
+              height: 1.45,
             ),
           ),
         ),
