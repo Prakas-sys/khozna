@@ -27,13 +27,20 @@ class MapLauncher {
           );
         }
       }
-    } catch (e) {
-      debugPrint('Could not launch maps: $e');
-      // Fallback to web browser
       await launchUrl(
         Uri.parse(googleUrl),
         mode: LaunchMode.externalApplication,
       );
+    }
+  }
+
+  static Future<void> openMapByAddress(String address) async {
+    final encoded = Uri.encodeComponent(address);
+    final url = 'https://www.google.com/maps/search/?api=1&query=$encoded';
+    try {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (e) {
+      debugPrint('Could not launch maps by address: $e');
     }
   }
 }
