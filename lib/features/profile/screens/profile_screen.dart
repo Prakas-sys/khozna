@@ -259,7 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 10),
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
               child: Column(
                 children: [
                   if (!_isLoading && _kycStatus != 'verified') ...[

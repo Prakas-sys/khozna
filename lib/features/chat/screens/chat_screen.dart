@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/core/utils/supabase_service.dart';
 import 'package:khozna/core/services/cloudinary_service.dart';
@@ -255,20 +256,24 @@ class _ChatScreenState extends State<ChatScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(22),
                           decoration: BoxDecoration(
                             color: AppTheme.brandColor.withOpacity(0.08),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
-                            Icons.chat_bubble_outline_rounded,
-                            size: 36,
-                            color: AppTheme.brandColor,
+                          child: SvgPicture.asset(
+                            'assets/icons/Message neww.svg',
+                            width: 32,
+                            height: 32,
+                            colorFilter: const ColorFilter.mode(
+                              AppTheme.brandColor,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 18),
                         Text(
-                          'कुराकानी सुरु गर्नुहोस्',
+                          'Start a Conversation',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,

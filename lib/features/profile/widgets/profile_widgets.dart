@@ -481,7 +481,7 @@ class PostPropertyCard extends StatelessWidget {
             ),
             // Main content row
             Padding(
-              padding: const EdgeInsets.fromLTRB(22, 24, 70, 24),
+              padding: const EdgeInsets.fromLTRB(20, 14, 70, 18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
