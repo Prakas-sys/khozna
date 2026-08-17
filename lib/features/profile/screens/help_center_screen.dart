@@ -18,12 +18,11 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   String _searchQuery = '';
   int? _expandedFaqIndex;
 
-  final List<Map<String, String>> _categories = [
-    {'name': 'All', 'icon': 'apps'},
-    {'name': 'Booking & Rent', 'icon': 'home'},
-    {'name': 'KYC & Safety', 'icon': 'verified_user'},
-    {'name': 'Payment', 'icon': 'account_balance_wallet'},
-    {'name': 'Tours & Reels', 'icon': 'videocam'},
+  final List<Map<String, dynamic>> _topicCategories = [
+    {'name': 'Booking & Rent', 'icon': Icons.home_work_rounded, 'color': Color(0xFF2563EB)},
+    {'name': 'KYC & Safety', 'icon': Icons.verified_user_rounded, 'color': Color(0xFF059669)},
+    {'name': 'Payment', 'icon': Icons.account_balance_wallet_rounded, 'color': Color(0xFF7C3AED)},
+    {'name': 'Tours & Reels', 'icon': Icons.play_circle_fill_rounded, 'color': Color(0xFFE11D48)},
   ];
 
   final List<Map<String, dynamic>> _faqs = [
@@ -31,43 +30,43 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
       'category': 'Booking & Rent',
       'question': 'How do I schedule a physical or virtual property tour?',
       'answer':
-          'Navigate to any property listing and tap "Book a Tour" or "Request Visit". You can choose your preferred date and time slot. The property owner will confirm the appointment directly.',
+          'Navigate to any property listing and tap "Book a Tour". You can choose your preferred date and time slot. The owner will confirm your visit directly.',
     },
     {
       'category': 'Booking & Rent',
       'question': 'Are there any hidden broker fees on Khozna?',
       'answer':
-          'No! Khozna connects tenants directly with verified room/flat owners. We do not charge hidden middleman commissions or broker fees.',
+          'No. Khozna connects tenants directly with verified owners. We do not charge hidden middleman commissions or broker fees.',
     },
     {
       'category': 'KYC & Safety',
       'question': 'Why is location & ID verification (KYC) required?',
       'answer':
-          'To keep our community safe and scam-free, both owners and tenants undergo identity verification. Verified profiles build mutual trust and ensure accurate rental agreements.',
+          'To keep our community safe and scam-free, both owners and tenants complete identity verification. This ensures authentic listings and verified profiles.',
     },
     {
       'category': 'KYC & Safety',
-      'question': 'How can I report a suspicious or misleading listing?',
+      'question': 'How do I report a suspicious or misleading listing?',
       'answer':
-          'Tap the "Report" button on the property details screen or contact our support team on WhatsApp immediately. We review and remove fraudulent posts within 1 hour.',
+          'Tap the "Report" option on the property page or message our team directly on WhatsApp. We review reports within 1 hour.',
     },
     {
       'category': 'Payment',
       'question': 'How is rental payment handled on Khozna?',
       'answer':
-          'Rent payments are made directly between tenant and owner via preferred digital wallets (eSewa, Khalti, Bank Transfer). Always request a digital receipt inside the app chat.',
+          'Rent payments are made directly between tenant and owner via eSewa, Khalti, or direct bank transfer. Always request a digital receipt inside the app chat.',
     },
     {
       'category': 'Payment',
       'question': 'What is the standard advance deposit policy?',
       'answer':
-          'In Nepal, most owners request 1 month advance rent as security deposit. Ensure you get written confirmation or receipt via Khozna chat before transferring funds.',
+          'In Nepal, owners typically ask for 1 month advance rent as security deposit. Ensure you confirm terms via Khozna chat before sending funds.',
     },
     {
       'category': 'Tours & Reels',
       'question': 'How do Video Reels work for properties?',
       'answer':
-          'Khozna Reels allow you to take a 360-degree video tour of rooms and apartments before visiting in person. Swipe up in the Tours tab to explore authentic room videos.',
+          'Khozna Reels provide room and flat video tours before you visit. Swipe through the Tours tab to inspect properties authentically.',
     },
   ];
 
@@ -100,7 +99,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -110,164 +109,417 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Help & Support',
+          'Help Center',
           style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
             color: Colors.black,
             letterSpacing: -0.3,
           ),
         ),
         centerTitle: true,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(
-            color: const Color(0xFFF1F5F9),
-            height: 1,
-          ),
-        ),
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hero Search Section
-            _buildHeroHeader(),
+            // Title Header
+            Text(
+              'How can we help?',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 26,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
+                letterSpacing: -0.6,
+              ),
+            ),
+            const SizedBox(height: 14),
 
-            const SizedBox(height: 20),
-
-            // Main Content Body
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Quick Contact Card (WhatsApp / Support)
-                  _buildLiveSupportBanner(context),
-
-                  const SizedBox(height: 28),
-
-                  // FAQ Section Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Frequently Asked Questions',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black,
-                          letterSpacing: -0.4,
-                        ),
-                      ),
-                      Text(
-                        '${filteredFaqs.length} items',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
+            // Single Clean Search Input
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (val) {
+                  setState(() {
+                    _searchQuery = val.trim();
+                    _expandedFaqIndex = null;
+                  });
+                },
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Search questions, keywords...',
+                  hintStyle: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    color: Colors.grey[400],
+                    fontWeight: FontWeight.w500,
                   ),
-                  const SizedBox(height: 14),
-
-                  // Category Chips
-                  _buildCategoryChips(),
-
-                  const SizedBox(height: 16),
-
-                  // Accordion FAQs List
-                  if (filteredFaqs.isEmpty)
-                    _buildEmptyFaqState()
-                  else
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: filteredFaqs.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final faq = filteredFaqs[index];
-                        final isExpanded = _expandedFaqIndex == index;
-
-                        return _buildFaqCard(
-                          index: index,
-                          faq: faq,
-                          isExpanded: isExpanded,
-                          onTap: () {
-                            HapticFeedback.selectionClick();
+                  prefixIcon: const Icon(Icons.search_rounded, color: Colors.black45, size: 20),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded, size: 18, color: Colors.grey),
+                          onPressed: () {
+                            _searchController.clear();
                             setState(() {
-                              _expandedFaqIndex = isExpanded ? null : index;
+                              _searchQuery = '';
                             });
                           },
-                        );
-                      },
+                        )
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Topic Categories Grid (Clean 2x2 Grid, No Double Containers)
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 2.2,
+              ),
+              itemCount: _topicCategories.length,
+              itemBuilder: (context, index) {
+                final topic = _topicCategories[index];
+                final String name = topic['name'] as String;
+                final IconData icon = topic['icon'] as IconData;
+                final Color color = topic['color'] as Color;
+                final bool isSelected = _selectedCategory == name;
+
+                return InkWell(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() {
+                      _selectedCategory = isSelected ? 'All' : name;
+                      _expandedFaqIndex = null;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.black : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected ? Colors.black : const Color(0xFFE2E8F0),
+                      ),
                     ),
-
-                  const SizedBox(height: 32),
-
-                  // Direct Contact Channel Options
-                  _buildSectionHeader('Direct Channels', 'Reach us anytime via email or call'),
-                  const SizedBox(height: 14),
-                  _buildContactChannels(),
-
-                  const SizedBox(height: 32),
-
-                  // Community Social Grid
-                  _buildSectionHeader('Official Community', 'Join our verified social updates'),
-                  const SizedBox(height: 14),
-                  _buildSocialCommunityGrid(),
-
-                  const SizedBox(height: 44),
-
-                  // Footer Info
-                  Center(
-                    child: Column(
+                    child: Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: const Color(0xFFE2E8F0)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF10B981),
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Systems Operational • v1.0.0',
-                                style: GoogleFonts.plusJakartaSans(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ],
-                          ),
+                        Icon(
+                          icon,
+                          size: 20,
+                          color: isSelected ? Colors.white : color,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '© KHOZNA Nepal • All Rights Reserved',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[400],
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            name,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 12.5,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                              color: isSelected ? Colors.white : Colors.black87,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40),
+                );
+              },
+            ),
+
+            const SizedBox(height: 28),
+
+            // FAQ Section Title & Reset Filter Action
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _selectedCategory == 'All' ? 'Popular Questions' : '$_selectedCategory FAQs',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                if (_selectedCategory != 'All' || _searchQuery.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedCategory = 'All';
+                        _searchQuery = '';
+                        _searchController.clear();
+                      });
+                    },
+                    child: Text(
+                      'Show All',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.brandColor,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            // FAQ Accordion List
+            if (filteredFaqs.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.search_off_rounded, size: 36, color: Colors.grey[300]),
+                      const SizedBox(height: 10),
+                      Text(
+                        'No questions found',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: filteredFaqs.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final faq = filteredFaqs[index];
+                  final isExpanded = _expandedFaqIndex == index;
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        setState(() {
+                          _expandedFaqIndex = isExpanded ? null : index;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    faq['question']!,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 14.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(
+                                  isExpanded
+                                      ? Icons.keyboard_arrow_up_rounded
+                                      : Icons.keyboard_arrow_down_rounded,
+                                  color: Colors.grey[500],
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                            if (isExpanded) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                faq['answer']!,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[700],
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+            const SizedBox(height: 36),
+
+            // Still Need Help? Clean Human Contact Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Still need help?',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Get in touch with Khozna team directly.',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  Row(
+                    children: [
+                      // WhatsApp
+                      Expanded(
+                        child: _buildContactButton(
+                          label: 'WhatsApp',
+                          icon: FontAwesomeIcons.whatsapp,
+                          bgColor: const Color(0xFF25D366),
+                          textColor: Colors.white,
+                          onTap: () => _launchUrl('https://wa.me/9779705278379'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Call
+                      Expanded(
+                        child: _buildContactButton(
+                          label: 'Call Us',
+                          icon: Icons.phone_rounded,
+                          bgColor: Colors.black,
+                          textColor: Colors.white,
+                          onTap: () => _launchUrl('tel:+9779705278379'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Email
+                      Expanded(
+                        child: _buildContactButton(
+                          label: 'Email',
+                          icon: Icons.email_rounded,
+                          bgColor: Colors.white,
+                          textColor: Colors.black,
+                          borderColor: const Color(0xFFE2E8F0),
+                          onTap: () => _launchUrl('mailto:khoznaapp@gmail.com'),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
+              ),
+            ),
+
+            const SizedBox(height: 28),
+
+            // Minimal Social Links Row
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildSocialTextLink('Facebook', 'https://www.facebook.com/profile.php?id=61587497082072'),
+                  _buildDotDivider(),
+                  _buildSocialTextLink('Instagram', 'https://www.instagram.com/khozna.np/'),
+                  _buildDotDivider(),
+                  _buildSocialTextLink('TikTok', 'https://www.tiktok.com/@khozna.np'),
+                  _buildDotDivider(),
+                  _buildSocialTextLink('LinkedIn', 'https://www.linkedin.com/company/110343039/'),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Minimal Footer
+            Center(
+              child: Text(
+                'Khozna Nepal • v1.0.0',
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[400],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactButton({
+    required String label,
+    required IconData icon,
+    required Color bgColor,
+    required Color textColor,
+    Color? borderColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        height: 44,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+          border: borderColor != null ? Border.all(color: borderColor) : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: textColor, size: 15),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: textColor,
               ),
             ),
           ],
@@ -276,626 +528,27 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     );
   }
 
-  Widget _buildHeroHeader() {
-    return Container(
-      width: double.infinity,
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.brandColor.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.headset_mic_rounded, size: 14, color: AppTheme.brandColor),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Khozna Concierge',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.brandColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'How can we help you?',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 26,
-              fontWeight: FontWeight.w900,
-              color: Colors.black,
-              letterSpacing: -0.6,
-              height: 1.2,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Search questions, safety rules, booking guidelines or contact support.',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 18),
-
-          // Search Field
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (val) {
-                setState(() {
-                  _searchQuery = val.trim();
-                  _expandedFaqIndex = null;
-                });
-              },
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Search topic, e.g. "rent", "deposit", "broker"...',
-                hintStyle: GoogleFonts.plusJakartaSans(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[400],
-                ),
-                prefixIcon: const Icon(Icons.search_rounded, color: Colors.black54, size: 20),
-                suffixIcon: _searchQuery.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear_rounded, size: 18, color: Colors.grey),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _searchQuery = '';
-                          });
-                        },
-                      )
-                    : null,
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLiveSupportBanner(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.12),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFF10B981).withOpacity(0.4)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF10B981),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '⚡ Usually replies in 15 mins',
-                      style: GoogleFonts.plusJakartaSans(
-                        color: const Color(0xFF34D399),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(FontAwesomeIcons.whatsapp, color: Color(0xFF25D366), size: 22),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Need Instant Assistance?',
-            style: GoogleFonts.plusJakartaSans(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 19,
-              letterSpacing: -0.4,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Chat directly with our Nepal operations team on WhatsApp for fast conflict resolution and booking inquiries.',
-            style: GoogleFonts.plusJakartaSans(
-              color: Colors.grey[400],
-              fontSize: 13,
-              height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 18),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: () {
-                HapticFeedback.mediumImpact();
-                _launchUrl('https://wa.me/9779705278379');
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.brandColor,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(FontAwesomeIcons.whatsapp, color: Colors.white, size: 18),
-                  const SizedBox(width: 10),
-                  Text(
-                    'Chat on WhatsApp (कुरा गर्नुहोस्)',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCategoryChips() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: _categories.map((cat) {
-          final String name = cat['name']!;
-          final bool isSelected = _selectedCategory == name;
-
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: ChoiceChip(
-              label: Text(name),
-              selected: isSelected,
-              onSelected: (val) {
-                if (val) {
-                  HapticFeedback.selectionClick();
-                  setState(() {
-                    _selectedCategory = name;
-                    _expandedFaqIndex = null;
-                  });
-                }
-              },
-              selectedColor: Colors.black,
-              backgroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              labelStyle: GoogleFonts.plusJakartaSans(
-                color: isSelected ? Colors.white : Colors.grey[700],
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                fontSize: 12.5,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: isSelected ? Colors.black : const Color(0xFFE2E8F0),
-                  width: isSelected ? 1.5 : 1,
-                ),
-              ),
-              showCheckmark: false,
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildFaqCard({
-    required int index,
-    required Map<String, dynamic> faq,
-    required bool isExpanded,
-    required VoidCallback onTap,
-  }) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isExpanded ? AppTheme.brandColor : const Color(0xFFE2E8F0),
-          width: isExpanded ? 1.5 : 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isExpanded ? 0.05 : 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      faq['category']!,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                    color: isExpanded ? AppTheme.brandColor : Colors.grey[400],
-                    size: 22,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                faq['question']!,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black,
-                  height: 1.3,
-                ),
-              ),
-              if (isExpanded) ...[
-                const SizedBox(height: 12),
-                const Divider(height: 1, color: Color(0xFFF1F5F9)),
-                const SizedBox(height: 12),
-                Text(
-                  faq['answer']!,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[700],
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ],
-          ),
+  Widget _buildSocialTextLink(String label, String url) {
+    return GestureDetector(
+      onTap: () => _launchUrl(url),
+      child: Text(
+        label,
+        style: GoogleFonts.plusJakartaSans(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey[600],
         ),
       ),
     );
   }
 
-  Widget _buildEmptyFaqState() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+  Widget _buildDotDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Text(
+        '•',
+        style: TextStyle(color: Colors.grey[300], fontSize: 10),
       ),
-      child: Column(
-        children: [
-          Icon(Icons.search_off_rounded, size: 44, color: Colors.grey[300]),
-          const SizedBox(height: 12),
-          Text(
-            'No matching questions found',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Try searching different terms or contact team directly.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 12.5,
-              color: Colors.grey[500],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, String subtitle) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 18,
-            fontWeight: FontWeight.w800,
-            color: Colors.black,
-            letterSpacing: -0.4,
-          ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          subtitle,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 12.5,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[500],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildContactChannels() {
-    return Column(
-      children: [
-        _buildContactTile(
-          icon: Icons.phone_in_talk_rounded,
-          iconBgColor: const Color(0xFFECFDF5),
-          iconColor: const Color(0xFF059669),
-          title: 'Direct Phone Line',
-          subtitle: '+977 9705278379',
-          badgeText: 'Call Support',
-          onTap: () => _launchUrl('tel:+9779705278379'),
-        ),
-        const SizedBox(height: 10),
-        _buildContactTile(
-          icon: Icons.mark_email_read_rounded,
-          iconBgColor: const Color(0xFFEFF6FF),
-          iconColor: const Color(0xFF2563EB),
-          title: 'Official Support Email',
-          subtitle: 'khoznaapp@gmail.com',
-          badgeText: 'Email Support',
-          onTap: () => _launchUrl('mailto:khoznaapp@gmail.com'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildContactTile({
-    required IconData icon,
-    required Color iconBgColor,
-    required Color iconColor,
-    required String title,
-    required String subtitle,
-    required String badgeText,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          onTap();
-        },
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: iconColor, size: 22),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14.5,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  badgeText,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSocialCommunityGrid() {
-    final socials = [
-      {
-        'name': 'Facebook',
-        'icon': FontAwesomeIcons.facebook,
-        'color': const Color(0xFF1877F2),
-        'bgColor': const Color(0xFFEFF6FF),
-        'url': 'https://www.facebook.com/profile.php?id=61587497082072',
-      },
-      {
-        'name': 'Instagram',
-        'icon': FontAwesomeIcons.instagram,
-        'color': const Color(0xFFE4405F),
-        'bgColor': const Color(0xFFFDF2F8),
-        'url': 'https://www.instagram.com/khozna.np/',
-      },
-      {
-        'name': 'TikTok',
-        'icon': FontAwesomeIcons.tiktok,
-        'color': Colors.black,
-        'bgColor': const Color(0xFFF1F5F9),
-        'url': 'https://www.tiktok.com/@khozna.np',
-      },
-      {
-        'name': 'LinkedIn',
-        'icon': FontAwesomeIcons.linkedin,
-        'color': const Color(0xFF0A66C2),
-        'bgColor': const Color(0xFFEFF6FF),
-        'url': 'https://www.linkedin.com/company/110343039/',
-      },
-    ];
-
-    return Row(
-      children: socials.map((social) {
-        final String name = social['name'] as String;
-        final IconData icon = social['icon'] as IconData;
-        final Color color = social['color'] as Color;
-        final Color bgColor = social['bgColor'] as Color;
-        final String url = social['url'] as String;
-
-        return Expanded(
-          child: GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _launchUrl(url);
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: bgColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Icon(icon, color: color, size: 18),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    name,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }).toList(),
     );
   }
 }
