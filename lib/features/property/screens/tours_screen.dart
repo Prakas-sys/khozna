@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/screens/property_details_screen.dart';
+import 'package:khozna/features/profile/screens/owner_profile_screen.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
@@ -513,7 +514,14 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => PropertyDetailsScreen(property: widget.property),
+                        builder: (_) => OwnerProfileScreen(
+                          ownerId: widget.property.ownerId,
+                          name: widget.property.ownerName,
+                          avatar: widget.property.ownerAvatar,
+                          isVerified: widget.property.isOwnerVerified,
+                          location: widget.property.location,
+                          totalListings: 1,
+                        ),
                       ),
                     );
                   },
@@ -674,31 +682,49 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                           ),
                           const SizedBox(width: 8),
                           Expanded(
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    widget.property.ownerName.isNotEmpty
-                                        ? widget.property.ownerName
-                                        : 'Khozna Host',
-                                    style: GoogleFonts.plusJakartaSans(
-                                      color: Colors.white70,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
+                            child: GestureDetector(
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => OwnerProfileScreen(
+                                      ownerId: widget.property.ownerId,
+                                      name: widget.property.ownerName,
+                                      avatar: widget.property.ownerAvatar,
+                                      isVerified: widget.property.isOwnerVerified,
+                                      location: widget.property.location,
+                                      totalListings: 1,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                if (widget.property.isOwnerVerified) ...[
-                                  const SizedBox(width: 4),
-                                  const Icon(
-                                    Icons.verified_rounded,
-                                    color: AppTheme.brandColor,
-                                    size: 14,
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      widget.property.ownerName.isNotEmpty
+                                          ? widget.property.ownerName
+                                          : 'Khozna Host',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        color: Colors.white70,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
+                                  if (widget.property.isOwnerVerified) ...[
+                                    const SizedBox(width: 4),
+                                    const Icon(
+                                      Icons.verified_rounded,
+                                      color: AppTheme.brandColor,
+                                      size: 14,
+                                    ),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
                           ),
                         ],
@@ -711,13 +737,13 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                         style: GoogleFonts.plusJakartaSans(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
-                          fontSize: 17,
+                          fontSize: 16,
                           height: 1.2,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 5),
 
                       // Location Row
                       Row(
@@ -725,7 +751,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                           const Icon(
                             Icons.location_on_rounded,
                             color: AppTheme.brandColor,
-                            size: 15,
+                            size: 14,
                           ),
                           const SizedBox(width: 4),
                           Expanded(
@@ -742,7 +768,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                           ),
                         ],
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 8),
 
                       // Price Tag & CTA Button Row
                       Row(
@@ -794,7 +820,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                             ],
                           ),
 
-                          // Book Visit CTA Button
+                          // Visit Now CTA Button
                           GestureDetector(
                             onTap: () {
                               HapticFeedback.mediumImpact();
@@ -827,7 +853,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    'BOOK VISIT',
+                                    'VISIT NOW',
                                     style: GoogleFonts.plusJakartaSans(
                                       color: Colors.white,
                                       fontSize: 11,
