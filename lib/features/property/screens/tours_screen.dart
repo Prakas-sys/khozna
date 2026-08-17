@@ -343,21 +343,12 @@ class _ToursScreenState extends State<ToursScreen> {
         onTap();
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
+        duration: const Duration(milliseconds: 220),
         curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.brandColor : Colors.transparent,
+          color: isSelected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.brandColor.withOpacity(0.4),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
-                  ),
-                ]
-              : [],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -365,13 +356,13 @@ class _ToursScreenState extends State<ToursScreen> {
             Icon(
               icon,
               size: 16,
-              color: Colors.white,
+              color: isSelected ? Colors.black87 : Colors.white,
             ),
             const SizedBox(width: 6),
             Text(
               title,
               style: GoogleFonts.plusJakartaSans(
-                color: Colors.white,
+                color: isSelected ? Colors.black87 : Colors.white,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                 fontSize: 13,
                 letterSpacing: 0.2,
@@ -668,12 +659,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  AppTheme.brandColor,
-                                  AppTheme.brandColor.withOpacity(0.7),
-                                ],
-                              ),
+                              color: AppTheme.brandColor,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -827,18 +813,13 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                                 vertical: 10,
                               ),
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    AppTheme.brandColor,
-                                    Color(0xFF0077B6),
-                                  ],
-                                ),
+                                color: AppTheme.brandColor,
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppTheme.brandColor.withOpacity(0.4),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
                                   ),
                                 ],
                               ),

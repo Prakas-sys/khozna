@@ -1315,72 +1315,39 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Price Range',
+                            'Price Range (NPR)',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
                               color: Colors.black,
                             ),
                           ),
-                          Row(
-                            children: [
-                              SvgPicture.asset(
-                                'assets/icons/vector of ruppes.svg',
-                                width: 13,
-                                height: 13,
-                                colorFilter: const ColorFilter.mode(
-                                  AppTheme.brandColor,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                '${minPrice.toInt()} - ${maxPrice.toInt()}',
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: AppTheme.brandColor,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            'Rs. ${minPrice.toInt()} - ${maxPrice.toInt()}',
+                            style: GoogleFonts.plusJakartaSans(
+                              color: AppTheme.brandColor,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 15,
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
 
-                      SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: AppTheme.brandColor,
-                          inactiveTrackColor: AppTheme.brandColor.withOpacity(0.15),
-                          thumbColor: Colors.white,
-                          overlayColor: AppTheme.brandColor.withOpacity(0.12),
-                          rangeThumbShape: const RoundRangeSliderThumbShape(
-                            enabledThumbRadius: 11,
-                            elevation: 4,
-                          ),
-                          trackHeight: 6,
-                        ),
-                        child: RangeSlider(
-                          values: RangeValues(minPrice, maxPrice),
-                          min: 1000,
-                          max: 100000,
-                          divisions: 99,
-                          onChanged: (RangeValues values) {
-                            setModalState(() {
-                              minPrice = values.start;
-                              maxPrice = values.end;
-                              _priceValue = values.end;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Quick Budget Chips
+                      // Quick Tap Presets
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
+                            _buildFilterChip(
+                              label: 'Any Price',
+                              isSelected: minPrice <= 1000 && maxPrice >= 100000,
+                              onTap: () => setModalState(() {
+                                minPrice = 1000;
+                                maxPrice = 100000;
+                              }),
+                            ),
+                            const SizedBox(width: 8),
                             _buildFilterChip(
                               label: 'Under 10k',
                               isSelected: maxPrice <= 10000,
@@ -1417,6 +1384,116 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                               }),
                             ),
                           ],
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Min & Max Price Input Boxes
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Minimum',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Rs. ${minPrice.toInt()}',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '-',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Maximum',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Rs. ${maxPrice.toInt()}',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Visual Range Slider
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: AppTheme.brandColor,
+                          inactiveTrackColor: AppTheme.brandColor.withOpacity(0.15),
+                          thumbColor: Colors.white,
+                          overlayColor: AppTheme.brandColor.withOpacity(0.12),
+                          rangeThumbShape: const RoundRangeSliderThumbShape(
+                            enabledThumbRadius: 11,
+                            elevation: 4,
+                          ),
+                          trackHeight: 6,
+                        ),
+                        child: RangeSlider(
+                          values: RangeValues(minPrice, maxPrice),
+                          min: 1000,
+                          max: 100000,
+                          divisions: 99,
+                          onChanged: (RangeValues values) {
+                            setModalState(() {
+                              minPrice = values.start;
+                              maxPrice = values.end;
+                              _priceValue = values.end;
+                            });
+                          },
                         ),
                       ),
 
