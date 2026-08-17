@@ -108,148 +108,78 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'Help Center',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: Colors.black,
-            letterSpacing: -0.3,
+        titleSpacing: 0,
+        // Single Top Search Bar (integrated cleanly in AppBar - no double search bars)
+        title: Container(
+          height: 42,
+          margin: const EdgeInsets.only(right: 16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: TextField(
+            controller: _searchController,
+            onChanged: (val) {
+              setState(() {
+                _searchQuery = val.trim();
+                _expandedFaqIndex = null;
+              });
+            },
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Search Help & FAQs...',
+              hintStyle: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                color: Colors.grey[400],
+                fontWeight: FontWeight.w500,
+              ),
+              prefixIcon: const Icon(Icons.search_rounded, color: Colors.black45, size: 18),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.clear_rounded, size: 16, color: Colors.grey),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {
+                          _searchQuery = '';
+                        });
+                      },
+                    )
+                  : null,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
           ),
         ),
-        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title Header
-            Text(
-              'How can we help?',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 26,
-                fontWeight: FontWeight.w800,
-                color: Colors.black,
-                letterSpacing: -0.6,
-              ),
-            ),
-            const SizedBox(height: 14),
-
-            // Single Clean Search Input
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (val) {
-                  setState(() {
-                    _searchQuery = val.trim();
-                    _expandedFaqIndex = null;
-                  });
-                },
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'Search questions, keywords...',
-                  hintStyle: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
-                    color: Colors.grey[400],
-                    fontWeight: FontWeight.w500,
-                  ),
-                  prefixIcon: const Icon(Icons.search_rounded, color: Colors.black45, size: 20),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 18, color: Colors.grey),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {
-                              _searchQuery = '';
-                            });
-                          },
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
-              ),
+            // Category Topic Wrap Pills (Zero overflow on any device)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _buildCategoryPill('All', Icons.grid_view_rounded, Colors.black),
+                ..._topicCategories.map((cat) {
+                  final String name = cat['name'] as String;
+                  final IconData icon = cat['icon'] as IconData;
+                  final Color color = cat['color'] as Color;
+                  return _buildCategoryPill(name, icon, color);
+                }),
+              ],
             ),
 
             const SizedBox(height: 24),
 
-            // Topic Categories Grid (Clean 2x2 Grid, No Double Containers)
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 2.2,
-              ),
-              itemCount: _topicCategories.length,
-              itemBuilder: (context, index) {
-                final topic = _topicCategories[index];
-                final String name = topic['name'] as String;
-                final IconData icon = topic['icon'] as IconData;
-                final Color color = topic['color'] as Color;
-                final bool isSelected = _selectedCategory == name;
-
-                return InkWell(
-                  onTap: () {
-                    HapticFeedback.selectionClick();
-                    setState(() {
-                      _selectedCategory = isSelected ? 'All' : name;
-                      _expandedFaqIndex = null;
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: isSelected ? Colors.black : const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isSelected ? Colors.black : const Color(0xFFE2E8F0),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          icon,
-                          size: 20,
-                          color: isSelected ? Colors.white : color,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            name,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12.5,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                              color: isSelected ? Colors.white : Colors.black87,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 28),
-
-            // FAQ Section Title & Reset Filter Action
+            // FAQ Section Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -272,7 +202,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       });
                     },
                     child: Text(
-                      'Show All',
+                      'Clear Filter',
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
@@ -287,7 +217,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
             // FAQ Accordion List
             if (filteredFaqs.isEmpty)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32),
+                padding: const EdgeInsets.symmetric(vertical: 36),
                 child: Center(
                   child: Column(
                     children: [
@@ -377,99 +307,75 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 },
               ),
 
-            const SizedBox(height: 36),
+            const SizedBox(height: 32),
 
-            // Still Need Help? Clean Human Contact Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
+            // Full-Width Direct Contact Cards (Zero Overflow)
+            Text(
+              'Still need help?',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: Colors.black,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Still need help?',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Get in touch with Khozna team directly.',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Reach out to our support team directly.',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 14),
 
-                  Row(
-                    children: [
-                      // WhatsApp
-                      Expanded(
-                        child: _buildContactButton(
-                          label: 'WhatsApp',
-                          icon: FontAwesomeIcons.whatsapp,
-                          bgColor: const Color(0xFF25D366),
-                          textColor: Colors.white,
-                          onTap: () => _launchUrl('https://wa.me/9779705278379'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Call
-                      Expanded(
-                        child: _buildContactButton(
-                          label: 'Call Us',
-                          icon: Icons.phone_rounded,
-                          bgColor: Colors.black,
-                          textColor: Colors.white,
-                          onTap: () => _launchUrl('tel:+9779705278379'),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Email
-                      Expanded(
-                        child: _buildContactButton(
-                          label: 'Email',
-                          icon: Icons.email_rounded,
-                          bgColor: Colors.white,
-                          textColor: Colors.black,
-                          borderColor: const Color(0xFFE2E8F0),
-                          onTap: () => _launchUrl('mailto:khoznaapp@gmail.com'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            // WhatsApp Support Tile
+            _buildContactTile(
+              label: 'Chat on WhatsApp',
+              subtitle: '+977 9705278379',
+              icon: FontAwesomeIcons.whatsapp,
+              color: const Color(0xFF25D366),
+              onTap: () => _launchUrl('https://wa.me/9779705278379'),
+            ),
+            const SizedBox(height: 8),
+
+            // Phone Line Tile
+            _buildContactTile(
+              label: 'Call Direct Line',
+              subtitle: '+977 9705278379',
+              icon: Icons.phone_in_talk_rounded,
+              color: const Color(0xFF2563EB),
+              onTap: () => _launchUrl('tel:+9779705278379'),
+            ),
+            const SizedBox(height: 8),
+
+            // Email Tile
+            _buildContactTile(
+              label: 'Email Support',
+              subtitle: 'khoznaapp@gmail.com',
+              icon: Icons.mark_email_read_rounded,
+              color: const Color(0xFF7C3AED),
+              onTap: () => _launchUrl('mailto:khoznaapp@gmail.com'),
             ),
 
             const SizedBox(height: 28),
 
-            // Minimal Social Links Row
+            // Responsive Social Links Wrap (Zero Overflow)
             Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 12,
+                runSpacing: 8,
                 children: [
                   _buildSocialTextLink('Facebook', 'https://www.facebook.com/profile.php?id=61587497082072'),
-                  _buildDotDivider(),
                   _buildSocialTextLink('Instagram', 'https://www.instagram.com/khozna.np/'),
-                  _buildDotDivider(),
                   _buildSocialTextLink('TikTok', 'https://www.tiktok.com/@khozna.np'),
-                  _buildDotDivider(),
                   _buildSocialTextLink('LinkedIn', 'https://www.linkedin.com/company/110343039/'),
                 ],
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
 
             // Minimal Footer
             Center(
@@ -482,44 +388,48 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildContactButton({
-    required String label,
-    required IconData icon,
-    required Color bgColor,
-    required Color textColor,
-    Color? borderColor,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildCategoryPill(String name, IconData icon, Color color) {
+    final bool isSelected = _selectedCategory == name;
     return GestureDetector(
       onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
+        HapticFeedback.selectionClick();
+        setState(() {
+          _selectedCategory = name;
+          _expandedFaqIndex = null;
+        });
       },
-      child: Container(
-        height: 44,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(12),
-          border: borderColor != null ? Border.all(color: borderColor) : null,
+          color: isSelected ? Colors.black : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? Colors.black : const Color(0xFFE2E8F0),
+          ),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: textColor, size: 15),
+            Icon(
+              icon,
+              size: 15,
+              color: isSelected ? Colors.white : color,
+            ),
             const SizedBox(width: 6),
             Text(
-              label,
+              name,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-                color: textColor,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                color: isSelected ? Colors.white : Colors.black87,
               ),
             ),
           ],
@@ -528,26 +438,89 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     );
   }
 
-  Widget _buildSocialTextLink(String label, String url) {
-    return GestureDetector(
-      onTap: () => _launchUrl(url),
-      child: Text(
-        label,
-        style: GoogleFonts.plusJakartaSans(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: Colors.grey[600],
+  Widget _buildContactTile({
+    required String label,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Icon(icon, color: color, size: 18),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.grey[400]),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildDotDivider() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Text(
-        '•',
-        style: TextStyle(color: Colors.grey[300], fontSize: 10),
+  Widget _buildSocialTextLink(String label, String url) {
+    return GestureDetector(
+      onTap: () => _launchUrl(url),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[700],
+          ),
+        ),
       ),
     );
   }
