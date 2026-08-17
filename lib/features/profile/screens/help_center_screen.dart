@@ -109,50 +109,56 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         titleSpacing: 0,
-        // Single Top Search Bar (integrated cleanly in AppBar - no double search bars)
-        title: Container(
-          height: 42,
-          margin: const EdgeInsets.only(right: 16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-          ),
-          child: TextField(
-            controller: _searchController,
-            onChanged: (val) {
-              setState(() {
-                _searchQuery = val.trim();
-                _expandedFaqIndex = null;
-              });
-            },
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-            decoration: InputDecoration(
-              hintText: 'Search Help & FAQs...',
-              hintStyle: GoogleFonts.plusJakartaSans(
-                fontSize: 13,
-                color: Colors.grey[400],
-                fontWeight: FontWeight.w500,
+        title: Padding(
+          padding: const EdgeInsets.only(right: 16),
+          child: SizedBox(
+            height: 42,
+            child: TextField(
+              controller: _searchController,
+              onChanged: (val) {
+                setState(() {
+                  _searchQuery = val.trim();
+                  _expandedFaqIndex = null;
+                });
+              },
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
               ),
-              prefixIcon: const Icon(Icons.search_rounded, color: Colors.black45, size: 18),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.clear_rounded, size: 16, color: Colors.grey),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          _searchQuery = '';
-                        });
-                      },
-                    )
-                  : null,
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: InputDecoration(
+                hintText: 'Search Help & FAQs...',
+                hintStyle: GoogleFonts.plusJakartaSans(
+                  fontSize: 13,
+                  color: Colors.grey[400],
+                  fontWeight: FontWeight.w500,
+                ),
+                prefixIcon: const Icon(Icons.search_rounded, color: Colors.black45, size: 18),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(Icons.clear_rounded, size: 16, color: Colors.grey),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: const Color(0xFFF8FAFC),
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+              ),
             ),
           ),
         ),
@@ -360,17 +366,37 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
 
             const SizedBox(height: 28),
 
-            // Responsive Social Links Wrap (Zero Overflow)
+            // Official Social Channels (Real Brand Icons)
             Center(
               child: Wrap(
                 alignment: WrapAlignment.center,
-                spacing: 12,
+                spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _buildSocialTextLink('Facebook', 'https://www.facebook.com/profile.php?id=61587497082072'),
-                  _buildSocialTextLink('Instagram', 'https://www.instagram.com/khozna.np/'),
-                  _buildSocialTextLink('TikTok', 'https://www.tiktok.com/@khozna.np'),
-                  _buildSocialTextLink('LinkedIn', 'https://www.linkedin.com/company/110343039/'),
+                  _buildSocialPill(
+                    label: 'Facebook',
+                    icon: FontAwesomeIcons.facebook,
+                    color: const Color(0xFF1877F2),
+                    url: 'https://www.facebook.com/profile.php?id=61587497082072',
+                  ),
+                  _buildSocialPill(
+                    label: 'Instagram',
+                    icon: FontAwesomeIcons.instagram,
+                    color: const Color(0xFFE4405F),
+                    url: 'https://www.instagram.com/khozna.np/',
+                  ),
+                  _buildSocialPill(
+                    label: 'TikTok',
+                    icon: FontAwesomeIcons.tiktok,
+                    color: Colors.black,
+                    url: 'https://www.tiktok.com/@khozna.np',
+                  ),
+                  _buildSocialPill(
+                    label: 'LinkedIn',
+                    icon: FontAwesomeIcons.linkedin,
+                    color: const Color(0xFF0A66C2),
+                    url: 'https://www.linkedin.com/company/110343039/',
+                  ),
                 ],
               ),
             ),
@@ -504,22 +530,38 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     );
   }
 
-  Widget _buildSocialTextLink(String label, String url) {
+  Widget _buildSocialPill({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required String url,
+  }) {
     return GestureDetector(
-      onTap: () => _launchUrl(url),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        _launchUrl(url);
+      },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: const Color(0xFFF1F5F9),
-          borderRadius: BorderRadius.circular(12),
+          color: const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
-        child: Text(
-          label,
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[700],
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 14),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+          ],
         ),
       ),
     );
