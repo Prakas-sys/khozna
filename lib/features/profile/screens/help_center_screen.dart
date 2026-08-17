@@ -142,135 +142,136 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                // Quick Contact Card (WhatsApp / Support)
-                _buildLiveSupportBanner(context),
+                  // Quick Contact Card (WhatsApp / Support)
+                  _buildLiveSupportBanner(context),
 
-                const SizedBox(height: 28),
+                  const SizedBox(height: 28),
 
-                // FAQ Section Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Frequently Asked Questions',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.black,
-                        letterSpacing: -0.4,
-                      ),
-                    ),
-                    Text(
-                      '${filteredFaqs.length} items',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-
-                // Category Chips
-                _buildCategoryChips(),
-
-                const SizedBox(height: 16),
-
-                // Accordion FAQs List
-                if (filteredFaqs.isEmpty)
-                  _buildEmptyFaqState()
-                else
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filteredFaqs.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final faq = filteredFaqs[index];
-                      final isExpanded = _expandedFaqIndex == index;
-
-                      return _buildFaqCard(
-                        index: index,
-                        faq: faq,
-                        isExpanded: isExpanded,
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() {
-                            _expandedFaqIndex = isExpanded ? null : index;
-                          });
-                        },
-                      );
-                    },
-                  ),
-
-                const SizedBox(height: 32),
-
-                // Direct Contact Channel Options
-                _buildSectionHeader('Direct Channels', 'Reach us anytime via email or call'),
-                const SizedBox(height: 14),
-                _buildContactChannels(),
-
-                const SizedBox(height: 32),
-
-                // Community Social Grid
-                _buildSectionHeader('Official Community', 'Join our verified social updates'),
-                const SizedBox(height: 14),
-                _buildSocialCommunityGrid(),
-
-                const SizedBox(height: 44),
-
-                // Footer Info
-                Center(
-                  child: Column(
+                  // FAQ Section Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF10B981),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Systems Operational • v1.0.0',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ],
+                      Text(
+                        'Frequently Asked Questions',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                          letterSpacing: -0.4,
                         ),
                       ),
-                      const SizedBox(height: 8),
                       Text(
-                        '© KHOZNA Nepal • All Rights Reserved',
+                        '${filteredFaqs.length} items',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.grey[400],
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[500],
                         ),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 40),
-              ],
+                  const SizedBox(height: 14),
+
+                  // Category Chips
+                  _buildCategoryChips(),
+
+                  const SizedBox(height: 16),
+
+                  // Accordion FAQs List
+                  if (filteredFaqs.isEmpty)
+                    _buildEmptyFaqState()
+                  else
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: filteredFaqs.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final faq = filteredFaqs[index];
+                        final isExpanded = _expandedFaqIndex == index;
+
+                        return _buildFaqCard(
+                          index: index,
+                          faq: faq,
+                          isExpanded: isExpanded,
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setState(() {
+                              _expandedFaqIndex = isExpanded ? null : index;
+                            });
+                          },
+                        );
+                      },
+                    ),
+
+                  const SizedBox(height: 32),
+
+                  // Direct Contact Channel Options
+                  _buildSectionHeader('Direct Channels', 'Reach us anytime via email or call'),
+                  const SizedBox(height: 14),
+                  _buildContactChannels(),
+
+                  const SizedBox(height: 32),
+
+                  // Community Social Grid
+                  _buildSectionHeader('Official Community', 'Join our verified social updates'),
+                  const SizedBox(height: 14),
+                  _buildSocialCommunityGrid(),
+
+                  const SizedBox(height: 44),
+
+                  // Footer Info
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF10B981),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Systems Operational • v1.0.0',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '© KHOZNA Nepal • All Rights Reserved',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
