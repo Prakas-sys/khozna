@@ -1473,14 +1473,17 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
                           activeTrackColor: AppTheme.brandColor,
-                          inactiveTrackColor: AppTheme.brandColor.withOpacity(0.15),
+                          inactiveTrackColor: AppTheme.brandColor.withOpacity(0.18),
                           thumbColor: Colors.white,
-                          overlayColor: AppTheme.brandColor.withOpacity(0.12),
+                          overlayColor: AppTheme.brandColor.withOpacity(0.2),
+                          overlayRadius: 24,
+                          minTouchTargetSize: 48,
                           rangeThumbShape: const RoundRangeSliderThumbShape(
-                            enabledThumbRadius: 11,
-                            elevation: 4,
+                            enabledThumbRadius: 15,
+                            elevation: 5,
+                            pressedElevation: 8,
                           ),
-                          trackHeight: 6,
+                          trackHeight: 8,
                         ),
                         child: RangeSlider(
                           values: RangeValues(minPrice, maxPrice),

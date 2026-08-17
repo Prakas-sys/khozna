@@ -935,30 +935,28 @@ class _FullImageCarouselState extends State<_FullImageCarousel> {
           ),
         ),
 
-        // LEFT edge tap strip → previous image (70px wide)
+        // Dual Gesture Layer: Horizontal Swipe + Tap (Vertical swipe passes to reel PageView)
         if (widget.images.length > 1)
-          Positioned(
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: 70,
+          Positioned.fill(
             child: GestureDetector(
-              onTap: _goPrev,
               behavior: HitTestBehavior.translucent,
-              child: const SizedBox.expand(),
-            ),
-          ),
-
-        // RIGHT edge tap strip → next image (70px wide)
-        if (widget.images.length > 1)
-          Positioned(
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: 70,
-            child: GestureDetector(
-              onTap: _goNext,
-              behavior: HitTestBehavior.translucent,
+              onHorizontalDragEnd: (details) {
+                if (details.primaryVelocity != null) {
+                  if (details.primaryVelocity! < -120) {
+                    _goNext();
+                  } else if (details.primaryVelocity! > 120) {
+                    _goPrev();
+                  }
+                }
+              },
+              onTapUp: (details) {
+                final screenWidth = MediaQuery.of(context).size.width;
+                if (details.globalPosition.dx < screenWidth * 0.45) {
+                  _goPrev();
+                } else if (details.globalPosition.dx > screenWidth * 0.55) {
+                  _goNext();
+                }
+              },
               child: const SizedBox.expand(),
             ),
           ),
