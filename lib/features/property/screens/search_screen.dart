@@ -1196,235 +1196,542 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   }
 
   void _showFilterOptions(BuildContext context) {
+    double minPrice = 2000;
+    double maxPrice = _priceValue > 2000 ? _priceValue : 50000;
+    String selectedCategory = _activeCategory == 'Homes' ? 'All' : _activeCategory;
+    String selectedBedrooms = 'Any';
+    Set<String> selectedAmenities = {'WiFi', 'Water 24/7'};
+    bool isStudentFriendly = false;
+    bool isFamilyFriendly = false;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) {
+          int activeFiltersCount = 0;
+          if (minPrice > 2000 || maxPrice < 100000) activeFiltersCount++;
+          if (selectedCategory != 'All') activeFiltersCount++;
+          if (selectedBedrooms != 'Any') activeFiltersCount++;
+          if (selectedAmenities.isNotEmpty) activeFiltersCount++;
+          if (isStudentFriendly) activeFiltersCount++;
+          if (isFamilyFriendly) activeFiltersCount++;
+
           return Container(
-            height: MediaQuery.of(context).size.height * 0.75,
+            height: MediaQuery.of(context).size.height * 0.86,
             decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
             ),
             child: Column(
               children: [
+                // Top Handle & Header
                 const SizedBox(height: 12),
                 Container(
-                  width: 40,
-                  height: 4,
+                  width: 44,
+                  height: 5,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(3),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Row(
+                        children: [
+                          Text(
+                            'Filters',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.black,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          if (activeFiltersCount > 0) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppTheme.brandColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '$activeFiltersCount',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          TextButton(
+                            onPressed: () => setModalState(() {
+                              minPrice = 2000;
+                              maxPrice = 100000;
+                              selectedCategory = 'All';
+                              selectedBedrooms = 'Any';
+                              selectedAmenities.clear();
+                              isStudentFriendly = false;
+                              isFamilyFriendly = false;
+                            }),
+                            child: Text(
+                              'Clear All',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close_rounded, size: 22),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1, thickness: 1, color: Color(0xFFF1F5F9)),
+
+                // Scrollable Filter Body
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      // 1. PRICE RANGE SECTION
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Price Range',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.black,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/vector of ruppes.svg',
+                                width: 13,
+                                height: 13,
+                                colorFilter: const ColorFilter.mode(
+                                  AppTheme.brandColor,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                '${minPrice.toInt()} - ${maxPrice.toInt()}',
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: AppTheme.brandColor,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: AppTheme.brandColor,
+                          inactiveTrackColor: AppTheme.brandColor.withOpacity(0.15),
+                          thumbColor: Colors.white,
+                          overlayColor: AppTheme.brandColor.withOpacity(0.12),
+                          rangeThumbShape: const RoundRangeSliderThumbShape(
+                            enabledThumbRadius: 11,
+                            elevation: 4,
+                          ),
+                          trackHeight: 6,
+                        ),
+                        child: RangeSlider(
+                          values: RangeValues(minPrice, maxPrice),
+                          min: 1000,
+                          max: 100000,
+                          divisions: 99,
+                          onChanged: (RangeValues values) {
+                            setModalState(() {
+                              minPrice = values.start;
+                              maxPrice = values.end;
+                              _priceValue = values.end;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Quick Budget Chips
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildFilterChip(
+                              label: 'Under 10k',
+                              isSelected: maxPrice <= 10000,
+                              onTap: () => setModalState(() {
+                                minPrice = 1000;
+                                maxPrice = 10000;
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildFilterChip(
+                              label: '10k - 25k',
+                              isSelected: minPrice >= 10000 && maxPrice <= 25000,
+                              onTap: () => setModalState(() {
+                                minPrice = 10000;
+                                maxPrice = 25000;
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildFilterChip(
+                              label: '25k - 50k',
+                              isSelected: minPrice >= 25000 && maxPrice <= 50000,
+                              onTap: () => setModalState(() {
+                                minPrice = 25000;
+                                maxPrice = 50000;
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                            _buildFilterChip(
+                              label: '50k+',
+                              isSelected: minPrice >= 50000,
+                              onTap: () => setModalState(() {
+                                minPrice = 50000;
+                                maxPrice = 100000;
+                              }),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // 2. PROPERTY TYPE SECTION
                       Text(
-                        'Filter',
+                        'Property Type',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: Colors.black,
                         ),
                       ),
-                      TextButton(
-                        onPressed: () => setModalState(() {
-                          _priceValue = 15000;
-                          _activeCategory = 'Room';
-                        }),
-                        child: Text(
-                          'Reset',
-                          style: GoogleFonts.plusJakartaSans(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w700,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    children: [
-                      Text(
-                        'Price Range',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
+                      const SizedBox(height: 14),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
                         children: [
-                          Text(
-                            'Up to ',
-                            style: GoogleFonts.plusJakartaSans(
-                              color: AppTheme.brandColor,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 20,
-                            ),
-                          ),
-                          SvgPicture.asset(
-                            'assets/icons/vector of ruppes.svg',
-                            width: 14,
-                            height: 14,
-                            colorFilter: const ColorFilter.mode(
-                              AppTheme.brandColor,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${_priceValue.toInt()}',
-                            style: GoogleFonts.plusJakartaSans(
-                              color: AppTheme.brandColor,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          activeTrackColor: AppTheme.brandColor,
-                          inactiveTrackColor: AppTheme.brandColor.withOpacity(0.12),
-                          thumbColor: Colors.white,
-                          overlayColor: AppTheme.brandColor.withOpacity(0.1),
-                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12, elevation: 4),
-                        ),
-                        child: Slider(
-                          value: _priceValue,
-                          min: 1000,
-                          max: 100000,
-                          divisions: 99,
-                          onChanged: (val) {
-                            setModalState(() => _priceValue = val);
-                            setState(() {}); // Sync with parent state
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Location',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: ['Kathmandu', 'Lalitpur', 'Bhaktapur', 'Pokhara'].map((loc) {
-                          bool isSelected = _searchController.text == loc;
+                          {'label': 'All', 'icon': Icons.home_work_rounded},
+                          {'label': 'Room', 'icon': Icons.meeting_room_rounded},
+                          {'label': 'Flat', 'icon': Icons.apartment_rounded},
+                          {'label': 'Apartment', 'icon': Icons.location_city_rounded},
+                          {'label': 'Cottage', 'icon': Icons.gite_rounded},
+                          {'label': 'Office', 'icon': Icons.business_center_rounded},
+                        ].map((cat) {
+                          final String label = cat['label'] as String;
+                          final IconData icon = cat['icon'] as IconData;
+                          final bool isSelected = selectedCategory == label;
+
                           return GestureDetector(
-                            onTap: () {
-                              setModalState(() => _searchController.text = loc);
-                              setState(() => _searchController.text = loc);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            onTap: () => setModalState(() => selectedCategory = label),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                               decoration: BoxDecoration(
-                                color: isSelected ? Colors.black : Colors.white,
-                                borderRadius: BorderRadius.circular(10),
+                                color: isSelected ? Colors.black : const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: isSelected ? Colors.black : Colors.grey.shade200,
+                                  color: isSelected ? Colors.black : const Color(0xFFE2E8F0),
+                                  width: 1.5,
                                 ),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.15),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 3),
+                                        )
+                                      ]
+                                    : [],
                               ),
-                              child: Text(
-                                loc,
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: isSelected ? Colors.white : Colors.black87,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    icon,
+                                    size: 18,
+                                    color: isSelected ? Colors.white : Colors.black87,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    label,
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: isSelected ? Colors.white : Colors.black87,
+                                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                      fontSize: 13.5,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           );
                         }).toList(),
                       ),
+
                       const SizedBox(height: 28),
+
+                      // 3. BEDROOMS (BHK COUNT)
                       Text(
-                        'Property Type',
+                        'Bedrooms (BHK)',
                         style: GoogleFonts.plusJakartaSans(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: ['Room', 'Flat', 'Cottage', 'Apartment', 'Office'].map((cat) {
-                          bool isSelected = _activeCategory == cat;
-                          return GestureDetector(
-                            onTap: () {
-                              setModalState(() => _activeCategory = cat);
-                              setState(() => _activeCategory = cat);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: isSelected ? Colors.black : Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: isSelected ? Colors.black : Colors.grey.shade300,
+                      const SizedBox(height: 14),
+                      Row(
+                        children: ['Any', '1 BHK', '2 BHK', '3 BHK', '4+ BHK'].map((bhk) {
+                          final bool isSelected = selectedBedrooms == bhk;
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap: () => setModalState(() => selectedBedrooms = bhk),
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 3),
+                                padding: const EdgeInsets.symmetric(vertical: 11),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? AppTheme.brandColor : const Color(0xFFF8FAFC),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
+                                  ),
                                 ),
-                              ),
-                              child: Text(
-                                cat,
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: isSelected ? Colors.white : Colors.black,
-                                  fontWeight: FontWeight.w700,
+                                child: Text(
+                                  bhk,
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.plusJakartaSans(
+                                    color: isSelected ? Colors.white : Colors.black87,
+                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                    fontSize: 12.5,
+                                  ),
                                 ),
                               ),
                             ),
                           );
                         }).toList(),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // 4. AMENITIES SELECTION
+                      Text(
+                        'Amenities',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          {'name': 'WiFi', 'icon': Icons.wifi_rounded},
+                          {'name': 'Water 24/7', 'icon': Icons.water_drop_rounded},
+                          {'name': 'Parking', 'icon': Icons.directions_car_rounded},
+                          {'name': 'Kitchen', 'icon': Icons.kitchen_rounded},
+                          {'name': 'Balcony', 'icon': Icons.balcony_rounded},
+                          {'name': 'CCTV', 'icon': Icons.videocam_rounded},
+                          {'name': 'AC', 'icon': Icons.ac_unit_rounded},
+                        ].map((amenity) {
+                          final String name = amenity['name'] as String;
+                          final IconData icon = amenity['icon'] as IconData;
+                          final bool isSelected = selectedAmenities.contains(name);
+
+                          return FilterChip(
+                            showCheckmark: false,
+                            avatar: Icon(
+                              icon,
+                              size: 16,
+                              color: isSelected ? AppTheme.brandColor : Colors.grey[700],
+                            ),
+                            label: Text(
+                              name,
+                              style: GoogleFonts.plusJakartaSans(
+                                color: isSelected ? AppTheme.brandColor : Colors.black87,
+                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+                            selected: isSelected,
+                            backgroundColor: const Color(0xFFF8FAFC),
+                            selectedColor: AppTheme.brandColor.withOpacity(0.1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
+                                width: isSelected ? 1.5 : 1,
+                              ),
+                            ),
+                            onSelected: (val) {
+                              setModalState(() {
+                                if (val) {
+                                  selectedAmenities.add(name);
+                                } else {
+                                  selectedAmenities.remove(name);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+
+                      const SizedBox(height: 28),
+
+                      // 5. PREFERENCES & RULES
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.school_rounded, color: AppTheme.brandColor, size: 20),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Student Friendly',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Switch.adaptive(
+                                  value: isStudentFriendly,
+                                  activeColor: AppTheme.brandColor,
+                                  onChanged: (val) => setModalState(() => isStudentFriendly = val),
+                                ),
+                              ],
+                            ),
+                            const Divider(height: 20, color: Color(0xFFE2E8F0)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.family_restroom_rounded, color: AppTheme.brandColor, size: 20),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Family Friendly',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Switch.adaptive(
+                                  value: isFamilyFriendly,
+                                  activeColor: AppTheme.brandColor,
+                                  onChanged: (val) => setModalState(() => isFamilyFriendly = val),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
+
+                // Sticky Bottom Apply CTA Bar
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: const Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, -4),
+                      ),
+                    ],
+                  ),
                   child: SizedBox(
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
                       onPressed: () {
+                        HapticFeedback.mediumImpact();
                         Navigator.pop(context);
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => FilterResultsScreen(
-                              location: _searchController.text.isNotEmpty ? _searchController.text : _activeCategory,
-                              category: _activeCategory,
-                              priceRange: 'Up to ₹ ${_priceValue.toInt()}',
+                              location: _searchController.text.isNotEmpty
+                                  ? _searchController.text
+                                  : 'Verified Listings',
+                              category: selectedCategory,
+                              minPrice: minPrice.toInt(),
+                              maxPrice: maxPrice.toInt(),
+                              bedrooms: selectedBedrooms,
+                              amenities: selectedAmenities.toList(),
+                              isStudentFriendly: isStudentFriendly,
+                              isFamilyFriendly: isFamilyFriendly,
                             ),
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.brandColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      ),
-                      child: Text(
-                        'Show Results',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16,
-                          color: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
                         ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.search_rounded, color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Show Matching Results',
+                            style: GoogleFonts.plusJakartaSans(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                              color: Colors.white,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -1433,6 +1740,34 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.brandColor.withOpacity(0.1) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+            color: isSelected ? AppTheme.brandColor : Colors.black87,
+          ),
+        ),
       ),
     );
   }

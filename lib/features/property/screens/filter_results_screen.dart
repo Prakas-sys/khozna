@@ -15,12 +15,24 @@ class FilterResultsScreen extends StatefulWidget {
   final String location;
   final String priceRange;
   final String? category;
+  final int? minPrice;
+  final int? maxPrice;
+  final String? bedrooms;
+  final List<String>? amenities;
+  final bool? isStudentFriendly;
+  final bool? isFamilyFriendly;
 
   const FilterResultsScreen({
     super.key,
     this.location = 'Verified Listings',
     this.priceRange = 'Top Rated Properties',
     this.category,
+    this.minPrice,
+    this.maxPrice,
+    this.bedrooms,
+    this.amenities,
+    this.isStudentFriendly,
+    this.isFamilyFriendly,
   });
 
   @override
@@ -37,11 +49,9 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchProperties() async {
-    // Extract numeric price from string like "Up to Rs. 45000"
     final priceStr = widget.priceRange.replaceAll(RegExp(r'[^0-9]'), '');
-    final priceInt = int.tryParse(priceStr);
+    final parsedMaxPrice = widget.maxPrice ?? int.tryParse(priceStr);
 
-    // Generic section titles that are NOT location filters
     const genericTitles = [
       'Verified Listings',
       'Recently Added',
@@ -70,7 +80,6 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
         }
         if (permission == LocationPermission.whileInUse ||
             permission == LocationPermission.always) {
-          // ⚡ Get cached last known location first for instant loading
           position = await Geolocator.getLastKnownPosition();
           if (position == null) {
             position = await Geolocator.getCurrentPosition(
@@ -92,17 +101,14 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
         )
         .eq('status', 'available');
 
-    // Filter by location if it's a real location
-    if (isLocationSearch) {
+    // Location Filter
+    if (isLocationSearch && widget.location.isNotEmpty) {
       final searchVal = widget.location.trim().replaceAll(RegExp(r'\s+'), '%');
       final queryPattern = '%$searchVal%';
-      query =
-          query.or(
-                'area_name.ilike.$queryPattern,title.ilike.$queryPattern,category.ilike.$queryPattern',
-              )
-              as dynamic;
+      query = query.or(
+        'area_name.ilike.$queryPattern,title.ilike.$queryPattern,category.ilike.$queryPattern',
+      ) as dynamic;
     } else {
-      // Map section filters
       if (widget.location == 'Near You' && position != null) {
         final lat = position.latitude;
         final lng = position.longitude;
@@ -124,14 +130,33 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
       }
     }
 
-    // Filter by category if specifically selected
-    if (widget.category != null && widget.category!.isNotEmpty && widget.category != 'All') {
+    // Category Filter
+    if (widget.category != null &&
+        widget.category!.isNotEmpty &&
+        widget.category != 'All' &&
+        widget.category != 'Homes') {
       query = query.eq('category', widget.category!) as dynamic;
     }
 
-    // Filter by price if a valid number was found
-    if (priceInt != null && priceInt > 0) {
-      query = query.lte('price', priceInt) as dynamic;
+    // Price Filters
+    if (widget.minPrice != null && widget.minPrice! > 0) {
+      query = query.gte('price', widget.minPrice!) as dynamic;
+    }
+    if (parsedMaxPrice != null && parsedMaxPrice > 0) {
+      query = query.lte('price', parsedMaxPrice) as dynamic;
+    }
+
+    // Bedroom Filter
+    if (widget.bedrooms != null && widget.bedrooms != 'Any') {
+      final bhkNum = int.tryParse(widget.bedrooms!.replaceAll(RegExp(r'[^0-9]'), ''));
+      if (bhkNum != null) {
+        query = query.gte('bedrooms', bhkNum) as dynamic;
+      }
+    }
+
+    // Preference Filters
+    if (widget.isStudentFriendly == true) {
+      query = query.eq('is_student_friendly', true) as dynamic;
     }
 
     try {
@@ -161,10 +186,10 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Premium Header ──────────────────────────────────────────
+            // ── Ultra Pro Header ──────────────────────────────────────────
             Container(
               color: Colors.white,
-              padding: const EdgeInsets.fromLTRB(8, 12, 20, 16),
+              padding: const EdgeInsets.fromLTRB(8, 12, 16, 16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -181,8 +206,8 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                         Text(
                           widget.location,
                           style: GoogleFonts.plusJakartaSans(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 19,
+                            fontWeight: FontWeight.w900,
                             color: Colors.black,
                             letterSpacing: -0.4,
                           ),
@@ -190,76 +215,47 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (widget.priceRange.isNotEmpty &&
-                                widget.priceRange != 'Top Rated Properties' &&
-                                widget.priceRange != 'All Prices') ...[
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.brandColor.withOpacity(0.08),
-                                  borderRadius: BorderRadius.circular(20),
+                        const SizedBox(height: 6),
+                        // Active Filter Badges
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (widget.maxPrice != null || widget.minPrice != null)
+                                _buildFilterBadge(
+                                  icon: 'assets/icons/vector of ruppes.svg',
+                                  label: widget.minPrice != null && widget.maxPrice != null
+                                      ? '${widget.minPrice} - ${widget.maxPrice}'
+                                      : 'Up to ₹${widget.maxPrice ?? widget.minPrice}',
+                                  isAccent: true,
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (widget.priceRange.contains(RegExp(r'\d'))) ...[
-                                      SvgPicture.asset(
-                                        'assets/icons/vector of ruppes.svg',
-                                        width: 9,
-                                        height: 9,
-                                        colorFilter: ColorFilter.mode(
-                                          AppTheme.brandColor,
-                                          BlendMode.srcIn,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 3),
-                                    ],
-                                    Text(
-                                      widget.priceRange.replaceAll(RegExp(r'(रू|Rs\.|₹)'), '').trim(),
-                                      style: GoogleFonts.inter(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppTheme.brandColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 6),
+                              if (widget.category != null &&
+                                  widget.category!.isNotEmpty &&
+                                  widget.category != 'All') ...[
+                                const SizedBox(width: 6),
+                                _buildFilterBadge(label: widget.category!),
+                              ],
+                              if (widget.bedrooms != null && widget.bedrooms != 'Any') ...[
+                                const SizedBox(width: 6),
+                                _buildFilterBadge(label: '${widget.bedrooms} BHK'),
+                              ],
+                              if (widget.isStudentFriendly == true) ...[
+                                const SizedBox(width: 6),
+                                _buildFilterBadge(label: 'Student Friendly'),
+                              ],
                             ],
-                            if (widget.category != null && widget.category!.isNotEmpty && widget.category != 'All') ...[
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  widget.category!,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.grey[700],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 52), // Equal space to balance the back icon (48 width + 4 padding) for absolute centering
+                  const SizedBox(width: 44),
                 ],
               ),
             ),
 
-            // ── Search Bar ──────────────────────────────────────────────
+            // ── Search Bar Bar ──────────────────────────────────────────
             Container(
               color: Colors.white,
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -270,24 +266,47 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   child: GestureDetector(
                     onTap: () => _navigate(context, const SearchScreen()),
                     child: Container(
-                      height: 50,
+                      height: 48,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF5F7FA),
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: const Color(0xFFE8ECF0), width: 1),
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
                       child: Row(
                         children: [
                           const SizedBox(width: 16),
-                          Icon(CupertinoIcons.search, color: Colors.grey[400], size: 20),
+                          Icon(CupertinoIcons.search, color: Colors.grey[500], size: 18),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'Search properties...',
-                              style: GoogleFonts.inter(
-                                color: Colors.grey[400],
-                                fontSize: 14,
+                              'Search location, category or price...',
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.grey[500],
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w500,
                               ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            margin: const EdgeInsets.only(right: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.tune_rounded, size: 14, color: Colors.black87),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Filters',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -298,7 +317,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
               ),
             ),
 
-            // ── Results List ────────────────────────────────────────────
+            // ── Results Content List ────────────────────────────────────
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
                 future: _propertiesFuture,
@@ -306,7 +325,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return ListView.builder(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-                      itemCount: 6,
+                      itemCount: 5,
                       itemBuilder: (context, index) => const Padding(
                         padding: EdgeInsets.only(bottom: 20),
                         child: SkeletonCard(isFullWidth: true),
@@ -315,47 +334,65 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                   }
 
                   final properties = snapshot.data ?? [];
-                  final priceStr = widget.priceRange.replaceAll(RegExp(r'[^0-9]'), '');
-                  final priceInt = int.tryParse(priceStr);
 
                   if (properties.isEmpty) {
                     return Center(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        padding: const EdgeInsets.symmetric(horizontal: 36),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(28),
+                              padding: const EdgeInsets.all(24),
                               decoration: BoxDecoration(
-                                color: AppTheme.brandColor.withOpacity(0.06),
+                                color: AppTheme.brandColor.withOpacity(0.08),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
                                 Icons.search_off_rounded,
-                                size: 56,
-                                color: AppTheme.brandColor.withOpacity(0.4),
+                                size: 52,
+                                color: AppTheme.brandColor,
                               ),
                             ),
                             const SizedBox(height: 20),
                             Text(
-                              'No listings found',
+                              'No properties found',
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
-                                color: const Color(0xFF1A1A2E),
+                                color: Colors.black,
                               ),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              priceInt != null && priceInt > 0
-                                  ? 'Try increasing your budget or changing the location.'
-                                  : 'Be the first to list a property in this area!',
+                              'Try adjusting your price range, property type, or search area to find available matches.',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.plusJakartaSans(
                                 fontSize: 13.5,
-                                color: Colors.grey[500],
+                                color: Colors.grey[600],
                                 height: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.brandColor,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child: Text(
+                                'Modify Filters',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ],
@@ -368,26 +405,33 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
                     itemCount: properties.length + 1,
                     itemBuilder: (context, index) {
-                      // Result count row as first item
                       if (index == 0) {
                         return Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
+                          padding: const EdgeInsets.only(bottom: 16),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: AppTheme.brandColor.withOpacity(0.08),
-                                  borderRadius: BorderRadius.circular(20),
+                              Text(
+                                '${properties.length} ${properties.length == 1 ? 'property' : 'properties'} available',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.black87,
                                 ),
-                                child: Text(
-                                  '${properties.length} result${properties.length == 1 ? '' : 's'}',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.brandColor,
+                              ),
+                              Row(
+                                children: [
+                                  const Icon(Icons.verified_rounded, size: 14, color: AppTheme.brandColor),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Khozna Verified',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.brandColor,
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                             ],
                           ),
@@ -410,6 +454,48 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFilterBadge({
+    String? icon,
+    required String label,
+    bool isAccent = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: isAccent ? AppTheme.brandColor.withOpacity(0.1) : Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isAccent ? AppTheme.brandColor.withOpacity(0.3) : Colors.grey.shade200,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            SvgPicture.asset(
+              icon,
+              width: 10,
+              height: 10,
+              colorFilter: ColorFilter.mode(
+                isAccent ? AppTheme.brandColor : Colors.black87,
+                BlendMode.srcIn,
+              ),
+            ),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: isAccent ? AppTheme.brandColor : Colors.black87,
+            ),
+          ),
+        ],
       ),
     );
   }

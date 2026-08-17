@@ -124,6 +124,11 @@ class HomeHeader extends StatelessWidget {
               'assets/images/logo 2.png',
               height: 48,
               fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) => Image.asset(
+                'assets/images/now logo svg.png',
+                height: 48,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
           const SizedBox(width: 8),
