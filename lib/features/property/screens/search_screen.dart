@@ -1476,7 +1476,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                           inactiveTrackColor: AppTheme.brandColor.withOpacity(0.18),
                           thumbColor: Colors.white,
                           overlayColor: AppTheme.brandColor.withOpacity(0.2),
-                          overlayRadius: 24,
+                          overlayShape: const RoundSliderOverlayShape(overlayRadius: 24),
                           minTouchTargetSize: 48,
                           rangeThumbShape: const RoundRangeSliderThumbShape(
                             enabledThumbRadius: 15,
