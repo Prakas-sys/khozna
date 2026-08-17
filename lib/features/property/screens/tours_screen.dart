@@ -1,18 +1,22 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:share_plus/share_plus.dart';
+
 import 'package:khozna/core/theme/app_theme.dart';
 import 'package:khozna/features/chat/screens/chat_screen.dart' as chat_page;
 import 'package:khozna/features/property/screens/property_details_screen.dart';
 import 'package:khozna/core/models/property_model.dart';
 import 'package:khozna/widgets/khozna_image.dart';
 import 'package:khozna/widgets/khozna_video_player.dart';
+import 'package:khozna/widgets/favourite_button.dart';
 import 'package:khozna/core/utils/formatters.dart';
-
 import 'package:khozna/core/utils/app_notifiers.dart';
+import 'package:khozna/core/utils/supabase_service.dart';
 
 class ToursScreen extends StatefulWidget {
   const ToursScreen({super.key});
@@ -34,7 +38,7 @@ class _ToursScreenState extends State<ToursScreen> {
   void _scrollToNext() {
     if (_pageController.hasClients) {
       final int nextPage = _pageController.page!.round() + 1;
-      if (nextPage < reels.length) {
+      if (nextPage < displayReels.length) {
         _pageController.animateToPage(
           nextPage,
           duration: const Duration(milliseconds: 400),
@@ -76,19 +80,15 @@ class _ToursScreenState extends State<ToursScreen> {
           reels = (data as List).map((p) => Property.fromMap(p)).toList();
           _isLoading = false;
         });
-        debugPrint('ReelsScreen: Mapped ${reels.length} properties');
       }
     } catch (e) {
       debugPrint('ReelsScreen fetch error: $e');
-      // Fallback: fetch without join to ensure we at least show something
       try {
         final data = await Supabase.instance.client
             .from('properties')
             .select('*')
             .order('created_at', ascending: false)
             .limit(30);
-
-        debugPrint('ReelsScreen fallback: Fetched ${data.length} items');
 
         if (mounted) {
           setState(() {
@@ -116,114 +116,142 @@ class _ToursScreenState extends State<ToursScreen> {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
+          // 1. MAIN VERTICAL PAGE SWIPER
           _isLoading
               ? const Center(
                   child: CircularProgressIndicator(color: AppTheme.brandColor),
                 )
               : (displayReels.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.video_library_outlined,
-                              color: Colors.white38,
-                              size: 64,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              isImageView
-                                  ? 'अहिले कुनै Tour छैन।\n(No tour yet)'
-                                  : 'भिडियो उपलब्ध छैन।\n(No videos found)',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.mukta(
-                                color: Colors.white60,
-                                fontSize: 16,
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.05),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.1),
                               ),
                             ),
-                          ],
-                        ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: _fetchReels,
-                        color: AppTheme.brandColor,
-                        backgroundColor: Colors.white,
-                        child: PageView.builder(
-                          controller: _pageController,
-                          scrollDirection: Axis.vertical,
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: displayReels.length,
-                          itemBuilder: (context, index) {
-                            return _buildReelItem(displayReels[index]);
-                          },
-                        ),
-                      )),
+                            child: const Icon(
+                              Icons.video_library_outlined,
+                              color: Colors.white38,
+                              size: 56,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            isImageView
+                                ? 'अहिले कुनै Tour छैन।\n(No tour yet)'
+                                : 'भिडियो उपलब्ध छैन।\n(No videos found)',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.mukta(
+                              color: Colors.white70,
+                              fontSize: 18,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: _fetchReels,
+                      color: AppTheme.brandColor,
+                      backgroundColor: Colors.white,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        scrollDirection: Axis.vertical,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: displayReels.length,
+                        itemBuilder: (context, index) {
+                          return _ReelItem(
+                            key: ValueKey(displayReels[index].id),
+                            property: displayReels[index],
+                            isImageView: isImageView,
+                            isAutoScrollEnabled: isAutoScrollEnabled,
+                            onVideoEnded: isAutoScrollEnabled ? _scrollToNext : null,
+                          );
+                        },
+                      ),
+                    )),
 
-          // Top Toggle (Photos/Videos) - ALWAYS VISIBLE
+          // 2. ULTRA SLEEK FLOATING GLASS HEADER
           Positioned(
             top: 0,
             left: 0,
             right: 0,
             child: SafeArea(
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned(
-                    left: 0,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      onPressed: () => Navigator.pop(context),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Back button
+                    _buildBlurIconButton(
+                      icon: Icons.arrow_back_ios_new_rounded,
+                      onTap: () => Navigator.pop(context),
                     ),
-                  ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(35),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.25),
-                            width: 1.0,
+
+                    // Central Photos / Videos Pill Switcher
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.45),
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.2),
+                              width: 1.0,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildSegmentButton(
+                                title: 'Photos',
+                                icon: Icons.photo_library_rounded,
+                                isSelected: isImageView,
+                                onTap: () => setState(() => isImageView = true),
+                              ),
+                              _buildSegmentButton(
+                                title: 'Videos',
+                                icon: Icons.play_circle_fill_rounded,
+                                isSelected: !isImageView,
+                                onTap: () => setState(() => isImageView = false),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildSegmentButton(
-                              title: 'Photos',
-                              icon: Icons.image_rounded,
-                              isSelected: isImageView,
-                              onTap: () => setState(() => isImageView = true),
-                            ),
-                            _buildSegmentButton(
-                              title: 'Videos',
-                              icon: Icons.play_circle_fill,
-                              isSelected: !isImageView,
-                              onTap: () => setState(() => isImageView = false),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    right: 0,
-                    child: PopupMenuButton<String>(
-                      icon: const Icon(
-                        Icons.more_vert_rounded,
-                        color: Colors.white,
-                        size: 24,
+
+                    // Options menu
+                    PopupMenuButton<String>(
+                      icon: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.45),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.more_vert_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
-                      color: Colors.white,
+                      color: const Color(0xFF1E1E24),
+                      elevation: 12,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: Colors.white.withOpacity(0.12)),
                       ),
                       onSelected: (value) {
                         if (value == 'auto_scroll') {
@@ -237,40 +265,68 @@ class _ToursScreenState extends State<ToursScreen> {
                           value: 'auto_scroll',
                           child: Row(
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.swipe_down_rounded,
-                                color: Colors.black87,
+                                color: isAutoScrollEnabled
+                                    ? AppTheme.brandColor
+                                    : Colors.white70,
                                 size: 20,
                               ),
                               const SizedBox(width: 12),
                               Text(
                                 'Auto Scroll',
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.plusJakartaSans(
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
+                                  color: Colors.white,
+                                  fontSize: 14,
                                 ),
                               ),
                               const Spacer(),
-                              Icon(
-                                isAutoScrollEnabled
-                                    ? Icons.toggle_on
-                                    : Icons.toggle_off,
-                                color: isAutoScrollEnabled
-                                    ? AppTheme.brandColor
-                                    : Colors.grey,
-                                size: 32,
+                              Switch.adaptive(
+                                value: isAutoScrollEnabled,
+                                activeColor: AppTheme.brandColor,
+                                onChanged: (val) {
+                                  Navigator.pop(context, 'auto_scroll');
+                                },
                               ),
                             ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBlurIconButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return ClipOval(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Material(
+          color: Colors.black.withOpacity(0.45),
+          shape: CircleBorder(
+            side: BorderSide(color: Colors.white.withOpacity(0.2)),
+          ),
+          child: InkWell(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              onTap();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Icon(icon, color: Colors.white, size: 20),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -288,26 +344,37 @@ class _ToursScreenState extends State<ToursScreen> {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(25),
+          color: isSelected ? AppTheme.brandColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.brandColor.withOpacity(0.4),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : [],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              size: 18, // Slightly smaller icon
-              color: isSelected ? Colors.black : Colors.white,
+              size: 16,
+              color: Colors.white,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
             Text(
               title,
               style: GoogleFonts.plusJakartaSans(
-                color: isSelected ? Colors.black : Colors.white,
+                color: Colors.white,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                fontSize: 14, // Slightly smaller font
+                fontSize: 13,
+                letterSpacing: 0.2,
               ),
             ),
           ],
@@ -315,24 +382,92 @@ class _ToursScreenState extends State<ToursScreen> {
       ),
     );
   }
+}
 
-  Widget _buildReelItem(Property property) {
-    final List<String> allImages = property.images.isNotEmpty
-        ? property.images
-        : (property.imageUrl.isNotEmpty ? [property.imageUrl] : []);
+/// Single Tour Page Item with immersive media, double-tap like, right sidebar, and bottom info card.
+class _ReelItem extends StatefulWidget {
+  final Property property;
+  final bool isImageView;
+  final bool isAutoScrollEnabled;
+  final VoidCallback? onVideoEnded;
 
-    return Container(
-      color: Colors.black,
+  const _ReelItem({
+    super.key,
+    required this.property,
+    required this.isImageView,
+    required this.isAutoScrollEnabled,
+    this.onVideoEnded,
+  });
+
+  @override
+  State<_ReelItem> createState() => _ReelItemState();
+}
+
+class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixin {
+  bool _showHeartAnimation = false;
+  late AnimationController _heartAnimController;
+  late Animation<double> _heartScale;
+
+  @override
+  void initState() {
+    super.initState();
+    _heartAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _heartScale = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: 1.4), weight: 40),
+      TweenSequenceItem(tween: Tween(begin: 1.4, end: 1.0), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.0), weight: 30),
+    ]).animate(_heartAnimController);
+  }
+
+  @override
+  void dispose() {
+    _heartAnimController.dispose();
+    super.dispose();
+  }
+
+  void _triggerDoubleTapLike() {
+    HapticFeedback.heavyImpact();
+    setState(() => _showHeartAnimation = true);
+    _heartAnimController.forward(from: 0.0).then((_) {
+      if (mounted) setState(() => _showHeartAnimation = false);
+    });
+    // Trigger save
+    if (!savedPropertiesStore.value.contains(widget.property.id)) {
+      SupabaseService.toggleSaveProperty(widget.property.id);
+    }
+  }
+
+  void _shareProperty() {
+    HapticFeedback.lightImpact();
+    final String shareText =
+        'Check out ${widget.property.title} on Khozna!\nLocation: ${widget.property.location}\nCategory: ${widget.property.category.toUpperCase()}\nPrice: NRs ${widget.property.price}';
+    Share.share(shareText, subject: widget.property.title);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> allImages = widget.property.images.isNotEmpty
+        ? widget.property.images
+        : (widget.property.imageUrl.isNotEmpty ? [widget.property.imageUrl] : []);
+
+    return GestureDetector(
+      onDoubleTap: _triggerDoubleTapLike,
       child: Stack(
+        fit: StackFit.expand,
         children: [
-          // 1. FULL SCREEN MEDIA BACKGROUND
-          Positioned.fill(
-            child: isImageView
-                ? _buildImageCarousel(allImages, property.category)
-                : _buildVideoPlaceholder(property),
-          ),
+          // 1. FULL-SCREEN MEDIA BACKGROUND
+          widget.isImageView
+              ? _FullImageCarousel(images: allImages, category: widget.property.category)
+              : _FullVideoPlayer(
+                  property: widget.property,
+                  isAutoScrollEnabled: widget.isAutoScrollEnabled,
+                  onVideoEnded: widget.onVideoEnded,
+                ),
 
-          // 2. BOTTOM SHADOW GRADIENT (For text readability) - Ignore pointer to allow swipes
+          // 2. CINEMATIC GRADIENT OVERLAY (For contrast & readability)
           Positioned.fill(
             child: IgnorePointer(
               child: DecoratedBox(
@@ -340,10 +475,12 @@ class _ToursScreenState extends State<ToursScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    stops: const [0.6, 1.0],
+                    stops: const [0.0, 0.25, 0.55, 1.0],
                     colors: [
-                      Colors.black.withOpacity(0),
-                      Colors.black.withOpacity(0.8),
+                      Colors.black.withOpacity(0.65),
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.35),
+                      Colors.black.withOpacity(0.92),
                     ],
                   ),
                 ),
@@ -351,273 +488,387 @@ class _ToursScreenState extends State<ToursScreen> {
             ),
           ),
 
-          // 3. CONTENT OVERLAY
+          // 3. DOUBLE TAP LIKE ANIMATION OVERLAY
+          if (_showHeartAnimation)
+            Center(
+              child: ScaleTransition(
+                scale: _heartScale,
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF385C).withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.favorite_rounded,
+                    color: Color(0xFFFF385C),
+                    size: 100,
+                  ),
+                ),
+              ),
+            ),
+
+          // 4. RIGHT-SIDE FLOATING ACTION SIDEBAR
           Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(
-                16,
-                0,
-                16,
-                12,
-              ), // Spacing from bottom
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Owner Info Header
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4, bottom: 6),
-                    child: Row(
-                      children: [
-                        AppTheme.buildAvatarWidget(
-                          avatarUrl: property.ownerAvatar,
-                          radius: 19,
-                          name: property.ownerName,
+            right: 14,
+            bottom: 30,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Host Avatar with Verified Ring
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PropertyDetailsScreen(property: widget.property),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: widget.property.isOwnerVerified
+                            ? AppTheme.brandColor
+                            : Colors.white,
+                        width: 2.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.4),
+                          blurRadius: 10,
                         ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                      ],
+                    ),
+                    child: AppTheme.buildAvatarWidget(
+                      avatarUrl: widget.property.ownerAvatar,
+                      radius: 24,
+                      name: widget.property.ownerName,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Wishlist / Favourite Button
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.45),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  ),
+                  child: FavouriteButton(
+                    propertyId: widget.property.id,
+                    size: 26,
+                    showShadow: false,
+                  ),
+                ),
+                const SizedBox(height: 18),
+
+                // Instant Chat Button
+                _buildSidebarIconButton(
+                  icon: SvgPicture.asset(
+                    'assets/icons/Message neww.svg',
+                    width: 22,
+                    height: 22,
+                    colorFilter: const ColorFilter.mode(
+                      Colors.white,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  label: 'Chat',
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => chat_page.ChatScreen(
+                          ownerId: widget.property.ownerId,
+                          name: widget.property.ownerName,
+                          avatar: widget.property.ownerAvatar,
+                          online: true,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 18),
+
+                // Share Button
+                _buildSidebarIconButton(
+                  icon: const Icon(
+                    Icons.share_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                  label: 'Share',
+                  onTap: _shareProperty,
+                ),
+                const SizedBox(height: 18),
+
+                // Direct Visit Button
+                _buildSidebarIconButton(
+                  icon: const Icon(
+                    Icons.explore_rounded,
+                    color: AppTheme.brandColor,
+                    size: 24,
+                  ),
+                  label: 'Details',
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PropertyDetailsScreen(property: widget.property),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          // 5. BOTTOM GLASSMORPHIC PROPERTY INFORMATION CARD
+          Positioned(
+            left: 14,
+            right: 76, // Leaves space for the right sidebar
+            bottom: 24,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF14141A).withOpacity(0.78),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.18),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.5),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Category Tag & Host Name Row
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  AppTheme.brandColor,
+                                  AppTheme.brandColor.withOpacity(0.7),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              widget.property.category.toUpperCase(),
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Row(
                               children: [
-                                Text(
-                                  property.ownerName.isNotEmpty
-                                      ? property.ownerName
-                                      : 'Khozna Host',
-                                  style: GoogleFonts.plusJakartaSans(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16,
+                                Flexible(
+                                  child: Text(
+                                    widget.property.ownerName.isNotEmpty
+                                        ? widget.property.ownerName
+                                        : 'Khozna Host',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: Colors.white70,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                if (property.isOwnerVerified) ...[
-                                  const SizedBox(width: 5),
+                                if (widget.property.isOwnerVerified) ...[
+                                  const SizedBox(width: 4),
                                   const Icon(
                                     Icons.verified_rounded,
                                     color: AppTheme.brandColor,
-                                    size: 16,
+                                    size: 14,
                                   ),
                                 ],
                               ],
                             ),
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppTheme.brandColor.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: AppTheme.brandColor.withOpacity(0.5),
-                                ),
-                              ),
-                              child: Text(
-                                property.category.toUpperCase(),
-                                style: GoogleFonts.inter(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w900,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
 
-                  // Property Info Glass Card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 14,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2A2A2A).withOpacity(0.92),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.white.withOpacity(0.12)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.4),
-                          blurRadius: 15,
-                          offset: const Offset(0, 8),
+                      // Property Title
+                      Text(
+                        widget.property.title,
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 17,
+                          height: 1.2,
                         ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        // Left: Property Text Info
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Location Row
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on_rounded,
+                            color: AppTheme.brandColor,
+                            size: 15,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              widget.property.location,
+                              style: GoogleFonts.plusJakartaSans(
+                                color: Colors.white.withOpacity(0.75),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Price Tag & CTA Button Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Formatted Price Tag
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text(
-                                property.title,
-                                style: GoogleFonts.plusJakartaSans(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 18, // Reduced from 19
-                                  height: 1.1,
+                              SvgPicture.asset(
+                                'assets/icons/vector of ruppes.svg',
+                                width: 17.0,
+                                height: 17.0,
+                                colorFilter: const ColorFilter.mode(
+                                  AppTheme.brandColor,
+                                  BlendMode.srcIn,
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 6), // Reduced from 8
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.location_on_rounded,
-                                    color: AppTheme.brandColor,
-                                    size: 14,
-                                  ), // Reduced from 16
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      property.location,
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.white70,
-                                        fontSize: 13, // Reduced from 14
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(width: 3),
+                              Text(
+                                PriceFormatter.format(
+                                  widget.property.priceMonth > 0
+                                      ? widget.property.priceMonth.toInt().toString()
+                                      : (widget.property.priceNight > 0
+                                            ? widget.property.priceNight.toInt().toString()
+                                            : (widget.property.price != '0' &&
+                                                    widget.property.price != '0.0' &&
+                                                    widget.property.price.isNotEmpty
+                                                ? widget.property.price
+                                                : 'Negotiable')),
+                                ),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  letterSpacing: -0.5,
+                                ),
                               ),
-                              const SizedBox(height: 10), // Reduced from 12
-                              Flexible(
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      WidgetSpan(
-                                        alignment: PlaceholderAlignment.middle,
-                                        child: Transform.translate(
-                                          offset: const Offset(
-                                            0,
-                                            -1.2,
-                                          ), // Pushed higher per user request
-                                          child: SvgPicture.asset(
-                                            'assets/icons/vector of ruppes.svg',
-                                            width: 16.0,
-                                            height: 16.0,
-                                            colorFilter: const ColorFilter.mode(
-                                              AppTheme.brandColor,
-                                              BlendMode.srcIn,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const WidgetSpan(
-                                        child: SizedBox(width: 2),
-                                      ), // Tighter spacing
-                                      TextSpan(
-                                        text: (() {
-                                          final val = PriceFormatter.format(
-                                            property.priceMonth > 0
-                                                ? property.priceMonth
-                                                      .toInt()
-                                                      .toString()
-                                                : (property.priceNight > 0
-                                                      ? property.priceNight
-                                                            .toInt()
-                                                            .toString()
-                                                      : (property.price !=
-                                                                    '0' &&
-                                                                property.price !=
-                                                                    '0.0' &&
-                                                                property
-                                                                    .price
-                                                                    .isNotEmpty
-                                                            ? property.price
-                                                            : 'Negotiable')),
-                                          );
-                                          return val;
-                                        })(),
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 19,
-                                          fontWeight: FontWeight.w900,
-                                          color: AppTheme.brandColor,
-                                          letterSpacing: -0.5,
-                                        ),
-                                      ),
-                                      const WidgetSpan(
-                                        child: SizedBox(width: 4),
-                                      ),
-                                      TextSpan(
-                                        text: property.priceMonth > 0
-                                            ? '/month'
-                                            : (property.priceNight > 0
-                                                  ? '/night'
-                                                  : ''),
-                                        style: GoogleFonts.plusJakartaSans(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white38,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                              Text(
+                                widget.property.priceMonth > 0
+                                    ? '/mo'
+                                    : (widget.property.priceNight > 0 ? '/night' : ''),
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white54,
                                 ),
                               ),
                             ],
                           ),
-                        ),
 
-                        const SizedBox(width: 12),
-
-                        // Right: Vertical Action Buttons
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildActionButton(
-                              text: 'CHAT',
-                              iconPath: 'assets/icons/Message neww.svg',
-                              isPrimary: false,
-                              onTap: () {
-                                // Chat navigation logic...
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => chat_page.ChatScreen(
-                                      ownerId: property.ownerId,
-                                      name: property.ownerName,
-                                      avatar: property.ownerAvatar,
-                                      online: true,
+                          // Book Visit CTA Button
+                          GestureDetector(
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PropertyDetailsScreen(
+                                    property: widget.property,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    AppTheme.brandColor,
+                                    Color(0xFF0077B6),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppTheme.brandColor.withOpacity(0.4),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'BOOK VISIT',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.8,
                                     ),
                                   ),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 12),
-                            _buildActionButton(
-                              text: 'VISIT',
-                              icon: Icons.directions_run_rounded,
-                              isPrimary: true,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => PropertyDetailsScreen(
-                                      property: property,
-                                    ),
+                                  const SizedBox(width: 4),
+                                  const Icon(
+                                    Icons.arrow_forward_rounded,
+                                    color: Colors.white,
+                                    size: 14,
                                   ),
-                                );
-                              },
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -626,173 +877,189 @@ class _ToursScreenState extends State<ToursScreen> {
     );
   }
 
-  Widget _buildActionButton({
-    required String text,
-    IconData? icon,
-    String? iconPath,
-    required bool isPrimary,
+  Widget _buildSidebarIconButton({
+    required Widget icon,
+    required String label,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        onTap();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        decoration: BoxDecoration(
-          color: isPrimary ? AppTheme.brandColor : Colors.white,
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (iconPath != null)
-              SvgPicture.asset(
-                iconPath,
-                width: 16,
-                height: 16,
-                colorFilter: ColorFilter.mode(
-                  isPrimary ? Colors.white : AppTheme.brandColor,
-                  BlendMode.srcIn,
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.45),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 8,
                 ),
-              )
-            else
-              Icon(
-                icon,
-                color: isPrimary ? Colors.white : AppTheme.brandColor,
-                size: 16,
-              ),
-            const SizedBox(width: 7),
-            Text(
-              text,
-              style: GoogleFonts.plusJakartaSans(
-                color: isPrimary ? Colors.white : AppTheme.brandColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
-              ),
+              ],
             ),
-          ],
-        ),
+            child: Center(child: icon),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: GoogleFonts.plusJakartaSans(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              shadows: [
+                const Shadow(
+                  color: Colors.black87,
+                  blurRadius: 6,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildImageCarousel(List<String> images, String category) {
-    if (images.isEmpty) {
+/// Full-screen responsive image carousel with story-style progress indicators.
+class _FullImageCarousel extends StatefulWidget {
+  final List<String> images;
+  final String category;
+
+  const _FullImageCarousel({
+    required this.images,
+    required this.category,
+  });
+
+  @override
+  State<_FullImageCarousel> createState() => _FullImageCarouselState();
+}
+
+class _FullImageCarouselState extends State<_FullImageCarousel> {
+  final PageController _controller = PageController();
+  int _currentIndex = 0;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.images.isEmpty) {
       return Container(
-        color: Colors.black,
+        color: const Color(0xFF0F0F14),
         child: const Center(
           child: Icon(Icons.home_work_rounded, size: 80, color: Colors.white10),
         ),
       );
     }
 
-    return _MultiImageCarousel(images: images, category: category);
-  }
-
-  Widget _buildVideoPlaceholder(Property property) {
-    return Center(
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.60,
-        width: double.infinity,
-        child: KhoznaVideoPlayer(
-          videoUrl: property.videoUrl,
-          thumbnailUrl: property.imageUrl,
-          loop: !isAutoScrollEnabled,
-          onVideoEnded: isAutoScrollEnabled ? _scrollToNext : null,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Horizontal PageView for Photos
+        PageView.builder(
+          controller: _controller,
+          itemCount: widget.images.length,
+          physics: const BouncingScrollPhysics(),
+          onPageChanged: (idx) => setState(() => _currentIndex = idx),
+          itemBuilder: (context, index) {
+            return KhoznaImage(
+              imageUrl: widget.images[index],
+              fit: BoxFit.cover,
+            );
+          },
         ),
-      ),
+
+        // Instagram Story Style Top Progress Indicator Bars (Shown if multiple images)
+        if (widget.images.length > 1)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 58,
+            left: 16,
+            right: 16,
+            child: Row(
+              children: List.generate(widget.images.length, (idx) {
+                final bool isActive = idx == _currentIndex;
+                final bool isPast = idx < _currentIndex;
+
+                return Expanded(
+                  child: Container(
+                    height: 3,
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    decoration: BoxDecoration(
+                      color: isPast || isActive
+                          ? Colors.white
+                          : Colors.white.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                      boxShadow: isActive
+                          ? [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.8),
+                                blurRadius: 4,
+                              ),
+                            ]
+                          : [],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+      ],
     );
   }
 }
 
-class _MultiImageCarousel extends StatefulWidget {
-  final List<String> images;
-  final String category;
-  const _MultiImageCarousel({required this.images, required this.category});
+/// Full-screen Video Player with automatic autoplay & tap to pause/play functionality.
+class _FullVideoPlayer extends StatefulWidget {
+  final Property property;
+  final bool isAutoScrollEnabled;
+  final VoidCallback? onVideoEnded;
+
+  const _FullVideoPlayer({
+    required this.property,
+    required this.isAutoScrollEnabled,
+    this.onVideoEnded,
+  });
 
   @override
-  State<_MultiImageCarousel> createState() => _MultiImageCarouselState();
+  State<_FullVideoPlayer> createState() => _FullVideoPlayerState();
 }
 
-class _MultiImageCarouselState extends State<_MultiImageCarousel> {
-  final PageController _carouselController = PageController();
-  int _current = 0;
-
-  @override
-  void dispose() {
-    _carouselController.dispose();
-    super.dispose();
-  }
-
+class _FullVideoPlayerState extends State<_FullVideoPlayer> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Center(
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.60, // Medium height
-            child: PageView.builder(
-              controller: _carouselController,
-              itemCount: widget.images.length,
-              physics: const BouncingScrollPhysics(),
-              onPageChanged: (idx) => setState(() => _current = idx),
-              itemBuilder: (context, index) {
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    KhoznaImage(
-                      imageUrl: widget.images[index],
-                      fit: BoxFit.cover,
-                    ),
-                    Positioned.fill(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              Colors.black.withOpacity(0.1),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
+    if (widget.property.videoUrl.isEmpty) {
+      return Container(
+        color: const Color(0xFF0F0F14),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.videocam_off_rounded, size: 64, color: Colors.white24),
+            const SizedBox(height: 12),
+            Text(
+              'No video available for this tour',
+              style: GoogleFonts.plusJakartaSans(
+                color: Colors.white60,
+                fontSize: 15,
+              ),
             ),
-          ),
+          ],
         ),
+      );
+    }
 
-        // No arrows — swipe gesture only
-        if (widget.images.length > 1)
-          Positioned(
-            bottom: 160,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: widget.images.asMap().entries.map((entry) {
-                return Container(
-                  width: 6.0,
-                  height: 6.0,
-                  margin: const EdgeInsets.symmetric(horizontal: 3.0),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(
-                      _current == entry.key ? 0.9 : 0.4,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-      ],
+    return Positioned.fill(
+      child: KhoznaVideoPlayer(
+        videoUrl: widget.property.videoUrl,
+        thumbnailUrl: widget.property.imageUrl,
+        loop: !widget.isAutoScrollEnabled,
+        onVideoEnded: widget.isAutoScrollEnabled ? widget.onVideoEnded : null,
+      ),
     );
   }
 }
