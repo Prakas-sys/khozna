@@ -164,7 +164,7 @@ class _ToursScreenState extends State<ToursScreen> {
                       child: PageView.builder(
                         controller: _pageController,
                         scrollDirection: Axis.vertical,
-                        physics: const BouncingScrollPhysics(),
+                        physics: const ClampingScrollPhysics(),
                         itemCount: displayReels.length,
                         itemBuilder: (context, index) {
                           return _ReelItem(
@@ -185,7 +185,7 @@ class _ToursScreenState extends State<ToursScreen> {
             right: 0,
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.only(left: 14, right: 14, top: 14, bottom: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -660,29 +660,29 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Category Tag & Host Name Row
+                      // Property Title
+                      Text(
+                        widget.property.title,
+                        style: GoogleFonts.plusJakartaSans(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                          height: 1.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Host + Location Row combined
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppTheme.brandColor,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              widget.property.category.toUpperCase(),
-                              style: GoogleFonts.plusJakartaSans(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 0.8,
-                              ),
-                            ),
+                          const Icon(
+                            Icons.location_on_rounded,
+                            color: AppTheme.brandColor,
+                            size: 13,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 3),
                           Expanded(
                             child: GestureDetector(
                               onTap: () {
@@ -701,76 +701,21 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                                   ),
                                 );
                               },
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      widget.property.ownerName.isNotEmpty
-                                          ? widget.property.ownerName
-                                          : 'Khozna Host',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        color: Colors.white70,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  if (widget.property.isOwnerVerified) ...[
-                                    const SizedBox(width: 4),
-                                    const Icon(
-                                      Icons.verified_rounded,
-                                      color: AppTheme.brandColor,
-                                      size: 14,
-                                    ),
-                                  ],
-                                ],
+                              child: Text(
+                                widget.property.location,
+                                style: GoogleFonts.plusJakartaSans(
+                                  color: Colors.white.withOpacity(0.70),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 10),
-
-                      // Property Title
-                      Text(
-                        widget.property.title,
-                        style: GoogleFonts.plusJakartaSans(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 16,
-                          height: 1.2,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 5),
-
-                      // Location Row
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on_rounded,
-                            color: AppTheme.brandColor,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              widget.property.location,
-                              style: GoogleFonts.plusJakartaSans(
-                                color: Colors.white.withOpacity(0.75),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
 
                       // Price Tag & CTA Button Row
                       Row(
@@ -822,7 +767,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                             ],
                           ),
 
-                          // Visit Now CTA Button
+                          // Visit Now CTA — full pill shape
                           GestureDetector(
                             onTap: () {
                               HapticFeedback.mediumImpact();
@@ -837,12 +782,12 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
+                                horizontal: 18,
                                 vertical: 10,
                               ),
                               decoration: BoxDecoration(
                                 color: AppTheme.brandColor,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(50),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.2),
@@ -863,7 +808,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                                       letterSpacing: 0.8,
                                     ),
                                   ),
-                                  const SizedBox(width: 4),
+                                  const SizedBox(width: 5),
                                   const Icon(
                                     Icons.arrow_forward_rounded,
                                     color: Colors.white,
@@ -933,6 +878,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
 }
 
 /// Full-screen responsive image carousel with story-style progress indicators.
+/// Uses tap-to-advance (left/right) to avoid conflicting with outer vertical reel swipe.
 class _FullImageCarousel extends StatefulWidget {
   final List<String> images;
   final String category;
@@ -947,13 +893,18 @@ class _FullImageCarousel extends StatefulWidget {
 }
 
 class _FullImageCarouselState extends State<_FullImageCarousel> {
-  final PageController _controller = PageController();
   int _currentIndex = 0;
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  void _goNext() {
+    if (_currentIndex < widget.images.length - 1) {
+      setState(() => _currentIndex++);
+    }
+  }
+
+  void _goPrev() {
+    if (_currentIndex > 0) {
+      setState(() => _currentIndex--);
+    }
   }
 
   @override
@@ -970,24 +921,52 @@ class _FullImageCarouselState extends State<_FullImageCarousel> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Horizontal PageView for Photos
-        PageView.builder(
-          controller: _controller,
-          itemCount: widget.images.length,
-          physics: const BouncingScrollPhysics(),
-          onPageChanged: (idx) => setState(() => _currentIndex = idx),
-          itemBuilder: (context, index) {
-            return KhoznaImage(
-              imageUrl: widget.images[index],
-              fit: BoxFit.cover,
-            );
-          },
+        // Full-screen image — BoxFit.cover fills screen edge-to-edge
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 280),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+          child: KhoznaImage(
+            key: ValueKey(_currentIndex),
+            imageUrl: widget.images[_currentIndex],
+            fit: BoxFit.cover,
+          ),
         ),
 
-        // Instagram Story Style Top Progress Indicator Bars (Shown if multiple images)
+        // LEFT edge tap strip → previous image (70px wide)
         if (widget.images.length > 1)
           Positioned(
-            top: MediaQuery.of(context).padding.top + 58,
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 70,
+            child: GestureDetector(
+              onTap: _goPrev,
+              behavior: HitTestBehavior.translucent,
+              child: const SizedBox.expand(),
+            ),
+          ),
+
+        // RIGHT edge tap strip → next image (70px wide)
+        if (widget.images.length > 1)
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: 70,
+            child: GestureDetector(
+              onTap: _goNext,
+              behavior: HitTestBehavior.translucent,
+              child: const SizedBox.expand(),
+            ),
+          ),
+
+        // Progress bars — positioned BELOW the floating header
+        if (widget.images.length > 1)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 82,
             left: 16,
             right: 16,
             child: Row(
@@ -996,22 +975,15 @@ class _FullImageCarouselState extends State<_FullImageCarousel> {
                 final bool isPast = idx < _currentIndex;
 
                 return Expanded(
-                  child: Container(
-                    height: 3,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: isActive ? 3.5 : 2.5,
                     margin: const EdgeInsets.symmetric(horizontal: 2),
                     decoration: BoxDecoration(
                       color: isPast || isActive
                           ? Colors.white
-                          : Colors.white.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(2),
-                      boxShadow: isActive
-                          ? [
-                              BoxShadow(
-                                color: Colors.white.withOpacity(0.8),
-                                blurRadius: 4,
-                              ),
-                            ]
-                          : [],
+                          : Colors.white.withOpacity(0.35),
+                      borderRadius: BorderRadius.circular(3),
                     ),
                   ),
                 );
