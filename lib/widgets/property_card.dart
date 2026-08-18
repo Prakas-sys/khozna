@@ -484,9 +484,9 @@ class PropertyCard extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     SvgPicture.asset(
-                                      'assets/icons/Message neww.svg',
-                                      width: 16,
-                                      height: 16,
+                                      'assets/icons/Vectorproepty card meeasge.svg',
+                                      width: 14.5,
+                                      height: 15,
                                       colorFilter: const ColorFilter.mode(
                                         AppTheme.brandColor,
                                         BlendMode.srcIn,
