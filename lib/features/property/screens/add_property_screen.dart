@@ -636,7 +636,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               onSelect: (v) {
                 setState(() => _selectedCategory = v);
                 HapticFeedback.mediumImpact();
-                Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
               },
             ),
             const SizedBox(height: 12),
@@ -649,7 +648,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               onSelect: (v) {
                 setState(() => _selectedCategory = v);
                 HapticFeedback.mediumImpact();
-                Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
               },
             ),
             const SizedBox(height: 12),
@@ -662,7 +660,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               onSelect: (v) {
                 setState(() => _selectedCategory = v);
                 HapticFeedback.mediumImpact();
-                Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
               },
             ),
             const SizedBox(height: 12),
@@ -675,7 +672,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               onSelect: (v) {
                 setState(() => _selectedCategory = v);
                 HapticFeedback.mediumImpact();
-                Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
               },
             ),
             const SizedBox(height: 12),
@@ -696,7 +692,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     _selectedCategory = 'Other';
                     _otherCategoryController.text = result;
                   });
-                  Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
                 }
               },
             ),
@@ -766,11 +761,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         textBaseline: TextBaseline.alphabetic,
         children: [
           Text(
-            'स्थान छान्नुहोस्',
+            'स्थान र नक्सा',
             style: GoogleFonts.notoSansDevanagari(
               fontSize: 21,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF111827),
+              color: const Color(0xFF1E293B),
             ),
           ),
           const SizedBox(width: 8),
@@ -778,24 +773,31 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             child: Text(
               'Location',
               style: GoogleFonts.inter(
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.grey[400],
+                color: const Color(0xFF64748B),
               ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       ),
-      subtitle: 'सही लोकेसनले ग्राहकलाई तपाईंको कोठा भेटाउन सजिलो बनाउँछ।',
+      subtitle: 'सही लोकेसनले ग्राहकलाई तपाईंको सम्पत्ति छिटो र सजिलै भेटाउन मद्दत गर्छ।',
       content: [
         Container(
           width: double.infinity,
-          height: 180,
+          height: 200,
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9), // Light grayish for map background
+            color: const Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Stack(
             alignment: Alignment.bottomCenter,
@@ -811,35 +813,35 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               ),
               // Location pin in center
               Positioned(
-                top: 40,
+                top: 36,
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: AppTheme.brandColor,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.brandColor.withOpacity(0.3),
+                        color: AppTheme.brandColor.withOpacity(0.35),
                         blurRadius: 20,
-                        spreadRadius: 5,
+                        spreadRadius: 4,
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.home_rounded, color: Colors.white, size: 28),
+                  child: const Icon(Icons.location_on_rounded, color: Colors.white, size: 28),
                 ),
               ),
               // The bottom card
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.04),
-                        blurRadius: 15,
+                        color: Colors.black.withOpacity(0.06),
+                        blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),
                     ],
@@ -848,7 +850,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
                             padding: const EdgeInsets.all(8),
@@ -856,7 +857,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                               color: AppTheme.brandColor.withOpacity(0.08),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(Icons.gps_fixed_rounded, color: AppTheme.brandColor, size: 20),
+                            child: const Icon(Icons.my_location_rounded, color: AppTheme.brandColor, size: 20),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -864,20 +865,19 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'हालको स्थान प्रयोग गर्नुहोस्',
+                                  'GPS द्वारा लोकेशन सेट गर्नुहोस्',
                                   style: GoogleFonts.notoSansDevanagari(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
                                     color: const Color(0xFF1E293B),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 2),
                                 Text(
-                                  'GPS प्रयोग गर्दा तपाईंको सूचीमा विश्वास बढ्छ र ग्राहकलाई सजिलो भेटिन्छ।',
+                                  'GPS ले तपाईंको सूचीलाई प्रमाणित र भरपर्दो बनाउँछ।',
                                   style: GoogleFonts.notoSansDevanagari(
-                                    fontSize: 11,
+                                    fontSize: 11.5,
                                     color: const Color(0xFF64748B),
-                                    height: 1.3,
                                   ),
                                 ),
                               ],
@@ -885,14 +885,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       if (_showLocationNudge && _latitude == null)
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.only(bottom: 10),
                           child: Text(
                             'कृपया नक्सामा लोकेशन सेट गर्नुहोस्!',
                             style: GoogleFonts.notoSansDevanagari(
-                              color: Colors.orange[800],
+                              color: const Color(0xFFEA580C),
                               fontWeight: FontWeight.w700,
                               fontSize: 12,
                             ),
@@ -900,7 +900,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         ),
                       SizedBox(
                         width: double.infinity,
-                        height: 48,
+                        height: 44,
                         child: ElevatedButton.icon(
                           onPressed: _isLocating
                               ? null
@@ -915,20 +915,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                                   child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                 )
                               : Icon(
-                                  _latitude != null ? Icons.check_circle_outline_rounded : Icons.near_me_outlined, 
+                                  _latitude != null ? Icons.check_circle_rounded : Icons.near_me_rounded, 
                                   size: 18, 
                                   color: Colors.white
                                 ),
                           label: Text(
                             _isLocating ? 'खोज्दै छ...' : (_latitude != null ? 'स्थान प्रमाणित भयो' : 'मेरो हालको स्थान प्रयोग गर्नुहोस्'),
                             style: GoogleFonts.notoSansDevanagari(
-                              fontSize: 14,
+                              fontSize: 13.5,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _latitude != null ? const Color(0xFF22C55E) : AppTheme.brandColor,
+                            backgroundColor: _latitude != null ? const Color(0xFF16A34A) : AppTheme.brandColor,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -946,56 +946,57 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         const SizedBox(height: 24),
         Row(
           children: [
-            Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1.2)),
+            Expanded(child: Divider(color: const Color(0xFFE2E8F0), thickness: 1)),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Text(
-                'वा',
+                'वा ठेगाना लेख्नुहोस्',
                 style: GoogleFonts.notoSansDevanagari(
-                  color: Colors.grey.shade400,
-                  fontSize: 14,
+                  color: const Color(0xFF94A3B8),
+                  fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-            Expanded(child: Divider(color: Colors.grey.shade200, thickness: 1.2)),
+            Expanded(child: Divider(color: const Color(0xFFE2E8F0), thickness: 1)),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
         PropertyFormField(
-          label: 'टोल वा ठाउँको नाम (Area Name)',
+          label: 'टोल वा क्षेत्रको नाम (Area Name)',
           hint: 'उदा: ललितपुर, सानेपा-२',
           controller: _areaController,
           isRequired: true,
-          prefixIcon: Icons.location_on_outlined,
+          prefixIcon: Icons.location_city_rounded,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
         PropertyFormField(
-          label: 'चिनिने ठाउँ (Landmark)',
+          label: 'प्रख्यात ठाउँ (Landmark)',
           hint: 'उदा: सिभिल अस्पतालको पछाडि',
           controller: _landmarkController,
           isRequired: true,
-          prefixIcon: Icons.business_outlined,
+          prefixIcon: Icons.near_me_rounded,
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 28),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: AppTheme.brandColor.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(12),
+            color: AppTheme.brandColor.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.brandColor.withOpacity(0.12)),
           ),
           child: Row(
             children: [
-              const Icon(Icons.security_rounded, color: AppTheme.brandColor, size: 20),
+              const Icon(Icons.verified_user_rounded, color: AppTheme.brandColor, size: 22),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'आफ्नो ठेगाना सुरक्षित छ। यो जानकारी सार्वजनिक गरिने छैन।',
+                  'तपाईंको ठेगाना सुरक्षित छ। गोपनीयताका कारण सटीक घर नम्बर सार्वजनिक गरिने छैन।',
                   style: GoogleFonts.notoSansDevanagari(
                     fontSize: 12,
                     color: const Color(0xFF475569),
                     fontWeight: FontWeight.w500,
-                    height: 1.3,
+                    height: 1.35,
                   ),
                 ),
               ),
@@ -2113,9 +2114,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         children: [
                           Text(
                             isLastStep ? 'Publish' : 'Next',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 18,
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 17,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -2174,14 +2175,16 @@ class OtherCategoryScreen extends StatefulWidget {
 
 class _OtherCategoryScreenState extends State<OtherCategoryScreen> {
   final TextEditingController _customController = TextEditingController();
-  final List<String> _suggestions = [
-    'Villa',
-    'Hotel',
-    'Office Space',
-    'Shutter',
-    'Godown/Warehouse',
-    'Farm Cottage',
-    'Event Hall',
+  
+  final List<Map<String, String>> _suggestions = [
+    {'name': 'Villa', 'icon': '🏰'},
+    {'name': 'Hotel', 'icon': '🏨'},
+    {'name': 'Office Space', 'icon': '🏢'},
+    {'name': 'Shutter', 'icon': '🏬'},
+    {'name': 'Godown/Warehouse', 'icon': '📦'},
+    {'name': 'Farm Cottage', 'icon': '🌾'},
+    {'name': 'Event Hall', 'icon': '🏛️'},
+    {'name': 'Land/Plot', 'icon': '🏞️'},
   ];
 
   @override
@@ -2191,120 +2194,163 @@ class _OtherCategoryScreenState extends State<OtherCategoryScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF1E293B), size: 22),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'अन्य सङ्कुल (Other Type)',
-          style: GoogleFonts.plusJakartaSans(
-            color: Colors.black,
-            fontWeight: FontWeight.w800,
-            fontSize: 18,
+          'অন্য सम्पत्ति प्रकार / Other Type',
+          style: GoogleFonts.inter(
+            color: const Color(0xFF1E293B),
+            fontWeight: FontWeight.w700,
+            fontSize: 17,
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'What type of property is this?',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
-                color: const Color(0xFF1A1A2E),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Specify the exact type for better matching.',
-              style: GoogleFonts.inter(color: Colors.grey[600], fontSize: 14),
-            ),
-            const SizedBox(height: 32),
-            TextField(
-              controller: _customController,
-              autofocus: true,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-              decoration: InputDecoration(
-                hintText: 'Enter property type...',
-                hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
-                filled: true,
-                fillColor: const Color(0xFFF9FAFB),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'What type of property is this?',
+                style: GoogleFonts.inter(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1E293B),
+                  letterSpacing: -0.4,
                 ),
-                contentPadding: const EdgeInsets.all(20),
-                prefixIcon: const Icon(Icons.edit_note_rounded, color: AppTheme.brandColor),
               ),
-              onSubmitted: (v) {
-                if (v.isNotEmpty) Navigator.pop(context, v);
-              },
-            ),
-            const SizedBox(height: 40),
-            Text(
-              'Suggestions',
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey[400],
-                letterSpacing: 0.5,
+              const SizedBox(height: 6),
+              Text(
+                'Specify or select the exact property type for better search visibility.',
+                style: GoogleFonts.inter(
+                  color: const Color(0xFF64748B),
+                  fontSize: 14,
+                  height: 1.4,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: _suggestions.map((s) => InkWell(
-                onTap: () => Navigator.pop(context, s),
-                borderRadius: BorderRadius.circular(30),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
+              const SizedBox(height: 28),
+              
+              // Custom Type Text Field
+              TextField(
+                controller: _customController,
+                autofocus: true,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF1E293B),
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Type your custom property type...',
+                  hintStyle: GoogleFonts.inter(color: const Color(0xFF94A3B8), fontSize: 15),
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: AppTheme.brandColor, width: 1.8),
                   ),
-                  child: Text(
-                    s,
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF374151),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                  prefixIcon: const Icon(Icons.edit_note_rounded, color: AppTheme.brandColor, size: 24),
+                ),
+                onSubmitted: (v) {
+                  if (v.trim().isNotEmpty) Navigator.pop(context, v.trim());
+                },
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: 32),
+
+              // Popular Categories Header
+              Text(
+                'POPULAR SUGGESTIONS',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF94A3B8),
+                  letterSpacing: 0.8,
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Rich Suggestion Chips
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: _suggestions.map((item) {
+                  final String name = item['name']!;
+                  final String emoji = item['icon']!;
+                  final bool isTypedMatch = _customController.text.trim().toLowerCase() == name.toLowerCase();
+
+                  return Material(
+                    color: isTypedMatch ? AppTheme.brandColor.withOpacity(0.08) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(14),
+                    child: InkWell(
+                      onTap: () => Navigator.pop(context, name),
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: isTypedMatch ? AppTheme.brandColor : const Color(0xFFE2E8F0),
+                            width: isTypedMatch ? 1.8 : 1.0,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(emoji, style: const TextStyle(fontSize: 16)),
+                            const SizedBox(width: 8),
+                            Text(
+                              name,
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: isTypedMatch ? FontWeight.w700 : FontWeight.w600,
+                                color: isTypedMatch ? AppTheme.brandColor : const Color(0xFF334155),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              )).toList(),
-            ),
-          ],
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: ElevatedButton(
-            onPressed: () {
-              if (_customController.text.isNotEmpty) {
-                Navigator.pop(context, _customController.text);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.brandColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-              elevation: 0,
-            ),
-            child: Text(
-              'Confirm Type',
-              style: GoogleFonts.plusJakartaSans(
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
+          child: SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              onPressed: () {
+                if (_customController.text.trim().isNotEmpty) {
+                  Navigator.pop(context, _customController.text.trim());
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _customController.text.trim().isNotEmpty
+                    ? AppTheme.brandColor
+                    : AppTheme.brandColor.withOpacity(0.5),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+              ),
+              child: Text(
+                'Confirm Property Type',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),

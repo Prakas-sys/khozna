@@ -458,9 +458,9 @@ class PropertyCard extends StatelessWidget {
                                   }
                                 },
                                 icon: SvgPicture.asset(
-                                  'assets/icons/Vectorproepty card meeasge.svg',
-                                  width: 14,
-                                  height: 14,
+                                  'assets/icons/Message neww.svg',
+                                  width: 15.5,
+                                  height: 15.5,
                                   colorFilter: const ColorFilter.mode(
                                     AppTheme.brandColor,
                                     BlendMode.srcIn,

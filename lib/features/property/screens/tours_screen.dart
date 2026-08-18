@@ -813,8 +813,8 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                                     'View Now',
                                     style: GoogleFonts.plusJakartaSans(
                                       color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ],
@@ -864,8 +864,8 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
             label,
             style: GoogleFonts.plusJakartaSans(
               color: Colors.white,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
               shadows: [
                 const Shadow(
                   color: Colors.black87,
