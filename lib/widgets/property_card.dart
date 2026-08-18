@@ -416,8 +416,8 @@ class PropertyCard extends StatelessWidget {
                                   children: [
                                     SvgPicture.asset(
                                       'assets/images/view now.svg',
-                                      width: 16,
-                                      height: 16,
+                                      width: 18,
+                                      height: 12,
                                       colorFilter: const ColorFilter.mode(
                                         Colors.white,
                                         BlendMode.srcIn,

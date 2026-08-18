@@ -2319,8 +2319,8 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppTheme.brandColor.withOpacity(0.08),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF3F4F6),
                         shape: BoxShape.circle,
                       ),
                       child: SvgPicture.asset(
@@ -2328,7 +2328,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         width: 24,
                         height: 24,
                         colorFilter: const ColorFilter.mode(
-                          AppTheme.brandColor,
+                          Colors.black,
                           BlendMode.srcIn,
                         ),
                       ),
@@ -2395,13 +2395,13 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF22C55E).withOpacity(0.08),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF3F4F6),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.flash_on_rounded,
-                        color: Color(0xFF22C55E),
+                        color: Colors.black,
                         size: 24,
                       ),
                     ),

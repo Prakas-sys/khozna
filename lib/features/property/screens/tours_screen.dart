@@ -801,8 +801,8 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                                 children: [
                                   SvgPicture.asset(
                                     'assets/images/view now.svg',
-                                    width: 14,
-                                    height: 14,
+                                    width: 16.5,
+                                    height: 11,
                                     colorFilter: const ColorFilter.mode(
                                       Colors.white,
                                       BlendMode.srcIn,
