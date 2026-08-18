@@ -375,134 +375,116 @@ class PropertyCard extends StatelessWidget {
                       children: [
                         if (!isOwnerView) ...[
                           Expanded(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                HapticFeedback.lightImpact();
-                                if (!AuthGuard.checkAuth(
-                                  context,
-                                  title: 'View Property',
-                                  message: 'Log in to view complete details of this property.',
-                                )) {
-                                  return;
-                                }
-                                if (context.mounted) {
-                                  Navigator.push(
+                            child: SizedBox(
+                              height: 38,
+                              child: ElevatedButton.icon(
+                                onPressed: () async {
+                                  HapticFeedback.lightImpact();
+                                  if (!AuthGuard.checkAuth(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (_) => PropertyDetailsScreen(
-                                        property: property,
+                                    title: 'View Property',
+                                    message: 'Log in to view complete details of this property.',
+                                  )) {
+                                    return;
+                                  }
+                                  if (context.mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => PropertyDetailsScreen(
+                                          property: property,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.brandColor,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 2,
-                                  vertical: 10,
+                                    );
+                                  }
+                                },
+                                icon: SvgPicture.asset(
+                                  'assets/images/view now.svg',
+                                  width: 15,
+                                  height: 10,
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.white,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(100),
+                                label: Text(
+                                  'View Now',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13.5,
+                                    height: 1.0,
+                                  ),
                                 ),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/images/view now.svg',
-                                      width: 18,
-                                      height: 12,
-                                      colorFilter: const ColorFilter.mode(
-                                        Colors.white,
-                                        BlendMode.srcIn,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      'View Now',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.brandColor,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
                             ),
                           ),
                           SizedBox(width: (width == double.infinity) ? 12 : 8),
                           Expanded(
-                            child: OutlinedButton(
-                              onPressed: () async {
-                                HapticFeedback.lightImpact();
-                                if (!AuthGuard.checkAuth(
-                                  context,
-                                  title: 'Chat with Owner',
-                                  message: 'Log in to direct message the property owner.',
-                                )) {
-                                  return;
-                                }
-                                if (context.mounted) {
-                                  Navigator.push(
+                            child: SizedBox(
+                              height: 38,
+                              child: OutlinedButton.icon(
+                                onPressed: () async {
+                                  HapticFeedback.lightImpact();
+                                  if (!AuthGuard.checkAuth(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (_) => chat_page.ChatScreen(
-                                        ownerId: ownerId,
-                                        name: ownerName,
-                                        avatar: ownerAvatar,
-                                        isVerified: isOwnerVerified,
-                                        online: true,
+                                    title: 'Chat with Owner',
+                                    message: 'Log in to direct message the property owner.',
+                                  )) {
+                                    return;
+                                  }
+                                  if (context.mounted) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => chat_page.ChatScreen(
+                                          ownerId: ownerId,
+                                          name: ownerName,
+                                          avatar: ownerAvatar,
+                                          isVerified: isOwnerVerified,
+                                          online: true,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                }
-                              },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppTheme.brandColor,
-                                side: const BorderSide(
-                                  color: AppTheme.brandColor,
-                                  width: 1.0,
+                                    );
+                                  }
+                                },
+                                icon: SvgPicture.asset(
+                                  'assets/icons/Vectorproepty card meeasge.svg',
+                                  width: 14,
+                                  height: 14,
+                                  colorFilter: const ColorFilter.mode(
+                                    AppTheme.brandColor,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 2,
-                                  vertical: 10,
+                                label: Text(
+                                  'Message',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13.5,
+                                    height: 1.0,
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(100),
-                                ),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      'assets/icons/Vectorproepty card meeasge.svg',
-                                      width: 17,
-                                      height: 17,
-                                      colorFilter: const ColorFilter.mode(
-                                        AppTheme.brandColor,
-                                        BlendMode.srcIn,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      'Message',
-                                      style: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.brandColor,
+                                  side: const BorderSide(
+                                    color: AppTheme.brandColor,
+                                    width: 1.2,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(100),
+                                  ),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
                             ),

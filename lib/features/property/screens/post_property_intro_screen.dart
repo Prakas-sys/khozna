@@ -114,7 +114,7 @@ class _PostPropertyIntroScreenState extends State<PostPropertyIntroScreen> {
                     
                     _buildStep(
                       stepNumber: 2,
-                      title: 'Add photos and Videos',
+                      title: 'Add photos & videos',
                       subtitle: 'Upload photos, videos and description.',
                       imagePath: 'assets/icons/2.png',
                     ),
@@ -309,12 +309,12 @@ class _PostPropertyIntroScreenState extends State<PostPropertyIntroScreen> {
                             color: const Color(0xFF222222),
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             title,
                             style: GoogleFonts.inter(
-                              fontSize: 18,
+                              fontSize: 16.5,
                               fontWeight: FontWeight.w600,
                               color: const Color(0xFF222222),
                             ),

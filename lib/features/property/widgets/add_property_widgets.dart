@@ -451,19 +451,19 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
             child: Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
-                  padding: const EdgeInsets.all(6),
+                  width: 54,
+                  height: 54,
+                  padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.brandColor.withOpacity(0.08) : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(12),
+                    color: isSelected ? AppTheme.brandColor.withOpacity(0.08) : const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Image.asset(
                     widget.imagePath,
                     fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -472,9 +472,9 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                       Text(
                         nepaliText,
                         style: GoogleFonts.notoSansDevanagari(
-                          fontSize: 15,
+                          fontSize: 16,
                           fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                          color: isSelected ? AppTheme.brandColor : const Color(0xFF475569),
+                          color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
                         ),
                       ),
                       if (englishText.isNotEmpty) ...[
@@ -482,9 +482,9 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                         Text(
                           englishText,
                           style: GoogleFonts.inter(
-                            fontSize: 12.5,
+                            fontSize: 13,
                             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color: isSelected ? AppTheme.brandColor.withOpacity(0.75) : const Color(0xFF94A3B8),
+                            color: isSelected ? AppTheme.brandColor.withOpacity(0.8) : const Color(0xFF64748B),
                           ),
                         ),
                       ],
@@ -492,8 +492,8 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                   ),
                 ),
                 Container(
-                  width: 22,
-                  height: 22,
+                  width: 24,
+                  height: 24,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isSelected ? AppTheme.brandColor : Colors.transparent,
@@ -503,7 +503,7 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                     ),
                   ),
                   child: isSelected
-                      ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
+                      ? const Icon(Icons.check_rounded, size: 15, color: Colors.white)
                       : null,
                 ),
               ],
