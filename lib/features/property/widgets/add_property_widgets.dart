@@ -441,41 +441,29 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              color: isSelected ? AppTheme.brandColor.withOpacity(0.03) : Colors.white,
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
-                width: isSelected ? 2 : 1.5,
+                width: isSelected ? 1.8 : 1.0,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: isSelected 
-                      ? AppTheme.brandColor.withOpacity(0.1) 
-                      : Colors.black.withOpacity(0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
             ),
             child: Row(
               children: [
                 Container(
-                  width: 56,
-                  height: 56,
+                  width: 48,
+                  height: 48,
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.brandColor.withOpacity(0.08) : Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(16),
+                    color: isSelected ? AppTheme.brandColor.withOpacity(0.08) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Transform.scale(
-                    scale: widget.imageScale,
-                    child: Image.asset(
-                      widget.imagePath,
-                      fit: BoxFit.contain,
-                    ),
+                  child: Image.asset(
+                    widget.imagePath,
+                    fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -484,9 +472,9 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                       Text(
                         nepaliText,
                         style: GoogleFonts.notoSansDevanagari(
-                          fontSize: 16,
-                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
-                          color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
+                          fontSize: 15,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                          color: isSelected ? AppTheme.brandColor : const Color(0xFF475569),
                         ),
                       ),
                       if (englishText.isNotEmpty) ...[
@@ -494,9 +482,9 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                         Text(
                           englishText,
                           style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                            color: isSelected ? AppTheme.brandColor.withOpacity(0.8) : Colors.grey[500],
+                            fontSize: 12.5,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            color: isSelected ? AppTheme.brandColor.withOpacity(0.75) : const Color(0xFF94A3B8),
                           ),
                         ),
                       ],
@@ -504,18 +492,18 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                   ),
                 ),
                 Container(
-                  width: 24,
-                  height: 24,
+                  width: 22,
+                  height: 22,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isSelected ? AppTheme.brandColor : Colors.transparent,
                     border: Border.all(
-                      color: isSelected ? AppTheme.brandColor : Colors.grey.shade300,
-                      width: 2,
+                      color: isSelected ? AppTheme.brandColor : const Color(0xFFCBD5E1),
+                      width: 1.8,
                     ),
                   ),
                   child: isSelected
-                      ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+                      ? const Icon(Icons.check_rounded, size: 14, color: Colors.white)
                       : null,
                 ),
               ],
