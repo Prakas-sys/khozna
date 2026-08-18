@@ -255,7 +255,7 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
               ),
             ),
 
-            // ── Search Bar Bar ──────────────────────────────────────────
+            // ── Search Bar ──────────────────────────────────────────
             Container(
               color: Colors.white,
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -268,42 +268,51 @@ class _FilterResultsScreenState extends State<FilterResultsScreen> {
                     child: Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
+                        color: Colors.grey.shade50,
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        border: Border.all(color: Colors.grey.shade200, width: 1.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: Row(
                         children: [
-                          const SizedBox(width: 16),
-                          Icon(CupertinoIcons.search, color: Colors.grey[500], size: 18),
+                          const SizedBox(width: 14),
+                          Icon(CupertinoIcons.search, color: AppTheme.brandColor, size: 19),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'Search location, category or price...',
+                              'Search area, city or title...',
                               style: GoogleFonts.plusJakartaSans(
                                 color: Colors.grey[500],
                                 fontSize: 13.5,
                                 fontWeight: FontWeight.w500,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            margin: const EdgeInsets.only(right: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            margin: const EdgeInsets.only(right: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Colors.black,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.tune_rounded, size: 14, color: Colors.black87),
-                                const SizedBox(width: 4),
+                                const Icon(Icons.tune_rounded, size: 13, color: Colors.white),
+                                const SizedBox(width: 5),
                                 Text(
-                                  'Filters',
+                                  'Filter',
                                   style: GoogleFonts.plusJakartaSans(
-                                    fontSize: 11,
+                                    fontSize: 11.5,
                                     fontWeight: FontWeight.w700,
-                                    color: Colors.black87,
+                                    color: Colors.white,
                                   ),
                                 ),
                               ],

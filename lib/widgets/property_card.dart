@@ -400,7 +400,8 @@ class PropertyCard extends StatelessWidget {
                                 backgroundColor: AppTheme.brandColor,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 10.5,
+                                  horizontal: 2,
+                                  vertical: 10,
                                 ),
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -423,12 +424,12 @@ class PropertyCard extends StatelessWidget {
                                         BlendMode.srcIn,
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
+                                    const SizedBox(width: 5),
                                     Text(
                                       'View Now',
                                       style: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
                                       ),
                                     ),
                                   ],
@@ -470,7 +471,8 @@ class PropertyCard extends StatelessWidget {
                                   width: 1.0,
                                 ),
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 10.5,
+                                  horizontal: 2,
+                                  vertical: 10,
                                 ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(100),
@@ -485,19 +487,19 @@ class PropertyCard extends StatelessWidget {
                                   children: [
                                     SvgPicture.asset(
                                       'assets/icons/Vectorproepty card meeasge.svg',
-                                      width: 14.5,
-                                      height: 15,
+                                      width: 17,
+                                      height: 17,
                                       colorFilter: const ColorFilter.mode(
                                         AppTheme.brandColor,
                                         BlendMode.srcIn,
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
+                                    const SizedBox(width: 5),
                                     Text(
                                       'Message',
                                       style: GoogleFonts.plusJakartaSans(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
                                       ),
                                     ),
                                   ],

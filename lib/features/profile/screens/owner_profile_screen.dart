@@ -430,7 +430,7 @@ class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
                         );
                       },
                       icon: SvgPicture.asset(
-                        'assets/icons/Message neww.svg',
+                        'assets/icons/Vectorproepty card meeasge.svg',
                         width: 18,
                         height: 18,
                         colorFilter: const ColorFilter.mode(

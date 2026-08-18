@@ -439,9 +439,10 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
           scale: _scaleAnimation.value,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
                 width: isSelected ? 2 : 1.5,
@@ -456,62 +457,67 @@ class _CategoryCardState extends State<CategoryCard> with SingleTickerProviderSt
                 ),
               ],
             ),
-            child: Stack(
+            child: Row(
               children: [
-                Align(
-                  alignment: Alignment.center,
+                Container(
+                  width: 56,
+                  height: 56,
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppTheme.brandColor.withOpacity(0.08) : Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Transform.scale(
+                    scale: widget.imageScale,
+                    child: Image.asset(
+                      widget.imagePath,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Transform.scale(
-                        scale: widget.imageScale,
-                        child: Image.asset(
-                          widget.imagePath,
-                          height: 100,
-                          width: 100,
-                          fit: BoxFit.contain,
+                      Text(
+                        nepaliText,
+                        style: GoogleFonts.notoSansDevanagari(
+                          fontSize: 16,
+                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+                          color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
                         ),
                       ),
-                      SizedBox(height: widget.value == 'Hostel' ? 10 : 6),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            style: GoogleFonts.notoSansDevanagari(
-                              fontSize: 14,
-                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                              color: isSelected ? AppTheme.brandColor : const Color(0xFF1E293B),
-                              height: 1.2,
-                            ),
-                            children: [
-                              TextSpan(text: nepaliText),
-                              if (englishText.isNotEmpty) ...[
-                                TextSpan(
-                                  text: ' / ',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: isSelected ? AppTheme.brandColor.withOpacity(0.5) : Colors.grey[400],
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: englishText,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                    letterSpacing: -0.2,
-                                  ),
-                                ),
-                              ],
-                            ],
+                      if (englishText.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          englishText,
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            color: isSelected ? AppTheme.brandColor.withOpacity(0.8) : Colors.grey[500],
                           ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
-
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected ? AppTheme.brandColor : Colors.transparent,
+                    border: Border.all(
+                      color: isSelected ? AppTheme.brandColor : Colors.grey.shade300,
+                      width: 2,
+                    ),
+                  ),
+                  child: isSelected
+                      ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
+                      : null,
+                ),
               ],
             ),
           ),

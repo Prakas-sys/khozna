@@ -570,7 +570,7 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                 // Instant Chat Button
                 _buildSidebarIconButton(
                   icon: SvgPicture.asset(
-                    'assets/icons/Message neww.svg',
+                    'assets/icons/Vectorproepty card meeasge.svg',
                     width: 22,
                     height: 22,
                     colorFilter: const ColorFilter.mode(
@@ -810,12 +810,11 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
-                                    'VIEW NOW',
+                                    'View Now',
                                     style: GoogleFonts.plusJakartaSans(
                                       color: Colors.white,
                                       fontSize: 11,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 0.8,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ],

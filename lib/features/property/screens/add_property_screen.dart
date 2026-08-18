@@ -625,19 +625,13 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       subtitle: '',
       content: [
         const SizedBox(height: 8),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 0.95,
+        Column(
           children: [
             CategoryCard(
               label: 'कोठा / Room',
               imagePath: 'assets/images/Room New.png',
               value: 'Room',
-              imageScale: 1.6,
+              imageScale: 1.3,
               selectedValue: _selectedCategory,
               onSelect: (v) {
                 setState(() => _selectedCategory = v);
@@ -645,11 +639,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
               },
             ),
+            const SizedBox(height: 12),
             CategoryCard(
               label: 'फ्ल्याट / Flat',
               imagePath: 'assets/images/flat (2).png',
               value: 'Flat',
-              imageScale: 1.5,
+              imageScale: 1.3,
               selectedValue: _selectedCategory,
               onSelect: (v) {
                 setState(() => _selectedCategory = v);
@@ -657,11 +652,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
               },
             ),
+            const SizedBox(height: 12),
             CategoryCard(
               label: 'कटेज / Cottage',
               imagePath: 'assets/images/cottage (2).png',
               value: 'Cottage',
-              imageScale: 1.5,
+              imageScale: 1.3,
               selectedValue: _selectedCategory,
               onSelect: (v) {
                 setState(() => _selectedCategory = v);
@@ -669,11 +665,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
               },
             ),
+            const SizedBox(height: 12),
             CategoryCard(
               label: 'होस्टल / Hostel',
               imagePath: 'assets/images/Hotel.png',
               value: 'Hostel',
-              imageScale: 1.5,
+              imageScale: 1.3,
               selectedValue: _selectedCategory,
               onSelect: (v) {
                 setState(() => _selectedCategory = v);
@@ -681,6 +678,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 Future.delayed(const Duration(milliseconds: 300), () => _nextStep());
               },
             ),
+            const SizedBox(height: 12),
             CategoryCard(
               label: 'अन्य / Other',
               imagePath: 'assets/images/other image.png',
