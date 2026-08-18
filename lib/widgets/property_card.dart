@@ -377,7 +377,7 @@ class PropertyCard extends StatelessWidget {
                           Expanded(
                             child: SizedBox(
                               height: 38,
-                              child: ElevatedButton.icon(
+                              child: ElevatedButton(
                                 onPressed: () async {
                                   HapticFeedback.lightImpact();
                                   if (!AuthGuard.checkAuth(
@@ -398,32 +398,37 @@ class PropertyCard extends StatelessWidget {
                                     );
                                   }
                                 },
-                                icon: SvgPicture.asset(
-                                  'assets/images/view now.svg',
-                                  width: 15,
-                                  height: 10,
-                                  colorFilter: const ColorFilter.mode(
-                                    Colors.white,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                                label: Text(
-                                  'View Now',
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13.5,
-                                    height: 1.0,
-                                  ),
-                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppTheme.brandColor,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  padding: EdgeInsets.zero,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(100),
                                   ),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/images/view now.svg',
+                                      width: 14,
+                                      height: 10,
+                                      colorFilter: const ColorFilter.mode(
+                                        Colors.white,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'View Now',
+                                      style: GoogleFonts.inter(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -432,7 +437,7 @@ class PropertyCard extends StatelessWidget {
                           Expanded(
                             child: SizedBox(
                               height: 38,
-                              child: OutlinedButton.icon(
+                              child: OutlinedButton(
                                 onPressed: () async {
                                   HapticFeedback.lightImpact();
                                   if (!AuthGuard.checkAuth(
@@ -457,34 +462,39 @@ class PropertyCard extends StatelessWidget {
                                     );
                                   }
                                 },
-                                icon: SvgPicture.asset(
-                                  'assets/icons/Message neww.svg',
-                                  width: 15.5,
-                                  height: 15.5,
-                                  colorFilter: const ColorFilter.mode(
-                                    AppTheme.brandColor,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                                label: Text(
-                                  'Message',
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13.5,
-                                    height: 1.0,
-                                  ),
-                                ),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: AppTheme.brandColor,
                                   side: const BorderSide(
                                     color: AppTheme.brandColor,
                                     width: 1.2,
                                   ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                  padding: EdgeInsets.zero,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(100),
                                   ),
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/icons/Message neww.svg',
+                                      width: 15,
+                                      height: 15,
+                                      colorFilter: const ColorFilter.mode(
+                                        AppTheme.brandColor,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'Message',
+                                      style: GoogleFonts.inter(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),

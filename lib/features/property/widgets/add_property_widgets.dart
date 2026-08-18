@@ -933,79 +933,83 @@ class CounterField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.notoSansDevanagari(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF374151),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildBtn(Icons.remove_rounded, onDecrement),
-              Row(
-                children: [
-                  Icon(icon, size: 18, color: AppTheme.brandColor.withOpacity(0.7)),
-                  const SizedBox(width: 8),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    transitionBuilder: (Widget child, Animation<double> animation) {
-                      return ScaleTransition(scale: animation, child: child);
-                    },
-                    child: Text(
-                      value.isEmpty ? '0' : value,
-                      key: ValueKey<String>(value),
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: const Color(0xFF111827),
-                      ),
-                    ),
-                  ),
-                ],
+    final int count = int.tryParse(value) ?? 0;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: const Color(0xFF9CA3AF)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              label,
+              style: GoogleFonts.notoSansDevanagari(
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF111827),
               ),
-              _buildBtn(Icons.add_rounded, onIncrement),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBtn(IconData icon, Function() onTap) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
             ),
-          ],
-        ),
-        child: Icon(icon, size: 20, color: const Color(0xFF1F2937)),
+          ),
+          // Minus
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              onDecrement();
+            },
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: count > 0 ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                  width: 1,
+                ),
+              ),
+              child: Icon(
+                Icons.remove,
+                size: 16,
+                color: count > 0 ? const Color(0xFF374151) : const Color(0xFFD1D5DB),
+              ),
+            ),
+          ),
+          // Count
+          SizedBox(
+            width: 40,
+            child: Text(
+              '$count',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: const Color(0xFF111827),
+              ),
+            ),
+          ),
+          // Plus
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              onIncrement();
+            },
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xFF374151),
+                  width: 1,
+                ),
+              ),
+              child: const Icon(
+                Icons.add,
+                size: 16,
+                color: Color(0xFF374151),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1026,64 +1030,51 @@ class FloorSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final floors = ['Ground', '1st', '2nd', '3rd', '4th', '5th+'];
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: GoogleFonts.notoSansDevanagari(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF374151),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF6B7280),
           ),
         ),
         const SizedBox(height: 10),
-        SizedBox(
-          height: 46,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: floors.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final floor = floors[index];
-              final isSelected = selectedFloor == floor;
-              return GestureDetector(
-                onTap: () {
-                  HapticFeedback.selectionClick();
-                  onSelect(floor);
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.brandColor : const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
-                      width: 1.2,
-                    ),
-                    boxShadow: isSelected ? [
-                      BoxShadow(
-                        color: AppTheme.brandColor.withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      )
-                    ] : null,
-                  ),
-                  child: Text(
-                    floor,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                      color: isSelected ? Colors.white : const Color(0xFF4B5563),
-                    ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: floors.map((floor) {
+            final isSelected = selectedFloor == floor;
+            return GestureDetector(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                onSelect(floor);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFF111827) : Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: isSelected ? const Color(0xFF111827) : const Color(0xFFE5E7EB),
+                    width: 1,
                   ),
                 ),
-              );
-            },
-          ),
+                child: Text(
+                  floor,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                    color: isSelected ? Colors.white : const Color(0xFF6B7280),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
@@ -1120,21 +1111,22 @@ class QuickSizeSelector extends StatelessWidget {
               onSelect(e.value);
             },
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              duration: const Duration(milliseconds: 150),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.black87 : Colors.white,
+                color: isSelected ? const Color(0xFF111827) : Colors.white,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: isSelected ? Colors.black87 : const Color(0xFFE2E8F0),
+                  color: isSelected ? const Color(0xFF111827) : const Color(0xFFE5E7EB),
+                  width: 1,
                 ),
               ),
               child: Text(
                 e.key,
                 style: GoogleFonts.inter(
                   fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: isSelected ? Colors.white : Colors.grey[600],
+                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
+                  color: isSelected ? Colors.white : const Color(0xFF6B7280),
                 ),
               ),
             ),
@@ -1165,60 +1157,56 @@ class PriceInputField extends StatelessWidget {
         Text(
           label,
           style: GoogleFonts.notoSansDevanagari(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF374151),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF6B7280),
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 7),
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
           child: Row(
             children: [
               Text(
                 'Rs.',
                 style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: AppTheme.brandColor,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF6B7280),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: TextField(
                   controller: controller,
                   keyboardType: TextInputType.number,
                   style: GoogleFonts.inter(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
                     color: const Color(0xFF111827),
                   ),
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: '0',
-                    hintStyle: GoogleFonts.inter(color: Colors.grey[300]),
+                    hintStyle: GoogleFonts.inter(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w400,
+                      color: const Color(0xFFD1D5DB),
+                    ),
                   ),
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Text(
-                  suffix,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.grey[500],
-                  ),
+              Text(
+                suffix,
+                style: GoogleFonts.notoSansDevanagari(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  color: const Color(0xFF9CA3AF),
                 ),
               ),
             ],

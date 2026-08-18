@@ -856,30 +856,22 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       title: 'कोठा र तल्लाको विवरण',
       subtitle: 'बेडरुम, बाथरुम र क्षेत्रफलको जानकारी दिनुहोस्।',
       content: [
-        Row(
-          children: [
-            Expanded(
-              child: CounterField(
-                label: 'बेडरुम (Beds)',
-                icon: Icons.bed_rounded,
-                value: _bedroomsController.text,
-                onIncrement: () => _updateCount(_bedroomsController, 1),
-                onDecrement: () => _updateCount(_bedroomsController, -1),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: CounterField(
-                label: 'बाथरुम (Baths)',
-                icon: Icons.shower_rounded,
-                value: _bathroomsController.text,
-                onIncrement: () => _updateCount(_bathroomsController, 1),
-                onDecrement: () => _updateCount(_bathroomsController, -1),
-              ),
-            ),
-          ],
+        CounterField(
+          label: 'बेडरुम (Bedrooms)',
+          icon: Icons.bed_outlined,
+          value: _bedroomsController.text,
+          onIncrement: () => _updateCount(_bedroomsController, 1),
+          onDecrement: () => _updateCount(_bedroomsController, -1),
         ),
-        const SizedBox(height: 16),
+        const Divider(height: 1, color: Color(0xFFF1F5F9)),
+        CounterField(
+          label: 'बाथरुम (Bathrooms)',
+          icon: Icons.shower_outlined,
+          value: _bathroomsController.text,
+          onIncrement: () => _updateCount(_bathroomsController, 1),
+          onDecrement: () => _updateCount(_bathroomsController, -1),
+        ),
+        const Divider(height: 1, color: Color(0xFFF1F5F9)),
         CounterField(
           label: 'अतिथि संख्या (Guests)',
           icon: Icons.people_outline_rounded,
