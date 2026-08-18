@@ -855,34 +855,37 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               const SizedBox(height: 16),
 
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'TOTAL AMOUNT',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey[500],
-                          letterSpacing: 0.5,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'TOTAL AMOUNT',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey[500],
+                            letterSpacing: 0.5,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Advance Rent (1 Month)',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
+                        const SizedBox(height: 2),
+                        Text(
+                          'Advance Rent (1 Month)',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 12),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Transform.translate(
                         offset: const Offset(0, 1),
@@ -897,13 +900,18 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                         ),
                       ),
                       const SizedBox(width: 3),
-                      Text(
-                        amountStr,
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black,
-                          letterSpacing: -0.5,
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 130),
+                        child: Text(
+                          amountStr,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                            letterSpacing: -0.5,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                       Text(
@@ -1145,11 +1153,13 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
                 child: Text(
                   number,
                   style: GoogleFonts.outfit(
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: Colors.black,
-                    letterSpacing: 0.5,
+                    letterSpacing: 0,
                   ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
               GestureDetector(
@@ -1198,13 +1208,21 @@ class _PaymentChoiceScreenState extends State<PaymentChoiceScreen> {
               border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildFlowPill('1', 'Copy ID'),
-                Icon(Icons.chevron_right_rounded, size: 16, color: Colors.grey[400]),
-                _buildFlowPill('2', 'Transfer'),
-                Icon(Icons.chevron_right_rounded, size: 16, color: Colors.grey[400]),
-                _buildFlowPill('3', 'Upload Proof'),
+                const Icon(Icons.info_outline_rounded, size: 14, color: Color(0xFF64748B)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Copy the ID → Transfer the amount → Upload your screenshot below.',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF475569),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),

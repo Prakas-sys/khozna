@@ -2059,20 +2059,24 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         ),
                       ),
                       const SizedBox(width: 2),
-                      Text(
-                        isNegotiable
-                            ? 'Negotiable'
-                            : PriceFormatter.format(price.toStringAsFixed(0)),
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: isNegotiable ? 17 : 21,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.black,
-                          letterSpacing: -0.6,
-                          decoration: isNegotiable
-                              ? TextDecoration.none
-                              : TextDecoration.underline,
-                          decorationColor: Colors.black,
-                          decorationThickness: 1.5,
+                      Flexible(
+                        child: Text(
+                          isNegotiable
+                              ? 'Negotiable'
+                              : PriceFormatter.format(price.toStringAsFixed(0)),
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: isNegotiable ? 17 : 21,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black,
+                            letterSpacing: -0.6,
+                            decoration: isNegotiable
+                                ? TextDecoration.none
+                                : TextDecoration.underline,
+                            decorationColor: Colors.black,
+                            decorationThickness: 1.5,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                       if (!isNegotiable) ...[
@@ -2434,22 +2438,23 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: const Color(0xFFE5E7EB),
-                    width: 1.5,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF3F4F6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.12),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.flash_on_rounded,
-                        color: Colors.black,
+                        color: Colors.white,
                         size: 24,
                       ),
                     ),
@@ -2458,28 +2463,51 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Instant Booking',
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF111827),
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                'Instant Booking',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'QUICK PAY',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            'Pay an advance to reserve this property instantly.',
+                            'Rs. ${PriceFormatter.format(widget.property.priceMonth > 0 ? widget.property.priceMonth.toStringAsFixed(0) : (double.tryParse(widget.property.price) ?? 0).toStringAsFixed(0))} advance to reserve instantly.',
                             style: GoogleFonts.inter(
                               fontSize: 11.5,
-                              color: const Color(0xFF6B7280),
+                              color: Colors.white.withOpacity(0.7),
                             ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ],
                       ),
                     ),
                     const Icon(
                       Icons.arrow_forward_ios_rounded,
-                      color: Color(0xFF9CA3AF),
+                      color: Colors.white,
                       size: 14,
                     ),
                   ],
