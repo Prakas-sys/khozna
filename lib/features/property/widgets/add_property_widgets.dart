@@ -779,6 +779,117 @@ class PropertyFormField extends StatelessWidget {
   }
 }
 
+class AmenityCategory {
+  final String title;
+  final List<AmenityItem> items;
+
+  const AmenityCategory({required this.title, required this.items});
+}
+
+class AmenityItem {
+  final String id;
+  final String label;
+  final IconData icon;
+
+  const AmenityItem({required this.id, required this.label, required this.icon});
+}
+
+class CategorizedAmenitiesGrid extends StatelessWidget {
+  final List<String> selectedItems;
+  final Function(String) onToggle;
+  final List<AmenityCategory> categories;
+
+  const CategorizedAmenitiesGrid({
+    super.key,
+    required this.selectedItems,
+    required this.onToggle,
+    required this.categories,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: categories.map((cat) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                cat.title,
+                style: GoogleFonts.notoSansDevanagari(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(height: 12),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: cat.items.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 1.05,
+                ),
+                itemBuilder: (context, index) {
+                  final item = cat.items[index];
+                  final isSelected = selectedItems.contains(item.id);
+                  return GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      onToggle(item.id);
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppTheme.brandColor : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            item.icon,
+                            color: isSelected ? Colors.white : const Color(0xFF6B7280),
+                            size: 20,
+                          ),
+                          const SizedBox(height: 6),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Text(
+                              item.label,
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.notoSansDevanagari(
+                                fontSize: 11,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                color: isSelected ? Colors.white : const Color(0xFF374151),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
 class AmenitiesGrid extends StatelessWidget {
   final List<String> selectedItems;
   final Map<String, IconData> icons;

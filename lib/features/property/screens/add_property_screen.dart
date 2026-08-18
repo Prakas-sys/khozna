@@ -40,7 +40,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final TextEditingController _priceNightController = TextEditingController();
   final TextEditingController _bedroomsController = TextEditingController();
   final TextEditingController _bathroomsController = TextEditingController();
-  final TextEditingController _guestsController = TextEditingController(text: '1');
+  final TextEditingController _guestsController = TextEditingController(text: '0');
   final TextEditingController _floorController = TextEditingController();
   final TextEditingController _sqftController = TextEditingController();
   final TextEditingController _videoCaptionController = TextEditingController();
@@ -853,7 +853,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
   Widget _buildStepBasics() {
     return StepLayout(
-      title: 'कोठा र तल्लाको विवरण',
+      title: 'Property Details',
       subtitle: 'बेडरुम, बाथरुम र क्षेत्रफलको जानकारी दिनुहोस्।',
       content: [
         CounterField(
@@ -903,62 +903,56 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   Widget _buildStepAmenities() {
+    final categories = const [
+      AmenityCategory(
+        title: '🏠 Essential amenities',
+        items: [
+          AmenityItem(id: 'internet', label: 'Wi-Fi', icon: Icons.wifi_rounded),
+          AmenityItem(id: 'kitchen', label: 'Kitchen', icon: Icons.kitchen_rounded),
+          AmenityItem(id: 'attached_bathroom', label: 'Bathroom', icon: Icons.shower_rounded),
+          AmenityItem(id: 'furnished', label: 'Furnished', icon: Icons.chair_rounded),
+          AmenityItem(id: 'laundry', label: 'Washing Machine', icon: Icons.local_laundry_service_rounded),
+          AmenityItem(id: 'ac', label: 'Air Conditioning', icon: Icons.ac_unit_rounded),
+        ],
+      ),
+      AmenityCategory(
+        title: '🚗 Building / property',
+        items: [
+          AmenityItem(id: 'parking_car', label: 'Car Parking', icon: Icons.local_parking_rounded),
+          AmenityItem(id: 'parking_bike', label: 'Bike Parking', icon: Icons.two_wheeler_rounded),
+          AmenityItem(id: 'elevator', label: 'Elevator', icon: Icons.elevator_rounded),
+          AmenityItem(id: 'security', label: 'Security', icon: Icons.security_rounded),
+          AmenityItem(id: 'balcony', label: 'Balcony', icon: Icons.balcony_rounded),
+          AmenityItem(id: 'rooftop', label: 'Rooftop', icon: Icons.roofing_rounded),
+        ],
+      ),
+      AmenityCategory(
+        title: '🛡️ Trust & Rules',
+        items: [
+          AmenityItem(id: 'family_friendly', label: 'Family Friendly', icon: Icons.family_restroom_rounded),
+          AmenityItem(id: 'student_friendly', label: 'Student Friendly', icon: Icons.school_rounded),
+          AmenityItem(id: 'pets_allowed', label: 'Pets Allowed', icon: Icons.pets_rounded),
+          AmenityItem(id: 'cleaning_service', label: 'Cleaning Service', icon: Icons.cleaning_services_rounded),
+        ],
+      ),
+      AmenityCategory(
+        title: '🇳🇵 Nepal-specific',
+        items: [
+          AmenityItem(id: 'water_24_7', label: '24/7 Water', icon: Icons.water_damage_rounded),
+          AmenityItem(id: 'drinking_water', label: 'Drinking Water', icon: Icons.water_drop_rounded),
+          AmenityItem(id: 'solar', label: 'Solar / Backup', icon: Icons.solar_power_rounded),
+          AmenityItem(id: 'public_transport', label: 'Public Transport', icon: Icons.directions_bus_rounded),
+        ],
+      ),
+    ];
+
     return StepLayout(
-      title: 'के-के सुविधाहरू छन्?',
-      subtitle: 'राम्रो सुविधाहरूले धेरै ग्राहक आकर्षित गर्छ।',
+      title: 'सुविधाहरू (Amenities)',
+      subtitle: 'सम्पत्तिमा उपलब्ध मुख्य सुविधाहरू छान्नुहोस्।',
       content: [
-        AmenitiesGrid(
+        CategorizedAmenitiesGrid(
           selectedItems: _selectedAmenities,
-          icons: const {
-            'water_24_7': Icons.water_drop_rounded,
-            'internet': Icons.wifi_rounded,
-            'parking_bike': Icons.motorcycle_rounded,
-            'parking_car': Icons.directions_car_rounded,
-            'ac': Icons.ac_unit_rounded,
-            'furnished': Icons.chair_rounded,
-            'attached_bathroom': Icons.bathtub_rounded,
-            'kitchen': Icons.kitchen_rounded,
-            'hot_water': Icons.hot_tub_rounded,
-            'sunny_room': Icons.wb_sunny_rounded,
-            'balcony': Icons.balcony_rounded,
-            'swimming_pool': Icons.pool_rounded,
-            'gym': Icons.fitness_center_rounded,
-            'garden': Icons.yard_rounded,
-            'cctv': Icons.videocam_rounded,
-            'security': Icons.security_rounded,
-            'elevator': Icons.elevator_rounded,
-            'power_backup': Icons.electric_bolt_rounded,
-            'solar': Icons.solar_power_rounded,
-            'laundry': Icons.local_laundry_service_rounded,
-            'waste_mgmt': Icons.delete_outline_rounded,
-            'peaceful': Icons.nature_people_rounded,
-            'rooftop': Icons.roofing_rounded,
-          },
-          labels: const {
-            'water_24_7': '२४ सै घण्टा पानी',
-            'internet': 'इन्टरनेट (WiFi)',
-            'parking_bike': 'बाइक पार्किङ',
-            'parking_car': 'कार पार्किङ',
-            'ac': 'एसी (AC)',
-            'furnished': 'फर्निचर सहित',
-            'attached_bathroom': 'एट्याच्ड बाथरुम',
-            'kitchen': 'छुट्टै भान्सा',
-            'hot_water': 'तातो पानी',
-            'sunny_room': 'घाम लाग्ने कोठा',
-            'balcony': 'बालकोनी (Balcony)',
-            'swimming_pool': 'पौडी पोखरी (Pool)',
-            'gym': 'जिम (Gym)',
-            'garden': 'बगैचा / Garden',
-            'cctv': 'CC क्यामेरा',
-            'security': 'सेक्युरिटी गार्ड',
-            'elevator': 'लिफ्ट (Elevator)',
-            'power_backup': 'पावर ब्याकअप',
-            'solar': 'सोलार सुबिधा',
-            'laundry': 'लुगा धुने ठाउँ',
-            'waste_mgmt': 'फोहोर उठाउने',
-            'peaceful': 'शान्त वातावरण',
-            'rooftop': 'छत (Rooftop)',
-          },
+          categories: categories,
           onToggle: _toggleAmenity,
         ),
       ],
@@ -1651,88 +1645,71 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
     
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        decoration: BoxDecoration(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        decoration: const BoxDecoration(
           color: Colors.white,
-          border: Border(top: BorderSide(color: Colors.grey.shade100, width: 1)),
+          border: Border(top: BorderSide(color: Color(0xFFF1F5F9), width: 1)),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (_currentStep > 0)
-              Expanded(
-                flex: 1,
-                child: OutlinedButton(
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    _pageController.previousPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                    setState(() => _currentStep--);
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF4B5563),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: BorderSide(color: Colors.grey.shade200),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(32),
-                    ),
+              TextButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _pageController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                  setState(() => _currentStep--);
+                },
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  foregroundColor: const Color(0xFF111827),
+                ),
+                child: Text(
+                  'Back',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    decoration: TextDecoration.underline,
                   ),
-                  child: Text(
-                    'Back',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                    ),
-                  ),
+                ),
+              )
+            else
+              const SizedBox.shrink(),
+            ElevatedButton(
+              onPressed: isLastStep
+                  ? (_isPublishing ? null : _nextStep)
+                  : () {
+                      HapticFeedback.mediumImpact();
+                      _nextStep();
+                    },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 13),
+                backgroundColor: AppTheme.brandColor,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-            if (_currentStep > 0) const SizedBox(width: 12),
-            Expanded(
-              flex: 2,
-              child: ElevatedButton(
-                onPressed: isLastStep
-                    ? (_isPublishing ? null : _nextStep)
-                    : () {
-                        HapticFeedback.mediumImpact();
-                        _nextStep();
-                      },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: AppTheme.brandColor,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                ),
-                child: _isPublishing
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2.5,
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            isLastStep ? 'Publish' : 'Next',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 17,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            isLastStep ? Icons.check_circle_rounded : Icons.arrow_forward_ios_rounded,
-                            size: 18,
-                          ),
-                        ],
+              child: _isPublishing
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
                       ),
-              ),
+                    )
+                  : Text(
+                      isLastStep ? 'Publish' : 'Next',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
+                      ),
+                    ),
             ),
           ],
         ),
