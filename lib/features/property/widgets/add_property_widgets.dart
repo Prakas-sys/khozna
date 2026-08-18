@@ -548,25 +548,25 @@ class StepLayout extends StatelessWidget {
           titleWidget ?? Text(
             title,
             style: GoogleFonts.notoSansDevanagari(
-              fontSize: 21,
+              fontSize: 22,
               fontWeight: FontWeight.w700,
               color: const Color(0xFF111827),
               height: 1.2,
             ),
           ),
           if (subtitle.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 5),
             Text(
               subtitle,
               style: GoogleFonts.notoSansDevanagari(
-                fontSize: 15,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: const Color(0xFF9CA3AF),
+                fontWeight: FontWeight.w400,
                 height: 1.4,
               ),
             ),
           ],
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           ...content,
         ],
       ),
@@ -702,9 +702,9 @@ class PropertyFormField extends StatelessWidget {
               child: Text(
                 label,
                 style: GoogleFonts.notoSansDevanagari(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF374151),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF6B7280),
                 ),
               ),
             ),
@@ -712,13 +712,14 @@ class PropertyFormField extends StatelessWidget {
               const Text(
                 ' *',
                 style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFEF4444),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 7),
         TextField(
           controller: controller,
           focusNode: focusNode,
@@ -727,20 +728,20 @@ class PropertyFormField extends StatelessWidget {
           onChanged: onChanged,
           style: GoogleFonts.inter(
             fontSize: 15,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w400,
             color: const Color(0xFF111827),
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.notoSansDevanagari(
               fontSize: 14,
-              color: Colors.grey[400],
-              fontWeight: FontWeight.w500,
+              color: const Color(0xFFD1D5DB),
+              fontWeight: FontWeight.w400,
             ),
             filled: true,
-            fillColor: const Color(0xFFF8FAFC),
+            fillColor: Colors.white,
             prefixIcon: prefixIcon != null 
-                ? Icon(prefixIcon, size: 18, color: Colors.grey[400]) 
+                ? Icon(prefixIcon, size: 17, color: const Color(0xFFD1D5DB)) 
                 : null,
             suffixIcon: suffix != null 
                 ? Padding(
@@ -754,21 +755,21 @@ class PropertyFormField extends StatelessWidget {
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
-              vertical: 18,
+              vertical: 16,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0), width: 1.2),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(
                 color: AppTheme.brandColor,
-                width: 2,
+                width: 1.5,
               ),
             ),
           ),
@@ -800,41 +801,35 @@ class AmenitiesGrid extends StatelessWidget {
       itemCount: icons.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.0,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 1.05,
       ),
       itemBuilder: (context, index) {
         final key = icons.keys.elementAt(index);
         final isSelected = selectedItems.contains(key);
         return GestureDetector(
-          onTap: () => onToggle(key),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onToggle(key);
+          },
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 180),
             decoration: BoxDecoration(
               color: isSelected ? AppTheme.brandColor : Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? AppTheme.brandColor : const Color(0xFFE2E8F0),
-                width: 1.2,
+                color: isSelected ? AppTheme.brandColor : const Color(0xFFE5E7EB),
+                width: 1,
               ),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: AppTheme.brandColor.withOpacity(0.2),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : [],
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   icons[key],
-                  color: isSelected ? Colors.white : Colors.grey[600],
-                  size: 24,
+                  color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
+                  size: 22,
                 ),
                 const SizedBox(height: 6),
                 Padding(
@@ -844,13 +839,9 @@ class AmenitiesGrid extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     style: GoogleFonts.notoSansDevanagari(
-                      fontSize: 12,
-                      fontWeight: isSelected
-                          ? FontWeight.w700
-                          : FontWeight.w600,
-                      color: isSelected
-                          ? Colors.white
-                          : const Color(0xFF4B5563),
+                      fontSize: 11.5,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: isSelected ? Colors.white : const Color(0xFF6B7280),
                     ),
                   ),
                 ),

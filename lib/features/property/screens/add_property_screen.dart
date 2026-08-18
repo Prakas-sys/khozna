@@ -766,110 +766,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       ),
       subtitle: 'तपाईंको घर वा कोठा रहेको टोल र मुख्य ठाउँ उल्लेख गर्नुहोस्।',
       content: [
-        // Clean GPS Card
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: _latitude != null ? const Color(0xFF16A34A) : const Color(0xFFE2E8F0),
-              width: 1.2,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    _latitude != null ? Icons.check_circle_rounded : Icons.my_location_rounded,
-                    color: _latitude != null ? const Color(0xFF16A34A) : AppTheme.brandColor,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      _latitude != null ? 'GPS स्थान सेभ भयो' : 'हालको GPS स्थान सेभ गर्नुहोस्',
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1E293B),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'नक्सामा सही स्थान जोड्दा ग्राहकलाई तपाईंको सम्पत्ति भेटाउन सजिलो हुन्छ।',
-                style: GoogleFonts.notoSansDevanagari(
-                  fontSize: 12,
-                  color: const Color(0xFF64748B),
-                  height: 1.35,
-                ),
-              ),
-              const SizedBox(height: 14),
-              if (_showLocationNudge && _latitude == null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Text(
-                    'कृपया नक्सामा लोकेशन सेट गर्नुहोस्!',
-                    style: GoogleFonts.notoSansDevanagari(
-                      color: const Color(0xFFDC2626),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              SizedBox(
-                width: double.infinity,
-                height: 44,
-                child: OutlinedButton.icon(
-                  onPressed: _isLocating
-                      ? null
-                      : () {
-                          setState(() => _showLocationNudge = false);
-                          _detectLocation();
-                        },
-                  icon: _isLocating
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(
-                          _latitude != null ? Icons.verified_rounded : Icons.near_me_rounded,
-                          size: 18,
-                        ),
-                  label: Text(
-                    _isLocating
-                        ? 'लोकेशन खोज्दै छ...'
-                        : (_latitude != null ? 'स्थान प्रमाणित गरियो ✓' : 'मेरो हालको स्थान प्रयोग गर्नुहोस्'),
-                    style: GoogleFonts.notoSansDevanagari(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: _latitude != null ? const Color(0xFF16A34A) : AppTheme.brandColor,
-                    side: BorderSide(
-                      color: _latitude != null ? const Color(0xFF16A34A) : AppTheme.brandColor,
-                      width: 1.5,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        // Form Fields
+        // Clean Form Fields
         PropertyFormField(
           label: 'टोल वा क्षेत्रको नाम (Area / Tole)',
           hint: 'उदा: ललितपुर, सानेपा-२',
@@ -877,7 +774,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           isRequired: true,
           prefixIcon: Icons.location_on_outlined,
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 16),
         PropertyFormField(
           label: 'नजिकैको मुख्य ठाउँ (Landmark)',
           hint: 'उदा: स्टार अस्पताल नजिकै / Civil Bank',
@@ -885,13 +782,59 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           isRequired: true,
           prefixIcon: Icons.near_me_outlined,
         ),
+        const SizedBox(height: 20),
+
+        // Simple Minimalist GPS Trigger Button
+        InkWell(
+          onTap: _isLocating
+              ? null
+              : () {
+                  setState(() => _showLocationNudge = false);
+                  _detectLocation();
+                },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              children: [
+                Icon(
+                  _latitude != null ? Icons.check_circle_rounded : Icons.my_location_rounded,
+                  color: _latitude != null ? const Color(0xFF16A34A) : AppTheme.brandColor,
+                  size: 20,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  _isLocating
+                      ? 'लोकेशन खोज्दै छ...'
+                      : (_latitude != null ? 'GPS स्थान सेभ भयो ✓' : 'हालको GPS स्थान जोड्नुहोस्'),
+                  style: GoogleFonts.notoSansDevanagari(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: _latitude != null ? const Color(0xFF16A34A) : AppTheme.brandColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_showLocationNudge && _latitude == null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              'कृपया लोकेशन सेभ गर्नुहोस्!',
+              style: GoogleFonts.notoSansDevanagari(
+                color: const Color(0xFFDC2626),
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+          ),
         const SizedBox(height: 24),
 
         // Simple Privacy Text
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.lock_outline_rounded, size: 16, color: Color(0xFF94A3B8)),
+            const Icon(Icons.lock_outline_rounded, size: 15, color: Color(0xFF94A3B8)),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -899,7 +842,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 style: GoogleFonts.notoSansDevanagari(
                   fontSize: 12,
                   color: const Color(0xFF94A3B8),
-                  height: 1.3,
                 ),
               ),
             ),
@@ -1050,67 +992,43 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ),
         const SizedBox(height: 20),
 
-        // Negotiable Switch (Clean Human UI)
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: _isNegotiable ? AppTheme.brandColor : const Color(0xFFE2E8F0),
-              width: _isNegotiable ? 1.5 : 1.0,
+        // Negotiable Switch (Super Light & Minimalist)
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'भाडा मिलाउन सकिने (Negotiable)',
+                    style: GoogleFonts.notoSansDevanagari(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: const Color(0xFF1E293B),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'भाडामा मोलमोलाई वा छलफल गर्न मिल्नेछ।',
+                    style: GoogleFonts.notoSansDevanagari(
+                      fontSize: 12,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: _isNegotiable ? AppTheme.brandColor.withOpacity(0.1) : const Color(0xFFE2E8F0),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  Icons.handshake_outlined,
-                  color: _isNegotiable ? AppTheme.brandColor : const Color(0xFF64748B),
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'भाडा मिलाउन सकिने (Negotiable)',
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        color: const Color(0xFF1E293B),
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'भाडामा छलफल वा मोलमोलाई गर्न मिल्नेछ।',
-                      style: GoogleFonts.notoSansDevanagari(
-                        fontSize: 11.5,
-                        color: const Color(0xFF64748B),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Switch.adaptive(
-                value: _isNegotiable,
-                onChanged: (v) {
-                  HapticFeedback.lightImpact();
-                  setState(() => _isNegotiable = v);
-                },
-                activeColor: AppTheme.brandColor,
-              ),
-            ],
-          ),
+            Switch.adaptive(
+              value: _isNegotiable,
+              onChanged: (v) {
+                HapticFeedback.lightImpact();
+                setState(() => _isNegotiable = v);
+              },
+              activeColor: AppTheme.brandColor,
+            ),
+          ],
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 28),
 
         // ── House Rules Section ─────────────────────────────────────────────
         Text(
@@ -1154,102 +1072,59 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       title: 'फोटोहरू थप्नुहोस् (Add Photos)',
       subtitle: 'उज्यालो र सफा फोटोहरूले ग्राहकलाई छिटो आकर्षित गर्छ।',
       content: [
-        // Clean Counter Box
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: isGoalMet ? const Color(0xFF16A34A) : const Color(0xFFE2E8F0),
-              width: 1.2,
+        // Minimal Photo Counter
+        Row(
+          children: [
+            Icon(
+              isGoalMet ? Icons.check_circle_rounded : Icons.photo_library_outlined,
+              color: isGoalMet ? const Color(0xFF16A34A) : AppTheme.brandColor,
+              size: 18,
             ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    isGoalMet ? Icons.check_circle_rounded : Icons.photo_library_outlined,
-                    color: isGoalMet ? const Color(0xFF16A34A) : AppTheme.brandColor,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    isGoalMet ? 'कम्तिमा ५ फोटो पूरा भयो ✓' : 'अपलोड गरिएका फोटो: $photoCount / ५',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                      color: isGoalMet ? const Color(0xFF16A34A) : const Color(0xFF1E293B),
-                    ),
-                  ),
-                ],
+            const SizedBox(width: 8),
+            Text(
+              isGoalMet ? 'कम्तिमा ५ फोटो पूरा भयो ✓' : '$photoCount / ५ फोटो थपिएको',
+              style: GoogleFonts.notoSansDevanagari(
+                fontWeight: FontWeight.w600,
+                fontSize: 13.5,
+                color: isGoalMet ? const Color(0xFF16A34A) : const Color(0xFF475569),
               ),
-              Text(
-                '$photoCount वटा',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                  color: const Color(0xFF64748B),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 14),
 
-        // Clean Photo Upload Area
-        DottedBorder(
-          options: RoundedRectDottedBorderOptions(
-            radius: const Radius.circular(16),
-            strokeWidth: 1.5,
-            color: const Color(0xFF94A3B8),
-            dashPattern: const [6, 4],
-            padding: EdgeInsets.zero,
-          ),
-          child: GestureDetector(
-            onTap: _pickImages,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 28),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.add_a_photo_outlined,
-                      color: AppTheme.brandColor,
-                      size: 26,
-                    ),
+        // Simple Photo Upload Tap Row
+        GestureDetector(
+          onTap: _pickImages,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFCBD5E1), width: 1),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.add_a_photo_outlined, color: AppTheme.brandColor, size: 22),
+                const SizedBox(width: 10),
+                Text(
+                  'फोटोहरू छान्नुहोस्',
+                  style: GoogleFonts.notoSansDevanagari(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: AppTheme.brandColor,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'फोटोहरू छान्नुहोस्',
-                    style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: const Color(0xFF1E293B),
-                    ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  '(कम्तिमा ५)',
+                  style: GoogleFonts.notoSansDevanagari(
+                    fontSize: 12,
+                    color: const Color(0xFF64748B),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'कम्तिमा ५ वटा सफा फोटो राख्नुहोस्',
-                    style: GoogleFonts.notoSansDevanagari(
-                      fontSize: 12,
-                      color: const Color(0xFF64748B),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -1371,78 +1246,30 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ),
         const SizedBox(height: 32),
 
-        // Video Upload Box (Clean Human UI)
-        Text(
-          'सम्पत्तिको छोटो भिडियो (Property Reel / Video)',
-          style: GoogleFonts.notoSansDevanagari(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF1E293B),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'भिडियो राख्दा ग्राहकले विश्वास गर्छन् र छिटो सम्पर्क गर्छन्।',
-          style: GoogleFonts.notoSansDevanagari(
-            fontSize: 12,
-            color: const Color(0xFF64748B),
-          ),
-        ),
-        const SizedBox(height: 14),
+        // Video Upload — Minimal Tap Row
         GestureDetector(
           onTap: _pickVideo,
-          child: Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _selectedVideo != null ? const Color(0xFF16A34A) : const Color(0xFFE2E8F0),
-                width: 1.2,
+          child: Row(
+            children: [
+              Icon(
+                _selectedVideo != null ? Icons.check_circle_rounded : Icons.videocam_outlined,
+                color: _selectedVideo != null ? const Color(0xFF16A34A) : AppTheme.brandColor,
+                size: 20,
               ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: _selectedVideo != null ? const Color(0xFF16A34A).withOpacity(0.1) : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    _selectedVideo != null ? Icons.check_circle_rounded : Icons.videocam_outlined,
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _selectedVideo != null
+                      ? 'भिडियो सेभ भयो ✓ — फेर्न थिच्नुहोस्'
+                      : 'भिडियो थप्नुहोस् (ऐच्छिक — Reel / Short Video)',
+                  style: GoogleFonts.notoSansDevanagari(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
                     color: _selectedVideo != null ? const Color(0xFF16A34A) : AppTheme.brandColor,
-                    size: 24,
                   ),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _selectedVideo != null ? 'भिडियो सेभ भयो ✓' : 'भिडियो छान्नुहोस् (Choose Video)',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1E293B),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _selectedVideo != null 
-                            ? 'भिडियो फेर्न पुनः थिच्नुहोस्' 
-                            : 'मोवाइलबाट १-२ मिनेटको छोटो भिडियो राख्नुहोस्',
-                        style: GoogleFonts.notoSansDevanagari(
-                          fontSize: 11.5,
-                          color: const Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],
@@ -1661,55 +1488,35 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ),
         const SizedBox(height: 20),
 
-        // Optional QR Screenshot Upload
+        // Optional QR Screenshot — Minimal Tap Row
         GestureDetector(
           onTap: _pickPayoutImage,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _payoutQrImage != null ? const Color(0xFF16A34A) : const Color(0xFFE2E8F0),
-                width: 1.2,
-              ),
-            ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
                 Icon(
                   _payoutQrImage != null ? Icons.check_circle_rounded : Icons.qr_code_scanner_rounded,
                   color: _payoutQrImage != null ? const Color(0xFF16A34A) : const Color(0xFF64748B),
-                  size: 22,
+                  size: 20,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _payoutQrImage != null ? 'QR फोटो थपियो ✓' : 'QR कोड / फोटो (ऐच्छिक)',
-                        style: GoogleFonts.notoSansDevanagari(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13.5,
-                          color: const Color(0xFF1E293B),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'बैंक वा eSewa QR स्क्यानर फोटो राख्न सक्नुहुन्छ',
-                        style: GoogleFonts.notoSansDevanagari(
-                          fontSize: 11.5,
-                          color: const Color(0xFF64748B),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    _payoutQrImage != null
+                        ? 'QR फोटो थपियो ✓'
+                        : 'QR कोड वा भुक्तानी फोटो थप्नुहोस् (ऐच्छिक)',
+                    style: GoogleFonts.notoSansDevanagari(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: _payoutQrImage != null ? const Color(0xFF16A34A) : const Color(0xFF475569),
+                    ),
                   ),
                 ),
                 if (_payoutQrImage != null)
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(_payoutQrImage!, width: 36, height: 36, fit: BoxFit.cover),
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.file(_payoutQrImage!, width: 32, height: 32, fit: BoxFit.cover),
                   ),
               ],
             ),
