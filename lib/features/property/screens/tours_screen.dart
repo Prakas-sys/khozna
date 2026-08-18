@@ -799,20 +799,24 @@ class _ReelItemState extends State<_ReelItem> with SingleTickerProviderStateMixi
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  SvgPicture.asset(
+                                    'assets/images/view now.svg',
+                                    width: 14,
+                                    height: 14,
+                                    colorFilter: const ColorFilter.mode(
+                                      Colors.white,
+                                      BlendMode.srcIn,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
                                   Text(
-                                    'VISIT NOW',
+                                    'VIEW NOW',
                                     style: GoogleFonts.plusJakartaSans(
                                       color: Colors.white,
                                       fontSize: 11,
                                       fontWeight: FontWeight.w900,
                                       letterSpacing: 0.8,
                                     ),
-                                  ),
-                                  const SizedBox(width: 5),
-                                  const Icon(
-                                    Icons.arrow_forward_rounded,
-                                    color: Colors.white,
-                                    size: 14,
                                   ),
                                 ],
                               ),

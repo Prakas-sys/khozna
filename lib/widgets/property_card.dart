@@ -380,7 +380,7 @@ class PropertyCard extends StatelessWidget {
                                 HapticFeedback.lightImpact();
                                 if (!AuthGuard.checkAuth(
                                   context,
-                                  title: 'Visit Property',
+                                  title: 'View Property',
                                   message: 'Log in to view complete details of this property.',
                                 )) {
                                   return;
@@ -414,13 +414,18 @@ class PropertyCard extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    const Icon(
-                                      Icons.directions_walk_rounded,
-                                      size: 16,
+                                    SvgPicture.asset(
+                                      'assets/images/view now.svg',
+                                      width: 16,
+                                      height: 16,
+                                      colorFilter: const ColorFilter.mode(
+                                        Colors.white,
+                                        BlendMode.srcIn,
+                                      ),
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'Visit Now',
+                                      'View Now',
                                       style: GoogleFonts.plusJakartaSans(
                                         fontWeight: FontWeight.w700,
                                         fontSize: 13,

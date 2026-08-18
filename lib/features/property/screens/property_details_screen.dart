@@ -2082,7 +2082,7 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 32),
           ),
           child: Text(
-            'Visit Now',
+            'View Now',
             style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700),
           ),
         ),
@@ -2323,10 +2323,14 @@ class _PropertyDetailsScreenState extends State<PropertyDetailsScreen> {
                         color: AppTheme.brandColor.withOpacity(0.08),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.directions_walk_rounded,
-                        color: AppTheme.brandColor,
-                        size: 24,
+                      child: SvgPicture.asset(
+                        'assets/images/schedule visit.svg',
+                        width: 24,
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(
+                          AppTheme.brandColor,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
